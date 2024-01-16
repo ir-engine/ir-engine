@@ -83,9 +83,11 @@ function alignToClosestAxis(matrix1: Matrix4, matrix2: Matrix4): Matrix4 {
   const right = srcAxes[2] //find rotations for each axis to the closest dst axis
   const dstForward = findClosestAxis(forward, dstAxes)
   dstAxes.splice(dstAxes.indexOf(dstForward), 1)
-  const dstUp = findClosestAxis(up, dstAxes)
+  const upAxes = dstAxes.filter((axis) => axis.dot(dstForward) === 0)
+  const dstUp = findClosestAxis(up, upAxes)
   dstAxes.splice(dstAxes.indexOf(dstUp), 1)
-  const dstRight = findClosestAxis(right, dstAxes)
+  const rightAxes = dstAxes.filter((axis) => axis.dot(dstForward) === 0 && axis.dot(dstUp) === 0)
+  const dstRight = findClosestAxis(right, rightAxes)
   //create rotation matrix
   const rotation = new Matrix4()
   rotation.makeBasis(dstRight, dstUp, dstForward)
