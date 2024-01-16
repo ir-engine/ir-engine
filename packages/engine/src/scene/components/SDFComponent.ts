@@ -107,13 +107,12 @@ export const SDFComponent = defineComponent({
         shader.uniforms.uTime.value += dt * 0.1
       })
 
-      shader.uniforms.modelMatrix.value = sdfTranform.matrixWorld
       shader.uniforms.cameraMatrix.value = cameraTransform.matrix
       shader.uniforms.fov.value = cameraComponent.fov
       shader.uniforms.aspectRatio.value = cameraComponent.aspect
       shader.uniforms.near.value = cameraComponent.near
       shader.uniforms.far.value = cameraComponent.far
-      shader.uniforms.modelMatrix.value = sdfTranform.matrixWorld
+      shader.uniforms.sdfMatrix.value = sdfTranform.matrixWorld
       shader.uniforms.cameraPos.value = cameraPosition
       setComponent(updater, UpdatableComponent, true)
     }, [])

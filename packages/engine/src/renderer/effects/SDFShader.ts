@@ -65,7 +65,7 @@ const SDFShader = {
     uniform vec3 uColor;
     uniform vec3 scale;
     uniform int mode;
-    uniform mat4 modelMatrix;
+    uniform mat4 sdfMatrix;
     uniform vec3 lightDirection;
     varying vec2 vUv;
     varying float vViewZ;
@@ -158,7 +158,7 @@ const SDFShader = {
   
 
     float shortestDistanceToTorus(vec3 ro, vec2 t) {
-      ro = (inverse(modelMatrix) * vec4(ro, 1.0)).xyz;  
+      ro = (inverse(sdfMatrix) * vec4(ro, 1.0)).xyz;  
       return torus(ro, t).x;
     }
 
@@ -193,12 +193,12 @@ const SDFShader = {
     }
     
     vec3 rayMarchPhong(vec3 ro, vec3 rd) {
-      mat4 invModelMatrix = inverse(modelMatrix);
-      //ro= (invModelMatrix * vec4(ro, 1.0)).xyz;
+      mat4 invsdfMatrix = inverse(sdfMatrix);
+      //ro= (invsdfMatrix * vec4(ro, 1.0)).xyz;
       float d = 0.0;
       for (int i = 0; i < MAX_STEPS && d < MAX_DIST; i++) {
           vec3 p = ro + rd * d;
-          //p = (modelMatrix * vec4(p, 1.0)).xyz;
+          //p = (sdfMatrix * vec4(p, 1.0)).xyz;
           float dist = shortestDistanceToTorus(p, vec2(0.5, 0.2));
           if (dist < MIN_DIST) {
             //reconstruct depth texture to linear space
@@ -318,7 +318,7 @@ const SDFShader = {
       noiseTexture: new Uniform(generateNoiseTexture(128)),
       scale: new Uniform(new Vector3(0.25, 0.001, 0.25)),
       mode: new Uniform(0),
-      modelMatrix: new Uniform(new Matrix4().identity()),
+      sdfMatrix: new Uniform(new Matrix4().identity()),
       lightDirection: new Uniform(new Vector3(1.0, 0.5, 1.0))
     }
   })
