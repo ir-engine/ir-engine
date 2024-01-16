@@ -30,7 +30,7 @@ import { v4 } from 'uuid'
 import {
   InstanceServerSettingQuery,
   InstanceServerSettingType
-} from '@etherealengine/engine/src/schemas/setting/instance-server-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/instance-server-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'

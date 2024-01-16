@@ -30,7 +30,7 @@ import {
   taskServerSettingPatchSchema,
   taskServerSettingQuerySchema,
   taskServerSettingSchema
-} from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/task-server-setting.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

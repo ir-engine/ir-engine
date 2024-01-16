@@ -36,8 +36,6 @@ export const MeshComponent = defineComponent({
 
   onSet: (entity, component, mesh: Mesh) => {
     if (!mesh || !mesh.isMesh) throw new Error('MeshComponent: Invalid mesh')
-
     component.set(mesh)
-    MeshComponent.valueMap[entity] = mesh
   }
 })

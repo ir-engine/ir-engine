@@ -58,6 +58,13 @@ import {
 } from '@etherealengine/hyperflux'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import {
+  RecordingID,
+  recordingPath,
+  RecordingSchemaType,
+  UserID,
+  userPath
+} from '@etherealengine/common/src/schema.type.module'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
@@ -68,12 +75,6 @@ import {
 } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import {
-  RecordingID,
-  recordingPath,
-  RecordingSchemaType
-} from '@etherealengine/engine/src/schemas/recording/recording.schema'
-import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import matches, { Validator } from 'ts-matches'
 import { checkScope } from '../common/functions/checkScope'
 import { isClient } from '../common/functions/getEnvironment'

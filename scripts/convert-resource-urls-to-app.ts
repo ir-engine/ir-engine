@@ -27,12 +27,12 @@ Ethereal Engine. All Rights Reserved.
 import appRootPath from 'app-root-path'
 import knex from 'knex'
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
-import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
+import { createFeathersKoaApp, serverJobPipe } from '@etherealengine/server-core/src/createApp'
 
 dotenv.config({
   path: appRootPath.path,
@@ -72,7 +72,7 @@ cli.main(async () => {
     })
 
     console.log('options', options)
-    const app = createFeathersKoaApp(ServerMode.API)
+    const app = createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
 
     const staticResources = await knexClient.from<StaticResourceType>(staticResourcePath)

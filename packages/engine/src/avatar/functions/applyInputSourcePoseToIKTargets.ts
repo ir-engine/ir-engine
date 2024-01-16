@@ -263,10 +263,10 @@ const leftHandOffset = new Quaternion().setFromEuler(new Euler(0, -Math.PI / 2, 
 const footBlendTransitionMultiplier = 0.5
 
 //set offsets so hands align with controllers. Multiplying two quaternions because gimbal lock in euler angles prevents setting the offset in one quaternion
-const leftControllerOffset = new Quaternion()
+export const leftControllerOffset = new Quaternion()
   .setFromEuler(new Euler(0, -Math.PI / 2, 0))
   .multiply(new Quaternion().setFromEuler(new Euler(Math.PI / 4, 0, 0)))
-const rightControllerOffset = new Quaternion()
+export const rightControllerOffset = new Quaternion()
   .setFromEuler(new Euler(0, Math.PI / 2, 0))
   .multiply(new Quaternion().setFromEuler(new Euler(Math.PI / 4, 0, 0)))
 
@@ -316,6 +316,9 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
     }
   }
 
+  /** In miniature mode, IK doesn't make much sense */
+  if (!isCameraAttachedToAvatar) return
+
   const inverseWorldScale = 1 / XRState.worldScale
 
   const localClientTransform = getComponent(localClientEntity, TransformComponent)
@@ -340,11 +343,10 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
         if (wrist) {
           const jointPose = xrFrame.getJointPose(wrist, referenceSpace)
           if (jointPose) {
-            ikTransform.position
-              .copy(jointPose.transform.position as unknown as Vector3)
-              .sub(localClientTransform.position)
-              .multiplyScalar(inverseWorldScale)
-              .add(localClientTransform.position)
+            ikTransform.position.copy(jointPose.transform.position as unknown as Vector3)
+            // .sub(localClientTransform.position)
+            // .multiplyScalar(inverseWorldScale)
+            // .add(localClientTransform.position)
             ikTransform.rotation.copy(jointPose.transform.orientation as unknown as Quaternion)
             ikTransform.rotation.multiply(handedness === 'right' ? rightHandOffset : leftHandOffset)
           }
@@ -357,11 +359,10 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
         if (inputSourceComponent.source.gripSpace) {
           const pose = xrFrame.getPose(inputSourceComponent.source.gripSpace, referenceSpace)
           if (pose) {
-            ikTransform.position
-              .copy(pose.transform.position as any as Vector3)
-              .sub(localClientTransform.position)
-              .multiplyScalar(inverseWorldScale)
-              .add(localClientTransform.position)
+            ikTransform.position.copy(pose.transform.position as any as Vector3)
+            // .sub(localClientTransform.position)
+            // .multiplyScalar(inverseWorldScale)
+            // .add(localClientTransform.position)
             ikTransform.rotation
               .copy(pose.transform.orientation as any as Quaternion)
               .multiply(handedness === 'right' ? rightControllerOffset : leftControllerOffset)

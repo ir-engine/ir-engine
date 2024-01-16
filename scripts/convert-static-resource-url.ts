@@ -27,13 +27,10 @@ Ethereal Engine. All Rights Reserved.
 import appRootPath from 'app-root-path'
 import knex from 'knex'
 /* eslint-disable @typescript-eslint/no-var-requires */
-import {
-  StaticResourceDatabaseType,
-  staticResourcePath
-} from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { StaticResourceDatabaseType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
-import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
+import { createFeathersKoaApp, serverJobPipe } from '@etherealengine/server-core/src/createApp'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
@@ -58,7 +55,7 @@ cli.main(async () => {
       }
     })
 
-    const app = createFeathersKoaApp(ServerMode.API)
+    const app = createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
 
     type UpdatedStaticResourceType = StaticResourceDatabaseType & {

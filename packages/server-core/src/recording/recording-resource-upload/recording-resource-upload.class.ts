@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { ServiceInterface } from '@feathersjs/feathers/lib/declarations'
 
-import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
+import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+import { recordingResourcePath } from '@etherealengine/common/src/schemas/recording/recording-resource.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'

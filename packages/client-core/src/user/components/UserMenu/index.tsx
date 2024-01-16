@@ -30,9 +30,10 @@ import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconBut
 
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
+import { AppState } from '../../../common/services/AppService'
 import { useShelfStyles } from '../../../components/Shelves/useShelfStyles'
-import styles from './index.module.scss'
 import { PopupMenuServices, PopupMenuState } from './PopupMenuService'
+import styles from './index.module.scss'
 
 export const UserMenu = () => {
   const popupMenuState = useHookstate(getMutableState(PopupMenuState))
@@ -62,7 +63,9 @@ export const UserMenu = () => {
                     title={hotbarItem.tooltip}
                     icon={hotbarItem.icon}
                     sizePx={50}
-                    onClick={() => PopupMenuServices.showPopupMenu(id)}
+                    onClick={() => {
+                      if (getState(AppState).showBottomShelf) PopupMenuServices.showPopupMenu(id)
+                    }}
                     sx={{
                       cursor: 'pointer',
                       background: 'var(--iconButtonBackground)'

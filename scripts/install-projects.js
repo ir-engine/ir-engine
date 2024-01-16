@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { projectPath } from '@etherealengine/common/src/schema.type.module'
 import logger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
-import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
+import { createFeathersKoaApp, serverJobPipe } from '@etherealengine/server-core/src/createApp'
 import { createDefaultStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import { download } from '@etherealengine/server-core/src/projects/project/downloadProjects'
 import { getProjectConfig, onProjectEvent } from '@etherealengine/server-core/src/projects/project/project-helper'
@@ -49,7 +49,7 @@ db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.ho
 
 async function installAllProjects() {
   try {
-    const app = createFeathersKoaApp(ServerMode.API)
+    const app = createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
     createDefaultStorageProvider()
     const localProjectDirectory = path.join(appRootPath.path, 'packages/projects/projects')

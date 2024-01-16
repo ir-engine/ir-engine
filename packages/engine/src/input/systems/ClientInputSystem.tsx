@@ -112,7 +112,7 @@ export const addClientInputListeners = () => {
     const entity = createEntity()
     setComponent(entity, InputSourceComponent, { source })
     setComponent(entity, EntityTreeComponent, {
-      parentEntity: session?.interactionMode === 'world-space' ? Engine.instance.originEntity : null
+      parentEntity: session?.interactionMode === 'world-space' ? Engine.instance.originEntity : UndefinedEntity
     })
     setComponent(entity, TransformComponent)
     setComponent(entity, NameComponent, 'InputSource-handed:' + source.handedness + '-mode:' + source.targetRayMode)
@@ -582,7 +582,7 @@ const SceneObjectEntityReactor = (props: { entity: Entity }) => {
   useEffect(() => {
     if (!isMeshOrModel) return
 
-    setComponent(props.entity, InputComponent)
+    setComponent(props.entity, InputComponent, { highlight: getState(EngineState).isEditing })
     return () => {
       removeComponent(props.entity, InputComponent)
     }

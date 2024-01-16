@@ -48,8 +48,8 @@ import { getModelResources } from '@etherealengine/engine/src/scene/functions/lo
 import { useHookstate } from '@etherealengine/hyperflux'
 import { getMutableState, NO_PROXY, State } from '@etherealengine/hyperflux/functions/StateFunctions'
 
+import { modelTransformPath } from '@etherealengine/common/src/schema.type.module'
 import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
-import { modelTransformPath } from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
 import exportGLTF from '../../functions/exportGLTF'
 import { SelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
@@ -71,7 +71,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
   const transformParms = useHookstate<ModelTransformParameters>({
     ...DefaultModelTransformParameters,
     src: modelState.src.value,
-    modelFormat: modelState.src.value.endsWith('.gltf') ? 'gltf' : 'glb'
+    modelFormat: modelState.src.value.endsWith('.gltf') ? 'gltf' : modelState.src.value.endsWith('.vrm') ? 'vrm' : 'glb'
   })
 
   const vertexBakeOptions = useHookstate({
@@ -211,8 +211,8 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
   }, [modelState.src])
 
   useEffect(() => {
-    transformParms.resources.set(getModelResources(entity))
-  }, [modelState.scene])
+    transformParms.resources.set(getModelResources(entity, transformParms.value))
+  }, [modelState.scene, transformParms])
 
   return (
     <CollapsibleBlock label="Model Transform Properties">
@@ -283,7 +283,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
           <InputGroup name="matcap" label="matcap">
             <TexturePreviewInput
               value={vertexBakeOptions.matcapPath.value}
-              onChange={(val: string) => {
+              onRelease={(val: string) => {
                 vertexBakeOptions.matcapPath.set(val)
               }}
             />

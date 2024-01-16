@@ -203,6 +203,9 @@ if (positionY < lowerOffset) {
   updateDissolveEffect(entity: Entity, mesh: Mesh<BufferGeometry, ShaderMaterial>, deltaTime: number) {
     const dissolveComponent = getComponent(entity, UVOLDissolveComponent)
     if (!dissolveComponent) return true
+
+    if (!mesh.material.uniforms.progress) return true
+
     dissolveComponent.currentTime += deltaTime
     if (!mesh.geometry.boundingBox) {
       mesh.geometry.computeBoundingBox()

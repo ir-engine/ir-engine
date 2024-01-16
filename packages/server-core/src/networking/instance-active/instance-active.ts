@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   instanceActiveMethods,
   instanceActivePath
-} from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
+} from '@etherealengine/common/src/schemas/networking/instance-active.schema'
 import { Application } from '../../../declarations'
 import { InstanceActiveService } from './instance-active.class'
 import instanceActiveDocs from './instance-active.docs'

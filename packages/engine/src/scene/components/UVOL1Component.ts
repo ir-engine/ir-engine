@@ -271,8 +271,15 @@ function UVOL1Reactor() {
     processFrame(frameToPlay)
   })
 
+  useEffect(() => {
+    video.playbackRate = volumetric.currentTrackInfo.playbackRate.value
+  }, [volumetric.currentTrackInfo.playbackRate])
+
   useExecute(
     () => {
+      //do not execute if the cortoloader has not been initialized
+      if (getState(AssetLoaderState).cortoLoader === null) return
+
       const delta = getState(EngineState).deltaSeconds
 
       if (

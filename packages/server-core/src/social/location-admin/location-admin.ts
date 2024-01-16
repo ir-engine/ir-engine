@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   locationAdminMethods,
   locationAdminPath
-} from '@etherealengine/engine/src/schemas/social/location-admin.schema'
+} from '@etherealengine/common/src/schemas/social/location-admin.schema'
 
 // Initializes the `location-admin` service on path `/location-admin`
 import { Application } from '../../../declarations'

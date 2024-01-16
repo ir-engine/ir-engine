@@ -30,6 +30,7 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineQuery,
   getComponent,
+  getOptionalComponent,
   getOptionalMutableComponent,
   hasComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -65,7 +66,7 @@ const execute = () => {
     /** @todo for some reason, the animation clips do not apply their data to the proxified quaternions */
     if (hasComponent(entity, ModelComponent))
       traverseEntityNode(entity, (childEntity) => {
-        const mesh = getComponent(childEntity, MeshComponent)
+        const mesh = getOptionalComponent(childEntity, MeshComponent)
         if (!mesh) return
         const rotation = getComponent(childEntity, TransformComponent).rotation
         rotation.copy(mesh.quaternion)
@@ -78,7 +79,7 @@ const execute = () => {
   for (const entity of loopAnimationQuery()) {
     const model = getComponent(entity, ModelComponent)
     if (model.asset instanceof VRM) {
-      updateVRMRetargeting(model.asset)
+      updateVRMRetargeting(model.asset, entity)
     }
   }
 }
