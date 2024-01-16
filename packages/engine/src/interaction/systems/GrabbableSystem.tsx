@@ -52,6 +52,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import {
   defineQuery,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -204,13 +205,13 @@ export function transferAuthorityOfObjectReceptor(
 
 // since grabbables are all client authoritative, we don't need to recompute this for all users
 export function grabbableQueryAll(grabbableEntity: Entity) {
-  const grabbedComponent = getComponent(grabbableEntity, GrabbedComponent)
+  const grabbedComponent = getOptionalComponent(grabbableEntity, GrabbedComponent)
   if (!grabbedComponent) return
   const attachmentPoint = grabbedComponent.attachmentPoint
 
   const target = getHandTarget(grabbedComponent.grabberEntity, attachmentPoint ?? 'right')!
 
-  const rigidbodyComponent = getComponent(grabbableEntity, RigidBodyComponent)
+  const rigidbodyComponent = getOptionalComponent(grabbableEntity, RigidBodyComponent)
 
   if (rigidbodyComponent) {
     rigidbodyComponent.targetKinematicPosition.copy(target.position)
@@ -232,7 +233,7 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
   TransformComponent.getWorldPosition(entity, xruiTransform.position)
 
   if (hasComponent(xrui.entity, VisibleComponent)) {
-    const boundingBox = getComponent(entity, BoundingBoxComponent)
+    const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
     if (boundingBox) {
       const boundingBoxHeight = boundingBox.box.max.y - boundingBox.box.min.y
       xruiTransform.position.y += boundingBoxHeight * 2
