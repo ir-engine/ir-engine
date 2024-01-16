@@ -32,7 +32,8 @@ import {
   Mesh,
   MeshBasicMaterial,
   SpotLight,
-  TorusGeometry
+  TorusGeometry,
+  Vector3
 } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
@@ -46,6 +47,7 @@ import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { ObjectLayers } from '../constants/ObjectLayers'
+import { useUpdateLight } from '../functions/useUpdateLight'
 import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { NameComponent } from './NameComponent'
 import { setVisibleComponent } from './VisibleComponent'
@@ -56,7 +58,7 @@ export const SpotLightComponent = defineComponent({
 
   onInit: (entity) => {
     const light = new SpotLight()
-    light.target.position.set(0, -1, 0)
+    light.target.position.set(1, 0, 0)
     light.target.name = 'light-target'
     return {
       color: new Color(),
@@ -173,10 +175,9 @@ export const SpotLightComponent = defineComponent({
     useEffect(() => {
       if (!debugEnabled.value) return
       const ringGeom = new TorusGeometry(0.1, 0.025, 8, 12)
-      ringGeom.rotateX(Math.PI / 2)
       const coneGeom = new ConeGeometry(0.25, 0.5, 8, 1, true)
       coneGeom.translate(0, -0.25, 0)
-
+      coneGeom.rotateX(-Math.PI / 2)
       const geom = mergeBufferGeometries([ringGeom, coneGeom])!
       const helper = new Mesh(
         geom,
@@ -200,6 +201,10 @@ export const SpotLightComponent = defineComponent({
       }
     }, [debugEnabled])
 
+    useUpdateLight(light.light.value)
+
     return null
   }
 })
+
+const _vec3 = new Vector3()

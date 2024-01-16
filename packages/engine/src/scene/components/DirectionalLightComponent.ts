@@ -41,10 +41,9 @@ import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { useExecute } from '../../ecs/functions/SystemFunctions'
 import { RendererState } from '../../renderer/RendererState'
-import { TransformSystem } from '../../transform/TransformModule'
 import { ObjectLayers } from '../constants/ObjectLayers'
+import { useUpdateLight } from '../functions/useUpdateLight'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { NameComponent } from './NameComponent'
 import { setVisibleComponent } from './VisibleComponent'
@@ -263,15 +262,7 @@ export const DirectionalLightComponent = defineComponent({
       }
     }, [debugEnabled])
 
-    useExecute(
-      () => {
-        const light = directionalLightComponent.light.value
-        light.getWorldDirection(_vec3)
-        light.getWorldPosition(light.target.position).add(_vec3)
-        light.target.updateMatrixWorld()
-      },
-      { after: TransformSystem }
-    )
+    useUpdateLight(directionalLightComponent.light.value)
 
     return null
   }
