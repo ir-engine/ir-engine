@@ -33,8 +33,6 @@ export const BoneComponent = defineComponent({
 
   onSet: (entity, component, mesh: Bone) => {
     if (!mesh || !mesh.isBone) throw new Error('BoneComponent: Invalid bone')
-
     component.set(mesh)
-    BoneComponent.valueMap[entity] = mesh
   }
 })

@@ -81,6 +81,7 @@ import { ShadowComponent } from '@etherealengine/engine/src/scene/components/Sha
 
 import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
+import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
 import LinkNodeEditor from '../components/properties/LinkNodeEditor'
 import LoopAnimationNodeEditor from '../components/properties/LoopAnimationNodeEditor'
@@ -98,6 +99,7 @@ import PositionalAudioNodeEditor from '../components/properties/PositionalAudioN
 import { PostProcessingSettingsEditor } from '../components/properties/PostProcessingSettingsEditor'
 import PrimitiveGeometryNodeEditor from '../components/properties/PrimitiveGeometryNodeEditor'
 import { RenderSettingsEditor } from '../components/properties/RenderSettingsEditor'
+import SDFEditor from '../components/properties/SDFEditor'
 import SceneNodeEditor from '../components/properties/SceneNodeEditor'
 import ScenePreviewCameraNodeEditor from '../components/properties/ScenePreviewCameraNodeEditor'
 import ShadowProperties from '../components/properties/ShadowProperties'
@@ -125,6 +127,7 @@ EntityNodeEditor.set(AmbientLightComponent, AmbientLightNodeEditor)
 EntityNodeEditor.set(ObjectGridSnapComponent, ObjectGridSnapEditor)
 EntityNodeEditor.set(PointLightComponent, PointLightNodeEditor)
 EntityNodeEditor.set(SpotLightComponent, SpotLightNodeEditor)
+EntityNodeEditor.set(SDFComponent, SDFEditor)
 EntityNodeEditor.set(GroundPlaneComponent, GroundPlaneNodeEditor)
 EntityNodeEditor.set(MeshComponent, MeshNodeEditor)
 EntityNodeEditor.set(ModelComponent, ModelNodeEditor)

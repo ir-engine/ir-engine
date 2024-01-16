@@ -105,7 +105,7 @@ describe('SceneLoadingSystem', () => {
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
       getComponent(rootEntity, EntityTreeComponent).parentEntity,
-      null,
+      UndefinedEntity,
       'root entity does not have parentEntity'
     )
 
@@ -226,7 +226,7 @@ describe('SceneLoadingSystem', () => {
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
       getComponent(rootEntity, EntityTreeComponent).parentEntity,
-      null,
+      UndefinedEntity,
       'root entity does not have parentEntity'
     )
 
@@ -287,7 +287,7 @@ describe('SceneLoadingSystem', () => {
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
       getComponent(rootEntity, EntityTreeComponent).parentEntity,
-      null,
+      UndefinedEntity,
       'root entity does not have parentEntity'
     )
 
@@ -353,7 +353,7 @@ describe('SceneLoadingSystem', () => {
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
       getComponent(rootEntity, EntityTreeComponent).parentEntity,
-      null,
+      UndefinedEntity,
       'root entity does not have parentEntity'
     )
 
@@ -475,7 +475,7 @@ describe('SceneLoadingSystem', () => {
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
       getComponent(rootEntity, EntityTreeComponent).parentEntity,
-      null,
+      UndefinedEntity,
       'root entity does not have parentEntity'
     )
     // load scene with model component
@@ -593,7 +593,7 @@ describe('SceneLoadingSystem', () => {
 
     assert.equal(
       getComponent(rootEntity, EntityTreeComponent).parentEntity,
-      null,
+      UndefinedEntity,
       'root entity does not have parentEntity'
     )
 
@@ -746,7 +746,7 @@ describe('Snapshots', () => {
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
       getComponent(rootEntity, EntityTreeComponent).parentEntity,
-      null,
+      UndefinedEntity,
       'root entity does not have parentEntity'
     )
 
@@ -888,7 +888,7 @@ describe('Snapshots', () => {
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
       getComponent(rootEntity, EntityTreeComponent).parentEntity,
-      null,
+      UndefinedEntity,
       'root entity does not have parentEntity'
     )
 
@@ -1029,7 +1029,7 @@ describe('Snapshots', () => {
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
       getComponent(rootEntity, EntityTreeComponent).parentEntity,
-      null,
+      UndefinedEntity,
       'root entity does not have parentEntity'
     )
 
