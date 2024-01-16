@@ -31,7 +31,7 @@ import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { BoneComponent } from '../../avatar/components/BoneComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   ComponentJSONIDMap,
   ComponentMap,
@@ -185,9 +185,9 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
     parent: {
       get() {
         if (EngineRenderer.instance?.rendering) return null
-        if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
+        if (getOptionalComponent(objEntity, EntityTreeComponent)?.parentEntity) {
           const result =
-            getComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)?.[0] ??
+            getOptionalComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)?.[0] ??
             Engine.instance.scene
           return result ?? null
         }
@@ -258,7 +258,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   obj.removeFromParent = () => {
     if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
       setComponent(objEntity, EntityTreeComponent, {
-        parentEntity: null
+        parentEntity: UndefinedEntity
       })
     }
     return obj

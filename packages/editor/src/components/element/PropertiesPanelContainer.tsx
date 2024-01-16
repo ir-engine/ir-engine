@@ -28,7 +28,11 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { useAllComponents, useOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  useAllComponents,
+  useComponent,
+  useOptionalComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { getMutableState } from '@etherealengine/hyperflux'
 
@@ -59,13 +63,11 @@ const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
   const anchorEl = useHookstate<HTMLButtonElement | null>(null)
   const { t } = useTranslation()
 
-  const uuid = useOptionalComponent(entity, UUIDComponent)
+  const uuid = useComponent(entity, UUIDComponent)
 
   const components = useAllComponents(entity).filter((c) => EntityNodeEditor.has(c))
 
   const open = !!anchorEl.value
-
-  if (!uuid) return null
 
   return (
     <PopoverContext.Provider

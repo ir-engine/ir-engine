@@ -107,7 +107,7 @@ const resaveAllProjects = async () => {
     // } as any)
 
     // const sceneState = getState(SceneState)
-    // setComponent(sceneState.sceneEntity, EntityTreeComponent, { parentEntity: null!, uuid: sceneJson.root })
+    // setComponent(sceneState.sceneEntity, EntityTreeComponent, { parentEntity: UndefinedEntity, uuid: sceneJson.root })
     // updateSceneEntity(sceneJson.root, sceneJson.entities[sceneJson.root])
     // updateSceneEntitiesFromJSON(sceneJson.root)
 
