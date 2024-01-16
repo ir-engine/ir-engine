@@ -369,7 +369,7 @@ const assetLoadCallback =
 
 const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : getState(EngineState).publicPath + url)
 
-type LoadingArgs = {
+export type LoadingArgs = {
   ignoreDisposeGeometry?: boolean
   forceAssetType?: AssetType
   assetRoot?: Entity

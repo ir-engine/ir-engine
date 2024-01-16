@@ -30,9 +30,9 @@ import { NO_PROXY, createState, getMutableState, getState, none, useHookstate } 
 
 import { VRM } from '@pixiv/three-vrm'
 import React from 'react'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import { ResourceManager, ResourceType } from '../../assets/state/ResourceState'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
 import { autoconvertMixamoAvatar, isAvaturn } from '../../avatar/functions/avatarFunctions'
@@ -166,7 +166,9 @@ function ModelReactor(): JSX.Element {
     /** @todo this is a hack */
     const override = !isAvaturn(model.src) ? undefined : AssetType.glB
 
-    AssetLoader.load(
+    ResourceManager.load(
+      entity,
+      ResourceType.GLTF,
       modelComponent.src.value,
       {
         forceAssetType: override,
