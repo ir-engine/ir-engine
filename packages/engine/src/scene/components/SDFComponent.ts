@@ -43,6 +43,13 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { setCallback } from './CallbackComponent'
 import { UpdatableCallback, UpdatableComponent } from './UpdatableComponent'
 
+export enum SDFMode {
+  TORUS,
+  BOX,
+  SPHERE,
+  FOG
+}
+
 export const SDFComponent = defineComponent({
   name: 'SDFComponent',
   jsonID: 'SDF',
@@ -52,10 +59,7 @@ export const SDFComponent = defineComponent({
       color: new Color(0xffffff),
       scale: new Vector3(0.25, 0.001, 0.25),
       enable: false,
-      fog: false,
-      two: false,
-      torusPosition: new Vector3(0.0, 0.0, 0.0),
-      lightDirection: new Vector3(1.0, 0.5, 1.0)
+      mode: SDFMode.TORUS
     }
   },
   onSet: (entity, component, json) => {
@@ -63,34 +67,22 @@ export const SDFComponent = defineComponent({
     if (json.color?.isColor) {
       component.color.set(json.color)
     }
-    if (json.scale?.isVector3) {
-      component.scale.set(json.scale)
-    }
-    if (typeof json.enable == 'boolean') {
+    if (typeof json.enable === 'boolean') {
       component.enable.set(json.enable)
     }
-    if (typeof json.fog == 'boolean') {
-      component.fog.set(json.fog)
+    if (typeof json.mode === 'number') {
+      component.mode.set(json.mode)
     }
-    if (typeof json.two == 'boolean') {
-      component.two.set(json.two)
-    }
-    if (json.torusPosition?.isVector3) {
-      component.torusPosition.set(json.torusPosition)
-    }
-    if (json.lightDirection?.isVector3) {
-      component.lightDirection.set(json.lightDirection)
+    if (typeof json.scale === 'number') {
+      component.scale.set(json.scale)
     }
   },
   toJSON: (entity, component) => {
     return {
       color: component.color.value,
-      scale: component.scale.value,
       enable: component.enable.value,
-      fog: component.fog.value,
-      two: component.two.value,
-      torusPosition: component.torusPosition.value,
-      lightDirection: component.lightDirection.value
+      scale: component.scale.value,
+      mode: component.mode.value
     }
   },
 
@@ -115,6 +107,9 @@ export const SDFComponent = defineComponent({
       setCallback(updater, UpdatableCallback, (dt) => {
         shader.uniforms.uTime.value += dt * 0.1
       })
+
+      shader.uniforms.modelMatrix.value = sdfTranform.matrixWorld
+
       setComponent(updater, UpdatableComponent, true)
     }, [])
 
@@ -126,9 +121,6 @@ export const SDFComponent = defineComponent({
         shader.uniforms.aspectRatio.value = cameraComponent.aspect
         shader.uniforms.near.value = cameraComponent.near
         shader.uniforms.far.value = cameraComponent.far
-        if (shader.uniforms.torusPosition.value != sdfTranform.position) {
-          //shader.uniforms.torusPosition.value = sdfTranform.position
-        }
       },
       { after: CameraSystem }
     )
@@ -147,23 +139,12 @@ export const SDFComponent = defineComponent({
     }, [sdfComponent.color])
 
     useEffect(() => {
-      shader.uniforms.useFog.value = sdfComponent.fog.value
-    }, [sdfComponent.fog])
-
-    useEffect(() => {
-      shader.uniforms.two.value = sdfComponent.two.value
-    }, [sdfComponent.two])
-
-    useEffect(() => {
-      shader.uniforms.scale.value = sdfComponent.scale.value
+      shader.uniforms.uScale.value = sdfComponent.scale.value
     }, [sdfComponent.scale])
 
     useEffect(() => {
-      shader.uniforms.torusPosition.value = sdfComponent.torusPosition.value
-    }, [sdfComponent.torusPosition])
-    useEffect(() => {
-      shader.uniforms.lightDirection.value = sdfComponent.lightDirection.value
-    }, [sdfComponent.lightDirection])
+      shader.uniforms.mode.value = sdfComponent.mode.value
+    }, [sdfComponent.mode])
 
     return null
   }

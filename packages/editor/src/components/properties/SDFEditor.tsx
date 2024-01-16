@@ -26,14 +26,15 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
+import { SDFComponent, SDFMode } from '@etherealengine/engine/src/scene/components/SDFComponent'
 
 import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
+import SelectInput from '../inputs/SelectInput'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty, updateProperty } from './Util'
+import { EditorComponentType, commitProperty } from './Util'
 
 /**
  *
@@ -49,39 +50,21 @@ export const SDFEditor: EditorComponentType = (props) => {
       <InputGroup name="Add Pass" label={'add pass to postprocess'}>
         <BooleanInput value={sdfComponent.enable.value} onChange={commitProperty(SDFComponent, 'enable')} />
       </InputGroup>
-      <InputGroup name="Torus" label={'Torus'}></InputGroup>
-      <InputGroup name="light Direction" label={'light direction on torus'}>
-        <Vector3Input
-          value={sdfComponent.lightDirection.value}
-          onChange={updateProperty(SDFComponent, 'lightDirection')}
+      <InputGroup name="Mode" label="Mode">
+        <SelectInput
+          value={sdfComponent.mode.value}
+          options={[
+            { label: 'torus', value: SDFMode.TORUS },
+            { label: 'fog', value: SDFMode.FOG }
+          ]}
+          onChange={commitProperty(SDFComponent, 'mode')}
         />
       </InputGroup>
-      <InputGroup name="position" label={'torus position'}>
-        <Vector3Input
-          value={sdfComponent.torusPosition.value}
-          onChange={updateProperty(SDFComponent, 'torusPosition')}
-        />
+      <InputGroup name="Color" label="Color">
+        <ColorInput value={sdfComponent.color.value} onChange={commitProperty(SDFComponent, 'color')} />
       </InputGroup>
-      <InputGroup name="SDF" label={'color of torus'}>
-        <ColorInput value={sdfComponent.color.value} onChange={updateProperty(SDFComponent, 'color')} />
-      </InputGroup>
-      <InputGroup name="Two Torus" label={'two torus'}>
-        <BooleanInput
-          value={sdfComponent.two.value}
-          onChange={updateProperty(SDFComponent, 'two')}
-          onRelease={commitProperty(SDFComponent, 'two')}
-        />
-      </InputGroup>
-      <InputGroup name="Fog" label={'Fog'}></InputGroup>
-      <InputGroup name="Fog" label={'switch to fog'}>
-        <BooleanInput
-          value={sdfComponent.fog.value}
-          onChange={updateProperty(SDFComponent, 'fog')}
-          onRelease={commitProperty(SDFComponent, 'fog')}
-        />
-      </InputGroup>
-      <InputGroup name="Scale" label={'scale of fog'}>
-        <Vector3Input value={sdfComponent.scale.value} onChange={updateProperty(SDFComponent, 'scale')} />
+      <InputGroup name="Scale" label="Scale">
+        <Vector3Input value={sdfComponent.scale.value} onChange={commitProperty(SDFComponent, 'scale')} />
       </InputGroup>
     </NodeEditor>
   )

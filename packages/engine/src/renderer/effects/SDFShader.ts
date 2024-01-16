@@ -63,11 +63,9 @@ const SDFShader = {
     uniform float near;
     uniform float far;
     uniform vec3 uColor;
-    uniform bool useFog;
-    uniform bool two;
     uniform vec3 scale;
-    uniform vec3 torusPosition;
-    uniform vec3 lightDirection;
+    uniform int mode;
+    uniform mat4 modelMatrix;
     varying vec2 vUv;
     varying float vViewZ;
     #include <logdepthbuf_pars_fragment>
@@ -75,6 +73,11 @@ const SDFShader = {
     #define MAX_STEPS 100
     #define MIN_DIST 0.001
     #define MAX_DIST 5000.0
+
+    #define MODE_TORUS 0
+    #define MODE_BOX 1
+    #define MODE_SPHERE 2
+    #define MODE_FOG 3
 
     vec3 torus(vec3 p, vec2 t) {
       float angle = uTime;
@@ -178,33 +181,11 @@ const SDFShader = {
         shortestDistanceToTorus(p + vec3(0.0, 0.0, epsilon), torusParams) - shortestDistanceToTorus(p - vec3(0.0, 0.0, epsilon), torusParams)
       ));
     }
-    vec3 estimateNormal2(vec3 p, vec2 torusParams) {
-      float epsilon = 0.01; // Adjust
-      return normalize(vec3(
-        shortestDistanceToTorus2(p + vec3(epsilon, 0.0, 0.0), torusParams) - shortestDistanceToTorus2(p - vec3(epsilon, 0.0, 0.0), torusParams),
-        shortestDistanceToTorus2(p + vec3(0.0, epsilon, 0.0), torusParams) - shortestDistanceToTorus2(p - vec3(0.0, epsilon, 0.0), torusParams),
-        shortestDistanceToTorus2(p + vec3(0.0, 0.0, epsilon), torusParams) - shortestDistanceToTorus2(p - vec3(0.0, 0.0, epsilon), torusParams)
-      ));
-    }
-    vec3 estimateNormalUnion(vec3 p, vec2 torusParams1, vec2 torusParams2) {
-      float epsilon = 0.01;
 
-      float dist1 = shortestDistanceToTorus(p, torusParams1);
-      float dist2 = shortestDistanceToTorus2(p, torusParams2);  
-      // Choose the closest distance field
-      float closestDist = min(dist1, dist2);
-  
-      // Estimate the normal for the closest shape
-      vec3 normal1 = estimateNormal(p + vec3(epsilon, 0.0, 0.0), torusParams1);
-      vec3 normal2 = estimateNormal2(p + vec3(epsilon, 0.0, 0.0), torusParams2);
-    
-      vec3 closestNormal = (closestDist == dist1) ? normal1 : normal2;
-    
-      return normalize(closestNormal);
-  }
     float opUnion(float d1, float d2) {
       return min(d1, d2);
     }
+
     vec3 pal( in float t, in vec3 a, in vec3 b, in vec3 c, in vec3 d ) {
       return a + b*cos( 6.28318*(c*t+d) );
     }
@@ -212,9 +193,7 @@ const SDFShader = {
     vec3 spectrum(float n) {
       return pal( n, vec3(0.5,0.5,0.5),vec3(0.5,0.5,0.5),vec3(1.0,1.0,1.0),vec3(0.0,0.33,0.67) );
     }
-    
-     
-    
+        
     vec3 gamma(vec3 color, float g) {
       return pow(color, vec3(g));
     }
@@ -224,22 +203,14 @@ const SDFShader = {
       return gamma(linearRGB, 1.0 / GAMMA);
     }
     
-    
-
-
     vec3 rayMarchPhong(vec3 ro, vec3 rd) {
-      ro=ro - torusPosition;
+      ro= (modelMatrix * vec4(ro, 1.0)).xyz;
       float d = 0.0;
       for (int i = 0; i < MAX_STEPS && d < MAX_DIST; i++) {
           vec3 p = ro + rd * d;
           float dist = shortestDistanceToTorus(p, vec2(0.5, 0.2));
-          if(two){
-            dist = opUnion(shortestDistanceToTorus(p, vec2(0.5, 0.2)),shortestDistanceToTorus2(p, vec2(0.7, 0.3)));
-          }
           if (dist < MIN_DIST) {
             //reconstruct depth texture to linear space
-            //float cameraFar=100000.0;
-            //float cameraNear=0.001;
             float depth1 = texture2D(uDepth, vUv).r*0.5;
             float linearDepth1 = exp2(depth1 * log2(1.0 + 100000.0 / 0.001)) - 1.0;
             
@@ -249,9 +220,6 @@ const SDFShader = {
             }
               // Estimate normal
               vec3 normal = estimateNormal(p, vec2(0.5, 0.2));
-              if(two){
-                normal = estimateNormalUnion(p, vec2(0.5, 0.2), vec2(0.7, 0.3));
-              }  
               // Iridescent lighting
 
               vec3 eyeDirection = normalize(ro - p); 
@@ -322,26 +290,24 @@ const SDFShader = {
 
     // Existing code for texture
     gl_FragColor = texture2D(inputBuffer, uv);
-     
-    // Ray marching with correct world space direction
-    vec3 color = rayMarchPhong(cameraPos, viewDir);
-    if (color != vec3(-1.0)) {
-        gl_FragColor = vec4(color, 1.0);
-    }
-    
-    
-    if(useFog){
-    vec4 cloudColor = rayMarchClouds(cameraPos, viewDir);
+     if (mode == MODE_TORUS) {
+      // Ray marching with correct world space direction
+      vec3 color = rayMarchPhong(cameraPos, viewDir);
+      if (color != vec3(-1.0)) {
+          gl_FragColor = vec4(color, 1.0);
+      }
+    } else if (mode == MODE_FOG){
+      vec4 cloudColor = rayMarchClouds(cameraPos, viewDir);
 
-    // Get color from inputBuffer
-    vec4 backgroundColor = texture2D(inputBuffer, uv);
+      // Get color from inputBuffer
+      vec4 backgroundColor = texture2D(inputBuffer, uv);
 
-    // Blend using premultiplied alpha
-    vec4 outputColor;
-    outputColor.rgb = cloudColor.rgb * cloudColor.a + backgroundColor.rgb * (1.0 - cloudColor.a);
-    outputColor.a = 1.0;
+      // Blend using premultiplied alpha
+      vec4 outputColor;
+      outputColor.rgb = cloudColor.rgb * cloudColor.a + backgroundColor.rgb * (1.0 - cloudColor.a);
+      outputColor.a = 1.0;
 
-    gl_FragColor = outputColor;
+      gl_FragColor = outputColor;
     }
 
     #include <logdepthbuf_fragment>
@@ -360,9 +326,8 @@ const SDFShader = {
       uColor: new Uniform(new Vector3(0, 0, -2)),
       noiseTexture: new Uniform(generateNoiseTexture(128)),
       scale: new Uniform(new Vector3(0.25, 0.001, 0.25)),
-      useFog: new Uniform(true),
-      two: new Uniform(true),
-      torusPosition: new Uniform(new Vector3(0.0, 0.0, 0.0)),
+      mode: new Uniform(0),
+      modelMatrix: new Uniform(new Matrix4().identity()),
       lightDirection: new Uniform(new Vector3(1.0, 0.5, 1.0))
     }
   })
