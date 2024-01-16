@@ -31,7 +31,6 @@ import { useComponent } from '@etherealengine/engine/src/ecs/functions/Component
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { sceneUploadPath } from '@etherealengine/common/src/schema.type.module'
 import {
   blurAndScaleImageData,
   convertImageDataToKTX2Blob,
@@ -78,7 +77,9 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
   const uploadThumbnail = async () => {
     if (!state.thumbnail.value) return
     state.uploadingThumbnail.set(true)
-    const { promises } = uploadProjectFiles(sceneUploadPath, [state.thumbnail.value])
+    const editorState = getState(EditorState)
+    const projectName = editorState.projectName!
+    const { promises } = uploadProjectFiles(projectName, [state.thumbnail.value])
     const [[savedThumbnailURL]] = await Promise.all(promises)
     commitProperty(SceneSettingsComponent, 'thumbnailURL')(savedThumbnailURL)
     state.merge({
@@ -91,13 +92,17 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
   const createLoadingScreen = async () => {
     const envmapImageData = generateEnvmapBake(state.resolution.value)
     const blob = await imageDataToBlob(envmapImageData)
-    state.loadingScreenURL.set(URL.createObjectURL(blob!))
+    state.merge({
+      loadingScreenURL: URL.createObjectURL(blob!),
+      loadingScreenImageData: envmapImageData
+    })
   }
 
   const uploadLoadingScreen = async () => {
     const envmapImageData = state.loadingScreenImageData.value
     if (!envmapImageData) return
-    state.loadingScreenImageData.set(envmapImageData)
+    state.uploadingLoadingScreen.set(true)
+
     const loadingScreenImageData = blurAndScaleImageData(envmapImageData, 2048, 2048, 6, 512)
 
     const [envmap, loadingScreen] = await Promise.all([
@@ -135,7 +140,6 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
     image.crossOrigin = 'Anonymous'
     image.onload = () => {
       const palette = getImagePalette(image)
-      console.log(palette)
       if (palette) {
         commitProperties(SceneSettingsComponent, {
           primaryColor: palette.color,
