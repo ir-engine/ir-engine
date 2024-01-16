@@ -42,6 +42,7 @@ import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/compon
 import { PointLightComponent } from '@etherealengine/engine/src/scene/components/PointLightComponent'
 import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
+import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
@@ -102,7 +103,14 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
     DirectionalLightComponent,
     HemisphereLightComponent
   ],
-  FX: [LoopAnimationComponent, ShadowComponent, ParticleSystemComponent, EnvmapComponent, PostProcessingComponent],
+  FX: [
+    LoopAnimationComponent,
+    ShadowComponent,
+    ParticleSystemComponent,
+    EnvmapComponent,
+    SDFComponent,
+    PostProcessingComponent
+  ],
   Scripting: [SystemComponent, BehaveGraphComponent],
   Misc: [
     SceneSettingsComponent,
