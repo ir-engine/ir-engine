@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import getImagePalette from 'image-palette-core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -48,7 +49,7 @@ import ColorInput from '../inputs/ColorInput'
 import ImagePreviewInput from '../inputs/ImagePreviewInput'
 import InputGroup from '../inputs/InputGroup'
 import PropertyGroup from './PropertyGroup'
-import { EditorComponentType, commitProperty, updateProperty } from './Util'
+import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
 
 export const SceneSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -89,7 +90,6 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
 
   const createLoadingScreen = async () => {
     const envmapImageData = generateEnvmapBake(state.resolution.value)
-    state.loadingScreenImageData.set(envmapImageData)
     const blob = await imageDataToBlob(envmapImageData)
     state.loadingScreenURL.set(URL.createObjectURL(blob!))
   }
@@ -97,6 +97,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
   const uploadLoadingScreen = async () => {
     const envmapImageData = state.loadingScreenImageData.value
     if (!envmapImageData) return
+    state.loadingScreenImageData.set(envmapImageData)
     const loadingScreenImageData = blurAndScaleImageData(envmapImageData, 2048, 2048, 6, 512)
 
     const [envmap, loadingScreen] = await Promise.all([
@@ -127,62 +128,88 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
     })
   }
 
-  const generateColors = () => {}
+  const generateColors = () => {
+    const url = state.thumbnailURL.value ?? sceneSettingsComponent.thumbnailURL.value
+    if (!url) return
+    const image = new Image()
+    image.crossOrigin = 'Anonymous'
+    image.onload = () => {
+      const palette = getImagePalette(image)
+      console.log(palette)
+      if (palette) {
+        commitProperties(SceneSettingsComponent, {
+          primaryColor: palette.color,
+          backgroundColor: palette.backgroundColor,
+          alternativeColor: palette.alternativeColor
+        })
+      }
+    }
+    image.src = url
+  }
 
   return (
     <PropertyGroup
-      name={t('editor:properties.renderSettings.name')}
-      description={t('editor:properties.renderSettings.description')}
+      name={t('editor:properties.sceneSettings.name')}
+      description={t('editor:properties.sceneSettings.description')}
     >
       <InputGroup
         name="Thumbnail"
-        label={t('editor:properties.renderSettings.lbl-thumbnail')}
-        info={t('editor:properties.renderSettings.info-thumbnail')}
+        label={t('editor:properties.sceneSettings.lbl-thumbnail')}
+        info={t('editor:properties.sceneSettings.info-thumbnail')}
       >
         <PropertiesPanelButton onClick={createThumbnail}>
-          {t('editor:properties.sceneSettings.lbl-generate')}
+          {t('editor:properties.sceneSettings.generate')}
         </PropertiesPanelButton>
         {state.uploadingThumbnail.value ? (
           <LoadingCircle />
         ) : (
           <PropertiesPanelButton onClick={uploadThumbnail} disabled={!state.thumbnail.value}>
-            {t('editor:properties.sceneSettings.lbl-save')}
+            {t('editor:properties.sceneSettings.save')}
           </PropertiesPanelButton>
         )}
         <ImagePreviewInput value={state.thumbnailURL.value ?? sceneSettingsComponent.thumbnailURL.value} />
       </InputGroup>
       <InputGroup
         name="Loading Screen"
-        label={t('editor:properties.renderSettings.lbl-loading')}
-        info={t('editor:properties.renderSettings.info-loading')}
+        label={t('editor:properties.sceneSettings.lbl-loading')}
+        info={t('editor:properties.sceneSettings.info-loading')}
       >
         <PropertiesPanelButton onClick={createLoadingScreen}>
-          {t('editor:properties.sceneSettings.lbl-generate')}
+          {t('editor:properties.sceneSettings.generate')}
         </PropertiesPanelButton>
         {state.uploadingLoadingScreen.value ? (
           <LoadingCircle />
         ) : (
           <PropertiesPanelButton onClick={uploadLoadingScreen} disabled={!state.loadingScreenImageData.value}>
-            {t('editor:properties.sceneSettings.lbl-save')}
+            {t('editor:properties.sceneSettings.save')}
           </PropertiesPanelButton>
         )}
         <ImagePreviewInput value={state.loadingScreenURL.value ?? sceneSettingsComponent.loadingScreenURL.value} />
       </InputGroup>
-      <InputGroup name="Primary Color" label={t('editor:properties.fog.lbl-colors')}>
+      <InputGroup name="Primary Color" label={t('editor:properties.sceneSettings.lbl-colors')}>
         <PropertiesPanelButton onClick={generateColors}>
-          {t('editor:properties.sceneSettings.lbl-generate')}
+          {t('editor:properties.sceneSettings.generate')}
         </PropertiesPanelButton>
         <ColorInput
+          disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
           value={new Color(sceneSettingsComponent.primaryColor.value)}
           onSelect={(val) => updateProperty(SceneSettingsComponent, 'primaryColor')('#' + val.getHexString())}
           onChange={(val) => updateProperty(SceneSettingsComponent, 'primaryColor')('#' + val.getHexString())}
           onRelease={(val) => commitProperty(SceneSettingsComponent, 'primaryColor')('#' + val.getHexString())}
         />
         <ColorInput
-          value={new Color(sceneSettingsComponent.secondaryColor.value)}
-          onSelect={(val) => updateProperty(SceneSettingsComponent, 'secondaryColor')('#' + val.getHexString())}
-          onChange={(val) => updateProperty(SceneSettingsComponent, 'secondaryColor')('#' + val.getHexString())}
-          onRelease={(val) => commitProperty(SceneSettingsComponent, 'secondaryColor')('#' + val.getHexString())}
+          disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
+          value={new Color(sceneSettingsComponent.backgroundColor.value)}
+          onSelect={(val) => updateProperty(SceneSettingsComponent, 'backgroundColor')('#' + val.getHexString())}
+          onChange={(val) => updateProperty(SceneSettingsComponent, 'backgroundColor')('#' + val.getHexString())}
+          onRelease={(val) => commitProperty(SceneSettingsComponent, 'backgroundColor')('#' + val.getHexString())}
+        />
+        <ColorInput
+          disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
+          value={new Color(sceneSettingsComponent.alternativeColor.value)}
+          onSelect={(val) => updateProperty(SceneSettingsComponent, 'alternativeColor')('#' + val.getHexString())}
+          onChange={(val) => updateProperty(SceneSettingsComponent, 'alternativeColor')('#' + val.getHexString())}
+          onRelease={(val) => commitProperty(SceneSettingsComponent, 'alternativeColor')('#' + val.getHexString())}
         />
       </InputGroup>
     </PropertyGroup>

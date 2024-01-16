@@ -33,8 +33,9 @@ export const SceneSettingsComponent = defineComponent({
     return {
       thumbnailURL: '',
       loadingScreenURL: '',
-      primaryColor: '#FFFFFF',
-      secondaryColor: '#000000'
+      primaryColor: '#000000',
+      backgroundColor: '#FFFFFF',
+      alternativeColor: '#000000'
     }
   },
 
@@ -44,7 +45,8 @@ export const SceneSettingsComponent = defineComponent({
     if (typeof json.thumbnailURL === 'string') component.thumbnailURL.set(json.thumbnailURL)
     if (typeof json.loadingScreenURL === 'string') component.loadingScreenURL.set(json.loadingScreenURL)
     if (typeof json.primaryColor === 'string') component.primaryColor.set(json.primaryColor)
-    if (typeof json.secondaryColor === 'string') component.secondaryColor.set(json.secondaryColor)
+    if (typeof json.backgroundColor === 'string') component.backgroundColor.set(json.backgroundColor)
+    if (typeof json.alternativeColor === 'string') component.alternativeColor.set(json.alternativeColor)
   },
 
   toJSON: (entity, component) => {
@@ -52,7 +54,8 @@ export const SceneSettingsComponent = defineComponent({
       thumbnailURL: component.thumbnailURL.value,
       loadingScreenURL: component.loadingScreenURL.value,
       primaryColor: component.primaryColor.value,
-      secondaryColor: component.secondaryColor.value
+      backgroundColor: component.backgroundColor.value,
+      alternativeColor: component.alternativeColor.value
     }
   }
 })
