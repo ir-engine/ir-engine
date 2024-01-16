@@ -36,12 +36,13 @@ import type { FeathersApplication } from '@feathersjs/feathers'
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 
 import { getAllEntities } from 'bitecs'
+import { Group, Scene } from 'three'
 import { Timer } from '../../common/functions/Timer'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { removeEntity } from '../functions/EntityFunctions'
 import { removeQuery } from '../functions/QueryFunctions'
 import { EngineState } from './EngineState'
-import { Entity } from './Entity'
+import { Entity, UndefinedEntity } from './Entity'
 
 export class Engine {
   static instance: Engine
@@ -69,35 +70,23 @@ export class Engine {
 
   /**
    * Reference to the three.js scene object.
-   * @deprecated use getState(EngineState).scene instead
    */
-  get scene() {
-    return getState(EngineState).scene
-  }
+  scene = new Scene()
 
   /**
    * The xr origin reference space entity
-   * @deprecated use getState(EngineState).originEntity instead
    */
-  get originEntity() {
-    return getState(EngineState).originEntity
-  }
+  originEntity = UndefinedEntity
 
   /**
    * The xr origin group
-   * @deprecated use getState(EngineState).origin instead
    */
-  get origin() {
-    return getState(EngineState).origin
-  }
+  origin = new Group()
 
   /**
    * The camera entity
-   * @deprecated use getState(EngineState).cameraEntity instead
    */
-  get cameraEntity() {
-    return getState(EngineState).cameraEntity
-  }
+  cameraEntity = UndefinedEntity
 
   /**
    * The local client entity
@@ -106,7 +95,7 @@ export class Engine {
     return NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
   }
 
-  entityQuery = () => getAllEntities(Engine.instance) as Entity[]
+  entityQuery = () => getAllEntities(HyperFlux.store) as Entity[]
 }
 
 globalThis.Engine = Engine

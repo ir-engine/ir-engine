@@ -31,29 +31,27 @@ Ethereal Engine. All Rights Reserved.
 import * as bitECS from 'bitecs'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
-import React, { startTransition, use, useEffect, useLayoutEffect } from 'react'
+import React, { startTransition, use, useLayoutEffect } from 'react'
 
 import config from '@etherealengine/common/src/config'
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { HookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
-import { HyperFlux, ReactorRoot, defineActionQueue, startReactor } from '@etherealengine/hyperflux'
+import { HyperFlux, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
 import {
   hookstate,
   NO_PROXY,
   NO_PROXY_STEALTH,
   none,
-  ReceptorMap,
   State,
   useHookstate
 } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { Entity, UndefinedEntity } from '../classes/Entity'
 import { EntityContext, useEntityContext } from './EntityFunctions'
-import { defineSystem, useExecute } from './SystemFunctions'
-import { InputSystemGroup, PresentationSystemGroup } from './SystemGroups'
-import { ComponentTypeToTypedArray } from '@gltf-transform/core'
+import { useExecute } from './SystemFunctions'
+import { PresentationSystemGroup } from './SystemGroups'
 
 /**
  * @description `@internal`
@@ -99,8 +97,7 @@ export interface ComponentPartial<
   Schema extends bitECS.ISchema = Record<string, any>,
   JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
-  ErrorTypes = never,
-  Receptors = ReceptorMap
+  ErrorTypes = never
 > {
   /** @description Human readable label for the component. Displayed in the editor and debugging tools. */
   name: string
@@ -147,7 +144,6 @@ export interface ComponentPartial<
    * @todo Explain ComponentPartial.errors[]
    */
   errors?: ErrorTypes[]
-  receptors?: Receptors
 }
 
 /**
@@ -162,8 +158,7 @@ export interface Component<
   Schema extends bitECS.ISchema = Record<string, any>,
   JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
-  ErrorTypes = string,
-  Receptors = ReceptorMap
+  ErrorTypes = string
 > {
   isComponent: true
   name: string
@@ -175,7 +170,6 @@ export interface Component<
   onRemove: (entity: Entity, component: State<ComponentType>) => void
   reactor?: HookableFunction<React.FC>
   reactorMap: Map<Entity, ReactorRoot>
-  receptors?: Receptors
   stateMap: Record<Entity, State<ComponentType> | undefined>
   errors: ErrorTypes[]
 }
@@ -256,22 +250,24 @@ export const defineComponent = <
   }
   ComponentMap.set(Component.name, Component)
 
-  const ExternalComponentReactor = (props: SetJSON) => {
-    const entity = useEntityContext()
+  return Component as typeof Component & { _TYPE: ComponentType }
 
-    useLayoutEffect(() => {
-      setComponent(entity, Component, props)
-      return () => {
-        removeComponent(entity, Component)
-      }
-    }, [props])
+  // const ExternalComponentReactor = (props: SetJSON) => {
+  //   const entity = useEntityContext()
 
-    return null
-  }
-  Object.setPrototypeOf(ExternalComponentReactor, Component)
-  Object.defineProperty(ExternalComponentReactor, 'name', { value: `${Component.name}Reactor` })
+  //   useLayoutEffect(() => {
+  //     setComponent(entity, Component, props)
+  //     return () => {
+  //       removeComponent(entity, Component)
+  //     }
+  //   }, [props])
 
-  return ExternalComponentReactor as typeof Component & { _TYPE: ComponentType } & typeof ExternalComponentReactor
+  //   return null
+  // }
+  // Object.setPrototypeOf(ExternalComponentReactor, Component)
+  // Object.defineProperty(ExternalComponentReactor, 'name', { value: `${Component.name}Reactor` })
+
+  // return ExternalComponentReactor as typeof Component & { _TYPE: ComponentType } & typeof ExternalComponentReactor
 }
 
 export const getOptionalMutableComponent = <ComponentType>(
@@ -342,9 +338,6 @@ export const setComponent = <C extends Component>(
   if (!bitECS.entityExists(HyperFlux.store, entity)) {
     throw new Error('[setComponent]: entity does not exist')
   }
-  if (args && Component.receptors) {
-    throw new Error('[setComponent]: args are not supported when a component state is driven by action receptors')
-  }
   if (!hasComponent(entity, Component)) {
     const value = Component.onInit(entity)
 
@@ -367,32 +360,6 @@ export const setComponent = <C extends Component>(
       root['entity'] = entity
       root['component'] = Component.name
       Component.reactorMap.set(entity, root)
-    }
-
-    if (Component.receptors) {
-      const queue = defineActionQueue(Object.values(Component.receptors).map((r) => r.matchesAction))
-
-      defineSystem({
-        uuid: `${entity}.${Component.name}.actionReceptor`,
-        insert: { before: InputSystemGroup },
-        execute: () => {
-          HyperFlux.store.receptorEntityContext = entity
-          // queue may need to be reset when actions are recieved out of order
-          // or when state needs to be rolled back
-          if (queue.needsResync) {
-            // reset the state to the initial value when the queue is reset
-            setComponent(entity, Component, componentJsonDefaults(Component))
-            queue.resync()
-          }
-          // apply each action to each matching receptor, in order
-          for (const action of queue()) {
-            for (const receptor of Object.values(Component.receptors!)) {
-              receptor.matchesAction.test(action) && receptor(action)
-            }
-          }
-          HyperFlux.store.receptorEntityContext = UndefinedEntity
-        }
-      })
     }
   }
   // startTransition(() => {

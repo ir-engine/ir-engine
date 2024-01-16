@@ -144,6 +144,7 @@ export const ModelComponent = defineComponent({
 function ModelReactor(): JSX.Element {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
+  const uuidComponent = useComponent(entity, UUIDComponent)
   const variantComponent = useOptionalComponent(entity, VariantComponent)
 
   useEffect(() => {

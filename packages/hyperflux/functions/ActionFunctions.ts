@@ -35,6 +35,7 @@ import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { ReactorRoot } from './ReactorFunctions'
+import { StateDefinitionReceptors } from './StateFunctions'
 import { HyperFlux } from './StoreFunctions'
 
 const logger = multiLogger.child({ component: 'hyperflux:Action' })
@@ -346,7 +347,7 @@ export const dispatchAction = <A extends Action>(action: A) => {
   HyperFlux.store.actions.incoming.push(action as Required<ResolvedActionType>)
 }
 
-function addOutgoingTopicIfNecessary(topic: string) {
+export function addOutgoingTopicIfNecessary(topic: string) {
   if (!HyperFlux.store.actions.outgoing[topic]) {
     logger.info(`Added topic ${topic}`)
     HyperFlux.store.actions.outgoing[topic] = {
@@ -397,7 +398,7 @@ const _updateCachedActions = (incomingAction: Required<ResolvedActionType>) => {
 
 const applyIncomingActionsToAllQueues = (action: Required<ResolvedActionType>) => {
   for (const [queueHandle, queue] of HyperFlux.store.actions.queues) {
-    HyperFlux.store.actions.activeQueue = queue
+    // HyperFlux.store.actions.activeQueue = queue
     if (queueHandle.test(action)) {
       // if the action is out of order, mark the queue as needing resync
       if (queue.actions.length > 0 && queue.actions.at(-1)!.$time > action.$time) {
@@ -406,7 +407,7 @@ const applyIncomingActionsToAllQueues = (action: Required<ResolvedActionType>) =
       queue.actions.push(action)
     }
   }
-  HyperFlux.store.actions.activeQueue = null
+  // HyperFlux.store.actions.activeQueue = null
 }
 
 const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
@@ -429,6 +430,9 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
   _updateCachedActions(action)
 
   applyIncomingActionsToAllQueues(action)
+
+  /** Immediately drain event sourced queues and run receptors */
+  for (const receptors of StateDefinitionReceptors) receptors()
 
   try {
     //Certain actions were causing logger.info to throw errors since it JSON.stringifies inputs, and those
@@ -480,12 +484,12 @@ export const applyIncomingActions = () => {
  * Clear the outgoing action queue
  * @param store
  */
-export const clearOutgoingActions = (topic: string) => {
+export const clearOutgoingActions = (topic: Topic) => {
   if (!HyperFlux.store.actions.outgoing[topic]) return
-  const { queue, history, historyUUIDs } = HyperFlux.store.actions.outgoing[topic]
+  const { queue, history, forwardedUUIDs } = HyperFlux.store.actions.outgoing[topic]
   for (const action of queue) {
     history.push(action)
-    historyUUIDs.add(action.$uuid)
+    forwardedUUIDs.add(action.$uuid)
   }
   queue.length = 0
 }
@@ -537,16 +541,18 @@ export function defineActionQueue<V extends Validator<unknown, ResolvedActionTyp
 
   actionQueueGetter.needsResync = false
   Object.defineProperty(actionQueueGetter, 'needsResync', {
-    get: () => getOrCreateInstance().needsResync
+    get: () => getOrCreateInstance().needsResync,
+    set: (val) => {
+      getOrCreateInstance().needsResync = val
+    }
   })
 
   actionQueueGetter.resync = () => {
     // make sure actions are sorted by time, earliest first
     const queue = getOrCreateInstance()
-    HyperFlux.store.actions.activeQueue = queue
     queue.actions = HyperFlux.store.actions.history.filter(actionQueueGetter.test).sort((a, b) => a.$time - b.$time)
     queue.nextIndex = 0
-    HyperFlux.store.actions.activeQueue = null
+    actionQueueGetter.needsResync = false
   }
 
   return actionQueueGetter

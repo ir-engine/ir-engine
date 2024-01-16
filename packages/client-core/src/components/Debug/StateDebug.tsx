@@ -63,6 +63,9 @@ export function StateDebug() {
           )
         )
 
+  const actionHistory = [...Engine.instance.store.actions.history].sort((a, b) => a.$time - b.$time)
+  const cachedHistory = [...Engine.instance.store.actions.cached].sort((a, b) => a.$time - b.$time)
+
   return (
     <>
       <div className={styles.jsonPanel}>
@@ -78,16 +81,16 @@ export function StateDebug() {
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.actionsHistory')}</h1>
         <JSONTree
-          data={Engine.instance.store.actions.history}
-          labelRenderer={labelRenderer(Engine.instance.store.actions.history)}
+          data={actionHistory}
+          labelRenderer={labelRenderer(actionHistory)}
           shouldExpandNodeInitially={() => false}
         />
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.actionsCached')}</h1>
         <JSONTree
-          data={Engine.instance.store.actions.cached}
-          labelRenderer={labelRenderer(Engine.instance.store.actions.cached)}
+          data={cachedHistory}
+          labelRenderer={labelRenderer(cachedHistory)}
           shouldExpandNodeInitially={() => false}
         />
       </div>

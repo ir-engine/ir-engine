@@ -93,6 +93,7 @@ import { State, dispatchAction, getMutableState, getState, none } from '@etherea
 import {
   Action,
   Topic,
+  addOutgoingTopicIfNecessary,
   defineActionQueue,
   removeActionQueue
 } from '@etherealengine/hyperflux/functions/ActionFunctions'
@@ -377,6 +378,8 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
     if (!message) return
     network.transport.onMessage(network.hostPeerID, message)
   })
+
+  addOutgoingTopicIfNecessary(network.topic)
 
   // handle cached actions
   for (const action of cachedActions!) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })

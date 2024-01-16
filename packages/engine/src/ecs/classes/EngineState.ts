@@ -25,100 +25,37 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineAction, defineState } from '@etherealengine/hyperflux'
 
-import { BoxGeometry, Group, Mesh, MeshNormalMaterial, Scene, Vector3 } from 'three'
-import { CameraComponent } from '../../camera/components/CameraComponent'
 import { matches } from '../../common/functions/MatchesUtils'
-import { addObjectToGroup } from '../../scene/components/GroupComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { getComponent, setComponent } from '../functions/ComponentFunctions'
-import { createEntity } from '../functions/EntityFunctions'
-import { EntityTreeComponent } from '../functions/EntityTree'
-import { UndefinedEntity } from './Entity'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
 export const EngineState = defineState({
   name: 'EngineState',
-  initial: () => {
-    const scene = new Scene()
-    scene.matrixAutoUpdate = false
-    scene.matrixWorldAutoUpdate = false
-    scene.layers.set(ObjectLayers.Scene)
+  initial: {
+    simulationTimestep: 1000 / 60,
 
-    const originEntity = createEntity()
-    const origin = new Group()
-    setComponent(originEntity, NameComponent, 'origin')
-    setComponent(originEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
-    setComponent(originEntity, TransformComponent)
-    setComponent(originEntity, VisibleComponent, true)
-    addObjectToGroup(originEntity, origin)
-    origin.name = 'world-origin'
-    const originHelperMesh = new Mesh(new BoxGeometry(0.1, 0.1, 0.1), new MeshNormalMaterial())
-    setObjectLayers(originHelperMesh, ObjectLayers.Gizmos)
-    originHelperMesh.frustumCulled = false
-    origin.add(originHelperMesh)
+    frameTime: Date.now(),
+    simulationTime: Date.now(),
 
-    const cameraEntity = createEntity()
-    setComponent(cameraEntity, NameComponent, 'camera')
-    setComponent(cameraEntity, CameraComponent)
-    setComponent(cameraEntity, VisibleComponent, true)
-    setComponent(originEntity, TransformComponent, { position: new Vector3(0, 5, 2) })
-    setComponent(cameraEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
-    const camera = getComponent(cameraEntity, CameraComponent)
-    camera.matrixAutoUpdate = false
-    camera.matrixWorldAutoUpdate = false
+    userReady: false,
 
-    return {
-      simulationTimestep: 1000 / 60,
+    deltaSeconds: 0,
+    elapsedSeconds: 0,
 
-      frameTime: Date.now(),
-      simulationTime: Date.now(),
+    physicsSubsteps: 1,
 
-      userReady: false,
-
-      deltaSeconds: 0,
-      elapsedSeconds: 0,
-
-      physicsSubsteps: 1,
-
-      sceneLoading: false,
-      sceneLoaded: false,
-      loadingProgress: 0,
-      spectating: false,
-      avatarLoadingEffect: false,
-
-      /**
-       * Reference to the three.js scene object.
-       */
-      scene,
-
-      /**
-       * The xr origin reference space entity
-       */
-      originEntity,
-
-      /**
-       * The xr origin group
-       */
-      origin,
-
-      /**
-       * The camera entity
-       */
-      cameraEntity,
-
-      /**
-       * An empty share link will default to the current URL, plus any modifiers (such as spectate mode)
-       */
-      publicPath: '',
-      isBot: false,
-      /** @deprecated use isEditing instead */
-      isEditor: false,
-      isEditing: false
-    }
+    sceneLoading: false,
+    sceneLoaded: false,
+    loadingProgress: 0,
+    spectating: false,
+    avatarLoadingEffect: false,
+    /**
+     * An empty share link will default to the current URL, plus any modifiers (such as spectate mode)
+     */
+    publicPath: '',
+    isBot: false,
+    /** @deprecated use isEditing instead */
+    isEditor: false,
+    isEditing: false
   }
 })
 

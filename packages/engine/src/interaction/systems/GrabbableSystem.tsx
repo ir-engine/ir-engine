@@ -167,8 +167,6 @@ const GrabbableReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID })
 
 export const GrabbablesReactor = React.memo(() => {
   const grabbableState = Object.keys(useHookstate(getMutableState(GrabbableState)).value)
-  console.log('grabbableState', grabbableState)
-
   return (
     <>
       {grabbableState.map((entityUUID: EntityUUID) => (
@@ -183,7 +181,7 @@ export function transferAuthorityOfObjectReceptor(
   action: ReturnType<typeof WorldNetworkAction.transferAuthorityOfObject>
 ) {
   if (action.newAuthority !== Engine.instance.peerID) return
-  const grabbableEntity = UUIDComponent.entitiesByUUID[action.entityUUID]
+  const grabbableEntity = UUIDComponent.getEntityByUUID(action.entityUUID)
   if (hasComponent(grabbableEntity, GrabbableComponent)) {
     const grabberUserId = NetworkState.worldNetwork.peers[action.newAuthority]?.userId
     dispatchAction(

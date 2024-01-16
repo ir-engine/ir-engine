@@ -31,8 +31,6 @@ import { resolveObject } from '@etherealengine/common/src/utils/resolveObject'
 import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { InputSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { ActionQueueHandle, ActionReceptor, defineActionQueue } from './ActionFunctions'
 import { HyperFlux, HyperStore } from './StoreFunctions'
 
@@ -54,6 +52,7 @@ export type StateDefinition<S, Receptors extends ReceptorMap> = {
 }
 
 export const StateDefinitions = new Map<string, StateDefinition<any, ReceptorMap>>()
+export const StateDefinitionReceptors = new Array<() => void>()
 
 export const setInitialState = (def: StateDefinition<any, ReceptorMap>) => {
   const initial = typeof def.initial === 'function' ? (def.initial as any)() : JSON.parse(JSON.stringify(def.initial))
@@ -75,15 +74,14 @@ export function defineState<S, R extends ReceptorMap, StateExtras = unknown>(
 
   let receptorActionQueue = null as null | ActionQueueHandle
 
-  defineSystem({
-    uuid: `${definition.name}.UpdateSystem`,
-    insert: { before: InputSystemGroup },
-    execute: () => {
+  if (definition.receptors) {
+    const applyEventSourcedActionQueues = () => {
       // initialize the state and it's receptor action queue if necessary
-      if (!initialized && HyperFlux.store.stateMap[definition.name]) {
-        if (definition.receptors)
+      if (!initialized) {
+        if (definition.receptors) {
           receptorActionQueue = defineActionQueue(Object.values(definition.receptors).map((r) => r.matchesAction))
-        setInitialState(definition)
+        }
+        if (!HyperFlux.store.stateMap[definition.name]) setInitialState(definition)
         initialized = true
       }
 
@@ -100,11 +98,17 @@ export function defineState<S, R extends ReceptorMap, StateExtras = unknown>(
       // apply each action to each matching receptor, in order
       for (const action of receptorActionQueue()) {
         for (const receptor of Object.values(definition.receptors!)) {
-          receptor.matchesAction.test(action) && receptor(action)
+          try {
+            receptor.matchesAction.test(action) && receptor(action)
+          } catch (e) {
+            logger.error(e)
+          }
         }
       }
     }
-  })
+
+    StateDefinitionReceptors.push(applyEventSourcedActionQueues)
+  }
 
   return definition as StateDefinition<S, R> & { _TYPE: S } & StateExtras
 }

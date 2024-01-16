@@ -72,9 +72,9 @@ export const EntityNetworkState = defineState({
 
   receptors: {
     onSpawnObject: WorldNetworkAction.spawnObject.receive((action) => {
-      const userId = getState(NetworkState).networks[action.$network].peers[action.$peer].userId
+      // const userId = getState(NetworkState).networks[action.$network].peers[action.$peer].userId
       getMutableState(EntityNetworkState)[action.entityUUID].merge({
-        ownerId: userId,
+        ownerId: action.$from,
         networkId: action.networkId,
         authorityPeerId: action.$peer,
         spawnPosition: action.position ?? new Vector3(),
@@ -105,14 +105,14 @@ const EntityNetworkReactor = memo((props: { uuid: EntityUUID }) => {
   const state = useHookstate(getMutableState(EntityNetworkState))[props.uuid]
 
   useEffect(() => {
-    const entity = UUIDComponent.getEntityByUUID(props.uuid)
+    const entity = UUIDComponent.getOrCreateEntityByUUID(props.uuid)
     const sceneState = getState(SceneState)
     if (!sceneState.activeScene) {
       throw new Error('Trying to spawn an object with no active scene')
     }
     // TODO: get the active scene for each world network
     const activeSceneID = SceneState.getCurrentScene()!.root
-    const activeSceneEntity = UUIDComponent.entitiesByUUID[activeSceneID]
+    const activeSceneEntity = UUIDComponent.getEntityByUUID(activeSceneID)
     setComponent(entity, EntityTreeComponent, {
       parentEntity: activeSceneEntity
     })

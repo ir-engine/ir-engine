@@ -29,7 +29,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { Query, QueryComponents } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { ActionQueueHandle, ActionQueueInstance, ResolvedActionType, Topic } from './ActionFunctions'
@@ -70,16 +70,10 @@ export interface HyperStore {
    * State dictionary
    */
   stateMap: { [type: string]: State<any> }
-  /**
-   * The entity context used to match action receptor functions
-   */
-  receptorEntityContext: Entity
 
   actions: {
     /** All queues that have been created */
     queues: Map<ActionQueueHandle, ActionQueueInstance>
-    /** The queue that is currently receiving and processing actions */
-    activeQueue: ActionQueueInstance | null
     /** Cached actions */
     cached: Array<Required<ResolvedActionType>>
     /** Incoming actions */
@@ -131,10 +125,8 @@ export function createHyperStore(options: {
     getCurrentReactorRoot: () => store.activeSystemReactors.get(store.currentSystemUUID),
     peerID: uuidv4() as PeerID,
     stateMap: {},
-    receptorEntityContext: UndefinedEntity,
     actions: {
       queues: new Map(),
-      activeQueue: null,
       cached: [],
       incoming: [],
       history: [],

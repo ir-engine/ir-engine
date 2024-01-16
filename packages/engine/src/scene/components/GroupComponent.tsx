@@ -29,6 +29,7 @@ import { Camera, Object3D } from 'three'
 import { none } from '@etherealengine/hyperflux'
 
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
@@ -93,6 +94,8 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   Object.assign(obj, {
     updateWorldMatrix: () => {}
   })
+
+  Engine.instance.scene.add(obj)
 
   // sometimes it's convenient to update the entity transform via the Object3D,
   // so allow people to do that via proxies

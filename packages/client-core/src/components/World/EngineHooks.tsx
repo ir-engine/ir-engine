@@ -68,17 +68,21 @@ export const useEngineInjection = () => {
 
 export const useLocationSpawnAvatar = (spectate = false) => {
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
+  const spawned = useHookstate(false)
 
   useEffect(() => {
+    if (!sceneLoaded.value || spawned.value) return
+
     if (spectate) {
-      if (!sceneLoaded.value) return
       dispatchAction(EngineActions.spectateUser({}))
-      return
+      spawned.set(true)
+      return () => {
+        spawned.set(false)
+      }
     }
 
     const spectateParam = getSearchParamFromURL('spectate')
-
-    if (Engine.instance.localClientEntity || !sceneLoaded.value || spectateParam) return
+    if (spectateParam) return
 
     // the avatar should only be spawned once, after user auth and scene load
     const user = getState(AuthState).user
@@ -95,6 +99,10 @@ export const useLocationSpawnAvatar = (spectate = false) => {
         avatarID: user.avatar.id!,
         name: user.name
       })
+      spawned.set(true)
+      return () => {
+        spawned.set(false)
+      }
     } else {
       AvatarState.selectRandomAvatar()
     }

@@ -31,8 +31,6 @@ import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 
-import { HyperFlux } from '@etherealengine/hyperflux'
-
 import { Entity } from '../../ecs/classes/Entity'
 
 export * from 'ts-matches'
@@ -45,8 +43,7 @@ export {
   matchesVector3,
   matchesQuaternion,
   matchesActionFromUser,
-  matchesWithDefault,
-  matchesEntityContext
+  matchesWithDefault
 }
 
 const matchesVec3Shape = matches.shape({
@@ -77,10 +74,6 @@ const matchesPeerID = matches.string as Validator<unknown, PeerID>
 const matchesNetworkId = matches.number as Validator<unknown, NetworkId>
 const matchesEntity = matches.number as Validator<unknown, Entity>
 const matchesEntityUUID = matches.string as Validator<unknown, EntityUUID>
-
-const matchesEntityContext = matches.guard((v): v is EntityUUID => {
-  return v === HyperFlux.store.receptorEntityContext
-})
 
 const matchesActionFromUser = (userId: UserID) => {
   return matches.shape({ $from: matches.literal(userId) })

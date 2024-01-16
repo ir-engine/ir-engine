@@ -91,6 +91,7 @@ export const AvatarState = defineState({
 
 const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) => {
   const state = useHookstate(getMutableState(AvatarState)[entityUUID])
+  const entity = UUIDComponent.useEntityByUUID(entityUUID)
 
   useEffect(() => {
     if (!isClient || !state.avatarID.value) return
@@ -116,13 +117,12 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
   useEffect(() => {
     if (!isClient) return
 
+    if (!entity) return
+
     if (!state.userAvatarDetails.value) return
 
     const url = state.userAvatarDetails.value.modelResource?.url
     if (!url) return
-
-    const entity = UUIDComponent.getEntityByUUID(entityUUID)
-    if (!entity || !entityExists(entity)) return
 
     spawnAvatarReceptor(entityUUID)
     loadAvatarModelAsset(entity, url)
@@ -130,7 +130,7 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
       if (!entityExists(entity)) return
       unloadAvatarForUser(entity)
     }
-  }, [state.userAvatarDetails])
+  }, [state.userAvatarDetails, entity])
 
   return null
 })

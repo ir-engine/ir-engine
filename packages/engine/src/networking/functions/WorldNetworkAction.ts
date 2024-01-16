@@ -27,7 +27,6 @@ import { defineAction } from '@etherealengine/hyperflux'
 
 import {
   matches,
-  matchesEntityContext,
   matchesEntityUUID,
   matchesNetworkId,
   matchesPeerID,
@@ -47,7 +46,7 @@ export class WorldNetworkAction {
 
   static spawnObject = defineAction({
     type: 'ee.engine.world.SPAWN_OBJECT',
-    entityUUID: matchesEntityContext,
+    entityUUID: matchesEntityUUID,
     networkId: matchesWithDefault(matchesNetworkId, () => NetworkObjectComponent.createNetworkId()),
     position: matchesVector3.optional(),
     rotation: matchesQuaternion.optional(),
