@@ -109,12 +109,7 @@ export const renameScene = async (projectName: string, newSceneName: string, old
  * @param  {any}  signal
  * @return {Promise}
  */
-export const saveScene = async (
-  projectName: string,
-  sceneName: string,
-  thumbnailFile: File | null,
-  signal: AbortSignal
-) => {
+export const saveScene = async (projectName: string, sceneName: string, signal: AbortSignal) => {
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
 
   const sceneData = getState(SceneState).scenes[getState(SceneState).activeScene!].snapshots.at(-1)?.data
@@ -133,7 +128,7 @@ export const saveScene = async (
         })
       }
     }
-    return await uploadToFeathersService(sceneUploadPath, thumbnailFile ? [thumbnailFile] : [], {
+    return await uploadToFeathersService(sceneUploadPath, [], {
       project: projectName,
       name: sceneName,
       sceneData

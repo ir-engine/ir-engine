@@ -50,7 +50,6 @@ export const UUIDComponent = defineComponent({
 
     // set new uuid
     component.set(uuid)
-    UUIDComponent.valueMap[entity] = uuid
     _getUUIDState(uuid).set(entity)
   },
 
