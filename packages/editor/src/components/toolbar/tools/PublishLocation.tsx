@@ -67,7 +67,10 @@ export const PublishLocation = () => {
 
   return (
     <>
-      <div id="publish-location" className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer}>
+      <div
+        id="publish-location"
+        className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer + ' ' + styles.publishButton}
+      >
         <InfoTooltip title={t('editor:toolbar.publishLocation.lbl')} info={t('editor:toolbar.publishLocation.info')}>
           <Button onClick={handleOpenLocationDrawer} className={styles.toolButton} disabled={!activeScene.value}>
             {t(`editor:toolbar.publishLocation.title`)}
