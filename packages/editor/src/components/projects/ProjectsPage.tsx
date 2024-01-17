@@ -322,7 +322,7 @@ const ProjectsPage = () => {
       clearTimeout(searchTimeoutCancelRef.current)
     }
     searchTimeoutCancelRef.current = setTimeout(() => {
-      search.query.set(searchedText)
+      search.query.set(searchedText.replace(' ', '-'))
     }, 100)
   }
 
