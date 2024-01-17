@@ -189,16 +189,17 @@ export const configureEffectComposer = (
     }
   }
   if (effects.length) {
-    if (useVelocityDepthNormalPass)
-      if (useDepthDownsamplingPass) {
-        composer.addPass(normalPass)
-        composer.addPass(depthDownsamplingPass)
-        const textureEffect = new TextureEffect({
-          blendFunction: BlendFunction.SKIP,
-          texture: depthDownsamplingPass.texture
-        })
-        effects.push(textureEffect)
-      }
+    if (useVelocityDepthNormalPass) composer.addPass(velocityDepthNormalPass)
+
+    if (useDepthDownsamplingPass) {
+      composer.addPass(normalPass)
+      composer.addPass(depthDownsamplingPass)
+      const textureEffect = new TextureEffect({
+        blendFunction: BlendFunction.SKIP,
+        texture: depthDownsamplingPass.texture
+      })
+      effects.push(textureEffect)
+    }
 
     composer.EffectPass = new EffectPass(camera, ...effects)
     composer.addPass(composer.EffectPass)
