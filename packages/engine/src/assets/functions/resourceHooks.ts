@@ -25,28 +25,31 @@ Ethereal Engine. All Rights Reserved.
 
 import { State, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
+import { Texture } from 'three'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { LoadingArgs } from '../classes/AssetLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { ResourceManager, ResourceType } from '../state/ResourceState'
 
-export function useGLTF(
-  src: string,
+function useLoader<T>(
+  url: string,
+  resourceType: ResourceType,
   params: LoadingArgs = {},
   entity?: Entity
-): [State<GLTF | null>, State<ProgressEvent<EventTarget> | null>, State<ErrorEvent | Error | null>] {
-  const gltf = useHookstate<GLTF | null>(null)
+): [State<T | null>, State<ProgressEvent<EventTarget> | null>, State<ErrorEvent | Error | null>] {
+  const value = useHookstate<T | null>(null)
   const progress = useHookstate<ProgressEvent<EventTarget> | null>(null)
   const error = useHookstate<ErrorEvent | Error | null>(null)
 
   useEffect(() => {
+    if (!url) return
     ResourceManager.load(
-      src,
-      ResourceType.GLTF,
+      url,
+      resourceType,
       entity || UndefinedEntity,
       params,
       (response) => {
-        gltf.set(response)
+        value.set(response)
       },
       (request) => {
         progress.set(request)
@@ -55,7 +58,23 @@ export function useGLTF(
         error.set(err)
       }
     )
-  }, [src])
+  }, [url])
 
-  return [gltf, progress, error]
+  return [value, progress, error]
+}
+
+export function useGLTF(
+  url: string,
+  params: LoadingArgs = {},
+  entity?: Entity
+): [State<GLTF | null>, State<ProgressEvent<EventTarget> | null>, State<ErrorEvent | Error | null>] {
+  return useLoader<GLTF>(url, ResourceType.GLTF, params, entity)
+}
+
+export function useTexture(
+  url: string,
+  params: LoadingArgs = {},
+  entity?: Entity
+): [State<Texture | null>, State<ProgressEvent<EventTarget> | null>, State<ErrorEvent | Error | null>] {
+  return useLoader<Texture>(url, ResourceType.Texture, params, entity)
 }
