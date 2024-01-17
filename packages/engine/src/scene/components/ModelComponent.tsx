@@ -163,7 +163,7 @@ function ModelReactor(): JSX.Element {
     if (!hasComponent(entity, GroupComponent)) {
       const obj3d = new Group()
       obj3d.entity = entity
-      addObjectToGroup(entity, obj3d, modelComponent.sceneOverride.value)
+      addObjectToGroup(entity, obj3d)
       proxifyParentChildRelationships(obj3d)
     }
 
@@ -253,7 +253,7 @@ function ModelReactor(): JSX.Element {
     /**hotfix for gltf animations being stored in the root and not scene property */
     if (!asset.scene.animations.length && !(asset instanceof VRM)) asset.scene.animations = asset.animations
 
-    const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene, modelComponent.sceneOverride.value)
+    const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene)
     const uuid = getModelSceneID(entity)
 
     SceneState.loadScene(uuid, {
