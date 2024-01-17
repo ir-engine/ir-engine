@@ -314,7 +314,7 @@ export default {
 
   before: {
     all: [() => schemaHooks.validateQuery(locationQueryValidator), schemaHooks.resolveQuery(locationQueryResolver)],
-    find: [discardQuery('action'), sortByLocationSetting],
+    find: [discardQuery('action'), discardQuery('studio'), sortByLocationSetting],
     get: [],
     create: [
       iff(isProvider('external'), verifyScope('location', 'write')),

@@ -178,6 +178,11 @@
     "sceneScreenshot": {
       "lbl": "Screenshot",
       "info": "Takes a screenshot of your scene at the current view."
+    },
+    "publishLocation": {
+      "title": "Publish",
+      "lbl": "Publish Location",
+      "info": "Publish location for the selected scene."
     }
   },
   "properties": {
