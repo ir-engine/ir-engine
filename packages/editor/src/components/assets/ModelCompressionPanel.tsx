@@ -142,21 +142,7 @@ export default function ModelCompressionPanel({
     }
   }, [])
 
-  const lods = useHookstate<LODVariantDescriptor[]>([
-    {
-      params: {
-        ...defaultParams,
-        src: fileProperties.value.url,
-        modelFormat: fileProperties.url.value.endsWith('.gltf')
-          ? 'gltf'
-          : fileProperties.url.value.endsWith('.vrm')
-          ? 'vrm'
-          : 'glb'
-      },
-      suffix: '-transformed',
-      variantMetadata: []
-    }
-  ])
+  const lods = useHookstate<LODVariantDescriptor[]>([])
 
   const compressContentInBrowser = async () => {
     setCompressionLoading(true)
@@ -259,8 +245,33 @@ export default function ModelCompressionPanel({
   useEffect(() => {
     const fullSrc = fileProperties.url.value
     const fileName = fullSrc.split('/').pop()!.split('.').shift()!
-    const dst = `${fileName}-transformed`
-    lods[selectedLODIndex].params.dst.set(dst)
+
+    const defaultLODParams: ModelTransformParameters = {
+      ...defaultParams,
+      src: fullSrc,
+      modelFormat: fileProperties.url.value.endsWith('.gltf')
+        ? 'gltf'
+        : fileProperties.url.value.endsWith('.vrm')
+        ? 'vrm'
+        : 'glb'
+    }
+
+    lods.set(
+      ['Desktop - Medium', 'Mobile - Low', 'XR - Medium']
+        .map((dst) => LODList.find((preset) => preset.dst === dst)!)
+        .map((preset): LODVariantDescriptor => {
+          const suffix = `-${preset.dst.replace(/\s/g, '').toLowerCase()}`
+          return {
+            params: {
+              ...defaultLODParams,
+              dst: fileName + suffix,
+              maxTextureSize: preset.maxTextureSize
+            },
+            suffix,
+            variantMetadata: [variantMetadataPresets.get(preset.dst.split(' ')[0].toUpperCase()!)!]
+          }
+        })
+    )
   }, [fileProperties.url])
 
   const handleLODSelect = (index) => {
