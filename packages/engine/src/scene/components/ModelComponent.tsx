@@ -148,14 +148,10 @@ function ModelReactor(): JSX.Element {
 
   /** @todo this is a hack */
   const override = !isAvaturn(modelComponent.value.src) ? undefined : AssetType.glB
-  const [gltf, unload, error, progress] = useGLTF(
-    modelComponent.value.src,
-    {
-      forceAssetType: override,
-      ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
-    },
-    entity
-  )
+  const [gltf, unload, error, progress] = useGLTF(modelComponent.value.src, entity, {
+    forceAssetType: override,
+    ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
+  })
 
   useEffect(() => {
     const onprogress = progress.value

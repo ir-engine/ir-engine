@@ -34,8 +34,8 @@ import { ResourceManager, ResourceType } from '../state/ResourceState'
 function useLoader<T>(
   url: string,
   resourceType: ResourceType,
-  params: LoadingArgs = {},
-  entity: Entity = UndefinedEntity
+  entity: Entity = UndefinedEntity,
+  params: LoadingArgs = {}
 ): [State<T | null>, () => void, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>] {
   const value = useHookstate<T | null>(null)
   const error = useHookstate<ErrorEvent | Error | null>(null)
@@ -69,16 +69,16 @@ function useLoader<T>(
 
 export function useGLTF(
   url: string,
-  params: LoadingArgs = {},
-  entity?: Entity
+  entity?: Entity,
+  params?: LoadingArgs
 ): [State<GLTF | null>, () => void, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>] {
-  return useLoader<GLTF>(url, ResourceType.GLTF, params, entity)
+  return useLoader<GLTF>(url, ResourceType.GLTF, entity, params)
 }
 
 export function useTexture(
   url: string,
-  params: LoadingArgs = {},
-  entity?: Entity
+  entity?: Entity,
+  params?: LoadingArgs
 ): [State<Texture | null>, () => void, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>] {
-  return useLoader<Texture>(url, ResourceType.Texture, params, entity)
+  return useLoader<Texture>(url, ResourceType.Texture, entity, params)
 }

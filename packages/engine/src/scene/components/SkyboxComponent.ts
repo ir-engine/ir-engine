@@ -93,7 +93,7 @@ export const SkyboxComponent = defineComponent({
     const skyboxState = useComponent(entity, SkyboxComponent)
     const background = useHookstate(getMutableState(SceneState).background)
 
-    const [texture, unload, error] = useTexture(skyboxState.equirectangularPath.value)
+    const [texture, unload, error] = useTexture(skyboxState.equirectangularPath.value, entity)
 
     useEffect(() => {
       if (skyboxState.backgroundType.value !== SkyTypeEnum.equirectangular) return
