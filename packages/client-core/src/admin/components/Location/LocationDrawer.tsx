@@ -95,7 +95,9 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
   const sceneName = selectedScene ? selectedScene.split('/')[1] : ''
   const projectName = selectedScene ? selectedScene.split('/', 1)[0] : ''
 
-  if (selectedScene) state.scene.set(selectedScene)
+  useEffect(() => {
+    if (selectedScene) state.scene.set(selectedScene)
+  }, [selectedScene])
 
   const sceneMenu: InputMenuItem[] = selectedScene
     ? [

@@ -60,6 +60,11 @@ export const PublishLocation = () => {
     }
   })
 
+  const handleCloseLocationDrawer = () => {
+    openLocationDrawer.set(false)
+    drawerMode.set(LocationDrawerMode.Create)
+  }
+
   const handleOpenLocationDrawer = async () => {
     existingLocation.refetch()
 
@@ -89,7 +94,7 @@ export const PublishLocation = () => {
         mode={drawerMode.value}
         selectedLocation={existingLocation.data[0]}
         selectedScene={selectedScene}
-        onClose={() => openLocationDrawer.set(false)}
+        onClose={handleCloseLocationDrawer}
       />
     </>
   )
