@@ -96,6 +96,8 @@ export interface HyperStore {
     >
   }
 
+  receptors: Array<() => void>
+
   /** active reactors */
   activeReactors: Set<ReactorRoot>
 
@@ -133,6 +135,7 @@ export function createHyperStore(options: {
       knownUUIDs: new Set(),
       outgoing: {}
     },
+    receptors: [],
     activeReactors: new Set(),
     activeSystemReactors: new Map<SystemUUID, ReactorRoot>(),
     currentSystemUUID: '__null__' as SystemUUID,

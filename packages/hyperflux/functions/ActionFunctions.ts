@@ -35,7 +35,7 @@ import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { ReactorRoot } from './ReactorFunctions'
-import { StateDefinitionReceptors } from './StateFunctions'
+import { UninitializedEventSourceQueues } from './StateFunctions'
 import { HyperFlux } from './StoreFunctions'
 
 const logger = multiLogger.child({ component: 'hyperflux:Action' })
@@ -429,10 +429,9 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
 
   _updateCachedActions(action)
 
-  applyIncomingActionsToAllQueues(action)
+  for (const queue of UninitializedEventSourceQueues) queue(action)
 
-  /** Immediately drain event sourced queues and run receptors */
-  for (const receptors of StateDefinitionReceptors) receptors()
+  applyIncomingActionsToAllQueues(action)
 
   try {
     //Certain actions were causing logger.info to throw errors since it JSON.stringifies inputs, and those
@@ -468,6 +467,11 @@ const _forwardIfNecessary = (action: Required<ResolvedActionType>) => {
   }
 }
 
+/** Drain event sourced queues and run receptors */
+const applyEventSourcingToAllQueues = () => {
+  for (const receptors of HyperFlux.store.receptors) receptors()
+}
+
 /**
  * Process incoming actions
  */
@@ -478,6 +482,8 @@ export const applyIncomingActions = () => {
     _forwardIfNecessary(action)
     if (action.$time <= now) _applyIncomingAction(action)
   }
+
+  applyEventSourcingToAllQueues()
 }
 
 /**
