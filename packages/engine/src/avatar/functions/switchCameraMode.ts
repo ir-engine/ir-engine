@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { CameraMode } from '../../camera/types/CameraMode'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 
 type SwitchCameraModeProps = {
   cameraMode: CameraMode
@@ -47,7 +47,7 @@ export const switchCameraMode = (
     }, 250)
   }
 
-  const cameraFollow = getComponent(cameraEntity, FollowCameraComponent)
+  const cameraFollow = getOptionalComponent(cameraEntity, FollowCameraComponent)
   if (!cameraFollow) return
   cameraFollow.mode = args.cameraMode
 

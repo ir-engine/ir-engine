@@ -37,7 +37,6 @@ export const RenderOrderComponent = defineComponent({
   onSet(entity, component, renderOrder: number) {
     RenderOrderComponent.renderOrder[entity] = renderOrder
     component.set(renderOrder)
-    RenderOrderComponent.valueMap[entity] = renderOrder
   },
 
   toJSON(entity, component) {

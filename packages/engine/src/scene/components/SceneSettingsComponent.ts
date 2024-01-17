@@ -23,27 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState } from '@etherealengine/hyperflux'
-import type { WebContainer3D } from '@etherealengine/xrui'
-
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
-import { XRUIState } from '../XRUIState'
 
-export const XRUIComponent = defineComponent({
-  name: 'XRUIComponent',
+export const SceneSettingsComponent = defineComponent({
+  name: 'SceneSettingsComponent',
+  jsonID: 'scene-settings',
 
-  onInit: (entity) => {
-    return null! as WebContainer3D
-  },
-
-  onSet: (entity, component, json: WebContainer3D) => {
-    if (typeof json !== 'undefined') {
-      component.set(json)
-      json.interactionRays = getState(XRUIState).interactionRays
+  onInit() {
+    return {
+      thumbnailURL: '',
+      loadingScreenURL: '',
+      primaryColor: '#000000',
+      backgroundColor: '#FFFFFF',
+      alternativeColor: '#000000'
     }
   },
 
-  onRemove: (entity, component) => {
-    component.value.destroy()
+  onSet: (entity, component, json) => {
+    if (!json) return
+
+    if (typeof json.thumbnailURL === 'string') component.thumbnailURL.set(json.thumbnailURL)
+    if (typeof json.loadingScreenURL === 'string') component.loadingScreenURL.set(json.loadingScreenURL)
+    if (typeof json.primaryColor === 'string') component.primaryColor.set(json.primaryColor)
+    if (typeof json.backgroundColor === 'string') component.backgroundColor.set(json.backgroundColor)
+    if (typeof json.alternativeColor === 'string') component.alternativeColor.set(json.alternativeColor)
+  },
+
+  toJSON: (entity, component) => {
+    return {
+      thumbnailURL: component.thumbnailURL.value,
+      loadingScreenURL: component.loadingScreenURL.value,
+      primaryColor: component.primaryColor.value,
+      backgroundColor: component.backgroundColor.value,
+      alternativeColor: component.alternativeColor.value
+    }
   }
 })
