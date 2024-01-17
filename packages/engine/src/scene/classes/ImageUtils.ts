@@ -272,3 +272,15 @@ export const convertEquiToCubemap = (renderer: WebGLRenderer, source: Texture, s
   cubecam.update(renderer, convertScene)
   return cubeRenderTarget
 }
+
+export const imageDataToImage = (imagedata) => {
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')!
+  canvas.width = imagedata.width
+  canvas.height = imagedata.height
+  ctx.putImageData(imagedata, 0, 0)
+
+  const image = new Image()
+  image.src = canvas.toDataURL()
+  return image
+}
