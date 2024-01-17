@@ -31,8 +31,8 @@ import { NO_PROXY, createState, getMutableState, getState, none, useHookstate } 
 import { VRM } from '@pixiv/three-vrm'
 import React from 'react'
 import { AssetType } from '../../assets/enum/AssetType'
+import { useGLTF } from '../../assets/functions/resourceHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { ResourceManager, ResourceType } from '../../assets/state/ResourceState'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
 import { autoconvertMixamoAvatar, isAvaturn } from '../../avatar/functions/avatarFunctions'
@@ -146,6 +146,61 @@ function ModelReactor(): JSX.Element {
   const modelComponent = useComponent(entity, ModelComponent)
   const variantComponent = useOptionalComponent(entity, VariantComponent)
 
+  /** @todo this is a hack */
+  const override = !isAvaturn(modelComponent.value.src) ? undefined : AssetType.glB
+  const [gltf, progress, error] = useGLTF(
+    modelComponent.value.src,
+    {
+      forceAssetType: override,
+      ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
+    },
+    entity
+  )
+
+  useEffect(() => {
+    const onprogress = progress.value
+    if (!onprogress) return
+    if (hasComponent(entity, SceneAssetPendingTagComponent))
+      SceneAssetPendingTagComponent.loadingProgress.merge({
+        [entity]: {
+          loadedAmount: onprogress.loaded,
+          totalAmount: onprogress.total
+        }
+      })
+  }, [progress])
+
+  useEffect(() => {
+    const loadedAsset = gltf.get(NO_PROXY)
+    if (!loadedAsset) return
+
+    if (variantComponent && !variantComponent.calculated.value) return
+    if (typeof loadedAsset !== 'object') {
+      addError(entity, ModelComponent, 'INVALID_SOURCE', 'Invalid URL')
+      return
+    }
+
+    const boneMatchedAsset = modelComponent.convertToVRM.value
+      ? (autoconvertMixamoAvatar(loadedAsset) as GLTF)
+      : loadedAsset
+    /**if we've loaded or converted to vrm, create animation component whose mixer's root is the normalized rig */
+    if (boneMatchedAsset instanceof VRM)
+      setComponent(entity, AnimationComponent, {
+        animations: loadedAsset.animations,
+        mixer: new AnimationMixer(boneMatchedAsset.humanoid.normalizedHumanBones.hips.node)
+      })
+
+    modelComponent.asset.set(boneMatchedAsset)
+  }, [gltf])
+
+  useEffect(() => {
+    const err = error.value
+    if (!err) return
+
+    console.error(err)
+    addError(entity, ModelComponent, 'INVALID_SOURCE', err.message)
+    removeComponent(entity, SceneAssetPendingTagComponent)
+  }, [error])
+
   useEffect(() => {
     let aborted = false
     if (variantComponent && !variantComponent.calculated.value) return
@@ -163,52 +218,6 @@ function ModelReactor(): JSX.Element {
       proxifyParentChildRelationships(obj3d)
     }
 
-    /** @todo this is a hack */
-    const override = !isAvaturn(model.src) ? undefined : AssetType.glB
-
-    ResourceManager.load(
-      entity,
-      ResourceType.GLTF,
-      modelComponent.src.value,
-      {
-        forceAssetType: override,
-        ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
-      },
-      (loadedAsset) => {
-        if (variantComponent && !variantComponent.calculated.value) return
-        if (aborted) return
-        if (typeof loadedAsset !== 'object') {
-          addError(entity, ModelComponent, 'INVALID_SOURCE', 'Invalid URL')
-          return
-        }
-        const boneMatchedAsset = modelComponent.convertToVRM.value
-          ? (autoconvertMixamoAvatar(loadedAsset) as GLTF)
-          : loadedAsset
-        /**if we've loaded or converted to vrm, create animation component whose mixer's root is the normalized rig */
-        if (boneMatchedAsset instanceof VRM)
-          setComponent(entity, AnimationComponent, {
-            animations: loadedAsset.animations,
-            mixer: new AnimationMixer(boneMatchedAsset.humanoid.normalizedHumanBones.hips.node)
-          })
-        modelComponent.asset.set(boneMatchedAsset)
-      },
-      (onprogress) => {
-        if (aborted) return
-        if (hasComponent(entity, SceneAssetPendingTagComponent))
-          SceneAssetPendingTagComponent.loadingProgress.merge({
-            [entity]: {
-              loadedAmount: onprogress.loaded,
-              totalAmount: onprogress.total
-            }
-          })
-      },
-      (err: Error) => {
-        if (aborted) return
-        console.error(err)
-        addError(entity, ModelComponent, 'INVALID_SOURCE', err.message)
-        removeComponent(entity, SceneAssetPendingTagComponent)
-      }
-    )
     return () => {
       aborted = true
     }

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 import { Entity } from '../../ecs/classes/Entity'
 import { AssetLoader, LoadingArgs } from '../classes/AssetLoader'
 
@@ -32,7 +32,8 @@ THREE.Cache.enabled
 
 //@ts-ignore
 THREE.DefaultLoadingManager.onLoad = () => {
-  console.log('On Load')
+  const totalSize = getCurrentSizeOfResources()
+  console.log('Loaded: ' + totalSize + ' bytes of resources')
 }
 
 //Called when the item at the url passed in has completed loading
@@ -86,10 +87,21 @@ export const ResourceState = defineState({
   })
 })
 
+const getCurrentSizeOfResources = () => {
+  let size = 0
+  const resources = getState(ResourceState).resources
+  for (const key in resources) {
+    const resource = resources[key]
+    if (resource.metadata.size) size += resource.metadata.size
+  }
+
+  return size
+}
+
 const load = (
-  entity: Entity,
-  resourceType: ResourceType,
   url: string,
+  resourceType: ResourceType,
+  entity: Entity,
   args: LoadingArgs,
   onLoad = (response: any) => {},
   onProgress = (request: ProgressEvent) => {},

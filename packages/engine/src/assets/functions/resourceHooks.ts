@@ -23,4 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export function useGLTF() {}
+import { State, useHookstate } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
+import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
+import { LoadingArgs } from '../classes/AssetLoader'
+import { GLTF } from '../loaders/gltf/GLTFLoader'
+import { ResourceManager, ResourceType } from '../state/ResourceState'
+
+export function useGLTF(
+  src: string,
+  params: LoadingArgs = {},
+  entity?: Entity
+): [State<GLTF | null>, State<ProgressEvent<EventTarget> | null>, State<ErrorEvent | Error | null>] {
+  const gltf = useHookstate<GLTF | null>(null)
+  const progress = useHookstate<ProgressEvent<EventTarget> | null>(null)
+  const error = useHookstate<ErrorEvent | Error | null>(null)
+
+  useEffect(() => {
+    ResourceManager.load(
+      src,
+      ResourceType.GLTF,
+      entity || UndefinedEntity,
+      params,
+      (response) => {
+        gltf.set(response)
+      },
+      (request) => {
+        progress.set(request)
+      },
+      (err) => {
+        error.set(err)
+      }
+    )
+  }, [src])
+
+  return [gltf, progress, error]
+}
