@@ -28,10 +28,11 @@ import React from 'react'
 import LocationDrawer, {
   LocationDrawerMode
 } from '@etherealengine/client-core/src/admin/components/Location/LocationDrawer'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { SceneID, locationPath } from '@etherealengine/common/src/schema.type.module'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { Button } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { InfoTooltip } from '../../layout/Tooltip'
@@ -45,6 +46,8 @@ export const PublishLocation = () => {
     ? (activeScene.value!.replace('.scene.json', '').replace('projects/', '') as SceneID)
     : null
   const drawerMode = useHookstate<LocationDrawerMode>(LocationDrawerMode.Create)
+  const user = useHookstate(getMutableState(AuthState).user)
+  const hasWriteAccess = user.scopes.get(NO_PROXY)?.find((item) => item?.type === 'location:write')
 
   const existingLocation = useFind(locationPath, {
     query: {
@@ -72,7 +75,11 @@ export const PublishLocation = () => {
         className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer + ' ' + styles.publishButton}
       >
         <InfoTooltip title={t('editor:toolbar.publishLocation.lbl')} info={t('editor:toolbar.publishLocation.info')}>
-          <Button onClick={handleOpenLocationDrawer} className={styles.toolButton} disabled={!activeScene.value}>
+          <Button
+            onClick={handleOpenLocationDrawer}
+            className={styles.toolButton}
+            disabled={!activeScene.value || !hasWriteAccess}
+          >
             {t(`editor:toolbar.publishLocation.title`)}
           </Button>
         </InfoTooltip>
