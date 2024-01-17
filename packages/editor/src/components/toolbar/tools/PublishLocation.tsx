@@ -40,7 +40,7 @@ import * as styles from '../styles.module.scss'
 export const PubishLocation = () => {
   const { t } = useTranslation()
   const openLocationDrawer = useHookstate(false)
-  const activeScene = useHookstate(getMutableState(SceneState).activeScene)
+  let activeScene = useHookstate(getMutableState(SceneState).activeScene).value
   let drawerMode = LocationDrawerMode.Create
 
   const existingLocation = useFind(locationPath, {
@@ -49,7 +49,7 @@ export const PubishLocation = () => {
       $limit: 1,
       action: 'studio',
       sceneId: {
-        $like: `%${activeScene.value}%` as SceneID
+        $like: `%${activeScene}%` as SceneID
       }
     }
   })
@@ -58,6 +58,7 @@ export const PubishLocation = () => {
     if (existingLocation.data.length > 0) {
       drawerMode = LocationDrawerMode.ViewEdit
     }
+    activeScene = activeScene!.replace('.scene.json', '').replace('projects/', '') as SceneID
     openLocationDrawer.set(true)
   }
 
@@ -65,7 +66,7 @@ export const PubishLocation = () => {
     <>
       <div id="publish-location" className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer}>
         <InfoTooltip title={t('editor:toolbar.publishLocation.lbl')} info={t('editor:toolbar.publishLocation.info')}>
-          <Button onClick={handleOpenLocationDrawer} disabled={!activeScene.value} className={styles.btn}>
+          <Button onClick={handleOpenLocationDrawer} disabled={!activeScene} className={styles.btn}>
             {t(`editor:toolbar.publishLocation.title`)}
           </Button>
         </InfoTooltip>
@@ -73,7 +74,7 @@ export const PubishLocation = () => {
       <LocationDrawer
         open={openLocationDrawer.value}
         mode={drawerMode}
-        selectedScene={activeScene.value}
+        selectedScene={activeScene}
         onClose={() => openLocationDrawer.set(false)}
       />
     </>

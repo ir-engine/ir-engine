@@ -92,10 +92,8 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
   const hasWriteAccess = user.scopes.get(NO_PROXY)?.find((item) => item?.type === 'location:write')
   const viewMode = mode === LocationDrawerMode.ViewEdit && !editMode.value
 
-  const sceneName = selectedScene
-    ? selectedScene.replace(`${selectedScene.split('/', 1)[0]}/`, '').replace('.scene.json', '')
-    : ''
-  const projectName = selectedScene ? selectedScene.split('/', 1)[0].replace : ''
+  const sceneName = selectedScene ? selectedScene.split('/')[1] : ''
+  const projectName = selectedScene ? selectedScene.split('/', 1)[0] : ''
 
   if (selectedScene) state.scene.set(sceneName)
 
