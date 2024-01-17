@@ -35,7 +35,7 @@ import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { ReactorRoot } from './ReactorFunctions'
-import { UninitializedEventSourceQueues } from './StateFunctions'
+import { setInitialState, StateDefinitions } from './StateFunctions'
 import { HyperFlux } from './StoreFunctions'
 
 const logger = multiLogger.child({ component: 'hyperflux:Action' })
@@ -410,6 +410,46 @@ const applyIncomingActionsToAllQueues = (action: Required<ResolvedActionType>) =
   }
 }
 
+const createEventSourceQueues = (action: Required<ResolvedActionType>) => {
+  for (const definition of StateDefinitions.values()) {
+    if (!definition.receptors || HyperFlux.store.receptors[definition.name]) continue
+
+    const matchedActions = Object.values(definition.receptors).map((r) => r.matchesAction)
+    if (!matchedActions.some((m) => m.test(action))) continue
+
+    const receptorActionQueue = defineActionQueue(matchedActions)
+    definition.receptorActionQueue = receptorActionQueue
+
+    // set resync to true to ensure the queue exists immediately
+    receptorActionQueue.needsResync = true
+
+    if (!HyperFlux.store.stateMap[definition.name]) setInitialState(definition)
+
+    const applyEventSourcing = () => {
+      // queue may need to be reset when actions are recieved out of order
+      // or when state needs to be rolled back
+      if (receptorActionQueue.needsResync) {
+        // reset the state to the initial value when the queue is reset
+        setInitialState(definition)
+        receptorActionQueue.resync()
+      }
+
+      // apply each action to each matching receptor, in order
+      for (const action of receptorActionQueue()) {
+        for (const receptor of Object.values(definition.receptors!)) {
+          try {
+            receptor.matchesAction.test(action) && receptor(action)
+          } catch (e) {
+            logger.error(e)
+          }
+        }
+      }
+    }
+
+    HyperFlux.store.receptors[definition.name] = applyEventSourcing
+  }
+}
+
 const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
   // ensure actions are idempotent
   if (HyperFlux.store.actions.knownUUIDs.has(action.$uuid)) {
@@ -429,7 +469,7 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
 
   _updateCachedActions(action)
 
-  for (const queue of UninitializedEventSourceQueues) queue(action)
+  createEventSourceQueues(action)
 
   applyIncomingActionsToAllQueues(action)
 
@@ -469,7 +509,7 @@ const _forwardIfNecessary = (action: Required<ResolvedActionType>) => {
 
 /** Drain event sourced queues and run receptors */
 const applyEventSourcingToAllQueues = () => {
-  for (const receptors of HyperFlux.store.receptors) receptors()
+  for (const receptors of Object.values(HyperFlux.store.receptors)) receptors()
 }
 
 /**

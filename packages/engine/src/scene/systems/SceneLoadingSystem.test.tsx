@@ -82,14 +82,19 @@ describe('SceneLoadingSystem', () => {
     }
   })
 
+  afterEach(() => {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = undefined
+    return destroyEngine()
+  })
+
+  const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
+  const tag = <Reactor />
+
   it('will load entities', async () => {
     getMutableState(SceneState).activeScene.set(testID)
     getMutableState(PhysicsState).physicsWorld.set({} as any)
 
     // init
-
-    const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
-    const tag = <Reactor />
 
     SceneState.loadScene(testID, testScene)
 
@@ -210,8 +215,6 @@ describe('SceneLoadingSystem', () => {
     getMutableState(PhysicsState).physicsWorld.set({} as any)
 
     // init
-    const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
-    const tag = <Reactor />
     SceneState.loadScene(testID, testScene)
 
     // render
@@ -267,8 +270,6 @@ describe('SceneLoadingSystem', () => {
     }
 
     testScene.scene.entities['child_0'].components.push(dynamicLoadJson)
-    const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
-    const tag = <Reactor />
 
     // load scene
 
@@ -332,8 +333,6 @@ describe('SceneLoadingSystem', () => {
     }
 
     testScene.scene.entities['child_0'].components.push(dynamicLoadJson)
-    const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
-    const tag = <Reactor />
     // set to location mode
 
     // load scene
@@ -545,9 +544,6 @@ describe('SceneLoadingSystem', () => {
 
     // init
 
-    const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
-    const tag = <Reactor />
-
     SceneState.loadScene(testID, testScene)
 
     // render
@@ -694,10 +690,6 @@ describe('SceneLoadingSystem', () => {
     // unmount to cleanup
     unmount()
   })
-  afterEach(() => {
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = undefined
-    return destroyEngine()
-  })
 })
 
 describe('Snapshots', () => {
@@ -723,6 +715,17 @@ describe('Snapshots', () => {
       }
     }
   })
+
+  afterEach(() => {
+    getMutableState(EngineState).isEditing.set(false)
+    getMutableState(EngineState).isEditor.set(false)
+
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = undefined
+    return destroyEngine()
+  })
+
+  const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
+  const tag = <Reactor />
 
   it('create snapshot', async () => {
     getMutableState(SceneState).activeScene.set(testID)
@@ -872,8 +875,6 @@ describe('Snapshots', () => {
     getMutableState(PhysicsState).physicsWorld.set({} as any)
 
     // init
-    const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
-    const tag = <Reactor />
     SceneState.loadScene(testID, testScene)
 
     // render
@@ -1013,8 +1014,6 @@ describe('Snapshots', () => {
     getMutableState(PhysicsState).physicsWorld.set({} as any)
 
     // init
-    const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
-    const tag = <Reactor />
     SceneState.loadScene(testID, testScene)
 
     // render
@@ -1158,12 +1157,5 @@ describe('Snapshots', () => {
 
     // unmount to cleanup
     unmount()
-  })
-  afterEach(() => {
-    getMutableState(EngineState).isEditing.set(false)
-    getMutableState(EngineState).isEditor.set(false)
-
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = undefined
-    return destroyEngine()
   })
 })

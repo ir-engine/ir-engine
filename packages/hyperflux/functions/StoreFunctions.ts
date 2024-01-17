@@ -69,7 +69,7 @@ export interface HyperStore {
   /**
    * State dictionary
    */
-  stateMap: { [type: string]: State<any> }
+  stateMap: Record<string, State<any>>
 
   actions: {
     /** All queues that have been created */
@@ -96,7 +96,7 @@ export interface HyperStore {
     >
   }
 
-  receptors: Array<() => void>
+  receptors: Record<string, () => void>
 
   /** active reactors */
   activeReactors: Set<ReactorRoot>
@@ -135,7 +135,7 @@ export function createHyperStore(options: {
       knownUUIDs: new Set(),
       outgoing: {}
     },
-    receptors: [],
+    receptors: {},
     activeReactors: new Set(),
     activeSystemReactors: new Map<SystemUUID, ReactorRoot>(),
     currentSystemUUID: '__null__' as SystemUUID,

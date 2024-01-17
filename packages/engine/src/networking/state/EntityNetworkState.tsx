@@ -52,7 +52,6 @@ import { SimulationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { NetworkState } from '../NetworkState'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
 export const EntityNetworkState = defineState({
@@ -83,16 +82,18 @@ export const EntityNetworkState = defineState({
     }),
 
     onRequestAuthorityOverObject: WorldNetworkAction.requestAuthorityOverObject.receive((action) => {
-      getMutableState(EntityNetworkState)[action.entityUUID].requestingPeerId.set(action.$peer)
+      getMutableState(EntityNetworkState)[action.entityUUID].requestingPeerId.set(action.newAuthority)
     }),
 
-    onTransferAuhtorityOfObject: WorldNetworkAction.transferAuthorityOfObject.receive((action) => {
-      const networkState = getState(NetworkState)
+    onTransferAuthorityOfObject: WorldNetworkAction.transferAuthorityOfObject.receive((action) => {
+      // const networkState = getState(NetworkState)
+      // const fromUserId = networkState.networks[action.$network].peers[action.$peer].userId
+      const fromUserId = action.$from
       const state = getMutableState(EntityNetworkState)
-      const fromUserId = networkState.networks[action.$network].peers[action.$peer].userId
       const ownerUserId = state[action.entityUUID].ownerId.value
       if (fromUserId !== ownerUserId) return // Authority transfer can only be initiated by owner
       state[action.entityUUID].authorityPeerId.set(action.newAuthority)
+      state[action.entityUUID].requestingPeerId.set(none)
     }),
 
     onDestroyObject: WorldNetworkAction.destroyObject.receive((action) => {
@@ -102,7 +103,7 @@ export const EntityNetworkState = defineState({
 })
 
 const EntityNetworkReactor = memo((props: { uuid: EntityUUID }) => {
-  const state = useHookstate(getMutableState(EntityNetworkState))[props.uuid]
+  const state = useHookstate(getMutableState(EntityNetworkState)[props.uuid])
 
   useEffect(() => {
     const entity = UUIDComponent.getOrCreateEntityByUUID(props.uuid)
@@ -132,7 +133,7 @@ const EntityNetworkReactor = memo((props: { uuid: EntityUUID }) => {
       authorityPeerID: state.authorityPeerId.value,
       networkId: state.networkId.value
     })
-  }, [state])
+  }, [state.ownerId, state.authorityPeerId, state.networkId])
 
   useEffect(() => {
     if (!state.requestingPeerId.value) return

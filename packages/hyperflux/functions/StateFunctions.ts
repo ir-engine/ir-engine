@@ -31,7 +31,7 @@ import { resolveObject } from '@etherealengine/common/src/utils/resolveObject'
 import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 
-import { ActionQueueHandle, ActionReceptor, defineActionQueue, ResolvedActionType } from './ActionFunctions'
+import { ActionQueueHandle, ActionReceptor } from './ActionFunctions'
 import { HyperFlux, HyperStore } from './StoreFunctions'
 
 export * from '@hookstate/core'
@@ -52,7 +52,6 @@ export type StateDefinition<S, Receptors extends ReceptorMap> = {
 }
 
 export const StateDefinitions = new Map<string, StateDefinition<any, ReceptorMap>>()
-export const UninitializedEventSourceQueues = new Set<(action: Required<ResolvedActionType>) => void>()
 
 export const setInitialState = (def: StateDefinition<any, ReceptorMap>) => {
   const initial = typeof def.initial === 'function' ? (def.initial as any)() : JSON.parse(JSON.stringify(def.initial))
@@ -69,50 +68,6 @@ export function defineState<S, R extends ReceptorMap, StateExtras = unknown>(
 ) {
   if (StateDefinitions.has(definition.name)) throw new Error(`State ${definition.name} already defined`)
   StateDefinitions.set(definition.name, definition)
-
-  if (definition.receptors) {
-    const matchedActions = Object.values(definition.receptors!).map((r) => r.matchesAction)
-
-    const matchActionToEventSourcedActionQueues = (action) => {
-      if (!matchedActions.some((m) => m.test(action))) return
-
-      UninitializedEventSourceQueues.delete(matchActionToEventSourcedActionQueues)
-
-      const receptorActionQueue = defineActionQueue(matchedActions)
-      definition.receptorActionQueue = receptorActionQueue
-
-      // set resync to true to ensure the queue exists immediately
-      receptorActionQueue.needsResync = true
-
-      if (!HyperFlux.store.stateMap[definition.name]) setInitialState(definition)
-
-      const applyEventSourcing = () => {
-        // queue may need to be reset when actions are recieved out of order
-        // or when state needs to be rolled back
-        if (receptorActionQueue.needsResync) {
-          // reset the state to the initial value when the queue is reset
-          setInitialState(definition)
-          receptorActionQueue.resync()
-        }
-
-        // apply each action to each matching receptor, in order
-        for (const action of receptorActionQueue()) {
-          for (const receptor of Object.values(definition.receptors!)) {
-            try {
-              receptor.matchesAction.test(action) && receptor(action)
-            } catch (e) {
-              logger.error(e)
-            }
-          }
-        }
-      }
-
-      HyperFlux.store.receptors.push(applyEventSourcing)
-    }
-
-    UninitializedEventSourceQueues.add(matchActionToEventSourcedActionQueues)
-  }
-
   return definition as StateDefinition<S, R> & { _TYPE: S } & StateExtras
 }
 
