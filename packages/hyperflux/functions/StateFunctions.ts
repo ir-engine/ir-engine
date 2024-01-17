@@ -79,6 +79,8 @@ export function defineState<S, R extends ReceptorMap, StateExtras = unknown>(
       UninitializedEventSourceQueues.delete(matchActionToEventSourcedActionQueues)
 
       const receptorActionQueue = defineActionQueue(matchedActions)
+      definition.receptorActionQueue = receptorActionQueue
+
       // set resync to true to ensure the queue exists immediately
       receptorActionQueue.needsResync = true
 

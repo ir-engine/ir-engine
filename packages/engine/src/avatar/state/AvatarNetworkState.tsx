@@ -89,7 +89,7 @@ export const AvatarState = defineState({
   }
 })
 
-const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) => {
+const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   const state = useHookstate(getMutableState(AvatarState)[entityUUID])
   const entity = UUIDComponent.useEntityByUUID(entityUUID)
 
@@ -112,7 +112,7 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
     return () => {
       aborted = true
     }
-  }, [state.avatarID, entityUUID])
+  }, [state.avatarID, entity])
 
   useEffect(() => {
     if (!isClient) return
@@ -133,17 +133,15 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
   }, [state.userAvatarDetails, entity])
 
   return null
-})
+}
 
 export const AvatarStateReactor = () => {
   const avatarState = useState(getMutableState(AvatarState))
-  const uuidState = useState(UUIDComponent.entitiesByUUIDState)
   return (
     <>
-      {avatarState.keys.map((entityUUID: EntityUUID) => {
-        const entity = uuidState[entityUUID].value
-        return entity ? <AvatarReactor key={entityUUID} entityUUID={entityUUID} /> : null
-      })}
+      {avatarState.keys.map((entityUUID: EntityUUID) => (
+        <AvatarReactor key={entityUUID} entityUUID={entityUUID} />
+      ))}
     </>
   )
 }
