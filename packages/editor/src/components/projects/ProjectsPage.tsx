@@ -208,8 +208,9 @@ const ProjectsPage = () => {
       : OFFICIAL_PROJECTS_DATA
   )
     .filter(() => projectCategoryFilter.official.value)
-    .filter((p) => !installedProjects?.find((ip) => ip.name.includes(p.name)))
-    .toSorted(sortAlphabetical) as ProjectType[]
+    .filter((p) => !installedProjects?.find((ip) => ip.name.includes(p.name))) as ProjectType[]
+  officialProjects.sort(sortAlphabetical)
+
   const communityProjects = (
     search.query.value
       ? COMMUNITY_PROJECTS_DATA.filter(
@@ -218,8 +219,8 @@ const ProjectsPage = () => {
       : COMMUNITY_PROJECTS_DATA
   )
     .filter(() => projectCategoryFilter.community.value)
-    .filter((p) => !installedProjects?.find((ip) => ip.name.includes(p.name)))
-    .toSorted(sortAlphabetical) as ProjectType[]
+    .filter((p) => !installedProjects?.find((ip) => ip.name.includes(p.name))) as ProjectType[]
+  communityProjects.sort(sortAlphabetical)
 
   useEffect(() => {
     if (activeProject.value)
