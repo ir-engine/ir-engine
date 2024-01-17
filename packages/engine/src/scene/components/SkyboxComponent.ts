@@ -24,19 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import {
-  Color,
-  CubeReflectionMapping,
-  CubeTexture,
-  EquirectangularReflectionMapping,
-  SRGBColorSpace,
-  Texture
-} from 'three'
+import { Color, CubeReflectionMapping, CubeTexture, EquirectangularReflectionMapping, SRGBColorSpace } from 'three'
 
 import { config } from '@etherealengine/common/src/config'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { useTexture } from '../../assets/functions/resourceHooks'
 import { isClient } from '../../common/functions/getEnvironment'
 import { SceneState } from '../../ecs/classes/Scene'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
@@ -100,6 +93,22 @@ export const SkyboxComponent = defineComponent({
     const skyboxState = useComponent(entity, SkyboxComponent)
     const background = useHookstate(getMutableState(SceneState).background)
 
+    const [texture, error] = useTexture(skyboxState.equirectangularPath.value)
+
+    useEffect(() => {
+      if (skyboxState.backgroundType.value !== SkyTypeEnum.equirectangular) return
+
+      const textureValue = texture.get(NO_PROXY)
+      if (textureValue) {
+        textureValue.colorSpace = SRGBColorSpace
+        textureValue.mapping = EquirectangularReflectionMapping
+        background.set(textureValue)
+        removeError(entity, SkyboxComponent, 'FILE_ERROR')
+      } else if (error.value) {
+        addError(entity, SkyboxComponent, 'FILE_ERROR', error.value.message)
+      }
+    }, [texture, error, skyboxState.backgroundType, skyboxState.equirectangularPath])
+
     useEffect(() => {
       if (skyboxState.backgroundType.value !== SkyTypeEnum.color) return
       background.set(skyboxState.backgroundColor.value)
@@ -126,24 +135,6 @@ export const SkyboxComponent = defineComponent({
       ]
       loadCubeMapTexture(...loadArgs)
     }, [skyboxState.backgroundType, skyboxState.cubemapPath])
-
-    useEffect(() => {
-      if (skyboxState.backgroundType.value !== SkyTypeEnum.equirectangular) return
-      AssetLoader.load(
-        skyboxState.equirectangularPath.value,
-        {},
-        (texture: Texture) => {
-          texture.colorSpace = SRGBColorSpace
-          texture.mapping = EquirectangularReflectionMapping
-          background.set(texture)
-          removeError(entity, SkyboxComponent, 'FILE_ERROR')
-        },
-        undefined,
-        (error) => {
-          addError(entity, SkyboxComponent, 'FILE_ERROR', error.message)
-        }
-      )
-    }, [skyboxState.backgroundType, skyboxState.equirectangularPath])
 
     useEffect(() => {
       if (skyboxState.backgroundType.value !== SkyTypeEnum.skybox) {

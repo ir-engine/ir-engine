@@ -36,10 +36,10 @@ function useLoader<T>(
   resourceType: ResourceType,
   params: LoadingArgs = {},
   entity?: Entity
-): [State<T | null>, State<ProgressEvent<EventTarget> | null>, State<ErrorEvent | Error | null>] {
+): [State<T | null>, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>] {
   const value = useHookstate<T | null>(null)
-  const progress = useHookstate<ProgressEvent<EventTarget> | null>(null)
   const error = useHookstate<ErrorEvent | Error | null>(null)
+  const progress = useHookstate<ProgressEvent<EventTarget> | null>(null)
 
   useEffect(() => {
     if (!url) return
@@ -60,14 +60,14 @@ function useLoader<T>(
     )
   }, [url])
 
-  return [value, progress, error]
+  return [value, error, progress]
 }
 
 export function useGLTF(
   url: string,
   params: LoadingArgs = {},
   entity?: Entity
-): [State<GLTF | null>, State<ProgressEvent<EventTarget> | null>, State<ErrorEvent | Error | null>] {
+): [State<GLTF | null>, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>] {
   return useLoader<GLTF>(url, ResourceType.GLTF, params, entity)
 }
 
@@ -75,6 +75,6 @@ export function useTexture(
   url: string,
   params: LoadingArgs = {},
   entity?: Entity
-): [State<Texture | null>, State<ProgressEvent<EventTarget> | null>, State<ErrorEvent | Error | null>] {
+): [State<Texture | null>, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>] {
   return useLoader<Texture>(url, ResourceType.Texture, params, entity)
 }
