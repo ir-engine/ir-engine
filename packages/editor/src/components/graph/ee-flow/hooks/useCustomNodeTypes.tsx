@@ -33,7 +33,6 @@ const getCustomNodeTypes = (specGenerator: NodeSpecGenerator) => {
   return specGenerator.getNodeTypes().reduce((nodes: NodeTypes, nodeType) => {
     nodes[nodeType] = (props) => {
       const spec = specGenerator.getNodeSpec(nodeType, props.data.configuration)
-
       return <Node spec={spec} specGenerator={specGenerator} {...props} />
     }
     return nodes
