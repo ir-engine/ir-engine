@@ -23,9 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+import { NO_PROXY, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { Texture } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { AssetLoader, LoadingArgs } from '../classes/AssetLoader'
+import { GLTF } from '../loaders/gltf/GLTFLoader'
 
 //@ts-ignore
 THREE.Cache.enabled
@@ -73,7 +75,7 @@ type Resource = {
   status: ResourceStatus
   type: ResourceType
   references: Entity[]
-  assetRef?: any
+  assetRef?: GLTF | Texture
   metadata: {
     size?: number
   }
@@ -131,6 +133,12 @@ const load = (
     (response) => {
       resource.status.set(ResourceStatus.Loaded)
       resource.assetRef.set(response)
+      if (response.isTexture) {
+        const height = response.image.naturalHeight
+        const width = response.image.naturalWidth
+        const size = width * height * 4
+        resource.metadata.size.set(size)
+      }
       onLoad(response)
     },
     (request) => {
@@ -145,6 +153,64 @@ const load = (
   )
 }
 
+const unload = (url: string, resourceType: ResourceType, entity: Entity) => {
+  const resourceState = getMutableState(ResourceState)
+  const resources = resourceState.nested('resources')
+  if (!resources[url].value) {
+    console.error('ResourceManager:unload No resource exists for url: ' + url)
+    return
+  }
+
+  const resource = resources[url]
+
+  resource.references.set((entities) => {
+    const index = entities.indexOf(entity)
+    if (index > -1) {
+      entities.splice(index, 1)
+    }
+    return entities
+  })
+
+  if (resource.references.length == 0) {
+    removeResource(url)
+  }
+}
+
+const removeResource = (url: string) => {
+  const resourceState = getMutableState(ResourceState)
+  const resources = resourceState.nested('resources')
+  if (!resources[url].value) {
+    console.error('ResourceManager:removeResource No resource exists for url: ' + url)
+    return
+  }
+
+  const resource = resources[url]
+
+  if (resource.assetRef.value) {
+    switch (resource.type.value) {
+      case ResourceType.GLTF:
+        break
+      case ResourceType.Texture:
+        ;(resource.assetRef.get(NO_PROXY) as Texture).dispose()
+        break
+      case ResourceType.Geometry:
+        break
+      case ResourceType.ECSData:
+        break
+      case ResourceType.Audio:
+        break
+      case ResourceType.Unknown:
+        break
+
+      default:
+        break
+    }
+  }
+
+  resources[url].set(none)
+}
+
 export const ResourceManager = {
-  load
+  load,
+  unload
 }

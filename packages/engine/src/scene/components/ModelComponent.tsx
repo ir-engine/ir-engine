@@ -148,7 +148,7 @@ function ModelReactor(): JSX.Element {
 
   /** @todo this is a hack */
   const override = !isAvaturn(modelComponent.value.src) ? undefined : AssetType.glB
-  const [gltf, error, progress] = useGLTF(
+  const [gltf, unload, error, progress] = useGLTF(
     modelComponent.value.src,
     {
       forceAssetType: override,
@@ -190,6 +190,8 @@ function ModelReactor(): JSX.Element {
       })
 
     modelComponent.asset.set(boneMatchedAsset)
+
+    return unload
   }, [gltf])
 
   useEffect(() => {

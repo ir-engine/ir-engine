@@ -34,16 +34,15 @@ import {
   Quaternion,
   Raycaster,
   Sphere,
-  Texture,
   Vector3
 } from 'three'
 
 import config from '@etherealengine/common/src/config'
-import { defineState, getMutableState, getState, hookstate, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, defineState, getMutableState, getState, hookstate, useHookstate } from '@etherealengine/hyperflux'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'
 import { CSMHelper } from '../../assets/csm/CSMHelper'
+import { useTexture } from '../../assets/functions/resourceHooks'
 import { V_001 } from '../../common/constants/MathConstants'
 import { isClient } from '../../common/functions/getEnvironment'
 import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
@@ -397,15 +396,20 @@ const reactor = () => {
 
   const useShadows = useShadowsEnabled()
 
+  const [shadowTexture, unload] = useTexture(
+    `${config.client.fileServer}/projects/default-project/assets/drop-shadow.png`
+  )
+
   useEffect(() => {
-    AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/assets/drop-shadow.png`).then(
-      (texture: Texture) => {
-        shadowMaterial.map = texture
-        shadowMaterial.needsUpdate = true
-        shadowState.set(shadowMaterial)
-      }
-    )
-  }, [])
+    const texture = shadowTexture.get(NO_PROXY)
+    if (!texture) return
+
+    shadowMaterial.map = texture
+    shadowMaterial.needsUpdate = true
+    shadowState.set(shadowMaterial)
+
+    return unload
+  }, [shadowTexture])
 
   EngineRenderer.instance.renderer.shadowMap.enabled = EngineRenderer.instance.renderer.shadowMap.autoUpdate =
     useShadows

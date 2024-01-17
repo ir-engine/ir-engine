@@ -35,8 +35,8 @@ function useLoader<T>(
   url: string,
   resourceType: ResourceType,
   params: LoadingArgs = {},
-  entity?: Entity
-): [State<T | null>, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>] {
+  entity: Entity = UndefinedEntity
+): [State<T | null>, () => void, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>] {
   const value = useHookstate<T | null>(null)
   const error = useHookstate<ErrorEvent | Error | null>(null)
   const progress = useHookstate<ProgressEvent<EventTarget> | null>(null)
@@ -46,7 +46,7 @@ function useLoader<T>(
     ResourceManager.load(
       url,
       resourceType,
-      entity || UndefinedEntity,
+      entity,
       params,
       (response) => {
         value.set(response)
@@ -60,14 +60,18 @@ function useLoader<T>(
     )
   }, [url])
 
-  return [value, error, progress]
+  const unload = () => {
+    ResourceManager.unload(url, resourceType, entity)
+  }
+
+  return [value, unload, error, progress]
 }
 
 export function useGLTF(
   url: string,
   params: LoadingArgs = {},
   entity?: Entity
-): [State<GLTF | null>, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>] {
+): [State<GLTF | null>, () => void, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>] {
   return useLoader<GLTF>(url, ResourceType.GLTF, params, entity)
 }
 
@@ -75,6 +79,6 @@ export function useTexture(
   url: string,
   params: LoadingArgs = {},
   entity?: Entity
-): [State<Texture | null>, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>] {
+): [State<Texture | null>, () => void, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>] {
   return useLoader<Texture>(url, ResourceType.Texture, params, entity)
 }

@@ -93,7 +93,7 @@ export const SkyboxComponent = defineComponent({
     const skyboxState = useComponent(entity, SkyboxComponent)
     const background = useHookstate(getMutableState(SceneState).background)
 
-    const [texture, error] = useTexture(skyboxState.equirectangularPath.value)
+    const [texture, unload, error] = useTexture(skyboxState.equirectangularPath.value)
 
     useEffect(() => {
       if (skyboxState.backgroundType.value !== SkyTypeEnum.equirectangular) return
@@ -104,6 +104,7 @@ export const SkyboxComponent = defineComponent({
         textureValue.mapping = EquirectangularReflectionMapping
         background.set(textureValue)
         removeError(entity, SkyboxComponent, 'FILE_ERROR')
+        return unload
       } else if (error.value) {
         addError(entity, SkyboxComponent, 'FILE_ERROR', error.value.message)
       }
