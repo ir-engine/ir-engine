@@ -54,8 +54,8 @@ export const EngineVariableSet = makeFlowNodeDefinition({
         valueType: 'flow'
       },
       {
-        key: Object.keys(configuration).find((key) => key === 'variableName')!,
-        valueType: configuration.variableName?.valueType ?? 'string'
+        key: Object.keys(EngineVariableSet.configuration!).find((key) => key === 'variableName')!,
+        valueType: EngineVariableSet.configuration!.variableName?.valueType
       },
       {
         key: 'value',
@@ -63,7 +63,6 @@ export const EngineVariableSet = makeFlowNodeDefinition({
         label: variable.name
       }
     ]
-    console.log('DEBUG sockets set', sockets)
 
     return sockets
   },
@@ -76,7 +75,6 @@ export const EngineVariableSet = makeFlowNodeDefinition({
     const variable = variables[variableId!]
 
     if (!variable) return
-    console.log('DEBUG triggered set value', read('value'))
     const value = read('value')
     variable.set(value)
     commit('flow')
@@ -96,8 +94,8 @@ export const EngineVariableGet = makeFunctionNodeDefinition({
   in: (configuration, graph) => {
     const sockets: SocketsList = [
       {
-        key: Object.keys(configuration).find((key) => key === 'variableName')!,
-        valueType: configuration.variableName?.valueType ?? 'string'
+        key: Object.keys(EngineVariableGet.configuration!).find((key) => key === 'variableName')!,
+        valueType: EngineVariableGet.configuration!.variableName?.valueType
       }
     ]
     return sockets

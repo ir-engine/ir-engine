@@ -31,7 +31,6 @@ export const useChangeNode = (id: string, changeConfig = false, changeValues = t
 
   return useCallback(
     (key: string, value: any) => {
-      console.log('data change', id, key, value)
       instance.setNodes((nodes) =>
         nodes.map((n) => {
           if (n.id !== id) return n

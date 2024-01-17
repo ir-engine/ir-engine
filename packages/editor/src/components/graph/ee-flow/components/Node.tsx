@@ -88,7 +88,6 @@ export const Node: React.FC<NodeProps> = ({ id, data, spec, selected, specGenera
     padding: '0 8px'
   }
   const pairs = getPairs(spec.inputs, spec.outputs)
-
   const label = spec.label === '' ? data.label : spec.label
   return (
     <NodeContainer title={label} category={spec.category} selected={selected} isGroup={spec.type === 'group'}>

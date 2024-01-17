@@ -143,7 +143,7 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
         <SidePanel
           flowref={flowRef}
           examples={examples}
-          graph={graphJson ?? graph}
+          variables={variables}
           onNodesChange={onNodesChange}
           handleAddTemplate={handleAddTemplate}
           handleApplyTemplate={handleApplyTemplate}

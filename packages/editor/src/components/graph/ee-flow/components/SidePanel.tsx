@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { GraphJSON, VariableJSON } from '@behave-graph/core'
+import { VariableJSON } from '@behave-graph/core'
 import { BehaveGraphDomain } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { BehaveGraphState } from '@etherealengine/engine/src/behave-graph/state/BehaveGraphState'
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
@@ -55,13 +55,13 @@ type BehaveGraphFlow = ReturnType<typeof useBehaveGraphFlow>
 export type SidePanelProps = {
   flowref: React.MutableRefObject<HTMLElement | null>
   examples: Examples
-  graph: GraphJSON
+  variables: VariableJSON[]
 }
 
 export const SidePanel = ({
   flowref,
   examples,
-  graph,
+  variables,
   onNodesChange,
   handleAddTemplate,
   handleApplyTemplate,
@@ -178,7 +178,7 @@ export const SidePanel = ({
         <NodeEditor entity={UndefinedEntity} description={t('editor:graphPanel.sidePanel.template.description')}>
           <PaginatedList
             options={{ countPerPage: 5 }}
-            list={graph.variables!}
+            list={variables}
             element={(variable: VariableJSON, index) => {
               return (
                 <CollapsibleBlock label={variable.name} style={{ overflow: 'hidden' }}>

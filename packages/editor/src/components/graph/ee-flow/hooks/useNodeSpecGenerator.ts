@@ -33,7 +33,14 @@ import {
   writeDefaultNodeSpecsToJSON,
   writeNodeSpecToJSON
 } from '@behave-graph/core'
+import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
+import {
+  EngineVariableGet,
+  EngineVariableSet
+} from '@etherealengine/engine/src/behave-graph/nodes/Profiles/Engine/Values/VariableNodes'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { useEffect, useState } from 'react'
+import { SelectionState } from '../../../../services/SelectionServices'
 
 export class NodeSpecGenerator {
   private specsWithoutConfig?: NodeSpecJSON[]
@@ -46,9 +53,62 @@ export class NodeSpecGenerator {
   }
 
   getNodeSpec(nodeTypeName: string, configuration: NodeConfigurationJSON): NodeSpecJSON {
-    const cacheKey = nodeTypeName + '\x01' + JSON.stringify(configuration)
+    const entity = SelectionState.getSelectedEntity()
+    const graphComponent = getComponent(entity, BehaveGraphComponent)
+
+    const generateCacheKey = () => {
+      let cacheKey = nodeTypeName + '\x01' + JSON.stringify(configuration)
+      if (nodeTypeName === EngineVariableSet.typeName || nodeTypeName === EngineVariableGet.typeName) {
+        const variable = graphComponent.graph.variables?.find(
+          (variable) => variable.name === configuration.variableName
+        )
+        if (variable === undefined) return cacheKey
+        cacheKey = nodeTypeName + '\x01' + JSON.stringify(configuration) + '\x01' + variable.valueTypeName
+      }
+      return cacheKey
+    }
+
+    const cacheKey = generateCacheKey()
     if (!this.specsCache[cacheKey]) {
-      this.specsCache[cacheKey] = writeNodeSpecToJSON(this.registry, nodeTypeName, configuration)
+      const variableNodeAdjustSpec = () => {
+        if (nodeTypeName !== EngineVariableSet.typeName && nodeTypeName !== EngineVariableGet.typeName) return
+        const variable = graphComponent.graph.variables?.find(
+          (variable) => variable.name === configuration.variableName
+        )
+        if (variable === undefined) return
+        let sockets = specJson.inputs
+        switch (nodeTypeName) {
+          case EngineVariableSet.typeName: {
+            sockets = specJson.inputs
+            break
+          }
+          case EngineVariableGet.typeName: {
+            sockets = specJson.outputs
+            break
+          }
+        }
+        let valueSocket = sockets.find((socket) => socket.name === 'value')
+        valueSocket = {
+          ...valueSocket!,
+          valueType: variable!.valueTypeName!
+        }
+        sockets = sockets.filter((socket) => socket.name !== 'value')
+        sockets = [...sockets, valueSocket]
+        switch (nodeTypeName) {
+          case EngineVariableSet.typeName: {
+            specJson.inputs = sockets
+            break
+          }
+          case EngineVariableGet.typeName: {
+            specJson.outputs = sockets
+            break
+          }
+        }
+        return
+      }
+      const specJson = writeNodeSpecToJSON(this.registry, nodeTypeName, configuration)
+      variableNodeAdjustSpec()
+      this.specsCache[cacheKey] = specJson
     }
 
     return this.specsCache[cacheKey]
