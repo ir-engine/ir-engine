@@ -1327,6 +1327,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   const setTexture = (textureType: TextureType, target: string, index: number, currentTime: number) => {
     const currentTextureBuffer = textureBuffer.get(textureType)
     if (!currentTextureBuffer) {
+      console.error('Texture frames not found for time: ', currentTime)
       return
     }
     const frameData = currentTextureBuffer.get(target)!
@@ -1343,6 +1344,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
           return
         }
       }
+      console.error('Texture frames not found for time: ', currentTime)
     } else {
       const texture = frameData[index] as CompressedTexture
       setMap(textureType, texture)
@@ -1353,6 +1355,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     const keyframeA = getAttribute('keyframeA', currentTime)
     const keyframeB = getAttribute('keyframeB', currentTime)
     if (!keyframeA && !keyframeB) {
+      console.error('Geometry frames not found for time: ', currentTime)
       return
     } else if (!keyframeA && keyframeB) {
       setPositionAndNormal('keyframeB', keyframeB)
@@ -1473,6 +1476,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     setTexture(textureType, textureTarget, textureFrame, currentTime)
     const currentTextureBuffer = textureBuffer.get(textureType)
     if (!currentTextureBuffer) {
+      console.error('Texture frames not found for time: ', currentTime)
       return
     }
     for (const target in component.data.value.texture[textureType]?.targets) {
