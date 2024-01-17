@@ -44,7 +44,7 @@ export const PublishLocation = () => {
   const selectedScene = activeScene.value
     ? (activeScene.value!.replace('.scene.json', '').replace('projects/', '') as SceneID)
     : null
-  let drawerMode = LocationDrawerMode.Create
+  const drawerMode = useHookstate<LocationDrawerMode>(LocationDrawerMode.Create)
 
   const existingLocation = useFind(locationPath, {
     query: {
@@ -58,9 +58,10 @@ export const PublishLocation = () => {
   })
 
   const handleOpenLocationDrawer = async () => {
-    if (existingLocation.data.length > 0) {
-      drawerMode = LocationDrawerMode.ViewEdit
-    }
+    existingLocation.refetch()
+
+    if (existingLocation.data.length > 0) drawerMode.set(LocationDrawerMode.ViewEdit)
+
     openLocationDrawer.set(true)
   }
 
@@ -75,7 +76,8 @@ export const PublishLocation = () => {
       </div>
       <LocationDrawer
         open={openLocationDrawer.value}
-        mode={drawerMode}
+        mode={drawerMode.value}
+        selectedLocation={existingLocation.data[0]}
         selectedScene={selectedScene}
         onClose={() => openLocationDrawer.set(false)}
       />
