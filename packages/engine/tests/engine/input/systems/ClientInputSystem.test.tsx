@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import * as bitECS from 'bitecs'
 
 import { World } from '@dimforge/rapier3d-compat'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
@@ -125,7 +124,7 @@ describe('addClientInputListeners', () => {
       listener(mockEvent)
     })
 
-    const entities = bitECS.getAllEntities(Engine.instance)
+    const entities = Engine.instance.entityQuery()
     const emulatedInputSourceEntity = entities[entities.length - 1] as Entity
 
     assert(entityExists(emulatedInputSourceEntity))

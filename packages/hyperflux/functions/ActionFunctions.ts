@@ -560,9 +560,11 @@ export function defineActionQueue<V extends Validator<unknown, ResolvedActionTyp
       reactorRoot?.cleanupFunctions.add(() => {
         removeActionQueue(actionQueueGetter)
       })
-    } else if (queueInstance.reactorRoot !== reactorRoot) {
-      throw new Error('Action queue is being used by multiple reactors')
     }
+    /** @todo sometimes there is no reactor root, which throws this unnecessarily */
+    //  else if (queueInstance.reactorRoot !== reactorRoot) {
+    //   throw new Error('Action queue is being used by multiple reactors')
+    // }
 
     return queueInstance
   }

@@ -196,7 +196,8 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     Engine.instance.api.service(scenePath).on('updated', sceneUpdatedListener)
 
     return () => {
-      Engine.instance.api.service(scenePath).off('updated', sceneUpdatedListener)
+      // the ? is for testing
+      Engine.instance?.api.service(scenePath).off('updated', sceneUpdatedListener)
     }
   }, [])
 

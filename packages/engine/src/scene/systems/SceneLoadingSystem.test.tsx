@@ -726,15 +726,14 @@ describe('Snapshots', () => {
 
   const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
   const tag = <Reactor />
+  const SceneReactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
+  const sceneTag = <SceneReactor />
 
   it('create snapshot', async () => {
     getMutableState(SceneState).activeScene.set(testID)
     getMutableState(PhysicsState).physicsWorld.set({} as any)
 
     // init
-    const SceneReactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
-    const sceneTag = <SceneReactor />
-
     SceneState.loadScene(testID, testScene)
 
     // render
