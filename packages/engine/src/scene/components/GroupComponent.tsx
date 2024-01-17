@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { FC, memo } from 'react'
-import { Camera, Object3D, Scene } from 'three'
+import { Camera, Object3D } from 'three'
 
 import { none } from '@etherealengine/hyperflux'
 
@@ -63,7 +63,7 @@ export const GroupComponent = defineComponent({
   }
 })
 
-export function addObjectToGroup(entity: Entity, object: Object3D, scene = null as Scene | null) {
+export function addObjectToGroup(entity: Entity, object: Object3D) {
   const obj = object as Object3D & Camera
   obj.entity = entity
 
@@ -95,8 +95,7 @@ export function addObjectToGroup(entity: Entity, object: Object3D, scene = null 
     updateWorldMatrix: () => {}
   })
 
-  if (object !== Engine.instance.scene && object !== scene)
-    scene ? scene.add(object) : Engine.instance.scene.add(object)
+  if (object !== Engine.instance.scene) Engine.instance.scene.add(object)
 
   // sometimes it's convenient to update the entity transform via the Object3D,
   // so allow people to do that via proxies

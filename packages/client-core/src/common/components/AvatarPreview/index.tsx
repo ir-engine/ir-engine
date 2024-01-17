@@ -42,9 +42,8 @@ import styles from './index.module.scss'
 import { defaultAnimationPath, preloadedAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { ModelPreviewComponent } from '@etherealengine/engine/src/scene/components/ModelPreviewComponent'
 interface Props {
   fill?: boolean
   avatarUrl?: string
@@ -60,39 +59,25 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
   const [avatarLoading, setAvatarLoading] = useState(false)
 
   const renderPanel = useRender3DPanelSystem(panelRef)
-  const { entity, camera, scene, renderer } = renderPanel.state
+  const { entity, camera, renderer } = renderPanel.state
 
   useEffect(() => {
     loadAvatarPreview()
   }, [avatarUrl])
 
-  const loadAvatarPreview = async () => {
-    const oldAvatar = scene.value.children.find((item) => item.name === 'avatar')
-    if (oldAvatar) {
-      removeEntity(entity.value)
-    }
-
-    entity.set(createEntity())
-
+  const loadAvatarPreview = () => {
     if (!avatarUrl) return
 
-    setAvatarLoading(true)
     resetAnimationLogic(entity.value)
 
-    setComponent(entity.value, UUIDComponent)
-    setComponent(entity.value, ModelComponent, { src: avatarUrl, sceneOverride: scene.value, convertToVRM: true })
+    setComponent(entity.value, ModelComponent, { src: avatarUrl, convertToVRM: true })
     setComponent(entity.value, LoopAnimationComponent, {
       animationPack: defaultAnimationPath + preloadedAnimations.locomotion + '.glb',
       activeClipIndex: 5
     })
-    //const mixer = new AnimationMixer(loadedAvatar.humanoid.normalizedHumanBones.hips.node)
-    //setComponent(entity.value, AnimationComponent, {mixer})
-    //mixer.clipAction(bindAnimationClipFromMixamo(getState(AnimationState).loadedAnimations[preloadedAnimations.locomotion].animations[0], loadedAvatar)).play()
-    setAvatarLoading(false)
-    onAvatarLoaded && onAvatarLoaded()
+    setComponent(entity.value, ModelPreviewComponent)
 
-    //loadedAvatar.scene.getWorldPosition(camera.value.position)
-    camera.value.position.y += 1.8
+    camera.value.position.y = 1
     camera.value.position.z = 1
   }
 

@@ -164,7 +164,7 @@ function ModelReactor(): JSX.Element {
       const obj3d = new Group()
       obj3d.entity = entity
       addObjectToGroup(entity, obj3d, modelComponent.sceneOverride.value)
-      if (!modelComponent.sceneOverride.value) proxifyParentChildRelationships(obj3d)
+      proxifyParentChildRelationships(obj3d)
     }
 
     /** @todo this is a hack */

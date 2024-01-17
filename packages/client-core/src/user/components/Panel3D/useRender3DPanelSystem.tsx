@@ -24,40 +24,24 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { DirectionalLight, HemisphereLight, PerspectiveCamera, Scene, SRGBColorSpace, WebGLRenderer } from 'three'
+import { PerspectiveCamera, SRGBColorSpace, WebGLRenderer } from 'three'
 
 import { useHookstateFromFactory } from '@etherealengine/common/src/utils/useHookstateFromFactory'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem, destroySystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { getOrbitControls } from '@etherealengine/engine/src/input/functions/loadOrbitControl'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 
 const initialize3D = () => {
   const camera = new PerspectiveCamera(60, 1, 0.25, 100000)
   camera.position.set(0, 1.75, 0.5)
-  camera.layers.set(ObjectLayers.Scene)
+  camera.layers.set(ObjectLayers.Panel)
 
-  const scene = new Scene()
-
-  const backLight = new DirectionalLight(0xfafaff, 0.5)
-  backLight.position.set(1, 3, -1)
-  backLight.target.position.set(0, 1.5, 0)
-  const frontLight = new DirectionalLight(0xfafaff, 0.4)
-  frontLight.position.set(-1, 3, 1)
-  frontLight.target.position.set(0, 1.5, 0)
-  const hemi = new HemisphereLight(0xffffff, 0xffffff, 1)
-  scene.add(backLight)
-  scene.add(backLight.target)
-  scene.add(frontLight)
-  scene.add(frontLight.target)
-  scene.add(hemi)
-
-  scene.traverse((obj) => {
-    obj.layers.set(ObjectLayers.Scene)
-  })
   const renderer = new WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true })
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.outputColorSpace = SRGBColorSpace
@@ -69,11 +53,11 @@ const initialize3D = () => {
   controls.target.set(0, 1.65, 0)
   controls.update()
   const entity = createEntity()
+  setComponent(entity, UUIDComponent)
   setComponent(entity, NameComponent, '3D Preview Entity')
 
   return {
     controls,
-    scene,
     camera,
     renderer,
     entity
@@ -104,7 +88,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
         // only render if this menu is open
         if (!!panel.current && state.renderer.value) {
           state.controls.value.update()
-          state.renderer.value.render(state.scene.value, state.camera.value)
+          state.renderer.value.render(Engine.instance.scene, state.camera.value)
         }
       }
     })
@@ -112,7 +96,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
     return () => {
       destroySystem(AvatarSelectRenderSystem)
       // todo - do we need to remove the system defintion?
-      removeEntity(state.entity.value)
+      //removeEntity(state.entity.value)
       window.removeEventListener('resize', resize)
     }
   }, [])
