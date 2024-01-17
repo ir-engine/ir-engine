@@ -27,6 +27,7 @@ import React, { useMemo, useRef, useState } from 'react'
 import { useEdges, useNodes } from 'reactflow'
 
 import { VariableJSON } from '@behave-graph/core'
+import '@etherealengine/common/src/utils/jsonUtils'
 import { NodeSpecGenerator } from '../../hooks/useNodeSpecGenerator'
 import { flowToBehave } from '../../transformers/flowToBehave'
 import { Modal } from './Modal'

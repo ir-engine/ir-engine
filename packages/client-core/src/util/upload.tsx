@@ -28,6 +28,7 @@ import i18n from 'i18next'
 import config from '@etherealengine/common/src/config'
 import { getMutableState } from '@etherealengine/hyperflux'
 
+import '@etherealengine/common/src/utils/jsonUtils'
 import { AuthState } from '../user/services/AuthService'
 import { RethrownError } from './errors'
 

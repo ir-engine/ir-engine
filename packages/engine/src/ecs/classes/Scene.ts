@@ -47,6 +47,7 @@ import {
   SceneMetadataType,
   scenePath
 } from '@etherealengine/common/src/schema.type.module'
+import '@etherealengine/common/src/utils/jsonUtils'
 import { useEffect } from 'react'
 import { Validator, matches } from '../../common/functions/MatchesUtils'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -167,7 +168,9 @@ export const SceneState = defineState({
 
   cloneCurrentSnapshot: (sceneID: SceneID) => {
     const state = getState(SceneState).scenes[sceneID]
-    return JSON.parse(JSON.stringify({ sceneID, ...state.snapshots[state.index] })) as SceneSnapshotInterface & {
+    return JSON.parse(
+      JSON.stringify({ sceneID, ...state.snapshots[state.index] }, (_, v) => (typeof v === 'bigint' ? v.toString() : v))
+    ) as SceneSnapshotInterface & {
       sceneID: SceneID
     }
   },
