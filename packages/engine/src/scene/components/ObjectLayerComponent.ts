@@ -81,7 +81,7 @@ export const ObjectLayerMaskComponent = defineComponent({
         removeComponent(entity, ObjectLayerComponents[i])
       }
     }
-    getMutableComponent(entity, ObjectLayerMaskComponent).set(ObjectLayerMaskComponent.mask[entity])
+    setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMaskComponent.mask[entity])
   },
 
   enableLayers(entity: Entity, ...layers: number[]) {
@@ -116,13 +116,13 @@ export const ObjectLayerMaskComponent = defineComponent({
         removeComponent(entity, ObjectLayerComponents[i])
       }
     }
-    getMutableComponent(entity, ObjectLayerMaskComponent).set(ObjectLayerMaskComponent.mask[entity])
+    setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMaskComponent.mask[entity])
   }
 })
 
 export class Layer {
   constructor(public entity: Entity) {
-    setComponent(entity, ObjectLayerMaskComponent)
+    if (!hasComponent(entity, ObjectLayerMaskComponent)) setComponent(entity, ObjectLayerMaskComponent)
   }
 
   get mask() {

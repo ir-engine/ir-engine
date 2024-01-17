@@ -51,12 +51,11 @@ import { InstancingComponent } from '../components/InstancingComponent'
 import { MeshComponent } from '../components/MeshComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
+import { ObjectLayerMaskComponent } from '../components/ObjectLayerComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
-import { ObjectLayers } from '../constants/ObjectLayers'
 import iterateObject3D from '../util/iterateObject3D'
-import { enableObjectLayer } from './setObjectLayers'
 
 //isProxified: used to check if an object is proxified
 declare module 'three/src/core/Object3D' {
@@ -166,8 +165,6 @@ export const parseGLTFModel = (entity: Entity, scene: Scene) => {
     })
   }
 
-  enableObjectLayer(scene, ObjectLayers.Scene, true)
-
   // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
   if (scene.animations?.length) {
     setComponent(entity, AnimationComponent, {
@@ -251,6 +248,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
 
   addObjectToGroup(objEntity, obj)
   setComponent(objEntity, GLTFLoadedComponent, ['entity'])
+  ObjectLayerMaskComponent.setMask(objEntity, ObjectLayerMaskComponent.mask[rootEntity])
 
   /** Proxy children with EntityTreeComponent if it exists */
   proxifyParentChildRelationships(obj)

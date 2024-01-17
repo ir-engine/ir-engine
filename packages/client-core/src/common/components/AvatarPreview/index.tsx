@@ -43,7 +43,8 @@ import { defaultAnimationPath, preloadedAnimations } from '@etherealengine/engin
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { ModelPreviewComponent } from '@etherealengine/engine/src/scene/components/ModelPreviewComponent'
+import { ObjectLayerMaskComponent } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
+import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 interface Props {
   fill?: boolean
   avatarUrl?: string
@@ -69,13 +70,13 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     if (!avatarUrl) return
 
     resetAnimationLogic(entity.value)
-
+    ObjectLayerMaskComponent.setLayer(entity.value, ObjectLayers.Panel)
     setComponent(entity.value, ModelComponent, { src: avatarUrl, convertToVRM: true })
     setComponent(entity.value, LoopAnimationComponent, {
       animationPack: defaultAnimationPath + preloadedAnimations.locomotion + '.glb',
       activeClipIndex: 5
     })
-    setComponent(entity.value, ModelPreviewComponent)
+    ObjectLayerMaskComponent.setLayer(entity.value, ObjectLayers.Panel)
 
     camera.value.position.y = 1
     camera.value.position.z = 1
