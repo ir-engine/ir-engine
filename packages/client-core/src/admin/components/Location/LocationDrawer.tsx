@@ -95,7 +95,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
   const sceneName = selectedScene ? selectedScene.split('/')[1] : ''
   const projectName = selectedScene ? selectedScene.split('/', 1)[0] : ''
 
-  if (selectedScene) state.scene.set(sceneName)
+  if (selectedScene) state.scene.set(selectedScene)
 
   const sceneMenu: InputMenuItem[] = selectedScene
     ? [
@@ -259,7 +259,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
           value={state?.value?.scene}
           error={state?.value?.formErrors?.scene}
           menu={sceneMenu}
-          disabled={viewMode}
+          disabled={viewMode || selectedScene !== undefined}
           onChange={handleChange}
         />
 

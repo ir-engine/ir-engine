@@ -118,6 +118,7 @@
     background-color: var(--toolbar);
     border-radius: 4px;
     margin:0;
+    text-transform: none;
 
     &:hover {
       background-color: var(--iconButtonHoverColor);
@@ -129,6 +130,10 @@
       &:hover {
         opacity: 0.8;
       }
+    }
+
+    &:disabled {
+      color: revert;
     }
   }
 
@@ -193,9 +198,4 @@
       }
     }
   }
-}
-
-.btn {
-  color: var(--textColor) !important;
-  text-transform: none;
 }
