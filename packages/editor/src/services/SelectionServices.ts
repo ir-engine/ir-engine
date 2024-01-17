@@ -27,7 +27,7 @@ import { removeComponent, setComponent } from '@etherealengine/engine/src/ecs/fu
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { SelectTagComponent } from '@etherealengine/engine/src/scene/components/SelectTagComponent'
-import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
@@ -47,6 +47,11 @@ export const SelectionState = defineState({
       selectedEntities: selectedEntities,
       selectedParentEntities: filterParentEntities(selectedEntities)
     })
+  },
+  getSelectedEntity: () => {
+    const entities = getState(SelectionState).selectedEntities
+    const entity = entities[entities.length - 1]
+    return entity
   }
 })
 

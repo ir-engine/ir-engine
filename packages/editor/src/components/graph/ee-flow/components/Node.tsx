@@ -29,7 +29,7 @@ import { NodeProps as FlowNodeProps, useEdges } from 'reactflow'
 
 import { faCircleMinus, faCirclePlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useChangeNodeData } from '../hooks/useChangeNodeData'
+import { useChangeNode } from '../hooks/useChangeNode'
 import { useModifyNodeSocket } from '../hooks/useModifyNodeSocket'
 import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
 import { isHandleConnected } from '../util/isHandleConnected'
@@ -54,8 +54,10 @@ const getPairs = <T, U>(arr1: T[], arr2: U[]) => {
 
 export const Node: React.FC<NodeProps> = ({ id, data, spec, selected, specGenerator }: NodeProps) => {
   const edges = useEdges()
-  const handleChange = useChangeNodeData(id)
-  const pairs = getPairs(spec.inputs, spec.outputs)
+  const isVariableNode = spec.configuration.find(
+    (config) => config.name === 'variableName' && config.valueType === 'string'
+  )
+  const handleChange = useChangeNode(id, isVariableNode !== undefined)
   const canAddInputs = spec.configuration.find((config) => config.name === 'numInputs' && config.valueType === 'number')
   const canAddOutputs = spec.configuration.find(
     (config) => config.name === 'numOutputs' && config.valueType === 'number'
@@ -85,6 +87,7 @@ export const Node: React.FC<NodeProps> = ({ id, data, spec, selected, specGenera
     gap: '2px',
     padding: '0 8px'
   }
+  const pairs = getPairs(spec.inputs, spec.outputs)
 
   const label = spec.label === '' ? data.label : spec.label
   return (
