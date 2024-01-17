@@ -37,7 +37,7 @@ import { useTranslation } from 'react-i18next'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
-export const PubishLocation = () => {
+export const PublishLocation = () => {
   const { t } = useTranslation()
   const openLocationDrawer = useHookstate(false)
   let activeScene = useHookstate(getMutableState(SceneState).activeScene).value
@@ -81,4 +81,4 @@ export const PubishLocation = () => {
   )
 }
 
-export default PubishLocation
+export default PublishLocation
