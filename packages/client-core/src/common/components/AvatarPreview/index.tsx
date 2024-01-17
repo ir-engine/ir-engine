@@ -76,7 +76,6 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
       animationPack: defaultAnimationPath + preloadedAnimations.locomotion + '.glb',
       activeClipIndex: 5
     })
-    ObjectLayerMaskComponent.setLayer(entity.value, ObjectLayers.Panel)
 
     camera.value.position.y = 1
     camera.value.position.z = 1

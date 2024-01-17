@@ -24,25 +24,31 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { PerspectiveCamera, SRGBColorSpace, WebGLRenderer } from 'three'
+import { PerspectiveCamera, SRGBColorSpace, WebGLRenderer, WebGLRendererParameters } from 'three'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { useHookstateFromFactory } from '@etherealengine/common/src/utils/useHookstateFromFactory'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem, destroySystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { getOrbitControls } from '@etherealengine/engine/src/input/functions/loadOrbitControl'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { MathUtils } from 'three/src/math/MathUtils'
 
 const initialize3D = () => {
-  const camera = new PerspectiveCamera(60, 1, 0.25, 100000)
+  const cameraEntity = createEntity()
+  const camera = new PerspectiveCamera(60, 1, 0.25, 1000)
   camera.position.set(0, 1.75, 0.5)
   camera.layers.set(ObjectLayers.Panel)
-
-  const renderer = new WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true })
+  const renderer = new WebGLRenderer({
+    antialias: true,
+    preserveDrawingBuffer: true,
+    alpha: true
+  } as WebGLRendererParameters)
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.outputColorSpace = SRGBColorSpace
 
@@ -52,8 +58,10 @@ const initialize3D = () => {
   controls.maxDistance = 10000
   controls.target.set(0, 1.65, 0)
   controls.update()
+
   const entity = createEntity()
-  setComponent(entity, UUIDComponent)
+  const uuid = MathUtils.generateUUID() as EntityUUID
+  setComponent(entity, UUIDComponent, uuid)
   setComponent(entity, NameComponent, '3D Preview Entity')
 
   return {
@@ -83,7 +91,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
 
     const AvatarSelectRenderSystem = defineSystem({
       uuid: 'ee.client.AvatarSelectRenderSystem-' + i++,
-      insert: { after: PresentationSystemGroup },
+      insert: { before: PresentationSystemGroup },
       execute: () => {
         // only render if this menu is open
         if (!!panel.current && state.renderer.value) {
@@ -96,7 +104,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
     return () => {
       destroySystem(AvatarSelectRenderSystem)
       // todo - do we need to remove the system defintion?
-      //removeEntity(state.entity.value)
+      removeEntity(state.entity.value)
       window.removeEventListener('resize', resize)
     }
   }, [])
