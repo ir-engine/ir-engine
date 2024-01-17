@@ -42,6 +42,7 @@ import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/compon
 import { PointLightComponent } from '@etherealengine/engine/src/scene/components/PointLightComponent'
 import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
+import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
@@ -65,6 +66,7 @@ import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkC
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
+import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
@@ -101,9 +103,17 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
     DirectionalLightComponent,
     HemisphereLightComponent
   ],
-  FX: [LoopAnimationComponent, ShadowComponent, ParticleSystemComponent, EnvmapComponent, PostProcessingComponent],
+  FX: [
+    LoopAnimationComponent,
+    ShadowComponent,
+    ParticleSystemComponent,
+    EnvmapComponent,
+    SDFComponent,
+    PostProcessingComponent
+  ],
   Scripting: [SystemComponent, BehaveGraphComponent],
   Misc: [
+    SceneSettingsComponent,
     EnvMapBakeComponent,
     CameraSettingsComponent,
     ScenePreviewCameraComponent,

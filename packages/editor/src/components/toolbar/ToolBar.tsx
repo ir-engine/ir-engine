@@ -35,6 +35,7 @@ import * as styles from './styles.module.scss'
 import GridTool from './tools/GridTool'
 import HelperToggleTool from './tools/HelperToggleTool'
 import PlayModeTool from './tools/PlayModeTool'
+import PublishLocation from './tools/PublishLocation'
 import RenderModeTool from './tools/RenderModeTool'
 import SceneScreenshot from './tools/SceneScreenshot'
 import StatsTool from './tools/StatsTool'
@@ -64,6 +65,7 @@ export const ToolBar = (props: ToolBarProps) => {
       <StatsTool />
       <HelperToggleTool />
       <SceneScreenshot />
+      <PublishLocation />
       <EditorNavbarProfile />
     </div>
   )
