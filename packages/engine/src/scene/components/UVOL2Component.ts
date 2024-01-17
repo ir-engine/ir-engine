@@ -720,7 +720,9 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   }
 
   const fetchUniformSolveGeometry = (startSegment: number, endSegment: number, target: string, extraTime: number) => {
-    console.log(`DEBUGLOG: fetchGeometry Fetching segments ${startSegment} to ${endSegment} for target ${target}`)
+    console.log(
+      `DEBUGLOG: fetchUniformSolveGeometry Fetching segments ${startSegment} to ${endSegment} for target ${target}`
+    )
     const targetData = component.data.value.geometry.targets[target] as UniformSolveTarget
     const promises: Promise<Mesh | BufferGeometry>[] = []
 
@@ -872,6 +874,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   }
 
   const fetchGeometry = () => {
+    if (component.geometryInfo.pendingRequests.value > 0) return
     let relevantTimeRangeIndex = component.geometryInfo.buffered.findIndex((tr) => {
       if (
         tr.start.value <= volumetric.currentTrackInfo.currentTime.value &&
@@ -892,10 +895,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
     const currentBufferLength =
       component.geometryInfo.buffered[relevantTimeRangeIndex].end.value - volumetric.currentTrackInfo.currentTime.value
-    if (
-      currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth) ||
-      component.geometryInfo.pendingRequests.value > 0
-    ) {
+    if (currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth)) {
       return
     }
 
@@ -934,6 +934,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   }
 
   const fetchTextures = (textureType: TextureType) => {
+    if (component.textureInfo[textureType].pendingRequests.value > 0) return
     const textureTypeData = component.data.texture[textureType].value
     if (!textureTypeData) return
 
@@ -959,11 +960,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       component.textureInfo[textureType].buffered[relevantTimeRangeIndex].end.value -
       volumetric.currentTrackInfo.currentTime.value
 
-    if (
-      (currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth) ||
-        component.textureInfo[textureType].pendingRequests.value > 0) &&
-      !component.forceFetchTextures.value
-    ) {
+    if (currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth) && !component.forceFetchTextures.value) {
       return
     }
     const targetIndex = component.textureInfo[textureType].currentTarget.value
@@ -1394,6 +1391,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     newGeometry.boundingSphere = mesh.geometry.boundingSphere
     newGeometry.boundingBox = mesh.geometry.boundingBox
 
+    let relevantBufferIndex = -1
     for (const target in component.data.value.geometry.targets) {
       const frameData = geometryBuffer.get(target)
       const frameRate = component.data.value.geometry.targets[target].frameRate
@@ -1407,6 +1405,23 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
               oldGeometry.setAttribute(attribute.normal.name + '.normal', attribute.normal)
             }
             delete frameData[frameNo]
+
+            const isInIndex =
+              relevantBufferIndex !== -1 &&
+              component.geometryInfo.buffered[relevantBufferIndex].start.value <= frameTime &&
+              component.geometryInfo.buffered[relevantBufferIndex].end.value >= frameTime
+
+            if (!isInIndex) {
+              relevantBufferIndex = component.geometryInfo.buffered.findIndex((tr) => {
+                if (tr.start.value <= frameTime && tr.end.value >= frameTime) {
+                  return true
+                }
+              })
+            }
+
+            if (relevantBufferIndex !== -1) {
+              component.geometryInfo.buffered[relevantBufferIndex].start.set((parseInt(frameNo) + 1) / frameRate)
+            }
           } else {
             break
           }
@@ -1479,6 +1494,8 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       console.error('Texture frames not found for time: ', currentTime)
       return
     }
+
+    let relevantBufferIndex = -1
     for (const target in component.data.value.texture[textureType]?.targets) {
       const frameData = currentTextureBuffer.get(target)
       if (!frameData || frameData.length === 0) return
@@ -1490,6 +1507,23 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
             const texture = frameData[frameNo]
             texture.dispose()
             delete frameData[frameNo]
+
+            const isInIndex =
+              relevantBufferIndex !== -1 &&
+              component.textureInfo[textureType].buffered[relevantBufferIndex].start.value <= frameTime &&
+              component.textureInfo[textureType].buffered[relevantBufferIndex].end.value >= frameTime
+            if (!isInIndex) {
+              relevantBufferIndex = component.textureInfo[textureType].buffered.findIndex((tr) => {
+                if (tr.start.value <= frameTime && tr.end.value >= frameTime) {
+                  return true
+                }
+              })
+            }
+            if (relevantBufferIndex !== -1) {
+              component.textureInfo[textureType].buffered[relevantBufferIndex].start.set(
+                (parseInt(frameNo) + 1) / frameRate
+              )
+            }
           } else {
             break
           }
