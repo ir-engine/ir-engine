@@ -34,7 +34,6 @@ import { AssetType } from '../../assets/enum/AssetType'
 import { useGLTF } from '../../assets/functions/resourceHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
-import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
 import { autoconvertMixamoAvatar, isAvaturn } from '../../avatar/functions/avatarFunctions'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -57,12 +56,9 @@ import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
-import { ObjectLayers } from '../constants/ObjectLayers'
 import { addError, removeError } from '../functions/ErrorFunctions'
-import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
-import { enableObjectLayer } from '../functions/setObjectLayers'
 import { EnvmapComponent } from './EnvmapComponent'
 import { GroupComponent, addObjectToGroup } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
@@ -72,7 +68,6 @@ import { ShadowComponent } from './ShadowComponent'
 import { SourceComponent } from './SourceComponent'
 import { UUIDComponent } from './UUIDComponent'
 import { VariantComponent } from './VariantComponent'
-import { VisibleComponent } from './VisibleComponent'
 
 function clearMaterials(src: string) {
   try {
@@ -299,31 +294,7 @@ function ModelReactor(): JSX.Element {
 }
 
 const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
-  const modelComponent = useComponent(props.parentEntity, ModelComponent)
   const isMesh = useOptionalComponent(props.entity, MeshComponent)
-  const isSkinnedMesh = useOptionalComponent(props.entity, SkinnedMeshComponent)
-  const visible = useOptionalComponent(props.entity, VisibleComponent)
-
-  useEffect(() => {
-    if (!isMesh || isSkinnedMesh) return
-    const mesh = getComponent(props.entity, MeshComponent)
-
-    let aborted = false
-
-    /** @todo should we generate a BVH for every mesh, even invisible ones used for collision? */
-    generateMeshBVH(mesh).then(() => {
-      if (aborted) return
-      enableObjectLayer(
-        mesh,
-        ObjectLayers.Camera,
-        modelComponent.cameraOcclusion.value && hasComponent(props.entity, VisibleComponent)
-      )
-    })
-
-    return () => {
-      aborted = true
-    }
-  }, [isMesh, isSkinnedMesh, visible, modelComponent.cameraOcclusion])
 
   const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)
   useEffect(() => {

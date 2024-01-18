@@ -29,7 +29,7 @@ import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { stringHash } from '../../../common/functions/MathFunctions'
 import { SceneState } from '../../../ecs/classes/Scene'
-import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { getOptionalComponent } from '../../../ecs/functions/ComponentFunctions'
 import { iterateEntityNode } from '../../../ecs/functions/EntityTree'
 import { MeshComponent } from '../../../scene/components/MeshComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
@@ -255,8 +255,7 @@ export function replaceMaterial(material: Material, nuMat: Material) {
   const activeSceneID = getState(SceneState).activeScene!
   const rootEntity = SceneState.getRootEntity(activeSceneID)
   iterateEntityNode(rootEntity, (entity) => {
-    if (!hasComponent(entity, MeshComponent)) return
-    const mesh = getComponent(entity, MeshComponent)
+    const mesh = getOptionalComponent(entity, MeshComponent)
     if (!mesh?.isMesh) return
     if (Array.isArray(mesh.material)) {
       mesh.material.map((meshMat, i) => {

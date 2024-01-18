@@ -23,18 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Mesh } from 'three'
+import { DirectionalLight, SpotLight, Vector3 } from 'three'
+import { useExecute } from '../../ecs/functions/SystemFunctions'
+import { TransformSystem } from '../../transform/TransformModule'
 
-import { defineComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+export const useUpdateLight = (light: DirectionalLight | SpotLight) => {
+  useExecute(
+    () => {
+      light.getWorldDirection(_vec3)
+      light.getWorldPosition(light.target.position).add(_vec3)
+      light.target.updateMatrixWorld()
+    },
+    { after: TransformSystem }
+  )
+}
 
-export const MeshComponent = defineComponent({
-  name: 'Mesh Component',
-  jsonID: 'mesh',
-
-  onInit: (entity) => null! as Mesh,
-
-  onSet: (entity, component, mesh: Mesh) => {
-    if (!mesh || !mesh.isMesh) throw new Error('MeshComponent: Invalid mesh')
-    component.set(mesh)
-  }
-})
+const _vec3 = new Vector3()
