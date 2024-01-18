@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { getComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
@@ -43,7 +43,7 @@ import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/Gr
 import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
 import { Group } from 'three'
 
-export const createSceneEntity = (name: string, parentEntity: Entity | null = null, sceneID?: SceneID): Entity => {
+export const createSceneEntity = (name: string, parentEntity: Entity = UndefinedEntity, sceneID?: SceneID): Entity => {
   const entity = createEntity()
   setComponent(entity, NameComponent, name)
   setComponent(entity, VisibleComponent)
