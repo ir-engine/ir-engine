@@ -46,7 +46,7 @@ import { ContentFitType, ObjectFitFunctions } from '../../xrui/functions/ObjectF
 import { clearErrors } from '../functions/ErrorFunctions'
 import { addObjectToGroup } from './GroupComponent'
 import { PLANE_GEO, resizeImageMesh } from './ImageComponent'
-import { MediaElementComponent } from './MediaComponent'
+import { MediaComponent, MediaElementComponent } from './MediaComponent'
 import { NameComponent } from './NameComponent'
 import { UUIDComponent } from './UUIDComponent'
 import { VisibleComponent, setVisibleComponent } from './VisibleComponent'
@@ -106,6 +106,7 @@ export const VideoComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
+    setComponent(entity, MediaComponent)
     if (!json) return
     if (typeof json.mediaUUID === 'string') component.mediaUUID.set(json.mediaUUID)
     if (typeof json.side === 'number') component.side.set(json.side)
