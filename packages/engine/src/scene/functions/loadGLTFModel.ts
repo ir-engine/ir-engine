@@ -48,6 +48,7 @@ import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
+import { MeshBVHComponent } from '../components/MeshBVHComponent'
 import { MeshComponent } from '../components/MeshComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
@@ -148,6 +149,7 @@ export const parseObjectComponentsFromGLTF = (
 
 export const parseGLTFModel = (entity: Entity, scene: Scene) => {
   const model = getComponent(entity, ModelComponent)
+  setComponent(entity, MeshBVHComponent)
 
   scene.updateMatrixWorld(true)
   computeTransformMatrix(entity)
