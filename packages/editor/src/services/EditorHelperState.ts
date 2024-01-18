@@ -46,16 +46,9 @@ export const EditorHelperState = defineState({
     gridSnap: SnapMode.Grid as SnapModeType,
     translationSnap: 0.5,
     rotationSnap: 10,
-    scaleSnap: 0.1,
-    isGenerateThumbnailsEnabled: true
+    scaleSnap: 0.1
   }),
   onCreate: (store, state) => {
-    syncStateWithLocalStorage(EditorHelperState, [
-      'snapMode',
-      'translationSnap',
-      'rotationSnap',
-      'scaleSnap',
-      'isGenerateThumbnailsEnabled'
-    ])
+    syncStateWithLocalStorage(EditorHelperState, ['snapMode', 'translationSnap', 'rotationSnap', 'scaleSnap'])
   }
 })
