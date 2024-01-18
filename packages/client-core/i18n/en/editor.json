@@ -178,6 +178,11 @@
     "sceneScreenshot": {
       "lbl": "Screenshot",
       "info": "Takes a screenshot of your scene at the current view."
+    },
+    "publishLocation": {
+      "title": "Publish",
+      "lbl": "Publish Location",
+      "info": "Publish location for the selected scene."
     }
   },
   "properties": {
@@ -680,6 +685,17 @@
       "info-toneMappingExposure": "Specifies the tone mapping exposure on the scene renderer. Has no effect when a post processing is enabled.",
       "lbl-shadowMapType": "Shadow Map Type",
       "info-shadowMapType": "Type of shadow map"
+    },
+    "sceneSettings": {
+      "name": "Scene Settings",
+      "description": "Customise the scene settings",
+      "lbl-thumbnail": "Thumbnail",
+      "info-thumbnail": "Change the thumbnail",
+      "generate": "Generate",
+      "save": "Save",
+      "lbl-loading": "Loading Screen",
+      "info-loading": "Change the loading screen",
+      "lbl-colors": "Colors"
     },
     "scene": {
       "name": "Scene",
