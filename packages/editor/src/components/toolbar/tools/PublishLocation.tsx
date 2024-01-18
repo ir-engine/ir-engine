@@ -43,7 +43,7 @@ export const PublishLocation = () => {
   const openLocationDrawer = useHookstate(false)
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
   const selectedScene = activeScene.value
-    ? (activeScene.value!.replace('.scene.json', '').replace('projects/', '') as SceneID)
+    ? (activeScene.value!.replace('.scene.json', '').replace(`${activeScene.value!.split('/', 1)[0]}/`, '') as SceneID)
     : null
   const drawerMode = useHookstate<LocationDrawerMode>(LocationDrawerMode.Create)
   const user = useHookstate(getMutableState(AuthState).user)
@@ -67,7 +67,6 @@ export const PublishLocation = () => {
 
   const handleOpenLocationDrawer = async () => {
     existingLocation.refetch()
-
     if (existingLocation.data.length > 0) drawerMode.set(LocationDrawerMode.ViewEdit)
 
     openLocationDrawer.set(true)
