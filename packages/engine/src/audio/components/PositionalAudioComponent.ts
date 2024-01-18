@@ -28,12 +28,13 @@ import { useEffect } from 'react'
 import {
   defineComponent,
   hasComponent,
-  setComponent,
   useComponent,
   useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
+import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
+import { EditorControlFunctions } from '../../../../editor/src/functions/EditorControlFunctions'
+import { SelectionState } from '../../../../editor/src/services/SelectionServices'
 import { PositionalAudioHelper } from '../../debug/PositionalAudioHelper'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
@@ -73,9 +74,6 @@ export const PositionalAudioComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    if (hasComponent(entity, VolumetricComponent) || hasComponent(entity, MediaComponent)) return
-    setComponent(entity, MediaComponent, {})
-
     if (!json) return
     if (typeof json.distanceModel === 'number' && component.distanceModel.value !== json.distanceModel)
       component.distanceModel.set(json.distanceModel)
@@ -114,6 +112,13 @@ export const PositionalAudioComponent = defineComponent({
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const audio = useComponent(entity, PositionalAudioComponent)
     const mediaElement = useOptionalComponent(entity, MediaElementComponent)
+
+    useEffect(() => {
+      if (!hasComponent(entity, MediaComponent) && !hasComponent(entity, VolumetricComponent)) {
+        const nodes = getState(SelectionState).selectedEntities
+        EditorControlFunctions.addOrRemoveComponent(nodes, MediaComponent, true)
+      }
+    }, [])
 
     useEffect(() => {
       if (!debugEnabled.value || !mediaElement || !mediaElement.element.value) return

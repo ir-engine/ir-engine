@@ -26,15 +26,18 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, Side, Texture, Vector2 } from 'three'
 
-import { defineState } from '@etherealengine/hyperflux'
+import { defineState, getState } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EditorControlFunctions } from '../../../../editor/src/functions/EditorControlFunctions'
+import { SelectionState } from '../../../../editor/src/services/SelectionServices'
 import { isMobile } from '../../common/functions/isMobile'
 import { createPriorityQueue } from '../../ecs/PriorityQueue'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
+  hasComponent,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -106,7 +109,6 @@ export const VideoComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    setComponent(entity, MediaComponent)
     if (!json) return
     if (typeof json.mediaUUID === 'string') component.mediaUUID.set(json.mediaUUID)
     if (typeof json.side === 'number') component.side.set(json.side)
@@ -137,6 +139,10 @@ function VideoReactor() {
   console.log({ mediaEntity })
 
   useEffect(() => {
+    if (!hasComponent(entity, MediaComponent)) {
+      const nodes = getState(SelectionState).selectedEntities
+      EditorControlFunctions.addOrRemoveComponent(nodes, MediaComponent, true)
+    }
     const videoEntity = createEntity()
     addObjectToGroup(videoEntity, video.videoMesh.value)
     setComponent(videoEntity, EntityTreeComponent, { parentEntity: entity })
