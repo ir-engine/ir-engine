@@ -74,9 +74,7 @@ export const XRDetectedMeshComponent = defineComponent({
       component.geometry.set(geometry)
 
       const shadowMesh = new Mesh(geometry, shadowMaterial)
-
       const occlusionMesh = new Mesh(geometry, occlusionMat)
-
       const placementHelper = new Mesh(geometry, placementHelperMaterial)
 
       addObjectToGroup(entity, shadowMesh)
