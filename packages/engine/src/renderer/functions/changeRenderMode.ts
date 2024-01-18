@@ -24,14 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { RenderPass } from 'postprocessing'
-import { Light, MeshBasicMaterial, MeshNormalMaterial } from 'three'
+import { MeshBasicMaterial, MeshNormalMaterial } from 'three'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getState } from '@etherealengine/hyperflux'
 
-import { RenderModes } from '../constants/RenderModes'
 import { RendererState } from '../RendererState'
 import { EngineRenderer } from '../WebGLRendererSystem'
+import { RenderModes } from '../constants/RenderModes'
 import { updateShadowMap } from './RenderSettingsFunction'
 
 /**
@@ -44,12 +43,14 @@ export function changeRenderMode() {
   // revert any changes made by a render mode
   switch (renderMode) {
     case RenderModes.UNLIT:
-      Engine.instance.scene.traverse((obj: Light) => {
-        if (obj.isLight && obj.userData.editor_disabled) {
-          delete obj.userData.editor_disabled
-          obj.visible = true
-        }
-      })
+      // Not currently working, will be replaced with custom renderer in the future
+
+      // iterateObject3D(Engine.instance.scene, (obj: Light) => {
+      //   if (obj.isLight && obj.userData.editor_disabled) {
+      //     delete obj.userData.editor_disabled
+      //     obj.visible = true
+      //   }
+      // })
       break
     default:
       break
@@ -62,12 +63,13 @@ export function changeRenderMode() {
 
   switch (renderMode) {
     case RenderModes.UNLIT:
-      Engine.instance.scene.traverse((obj: Light) => {
-        if (obj.isLight && obj.visible) {
-          obj.userData.editor_disabled = true
-          obj.visible = false
-        }
-      })
+      // See above comment
+      // iterateObject3D(Engine.instance.scene, (obj: Light) => {
+      //   if (obj.isLight && obj.visible) {
+      //     obj.userData.editor_disabled = true
+      //     obj.visible = false
+      //   }
+      // })
       renderPass.overrideMaterial = null!
       break
     case RenderModes.LIT:
