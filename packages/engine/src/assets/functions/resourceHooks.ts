@@ -49,7 +49,7 @@ function useLoader<T>(
       entity,
       params,
       (response) => {
-        value.set(response)
+        value.set(response as T)
       },
       (request) => {
         progress.set(request)

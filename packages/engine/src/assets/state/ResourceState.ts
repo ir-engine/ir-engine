@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NO_PROXY, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { Texture } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { AssetLoader, LoadingArgs } from '../classes/AssetLoader'
@@ -71,11 +71,13 @@ export enum ResourceType {
   Unknown
 }
 
+export type AssetType = GLTF | Texture
+
 type Resource = {
   status: ResourceStatus
   type: ResourceType
   references: Entity[]
-  assetRef?: GLTF | Texture
+  assetRef?: AssetType
   metadata: {
     size?: number
   }
@@ -100,14 +102,34 @@ const getCurrentSizeOfResources = () => {
   return size
 }
 
+const Callbacks = {
+  [ResourceType.GLTF]: {
+    onLoad: (response: GLTF, resource: State<Resource>) => {},
+    onProgress: (request: ProgressEvent, resource: State<Resource>) => {
+      resource.metadata.size.set(request.total)
+    },
+    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {}
+  },
+  [ResourceType.Texture]: {
+    onLoad: (response: Texture, resource: State<Resource>) => {
+      const height = response.image.naturalHeight
+      const width = response.image.naturalWidth
+      const size = width * height * 4
+      resource.metadata.size.set(size)
+    },
+    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
+    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {}
+  }
+}
+
 const load = (
   url: string,
   resourceType: ResourceType,
   entity: Entity,
   args: LoadingArgs,
-  onLoad = (response: any) => {},
-  onProgress = (request: ProgressEvent) => {},
-  onError = (event: ErrorEvent | Error) => {}
+  onLoad: (response: AssetType) => void,
+  onProgress: (request: ProgressEvent) => void,
+  onError: (event: ErrorEvent | Error) => void
 ) => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
@@ -126,28 +148,24 @@ const load = (
   }
 
   const resource = resources[url]
-
+  const callback = Callbacks[resourceType]
   AssetLoader.load(
     url,
     args,
     (response) => {
       resource.status.set(ResourceStatus.Loaded)
       resource.assetRef.set(response)
-      if (response.isTexture) {
-        const height = response.image.naturalHeight
-        const width = response.image.naturalWidth
-        const size = width * height * 4
-        resource.metadata.size.set(size)
-      }
+      callback?.onLoad(response, resource)
       onLoad(response)
     },
     (request) => {
       resource.status.set(ResourceStatus.Loading)
-      resource.metadata.size.set(request.total)
+      callback?.onProgress(request, resource)
       onProgress(request)
     },
     (error) => {
       resource.status.set(ResourceStatus.Error)
+      callback?.onError(error, resource)
       onError(error)
     }
   )
@@ -186,12 +204,14 @@ const removeResource = (url: string) => {
 
   const resource = resources[url]
 
-  if (resource.assetRef.value) {
+  let asset = resource.assetRef.get(NO_PROXY)
+  if (asset) {
     switch (resource.type.value) {
       case ResourceType.GLTF:
+        asset
         break
       case ResourceType.Texture:
-        ;(resource.assetRef.get(NO_PROXY) as Texture).dispose()
+        ;(asset as Texture).dispose()
         break
       case ResourceType.Geometry:
         break
