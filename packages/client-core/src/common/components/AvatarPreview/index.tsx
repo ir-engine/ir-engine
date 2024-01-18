@@ -29,7 +29,6 @@ import { useTranslation } from 'react-i18next'
 import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import Text from '@etherealengine/client-core/src/common/components/Text'
-import { resetAnimationLogic } from '@etherealengine/client-core/src/user/components/Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
@@ -40,10 +39,14 @@ import { SxProps, Theme } from '@mui/material/styles'
 import styles from './index.module.scss'
 
 import { defaultAnimationPath, preloadedAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
+import { AnimationComponent } from '@etherealengine/engine/src/avatar/components/AnimationComponent'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
-import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { removeComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
+import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { EnvMapSourceType } from '@etherealengine/engine/src/scene/constants/EnvMapEnum'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 interface Props {
   fill?: boolean
@@ -60,7 +63,7 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
   const [avatarLoading, setAvatarLoading] = useState(false)
 
   const renderPanel = useRender3DPanelSystem(panelRef)
-  const { entity, camera, renderer } = renderPanel.state
+  const { entity, camera } = renderPanel.state
 
   useEffect(() => {
     loadAvatarPreview()
@@ -69,15 +72,17 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
   const loadAvatarPreview = () => {
     if (!avatarUrl) return
 
-    resetAnimationLogic(entity.value)
-    ObjectLayerMaskComponent.setLayer(entity.value, ObjectLayers.Panel)
+    //resetAnimationLogic(entity.value)
+    removeComponent(entity.value, AnimationComponent)
+    setComponent(entity.value, VisibleComponent, true)
+    ObjectLayerMaskComponent.setLayer(entity.value, ObjectLayers.AssetPreview)
     setComponent(entity.value, ModelComponent, { src: avatarUrl, convertToVRM: true })
     setComponent(entity.value, LoopAnimationComponent, {
       animationPack: defaultAnimationPath + preloadedAnimations.locomotion + '.glb',
       activeClipIndex: 5
     })
-
-    camera.value.position.y = 1
+    setComponent(entity.value, EnvmapComponent, { type: EnvMapSourceType.Skybox })
+    camera.value.position.y = 1.8
     camera.value.position.z = 1
   }
 

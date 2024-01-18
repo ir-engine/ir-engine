@@ -129,6 +129,7 @@ export const LoopAnimationComponent = defineComponent({
         return
       }
       animComponent.mixer.time.set(0)
+      console.log('Binding animation', entity, clip)
       const assetObject = modelComponent.asset.get(NO_PROXY)
       try {
         const action = animComponent.mixer.value.clipAction(
@@ -141,7 +142,7 @@ export const LoopAnimationComponent = defineComponent({
       } catch (e) {
         console.warn('Failed to bind animation in LoopAnimationComponent', entity, e)
       }
-    }, [animComponent?.animations, loopAnimationComponent.activeClipIndex])
+    }, [animComponent?.animations, loopAnimationComponent.activeClipIndex, modelComponent?.asset])
 
     useEffect(() => {
       if (loopAnimationComponent._action.value?.isRunning()) {

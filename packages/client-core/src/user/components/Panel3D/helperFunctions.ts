@@ -24,14 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import { AnimationMixer, Box3, Camera, Object3D, Scene, Vector3, WebGLRenderer } from 'three'
+import { Box3, Camera, Object3D, Scene, Vector3, WebGLRenderer } from 'three'
 
 import { MAX_ALLOWED_TRIANGLES } from '@etherealengine/common/src/constants/AvatarConstants'
-import { AnimationComponent } from '@etherealengine/engine/src/avatar/components/AnimationComponent'
-import { AvatarAnimationComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 
 export const validate = (obj: Object3D, renderer: WebGLRenderer, scene: Scene, camera: Camera) => {
@@ -57,25 +52,6 @@ export const validate = (obj: Object3D, renderer: WebGLRenderer, scene: Scene, c
   if (renderer.info.render.triangles <= 0) return t('user:avatar.emptyObj')
 
   return ''
-}
-
-export const resetAnimationLogic = (entity: Entity) => {
-  setComponent(entity, AnimationComponent, {
-    // empty object3d as the mixer gets replaced when model is loaded
-    mixer: new AnimationMixer(new Object3D()),
-    animations: []
-  })
-  setComponent(entity, AvatarAnimationComponent, {
-    animationGraph: {
-      blendAnimation: undefined,
-      fadingOut: false,
-      blendStrength: 0,
-      layer: 0
-    },
-    rootYRatio: 1,
-    locomotion: new Vector3()
-  })
-  setComponent(entity, VisibleComponent, true)
 }
 
 export const setupSceneForPreview = (avatar) => {

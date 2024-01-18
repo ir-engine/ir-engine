@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { PerspectiveCamera, SRGBColorSpace, WebGLRenderer, WebGLRendererParameters } from 'three'
+import { Color, DirectionalLight, Euler, PerspectiveCamera, Quaternion, SRGBColorSpace, WebGLRenderer } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { useHookstateFromFactory } from '@etherealengine/common/src/utils/useHookstateFromFactory'
@@ -34,26 +34,51 @@ import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/function
 import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem, destroySystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { getOrbitControls } from '@etherealengine/engine/src/input/functions/loadOrbitControl'
+import { DirectionalLightComponent } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { ObjectLayerMaskComponent } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { defineState, getState } from '@etherealengine/hyperflux'
 import { MathUtils } from 'three/src/math/MathUtils'
 
+export const PreviewPanelRendererState = defineState({
+  name: 'previewPanelRendererState',
+  initial: () => ({
+    renderer: new WebGLRenderer({
+      antialias: true,
+      preserveDrawingBuffer: true,
+      alpha: true
+    })
+  })
+})
+
 const initialize3D = () => {
-  const cameraEntity = createEntity()
+  const createLight = (rotation: Euler, intensity: number) => {
+    const light = createEntity()
+    ObjectLayerMaskComponent.setLayer(light, ObjectLayers.AssetPreview)
+    setComponent(light, TransformComponent, { rotation: new Quaternion().setFromEuler(rotation) })
+    setComponent(light, DirectionalLightComponent, {
+      light: new DirectionalLight(),
+      intensity,
+      color: new Color(1, 1, 1)
+    })
+    setComponent(light, VisibleComponent, true)
+    setComponent(light, NameComponent, '3D Preview Light 2')
+    return light
+  }
+
   const camera = new PerspectiveCamera(60, 1, 0.25, 1000)
   camera.position.set(0, 1.75, 0.5)
-  camera.layers.set(ObjectLayers.Panel)
-  const renderer = new WebGLRenderer({
-    antialias: true,
-    preserveDrawingBuffer: true,
-    alpha: true
-  } as WebGLRendererParameters)
+  camera.layers.set(ObjectLayers.AssetPreview)
+
+  const renderer = getState(PreviewPanelRendererState).renderer
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.outputColorSpace = SRGBColorSpace
 
   const controls = getOrbitControls(camera, renderer.domElement)
-
   controls.minDistance = 0.1
   controls.maxDistance = 10000
   controls.target.set(0, 1.65, 0)
@@ -64,11 +89,18 @@ const initialize3D = () => {
   setComponent(entity, UUIDComponent, uuid)
   setComponent(entity, NameComponent, '3D Preview Entity')
 
+  const backLight = createLight(new Euler(-0.5, 0, 0), 2)
+  const frontLight1 = createLight(new Euler(-4, Math.PI * 0.1, 0), 2)
+  const frontLight2 = createLight(new Euler(-4, -Math.PI * 0.1, 0), 2)
+
   return {
     controls,
     camera,
     renderer,
-    entity
+    entity,
+    backLight,
+    frontLight1,
+    frontLight2
   }
 }
 
@@ -91,7 +123,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
 
     const AvatarSelectRenderSystem = defineSystem({
       uuid: 'ee.client.AvatarSelectRenderSystem-' + i++,
-      insert: { before: PresentationSystemGroup },
+      insert: { with: PresentationSystemGroup },
       execute: () => {
         // only render if this menu is open
         if (!!panel.current && state.renderer.value) {
@@ -104,7 +136,10 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
     return () => {
       destroySystem(AvatarSelectRenderSystem)
       // todo - do we need to remove the system defintion?
-      removeEntity(state.entity.value)
+      //removeEntity(state.entity.value)
+      removeEntity(state.backLight.value)
+      removeEntity(state.frontLight1.value)
+      removeEntity(state.frontLight2.value)
       window.removeEventListener('resize', resize)
     }
   }, [])

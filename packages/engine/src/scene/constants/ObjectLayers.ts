@@ -51,5 +51,7 @@ export const ObjectLayers = {
   Panel: 9 as const,
 
   // transform gizmo
-  TransformGizmo: 10 as const
+  TransformGizmo: 10 as const,
+
+  AssetPreview: 31 as const
 }
