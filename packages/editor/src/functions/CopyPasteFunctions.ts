@@ -53,6 +53,7 @@ export const CopyPasteFunctions = {
 
   getPastedEntities: async () => {
     const clipboardText = await navigator.clipboard.readText()
+    // eslint-disable-next-line no-useless-catch
     try {
       const nodeComponentJSONs = JSON.parse(clipboardText) as ComponentCopyDataType[][]
       return nodeComponentJSONs.map(
