@@ -493,8 +493,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   const mesh = useMemo(() => new Mesh(defaultGeometry, material), [])
   const group = useMemo(() => {
     const _group = new Group()
-    addObjectToGroup(entity, _group)
-    addObjectToGroup(entity, mesh)
+    _group.add(mesh)
     return _group
   }, [])
 
