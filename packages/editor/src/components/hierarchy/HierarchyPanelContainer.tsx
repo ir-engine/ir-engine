@@ -33,8 +33,10 @@ import { FixedSizeList } from 'react-window'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
+  getAllComponents,
   getComponent,
   getOptionalComponent,
+  serializeComponent,
   useQuery
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent, traverseEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
@@ -47,6 +49,7 @@ import { PopoverPosition } from '@mui/material/Popover'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { ComponentJsonType } from '@etherealengine/common/src/schema.type.module'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
@@ -68,7 +71,42 @@ import { HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalke
 import { HierarchyTreeNode, HierarchyTreeNodeProps, RenameNodeData, getNodeElId } from './HierarchyTreeNode'
 import styles from './styles.module.scss'
 
-const CLIPBOARD_ENTITY_COPY_KEY = 'HIERARCHY_ENTITIES'
+type ComponentCopyDataType = { name: string; json: object }
+
+const copyPasteHelper = {
+  _generateComponentCopyData: (entities: Entity[]) =>
+    entities.map(
+      (entity) =>
+        getAllComponents(entity)
+          .map((component) => {
+            if (!component.jsonID) return
+            const json = serializeComponent(entity, component)
+            if (!json) return
+            return {
+              name: component.jsonID,
+              json
+            }
+          })
+          .filter((c) => typeof c?.json === 'object' && c.json !== null) as ComponentCopyDataType[]
+    ),
+
+  copyNodes: async (entities: Entity[]) => {
+    const copyData = JSON.stringify(copyPasteHelper._generateComponentCopyData(entities))
+    return navigator.clipboard.writeText(copyData)
+  },
+
+  getPastedNodes: async () => {
+    const clipboardText = await navigator.clipboard.readText()
+    try {
+      const nodeComponentJSONs = JSON.parse(clipboardText) as ComponentCopyDataType[][]
+      return nodeComponentJSONs.map(
+        (nodeComponentJSON) => nodeComponentJSON.map((c) => ({ name: c.name, props: c.json })) as ComponentJsonType[]
+      )
+    } catch (err) {
+      throw err
+    }
+  }
+}
 
 /**
  * initializes object containing Properties multiple, accepts.
@@ -342,25 +380,26 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
     handleClose()
 
     const nodes = node.selected ? getState(SelectionState).selectedEntities : [node.entity]
-    navigator.clipboard.writeText(JSON.stringify({ [CLIPBOARD_ENTITY_COPY_KEY]: nodes }))
-
-    console.log('debug1 the nodes were', nodes)
+    copyPasteHelper
+      .copyNodes(nodes)
+      .then(() =>
+        NotificationService.dispatchNotify(t('editor:hierarchy.copy-paste.copied-node'), { variant: 'success' })
+      )
   }, [])
 
   const onPasteNode = useCallback(async (node: HeirarchyTreeNodeType) => {
     handleClose()
 
-    const clipbardText = await navigator.clipboard.readText()
-
-    let clipboardEntities: Entity[] = []
-    try {
-      clipboardEntities = (JSON.parse(clipbardText) as Record<string, Entity[]>)[CLIPBOARD_ENTITY_COPY_KEY]
-    } catch {
-      NotificationService.dispatchNotify(t('editor:hierarchy.copy-paste.no-hierarchy-nodes'), { variant: 'error' })
-      return
-    }
-
-    EditorControlFunctions.duplicateObject(clipboardEntities)
+    copyPasteHelper
+      .getPastedNodes()
+      .then((nodeComponentJSONs) => {
+        nodeComponentJSONs.forEach((componentJSONs) => {
+          EditorControlFunctions.createObjectFromSceneElement(componentJSONs, undefined, node.entity)
+        })
+      })
+      .catch(() => {
+        NotificationService.dispatchNotify(t('editor:hierarchy.copy-paste.no-hierarchy-nodes'), { variant: 'error' })
+      })
   }, [])
   /* Event handlers */
 

@@ -1017,6 +1017,7 @@
     "lbl-addEntity": "Add Entity",
     "issues": "Issues",
     "copy-paste": {
+      "copied-node": "Successfully copied node!",
       "no-hierarchy-nodes": "No hierarchy nodes found"
     }
   },
