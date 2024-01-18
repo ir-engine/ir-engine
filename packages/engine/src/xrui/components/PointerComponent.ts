@@ -44,7 +44,7 @@ import {
   setComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { createEntity, entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
@@ -97,11 +97,15 @@ export const PointerComponent = defineComponent({
       const inputSource = pointerComponentState.inputSource.value
       const pointer = createPointer(inputSource)
       const cursor = createUICursor()
-      pointer.add(cursor)
+      const pointerEntity = createEntity()
+      addObjectToGroup(pointerEntity, pointer)
+      setComponent(pointerEntity, EntityTreeComponent, { parentEntity: entity })
+      addObjectToGroup(pointerEntity, cursor)
       getMutableComponent(entity, PointerComponent).merge({ pointer, cursor })
       addObjectToGroup(entity, pointer)
       return () => {
         if (entityExists(entity)) removeObjectFromGroup(entity, pointer)
+        removeEntity(pointerEntity)
       }
     }, [pointerComponentState.inputSource])
 

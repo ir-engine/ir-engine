@@ -42,7 +42,7 @@ import {
 } from '../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../ecs/functions/EntityTree'
-import { GroupComponent } from '../scene/components/GroupComponent'
+import { addObjectToGroup, GroupComponent } from '../scene/components/GroupComponent'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRState } from './XRState'
@@ -119,11 +119,12 @@ const anchorMeshFound = (
     if (!vpsMeshes.has(obj.uuid)) {
       const shadowMesh = new Mesh().copy(obj, true)
       shadowMesh.material = shadowMat
-      obj.parent!.add(shadowMesh)
+      const parentEntity = getComponent(obj.entity, EntityTreeComponent).parentEntity!
+      addObjectToGroup(parentEntity, shadowMesh)
 
       const occlusionMesh = new Mesh().copy(obj, true)
       occlusionMesh.material = occlusionMat
-      obj.parent!.add(occlusionMesh)
+      addObjectToGroup(parentEntity, occlusionMesh)
 
       if (wireframe) {
         obj.material.wireframe = true

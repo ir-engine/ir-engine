@@ -585,9 +585,12 @@ export async function transformModel(args: ModelTransformParameters) {
         await imgDoc.transform(textureResize(resizeParms))
         const originalName = texture.getName()
         const originalURI = texture.getURI()
+        const [_, fileName, extension] = /(.*)\.([^.]+)$/.exec(originalURI) ?? []
+        const quality = mergedParms.textureCompressionType === 'uastc' ? mergedParms.uastcLevel : mergedParms.compLevel
+        const nuURI = `${fileName}-${mergedParms.maxTextureSize}x${quality}.${extension}`
         texture.copy(nuTexture)
         texture.setName(originalName)
-        texture.setURI(originalURI)
+        texture.setURI(nuURI)
       }
 
       if (mergedParms.textureFormat === 'ktx2' && texture.getMimeType() !== 'image/ktx2') {
