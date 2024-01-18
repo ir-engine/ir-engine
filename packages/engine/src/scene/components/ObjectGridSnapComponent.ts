@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
@@ -37,7 +37,17 @@ import {
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { useEffect } from 'react'
-import { Box3, BufferGeometry, LineBasicMaterial, LineSegments, MathUtils, Mesh, Quaternion, Vector3 } from 'three'
+import {
+  Box3,
+  BufferGeometry,
+  LineBasicMaterial,
+  LineSegments,
+  MathUtils,
+  Matrix4,
+  Mesh,
+  Quaternion,
+  Vector3
+} from 'three'
 import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -50,7 +60,7 @@ import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { UUIDComponent } from './UUIDComponent'
 import { VisibleComponent } from './VisibleComponent'
 
-function createBBoxGridHelper(bbox: Box3, density: number): LineSegments {
+function createBBoxGridHelper(matrixWorld: Matrix4, bbox: Box3, density: number): LineSegments {
   const lineSegmentList: Vector3[] = []
   const size = new Vector3()
   bbox.getSize(size)
@@ -97,6 +107,9 @@ function createBBoxGridHelper(bbox: Box3, density: number): LineSegments {
     lineSegmentList.push(new Vector3(xRight, y, bbox.min.z), new Vector3(xRight, y, bbox.max.z))
     lineSegmentList.push(new Vector3(xLeft, bbox.min.y, z), new Vector3(xLeft, bbox.max.y, z))
     lineSegmentList.push(new Vector3(xRight, bbox.min.y, z), new Vector3(xRight, bbox.max.y, z))
+  }
+  for (let i = 0; i < lineSegmentList.length; i++) {
+    lineSegmentList[i].applyMatrix4(matrixWorld)
   }
   const result = new LineSegments(
     new BufferGeometry().setFromPoints(lineSegmentList),
@@ -153,7 +166,7 @@ export const ObjectGridSnapComponent = defineComponent({
       const transform = getComponent(entity, TransformComponent)
       transform.matrix.decompose(originalPosition, originalRotation, originalScale)
       //set entity transform to identity before calculating bounding box
-      setComponent(entity, EntityTreeComponent)
+      setComponent(entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
       transform.matrixWorld.identity()
       TransformComponent.updateFromWorldMatrix(entity)
       const meshes: Mesh[] = []
@@ -172,10 +185,7 @@ export const ObjectGridSnapComponent = defineComponent({
           bbox.expandByObject(meshes[i])
         }
       }
-      //set bounding box in component
-      setComponent(entity, ObjectGridSnapComponent, {
-        bbox
-      })
+
       //set entity transform back to original
       setComponent(entity, EntityTreeComponent, { parentEntity: originalParent })
       setComponent(entity, TransformComponent, {
@@ -184,13 +194,18 @@ export const ObjectGridSnapComponent = defineComponent({
         scale: originalScale
       })
       iterateEntityNode(entity, computeTransformMatrix)
+      //set bounding box in component
+      setComponent(entity, ObjectGridSnapComponent, {
+        bbox
+      })
     }, [assetLoading])
 
     useEffect(() => {
       const bbox = snapComponent.bbox.value
       const helperEntity = snapComponent.helper.value
       if (!helperEntity) return
-      const helperMesh = createBBoxGridHelper(bbox, 2)
+      const matrixWorld = getComponent(helperEntity, TransformComponent).matrixWorld
+      const helperMesh = createBBoxGridHelper(matrixWorld, bbox, 2)
       addObjectToGroup(helperEntity, helperMesh)
       return () => {
         removeObjectFromGroup(helperEntity, helperMesh)
