@@ -24,34 +24,29 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
-import { Texture } from 'three'
+import { Cache, DefaultLoadingManager, Texture } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { AssetLoader, LoadingArgs } from '../classes/AssetLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 
-//@ts-ignore
-THREE.Cache.enabled
+Cache.enabled = true
 
-//@ts-ignore
-THREE.DefaultLoadingManager.onLoad = () => {
+DefaultLoadingManager.onLoad = () => {
   const totalSize = getCurrentSizeOfResources()
   console.log('Loaded: ' + totalSize + ' bytes of resources')
 }
 
 //Called when the item at the url passed in has completed loading
-//@ts-ignore
-THREE.DefaultLoadingManager.onProgress = (url: string, loaded: number, total: number) => {
+DefaultLoadingManager.onProgress = (url: string, loaded: number, total: number) => {
   console.log('On Progress', url, loaded, total)
 }
 
-//@ts-ignore
-THREE.DefaultLoadingManager.onError = (url: string) => {
+DefaultLoadingManager.onError = (url: string) => {
   console.log('On Error', url)
 }
 
 //This doesn't work as you might imagine, it is only called once, the url parameter is pretty much useless
-//@ts-ignore
-THREE.DefaultLoadingManager.onStart = (url: string, loaded: number, total: number) => {
+DefaultLoadingManager.onStart = (url: string, loaded: number, total: number) => {
   console.log('On Start', url, loaded, total)
 }
 
@@ -202,9 +197,10 @@ const removeResource = (url: string) => {
     return
   }
 
+  Cache.remove(url)
   const resource = resources[url]
 
-  let asset = resource.assetRef.get(NO_PROXY)
+  const asset = resource.assetRef.get(NO_PROXY)
   if (asset) {
     switch (resource.type.value) {
       case ResourceType.GLTF:
