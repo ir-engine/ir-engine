@@ -29,7 +29,7 @@ import { Quaternion, Vector3 } from 'three'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { UserID } from '@etherealengine/common/src/schema.type.module'
+import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { act, render } from '@testing-library/react'
 import React from 'react'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
@@ -77,7 +77,8 @@ describe('spawnAvatarReceptor', () => {
         $from: Engine.instance.userID,
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userID as string as EntityUUID
+        entityUUID: Engine.instance.userID as string as EntityUUID,
+        avatarID: '' as AvatarID
       })
     )
 

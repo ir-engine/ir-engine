@@ -29,16 +29,16 @@ import { Quaternion, Vector3 } from 'three'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { UserID } from '@etherealengine/common/src/schema.type.module'
+import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { EventDispatcher } from '../../common/classes/EventDispatcher'
-import { destroyEngine, Engine } from '../../ecs/classes/Engine'
+import { Engine, destroyEngine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { SystemDefinitions } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { EntityNetworkStateSystem } from '../../networking/NetworkModule'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { PhysicsState } from '../../physics/state/PhysicsState'
@@ -90,7 +90,8 @@ describe('moveAvatar function tests', () => {
         $from: Engine.instance.userID,
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userID as string as EntityUUID
+        entityUUID: Engine.instance.userID as string as EntityUUID,
+        avatarID: '' as AvatarID
       })
     )
 
@@ -127,7 +128,8 @@ describe('moveAvatar function tests', () => {
         $from: Engine.instance.userID,
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userID as string as EntityUUID
+        entityUUID: Engine.instance.userID as string as EntityUUID,
+        avatarID: '' as AvatarID
       })
     )
 
@@ -166,7 +168,8 @@ describe('moveAvatar function tests', () => {
         $from: Engine.instance.userID,
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userID as string as EntityUUID
+        entityUUID: Engine.instance.userID as string as EntityUUID,
+        avatarID: '' as AvatarID
       })
     )
 
@@ -202,7 +205,8 @@ describe('moveAvatar function tests', () => {
         $from: Engine.instance.userID,
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userID as string as EntityUUID
+        entityUUID: Engine.instance.userID as string as EntityUUID,
+        avatarID: '' as AvatarID
       })
     )
 

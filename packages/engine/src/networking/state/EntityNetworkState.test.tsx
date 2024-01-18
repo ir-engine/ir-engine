@@ -28,7 +28,7 @@ import assert from 'assert'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserID } from '@etherealengine/common/src/schema.type.module'
+import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState } from '@etherealengine/hyperflux'
 import * as ActionFunctions from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { applyIncomingActions, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
@@ -185,7 +185,8 @@ describe('EntityNetworkState', () => {
           networkId: objNetId,
           $peer: peerID3,
           $topic: NetworkTopics.world,
-          entityUUID: peerID3 as any as EntityUUID
+          entityUUID: peerID3 as any as EntityUUID,
+          avatarID: '' as AvatarID
         })
       )
       applyIncomingActions()
@@ -222,7 +223,8 @@ describe('EntityNetworkState', () => {
         AvatarNetworkAction.spawn({
           networkId: 42 as NetworkId,
           $peer: peerID,
-          entityUUID: Engine.instance.userID as string as EntityUUID
+          entityUUID: Engine.instance.userID as string as EntityUUID,
+          avatarID: '' as AvatarID
         })
       )
       applyIncomingActions()

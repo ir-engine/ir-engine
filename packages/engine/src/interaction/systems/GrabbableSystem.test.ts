@@ -30,7 +30,7 @@ import { Mesh, MeshNormalMaterial, Quaternion, SphereGeometry, Vector3 } from 't
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserID, UserName } from '@etherealengine/common/src/schema.type.module'
+import { AvatarID, UserID, UserName } from '@etherealengine/common/src/schema.type.module'
 import {
   applyIncomingActions,
   clearOutgoingActions,
@@ -88,7 +88,8 @@ describe.skip('EquippableSystem Integration Tests', () => {
         networkId: networkObject.networkId,
         position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userID as string as EntityUUID
+        entityUUID: Engine.instance.userID as string as EntityUUID,
+        avatarID: '' as AvatarID
       })
     )
     applyIncomingActions()

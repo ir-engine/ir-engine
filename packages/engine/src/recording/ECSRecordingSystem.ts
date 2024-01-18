@@ -58,6 +58,7 @@ import {
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import {
+  AvatarID,
   RecordingID,
   recordingPath,
   RecordingSchemaType,
@@ -645,7 +646,8 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
               dispatchAction(
                 AvatarNetworkAction.spawn({
                   $from: entityID,
-                  entityUUID: entityID
+                  entityUUID: entityID,
+                  avatarID: '' as AvatarID
                 })
               )
               dispatchAction(

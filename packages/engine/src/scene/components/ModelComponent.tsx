@@ -231,6 +231,8 @@ function ModelReactor(): JSX.Element {
 
     if (!scene || !asset) return
 
+    if (scene.isProxified) return
+
     if (EngineRenderer.instance)
       EngineRenderer.instance.renderer
         .compileAsync(scene, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
