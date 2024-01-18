@@ -106,6 +106,10 @@ export class NodeSpecGenerator {
         }
         return
       }
+
+      // variableNodeAdjustSpec could be potentially be moved into writeNodeSpecToJSON, by passing in the variables into writeNodeSpecToJSON
+      // but writeNodeSpecToJSON is used in other places too,
+      //unsure what unforeseen effects adding variables as an arguement and moving variableNodeAdjustSpec into writeNodeSpecToJSON will have
       const specJson = writeNodeSpecToJSON(this.registry, nodeTypeName, configuration)
       variableNodeAdjustSpec()
       this.specsCache[cacheKey] = specJson

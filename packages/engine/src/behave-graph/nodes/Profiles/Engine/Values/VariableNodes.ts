@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+// could move this to the core package instaead of keeping it in the engine package
 import {
   IGraph,
   NodeCategory,
