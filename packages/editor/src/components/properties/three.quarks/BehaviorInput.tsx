@@ -442,7 +442,7 @@ export default function BehaviorInput({
                   <InputGroup name="Texture" label="Texture">
                     <TexturePreviewInput
                       value={sequencer.sequencer.src}
-                      onChange={onChangeSequenceTexture(sequencerScope.sequencer)}
+                      onRelease={onChangeSequenceTexture(sequencerScope.sequencer)}
                     />
                   </InputGroup>
                 </>

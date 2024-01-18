@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { VRM, VRMHumanBoneList } from '@pixiv/three-vrm'
 import { Matrix4, Object3D, Quaternion, Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -54,7 +54,7 @@ export const updateVRMRetargeting = (vrm: VRM, avatarEntity: Entity) => {
 
       if (boneName === 'hips') {
         const entity = boneNode.entity
-        const parentEntity = getComponent(entity, EntityTreeComponent)?.parentEntity
+        const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
         if (!parentEntity) continue
         const parentBone =
           getOptionalComponent(parentEntity, BoneComponent) ?? getOptionalComponent(parentEntity, TransformComponent)
@@ -63,7 +63,7 @@ export const updateVRMRetargeting = (vrm: VRM, avatarEntity: Entity) => {
         _parentWorldMatrixInverse.copy(parentBone.matrixWorld).invert()
 
         _boneWorldPos.applyMatrix4(_parentWorldMatrixInverse)
-        if (getComponent(avatarEntity, AvatarComponent)) {
+        if (hasComponent(avatarEntity, AvatarComponent)) {
           _boneWorldPos.multiplyScalar(getComponent(avatarEntity, AvatarComponent).hipsHeight)
         }
         boneNode.position.copy(_boneWorldPos)

@@ -28,7 +28,7 @@ import { Box3, Quaternion, Vector3 } from 'three'
 import { dispatchAction, getMutableState, getState, receiveActions, useHookstate } from '@etherealengine/hyperflux'
 
 import { useEffect } from 'react'
-import { defaultAnimationPath, optionalAnimationPath, optionalAnimations } from '../../avatar/animation/Util'
+import { emoteAnimations, preloadedAnimations } from '../../avatar/animation/Util'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { teleportAvatar } from '../../avatar/functions/moveAvatar'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
@@ -51,9 +51,7 @@ import { SittingComponent } from '../../scene/components/SittingComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 
-import { AnimationState } from '../../avatar/AnimationManager'
 import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
-import { loadAnimationArray } from '../../avatar/functions/avatarFunctions'
 import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
@@ -86,8 +84,8 @@ const execute = () => {
 
     dispatchAction(
       AvatarNetworkAction.setAnimationState({
-        filePath: defaultAnimationPath + optionalAnimations.seated + '.fbx',
-        clipName: optionalAnimations.seated,
+        animationAsset: preloadedAnimations.emotes,
+        clipName: emoteAnimations.seated,
         needsSkip: true,
         entityUUID: getComponent(entity, UUIDComponent)
       })
@@ -128,8 +126,8 @@ const execute = () => {
     AvatarControllerComponent.captureMovement(avatarEntity, mountEntity)
     dispatchAction(
       AvatarNetworkAction.setAnimationState({
-        filePath: optionalAnimationPath + optionalAnimations.seated + '.fbx',
-        clipName: optionalAnimations.seated,
+        animationAsset: preloadedAnimations.emotes,
+        clipName: emoteAnimations.seated,
         loop: true,
         layer: 1,
         entityUUID: avatarUUID
@@ -154,9 +152,6 @@ const execute = () => {
     })
     if (isClient) {
       addInteractableUI(entity, createInteractUI(entity, mountPointInteractMessages[mountPoint.type]))
-      const animationState = getState(AnimationState)
-      if (!animationState.loadedAnimations[optionalAnimations.seated])
-        loadAnimationArray([optionalAnimations.seated], 'optional')
     }
   }
 

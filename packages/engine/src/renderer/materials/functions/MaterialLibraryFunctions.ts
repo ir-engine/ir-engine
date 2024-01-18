@@ -23,17 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Color, Material, Mesh, Texture } from 'three'
+import { Color, Material, Texture } from 'three'
 
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { stringHash } from '../../../common/functions/MathFunctions'
-import { Engine } from '../../../ecs/classes/Engine'
+import { SceneState } from '../../../ecs/classes/Scene'
+import { getOptionalComponent } from '../../../ecs/functions/ComponentFunctions'
+import { iterateEntityNode } from '../../../ecs/functions/EntityTree'
+import { MeshComponent } from '../../../scene/components/MeshComponent'
+import { MaterialLibraryState } from '../MaterialLibrary'
 import { MaterialComponentType } from '../components/MaterialComponent'
 import { MaterialPrototypeComponentType } from '../components/MaterialPrototypeComponent'
 import { MaterialSource, MaterialSourceComponentType } from '../components/MaterialSource'
 import { LibraryEntryType } from '../constants/LibraryEntry'
-import { MaterialLibraryState } from '../MaterialLibrary'
 
 export function MaterialNotFoundError(message) {
   this.name = 'MaterialNotFound'
@@ -249,7 +252,10 @@ export function materialsFromSource(src: MaterialSource) {
 }
 
 export function replaceMaterial(material: Material, nuMat: Material) {
-  Engine.instance.scene.traverse((mesh: Mesh) => {
+  const activeSceneID = getState(SceneState).activeScene!
+  const rootEntity = SceneState.getRootEntity(activeSceneID)
+  iterateEntityNode(rootEntity, (entity) => {
+    const mesh = getOptionalComponent(entity, MeshComponent)
     if (!mesh?.isMesh) return
     if (Array.isArray(mesh.material)) {
       mesh.material.map((meshMat, i) => {
@@ -280,6 +286,7 @@ export function changeMaterialPrototype(material: Material, protoId: string) {
   )
   const fullParms = { ...extractDefaults(prototype.arguments), ...commonParms }
   const nuMat = factory(fullParms)
+  nuMat.customProgramCacheKey = () => material.customProgramCacheKey() + 1
   replaceMaterial(material, nuMat)
   nuMat.uuid = material.uuid
   nuMat.name = material.name

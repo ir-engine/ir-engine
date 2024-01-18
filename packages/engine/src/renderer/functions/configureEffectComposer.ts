@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   BlendFunction,
   DepthDownsamplingPass,
+  DepthPass,
   EffectComposer,
   EffectPass,
   NormalPass,
@@ -35,10 +36,12 @@ import {
   TextureEffect
 } from 'postprocessing'
 import { VelocityDepthNormalPass } from 'realism-effects'
-import { NearestFilter, PerspectiveCamera, RGBAFormat, WebGLRenderTarget } from 'three'
+import { DepthTexture, NearestFilter, PerspectiveCamera, RGBAFormat, UnsignedIntType, WebGLRenderTarget } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
+import { ShaderPass } from 'postprocessing'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -47,13 +50,14 @@ import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/Pos
 import { HighlightState } from '../HighlightState'
 import { RendererState } from '../RendererState'
 import { EffectComposerWithSchema, EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
+import { SDFShader } from '../effects/SDFShader'
 import { changeRenderMode } from './changeRenderMode'
-
 export const configureEffectComposer = (
   remove?: boolean,
   camera: PerspectiveCamera = getComponent(Engine.instance.cameraEntity, CameraComponent)
 ): void => {
   if (!EngineRenderer.instance) return
+  if (!camera) return
 
   const scene = Engine.instance.scene
 
@@ -72,43 +76,56 @@ export const configureEffectComposer = (
   }
 
   const renderSettings = getState(RendererState)
+  renderSettings.usePostProcessing = true
   if (!renderSettings.usePostProcessing) return
 
   const effects: any[] = []
 
   const smaaEffect = new SMAAEffect()
   composer.SMAAEffect = smaaEffect
-  effects.push(smaaEffect)
 
   const outlineEffect = new OutlineEffect(scene, camera, getState(HighlightState))
   composer.HighlightEffect = outlineEffect
-  effects.push(outlineEffect)
+
+  const OutlineAndSmaaEffectPass = new EffectPass(camera, smaaEffect, outlineEffect)
+  composer.addPass(OutlineAndSmaaEffectPass)
 
   const postprocessingSettings = getState(PostProcessingSettingsState)
-  if (!postprocessingSettings.enabled) {
-    composer.EffectPass = new EffectPass(camera, ...effects)
-    composer.addPass(composer.EffectPass)
-    return
-  }
 
   const postProcessingEffects = postprocessingSettings.effects as EffectPropsSchema
 
   const effectKeys = Object.keys(EffectMap)
 
-  const normalPass = new NormalPass(scene, camera, {
-    renderTarget: new WebGLRenderTarget(1, 1, {
-      minFilter: NearestFilter,
-      magFilter: NearestFilter,
-      format: RGBAFormat,
-      stencilBuffer: false
-    })
+  const normalPass = new NormalPass(scene, camera)
+
+  const depthRenderTarget = new WebGLRenderTarget(window.innerWidth, window.innerHeight)
+  depthRenderTarget.texture.minFilter = NearestFilter
+  depthRenderTarget.texture.magFilter = NearestFilter
+  depthRenderTarget.texture.generateMipmaps = false
+  depthRenderTarget.stencilBuffer = false
+  depthRenderTarget.depthBuffer = true
+  depthRenderTarget.depthTexture = new DepthTexture(window.innerWidth, window.innerHeight)
+  depthRenderTarget.texture.format = RGBAFormat
+  depthRenderTarget.depthTexture.type = UnsignedIntType
+
+  const depthPass = new DepthPass(scene, camera, {
+    renderTarget: depthRenderTarget
   })
+
+  composer.addPass(depthPass)
+
+  SDFShader.shader.uniforms.uDepth.value = depthRenderTarget.depthTexture
 
   const depthDownsamplingPass = new DepthDownsamplingPass({
     normalBuffer: normalPass.texture,
     resolutionScale: 0.5
   })
 
+  const SDFSetting = getState(SDFComponent.SDFStateSettingsState)
+  if (SDFSetting.enabled) {
+    const SDFPass = new ShaderPass(SDFShader.shader, 'inputBuffer')
+    composer.addPass(SDFPass)
+  }
   const velocityDepthNormalPass = new VelocityDepthNormalPass(scene, camera)
   let useVelocityDepthNormalPass = false
   let useDepthDownsamplingPass = false
@@ -162,16 +179,16 @@ export const configureEffectComposer = (
     }
   }
   if (effects.length) {
-    if (useVelocityDepthNormalPass) composer.addPass(velocityDepthNormalPass)
-
-    if (useDepthDownsamplingPass) {
-      composer.addPass(depthDownsamplingPass)
-      const textureEffect = new TextureEffect({
-        blendFunction: BlendFunction.SKIP,
-        texture: depthDownsamplingPass.texture
-      })
-      effects.push(textureEffect)
-    }
+    if (useVelocityDepthNormalPass)
+      if (useDepthDownsamplingPass) {
+        composer.addPass(normalPass)
+        composer.addPass(depthDownsamplingPass)
+        const textureEffect = new TextureEffect({
+          blendFunction: BlendFunction.SKIP,
+          texture: depthDownsamplingPass.texture
+        })
+        effects.push(textureEffect)
+      }
 
     composer.EffectPass = new EffectPass(camera, ...effects)
     composer.addPass(composer.EffectPass)

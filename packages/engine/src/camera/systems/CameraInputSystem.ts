@@ -126,7 +126,7 @@ const execute = () => {
 
   const avatarInputSettings = getState(AvatarInputSettingsState)
 
-  const inputSource = getComponent(inputSourceEntity, InputSourceComponent)
+  const inputSource = getOptionalComponent(inputSourceEntity, InputSourceComponent)
 
   const keys = inputSource?.buttons
 

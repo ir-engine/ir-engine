@@ -34,19 +34,11 @@ import { StringInputProps } from './StringInput'
 /**
  * AudioInput used to render component view for audio inputs.
  *
- * @param       {function} onChange
  * @param       {any} rest
  * @constructor
  */
-export function AudioInput({ onChange, ...rest }: StringInputProps) {
-  return (
-    <FileBrowserInput
-      acceptFileTypes={AudioFileTypes}
-      acceptDropItems={ItemTypes.Audios}
-      onChange={onChange}
-      {...rest}
-    />
-  )
+export function AudioInput({ ...rest }: StringInputProps) {
+  return <FileBrowserInput acceptFileTypes={AudioFileTypes} acceptDropItems={ItemTypes.Audios} {...rest} />
 }
 
 export default AudioInput

@@ -119,7 +119,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       {...props}
     >
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
-        <ModelInput value={modelComponent.src.value} onChange={commitProperty(ModelComponent, 'src')} />
+        <ModelInput value={modelComponent.src.value} onRelease={commitProperty(ModelComponent, 'src')} />
         {errors?.LOADING_ERROR ||
           (errors?.INVALID_SOURCE && ErrorPopUp({ message: t('editor:properties.model.error-url') }))}
       </InputGroup>
