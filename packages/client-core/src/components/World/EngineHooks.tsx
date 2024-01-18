@@ -76,9 +76,6 @@ export const useLocationSpawnAvatar = (spectate = false) => {
     if (spectate) {
       dispatchAction(EngineActions.spectateUser({}))
       spawned.set(true)
-      return () => {
-        spawned.set(false)
-      }
     }
 
     const spectateParam = getSearchParamFromURL('spectate')
@@ -100,9 +97,6 @@ export const useLocationSpawnAvatar = (spectate = false) => {
         name: user.name
       })
       spawned.set(true)
-      return () => {
-        spawned.set(false)
-      }
     } else {
       AvatarState.selectRandomAvatar()
     }
@@ -123,7 +117,6 @@ export const useLocationSpawnAvatarWithDespawn = () => {
 
 export const despawnSelfAvatar = () => {
   const clientEntity = Engine.instance.localClientEntity
-  console.log('despawnSelfAvatar', clientEntity)
   if (!clientEntity) return
 
   const network = NetworkState.worldNetwork
