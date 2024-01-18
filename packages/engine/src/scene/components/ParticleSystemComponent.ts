@@ -802,9 +802,9 @@ export const ParticleSystemComponent = defineComponent({
     const component = componentState.value
     const batchRenderer = useHookstate(getMutableState(ParticleState).batchRenderer)
 
-    const [geoDependency, unloadGeo] = useGLTF(component.systemParameters.instancingGeometry!)
-    const [shapeMesh, unloadMesh] = useGLTF(component.systemParameters.shape.mesh!)
-    const [textureState, unloadTexture] = useTexture(component.systemParameters.texture!)
+    const [geoDependency, unloadGeo] = useGLTF(component.systemParameters.instancingGeometry!, entity)
+    const [shapeMesh, unloadMesh] = useGLTF(component.systemParameters.shape.mesh!, entity)
+    const [textureState, unloadTexture] = useTexture(component.systemParameters.texture!, entity)
 
     const metadata = useHookstate({ textures: {}, geometries: {}, materials: {} } as ParticleSystemMetadata)
     const dudMaterial = useHookstate(
