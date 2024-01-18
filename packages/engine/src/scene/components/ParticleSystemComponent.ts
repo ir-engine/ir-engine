@@ -49,7 +49,7 @@ import { NO_PROXY, defineState, getMutableState, none, useHookstate } from '@eth
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
-import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import { useGLTF, useTexture } from '../../assets/functions/resourceHooks'
 import { defineComponent, getComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -802,15 +802,52 @@ export const ParticleSystemComponent = defineComponent({
     const component = componentState.value
     const batchRenderer = useHookstate(getMutableState(ParticleState).batchRenderer)
 
-    useEffect(() => {
-      if (component.system) {
-        const emitterAsObj3D = component.system.emitter as unknown as Object3D
-        if (emitterAsObj3D.userData['_refresh'] === component._refresh) return
-        removeObjectFromGroup(entity, emitterAsObj3D)
-        component.system.dispose()
-        componentState.system.set(none)
-      }
+    const [geoDependency, unloadGeo] = useGLTF(component.systemParameters.instancingGeometry!)
+    const [shapeMesh, unloadMesh] = useGLTF(component.systemParameters.shape.mesh!)
+    const [textureState, unloadTexture] = useTexture(component.systemParameters.texture!)
 
+    const metadata = useHookstate({ textures: {}, geometries: {}, materials: {} } as ParticleSystemMetadata)
+    const dudMaterial = useHookstate(
+      new MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: component.systemParameters.transparent ?? true,
+        blending: component.systemParameters.blending as Blending
+      })
+    )
+
+    useEffect(() => {
+      //add dud material
+      componentState.systemParameters.material.set('dud')
+      metadata.materials.nested('dud').set(dudMaterial.get(NO_PROXY))
+    }, [])
+
+    useEffect(() => {
+      if (!geoDependency.value || !geoDependency.value.scene) return
+
+      const scene = geoDependency.value.scene
+      const geo = getFirstMesh(scene)?.geometry
+      !!geo && metadata.geometries.nested(component.systemParameters.instancingGeometry!).set(geo)
+      return unloadGeo
+    }, [geoDependency])
+
+    useEffect(() => {
+      if (!shapeMesh.value || !shapeMesh.value.scene) return
+
+      const scene = shapeMesh.value.scene
+      const mesh = getFirstMesh(scene)
+      mesh && metadata.geometries.nested(component.systemParameters.shape.mesh!).set(mesh.geometry)
+      return unloadMesh
+    }, [shapeMesh])
+
+    useEffect(() => {
+      const texture = textureState.get(NO_PROXY)
+      if (!texture) return
+      metadata.textures.nested(component.systemParameters.texture!).set(texture)
+      dudMaterial.map.set(texture)
+      return unloadTexture
+    }, [textureState])
+
+    useEffect(() => {
       function initParticleSystem(systemParameters: ParticleSystemJSONParameters, metadata: ParticleSystemMetadata) {
         const nuSystem = ParticleSystem.fromJSON(systemParameters, metadata, {})
         batchRenderer.value.addSystem(nuSystem)
@@ -842,59 +879,27 @@ export const ParticleSystemComponent = defineComponent({
         component.systemParameters.texture &&
         AssetLoader.getAssetClass(component.systemParameters.texture) === AssetClass.Image
 
-      const loadDependencies: Promise<any>[] = []
-      const metadata: ParticleSystemMetadata = { textures: {}, geometries: {}, materials: {} }
+      const loadedEmissionGeo = (doLoadEmissionGeo && shapeMesh.value) || !doLoadEmissionGeo
+      const loadedInstanceGeo = (doLoadInstancingGeo && geoDependency.value) || !doLoadInstancingGeo
+      const loadedTexture = (doLoadTexture && textureState.value) || !doLoadTexture
 
-      //add dud material
-      componentState.systemParameters.material.set('dud')
-      const dudMaterial = new MeshBasicMaterial({
-        color: 0xffffff,
-        transparent: component.systemParameters.transparent ?? true,
-        blending: component.systemParameters.blending as Blending
-      })
-      metadata.materials['dud'] = dudMaterial
+      if (loadedEmissionGeo && loadedInstanceGeo && loadedTexture) {
+        const processedParms = JSON.parse(JSON.stringify(component.systemParameters)) as ExpandedSystemJSON
 
-      const processedParms = JSON.parse(JSON.stringify(component.systemParameters)) as ExpandedSystemJSON
-
-      function loadGeoDependency(src: string) {
-        return new Promise((resolve) => {
-          AssetLoader.load(src, {}, ({ scene }: GLTF) => {
-            const geo = getFirstMesh(scene)?.geometry
-            !!geo && (metadata.geometries[src] = geo)
-            resolve(null)
-          })
-        })
+        componentState._loadIndex.set(componentState._loadIndex.value + 1)
+        const currentIndex = componentState._loadIndex.value
+        currentIndex === componentState._loadIndex.value && initParticleSystem(processedParms, metadata.value)
       }
+    }, [geoDependency, shapeMesh, textureState])
 
-      doLoadEmissionGeo &&
-        loadDependencies.push(
-          new Promise((resolve) => {
-            AssetLoader.load(component.systemParameters.shape.mesh!, {}, ({ scene }: GLTF) => {
-              const mesh = getFirstMesh(scene)
-              mesh && (metadata.geometries[component.systemParameters.shape.mesh!] = mesh.geometry)
-              resolve(null)
-            })
-          })
-        )
-
-      doLoadInstancingGeo && loadDependencies.push(loadGeoDependency(component.systemParameters.instancingGeometry!))
-
-      doLoadTexture &&
-        loadDependencies.push(
-          new Promise((resolve) => {
-            AssetLoader.load(component.systemParameters.texture!, {}, (texture: Texture) => {
-              metadata.textures[component.systemParameters.texture!] = texture
-              dudMaterial.map = texture
-              resolve(null)
-            })
-          })
-        )
-
-      componentState._loadIndex.set(componentState._loadIndex.value + 1)
-      const currentIndex = componentState._loadIndex.value
-      Promise.all(loadDependencies).then(() => {
-        currentIndex === componentState._loadIndex.value && initParticleSystem(processedParms, metadata)
-      })
+    useEffect(() => {
+      if (component.system) {
+        const emitterAsObj3D = component.system.emitter as unknown as Object3D
+        if (emitterAsObj3D.userData['_refresh'] === component._refresh) return
+        removeObjectFromGroup(entity, emitterAsObj3D)
+        component.system.dispose()
+        componentState.system.set(none)
+      }
     }, [componentState._refresh])
     return null
   }
