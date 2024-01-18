@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineState, dispatchAction, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, dispatchAction, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AvatarID, AvatarType, avatarPath, userAvatarPath } from '@etherealengine/common/src/schema.type.module'
 import { Paginated } from '@feathersjs/feathers'
@@ -47,8 +47,7 @@ export const AvatarState = defineState({
   initial: {} as Record<
     EntityUUID,
     {
-      avatarID?: string | null
-      userAvatarDetails?: AvatarType
+      avatarID: AvatarID | null
     }
   >,
 
@@ -89,16 +88,30 @@ export const AvatarState = defineState({
   }
 })
 
+/** keep track of avatarIDs separately to avoid re-fetching the avatarID unnecessarily */
+const avatarIDs = new Map<EntityUUID, AvatarID>()
+
 const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
-  const state = getMutableState(AvatarState)[entityUUID]
-  const avatarID = useHookstate(state.avatarID)
-  const userAvatarDetails = useHookstate(state.userAvatarDetails)
+  const avatarID = useHookstate(getMutableState(AvatarState)[entityUUID].avatarID)
+  const userAvatarDetails = useHookstate(null as string | null)
   const entity = UUIDComponent.useEntityByUUID(entityUUID)
+
+  useEffect(() => {
+    return () => {
+      avatarIDs.delete(entityUUID)
+    }
+  }, [])
 
   useEffect(() => {
     if (!isClient || !avatarID.value) return
 
+    if (avatarIDs.has(entityUUID) && avatarIDs.get(entityUUID) === avatarID.value) {
+      return
+    }
+
     let aborted = false
+
+    avatarIDs.set(entityUUID, avatarID.value)
 
     Engine.instance.api
       .service(avatarPath)
@@ -108,12 +121,13 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
 
         if (!avatarDetails.modelResource?.url) return
 
-        console.log('debug AvatarReactor.useEffect', avatarDetails)
-        userAvatarDetails.set(avatarDetails)
+        userAvatarDetails.set(avatarDetails.modelResource.url)
       })
 
     return () => {
-      aborted = true
+      if (!getState(AvatarState)[entityUUID] || avatarIDs.get(entityUUID) !== avatarID.value) {
+        aborted = true
+      }
     }
   }, [avatarID])
 
@@ -124,16 +138,13 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
 
     if (!userAvatarDetails.value) return
 
-    const url = userAvatarDetails.value.modelResource?.url
-    if (!url) return
-
     spawnAvatarReceptor(entityUUID)
-    loadAvatarModelAsset(entity, url)
+    loadAvatarModelAsset(entity, userAvatarDetails.value)
     return () => {
       if (!entityExists(entity)) return
       unloadAvatarForUser(entity)
     }
-  }, [userAvatarDetails])
+  }, [userAvatarDetails, entity])
 
   return null
 }

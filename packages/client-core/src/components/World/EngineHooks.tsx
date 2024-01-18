@@ -76,6 +76,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
     if (spectate) {
       dispatchAction(EngineActions.spectateUser({}))
       spawned.set(true)
+      return
     }
 
     const spectateParam = getSearchParamFromURL('spectate')

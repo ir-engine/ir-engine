@@ -69,7 +69,6 @@ describe('EntityNetworkState', () => {
   })
 
   const Reactor = SystemDefinitions.get(EntityNetworkStateSystem)!.reactor!
-  const execute = SystemDefinitions.get(EntityNetworkStateSystem)!.execute!
   const tag = <Reactor />
 
   describe('spawnObject', () => {

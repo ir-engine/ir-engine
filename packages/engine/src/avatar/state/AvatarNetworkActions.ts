@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { AvatarID } from '@etherealengine/common/src/schema.type.module'
 import { defineAction } from '@etherealengine/hyperflux'
-import matches from 'ts-matches'
+import matches, { Validator } from 'ts-matches'
 import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { NetworkTopics } from '../../networking/classes/Network'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
@@ -35,7 +35,7 @@ export class AvatarNetworkAction {
   static spawn = defineAction(
     WorldNetworkAction.spawnObject.extend({
       type: 'ee.engine.avatar.SPAWN',
-      avatarID: matches.string.optional()
+      avatarID: matches.string as Validator<unknown, AvatarID>
     })
   )
 
@@ -53,7 +53,7 @@ export class AvatarNetworkAction {
   static setAvatarID = defineAction({
     type: 'ee.engine.avatar.SET_AVATAR_ID',
     entityUUID: matchesEntityUUID,
-    avatarID: matches.string as any as AvatarID,
+    avatarID: matches.string as Validator<unknown, AvatarID>,
     $cache: {
       removePrevious: true
     },
