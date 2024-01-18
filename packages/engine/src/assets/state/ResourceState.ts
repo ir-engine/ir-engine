@@ -36,19 +36,19 @@ DefaultLoadingManager.onLoad = () => {
   console.log('Loaded: ' + totalSize + ' bytes of resources')
 }
 
-//Called when the item at the url passed in has completed loading
-DefaultLoadingManager.onProgress = (url: string, loaded: number, total: number) => {
-  console.log('On Progress', url, loaded, total)
-}
+// //Called when the item at the url passed in has completed loading
+// DefaultLoadingManager.onProgress = (url: string, loaded: number, total: number) => {
+//   console.log('On Progress', url, loaded, total)
+// }
 
-DefaultLoadingManager.onError = (url: string) => {
-  console.log('On Error', url)
-}
+// DefaultLoadingManager.onError = (url: string) => {
+//   console.log('On Error', url)
+// }
 
-//This doesn't work as you might imagine, it is only called once, the url parameter is pretty much useless
-DefaultLoadingManager.onStart = (url: string, loaded: number, total: number) => {
-  console.log('On Start', url, loaded, total)
-}
+// //This doesn't work as you might imagine, it is only called once, the url parameter is pretty much useless
+// DefaultLoadingManager.onStart = (url: string, loaded: number, total: number) => {
+//   console.log('On Start', url, loaded, total)
+// }
 
 enum ResourceStatus {
   Unloaded,
@@ -144,6 +144,7 @@ const load = (
 
   const resource = resources[url]
   const callback = Callbacks[resourceType]
+  console.log('Resource Manager Loading Asset at: ' + url)
   AssetLoader.load(
     url,
     args,
@@ -196,6 +197,8 @@ const removeResource = (url: string) => {
     console.error('ResourceManager:removeResource No resource exists for url: ' + url)
     return
   }
+
+  console.log('Resource Manager Unloading Asset at: ' + url)
 
   Cache.remove(url)
   const resource = resources[url]

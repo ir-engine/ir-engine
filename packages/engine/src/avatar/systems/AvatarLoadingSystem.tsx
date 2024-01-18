@@ -28,7 +28,7 @@ import { SRGBColorSpace } from 'three'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import React from 'react'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { useTexture } from '../../assets/functions/resourceHooks'
 import { isClient } from '../../common/functions/getEnvironment'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineQuery, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
@@ -108,24 +108,38 @@ const reactor = () => {
 
   const assetsReady = useHookstate(false)
 
+  const [itemLight, lightUnload] = useTexture('/static/itemLight.png')
+  const [itemPlate, plateUnload] = useTexture('/static/itemPlate.png')
+
+  useEffect(() => {
+    const texture = itemLight.value
+    if (!texture) return
+
+    texture.colorSpace = SRGBColorSpace
+    texture.needsUpdate = true
+    SpawnEffectComponent.lightMesh.material.map = texture
+    return lightUnload
+  }, [itemLight])
+
+  useEffect(() => {
+    const texture = itemPlate.value
+    if (!texture) return
+
+    texture.colorSpace = SRGBColorSpace
+    texture.needsUpdate = true
+    SpawnEffectComponent.plateMesh.material.map = texture
+    return plateUnload
+  }, [itemPlate])
+
+  useEffect(() => {
+    if (itemLight.value && itemPlate.value) assetsReady.set(true)
+  }, [itemLight, itemPlate])
+
   useEffect(() => {
     SpawnEffectComponent.lightMesh.geometry.computeBoundingSphere()
     SpawnEffectComponent.plateMesh.geometry.computeBoundingSphere()
     SpawnEffectComponent.lightMesh.name = 'light_obj'
     SpawnEffectComponent.plateMesh.name = 'plate_obj'
-
-    AssetLoader.loadAsync('/static/itemLight.png').then((texture) => {
-      texture.colorSpace = SRGBColorSpace
-      texture.needsUpdate = true
-      SpawnEffectComponent.lightMesh.material.map = texture
-    })
-
-    AssetLoader.loadAsync('/static/itemPlate.png').then((texture) => {
-      texture.colorSpace = SRGBColorSpace
-      texture.needsUpdate = true
-      SpawnEffectComponent.plateMesh.material.map = texture
-      assetsReady.set(true)
-    })
   }, [])
 
   const loadingEffect = useHookstate(getMutableState(EngineState).avatarLoadingEffect)
