@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   defineQuery,
   getComponent,
@@ -83,10 +83,12 @@ function alignToClosestAxis(matrix1: Matrix4, matrix2: Matrix4): Matrix4 {
   const right = srcAxes[2] //find rotations for each axis to the closest dst axis
   const dstForward = findClosestAxis(forward, dstAxes)
   dstAxes.splice(dstAxes.indexOf(dstForward), 1)
-  const upAxes = dstAxes.filter((axis) => axis.dot(dstForward) === 0)
+  const upAxes = dstAxes.filter((axis) => Math.abs(axis.dot(dstForward)) < Number.EPSILON)
   const dstUp = findClosestAxis(up, upAxes)
   dstAxes.splice(dstAxes.indexOf(dstUp), 1)
-  const rightAxes = dstAxes.filter((axis) => axis.dot(dstForward) === 0 && axis.dot(dstUp) === 0)
+  const rightAxes = dstAxes.filter(
+    (axis) => Math.abs(axis.dot(dstForward)) < Number.EPSILON && Math.abs(axis.dot(dstUp)) < Number.EPSILON
+  )
   const dstRight = findClosestAxis(right, rightAxes)
   //create rotation matrix
   const rotation = new Matrix4()
@@ -104,8 +106,6 @@ function getAxes(matrix: Matrix4): Vector3[] {
   const back = forward.clone().negate()
   return [forward, up, right, down, left, back]
 }
-
-let lastExecution = 0
 
 function boundedTranslation(bbox1: Box3, bbox2: Box3, matrixWorld1: Matrix4, matrixWorld2: Matrix4): Vector3 {
   // Transform the bounding boxes to world space
@@ -206,15 +206,14 @@ export const ObjectGridSnapSystem = defineSystem({
 
       const selectedBBox = getComponent(selectedEntity, ObjectGridSnapComponent).bbox
       const selectedMatrixWorld = getComponent(selectedEntity, TransformComponent).matrixWorld
-      let closestEntity: Entity | null = null
-      let closestDistance = 1
+      const closestEntities: Entity[] = []
+      const distanceThreshold = 1
       for (const candidateEntity of nonSelectedEntities) {
         const candidateBBox = getComponent(candidateEntity, ObjectGridSnapComponent).bbox
         const candidateMatrixWorld = getComponent(candidateEntity, TransformComponent).matrixWorld
         const distance = bboxDistance(selectedBBox, candidateBBox, selectedMatrixWorld, candidateMatrixWorld)
-        if (distance < closestDistance) {
-          closestDistance = distance
-          closestEntity = candidateEntity
+        if (distance <= distanceThreshold) {
+          closestEntities.push(candidateEntity)
         }
       }
       const selectedSnapComponent = getComponent(selectedEntity, ObjectGridSnapComponent)
@@ -233,9 +232,35 @@ export const ObjectGridSnapSystem = defineSystem({
           getMutableState(ObjectGridSnapState).apply.set(false)
         }
       }
-      if (!closestEntity) {
+      if (closestEntities.length === 0) {
         commitNoOp()
         continue
+      }
+      let leastOffset = Infinity
+      let closestEntity = UndefinedEntity
+      for (const candidateEntity of closestEntities) {
+        const candidateBBox = getComponent(candidateEntity, ObjectGridSnapComponent).bbox
+        const selectedMatrixClone = selectedMatrixWorld.clone()
+        const candidateMatrixWorld = getComponent(candidateEntity, TransformComponent).matrixWorld.clone()
+        const rotationMatrix = alignToClosestAxis(selectedMatrixClone, candidateMatrixWorld)
+        const position = new Vector3(
+          selectedMatrixClone.elements[12],
+          selectedMatrixClone.elements[13],
+          selectedMatrixClone.elements[14]
+        )
+        selectedMatrixClone.copy(rotationMatrix)
+        selectedMatrixClone.setPosition(position)
+        const translation = boundedTranslation(
+          selectedBBox,
+          candidateBBox,
+          new Matrix4().identity(),
+          selectedMatrixClone.clone().invert().multiply(candidateMatrixWorld)
+        )
+        const offset = translation.length()
+        if (offset < leastOffset) {
+          leastOffset = offset
+          closestEntity = candidateEntity
+        }
       }
       const closestBBox = getComponent(closestEntity, ObjectGridSnapComponent).bbox
       const closestMatrixWorld = getComponent(closestEntity, TransformComponent).matrixWorld
@@ -250,7 +275,7 @@ export const ObjectGridSnapSystem = defineSystem({
         continue
       }
       const dstMatrixWorld = getComponent(dstEntity, TransformComponent).matrixWorld
-      dstMatrixWorld.copy(rotationMatrix)
+      dstMatrixWorld.extractRotation(rotationMatrix)
       dstMatrixWorld.setPosition(position)
       TransformComponent.updateFromWorldMatrix(dstEntity)
       const translation = boundedTranslation(

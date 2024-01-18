@@ -50,18 +50,6 @@ import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { UUIDComponent } from './UUIDComponent'
 import { VisibleComponent } from './VisibleComponent'
 
-export type AttachmentPointData = {
-  position: Vector3
-  rotation: Quaternion
-  helper: Entity
-}
-
-export function flipAround(rotation: Quaternion) {
-  const localYAxis = new Vector3(1, 0, 0)
-  localYAxis.applyQuaternion(rotation)
-  return new Quaternion().setFromAxisAngle(localYAxis, Math.PI).multiply(rotation)
-}
-
 function createBBoxGridHelper(bbox: Box3, density: number): LineSegments {
   const lineSegmentList: Vector3[] = []
   const size = new Vector3()
@@ -165,7 +153,7 @@ export const ObjectGridSnapComponent = defineComponent({
       const transform = getComponent(entity, TransformComponent)
       transform.matrix.decompose(originalPosition, originalRotation, originalScale)
       //set entity transform to identity before calculating bounding box
-      setComponent(entity, EntityTreeComponent, { parentEntity: null })
+      setComponent(entity, EntityTreeComponent)
       transform.matrixWorld.identity()
       TransformComponent.updateFromWorldMatrix(entity)
       const meshes: Mesh[] = []
