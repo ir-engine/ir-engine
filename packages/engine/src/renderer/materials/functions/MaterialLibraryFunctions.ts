@@ -28,7 +28,9 @@ import { Color, Material, Texture } from 'three'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { stringHash } from '../../../common/functions/MathFunctions'
-import { defineQuery, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { SceneState } from '../../../ecs/classes/Scene'
+import { getOptionalComponent } from '../../../ecs/functions/ComponentFunctions'
+import { iterateEntityNode } from '../../../ecs/functions/EntityTree'
 import { MeshComponent } from '../../../scene/components/MeshComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
 import { MaterialComponentType } from '../components/MaterialComponent'
@@ -249,11 +251,11 @@ export function materialsFromSource(src: MaterialSource) {
   return getSourceItems(src)?.map(materialFromId)
 }
 
-const meshQuery = defineQuery([MeshComponent])
-
 export function replaceMaterial(material: Material, nuMat: Material) {
-  for (const entity of meshQuery()) {
-    const mesh = getComponent(entity, MeshComponent)
+  const activeSceneID = getState(SceneState).activeScene!
+  const rootEntity = SceneState.getRootEntity(activeSceneID)
+  iterateEntityNode(rootEntity, (entity) => {
+    const mesh = getOptionalComponent(entity, MeshComponent)
     if (!mesh?.isMesh) return
     if (Array.isArray(mesh.material)) {
       mesh.material.map((meshMat, i) => {
@@ -266,7 +268,7 @@ export function replaceMaterial(material: Material, nuMat: Material) {
         mesh.material = nuMat
       }
     }
-  }
+  })
 }
 
 export function changeMaterialPrototype(material: Material, protoId: string) {
@@ -284,6 +286,7 @@ export function changeMaterialPrototype(material: Material, protoId: string) {
   )
   const fullParms = { ...extractDefaults(prototype.arguments), ...commonParms }
   const nuMat = factory(fullParms)
+  nuMat.customProgramCacheKey = () => material.customProgramCacheKey() + 1
   replaceMaterial(material, nuMat)
   nuMat.uuid = material.uuid
   nuMat.name = material.name
