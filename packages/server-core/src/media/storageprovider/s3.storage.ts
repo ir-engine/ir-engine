@@ -167,7 +167,7 @@ export class S3Provider implements StorageProviderInterface {
   originURLs = [this.cacheDomain]
 
   public bucketAssetURL =
-    config.server.storageProvider === 's3-do'
+    config.server.storageProvider === 's3'
       ? config.aws.s3.endpoint
         ? `${config.aws.s3.endpoint}/${this.bucket}`
         : config.aws.s3.s3DevMode === 'local'

@@ -326,7 +326,7 @@ const aws = {
   s3: {
     accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID!,
     secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET!,
-    endpoint: process.env.STORAGE_S3_ENDPOINT ? process.env.STORAGE_S3_ENDPOINT : 'https://sfo2.digitaloceanspaces.com',
+    endpoint: process.env.STORAGE_S3_ENDPOINT!,
     staticResourceBucket: testEnabled
       ? process.env.STORAGE_S3_TEST_RESOURCE_BUCKET!
       : process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET!,

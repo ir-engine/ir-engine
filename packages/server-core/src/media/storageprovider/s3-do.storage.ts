@@ -34,7 +34,7 @@ import S3Provider from './s3.storage'
 export class S3DOProvider extends S3Provider {
   constructor() {
     super()
-    this.bucketAssetURL = 'https://etherealengine-static-resources.sfo2.digitaloceanspaces.com'
+    this.bucketAssetURL = `https://${config.aws.cloudfront.domain}`
     this.cacheDomain = config.aws.cloudfront.domain
   }
   /**
