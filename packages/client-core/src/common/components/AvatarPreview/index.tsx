@@ -38,16 +38,20 @@ import { SxProps, Theme } from '@mui/material/styles'
 
 import styles from './index.module.scss'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { defaultAnimationPath, preloadedAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
-import { AnimationComponent } from '@etherealengine/engine/src/avatar/components/AnimationComponent'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
-import { removeComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { EnvMapSourceType } from '@etherealengine/engine/src/scene/constants/EnvMapEnum'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { MathUtils } from 'three'
 interface Props {
   fill?: boolean
   avatarUrl?: string
@@ -63,7 +67,7 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
   const [avatarLoading, setAvatarLoading] = useState(false)
 
   const renderPanel = useRender3DPanelSystem(panelRef)
-  const { entity, camera } = renderPanel.state
+  const { avatarEntity, camera } = renderPanel.state
 
   useEffect(() => {
     loadAvatarPreview()
@@ -72,18 +76,26 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
   const loadAvatarPreview = () => {
     if (!avatarUrl) return
 
+    const entity = createEntity()
+    const uuid = MathUtils.generateUUID() as EntityUUID
+    setComponent(entity, UUIDComponent, uuid)
+    setComponent(entity, NameComponent, '3D Preview Entity')
+
     //resetAnimationLogic(entity.value)
-    removeComponent(entity.value, AnimationComponent)
-    setComponent(entity.value, VisibleComponent, true)
-    ObjectLayerMaskComponent.setLayer(entity.value, ObjectLayers.AssetPreview)
-    setComponent(entity.value, ModelComponent, { src: avatarUrl, convertToVRM: true })
-    setComponent(entity.value, LoopAnimationComponent, {
+    setComponent(entity, VisibleComponent, true)
+    ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.AssetPreview)
+    setComponent(entity, ModelComponent, { src: avatarUrl, convertToVRM: true })
+    setComponent(entity, LoopAnimationComponent, {
       animationPack: defaultAnimationPath + preloadedAnimations.locomotion + '.glb',
       activeClipIndex: 5
     })
-    setComponent(entity.value, EnvmapComponent, { type: EnvMapSourceType.Skybox })
-    camera.value.position.y = 1.8
-    camera.value.position.z = 1
+    setComponent(entity, EnvmapComponent, { type: EnvMapSourceType.Skybox })
+
+    if (avatarEntity.value) removeEntity(avatarEntity.value)
+    avatarEntity.set(entity)
+
+    camera.position.value.y = 1.8
+    camera.position.value.z = 1
   }
 
   return (

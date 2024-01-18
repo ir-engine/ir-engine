@@ -26,9 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Color, DirectionalLight, Euler, PerspectiveCamera, Quaternion, SRGBColorSpace, WebGLRenderer } from 'three'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { useHookstateFromFactory } from '@etherealengine/common/src/utils/useHookstateFromFactory'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
@@ -37,12 +37,10 @@ import { getOrbitControls } from '@etherealengine/engine/src/input/functions/loa
 import { DirectionalLightComponent } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { defineState, getState } from '@etherealengine/hyperflux'
-import { MathUtils } from 'three/src/math/MathUtils'
 
 export const PreviewPanelRendererState = defineState({
   name: 'previewPanelRendererState',
@@ -84,20 +82,15 @@ const initialize3D = () => {
   controls.target.set(0, 1.65, 0)
   controls.update()
 
-  const entity = createEntity()
-  const uuid = MathUtils.generateUUID() as EntityUUID
-  setComponent(entity, UUIDComponent, uuid)
-  setComponent(entity, NameComponent, '3D Preview Entity')
-
   const backLight = createLight(new Euler(-0.5, 0, 0), 2)
   const frontLight1 = createLight(new Euler(-4, Math.PI * 0.1, 0), 2)
   const frontLight2 = createLight(new Euler(-4, -Math.PI * 0.1, 0), 2)
-
+  const avatarEntity = null as Entity | null
   return {
     controls,
     camera,
     renderer,
-    entity,
+    avatarEntity,
     backLight,
     frontLight1,
     frontLight2
