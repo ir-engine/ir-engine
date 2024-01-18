@@ -68,14 +68,22 @@ export enum ResourceType {
 
 export type AssetType = GLTF | Texture
 
+type BaseMetadata = {
+  size?: number
+}
+
+type GLTFMetadata = BaseMetadata
+
+type TexutreMetadata = BaseMetadata
+
+type Metadata = GLTFMetadata | TexutreMetadata
+
 type Resource = {
   status: ResourceStatus
   type: ResourceType
   references: Entity[]
   assetRef?: AssetType
-  metadata: {
-    size?: number
-  }
+  metadata: Metadata
   onGPU: boolean
 }
 
@@ -107,10 +115,14 @@ const Callbacks = {
   },
   [ResourceType.Texture]: {
     onLoad: (response: Texture, resource: State<Resource>) => {
-      const height = response.image.naturalHeight
-      const width = response.image.naturalWidth
-      const size = width * height * 4
-      resource.metadata.size.set(size)
+      if (response.mipmaps[0]) {
+        resource.metadata.size.set(response.mipmaps[0].data.length)
+      } else {
+        const height = response.image.height
+        const width = response.image.width
+        const size = width * height * 4
+        resource.metadata.size.set(size)
+      }
     },
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {}
@@ -207,7 +219,6 @@ const removeResource = (url: string) => {
   if (asset) {
     switch (resource.type.value) {
       case ResourceType.GLTF:
-        asset
         break
       case ResourceType.Texture:
         ;(asset as Texture).dispose()
