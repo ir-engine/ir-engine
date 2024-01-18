@@ -135,11 +135,13 @@ const getProjectConfigExtensions = async (config: UserConfig) => {
     .filter((dirent) => dirent.isDirectory())
     .map((dirent) => dirent.name)
   for (const project of projects) {
-    const staticPath = path.resolve(__dirname, `../projects/projects/`, project, 'vite.config.extension')
+    const staticPath = path.resolve(__dirname, `../projects/projects/`, project, 'vite.config.extension.ts')
     if (fs.existsSync(staticPath)) {
       try {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const { default: viteConfigExtension } = await import(staticPath)
+        const { default: viteConfigExtension } = await import(
+          `../projects/projects/${project}/vite.config.extension.ts`
+        )
         if (typeof viteConfigExtension === 'function') {
           const configExtension = await viteConfigExtension()
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
