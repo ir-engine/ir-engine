@@ -52,7 +52,10 @@ import { ColliderComponent } from '@etherealengine/engine/src/scene/components/C
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { Vector3 } from 'three'
 import { ItemTypes } from '../../constants/AssetTypes'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { DockContainer } from '../EditorContainer'
 import StringInput from '../inputs/StringInput'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
@@ -149,6 +152,12 @@ const PrefabComponentItem = ({ resource }: { resource: PrefabricatedComponentsTy
         marginBottom: '-30px',
         textAlign: 'center'
       }}
+      onDoubleClick={() =>
+        EditorControlFunctions.createObjectFromSceneElement([
+          ...resource.components,
+          { name: TransformComponent.jsonID, props: { position: new Vector3(0, 0, 0) } }
+        ])
+      }
     >
       <span>{resource.label}</span>
     </div>
