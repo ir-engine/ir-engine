@@ -36,6 +36,7 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { getMutableState, useState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import {
   Box3,
@@ -48,6 +49,7 @@ import {
   Quaternion,
   Vector3
 } from 'three'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -115,7 +117,6 @@ function createBBoxGridHelper(matrixWorld: Matrix4, bbox: Box3, density: number)
     new BufferGeometry().setFromPoints(lineSegmentList),
     new LineBasicMaterial({ color: 0xff0000 })
   )
-  setObjectLayers(result, ObjectLayers.NodeHelper)
   return result
 }
 
@@ -138,6 +139,7 @@ export const ObjectGridSnapComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
 
+    const engineState = useState(getMutableState(EngineState))
     const snapComponent = useComponent(entity, ObjectGridSnapComponent)
 
     const assetLoading = useOptionalComponent(entity, SceneAssetPendingTagComponent)
@@ -201,16 +203,18 @@ export const ObjectGridSnapComponent = defineComponent({
     }, [assetLoading])
 
     useEffect(() => {
+      if (!engineState.isEditing.value) return
       const bbox = snapComponent.bbox.value
       const helperEntity = snapComponent.helper.value
       if (!helperEntity) return
       const matrixWorld = getComponent(helperEntity, TransformComponent).matrixWorld
-      const helperMesh = createBBoxGridHelper(matrixWorld, bbox, 2)
+      const helperMesh = createBBoxGridHelper(new Matrix4().identity(), bbox, 2)
       addObjectToGroup(helperEntity, helperMesh)
+      setObjectLayers(helperMesh, ObjectLayers.NodeHelper)
       return () => {
         removeObjectFromGroup(helperEntity, helperMesh)
       }
-    }, [snapComponent.bbox, snapComponent.helper])
+    }, [snapComponent.bbox, snapComponent.helper, engineState.isEditing])
 
     return null
   }

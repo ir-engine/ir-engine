@@ -23,20 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   defineQuery,
   getComponent,
   getOptionalComponent,
+  hasComponent,
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
+import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-import { Box3, Matrix4, Quaternion, Vector3 } from 'three'
+import { useEffect } from 'react'
+import { Box3, Color, LineBasicMaterial, LineSegments, Matrix4, Quaternion, Vector3 } from 'three'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { SelectionState } from '../services/SelectionServices'
 
@@ -176,14 +182,67 @@ export const ObjectGridSnapState = defineState({
   }
 })
 
+function setHelperLayer(entity: Entity, layer: number) {
+  const helper = getComponent(entity, ObjectGridSnapComponent).helper
+  if (helper) {
+    const helperObj = getComponent(helper, GroupComponent)[0]
+    setObjectLayers(helperObj, layer)
+  }
+}
+
+function setHelperColor(entity: Entity, color: Color) {
+  const helper = getComponent(entity, ObjectGridSnapComponent).helper
+  if (helper) {
+    const helperObj = getComponent(helper, GroupComponent)[0] as LineSegments
+    const material = helperObj.material as LineBasicMaterial
+    material.color.copy(color)
+  }
+}
+
+function resetHelperTransform(entity: Entity) {
+  const helper = getComponent(entity, ObjectGridSnapComponent).helper
+  if (helper) {
+    setComponent(helper, TransformComponent, {
+      position: new Vector3(),
+      rotation: new Quaternion().identity(),
+      scale: new Vector3(1, 1, 1)
+    })
+  }
+}
+
 export const ObjectGridSnapSystem = defineSystem({
   uuid: 'ee.engine.scene.ObjectGridSnapSystem',
   insert: { after: TransformSystem },
   reactor: () => {
     const snapState = useHookstate(getMutableState(ObjectGridSnapState))
+    const selectionState = useHookstate(getMutableState(SelectionState))
+
+    useEffect(() => {
+      if (!snapState.enabled.value) {
+        for (const entity of objectGridQuery()) {
+          setHelperColor(entity, new Color(1, 0, 0))
+          setHelperLayer(entity, ObjectLayers.NodeHelper)
+          resetHelperTransform(entity)
+        }
+      }
+    }, [snapState.enabled])
+
+    useEffect(() => {
+      const selectedEntities = [...selectionState.selectedEntities.value]
+      return () => {
+        for (const entity of selectedEntities) {
+          if (selectionState.selectedEntities.value.includes(entity)) continue
+          if (!hasComponent(entity, ObjectGridSnapComponent)) continue
+          resetHelperTransform(entity)
+        }
+      }
+    }, [selectionState.selectedEntities])
+
     return null
   },
   execute: () => {
+    const engineState = getState(EngineState)
+    if (!engineState.isEditing) return
     const snapState = getState(ObjectGridSnapState)
     if (!snapState.enabled) return
     const entities = objectGridQuery()
@@ -195,8 +254,12 @@ export const ObjectGridSnapSystem = defineSystem({
       if (parent) {
         selectedEntities.push(entity)
         selectedParents.push(parent)
+        setHelperLayer(entity, ObjectLayers.Scene)
+        setHelperColor(entity, new Color(1, 1, 1))
       } else {
         nonSelectedEntities.push(entity)
+        setHelperLayer(entity, ObjectLayers.NodeHelper)
+        setHelperColor(entity, new Color(1, 0, 0))
       }
     }
     if (selectedEntities.length === 0) return
@@ -214,6 +277,7 @@ export const ObjectGridSnapSystem = defineSystem({
         const distance = bboxDistance(selectedBBox, candidateBBox, selectedMatrixWorld, candidateMatrixWorld)
         if (distance <= distanceThreshold) {
           closestEntities.push(candidateEntity)
+          setHelperLayer(candidateEntity, ObjectLayers.Scene)
         }
       }
       const selectedSnapComponent = getComponent(selectedEntity, ObjectGridSnapComponent)
@@ -261,6 +325,12 @@ export const ObjectGridSnapSystem = defineSystem({
           leastOffset = offset
           closestEntity = candidateEntity
         }
+      }
+      if (closestEntity === UndefinedEntity) {
+        commitNoOp()
+        continue
+      } else {
+        setHelperColor(closestEntity, new Color(0, 1, 0))
       }
       const closestBBox = getComponent(closestEntity, ObjectGridSnapComponent).bbox
       const closestMatrixWorld = getComponent(closestEntity, TransformComponent).matrixWorld
