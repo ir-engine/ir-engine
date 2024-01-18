@@ -36,7 +36,7 @@ import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { ComponentType, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { ComponentType, getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectComponent'
 import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
 import { Physics } from '../../physics/classes/Physics'
@@ -48,7 +48,7 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '../../transform/updateWorldOrigin'
 import { XRControlsState, XRState } from '../../xr/XRState'
-import { defaultAnimationPath, locomotionAnimation } from '../animation/Util'
+import { preloadedAnimations } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
@@ -158,7 +158,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
     if (controller.isInAir && !beganFalling) {
       dispatchAction(
         AvatarNetworkAction.setAnimationState({
-          filePath: defaultAnimationPath + locomotionAnimation + '.glb',
+          animationAsset: preloadedAnimations.locomotion,
           clipName: 'Fall',
           loop: true,
           layer: 1,
@@ -171,7 +171,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
       if (beganFalling) {
         dispatchAction(
           AvatarNetworkAction.setAnimationState({
-            filePath: defaultAnimationPath + locomotionAnimation + '.glb',
+            animationAsset: preloadedAnimations.locomotion,
             clipName: 'Fall',
             loop: true,
             layer: 1,
@@ -214,7 +214,7 @@ export const applyAutopilotInput = (entity: Entity) => {
 
   const markerState = getState(AutopilotMarker)
 
-  const controller = getComponent(entity, AvatarControllerComponent)
+  const controller = getOptionalComponent(entity, AvatarControllerComponent)
 
   if (!controller || !markerState.walkTarget) return
 

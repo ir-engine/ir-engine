@@ -39,7 +39,7 @@ import {
 } from 'three'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
@@ -86,7 +86,7 @@ export class CSMHelper {
 
     setVisibleComponent(this.frustumLinesEntity, displayFrustum)
     setComponent(this.frustumLinesEntity, EntityTreeComponent, {
-      parentEntity: !this.paused ? Engine.instance.cameraEntity : null
+      parentEntity: !this.paused ? Engine.instance.cameraEntity : UndefinedEntity
     })
 
     const cascadeLines = this.cascadeLines
@@ -98,10 +98,10 @@ export class CSMHelper {
       const cascadePlane = cascadePlanes[i]
       const shadowLineGroup = shadowLines[i]
       setComponent(cascadeLine, EntityTreeComponent, {
-        parentEntity: !this.paused ? Engine.instance.cameraEntity : null
+        parentEntity: !this.paused ? Engine.instance.cameraEntity : UndefinedEntity
       })
       setComponent(cascadePlane, EntityTreeComponent, {
-        parentEntity: !this.paused ? Engine.instance.cameraEntity : null
+        parentEntity: !this.paused ? Engine.instance.cameraEntity : UndefinedEntity
       })
       setVisibleComponent(cascadeLine, displayFrustum)
       setVisibleComponent(cascadePlane, displayFrustum && displayPlanes)
@@ -162,7 +162,7 @@ export class CSMHelper {
       shadowLine.frustumCulled = false
       const shadowLinesEntity = createEntity()
       addObjectToGroup(shadowLinesEntity, shadowLine)
-      setComponent(shadowLinesEntity, EntityTreeComponent, { parentEntity: null })
+      setComponent(shadowLinesEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
       setComponent(shadowLinesEntity, NameComponent, 'CSM shadow line ' + cascadeLines.length)
       setObjectLayers(shadowLine, ObjectLayers.NodeHelper)
       shadowLines.push(shadowLinesEntity)

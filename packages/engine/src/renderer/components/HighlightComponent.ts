@@ -32,6 +32,7 @@ import { defineComponent, getOptionalComponent } from '../../ecs/functions/Compo
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { MeshComponent } from '../../scene/components/MeshComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { RendererState } from '../RendererState'
 import { EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
 
@@ -47,7 +48,8 @@ export const HighlightComponent = defineComponent({
     useEffect(() => {
       iterateEntityNode(entity, (childEntity) => {
         const obj = getOptionalComponent(childEntity, MeshComponent)
-        if (obj?.type !== 'Mesh') return
+        const visible = getOptionalComponent(childEntity, VisibleComponent)
+        if (!visible || obj?.type !== 'Mesh') return
         addToSelection(obj as Mesh)
       })
       return () => {

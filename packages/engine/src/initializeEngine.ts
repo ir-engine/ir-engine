@@ -44,6 +44,7 @@ import { TransformComponent } from './transform/components/TransformComponent'
 
 // core module
 import '@etherealengine/engine/src/ecs/ECSModule'
+import { UndefinedEntity } from './ecs/classes/Entity'
 
 /**
  * Creates a new instance of the engine and engine renderer. This initializes all properties and state for the engine,
@@ -64,7 +65,7 @@ export const createEngine = () => {
 
   Engine.instance.originEntity = createEntity()
   setComponent(Engine.instance.originEntity, NameComponent, 'origin')
-  setComponent(Engine.instance.originEntity, EntityTreeComponent, { parentEntity: null })
+  setComponent(Engine.instance.originEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
   setComponent(Engine.instance.originEntity, TransformComponent)
   setComponent(Engine.instance.originEntity, VisibleComponent, true)
   addObjectToGroup(Engine.instance.originEntity, Engine.instance.origin)
@@ -79,7 +80,7 @@ export const createEngine = () => {
   setComponent(Engine.instance.cameraEntity, CameraComponent)
   setComponent(Engine.instance.cameraEntity, VisibleComponent, true)
   getComponent(Engine.instance.cameraEntity, TransformComponent).position.set(0, 5, 2)
-  setComponent(Engine.instance.cameraEntity, EntityTreeComponent, { parentEntity: null })
+  setComponent(Engine.instance.cameraEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
 
   const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
   camera.matrixAutoUpdate = false
