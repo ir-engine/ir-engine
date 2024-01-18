@@ -90,10 +90,10 @@ export const XRDetectedPlaneComponent = defineComponent({
       const occlusionMesh = new Mesh(geometry, occlusionMat)
 
       const placementHelper = new Mesh(geometry, placementHelperMaterial)
-      occlusionMesh.add(placementHelper)
 
       addObjectToGroup(entity, shadowMesh)
       addObjectToGroup(entity, occlusionMesh)
+      addObjectToGroup(entity, placementHelper)
       occlusionMesh.renderOrder = -1 /** @todo make a global config for AR occlusion mesh renderOrder */
 
       component.shadowMesh.set(shadowMesh)
@@ -103,6 +103,7 @@ export const XRDetectedPlaneComponent = defineComponent({
       return () => {
         removeObjectFromGroup(entity, shadowMesh)
         removeObjectFromGroup(entity, occlusionMesh)
+        removeObjectFromGroup(entity, placementHelper)
 
         component.shadowMesh.set(none)
         component.occlusionMesh.set(none)
@@ -115,12 +116,8 @@ export const XRDetectedPlaneComponent = defineComponent({
       const occlusionMesh = component.occlusionMesh.value
       const geometry = component.geometry.value
 
-      const setGeometry = (mesh: Mesh) => {
-        if (mesh.geometry) mesh.geometry = geometry
-      }
-
-      shadowMesh.traverse(setGeometry)
-      occlusionMesh.traverse(setGeometry)
+      if (shadowMesh.geometry) shadowMesh.geometry = geometry
+      if (occlusionMesh.geometry) occlusionMesh.geometry = geometry
 
       return () => {
         geometry.dispose()

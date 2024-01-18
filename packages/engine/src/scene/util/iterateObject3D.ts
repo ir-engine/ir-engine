@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Object3D } from 'three'
 
+/** @deprecated use iterateEntityNode instead*/
 export default function iterateObject3D<T extends Object3D, R>(
   root: Object3D,
   callback: (child: T) => R,
