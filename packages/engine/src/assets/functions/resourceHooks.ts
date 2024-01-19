@@ -45,13 +45,10 @@ function useLoader<T>(
 
   const unload = () => {
     ResourceManager.unload(url, resourceType, entity)
-    value.set(null)
-    progress.set(null)
-    error.set(null)
-    onUnload(url)
   }
 
   useEffect(() => {
+    let unmounted = false
     if (url !== urlState.value) {
       ResourceManager.unload(urlState.value, resourceType, entity)
       value.set(null)
@@ -67,15 +64,19 @@ function useLoader<T>(
       entity,
       params,
       (response) => {
-        value.set(response as T)
+        if (!unmounted) value.set(response as T)
       },
       (request) => {
-        progress.set(request)
+        if (!unmounted) progress.set(request)
       },
       (err) => {
-        error.set(err)
+        if (!unmounted) error.set(err)
       }
     )
+
+    return () => {
+      unmounted = true
+    }
   }, [url])
 
   return [value, unload, error, progress]
