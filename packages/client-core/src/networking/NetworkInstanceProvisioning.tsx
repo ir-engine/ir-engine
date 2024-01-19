@@ -106,17 +106,16 @@ export const WorldInstanceProvisioning = () => {
       )
     }
 
-    /** @todo support multiple locations & cleanup properly */
-    // return () => {
-    //   const locationInstance = Object.entries(locationInstances.value).find(
-    //     ([id, instance]) => instance.locationId === locationID
-    //   )
-    //   if (locationInstance) {
-    //     const [id] = locationInstance
-    //     locationInstances[id].set(none)
-    //   }
-    // }
-  }, [locationState.currentLocation.location, instance])
+    return () => {
+      const locationInstance = Object.entries(locationInstances.value).find(
+        ([id, instance]) => instance.locationId === locationID
+      )
+      if (locationInstance) {
+        const [id] = locationInstance
+        locationInstances[id].set(none)
+      }
+    }
+  }, [locationState.currentLocation.location])
 
   // Populate the URL with the room code and instance id
   useEffect(() => {
@@ -262,10 +261,14 @@ export const FriendMenus = () => {
     })
 
     return () => {
-      menuState.menus[SocialMenus.Friends].set(none)
-      menuState.menus[SocialMenus.Messages].set(none)
+      menuState.menus.merge({
+        [SocialMenus.Friends]: none,
+        [SocialMenus.Messages]: none
+      })
 
-      menuState.hotbar[SocialMenus.Friends].set(none)
+      menuState.hotbar.merge({
+        [SocialMenus.Friends]: none
+      })
     }
   }, [])
 

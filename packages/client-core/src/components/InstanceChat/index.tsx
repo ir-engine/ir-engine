@@ -443,6 +443,7 @@ export const InstanceChatWrapper = () => {
   const { t } = useTranslation()
   const { bottomShelfStyle } = useShelfStyles()
 
+  const networkWorldConfig = useHookstate(getMutableState(NetworkState).config.world)
   const targetChannelId = useHookstate(getMutableState(ChannelState).targetChannelId)
 
   return (
@@ -452,11 +453,15 @@ export const InstanceChatWrapper = () => {
           <InstanceChat />
         </div>
       ) : (
-        <div className={styles.modalConnecting}>
-          <div className={styles.modalConnectingTitle}>
-            <p>{t('common:loader.connectingToWorld')}</p>
-          </div>
-        </div>
+        <>
+          {networkWorldConfig.value && (
+            <div className={styles.modalConnecting}>
+              <div className={styles.modalConnectingTitle}>
+                <p>{t('common:loader.connectingToWorld')}</p>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </>
   )

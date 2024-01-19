@@ -171,14 +171,38 @@ export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
   const transportState = getState(MediasoupTransportState)[network.id]
   if (transportState) {
     for (const { transportID } of Object.values(transportState)) {
-      const transport = getState(MediasoupTransportObjectsState)[transportID]
-      transport.close()
+      dispatchAction(
+        MediasoupTransportActions.transportClosed({
+          transportID,
+          $network: network.id
+        })
+      )
     }
   }
   network.transport.heartbeat && clearInterval(network.transport.heartbeat)
   network.transport.primus?.end()
   network.transport.primus?.removeAllListeners()
   networkState.transport.primus.set(null!)
+}
+
+export const closeNetworkTransport = (network: SocketWebRTCClientNetwork) => {
+  const transportState = getState(MediasoupTransportState)[network.id]
+  if (transportState) {
+    for (const { transportID } of Object.values(transportState)) {
+      dispatchAction(
+        MediasoupTransportActions.transportClosed({
+          transportID,
+          $network: network.id
+        })
+      )
+    }
+  }
+  network.transport.heartbeat && clearInterval(network.transport.heartbeat)
+  network.transport.primus?.end()
+  network.transport.primus?.removeAllListeners()
+  const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
+  networkState.transport.primus.set(null!)
+  networkState.authenticated.set(false)
 }
 
 export const initializeNetwork = (id: InstanceID, hostId: UserID, topic: Topic) => {
@@ -291,15 +315,21 @@ export const connectToNetwork = (
   }, 3000)
 
   let connecting = true
+  let disconnected = false
 
   const onConnect = () => {
     connecting = false
 
-    const topic = locationId ? NetworkTopics.world : NetworkTopics.media
-    getMutableState(NetworkState).hostIds[topic].set(instanceID)
-    const network = initializeNetwork(instanceID, instanceID as any, topic)
-    addNetwork(network)
+    /** Check if a network already exists */
+    const existingNetwork = getState(NetworkState).networks[instanceID]
+    if (!existingNetwork) {
+      const topic = locationId ? NetworkTopics.world : NetworkTopics.media
+      getMutableState(NetworkState).hostIds[topic].set(instanceID)
+      const network = initializeNetwork(instanceID, instanceID as any, topic)
+      addNetwork(network)
+    }
 
+    const network = getState(NetworkState).networks[instanceID] as SocketWebRTCClientNetwork
     const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
 
     networkState.transport.primus.set(primus)
@@ -314,23 +344,26 @@ export const connectToNetwork = (
 
     /** Server closed the connection. */
     const onDisconnect = () => {
-      logger.info('Disonnected from network %o', { topic: network.topic, id: network.id })
-      leaveNetwork(network)
+      logger.info('Disonnected from network %o', { topic: network.topic, id: network.id, disconnected })
+      /**
+       * If we are disconnected (server closes our socket) rather than leave the network,
+       * we just need to destroy and recreate the transport
+       */
+      closeNetworkTransport(network)
+      connectToNetwork(instanceID, ipAddress, port, locationId, channelId, roomCode)
     }
     primus.on('incoming::end', onDisconnect)
   }
   primus.on('incoming::open', onConnect)
 
-  logger.info('Connecting to instance type: %o', { instanceID, ipAddress, port, channelId, roomCode })
-
   return () => {
+    disconnected = true
     if (connecting) {
       primus.off('incoming::open', onConnect)
       primus.removeAllListeners()
       primus.end()
       clearTimeout(connectionFailTimeout)
     } else {
-      console.log('END NETWORK')
       const network = getState(NetworkState).networks[instanceID] as SocketWebRTCClientNetwork
       leaveNetwork(network)
     }

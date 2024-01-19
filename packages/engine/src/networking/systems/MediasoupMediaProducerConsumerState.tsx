@@ -27,6 +27,7 @@ import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChann
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { ChannelID, InstanceID } from '@etherealengine/common/src/schema.type.module'
 import {
+  NO_PROXY_STEALTH,
   defineAction,
   defineState,
   dispatchAction,
@@ -42,6 +43,7 @@ import { defineSystem } from '../../ecs/functions/SystemFunctions'
 
 import { PresentationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { MediaStreamAppData, MediaTagType, NetworkState } from '../NetworkState'
+import { MediasoupTransportObjectsState } from './MediasoupTransportState'
 
 export class MediaProducerActions {
   static requestProducer = defineAction({
@@ -296,10 +298,10 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
   const producerState = useHookstate(
     getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers[producerID]
   )
-
   const producerObjectState = useHookstate(
     getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[producerID]
   )
+  const transportState = useHookstate(getMutableState(MediasoupTransportObjectsState)[producerState.transportID.value])
 
   useEffect(() => {
     const peerID = producerState.peerID.value
@@ -349,6 +351,14 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
     if (!producerState.paused.value && producer.resume) producer.resume()
   }, [producerState.paused, producerObjectState])
 
+  useEffect(() => {
+    if (!transportState.value || !producerObjectState.value) return
+    const producerObject = producerObjectState.get(NO_PROXY_STEALTH)
+    return () => {
+      producerObject.close()
+    }
+  }, [transportState, producerObjectState])
+
   const consumer = Object.values(getState(MediasoupMediaProducerConsumerState)[networkID].consumers).find(
     (p) => p.producerID === producerID
   )
@@ -394,6 +404,7 @@ export const NetworkConsumer = (props: { networkID: InstanceID; consumerID: stri
   const consumerObjectState = useHookstate(
     getMutableState(MediasoupMediaProducersConsumersObjectsState).consumers[consumerID]
   )
+  const transportState = useHookstate(getMutableState(MediasoupTransportObjectsState)[consumerState.transportID.value])
 
   useEffect(() => {
     const consumer = consumerObjectState.value as any
@@ -415,6 +426,14 @@ export const NetworkConsumer = (props: { networkID: InstanceID; consumerID: stri
     if (consumerState.paused.value && typeof consumer.pause === 'function') consumer.pause()
     if (!consumerState.paused.value && typeof consumer.resume === 'function') consumer.resume()
   }, [consumerState.paused, consumerObjectState])
+
+  useEffect(() => {
+    if (!transportState.value || !consumerObjectState.value) return
+    const consumerObject = consumerObjectState.get(NO_PROXY_STEALTH)
+    return () => {
+      consumerObject.close()
+    }
+  }, [transportState, consumerObjectState])
 
   return null
 }

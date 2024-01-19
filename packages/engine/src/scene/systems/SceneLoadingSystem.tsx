@@ -432,7 +432,10 @@ const loadComponents = (entity: Entity, components: ComponentJsonType[]) => {
 const sceneLoadedActionQueue = defineActionQueue(EngineActions.sceneLoaded.matches)
 
 const execute = () => {
-  if (sceneLoadedActionQueue().length) getMutableState(EngineState).merge({ sceneLoading: false, sceneLoaded: true })
+  if (sceneLoadedActionQueue().length) {
+    if (getState(EngineState).sceneLoading) getMutableState(EngineState).sceneLoading.set(false)
+    if (!getState(EngineState).sceneLoaded) getMutableState(EngineState).sceneLoaded.set(true)
+  }
 }
 
 export const SceneLoadingSystem = defineSystem({

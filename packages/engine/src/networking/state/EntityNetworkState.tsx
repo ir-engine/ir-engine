@@ -31,6 +31,7 @@ import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
 import {
+  defineActionQueue,
   defineState,
   dispatchAction,
   getMutableState,
@@ -52,7 +53,9 @@ import { SimulationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { NetworkState } from '../NetworkState'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { NetworkPeerFunctions } from '../functions/NetworkPeerFunctions'
 
 export const EntityNetworkState = defineState({
   name: 'ee.EntityNetworkState',
@@ -150,17 +153,32 @@ const EntityNetworkReactor = memo((props: { uuid: EntityUUID }) => {
   return null
 })
 
+const worldDestroyActionQueue = defineActionQueue(WorldNetworkAction.destroyObject.matches)
+
+const execute = () => {
+  if (!NetworkState.worldNetwork?.isHosting) return
+
+  /** When a user disconnects, remove their actions from history */
+  for (const action of worldDestroyActionQueue()) {
+    NetworkPeerFunctions.clearCachedActionsForUser(action.entityUUID as any as UserID)
+    NetworkPeerFunctions.clearActionsHistoryForUser(action.entityUUID as any as UserID)
+  }
+}
+
+const reactor = () => {
+  const state = useMutableState(EntityNetworkState)
+  return (
+    <>
+      {state.keys.map((uuid: EntityUUID) => (
+        <EntityNetworkReactor uuid={uuid} key={uuid} />
+      ))}
+    </>
+  )
+}
+
 export const EntityNetworkStateSystem = defineSystem({
   uuid: 'ee.networking.EntityNetworkStateSystem',
-  reactor: () => {
-    const state = useMutableState(EntityNetworkState)
-    return (
-      <>
-        {state.keys.map((uuid: EntityUUID) => (
-          <EntityNetworkReactor uuid={uuid} key={uuid} />
-        ))}
-      </>
-    )
-  },
+  execute,
+  reactor,
   insert: { with: SimulationSystemGroup }
 })

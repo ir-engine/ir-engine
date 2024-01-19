@@ -25,8 +25,20 @@ Ethereal Engine. All Rights Reserved.
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
-import { defineAction, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import {
+  NO_PROXY_STEALTH,
+  defineAction,
+  defineState,
+  getMutableState,
+  getState,
+  none,
+  useHookstate
+} from '@etherealengine/hyperflux'
+import React, { useEffect } from 'react'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { PresentationSystemGroup } from '../../ecs/functions/SystemGroups'
+import { MediasoupTransportObjectsState } from './MediasoupTransportState'
 
 export class MediasoupDataProducerActions {
   static requestProducer = defineAction({
@@ -203,4 +215,78 @@ export const MediasoupDataProducerConsumerState = defineState({
       }
     })
   }
+})
+
+export const NetworkProducer = (props: { networkID: InstanceID; producerID: string }) => {
+  const { networkID, producerID } = props
+  const producerState = useHookstate(
+    getMutableState(MediasoupDataProducerConsumerState)[networkID].producers[producerID]
+  )
+  const producerObjectState = useHookstate(
+    getMutableState(MediasoupDataProducersConsumersObjectsState).producers[producerID]
+  )
+  const transportState = useHookstate(getMutableState(MediasoupTransportObjectsState)[producerState.transportID.value])
+  useEffect(() => {
+    if (!transportState.value || !producerObjectState.value) return
+    const producerObject = producerObjectState.get(NO_PROXY_STEALTH)
+    return () => {
+      producerObject.close()
+    }
+  }, [transportState, producerObjectState])
+
+  return null
+}
+
+export const NetworkConsumer = (props: { networkID: InstanceID; consumerID: string }) => {
+  const { networkID, consumerID } = props
+  const consumerState = useHookstate(
+    getMutableState(MediasoupDataProducerConsumerState)[networkID].consumers[consumerID]
+  )
+  const consumerObjectState = useHookstate(
+    getMutableState(MediasoupDataProducersConsumersObjectsState).consumers[consumerID]
+  )
+  const transportState = useHookstate(getMutableState(MediasoupTransportObjectsState)[consumerState.transportID.value])
+
+  useEffect(() => {
+    if (!transportState.value || !consumerObjectState.value) return
+    const consumerObject = consumerObjectState.get(NO_PROXY_STEALTH)
+    return () => {
+      consumerObject.close()
+    }
+  }, [transportState, consumerObjectState])
+
+  return null
+}
+const NetworkReactor = (props: { networkID: InstanceID }) => {
+  const { networkID } = props
+  const producers = useHookstate(getMutableState(MediasoupDataProducerConsumerState)[networkID].producers)
+  const consumers = useHookstate(getMutableState(MediasoupDataProducerConsumerState)[networkID].consumers)
+
+  return (
+    <>
+      {producers.keys.map((producerID: string) => (
+        <NetworkProducer key={producerID} producerID={producerID} networkID={networkID} />
+      ))}
+      {consumers.keys.map((consumerID: string) => (
+        <NetworkConsumer key={consumerID} consumerID={consumerID} networkID={networkID} />
+      ))}
+    </>
+  )
+}
+
+const reactor = () => {
+  const networkIDs = useHookstate(getMutableState(MediasoupDataProducerConsumerState))
+  return (
+    <>
+      {networkIDs.keys.map((id: InstanceID) => (
+        <NetworkReactor key={id} networkID={id} />
+      ))}
+    </>
+  )
+}
+
+export const MediasoupDataProducerConsumerStateSystem = defineSystem({
+  uuid: 'ee.engine.network.mediasoup.MediasoupDataProducerConsumerStateSystem',
+  insert: { after: PresentationSystemGroup },
+  reactor
 })

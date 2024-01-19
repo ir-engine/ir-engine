@@ -25,9 +25,20 @@ Ethereal Engine. All Rights Reserved.
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
-import { defineAction, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import {
+  NO_PROXY_STEALTH,
+  defineAction,
+  defineState,
+  getMutableState,
+  getState,
+  none,
+  useHookstate
+} from '@etherealengine/hyperflux'
+import React, { useEffect } from 'react'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { PresentationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { NetworkState } from '../NetworkState'
 import { Network } from '../classes/Network'
 
@@ -151,10 +162,54 @@ export const MediasoupTransportState = defineState({
     onTransportClosed: MediasoupTransportActions.transportClosed.receive((action) => {
       const network = action.$network
       const state = getMutableState(MediasoupTransportState)
-      state[network]?.transports[action.transportID].set(none)
-      if (!state[network].transports.keys.length && !state[network].consumers.keys.length) {
+      state[network][action.transportID].set(none)
+      if (!state[network].keys.length) {
         state[network].set(none)
       }
     })
   }
+})
+
+const TransportReactor = (props: { transportID: string }) => {
+  const transport = useHookstate(getMutableState(MediasoupTransportObjectsState)[props.transportID])
+
+  useEffect(() => {
+    if (!transport.value) return
+    const transportObject = transport.get(NO_PROXY_STEALTH)
+    return () => {
+      transportObject.close()
+    }
+  }, [transport])
+
+  return null
+}
+
+const NetworkReactor = (props: { networkID: InstanceID }) => {
+  const { networkID } = props
+  const transportNetworkState = useHookstate(getMutableState(MediasoupTransportState)[networkID])
+
+  return (
+    <>
+      {transportNetworkState.keys.map((transportID: string) => (
+        <TransportReactor key={transportID} transportID={transportID} />
+      ))}
+    </>
+  )
+}
+
+const reactor = () => {
+  const networkIDs = useHookstate(getMutableState(MediasoupTransportState))
+  return (
+    <>
+      {networkIDs.keys.map((id: InstanceID) => (
+        <NetworkReactor key={id} networkID={id} />
+      ))}
+    </>
+  )
+}
+
+export const MediasoupTransportStateSystem = defineSystem({
+  uuid: 'ee.engine.network.mediasoup.MediasoupTransportStateSystem',
+  insert: { after: PresentationSystemGroup },
+  reactor
 })
