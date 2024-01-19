@@ -67,7 +67,7 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
   const [avatarLoading, setAvatarLoading] = useState(false)
 
   const renderPanel = useRender3DPanelSystem(panelRef)
-  const { avatarEntity, camera } = renderPanel.state
+  const { previewEntity, camera } = renderPanel.state
 
   useEffect(() => {
     loadAvatarPreview()
@@ -81,7 +81,6 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     setComponent(entity, UUIDComponent, uuid)
     setComponent(entity, NameComponent, '3D Preview Entity')
 
-    //resetAnimationLogic(entity.value)
     setComponent(entity, VisibleComponent, true)
     ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.AssetPreview)
     setComponent(entity, ModelComponent, { src: avatarUrl, convertToVRM: true })
@@ -91,8 +90,8 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     })
     setComponent(entity, EnvmapComponent, { type: EnvMapSourceType.Skybox })
 
-    if (avatarEntity.value) removeEntity(avatarEntity.value)
-    avatarEntity.set(entity)
+    if (previewEntity.value) removeEntity(previewEntity.value)
+    previewEntity.set(entity)
 
     camera.position.value.y = 1.8
     camera.position.value.z = 1

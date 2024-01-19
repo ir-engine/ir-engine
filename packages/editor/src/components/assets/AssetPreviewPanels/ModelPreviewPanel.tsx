@@ -28,15 +28,19 @@ import React, { useEffect, useRef } from 'react'
 import ResizeObserver from 'resize-observer-polyfill'
 
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
-import { setupSceneForPreview } from '@etherealengine/client-core/src/user/components/Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
-import { SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
-import { removeMaterialSource } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { InfiniteGridHelper } from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { useHookstate } from '@etherealengine/hyperflux'
 
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { ObjectLayerMaskComponent } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { MathUtils } from 'three'
 import styles from '../styles.module.scss'
 
 export const ModelPreviewPanel = (props) => {
@@ -46,7 +50,7 @@ export const ModelPreviewPanel = (props) => {
   const error = useHookstate('')
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
   const renderPanel = useRender3DPanelSystem(panelRef)
-  const { camera, entity, scene, renderer } = renderPanel.state
+  const { camera, previewEntity, renderer } = renderPanel.state
   const gridHelper = new InfiniteGridHelper()
   gridHelper.add(...InfiniteGridHelper.createLines(8000))
   gridHelper.layers.set(ObjectLayers.Panel)
@@ -55,7 +59,7 @@ export const ModelPreviewPanel = (props) => {
   })
 
   useEffect(() => {
-    scene.value.add(gridHelper)
+    //scene.value.add(gridHelper)
     const handleSizeChange = () => {
       renderPanel.resize()
     }
@@ -76,23 +80,21 @@ export const ModelPreviewPanel = (props) => {
     return () => {
       resizeObserver.disconnect()
       handleSizeChangeDebounced.cancel()
-      scene.value.remove(gridHelper)
+      //scene.value.remove(gridHelper)
     }
   }, [])
 
   useEffect(() => {
-    //add to the threejs scene for previewing
-    AssetLoader.loadAsync(url).then((avatar) => {
-      scene.value.add(setupSceneForPreview(avatar))
-    })
+    const entity = createEntity()
+    setComponent(entity, NameComponent, '3D Preview Entity')
+    const uuid = MathUtils.generateUUID() as EntityUUID
+    setComponent(entity, UUIDComponent, uuid)
+    setComponent(entity, ModelComponent, { src: url })
 
-    return () => {
-      const sceneVal = scene.value
-      const avatar = sceneVal.children.find((child) => child.name === 'avatar')
-      if (avatar?.userData['src']) {
-        removeMaterialSource({ type: SourceType.MODEL, path: avatar.userData['src'] })
-      }
-    }
+    ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.AssetPreview)
+    if (previewEntity.value) removeEntity(previewEntity.value)
+    previewEntity.set(entity)
+    loading.set(false)
   }, [url])
 
   return (

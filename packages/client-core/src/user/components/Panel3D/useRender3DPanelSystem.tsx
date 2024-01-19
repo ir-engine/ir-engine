@@ -85,12 +85,12 @@ const initialize3D = () => {
   const backLight = createLight(new Euler(-0.5, 0, 0), 2)
   const frontLight1 = createLight(new Euler(-4, Math.PI * 0.1, 0), 2)
   const frontLight2 = createLight(new Euler(-4, -Math.PI * 0.1, 0), 2)
-  const avatarEntity = null as Entity | null
+  const previewEntity = null as Entity | null
   return {
     controls,
     camera,
     renderer,
-    avatarEntity,
+    previewEntity,
     backLight,
     frontLight1,
     frontLight2
@@ -129,7 +129,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
     return () => {
       destroySystem(AvatarSelectRenderSystem)
       // todo - do we need to remove the system defintion?
-      if (state.avatarEntity.value) removeEntity(state.avatarEntity.value)
+      if (state.previewEntity.value) removeEntity(state.previewEntity.value)
       removeEntity(state.backLight.value)
       removeEntity(state.frontLight1.value)
       removeEntity(state.frontLight2.value)
