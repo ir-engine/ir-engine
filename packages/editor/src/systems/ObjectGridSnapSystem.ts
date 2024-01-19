@@ -58,13 +58,19 @@ function isParentSelected(entity: Entity) {
   return false
 }
 
+const scale1 = new Vector3()
+const scale2 = new Vector3()
 function bboxDistance(bbox1: Box3, bbox2: Box3, matrixWorld1: Matrix4, matrixWorld2: Matrix4) {
+  matrixWorld1.decompose(new Vector3(), new Quaternion(), scale1)
+  matrixWorld2.decompose(new Vector3(), new Quaternion(), scale2)
+  const maxAxis1 = Math.max(Math.abs(scale1.x), Math.abs(scale1.y), Math.abs(scale1.z))
+  const maxAxis2 = Math.max(Math.abs(scale2.x), Math.abs(scale2.y), Math.abs(scale2.z))
   const center1 = bbox1.getCenter(new Vector3())
   const center2 = bbox2.getCenter(new Vector3())
   const center1World = center1.clone().applyMatrix4(matrixWorld1)
   const center2World = center2.clone().applyMatrix4(matrixWorld2)
-  const radius1 = bbox1.getSize(new Vector3()).length() / 2
-  const radius2 = bbox2.getSize(new Vector3()).length() / 2
+  const radius1 = (bbox1.getSize(new Vector3()).length() * maxAxis1) / 2
+  const radius2 = (bbox2.getSize(new Vector3()).length() * maxAxis2) / 2
   return center1World.distanceTo(center2World) - radius1 - radius2
 }
 
@@ -312,7 +318,7 @@ export const ObjectGridSnapSystem = defineSystem({
           selectedMatrixClone.elements[13],
           selectedMatrixClone.elements[14]
         )
-        selectedMatrixClone.copy(rotationMatrix)
+        selectedMatrixClone.extractRotation(rotationMatrix)
         selectedMatrixClone.setPosition(position)
         const translation = boundedTranslation(
           selectedBBox,
@@ -338,7 +344,8 @@ export const ObjectGridSnapSystem = defineSystem({
       const srcMatrixWorld = parentMatrixWorld.clone()
       const rotationMatrix = alignToClosestAxis(selectedMatrixWorld, closestMatrixWorld)
       const position = new Vector3()
-      srcMatrixWorld.decompose(position, new Quaternion(), new Vector3())
+      const scale = new Vector3()
+      srcMatrixWorld.decompose(position, new Quaternion(), scale)
       const dstEntity = getState(ObjectGridSnapState).apply ? selectedParent : selectedSnapComponent.helper
       if (!dstEntity) {
         commitNoOp()
@@ -346,6 +353,7 @@ export const ObjectGridSnapSystem = defineSystem({
       }
       const dstMatrixWorld = getComponent(dstEntity, TransformComponent).matrixWorld
       dstMatrixWorld.extractRotation(rotationMatrix)
+      dstMatrixWorld.scale(scale)
       dstMatrixWorld.setPosition(position)
       TransformComponent.updateFromWorldMatrix(dstEntity)
       const translation = boundedTranslation(
