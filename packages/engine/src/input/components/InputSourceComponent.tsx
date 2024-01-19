@@ -31,7 +31,6 @@ import { defineState, getMutableState, none, useHookstate } from '@etherealengin
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
-  defineQuery,
   getOptionalComponent,
   removeComponent,
   setComponent,
@@ -39,6 +38,7 @@ import {
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { ButtonStateMap } from '../state/ButtonState'
 import { InputComponent } from './InputComponent'

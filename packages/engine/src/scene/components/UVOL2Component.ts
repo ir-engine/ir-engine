@@ -56,9 +56,9 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { useExecute } from '../../ecs/functions/SystemFunctions'
+import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { PlayMode } from '../constants/PlayMode'
 import {
@@ -493,8 +493,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   const mesh = useMemo(() => new Mesh(defaultGeometry, material), [])
   const group = useMemo(() => {
     const _group = new Group()
-    addObjectToGroup(entity, _group)
-    addObjectToGroup(entity, mesh)
+    _group.add(mesh)
     return _group
   }, [])
 

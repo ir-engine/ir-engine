@@ -64,6 +64,7 @@ import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/compon
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
+import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
@@ -93,7 +94,8 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
     GroupComponent,
     ColliderComponent,
     VariantComponent,
-    SceneDynamicLoadTagComponent
+    SceneDynamicLoadTagComponent,
+    ObjectGridSnapComponent
   ],
   Interaction: [SpawnPointComponent, PortalComponent, LinkComponent, MountPointComponent],
   Lighting: [

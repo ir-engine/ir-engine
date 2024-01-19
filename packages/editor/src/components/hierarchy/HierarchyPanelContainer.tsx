@@ -32,11 +32,7 @@ import { FixedSizeList } from 'react-window'
 
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import {
-  getComponent,
-  getOptionalComponent,
-  useQuery
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent, traverseEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
@@ -47,6 +43,7 @@ import { PopoverPosition } from '@mui/material/Popover'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { useQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { EditorCameraState } from '../../classes/EditorCameraState'
