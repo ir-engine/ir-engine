@@ -368,7 +368,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
   /* Rename functions */
 
   const [, treeContainerDropTarget] = useDrop({
-    accept: [ItemTypes.Node, ItemTypes.File, ...SupportedFileTypes],
+    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.PrefabComponents, ...SupportedFileTypes],
     drop(item: any, monitor) {
       if (monitor.didDrop()) return
 
@@ -393,6 +393,9 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 
       if (item.type === ItemTypes.Component) {
         EditorControlFunctions.createObjectFromSceneElement([{ name: item!.componentJsonID }])
+        return
+      } else if (item.type === ItemTypes.PrefabComponents) {
+        EditorControlFunctions.createObjectFromSceneElement(item.components)
         return
       }
 

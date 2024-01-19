@@ -66,6 +66,7 @@ import { Breadcrumbs, Link, Popover, TablePagination } from '@mui/material'
 
 import InputSlider from '@etherealengine/client-core/src/common/components/InputSlider'
 import { archiverPath, fileBrowserUploadPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
@@ -77,8 +78,9 @@ import { bytesToSize, unique } from '../../../functions/utils'
 import StringInput from '../../inputs/StringInput'
 import { ToolButton } from '../../toolbar/ToolButton'
 import { AssetSelectionChangePropsType } from '../AssetsPreviewPanel'
-import CompressionPanel from '../CompressionPanel'
+import ImageCompressionPanel from '../ImageCompressionPanel'
 import ImageConvertPanel from '../ImageConvertPanel'
+import ModelCompressionPanel from '../ModelCompressionPanel'
 import styles from '../styles.module.scss'
 import { FileBrowserItem, FileTableWrapper } from './FileBrowserGrid'
 import { availableTableColumns, FilesViewModeSettings, FilesViewModeState } from './FileBrowserState'
@@ -139,6 +141,15 @@ export type FileType = {
   size: string
   type: string
   url: string
+}
+
+const fileConsistsOfContentType = function (file: FileType, contentType: string): boolean {
+  if (file.isFolder) {
+    return contentType.startsWith('image')
+  } else {
+    const guessedType: string = CommonKnownContentTypes[file.type]
+    return guessedType?.startsWith(contentType)
+  }
 }
 
 export function isFileDataType(value: any): value is FileDataType {
@@ -521,6 +532,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                     <div>
                       {availableTableColumns.map((column) => (
                         <FormControlLabel
+                          key={column}
                           classes={{
                             label: styles.viewModeSettingsLabel
                           }}
@@ -674,8 +686,16 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         />
       )}
 
-      {openCompress.value && fileProperties.value && (
-        <CompressionPanel
+      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'model') && (
+        <ModelCompressionPanel
+          openCompress={openCompress}
+          fileProperties={fileProperties as any}
+          onRefreshDirectory={refreshDirectory}
+        />
+      )}
+
+      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'image') && (
+        <ImageCompressionPanel
           openCompress={openCompress}
           fileProperties={fileProperties as any}
           onRefreshDirectory={refreshDirectory}
