@@ -30,9 +30,10 @@ import { defineAction, defineActionQueue, getMutableState, getState, useHookstat
 import { useEffect } from 'react'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, hasComponent, removeQuery, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
+import { hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, removeQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { InputSystemGroup } from '../../ecs/functions/SystemGroups'
 import { BehaveGraphComponent } from '../components/BehaveGraphComponent'
 
 export const BehaveGraphActions = {

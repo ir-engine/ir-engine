@@ -24,20 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, SocketsList, makeEventNodeDefinition, sequence } from '@behave-graph/core'
-import {
-  Component,
-  ComponentMap,
-  Query,
-  defineQuery,
-  removeQuery
-} from '../../../../../ecs/functions/ComponentFunctions'
-import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
+import { Component, ComponentMap } from '../../../../../ecs/functions/ComponentFunctions'
+import { Query, defineQuery, removeQuery } from '../../../../../ecs/functions/QueryFunctions'
 import {
   SystemDefinitions,
   SystemUUID,
   defineSystem,
   destroySystem
 } from '../../../../../ecs/functions/SystemFunctions'
+import { InputSystemGroup } from '../../../../../ecs/functions/SystemGroups'
 import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 
 let systemCounter = 0

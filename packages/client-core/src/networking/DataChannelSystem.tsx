@@ -137,6 +137,7 @@ export const consumerData = async (action: typeof MediasoupDataConsumerActions.c
 const dataConsumerCreatedActionQueue = defineActionQueue(MediasoupDataConsumerActions.consumerCreated.matches)
 
 const execute = () => {
+  /** @todo replace this with event sourcing */
   for (const action of dataConsumerCreatedActionQueue()) {
     setTimeout(() => {
       consumerData(action)
