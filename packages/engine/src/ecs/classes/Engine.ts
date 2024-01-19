@@ -25,26 +25,22 @@ Ethereal Engine. All Rights Reserved.
 
 import type { UserID } from '@etherealengine/common/src/schema.type.module'
 import * as Hyperflux from '@etherealengine/hyperflux'
-import { createHyperStore, getState, ReactorRoot, State } from '@etherealengine/hyperflux'
-import { HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
-
-import { NetworkTopics } from '../../networking/classes/Network'
+import { createHyperStore, getState } from '@etherealengine/hyperflux'
+import { HyperFlux, HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 
 import '../../patchEngineNode'
 import '../utils/threejsPatches'
 
 import type { FeathersApplication } from '@feathersjs/feathers'
-import { Group, Scene } from 'three'
 
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 
 import { getAllEntities } from 'bitecs'
+import { Group, Scene } from 'three'
 import { Timer } from '../../common/functions/Timer'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { NetworkState } from '../../networking/NetworkState'
-import { Query, QueryComponents, removeQuery } from '../functions/ComponentFunctions'
 import { removeEntity } from '../functions/EntityFunctions'
-import { SystemUUID } from '../functions/SystemFunctions'
+import { removeQuery } from '../functions/QueryFunctions'
 import { EngineState } from './EngineState'
 import { Entity, UndefinedEntity } from './Entity'
 
@@ -65,18 +61,9 @@ export class Engine {
   }
 
   store = createHyperStore({
-    forwardIncomingActions: (action) => {
-      const isHost =
-        action.$topic === this.store.defaultTopic
-          ? false
-          : (action.$topic === NetworkTopics.world ? NetworkState.worldNetwork : NetworkState.mediaNetwork)?.isHosting
-      return isHost || action.$from === this.userID
-    },
     getDispatchId: () => Engine.instance.userID,
-    getPeerId: () => Engine.instance.peerID,
     getDispatchTime: () => getState(EngineState).simulationTime,
-    defaultDispatchDelay: () => getState(EngineState).simulationTimestep,
-    getCurrentReactorRoot: () => Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)
+    defaultDispatchDelay: () => getState(EngineState).simulationTimestep
   }) as HyperStore
 
   engineTimer = null! as ReturnType<typeof Timer>
@@ -89,7 +76,7 @@ export class Engine {
   /**
    * The xr origin reference space entity
    */
-  originEntity: Entity = UndefinedEntity
+  originEntity = UndefinedEntity
 
   /**
    * The xr origin group
@@ -108,14 +95,7 @@ export class Engine {
     return NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
   }
 
-  reactiveQueryStates = new Set<{ query: Query; result: State<Entity[]>; components: QueryComponents }>()
-
-  entityQuery = () => getAllEntities(Engine.instance) as Entity[]
-
-  /** value is ref count - should never be below zero */
-  // activeSystems = new Map<SystemUUID, number>()
-  currentSystemUUID = '__null__' as SystemUUID
-  activeSystemReactors = new Map<SystemUUID, ReactorRoot>()
+  entityQuery = () => getAllEntities(HyperFlux.store) as Entity[]
 }
 
 globalThis.Engine = Engine
@@ -140,7 +120,7 @@ export async function destroyEngine() {
 
   await Promise.all(entityPromises)
 
-  for (const query of Engine.instance.reactiveQueryStates) {
+  for (const query of HyperFlux.store.reactiveQueryStates) {
     removeQuery(query.query)
   }
 

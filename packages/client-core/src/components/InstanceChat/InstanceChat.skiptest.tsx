@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { act } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { act } from 'react-dom/test-utils'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'

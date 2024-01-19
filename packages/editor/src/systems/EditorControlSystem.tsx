@@ -30,13 +30,13 @@ import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHe
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
-  defineQuery,
   getComponent,
   hasComponent,
   removeComponent,
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import { InfiniteGridComponent } from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
@@ -46,7 +46,7 @@ import { dispatchAction, getMutableState, getState, useHookstate } from '@ethere
 
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { EditorCameraState } from '../classes/EditorCameraState'

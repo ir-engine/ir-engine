@@ -25,19 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 /** Functions to provide system level functionalities. */
 
-import React, { Component, ErrorInfo, FC, memo, Suspense, useLayoutEffect, useMemo } from 'react'
+import { FC, useEffect } from 'react'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { getState, startReactor } from '@etherealengine/hyperflux'
+import { startReactor } from '@etherealengine/hyperflux'
 
+import { HyperFlux } from '@etherealengine/hyperflux'
 import { MathUtils } from 'three'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
-import { Engine } from '../classes/Engine'
-import { EngineState } from '../classes/EngineState'
-import { Entity } from '../classes/Entity'
-import { QueryComponents, useQuery } from './ComponentFunctions'
-import { EntityContext } from './EntityFunctions'
 
 const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
 
@@ -52,12 +48,20 @@ export type InsertSystem = {
 export interface SystemArgs {
   uuid: string
   insert: InsertSystem
+  timeStep?: number | 'variable'
   execute?: () => void
   reactor?: FC
 }
 
 export interface System {
   uuid: SystemUUID
+  /**
+   * The timestep for the system.
+   * If set to 'variable', the system will run every frame.
+   * If set to a number, the system will run every n milliseconds.
+   * Defaults to 'variable'.
+   */
+  timeStep: number | 'variable'
   reactor?: FC
   insert?: InsertSystem
   preSystems: SystemUUID[]
@@ -87,41 +91,31 @@ export function executeSystem(systemUUID: SystemUUID) {
     executeSystem(system.preSystems[i])
   }
 
-  if (system.reactor && !Engine.instance.activeSystemReactors.has(system.uuid)) {
+  if (system.reactor && !HyperFlux.store.activeSystemReactors.has(system.uuid)) {
     const reactor = startReactor(system.reactor)
-    Engine.instance.activeSystemReactors.set(system.uuid, reactor)
+    HyperFlux.store.activeSystemReactors.set(system.uuid, reactor)
   }
 
-  if (getState(EngineState).systemPerformanceProfilingEnabled) {
-    const startTime = nowMilliseconds()
+  const startTime = nowMilliseconds()
 
-    try {
-      Engine.instance.currentSystemUUID = systemUUID
-      system.execute()
-    } catch (e) {
-      logger.error(`Failed to execute system ${system.uuid}`)
-      logger.error(e)
-    } finally {
-      Engine.instance.currentSystemUUID = '__null__' as SystemUUID
-    }
+  try {
+    HyperFlux.store.currentSystemUUID = systemUUID
+    system.execute()
+  } catch (e) {
+    logger.error(`Failed to execute system ${system.uuid}`)
+    logger.error(e)
+  } finally {
+    HyperFlux.store.currentSystemUUID = '__null__' as SystemUUID
+  }
 
-    const endTime = nowMilliseconds()
+  const endTime = nowMilliseconds()
 
+  if (HyperFlux.store.systemPerformanceProfilingEnabled) {
     const systemDuration = endTime - startTime
     system.systemDuration = systemDuration
     if (systemDuration > 50 && (lastWarningTime.get(systemUUID) ?? 0) < endTime - warningCooldownDuration) {
       lastWarningTime.set(systemUUID, endTime)
       logger.warn(`Long system execution detected. System: ${system.uuid} \n Duration: ${systemDuration}`)
-    }
-  } else {
-    try {
-      Engine.instance.currentSystemUUID = systemUUID
-      system.execute()
-    } catch (e) {
-      logger.error(`Failed to execute system ${system.uuid}`)
-      logger.error(e)
-    } finally {
-      Engine.instance.currentSystemUUID = '__null__' as SystemUUID
     }
   }
 
@@ -151,6 +145,7 @@ export function defineSystem(systemConfig: SystemArgs) {
     subSystems: [],
     postSystems: [],
     sceneSystem: false,
+    timeStep: 'variable',
     ...systemConfig,
     uuid: systemConfig.uuid as SystemUUID,
     enabled: false,
@@ -180,7 +175,7 @@ export function defineSystem(systemConfig: SystemArgs) {
 }
 
 export const useExecute = (execute: () => void, insert: InsertSystem) => {
-  useLayoutEffect(() => {
+  useEffect(() => {
     const handle = defineSystem({ uuid: MathUtils.generateUUID(), execute, insert })
     return () => {
       destroySystem(handle)
@@ -201,9 +196,9 @@ export const destroySystem = (systemUUID: SystemUUID) => {
     destroySystem(subSystem)
   }
 
-  const reactor = Engine.instance.activeSystemReactors.get(system.uuid as SystemUUID)!
+  const reactor = HyperFlux.store.activeSystemReactors.get(system.uuid as SystemUUID)!
   if (reactor) {
-    Engine.instance.activeSystemReactors.delete(system.uuid as SystemUUID)
+    HyperFlux.store.activeSystemReactors.delete(system.uuid as SystemUUID)
     reactor.stop()
   }
 
@@ -234,90 +229,3 @@ export const destroySystem = (systemUUID: SystemUUID) => {
 
   SystemDefinitions.delete(systemUUID)
 }
-
-const QuerySubReactor = memo((props: { entity: Entity; ChildEntityReactor: FC }) => {
-  return (
-    <>
-      <QueryReactorErrorBoundary>
-        <Suspense fallback={null}>
-          <EntityContext.Provider value={props.entity}>
-            <props.ChildEntityReactor />
-          </EntityContext.Provider>
-        </Suspense>
-      </QueryReactorErrorBoundary>
-    </>
-  )
-})
-
-export const QueryReactor = memo((props: { Components: QueryComponents; ChildEntityReactor: FC }) => {
-  const entities = useQuery(props.Components)
-  const MemoChildEntityReactor = useMemo(() => memo(props.ChildEntityReactor), [props.ChildEntityReactor])
-  return (
-    <>
-      {entities.map((entity) => (
-        <QuerySubReactor key={entity} entity={entity} ChildEntityReactor={MemoChildEntityReactor} />
-      ))}
-    </>
-  )
-})
-
-/**
- * @deprecated use QueryReactor directly
- */
-export const createQueryReactor = (Components: QueryComponents, ChildEntityReactor: FC) => {
-  return () => <QueryReactor Components={Components} ChildEntityReactor={ChildEntityReactor} />
-}
-
-interface ErrorState {
-  error: Error | null
-}
-
-class QueryReactorErrorBoundary extends Component<any, ErrorState> {
-  public state: ErrorState = {
-    error: null
-  }
-
-  public static getDerivedStateFromError(error: Error): ErrorState {
-    // Update state so the next render will show the fallback UI.
-    return { error }
-  }
-
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught error:', error, errorInfo)
-  }
-
-  public render() {
-    return this.state.error ? null : this.props.children
-  }
-}
-
-/** System template
-
-const MySystemState = defineState({
-  name: 'MySystemState',
-  initial: () => {
-    return {
-    }
-  }
-})
-
-const execute = () => {
-  
-}
-
-const reactor = () => {
-  useEffect(() => {
-    return () => {
-
-    }
-  }, [])
-  return null
-}
-
-export const MySystem = defineSystem({
-  uuid: 'ee.engine.MySystem',
-  execute,
-  reactor
-})
-
-*/

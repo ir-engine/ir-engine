@@ -36,7 +36,6 @@ import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   Component,
   defineComponent,
-  defineQuery,
   getComponent,
   hasComponent,
   removeComponent,
@@ -44,6 +43,7 @@ import {
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 
 /** ID of last network created. */
 let availableNetworkId = 0 as NetworkId

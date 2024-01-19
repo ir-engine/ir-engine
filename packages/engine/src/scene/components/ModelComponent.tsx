@@ -49,10 +49,10 @@ import {
   serializeComponent,
   setComponent,
   useComponent,
-  useOptionalComponent,
-  useQuery
+  useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { useQuery } from '../../ecs/functions/QueryFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
@@ -139,6 +139,7 @@ export const ModelComponent = defineComponent({
 function ModelReactor(): JSX.Element {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
+  const uuidComponent = useComponent(entity, UUIDComponent)
   const variantComponent = useOptionalComponent(entity, VariantComponent)
 
   useEffect(() => {

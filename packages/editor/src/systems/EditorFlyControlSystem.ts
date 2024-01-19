@@ -38,7 +38,7 @@ import { InputSourceComponent } from '@etherealengine/engine/src/input/component
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { editorCameraCenter } from '../classes/EditorCameraState'
 import { EditorHelperState } from '../services/EditorHelperState'
 
