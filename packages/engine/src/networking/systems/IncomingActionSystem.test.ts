@@ -59,7 +59,6 @@ describe('IncomingActionSystem Unit Tests', async () => {
       /* mock */
       const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserID,
-        prefab: '',
         // incoming action from future
         $time: 2,
         $to: '0' as ActionRecipients,
@@ -87,7 +86,6 @@ describe('IncomingActionSystem Unit Tests', async () => {
       /* mock */
       const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserID,
-        prefab: '',
         // incoming action from past
         $time: -1,
         $to: '0' as ActionRecipients,
@@ -110,7 +108,6 @@ describe('IncomingActionSystem Unit Tests', async () => {
       /* mock */
       const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserID,
-        prefab: '',
         // incoming action from past
         $time: 0,
         $to: '0' as ActionRecipients,

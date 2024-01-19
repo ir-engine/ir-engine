@@ -46,6 +46,7 @@ import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/PostProcessing'
 import { HighlightState } from '../HighlightState'
 import { RendererState } from '../RendererState'
@@ -85,6 +86,7 @@ export const configureEffectComposer = (
   composer.SMAAEffect = smaaEffect
 
   const outlineEffect = new OutlineEffect(scene, camera, getState(HighlightState))
+  outlineEffect.selectionLayer = ObjectLayers.HighlightEffect
   composer.HighlightEffect = outlineEffect
 
   const OutlineAndSmaaEffectPass = new EffectPass(camera, smaaEffect, outlineEffect)

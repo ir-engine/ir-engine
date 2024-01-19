@@ -23,33 +23,65 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineActionQueue } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import React, { useEffect } from 'react'
 import { setComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { NameComponent } from '../../scene/components/NameComponent'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { AvatarMovementSystem } from './AvatarMovementSystem'
 
-const ikTargetSpawnQueue = defineActionQueue(AvatarNetworkAction.spawnIKTarget.matches)
+export const AvatarIKTargetState = defineState({
+  name: 'ee.engine.avatar.AvatarIKTargetState',
 
-const execute = () => {
-  for (const action of ikTargetSpawnQueue()) {
-    const entity = NetworkObjectComponent.getNetworkObject(action.$from, action.networkId)
-    if (!entity) {
-      console.warn('Could not find entity for networkId', action.$from, action.networkId)
-      continue
+  initial: {} as Record<
+    EntityUUID,
+    {
+      name: string
     }
-    setComponent(entity, NameComponent, action.$from + '_' + action.name)
-    setComponent(entity, AvatarIKTargetComponent)
-    AvatarIKTargetComponent.blendWeight[entity] = action.blendWeight
+  >,
+
+  receptors: {
+    onSpawn: AvatarNetworkAction.spawnIKTarget.receive((action) => {
+      getMutableState(AvatarIKTargetState)[action.entityUUID].merge({ name: action.name })
+    }),
+    onDestroyObject: WorldNetworkAction.destroyObject.receive((action) => {
+      getMutableState(AvatarIKTargetState)[action.entityUUID].set(none)
+    })
   }
+})
+
+const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
+  const state = useHookstate(getMutableState(AvatarIKTargetState)[entityUUID])
+  const entity = UUIDComponent.useEntityByUUID(entityUUID)
+
+  useEffect(() => {
+    if (!entity) return
+    setComponent(entity, NameComponent, state.name.value)
+    setComponent(entity, AvatarIKTargetComponent)
+  }, [entity])
+
+  return null
+}
+
+export const AvatarIKTargetStateReactor = () => {
+  const avatarIKTargetState = useHookstate(getMutableState(AvatarIKTargetState))
+  return (
+    <>
+      {avatarIKTargetState.keys.map((entityUUID: EntityUUID) => (
+        <AvatarReactor key={entityUUID} entityUUID={entityUUID} />
+      ))}
+    </>
+  )
 }
 
 export const AvatarIKTargetSystem = defineSystem({
   uuid: 'ee.engine.AvatarIKTargetSystem',
   insert: { after: AvatarMovementSystem },
-  execute
+  reactor: AvatarIKTargetStateReactor
 })

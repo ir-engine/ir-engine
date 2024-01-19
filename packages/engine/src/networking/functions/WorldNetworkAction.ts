@@ -31,7 +31,6 @@ import {
   matchesNetworkId,
   matchesPeerID,
   matchesQuaternion,
-  matchesUserId,
   matchesVector3,
   matchesWithDefault
 } from '../../common/functions/MatchesUtils'
@@ -47,7 +46,6 @@ export class WorldNetworkAction {
 
   static spawnObject = defineAction({
     type: 'ee.engine.world.SPAWN_OBJECT',
-    prefab: matches.string,
     entityUUID: matchesEntityUUID,
     networkId: matchesWithDefault(matchesNetworkId, () => NetworkObjectComponent.createNetworkId()),
     position: matchesVector3.optional(),
@@ -56,11 +54,18 @@ export class WorldNetworkAction {
     $topic: NetworkTopics.world
   })
 
-  static spawnCamera = defineAction({
-    ...WorldNetworkAction.spawnObject.actionShape,
-    prefab: 'camera',
-    $topic: NetworkTopics.world
-  })
+  static spawnObjectAll = defineAction(
+    WorldNetworkAction.spawnObject.extend({
+      type: 'ee.engine.world.SPAWN_OBJECT_ALL',
+      entityUUID: matchesEntityUUID
+    })
+  )
+
+  static spawnCamera = defineAction(
+    WorldNetworkAction.spawnObject.extend({
+      type: 'ee.engine.world.SPAWN_CAMERA'
+    })
+  )
 
   static destroyObject = defineAction({
     type: 'ee.engine.world.DESTROY_OBJECT',
@@ -71,16 +76,14 @@ export class WorldNetworkAction {
 
   static requestAuthorityOverObject = defineAction({
     type: 'ee.engine.world.REQUEST_AUTHORITY_OVER_OBJECT',
-    ownerId: matchesUserId,
-    networkId: matchesNetworkId,
+    entityUUID: matchesEntityUUID,
     newAuthority: matchesPeerID,
     $topic: NetworkTopics.world
   })
 
   static transferAuthorityOfObject = defineAction({
     type: 'ee.engine.world.TRANSFER_AUTHORITY_OF_OBJECT',
-    ownerId: matchesUserId,
-    networkId: matchesNetworkId,
+    entityUUID: matchesEntityUUID,
     newAuthority: matchesPeerID,
     $topic: NetworkTopics.world,
     $cache: true
