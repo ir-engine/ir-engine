@@ -321,6 +321,12 @@ export class S3Provider implements StorageProviderInterface {
 
     if (data.Metadata) (args as StorageObjectInterface).Metadata = data.Metadata
 
+    const cacheControl = (args as StorageObjectInterface).Metadata?.['Cache-Control'] || ''
+    if (cacheControl) {
+      args['CacheControl'] = cacheControl
+      delete (args as StorageObjectInterface).Metadata!['Cache-Control']
+    }
+
     if (data.Body instanceof PassThrough) {
       try {
         const upload = new Upload(args as unknown as Options)
@@ -345,10 +351,8 @@ export class S3Provider implements StorageProviderInterface {
         ContentType: data.ContentType
       } as CreateMultipartUploadCommandInput
 
-      const cacheControl = data.Metadata?.['Cache-Control'] || ''
       if (cacheControl) {
         multiPartStartArgs.CacheControl = cacheControl
-        delete data.Metadata!['Cache-Control']
       }
 
       if (data.ContentEncoding) multiPartStartArgs.ContentEncoding = data.ContentEncoding
