@@ -59,7 +59,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
-import { QueryReactor, defineQuery, useQuery } from '../../ecs/functions/QueryFunctions'
+import { QueryReactor, defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem, useExecute } from '../../ecs/functions/SystemFunctions'
 import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { RendererState } from '../../renderer/RendererState'
