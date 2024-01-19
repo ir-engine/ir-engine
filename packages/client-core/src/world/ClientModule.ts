@@ -29,12 +29,10 @@ import { LoadingUISystem } from '../systems/LoadingUISystem'
 import { MediaControlSystem } from '../systems/MediaControlSystem'
 import { WarningUISystem } from '../systems/WarningUISystem'
 import { WidgetUISystem } from '../systems/WidgetUISystem'
-import { AvatarUIStateSystem } from '../systems/state/AvatarUIState'
 import { UserUISystem } from '../user/UserUISystem'
 import './ClientNetworkModule'
 
 export {
-  AvatarUIStateSystem,
   AvatarUISystem,
   LoadingUISystem,
   MediaControlSystem,

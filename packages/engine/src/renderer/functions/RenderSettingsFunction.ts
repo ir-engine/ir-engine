@@ -27,7 +27,8 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 
 import { iOS } from '../../common/functions/isMobile'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { DirectionalLightComponent } from '../../scene/components/DirectionalLightComponent'
 import { isMobileXRHeadset } from '../../xr/XRState'

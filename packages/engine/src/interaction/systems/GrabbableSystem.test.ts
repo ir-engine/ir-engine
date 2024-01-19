@@ -30,14 +30,13 @@ import { Mesh, MeshNormalMaterial, Quaternion, SphereGeometry, Vector3 } from 't
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserID, UserName } from '@etherealengine/common/src/schema.type.module'
+import { AvatarID, UserID, UserName } from '@etherealengine/common/src/schema.type.module'
 import {
   applyIncomingActions,
   clearOutgoingActions,
   dispatchAction,
   getMutableState,
-  getState,
-  receiveActions
+  getState
 } from '@etherealengine/hyperflux'
 
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
@@ -50,7 +49,6 @@ import { createEngine } from '../../initializeEngine'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkState } from '../../networking/NetworkState'
-import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
 import { Physics } from '../../physics/classes/Physics'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
@@ -90,11 +88,11 @@ describe.skip('EquippableSystem Integration Tests', () => {
         networkId: networkObject.networkId,
         position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userID as string as EntityUUID
+        entityUUID: Engine.instance.userID as string as EntityUUID,
+        avatarID: '' as AvatarID
       })
     )
     applyIncomingActions()
-    receiveActions(EntityNetworkState)
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
 
