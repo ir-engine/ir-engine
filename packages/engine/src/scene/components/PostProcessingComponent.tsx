@@ -45,7 +45,7 @@ export const PostProcessingComponent = defineComponent({
     if (!json) return
 
     if (typeof json.enabled === 'boolean') component.enabled.set(json.enabled)
-    if (typeof json.effects === 'object') component.effects.set(json.effects)
+    if (typeof json.effects === 'object') component.merge({ effects: json.effects })
   },
 
   toJSON: (entity, component) => {
@@ -61,10 +61,10 @@ function PostProcessingComponentReactor(): ReactElement {
 
   useEffect(() => {
     getMutableState(PostProcessingSettingsState).enabled.set(component.enabled.value)
-  }, [component.enabled])
+  }, [component.enabled.value])
 
   useEffect(() => {
-    getMutableState(PostProcessingSettingsState).effects.set(component.effects.get(NO_PROXY_STEALTH))
+    getMutableState(PostProcessingSettingsState).merge({ effects: component.effects.get(NO_PROXY_STEALTH) })
   }, [component.effects])
 
   if (!EngineRenderer.instance?.effectComposer) return <></>
