@@ -37,11 +37,11 @@ import {
   VSMShadowMap
 } from 'three'
 
-import { getComponent, useComponent, useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
-
+import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { DirectionalLightComponent } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
