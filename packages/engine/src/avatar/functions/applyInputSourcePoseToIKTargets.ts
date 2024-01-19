@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Bone, Euler, Matrix4, Quaternion, Vector3 } from 'three'
+import { Bone, Euler, Quaternion, Vector3 } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
@@ -42,14 +42,6 @@ import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
-
-// rotate +90 around rig finger's X axis
-// rotate +90 around rig finger's Z axis
-const webxrJointRotation = new Matrix4().makeRotationFromQuaternion(
-  new Quaternion()
-    .setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2)
-    .multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2))
-)
 
 /**
  * Returns the bone name for a given XRHandJoint
@@ -211,15 +203,6 @@ export const getBoneNameFromXRHand = (side: XRHandedness, joint: XRHandJoint, ri
   }
 }
 
-const emptyVec = new Vector3()
-const mat4 = new Matrix4()
-
-const matrixWorld = new Matrix4()
-const matrix = new Matrix4()
-
-const thumbOffsetRadians = -Math.PI / 2
-const offsetMatrix = new Matrix4()
-
 const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
   const rig = getComponent(entity, AvatarRigComponent)
 
@@ -338,7 +321,9 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
             // .sub(localClientTransform.position)
             // .multiplyScalar(inverseWorldScale)
             // .add(localClientTransform.position)
-            ikTransform.rotation.copy(jointPose.transform.orientation as unknown as Quaternion)
+            ikTransform.rotation
+              .copy(jointPose.transform.orientation as unknown as Quaternion)
+              .multiply(handedness === 'right' ? rightControllerOffset : leftControllerOffset)
           }
         }
         applyHandPose(inputSourceComponent.source, localClientEntity)
