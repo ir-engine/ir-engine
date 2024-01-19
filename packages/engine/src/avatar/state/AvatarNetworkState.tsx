@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineState, dispatchAction, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, dispatchAction, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AvatarID, AvatarType, avatarPath, userAvatarPath } from '@etherealengine/common/src/schema.type.module'
 import { Paginated } from '@feathersjs/feathers'
@@ -47,16 +47,16 @@ export const AvatarState = defineState({
   initial: {} as Record<
     EntityUUID,
     {
-      avatarID: AvatarID | null
+      avatarID: AvatarID
     }
   >,
 
   receptors: {
     onSpawn: AvatarNetworkAction.spawn.receive((action) => {
-      getMutableState(AvatarState)[action.entityUUID].merge({ avatarID: action.avatarID })
+      getMutableState(AvatarState)[action.entityUUID].set({ avatarID: action.avatarID })
     }),
     onSetAvatarID: AvatarNetworkAction.setAvatarID.receive((action) => {
-      getMutableState(AvatarState)[action.entityUUID].merge({ avatarID: action.avatarID })
+      getMutableState(AvatarState)[action.entityUUID].set({ avatarID: action.avatarID })
     }),
     onDestroyObject: WorldNetworkAction.destroyObject.receive((action) => {
       getMutableState(AvatarState)[action.entityUUID].set(none)
@@ -88,34 +88,19 @@ export const AvatarState = defineState({
   }
 })
 
-/** keep track of avatarIDs separately to avoid re-fetching the avatarID unnecessarily */
-const avatarIDs = new Map<EntityUUID, AvatarID>()
-
 const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   const avatarID = useHookstate(getMutableState(AvatarState)[entityUUID].avatarID)
   const userAvatarDetails = useHookstate(null as string | null)
   const entity = UUIDComponent.useEntityByUUID(entityUUID)
 
   useEffect(() => {
-    return () => {
-      avatarIDs.delete(entityUUID)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!isClient || !avatarID.value) return
-
-    if (avatarIDs.has(entityUUID) && avatarIDs.get(entityUUID) === avatarID.value) {
-      return
-    }
+    if (!isClient) return
 
     let aborted = false
 
-    avatarIDs.set(entityUUID, avatarID.value)
-
     Engine.instance.api
       .service(avatarPath)
-      .get(avatarID.value)
+      .get(avatarID.value!)
       .then((avatarDetails) => {
         if (aborted) return
 
@@ -125,9 +110,7 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
       })
 
     return () => {
-      if (!getState(AvatarState)[entityUUID] || avatarIDs.get(entityUUID) !== avatarID.value) {
-        aborted = true
-      }
+      aborted = true
     }
   }, [avatarID])
 
