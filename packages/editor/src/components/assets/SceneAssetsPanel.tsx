@@ -46,7 +46,6 @@ import {
 } from '@etherealengine/common/src/schema.type.module'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
-import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
@@ -83,13 +82,8 @@ const ResourceIcons = {
 
 const DEFAULT_PREFAB_COMPONENTS: PrefabricatedComponentsType[] = [
   {
-    components: [
-      { name: ModelComponent.jsonID },
-      { name: LoopAnimationComponent.jsonID },
-      { name: ShadowComponent.jsonID },
-      { name: EnvmapComponent.jsonID }
-    ],
-    label: 'Animated Model',
+    components: [{ name: ModelComponent.jsonID }, { name: ShadowComponent.jsonID }, { name: EnvmapComponent.jsonID }],
+    label: 'Simple Model',
     type: ItemTypes.PrefabComponents
   },
   {
