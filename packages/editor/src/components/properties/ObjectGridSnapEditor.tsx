@@ -1,6 +1,5 @@
 /*
 CPAL-1.0 License
-
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
@@ -9,46 +8,39 @@ The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
 Exhibit A has been modified to be consistent with Exhibit B.
-
 Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
-
 The Original Code is Ethereal Engine.
-
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Ethereal Engine team.
-
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  SnapMode,
-  SnapModeType,
-  TransformMode,
-  TransformModeType,
-  TransformPivot,
-  TransformPivotType,
-  TransformSpace,
-  TransformSpaceType
-} from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
+import React from 'react'
 
-export const EditorHelperState = defineState({
-  name: 'EditorHelperState',
-  initial: () => ({
-    isFlyModeEnabled: false,
-    transformMode: TransformMode.translate as TransformModeType,
-    transformModeOnCancel: TransformMode.translate as TransformModeType,
-    transformSpace: TransformSpace.world as TransformSpaceType,
-    transformPivot: TransformPivot.Selection as TransformPivotType,
-    gridSnap: SnapMode.Grid as SnapModeType,
-    translationSnap: 0.5,
-    rotationSnap: 10,
-    scaleSnap: 0.1
-  }),
-  onCreate: (store, state) => {
-    syncStateWithLocalStorage(EditorHelperState, ['snapMode', 'translationSnap', 'rotationSnap', 'scaleSnap'])
-  }
-})
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
+
+import InputGroup from '../inputs/InputGroup'
+import NodeEditor from './NodeEditor'
+import { EditorComponentType } from './Util'
+
+/**
+ *
+ *
+ *
+ * @type {[component class]}
+ */
+export const ObjectGridSnapEditor: EditorComponentType = (props) => {
+  const objectGridSnapComponent = useComponent(props.entity, ObjectGridSnapComponent).value as any
+
+  return (
+    <NodeEditor {...props} name={'ObjectGridSnap'} description={'ObjectGridSnap'}>
+      <InputGroup name="ObjectGridSnap"></InputGroup>
+    </NodeEditor>
+  )
+}
+
+export default ObjectGridSnapEditor
