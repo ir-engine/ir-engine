@@ -2,8 +2,7 @@ name: dev-deploy
 
 on:
   push:
-    branches:
-      [dev]
+    branches: [dev, s3-client-metadata]
 jobs:
   secrets-gate-run:
     runs-on: ubuntu-latest
