@@ -59,13 +59,19 @@ cli.main(async () => {
             const putData: any = {
               Body: fileResult,
               ContentType: contentType,
-              Key: `client${filePathRelative}`
+              Key: `client${filePathRelative}`,
+              Metadata: {
+                'Cache-Control': 'no-cache'
+              }
             } as any
             if (/.br$/.exec(filePathRelative)) {
               filePathRelative = filePathRelative.replace(/.br$/, '')
               putData.ContentType = getContentType(filePathRelative)
               putData.ContentEncoding = 'br'
               putData.Key = `client${filePathRelative}`
+              putData.Metadata = {
+                'Cache-Control': 'no-cache'
+              }
             }
             await storageProvider.putObject(putData, { isDirectory: false })
             filesToPush.push(`client${filePathRelative}`)
