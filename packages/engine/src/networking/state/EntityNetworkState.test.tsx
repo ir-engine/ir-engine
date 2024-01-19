@@ -23,14 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { act } from '@testing-library/react'
 import assert from 'assert'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { getMutableState, receiveActions } from '@etherealengine/hyperflux'
+import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { getMutableState } from '@etherealengine/hyperflux'
 import * as ActionFunctions from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { applyIncomingActions, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
@@ -39,7 +38,8 @@ import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
-import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../../physics/classes/Physics'
 import { PhysicsState } from '../../physics/state/PhysicsState'
@@ -49,8 +49,11 @@ import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../components/Net
 import { NetworkPeerFunctions } from '../functions/NetworkPeerFunctions'
 import { WorldNetworkAction } from '../functions/WorldNetworkAction'
 import { NetworkState } from '../NetworkState'
-import { EntityNetworkState, receiveRequestAuthorityOverObject } from './EntityNetworkState'
 
+import { act, render } from '@testing-library/react'
+import React from 'react'
+import { SystemDefinitions } from '../../ecs/functions/SystemFunctions'
+import { EntityNetworkStateSystem } from './EntityNetworkState'
 describe('EntityNetworkState', () => {
   beforeEach(async () => {
     createEngine()
@@ -65,8 +68,11 @@ describe('EntityNetworkState', () => {
     return destroyEngine()
   })
 
+  const Reactor = SystemDefinitions.get(EntityNetworkStateSystem)!.reactor!
+  const tag = <Reactor />
+
   describe('spawnObject', () => {
-    it('should spawn object owned by host', () => {
+    it('should spawn object owned by host', async () => {
       const hostUserId = 'world' as UserID
       const userId = 'user id' as UserID
       const peerID = Engine.instance.store.peerID
@@ -79,12 +85,10 @@ describe('EntityNetworkState', () => {
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
 
       const objNetId = 3 as NetworkId
-      const objPrefab = 'generic prefab'
 
       dispatchAction(
         WorldNetworkAction.spawnObject({
           $from: NetworkState.worldNetwork.hostId, // from  host
-          prefab: objPrefab, // generic prefab
           networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: Engine.instance.peerID,
@@ -93,7 +97,9 @@ describe('EntityNetworkState', () => {
       )
 
       applyIncomingActions()
-      receiveActions(EntityNetworkState)
+
+      const { rerender, unmount } = render(tag)
+      await act(() => rerender(tag))
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -107,6 +113,8 @@ describe('EntityNetworkState', () => {
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityPeerID, peerID)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), false)
+
+      unmount()
     })
 
     it('should spawn object owned by user', async () => {
@@ -124,12 +132,10 @@ describe('EntityNetworkState', () => {
 
       const objParams = 123
       const objNetId = 3 as NetworkId
-      const objPrefab = 'generic prefab'
 
       dispatchAction(
         WorldNetworkAction.spawnObject({
           $from: userId, // from  user
-          prefab: objPrefab, // generic prefab
           networkId: objNetId,
           $peer: Engine.instance.peerID,
           entityUUID: Engine.instance.peerID as any as EntityUUID
@@ -137,7 +143,8 @@ describe('EntityNetworkState', () => {
       )
       applyIncomingActions()
 
-      await act(() => receiveActions(EntityNetworkState))
+      const { rerender, unmount } = render(tag)
+      await act(() => rerender(tag))
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -151,6 +158,8 @@ describe('EntityNetworkState', () => {
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityPeerID, peerID2)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), true)
+
+      unmount()
     })
 
     it('should spawn avatar owned by other', async () => {
@@ -169,20 +178,21 @@ describe('EntityNetworkState', () => {
       NetworkPeerFunctions.createPeer(network, peerID3, 2, userId2, 2, 'second user name')
 
       const objNetId = 3 as NetworkId
-      const objPrefab = 'avatar'
 
       dispatchAction(
-        WorldNetworkAction.spawnObject({
+        AvatarNetworkAction.spawn({
           $from: userId2, // from other user
-          prefab: objPrefab, // generic prefab
           networkId: objNetId,
           $peer: peerID3,
           $topic: NetworkTopics.world,
-          entityUUID: peerID3 as any as EntityUUID
+          entityUUID: peerID3 as any as EntityUUID,
+          avatarID: '' as AvatarID
         })
       )
       applyIncomingActions()
-      await act(() => receiveActions(EntityNetworkState))
+
+      const { rerender, unmount } = render(tag)
+      await act(() => rerender(tag))
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -196,6 +206,8 @@ describe('EntityNetworkState', () => {
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityPeerID, peerID3)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), false)
+
+      unmount()
     })
 
     it('should spawn avatar owned by user', async () => {
@@ -211,11 +223,14 @@ describe('EntityNetworkState', () => {
         AvatarNetworkAction.spawn({
           networkId: 42 as NetworkId,
           $peer: peerID,
-          entityUUID: Engine.instance.userID as string as EntityUUID
+          entityUUID: Engine.instance.userID as string as EntityUUID,
+          avatarID: '' as AvatarID
         })
       )
       applyIncomingActions()
-      await act(() => receiveActions(EntityNetworkState))
+
+      const { rerender, unmount } = render(tag)
+      await act(() => rerender(tag))
 
       const entity = UUIDComponent.getEntityByUUID(Engine.instance.userID as any as EntityUUID)
 
@@ -224,6 +239,8 @@ describe('EntityNetworkState', () => {
       assert.equal(getComponent(entity, NetworkObjectComponent).networkId, 42)
       assert.equal(getComponent(entity, NetworkObjectComponent).authorityPeerID, peerID)
       assert.equal(hasComponent(entity, NetworkObjectOwnedTag), true)
+
+      unmount()
     })
   })
 
@@ -234,6 +251,7 @@ describe('EntityNetworkState', () => {
       const hostUserId = 'world' as UserID
       const hostPeerId = 'host peer id' as PeerID
       const userId = 'user id' as UserID
+      Engine.instance.store.peerID = 'peer id' as PeerID
       const peerID = Engine.instance.store.peerID
       const peerID2 = 'peer id 2' as PeerID
 
@@ -245,20 +263,20 @@ describe('EntityNetworkState', () => {
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
 
       const objNetId = 3 as NetworkId
-      const objPrefab = 'generic prefab'
 
       dispatchAction(
         WorldNetworkAction.spawnObject({
           $from: userId,
-          prefab: objPrefab,
           networkId: objNetId,
           $topic: NetworkTopics.world,
-          $peer: Engine.instance.peerID,
-          entityUUID: Engine.instance.peerID as any as EntityUUID
+          $peer: peerID,
+          entityUUID: peerID as any as EntityUUID
         })
       )
       applyIncomingActions()
-      await act(() => receiveActions(EntityNetworkState))
+
+      const { rerender, unmount } = render(tag)
+      await act(() => rerender(tag))
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -273,11 +291,10 @@ describe('EntityNetworkState', () => {
       assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).authorityPeerID, peerID)
       assert.equal(hasComponent(networkObjectEntitiesBefore[0], NetworkObjectOwnedTag), true)
 
-      receiveRequestAuthorityOverObject(
+      dispatchAction(
         WorldNetworkAction.requestAuthorityOverObject({
           $from: userId,
-          ownerId: userId,
-          networkId: objNetId,
+          entityUUID: peerID as any as EntityUUID,
           $topic: NetworkTopics.world,
           newAuthority: peerID2
         })
@@ -285,7 +302,11 @@ describe('EntityNetworkState', () => {
 
       ActionFunctions.applyIncomingActions()
 
-      await act(() => receiveActions(EntityNetworkState))
+      await act(() => rerender(tag))
+
+      ActionFunctions.applyIncomingActions()
+
+      await act(() => rerender(tag))
 
       const networkObjectEntitiesAfter = networkObjectQuery()
       const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery()
@@ -296,6 +317,8 @@ describe('EntityNetworkState', () => {
       assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).ownerId, userId) // owner remains same
       assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).authorityPeerID, peerID2) // peer has changed
       assert.equal(hasComponent(networkObjectEntitiesAfter[0], NetworkObjectOwnedTag), true)
+
+      unmount()
     })
   })
 
@@ -314,12 +337,10 @@ describe('EntityNetworkState', () => {
     NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
 
     const objNetId = 3 as NetworkId
-    const objPrefab = 'generic prefab'
 
     dispatchAction(
       WorldNetworkAction.spawnObject({
         $from: hostUserId, // from  host
-        prefab: objPrefab, // generic prefab
         networkId: objNetId,
         $topic: NetworkTopics.world,
         $peer: Engine.instance.peerID,
@@ -328,7 +349,9 @@ describe('EntityNetworkState', () => {
     )
 
     applyIncomingActions()
-    await act(() => receiveActions(EntityNetworkState))
+
+    const { rerender, unmount } = render(tag)
+    await act(() => rerender(tag))
 
     const networkObjectQuery = defineQuery([NetworkObjectComponent])
     const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -343,19 +366,16 @@ describe('EntityNetworkState', () => {
     assert.equal(getComponent(networkObjectEntitiesBefore[0], NetworkObjectComponent).authorityPeerID, peerID)
     assert.equal(hasComponent(networkObjectEntitiesBefore[0], NetworkObjectOwnedTag), false)
 
-    receiveRequestAuthorityOverObject(
+    dispatchAction(
       WorldNetworkAction.requestAuthorityOverObject({
         $from: userId, // from user
-        ownerId: hostUserId,
-        networkId: objNetId,
+        entityUUID: Engine.instance.peerID as any as EntityUUID,
         $topic: NetworkTopics.world,
         newAuthority: peerID2
       })
     )
 
     applyIncomingActions()
-
-    await act(() => receiveActions(EntityNetworkState))
 
     const networkObjectEntitiesAfter = networkObjectQuery()
     const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery()
@@ -366,5 +386,7 @@ describe('EntityNetworkState', () => {
     assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).ownerId, hostUserId) // owner remains same
     assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).authorityPeerID, peerID) // peer remains same
     assert.equal(hasComponent(networkObjectEntitiesAfter[0], NetworkObjectOwnedTag), false)
+
+    unmount()
   })
 })
