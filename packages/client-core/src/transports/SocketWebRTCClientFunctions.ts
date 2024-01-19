@@ -168,17 +168,9 @@ export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
   networkState.connected.set(false)
   networkState.authenticated.set(false)
   networkState.ready.set(false)
-  const transportState = getState(MediasoupTransportState)[network.id]
-  if (transportState) {
-    for (const { transportID } of Object.values(transportState)) {
-      dispatchAction(
-        MediasoupTransportActions.transportClosed({
-          transportID,
-          $network: network.id
-        })
-      )
-    }
-  }
+  getMutableState(MediasoupTransportState)[network.id].set(none)
+  getMutableState(MediasoupMediaProducersConsumersObjectsState)[network.id].set(none)
+  getMutableState(MediasoupDataProducerConsumerState)[network.id].set(none)
   network.transport.heartbeat && clearInterval(network.transport.heartbeat)
   network.transport.primus?.end()
   network.transport.primus?.removeAllListeners()
@@ -186,17 +178,9 @@ export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
 }
 
 export const closeNetworkTransport = (network: SocketWebRTCClientNetwork) => {
-  const transportState = getState(MediasoupTransportState)[network.id]
-  if (transportState) {
-    for (const { transportID } of Object.values(transportState)) {
-      dispatchAction(
-        MediasoupTransportActions.transportClosed({
-          transportID,
-          $network: network.id
-        })
-      )
-    }
-  }
+  getMutableState(MediasoupTransportState)[network.id].set(none)
+  getMutableState(MediasoupMediaProducersConsumersObjectsState)[network.id].set(none)
+  getMutableState(MediasoupDataProducerConsumerState)[network.id].set(none)
   network.transport.heartbeat && clearInterval(network.transport.heartbeat)
   network.transport.primus?.end()
   network.transport.primus?.removeAllListeners()
@@ -437,7 +421,7 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
   for (const action of cachedActions!) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
 
   Engine.instance.store.actions.outgoing[network.topic].queue.push(
-    ...Engine.instance.store.actions.outgoing[network.topic].history
+    ...Engine.instance.store.actions.outgoing[network.topic].cached
   )
 
   const isWorldConnection = network.topic === NetworkTopics.world
@@ -449,37 +433,39 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
     }
   }
 
-  ;(network.transport.mediasoupDevice.loaded
-    ? Promise.resolve()
-    : network.transport.mediasoupDevice.load({
-        routerRtpCapabilities
-      })
-  ).then(() => {
-    networkState.transport.mediasoupLoaded.set(true)
-    dispatchAction(
-      MediasoupTransportActions.requestTransport({
-        peerID: Engine.instance.peerID,
-        direction: 'send',
-        sctpCapabilities: network.transport.mediasoupDevice.sctpCapabilities,
-        $network: network.id,
-        $topic: network.topic,
-        $to: network.hostPeerID
-      })
-    )
-
-    dispatchAction(
-      MediasoupTransportActions.requestTransport({
-        peerID: Engine.instance.peerID,
-        direction: 'recv',
-        sctpCapabilities: network.transport.mediasoupDevice.sctpCapabilities,
-        $network: network.id,
-        $topic: network.topic,
-        $to: network.hostPeerID
-      })
-    )
-
+  if (!network.transport.mediasoupDevice.loaded) {
+    await network.transport.mediasoupDevice.load({ routerRtpCapabilities })
     logger.info('Successfully loaded routerRtpCapabilities')
-  })
+    networkState.transport.mediasoupLoaded.set(true)
+  }
+
+  const transportSendID = MediasoupTransportState.getTransport(network.id, 'send', Engine.instance.peerID)
+  if (transportSendID) MediasoupTransportState.removeTransport(network.id, transportSendID)
+
+  const transportRecvID = MediasoupTransportState.getTransport(network.id, 'recv', Engine.instance.peerID)
+  if (transportRecvID) MediasoupTransportState.removeTransport(network.id, transportRecvID)
+
+  dispatchAction(
+    MediasoupTransportActions.requestTransport({
+      peerID: Engine.instance.peerID,
+      direction: 'send',
+      sctpCapabilities: network.transport.mediasoupDevice.sctpCapabilities,
+      $network: network.id,
+      $topic: network.topic,
+      $to: network.hostPeerID
+    })
+  )
+
+  dispatchAction(
+    MediasoupTransportActions.requestTransport({
+      peerID: Engine.instance.peerID,
+      direction: 'recv',
+      sctpCapabilities: network.transport.mediasoupDevice.sctpCapabilities,
+      $network: network.id,
+      $topic: network.topic,
+      $to: network.hostPeerID
+    })
+  )
 
   logger.info('Successfully connected to instance type: %o', { topic: network.topic, id: network.id })
 }
@@ -754,23 +740,26 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
           channelId
         })
         // ensure the network still exists and we want to re-create the transport
-        if (
-          !getState(NetworkState).networks[network.id] ||
-          !network.transport.primus ||
-          network.transport.primus.disconnect
-        )
-          return
+        // if (
+        //   !getState(NetworkState).networks[network.id] ||
+        //   !network.transport.primus ||
+        //   network.transport.primus.disconnect
+        // )
+        //   return
 
-        dispatchAction(
-          MediasoupTransportActions.requestTransport({
-            peerID: Engine.instance.peerID,
-            direction,
-            sctpCapabilities: network.transport.mediasoupDevice.sctpCapabilities,
-            $network: network.id,
-            $topic: network.topic,
-            $to: network.hostPeerID
-          })
-        )
+        // const transportID = MediasoupTransportState.getTransport(network.id, direction, Engine.instance.peerID)
+        // getMutableState(MediasoupTransportState)[network.id][transportID].set(none)
+
+        // dispatchAction(
+        //   MediasoupTransportActions.requestTransport({
+        //     peerID: Engine.instance.peerID,
+        //     direction,
+        //     sctpCapabilities: network.transport.mediasoupDevice.sctpCapabilities,
+        //     $network: network.id,
+        //     $topic: network.topic,
+        //     $to: network.hostPeerID
+        //   })
+        // )
       }, 5000)
     }
   })

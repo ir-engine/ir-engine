@@ -88,6 +88,8 @@ export interface HyperStore {
       {
         /** All actions that are waiting to be sent */
         queue: Array<Required<ResolvedActionType>>
+        /** All cached actions that have been sent */
+        cached: Array<Required<ResolvedActionType>>
         /** All actions that have been sent */
         history: Array<Required<ResolvedActionType>>
         /** All incoming action UUIDs that have been processed */
