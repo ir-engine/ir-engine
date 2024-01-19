@@ -51,11 +51,13 @@ function useLoader<T>(
   useEffect(() => {
     let unmounted = false
     if (url !== urlState.value) {
-      ResourceManager.unload(urlState.value, resourceType, entity)
-      value.set(null)
-      progress.set(null)
-      error.set(null)
-      onUnload(urlState.value)
+      if (urlState.value) {
+        ResourceManager.unload(urlState.value, resourceType, entity)
+        value.set(null)
+        progress.set(null)
+        error.set(null)
+        onUnload(urlState.value)
+      }
       urlState.set(url)
     }
     if (!url) return

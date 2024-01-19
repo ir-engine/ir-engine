@@ -826,6 +826,12 @@ export const ParticleSystemComponent = defineComponent({
       //add dud material
       componentState.systemParameters.material.set('dud')
       metadata.materials.nested('dud').set(dudMaterial.get(NO_PROXY))
+
+      return () => {
+        unloadGeo()
+        unloadMesh()
+        unloadTexture()
+      }
     }, [])
 
     useEffect(() => {
@@ -834,7 +840,6 @@ export const ParticleSystemComponent = defineComponent({
       const scene = geoDependency.value.scene
       const geo = getFirstMesh(scene)?.geometry
       !!geo && metadata.geometries.nested(component.systemParameters.instancingGeometry!).set(geo)
-      return unloadGeo
     }, [geoDependency])
 
     useEffect(() => {
@@ -843,7 +848,6 @@ export const ParticleSystemComponent = defineComponent({
       const scene = shapeMesh.value.scene
       const mesh = getFirstMesh(scene)
       mesh && metadata.geometries.nested(component.systemParameters.shape.mesh!).set(mesh.geometry)
-      return unloadMesh
     }, [shapeMesh])
 
     useEffect(() => {
@@ -851,7 +855,6 @@ export const ParticleSystemComponent = defineComponent({
       if (!texture) return
       metadata.textures.nested(component.systemParameters.texture!).set(texture)
       dudMaterial.map.set(texture)
-      return unloadTexture
     }, [textureState])
 
     useEffect(() => {
