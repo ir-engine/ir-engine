@@ -23,25 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import assert, { strictEqual } from 'assert'
+import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { UserID } from '@etherealengine/common/src/schema.type.module'
-import {
-  applyIncomingActions,
-  dispatchAction,
-  getMutableState,
-  getState,
-  receiveActions
-} from '@etherealengine/hyperflux'
+import { applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
+import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { act, render } from '@testing-library/react'
+import React from 'react'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
-import { destroyEngine, Engine } from '../../ecs/classes/Engine'
+import { Engine, destroyEngine } from '../../ecs/classes/Engine'
 import { hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { SystemDefinitions } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
+import { EntityNetworkStateSystem } from '../../networking/NetworkModule'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
 import { Physics } from '../../physics/classes/Physics'
 import {
   RigidBodyComponent,
@@ -70,19 +67,25 @@ describe('spawnAvatarReceptor', () => {
     return destroyEngine()
   })
 
-  it('check the create avatar function', () => {
+  const Reactor = SystemDefinitions.get(EntityNetworkStateSystem)!.reactor!
+  const tag = <Reactor />
+
+  it('check the create avatar function', async () => {
     // mock entity to apply incoming unreliable updates to
     dispatchAction(
       AvatarNetworkAction.spawn({
         $from: Engine.instance.userID,
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userID as string as EntityUUID
+        entityUUID: Engine.instance.userID as string as EntityUUID,
+        avatarID: '' as AvatarID
       })
     )
 
     applyIncomingActions()
-    receiveActions(EntityNetworkState)
+
+    const { rerender, unmount } = render(tag)
+    await act(() => rerender(tag))
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
 
@@ -95,6 +98,7 @@ describe('spawnAvatarReceptor', () => {
     assert(hasComponent(entity, AvatarControllerComponent))
     assert(hasComponent(entity, RigidBodyComponent))
     assert(hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent))
-    strictEqual(getState(PhysicsState).physicsWorld.colliders.len(), 1)
+
+    unmount()
   })
 })

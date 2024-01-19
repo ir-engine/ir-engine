@@ -37,19 +37,18 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
-  defineQuery,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  setComponent,
-  useQuery
+  setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { defineQuery, useQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { InputSystemGroup } from '../../ecs/functions/SystemGroups'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -112,7 +111,7 @@ export const addClientInputListeners = () => {
     const entity = createEntity()
     setComponent(entity, InputSourceComponent, { source })
     setComponent(entity, EntityTreeComponent, {
-      parentEntity: session?.interactionMode === 'world-space' ? Engine.instance.originEntity : null
+      parentEntity: session?.interactionMode === 'world-space' ? Engine.instance.originEntity : UndefinedEntity
     })
     setComponent(entity, TransformComponent)
     setComponent(entity, NameComponent, 'InputSource-handed:' + source.handedness + '-mode:' + source.targetRayMode)
@@ -582,7 +581,7 @@ const SceneObjectEntityReactor = (props: { entity: Entity }) => {
   useEffect(() => {
     if (!isMeshOrModel) return
 
-    setComponent(props.entity, InputComponent)
+    setComponent(props.entity, InputComponent, { highlight: getState(EngineState).isEditing })
     return () => {
       removeComponent(props.entity, InputComponent)
     }

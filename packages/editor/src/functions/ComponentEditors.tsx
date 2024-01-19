@@ -80,6 +80,8 @@ import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkC
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
+import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
+import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
 import LinkNodeEditor from '../components/properties/LinkNodeEditor'
 import LoopAnimationNodeEditor from '../components/properties/LoopAnimationNodeEditor'
@@ -96,8 +98,10 @@ import PositionalAudioNodeEditor from '../components/properties/PositionalAudioN
 import { PostProcessingSettingsEditor } from '../components/properties/PostProcessingSettingsEditor'
 import PrimitiveGeometryNodeEditor from '../components/properties/PrimitiveGeometryNodeEditor'
 import { RenderSettingsEditor } from '../components/properties/RenderSettingsEditor'
+import SDFEditor from '../components/properties/SDFEditor'
 import SceneNodeEditor from '../components/properties/SceneNodeEditor'
 import ScenePreviewCameraNodeEditor from '../components/properties/ScenePreviewCameraNodeEditor'
+import { SceneSettingsEditor } from '../components/properties/SceneSettingsEditor'
 import ShadowProperties from '../components/properties/ShadowProperties'
 import SkyboxNodeEditor from '../components/properties/SkyboxNodeEditor'
 import SpawnPointNodeEditor from '../components/properties/SpawnPointNodeEditor'
@@ -112,6 +116,7 @@ import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
 
 export const EntityNodeEditor = new Map<Component, EditorComponentType>()
+EntityNodeEditor.set(SceneSettingsComponent, SceneSettingsEditor)
 EntityNodeEditor.set(PostProcessingComponent, PostProcessingSettingsEditor)
 EntityNodeEditor.set(MediaSettingsComponent, MediaSettingsEditor)
 EntityNodeEditor.set(RenderSettingsComponent, RenderSettingsEditor)
@@ -122,6 +127,7 @@ EntityNodeEditor.set(HemisphereLightComponent, HemisphereLightNodeEditor)
 EntityNodeEditor.set(AmbientLightComponent, AmbientLightNodeEditor)
 EntityNodeEditor.set(PointLightComponent, PointLightNodeEditor)
 EntityNodeEditor.set(SpotLightComponent, SpotLightNodeEditor)
+EntityNodeEditor.set(SDFComponent, SDFEditor)
 EntityNodeEditor.set(GroundPlaneComponent, GroundPlaneNodeEditor)
 EntityNodeEditor.set(MeshComponent, MeshNodeEditor)
 EntityNodeEditor.set(ModelComponent, ModelNodeEditor)

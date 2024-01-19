@@ -32,7 +32,7 @@ import { Action, ResolvedActionType } from '@etherealengine/hyperflux/functions/
 
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { Engine } from '../../ecs/classes/Engine'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { NetworkState } from '../NetworkState'
 import { Network, NetworkTopics } from '../classes/Network'
@@ -114,7 +114,7 @@ function destroyPeer(network: Network, peerID: PeerID) {
     if (!network.users[userID] && network.isHosting) {
       // Engine.instance.store.actions.cached = Engine.instance.store.actions.cached.filter((a) => a.$from !== userID)
       for (const eid of NetworkObjectComponent.getOwnedNetworkObjects(userID)) {
-        const networkObject = getComponent(eid, NetworkObjectComponent)
+        const networkObject = getOptionalComponent(eid, NetworkObjectComponent)
         if (networkObject) {
           dispatchAction(
             WorldNetworkAction.destroyObject({ entityUUID: getComponent(eid, UUIDComponent), $from: userID })

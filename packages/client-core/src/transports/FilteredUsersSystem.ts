@@ -30,7 +30,7 @@ import { getNearbyUsers } from '@etherealengine/engine/src/networking/functions/
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { useEffect } from 'react'
 import { MediaInstanceState, useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
