@@ -55,4 +55,4 @@ export const ObjectLayers = {
 
   // transform gizmo
   HighlightEffect: 11 as const
-}
+} as Record<string, number>

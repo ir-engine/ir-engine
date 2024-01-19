@@ -25,13 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineAction, defineState } from '@etherealengine/hyperflux'
 
-import { isDev } from '@etherealengine/common/src/config'
 import { matches } from '../../common/functions/MatchesUtils'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
 export const EngineState = defineState({
   name: 'EngineState',
-  initial: () => ({
+  initial: {
     simulationTimestep: 1000 / 60,
 
     frameTime: Date.now(),
@@ -48,7 +47,7 @@ export const EngineState = defineState({
     sceneLoaded: false,
     loadingProgress: 0,
     spectating: false,
-    avatarLoadingEffect: true,
+    avatarLoadingEffect: false,
     /**
      * An empty share link will default to the current URL, plus any modifiers (such as spectate mode)
      */
@@ -56,9 +55,8 @@ export const EngineState = defineState({
     isBot: false,
     /** @deprecated use isEditing instead */
     isEditor: false,
-    isEditing: false,
-    systemPerformanceProfilingEnabled: isDev
-  })
+    isEditing: false
+  }
 })
 
 export class EngineActions {

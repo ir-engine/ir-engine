@@ -23,30 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineAction, defineState, getMutableState, none } from '@etherealengine/hyperflux'
-import matches from 'ts-matches'
-import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
-import { NetworkTopics } from '../../networking/classes/Network'
+import { isDev } from '@etherealengine/common/src/config'
+import { defineState } from '../functions/StateFunctions'
 
-export class MountPointActions {
-  static mountInteraction = defineAction({
-    type: 'ee.engine.interactions.MOUNT' as const,
-    mounted: matches.boolean,
-    targetMount: matchesEntityUUID,
-    mountedEntity: matchesEntityUUID,
-    $topic: NetworkTopics.world
+export const SystemState = defineState({
+  name: 'ee.meta.SystemState',
+  initial: () => ({
+    performanceProfilingEnabled: isDev
   })
-}
-
-export const MountPointState = defineState({
-  name: 'MountPointState',
-  initial: {} as Record<EntityUUID, EntityUUID>,
-  receptors: {
-    onMountInteraction: MountPointActions.mountInteraction.receive((action) => {
-      const state = getMutableState(MountPointState)
-      if (action.mounted) state[action.targetMount].merge(action.mountedEntity)
-      else state[action.targetMount].set(none)
-    })
-  }
 })

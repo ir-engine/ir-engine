@@ -34,7 +34,7 @@ import { getMutableState, none } from '@etherealengine/hyperflux'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { recordingResourceUploadPath } from '@etherealengine/common/src/schema.type.module'
-import { SimulationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { SimulationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 

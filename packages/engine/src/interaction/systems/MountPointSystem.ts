@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Box3, Quaternion, Vector3 } from 'three'
 
-import { dispatchAction, getMutableState, getState, receiveActions, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { useEffect } from 'react'
 import { emoteAnimations, preloadedAnimations } from '../../avatar/animation/Util'
@@ -37,13 +37,13 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  defineQuery,
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { MountPoint, MountPointComponent } from '../../scene/components/MountPointComponent'
@@ -52,7 +52,7 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 
 import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
-import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
+import { InputSystemGroup } from '../../ecs/functions/SystemGroups'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { MotionCapturePoseComponent } from '../../mocap/MotionCapturePoseComponent'
@@ -74,8 +74,6 @@ const mountPointQuery = defineQuery([MountPointComponent])
 const sittingIdleQuery = defineQuery([SittingComponent])
 
 const execute = () => {
-  receiveActions(MountPointState)
-
   if (getState(EngineState).isEditor) return
 
   const unmountEntity = (entity: Entity) => {

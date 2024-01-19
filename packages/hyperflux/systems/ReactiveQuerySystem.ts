@@ -23,30 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineAction, defineState, getMutableState, none } from '@etherealengine/hyperflux'
-import matches from 'ts-matches'
-import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
-import { NetworkTopics } from '../../networking/classes/Network'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
+import { HyperFlux } from '../functions/StoreFunctions'
 
-export class MountPointActions {
-  static mountInteraction = defineAction({
-    type: 'ee.engine.interactions.MOUNT' as const,
-    mounted: matches.boolean,
-    targetMount: matchesEntityUUID,
-    mountedEntity: matchesEntityUUID,
-    $topic: NetworkTopics.world
-  })
-}
-
-export const MountPointState = defineState({
-  name: 'MountPointState',
-  initial: {} as Record<EntityUUID, EntityUUID>,
-  receptors: {
-    onMountInteraction: MountPointActions.mountInteraction.receive((action) => {
-      const state = getMutableState(MountPointState)
-      if (action.mounted) state[action.targetMount].merge(action.mountedEntity)
-      else state[action.targetMount].set(none)
-    })
+export const ReactiveQuerySystem = defineSystem({
+  uuid: 'ee.hyperflux.ReactiveQuerySystem',
+  insert: { after: PresentationSystemGroup },
+  execute: () => {
+    for (const { query, result } of HyperFlux.store.reactiveQueryStates) {
+      const entitiesAdded = query.enter().length
+      const entitiesRemoved = query.exit().length
+      if (entitiesAdded || entitiesRemoved) {
+        result.set(query())
+      }
+    }
   }
 })

@@ -31,16 +31,17 @@ import { Entity } from '../../src/ecs/classes/Entity'
 import { SceneState } from '../../src/ecs/classes/Scene'
 import {
   defineComponent,
-  defineQuery,
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent
 } from '../../src/ecs/functions/ComponentFunctions'
-import { executeSystems, RootSystemGroup } from '../../src/ecs/functions/EngineFunctions'
+import { executeSystems } from '../../src/ecs/functions/EngineFunctions'
 import { createEntity, removeEntity } from '../../src/ecs/functions/EntityFunctions'
+import { defineQuery } from '../../src/ecs/functions/QueryFunctions'
 import { defineSystem } from '../../src/ecs/functions/SystemFunctions'
+import { AnimationSystemGroup } from '../../src/ecs/functions/SystemGroups'
 import { createEngine } from '../../src/initializeEngine'
 import { loadEmptyScene } from '../util/loadEmptyScene'
 
@@ -81,7 +82,7 @@ const execute = () => {
 
 const MockSystem = defineSystem({
   uuid: 'MockSystem',
-  insert: { with: RootSystemGroup },
+  insert: { with: AnimationSystemGroup },
   execute
 })
 
