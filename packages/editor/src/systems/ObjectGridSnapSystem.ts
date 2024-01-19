@@ -183,7 +183,7 @@ function calculateTranslation(bbox1: Box3, bbox2: Box3): Vector3 {
 export const ObjectGridSnapState = defineState({
   name: 'ObjectGridSnapState',
   initial: {
-    enabled: true,
+    enabled: false,
     apply: false
   }
 })
