@@ -47,16 +47,15 @@ import { EngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import {
   ComponentType,
-  defineQuery,
   getComponent,
   getMutableComponent,
   removeComponent,
   setComponent,
-  useOptionalComponent,
-  useQuery
+  useOptionalComponent
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../ecs/functions/EntityTree'
+import { defineQuery, useQuery } from '../ecs/functions/QueryFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { InputComponent } from '../input/components/InputComponent'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'

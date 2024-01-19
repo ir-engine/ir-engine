@@ -35,7 +35,13 @@ import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  getComponent,
+  getOptionalComponent,
+  removeComponent,
+  setComponent
+} from '../../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkState } from '../../networking/NetworkState'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -157,19 +163,19 @@ const execute = () => {
 
     const uuid = getComponent(entity, UUIDComponent)
     const leftFoot = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftFoot) as EntityUUID)
-    const leftFootTransform = getComponent(leftFoot, TransformComponent)
+    const leftFootTransform = getOptionalComponent(leftFoot, TransformComponent)
     const leftFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[leftFoot]
 
     const rightFoot = UUIDComponent.getEntityByUUID((uuid + ikTargets.rightFoot) as EntityUUID)
-    const rightFootTransform = getComponent(rightFoot, TransformComponent)
+    const rightFootTransform = getOptionalComponent(rightFoot, TransformComponent)
     const rightFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[rightFoot]
 
     const leftHand = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftHand) as EntityUUID)
-    const leftHandTransform = getComponent(leftHand, TransformComponent)
+    const leftHandTransform = getOptionalComponent(leftHand, TransformComponent)
     const leftHandTargetBlendWeight = AvatarIKTargetComponent.blendWeight[leftHand]
 
     const rightHand = UUIDComponent.getEntityByUUID((uuid + ikTargets.rightHand) as EntityUUID)
-    const rightHandTransform = getComponent(rightHand, TransformComponent)
+    const rightHandTransform = getOptionalComponent(rightHand, TransformComponent)
     const rightHandTargetBlendWeight = AvatarIKTargetComponent.blendWeight[rightHand]
 
     const head = UUIDComponent.getEntityByUUID((uuid + ikTargets.head) as EntityUUID)
@@ -211,7 +217,7 @@ const execute = () => {
       rig.head.node.quaternion.multiplyQuaternions(rig.spine.node.getWorldQuaternion(_quat).invert(), _quat2)
     }
 
-    if (rightHandTargetBlendWeight) {
+    if (rightHandTargetBlendWeight && rightHandTransform) {
       _quat2.copy(rightHandTransform.rotation)
       if (!isAvatarFlipped) {
         _quat2.multiply(rightHandRotation)
@@ -242,7 +248,7 @@ const execute = () => {
       )
     }
 
-    if (leftHandTargetBlendWeight) {
+    if (leftHandTargetBlendWeight && leftHandTransform) {
       _quat2.copy(leftHandTransform.rotation)
       if (!isAvatarFlipped) {
         _quat2.multiply(leftHandRotation)
@@ -273,7 +279,7 @@ const execute = () => {
       )
     }
 
-    if (rightFootTargetBlendWeight) {
+    if (rightFootTargetBlendWeight && rightFootTransform) {
       _quat2.copy(rightFootTransform.rotation)
       if (isAvatarFlipped) {
         _quat2.multiply(Q_X_90)
@@ -304,7 +310,7 @@ const execute = () => {
       )
     }
 
-    if (leftFootTargetBlendWeight) {
+    if (leftFootTargetBlendWeight && leftFootTransform) {
       _quat2.copy(leftFootTransform.rotation)
       if (isAvatarFlipped) {
         _quat2.multiply(Q_X_90)

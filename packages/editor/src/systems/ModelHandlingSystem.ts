@@ -29,7 +29,7 @@ import BufferHandlerExtension from '@etherealengine/engine/src/assets/exporters/
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { defineActionQueue } from '@etherealengine/hyperflux'
 
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { clearModelResources, uploadProjectFiles } from '../functions/assetFunctions'
 
 const beginModelExportQueue = defineActionQueue(BufferHandlerExtension.beginModelExport.matches)

@@ -23,17 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DirectionalLight } from 'three'
-
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { iOS } from '../../common/functions/isMobile'
-import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { RendererState } from '../../renderer/RendererState'
+import { DirectionalLightComponent } from '../../scene/components/DirectionalLightComponent'
 import { isMobileXRHeadset } from '../../xr/XRState'
-import { RenderModes } from '../constants/RenderModes'
 import { EngineRenderer, RenderSettingsState } from '../WebGLRendererSystem'
+import { RenderModes } from '../constants/RenderModes'
 
 export const getShadowsEnabled = () => {
   const rendererState = getState(RendererState)
@@ -54,6 +54,8 @@ export const useShadowsEnabled = () => {
   return !isMobileXRHeadset && !iOS && useShadows && (isEditor ? renderMode === RenderModes.SHADOW : true)
 }
 
+const directionalLightQuery = defineQuery([DirectionalLightComponent])
+
 export const updateShadowMap = () => {
   const enabled = getShadowsEnabled()
 
@@ -63,12 +65,13 @@ export const updateShadowMap = () => {
   EngineRenderer.instance.renderer.shadowMap.type = type
   EngineRenderer.instance.renderer.shadowMap.needsUpdate = true
 
-  Engine.instance.scene.traverse((node: DirectionalLight) => {
-    if (node.isDirectionalLight && node.shadow) {
-      node.shadow.map?.dispose()
-      node.shadow.map = null as any
-      node.shadow.camera.updateProjectionMatrix()
-      node.shadow.needsUpdate = true
+  for (const entity of directionalLightQuery()) {
+    const directionalLight = getComponent(entity, DirectionalLightComponent)
+    if (directionalLight.light.shadow) {
+      directionalLight.light.shadow.map?.dispose()
+      directionalLight.light.shadow.map = null as any
+      directionalLight.light.shadow.camera.updateProjectionMatrix()
+      directionalLight.light.shadow.needsUpdate = true
     }
-  })
+  }
 }
