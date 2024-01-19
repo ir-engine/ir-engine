@@ -355,6 +355,7 @@ export function addOutgoingTopicIfNecessary(topic: string) {
     HyperFlux.store.actions.outgoing[topic] = {
       queue: [],
       history: [],
+      cached: [],
       forwardedUUIDs: new Set()
     }
   }
@@ -376,6 +377,11 @@ const _updateCachedActions = (incomingAction: Required<ResolvedActionType>) => {
             if (remove === true) {
               const idx = cachedActions.indexOf(a)
               cachedActions.splice(idx, 1)
+              if (incomingAction.$network) {
+                const topicCached = HyperFlux.store.actions.outgoing[incomingAction.$network].cached
+                const idx = topicCached.indexOf(a)
+                topicCached.splice(idx, 1)
+              }
             } else {
               let matches = true
               for (const key of remove) {
@@ -387,13 +393,24 @@ const _updateCachedActions = (incomingAction: Required<ResolvedActionType>) => {
               if (matches) {
                 const idx = cachedActions.indexOf(a)
                 cachedActions.splice(idx, 1)
+                if (incomingAction.$network) {
+                  const topicCached = HyperFlux.store.actions.outgoing[incomingAction.$network].cached
+                  const idx = topicCached.indexOf(a)
+                  topicCached.splice(idx, 1)
+                }
               }
             }
           }
         }
       }
 
-      if (!incomingAction.$cache.disable) cachedActions.push(incomingAction)
+      if (!incomingAction.$cache.disable) {
+        cachedActions.push(incomingAction)
+        if (incomingAction.$network) {
+          const topicCached = HyperFlux.store.actions.outgoing[incomingAction.$network].cached
+          topicCached.push(incomingAction)
+        }
+      }
     }
   }
 }
@@ -458,7 +475,7 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
     //So the solution was to attempt to JSON.stringify them manually first to see if that would error.
     try {
       const jsonStringified = JSON.stringify(action)
-      logger.info('Repeat action %o', action)
+      // logger.info('Repeat action %o', action)
     } catch (err) {
       console.log('error in logging action', action)
     }
@@ -532,7 +549,7 @@ export const applyIncomingActions = () => {
  */
 export const clearOutgoingActions = (topic: Topic) => {
   if (!HyperFlux.store.actions.outgoing[topic]) return
-  const { queue, history, forwardedUUIDs } = HyperFlux.store.actions.outgoing[topic]
+  const { queue, history, cached, forwardedUUIDs } = HyperFlux.store.actions.outgoing[topic]
   for (const action of queue) {
     history.push(action)
     forwardedUUIDs.add(action.$uuid)
