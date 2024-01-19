@@ -27,20 +27,16 @@ import { useEffect } from 'react'
 
 import {
   defineComponent,
-  hasComponent,
   useComponent,
   useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
-import { EditorControlFunctions } from '../../../../editor/src/functions/EditorControlFunctions'
-import { SelectionState } from '../../../../editor/src/services/SelectionServices'
 import { PositionalAudioHelper } from '../../debug/PositionalAudioHelper'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
-import { AudioNodeGroups, MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
-import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
+import { AudioNodeGroups, MediaElementComponent } from '../../scene/components/MediaComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
@@ -112,13 +108,6 @@ export const PositionalAudioComponent = defineComponent({
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const audio = useComponent(entity, PositionalAudioComponent)
     const mediaElement = useOptionalComponent(entity, MediaElementComponent)
-
-    useEffect(() => {
-      if (!hasComponent(entity, MediaComponent) && !hasComponent(entity, VolumetricComponent)) {
-        const nodes = getState(SelectionState).selectedEntities
-        EditorControlFunctions.addOrRemoveComponent(nodes, MediaComponent, true)
-      }
-    }, [])
 
     useEffect(() => {
       if (!debugEnabled.value || !mediaElement || !mediaElement.element.value) return

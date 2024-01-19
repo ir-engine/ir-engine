@@ -26,18 +26,15 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, Side, Texture, Vector2 } from 'three'
 
-import { defineState, getState } from '@etherealengine/hyperflux'
+import { defineState } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { EditorControlFunctions } from '../../../../editor/src/functions/EditorControlFunctions'
-import { SelectionState } from '../../../../editor/src/services/SelectionServices'
 import { isMobile } from '../../common/functions/isMobile'
 import { createPriorityQueue } from '../../ecs/PriorityQueue'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
-  hasComponent,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -49,7 +46,7 @@ import { ContentFitType, ObjectFitFunctions } from '../../xrui/functions/ObjectF
 import { clearErrors } from '../functions/ErrorFunctions'
 import { addObjectToGroup } from './GroupComponent'
 import { PLANE_GEO, resizeImageMesh } from './ImageComponent'
-import { MediaComponent, MediaElementComponent } from './MediaComponent'
+import { MediaElementComponent } from './MediaComponent'
 import { NameComponent } from './NameComponent'
 import { UUIDComponent } from './UUIDComponent'
 import { VisibleComponent, setVisibleComponent } from './VisibleComponent'
@@ -136,13 +133,7 @@ function VideoReactor() {
   const mediaUUID = video.mediaUUID.value
   const mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID) || entity
 
-  console.log({ mediaEntity })
-
   useEffect(() => {
-    if (!hasComponent(entity, MediaComponent)) {
-      const nodes = getState(SelectionState).selectedEntities
-      EditorControlFunctions.addOrRemoveComponent(nodes, MediaComponent, true)
-    }
     const videoEntity = createEntity()
     addObjectToGroup(videoEntity, video.videoMesh.value)
     setComponent(videoEntity, EntityTreeComponent, { parentEntity: entity })
