@@ -203,6 +203,7 @@ export const closeNetworkTransport = (network: SocketWebRTCClientNetwork) => {
   const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
   networkState.transport.primus.set(null!)
   networkState.authenticated.set(false)
+  networkState.ready.set(false)
 }
 
 export const initializeNetwork = (id: InstanceID, hostId: UserID, topic: Topic) => {
@@ -558,7 +559,7 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
           }
 
           const systemUUID = defineSystem({
-            uuid: '[WebRTC] transport connected ' + requestID,
+            uuid: '[WebRTC] transport connected ' + transportID,
             insert: { after: PresentationSystemGroup },
             execute: () => {
               for (const action of actionQueue()) {
