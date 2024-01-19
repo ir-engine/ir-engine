@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { moveAvatar, updateLocalAvatarRotation } from '../../avatar/functions/moveAvatar'
 import { Engine } from '../../ecs/classes/Engine'
-import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { computeTransformMatrix } from './TransformSystem'
 
 const execute = () => {

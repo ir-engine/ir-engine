@@ -27,22 +27,18 @@ import { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { UserID } from '@etherealengine/common/src/schema.type.module'
-import {
-  applyIncomingActions,
-  dispatchAction,
-  getMutableState,
-  getState,
-  receiveActions
-} from '@etherealengine/hyperflux'
+import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
-import { destroyEngine, Engine } from '../../ecs/classes/Engine'
+import { EventDispatcher } from '../../common/classes/EventDispatcher'
+import { Engine, destroyEngine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { SystemDefinitions } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
+import { EntityNetworkStateSystem } from '../../networking/NetworkModule'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { PhysicsState } from '../../physics/state/PhysicsState'
@@ -50,6 +46,9 @@ import { AvatarControllerComponent } from '../components/AvatarControllerCompone
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { applyGamepadInput } from './moveAvatar'
 import { spawnAvatarReceptor } from './spawnAvatarReceptor'
+
+import { act, render } from '@testing-library/react'
+import React from 'react'
 
 describe('moveAvatar function tests', () => {
   beforeEach(async () => {
@@ -59,13 +58,30 @@ describe('moveAvatar function tests', () => {
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
     Engine.instance.userID = 'userId' as UserID
     loadEmptyScene()
+
+    const eventDispatcher = new EventDispatcher()
+    ;(Engine.instance.api as any) = {
+      service: () => {
+        return {
+          on: (serviceName, cb) => {
+            eventDispatcher.addEventListener(serviceName, cb)
+          },
+          off: (serviceName, cb) => {
+            eventDispatcher.removeEventListener(serviceName, cb)
+          }
+        }
+      }
+    }
   })
+
+  const Reactor = SystemDefinitions.get(EntityNetworkStateSystem)!.reactor!
+  const tag = <Reactor />
 
   afterEach(() => {
     return destroyEngine()
   })
 
-  it('should apply world.fixedDelta @ 60 tick to avatar movement, consistent with physics simulation', () => {
+  it('should apply world.fixedDelta @ 60 tick to avatar movement, consistent with physics simulation', async () => {
     const engineState = getMutableState(EngineState)
     engineState.simulationTimestep.set(1000 / 60)
 
@@ -74,12 +90,15 @@ describe('moveAvatar function tests', () => {
         $from: Engine.instance.userID,
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userID as string as EntityUUID
+        entityUUID: Engine.instance.userID as string as EntityUUID,
+        avatarID: '' as AvatarID
       })
     )
 
     applyIncomingActions()
-    receiveActions(EntityNetworkState)
+
+    const { rerender, unmount } = render(tag)
+    await act(() => rerender(tag))
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
     const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
@@ -97,9 +116,10 @@ describe('moveAvatar function tests', () => {
     applyGamepadInput(entity)
 
     /* assert */
+    unmount()
   })
 
-  it('should apply world.fixedDelta @ 120 tick to avatar movement, consistent with physics simulation', () => {
+  it('should apply world.fixedDelta @ 120 tick to avatar movement, consistent with physics simulation', async () => {
     const engineState = getMutableState(EngineState)
     engineState.simulationTimestep.set(1000 / 60)
 
@@ -108,12 +128,15 @@ describe('moveAvatar function tests', () => {
         $from: Engine.instance.userID,
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userID as string as EntityUUID
+        entityUUID: Engine.instance.userID as string as EntityUUID,
+        avatarID: '' as AvatarID
       })
     )
 
     applyIncomingActions()
-    receiveActions(EntityNetworkState)
+
+    const { rerender, unmount } = render(tag)
+    await act(() => rerender(tag))
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
     const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
@@ -128,9 +151,10 @@ describe('moveAvatar function tests', () => {
     applyGamepadInput(entity)
 
     /* assert */
+    unmount()
   })
 
-  it('should take world.physics.timeScale into account when moving avatars, consistent with physics simulation', () => {
+  it('should take world.physics.timeScale into account when moving avatars, consistent with physics simulation', async () => {
     Engine.instance.userID = 'user' as UserID
 
     const engineState = getMutableState(EngineState)
@@ -144,12 +168,15 @@ describe('moveAvatar function tests', () => {
         $from: Engine.instance.userID,
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userID as string as EntityUUID
+        entityUUID: Engine.instance.userID as string as EntityUUID,
+        avatarID: '' as AvatarID
       })
     )
 
     applyIncomingActions()
-    receiveActions(EntityNetworkState)
+
+    const { rerender, unmount } = render(tag)
+    await act(() => rerender(tag))
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
     const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
@@ -164,9 +191,10 @@ describe('moveAvatar function tests', () => {
     applyGamepadInput(entity)
 
     /* assert */
+    unmount()
   })
 
-  it('should not allow velocity to breach a full unit through multiple frames', () => {
+  it('should not allow velocity to breach a full unit through multiple frames', async () => {
     Engine.instance.userID = 'user' as UserID
 
     const engineState = getMutableState(EngineState)
@@ -177,12 +205,15 @@ describe('moveAvatar function tests', () => {
         $from: Engine.instance.userID,
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userID as string as EntityUUID
+        entityUUID: Engine.instance.userID as string as EntityUUID,
+        avatarID: '' as AvatarID
       })
     )
 
     applyIncomingActions()
-    receiveActions(EntityNetworkState)
+
+    const { rerender, unmount } = render(tag)
+    await act(() => rerender(tag))
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
     const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
@@ -208,5 +239,6 @@ describe('moveAvatar function tests', () => {
     applyGamepadInput(entity)
 
     /* assert */
+    unmount()
   })
 })

@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Engine } from '../ecs/classes/Engine'
 import { hasComponent, setComponent } from '../ecs/functions/ComponentFunctions'
-import { InputSystemGroup } from '../ecs/functions/EngineFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { InputSystemGroup } from '../ecs/functions/SystemGroups'
 import { MotionCapturePoseComponent } from './MotionCapturePoseComponent'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 import { evaluatePose } from './poseToInput'
