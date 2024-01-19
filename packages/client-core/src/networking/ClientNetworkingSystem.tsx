@@ -48,6 +48,7 @@ import {
 } from '../transports/SocketWebRTCClientFunctions'
 import { InstanceProvisioning } from './NetworkInstanceProvisioning'
 
+/** @todo replace this with event sourcing */
 const consumerCreatedQueue = defineActionQueue(MediasoupMediaConsumerActions.consumerCreated.matches)
 const transportCreatedActionQueue = defineActionQueue(MediasoupTransportActions.transportCreated.matches)
 const updatePeersActionQueue = defineActionQueue(NetworkActions.updatePeers.matches)

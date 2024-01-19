@@ -55,6 +55,7 @@ import {
   handleWebRtcTransportCreate
 } from './WebRTCFunctions'
 
+/** @todo replace this with event sourcing */
 const requestConsumerActionQueue = defineActionQueue(MediasoupMediaConsumerActions.requestConsumer.matches)
 const consumerLayersActionQueue = defineActionQueue(MediasoupMediaConsumerActions.consumerLayers.matches)
 const requestProducerActionQueue = defineActionQueue(MediaProducerActions.requestProducer.matches)

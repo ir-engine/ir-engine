@@ -278,6 +278,7 @@ const webcamQuery = defineQuery([GroupComponent, AvatarRigComponent, WebcamInput
 const avatarSpawnQueue = defineActionQueue(AvatarNetworkAction.spawn.matches)
 
 const execute = () => {
+  /** @todo replace this with a reactor reacting to AvatarNetworkState */
   for (const action of avatarSpawnQueue()) {
     const entity = UUIDComponent.getEntityByUUID(action.entityUUID)
     setComponent(entity, WebcamInputComponent)

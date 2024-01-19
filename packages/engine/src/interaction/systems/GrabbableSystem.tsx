@@ -320,6 +320,7 @@ export const dropEntity = (grabberEntity: Entity): void => {
  */
 export const grabbableInteractMessage = 'Grab'
 
+/** @todo replace this with event sourcing */
 const transferAuthorityOfObjectQueue = defineActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)
 
 const ownedGrabbableQuery = defineQuery([GrabbableComponent, NetworkObjectAuthorityTag])
