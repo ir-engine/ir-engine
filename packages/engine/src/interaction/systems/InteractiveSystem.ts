@@ -36,8 +36,9 @@ import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctio
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import {
   DistanceFromCameraComponent,

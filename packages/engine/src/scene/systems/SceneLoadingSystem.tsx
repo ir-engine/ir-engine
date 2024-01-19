@@ -52,13 +52,13 @@ import {
   hasComponent,
   removeComponent,
   setComponent,
-  useOptionalComponent,
-  useQuery
+  useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { QueryReactor, defineSystem, destroySystem } from '../../ecs/functions/SystemFunctions'
+import { QueryReactor, useQuery } from '../../ecs/functions/QueryFunctions'
+import { defineSystem, destroySystem } from '../../ecs/functions/SystemFunctions'
+import { PresentationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { NetworkState } from '../../networking/NetworkState'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { PhysicsState } from '../../physics/state/PhysicsState'
@@ -140,7 +140,6 @@ const NetworkedSceneObjectReactor = () => {
       dispatchAction(
         WorldNetworkAction.spawnObject({
           entityUUID: uuid,
-          prefab: '',
           position: transform.position.clone(),
           rotation: transform.rotation.clone()
         })
@@ -197,7 +196,8 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     Engine.instance.api.service(scenePath).on('updated', sceneUpdatedListener)
 
     return () => {
-      Engine.instance.api.service(scenePath).off('updated', sceneUpdatedListener)
+      // the ? is for testing
+      Engine.instance?.api.service(scenePath).off('updated', sceneUpdatedListener)
     }
   }, [])
 

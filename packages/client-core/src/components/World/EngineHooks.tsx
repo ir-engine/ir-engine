@@ -42,7 +42,7 @@ import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/func
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { PortalComponent, PortalState } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
@@ -68,17 +68,19 @@ export const useEngineInjection = () => {
 
 export const useLocationSpawnAvatar = (spectate = false) => {
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
+  const spawned = useHookstate(false)
 
   useEffect(() => {
+    if (!sceneLoaded.value || spawned.value) return
+
     if (spectate) {
-      if (!sceneLoaded.value) return
       dispatchAction(EngineActions.spectateUser({}))
+      spawned.set(true)
       return
     }
 
     const spectateParam = getSearchParamFromURL('spectate')
-
-    if (Engine.instance.localClientEntity || !sceneLoaded.value || spectateParam) return
+    if (spectateParam) return
 
     // the avatar should only be spawned once, after user auth and scene load
     const user = getState(AuthState).user
@@ -95,6 +97,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
         avatarID: user.avatar.id!,
         name: user.name
       })
+      spawned.set(true)
     } else {
       AvatarState.selectRandomAvatar()
     }
@@ -115,7 +118,6 @@ export const useLocationSpawnAvatarWithDespawn = () => {
 
 export const despawnSelfAvatar = () => {
   const clientEntity = Engine.instance.localClientEntity
-  console.log('despawnSelfAvatar', clientEntity)
   if (!clientEntity) return
 
   const network = NetworkState.worldNetwork
@@ -254,7 +256,6 @@ export const useOfflineNetwork = () => {
       const networkState = getMutableState(NetworkState)
       networkState.hostIds.world.set(userId as any as InstanceID)
       addNetwork(createNetwork(userId as any as InstanceID, userId, NetworkTopics.world))
-      addOutgoingTopicIfNecessary(NetworkTopics.world)
 
       NetworkState.worldNetworkState.authenticated.set(true)
       NetworkState.worldNetworkState.connected.set(true)
