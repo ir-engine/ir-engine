@@ -27,12 +27,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import {
-  getComponent,
-  hasComponent,
-  useComponent,
-  useQuery
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
@@ -40,6 +35,7 @@ import { VideoComponent } from '@etherealengine/engine/src/scene/components/Vide
 
 import VideocamIcon from '@mui/icons-material/Videocam'
 
+import { useQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { getState } from '@etherealengine/hyperflux'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'

@@ -24,10 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import * as bitECS from 'bitecs'
 
 import { World } from '@dimforge/rapier3d-compat'
-import { getMutableState, getState, registerState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { WebContainer3D } from '@etherealengine/xrui'
 import { render } from '@testing-library/react'
 import React from 'react'
@@ -125,7 +124,7 @@ describe('addClientInputListeners', () => {
       listener(mockEvent)
     })
 
-    const entities = bitECS.getAllEntities(Engine.instance)
+    const entities = Engine.instance.entityQuery()
     const emulatedInputSourceEntity = entities[entities.length - 1] as Entity
 
     assert(entityExists(emulatedInputSourceEntity))
@@ -180,7 +179,6 @@ describe('client input system reactor', () => {
     mockXRFrame.pose.transform.orientation.w = 0.2743
 
     const entity = Engine.instance.originEntity
-    registerState(XRState)
     getMutableState(XRState).xrFrame.set(mockXRFrame as unknown as XRFrame)
     setComponent(entity, InputSourceComponent, { source: mockXRInputSource })
     setComponent(entity, XRSpaceComponent, new MockXRSpace() as XRSpace)
@@ -210,7 +208,6 @@ describe('client input system reactor', () => {
     }) as XRInputSource
 
     const entity = Engine.instance.originEntity
-    registerState(XRUIState)
     getMutableState(XRUIState).interactionRays.set([
       new Ray(new Vector3(0.23, 0.65, 0.98), new Vector3(0.21, 0.43, 0.82))
     ])
@@ -258,7 +255,6 @@ describe('client input system reactor', () => {
 
     const entity = Engine.instance.originEntity
 
-    registerState(PhysicsState)
     getMutableState(PhysicsState).physicsWorld.set({
       castRayAndGetNormal: () => {
         return {

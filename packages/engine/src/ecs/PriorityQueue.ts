@@ -28,8 +28,8 @@ import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../transform/components/DistanceComponents'
 import { Entity } from './classes/Entity'
-import { Query } from './functions/ComponentFunctions'
 import { entityExists } from './functions/EntityFunctions'
+import { Query } from './functions/QueryFunctions'
 
 export const createPriorityQueue = (args: { accumulationBudget: number }) => {
   const accumulatingPriorities = new Map<

@@ -25,13 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { getMutableState, useState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { getComponent, useQuery } from '../../ecs/functions/ComponentFunctions'
-import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { useQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { PresentationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import { SDFComponent } from '../components/SDFComponent'
-
-const execute = () => {}
 
 const reactor = () => {
   const sdfQuery = useQuery([SDFComponent])
@@ -55,6 +54,5 @@ const reactor = () => {
 export const SDFSystem = defineSystem({
   uuid: 'ee.engine.SDFSystem',
   insert: { after: PresentationSystemGroup },
-  execute,
   reactor
 })
