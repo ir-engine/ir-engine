@@ -337,9 +337,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
     handleClose()
 
     const nodes = node.selected ? getState(SelectionState).selectedEntities : [node.entity]
-    CopyPasteFunctions.copyEntities(nodes).then(() =>
-      NotificationService.dispatchNotify(t('editor:hierarchy.copy-paste.copied-node'), { variant: 'success' })
-    )
+    CopyPasteFunctions.copyEntities(nodes)
   }, [])
 
   const onPasteNode = useCallback(async (node: HeirarchyTreeNodeType) => {
