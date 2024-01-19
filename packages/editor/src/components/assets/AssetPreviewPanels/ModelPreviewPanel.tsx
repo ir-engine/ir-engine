@@ -36,6 +36,7 @@ import { useHookstate } from '@etherealengine/hyperflux'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
@@ -90,6 +91,7 @@ export const ModelPreviewPanel = (props) => {
     const uuid = MathUtils.generateUUID() as EntityUUID
     setComponent(entity, UUIDComponent, uuid)
     setComponent(entity, ModelComponent, { src: url })
+    setComponent(entity, EnvmapComponent, { type: 'Skybox' })
 
     ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.AssetPreview)
     if (previewEntity.value) removeEntity(previewEntity.value)
