@@ -802,9 +802,16 @@ export const ParticleSystemComponent = defineComponent({
     const component = componentState.value
     const batchRenderer = useHookstate(getMutableState(ParticleState).batchRenderer)
 
-    const [geoDependency, unloadGeo] = useGLTF(component.systemParameters.instancingGeometry!, entity)
-    const [shapeMesh, unloadMesh] = useGLTF(component.systemParameters.shape.mesh!, entity)
-    const [textureState, unloadTexture] = useTexture(component.systemParameters.texture!, entity)
+    const [geoDependency, unloadGeo] = useGLTF(component.systemParameters.instancingGeometry!, entity, {}, (url) => {
+      metadata.geometries.nested(url).set(none)
+    })
+    const [shapeMesh, unloadMesh] = useGLTF(component.systemParameters.shape.mesh!, entity, {}, (url) => {
+      metadata.geometries.nested(url).set(none)
+    })
+    const [textureState, unloadTexture] = useTexture(component.systemParameters.texture!, entity, {}, (url) => {
+      metadata.textures.nested(url).set(none)
+      dudMaterial.map.set(none)
+    })
 
     const metadata = useHookstate({ textures: {}, geometries: {}, materials: {} } as ParticleSystemMetadata)
     const dudMaterial = useHookstate(
@@ -848,6 +855,14 @@ export const ParticleSystemComponent = defineComponent({
     }, [textureState])
 
     useEffect(() => {
+      if (component.system) {
+        const emitterAsObj3D = component.system.emitter as unknown as Object3D
+        if (emitterAsObj3D.userData['_refresh'] === component._refresh) return
+        removeObjectFromGroup(entity, emitterAsObj3D)
+        component.system.dispose()
+        componentState.system.set(none)
+      }
+
       function initParticleSystem(systemParameters: ParticleSystemJSONParameters, metadata: ParticleSystemMetadata) {
         const nuSystem = ParticleSystem.fromJSON(systemParameters, metadata, {})
         batchRenderer.value.addSystem(nuSystem)
@@ -890,17 +905,8 @@ export const ParticleSystemComponent = defineComponent({
         const currentIndex = componentState._loadIndex.value
         currentIndex === componentState._loadIndex.value && initParticleSystem(processedParms, metadata.value)
       }
-    }, [geoDependency, shapeMesh, textureState])
+    }, [geoDependency, shapeMesh, textureState, componentState._refresh])
 
-    useEffect(() => {
-      if (component.system) {
-        const emitterAsObj3D = component.system.emitter as unknown as Object3D
-        if (emitterAsObj3D.userData['_refresh'] === component._refresh) return
-        removeObjectFromGroup(entity, emitterAsObj3D)
-        component.system.dispose()
-        componentState.system.set(none)
-      }
-    }, [componentState._refresh])
     return null
   }
 })

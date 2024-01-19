@@ -35,13 +35,31 @@ function useLoader<T>(
   url: string,
   resourceType: ResourceType,
   entity: Entity = UndefinedEntity,
-  params: LoadingArgs = {}
+  params: LoadingArgs = {},
+  onUnload: (url: string) => void = (url: string) => {}
 ): [State<T | null>, () => void, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>] {
+  const urlState = useHookstate<string>(url)
   const value = useHookstate<T | null>(null)
   const error = useHookstate<ErrorEvent | Error | null>(null)
   const progress = useHookstate<ProgressEvent<EventTarget> | null>(null)
 
+  const unload = () => {
+    ResourceManager.unload(url, resourceType, entity)
+    value.set(null)
+    progress.set(null)
+    error.set(null)
+    onUnload(url)
+  }
+
   useEffect(() => {
+    if (url !== urlState.value) {
+      ResourceManager.unload(urlState.value, resourceType, entity)
+      value.set(null)
+      progress.set(null)
+      error.set(null)
+      onUnload(urlState.value)
+      urlState.set(url)
+    }
     if (!url) return
     ResourceManager.load(
       url,
@@ -60,25 +78,23 @@ function useLoader<T>(
     )
   }, [url])
 
-  const unload = () => {
-    ResourceManager.unload(url, resourceType, entity)
-  }
-
   return [value, unload, error, progress]
 }
 
 export function useGLTF(
   url: string,
   entity?: Entity,
-  params?: LoadingArgs
+  params?: LoadingArgs,
+  onUnload?: (url: string) => void
 ): [State<GLTF | null>, () => void, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>] {
-  return useLoader<GLTF>(url, ResourceType.GLTF, entity, params)
+  return useLoader<GLTF>(url, ResourceType.GLTF, entity, params, onUnload)
 }
 
 export function useTexture(
   url: string,
   entity?: Entity,
-  params?: LoadingArgs
+  params?: LoadingArgs,
+  onUnload?: (url: string) => void
 ): [State<Texture | null>, () => void, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>] {
-  return useLoader<Texture>(url, ResourceType.Texture, entity, params)
+  return useLoader<Texture>(url, ResourceType.Texture, entity, params, onUnload)
 }
