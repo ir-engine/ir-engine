@@ -28,7 +28,6 @@ import { AnimationClip, AnimationMixer, Vector3 } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   getComponent,
@@ -62,7 +61,7 @@ import { AvatarControllerComponent } from '../components/AvatarControllerCompone
 import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
-import { bindAnimationClipFromMixamo, retargetAnimationClip } from './retargetMixamoRig'
+import { bindAnimationClipFromMixamo } from './retargetMixamoRig'
 
 declare module '@pixiv/three-vrm/types/VRM' {
   export interface VRM {
@@ -202,30 +201,6 @@ export const retargetAvatarAnimations = (entity: Entity) => {
     animations: animations,
     mixer: new AnimationMixer(rigComponent.normalizedRig.hips.node)
   })
-}
-
-/**loads animation bundles. assumes the bundle is a glb */
-export const loadBundledAnimations = (animationFiles: string[]) => {
-  const manager = getMutableState(AnimationState)
-
-  //preload animations
-  for (const animationFile of animationFiles) {
-    AssetLoader.loadAsync(
-      `${config.client.fileServer}/projects/default-project/assets/animations/${animationFile}.glb`
-    ).then((asset: GLTF) => {
-      // delete unneeded geometry data to save memory
-      asset.scene.traverse((node) => {
-        delete (node as any).geometry
-        delete (node as any).material
-      })
-      for (let i = 0; i < asset.animations.length; i++) {
-        retargetAnimationClip(asset.animations[i], asset.scene)
-      }
-      //ensure animations are always placed in the scene
-      asset.scene.animations = asset.animations
-      manager.loadedAnimations[animationFile].set(asset)
-    })
-  }
 }
 
 /**

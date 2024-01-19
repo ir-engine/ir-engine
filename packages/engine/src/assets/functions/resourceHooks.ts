@@ -36,6 +36,7 @@ function useLoader<T>(
   resourceType: ResourceType,
   entity: Entity = UndefinedEntity,
   params: LoadingArgs = {},
+  //Called when the asset url is changed, mostly useful for editor functions when changing an asset
   onUnload: (url: string) => void = (url: string) => {}
 ): [State<T | null>, () => void, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>] {
   const urlState = useHookstate<string>(url)
@@ -82,6 +83,50 @@ function useLoader<T>(
   return [value, unload, error, progress]
 }
 
+function useBatchLoader<T>(
+  urls: string[],
+  resourceType: ResourceType,
+  entity: Entity = UndefinedEntity,
+  params: LoadingArgs = {}
+): [State<T[]>, () => void, State<(ErrorEvent | Error)[]>, State<ProgressEvent<EventTarget>[]>] {
+  const values = useHookstate<T[]>([])
+  const errors = useHookstate<(ErrorEvent | Error)[]>([])
+  const progress = useHookstate<ProgressEvent<EventTarget>[]>([])
+
+  const unload = () => {
+    for (const url of urls) ResourceManager.unload(url, resourceType, entity)
+  }
+
+  useEffect(() => {
+    let unmounted = false
+
+    for (let i = 0; i < urls.length; i++) {
+      const url = urls[i]
+      ResourceManager.load(
+        url,
+        resourceType,
+        entity,
+        params,
+        (response) => {
+          if (!unmounted) values[i].set(response as T)
+        },
+        (request) => {
+          if (!unmounted) progress[i].set(request)
+        },
+        (err) => {
+          if (!unmounted) errors[i].set(err)
+        }
+      )
+    }
+
+    return () => {
+      unmounted = true
+    }
+  }, [JSON.stringify(urls)])
+
+  return [values, unload, errors, progress]
+}
+
 export function useGLTF(
   url: string,
   entity?: Entity,
@@ -89,6 +134,14 @@ export function useGLTF(
   onUnload?: (url: string) => void
 ): [State<GLTF | null>, () => void, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>] {
   return useLoader<GLTF>(url, ResourceType.GLTF, entity, params, onUnload)
+}
+
+export function useBatchGLTF(
+  urls: string[],
+  entity?: Entity,
+  params?: LoadingArgs
+): [State<GLTF[]>, () => void, State<(ErrorEvent | Error)[]>, State<ProgressEvent<EventTarget>[]>] {
+  return useBatchLoader<GLTF>(urls, ResourceType.GLTF, entity, params)
 }
 
 export function useTexture(

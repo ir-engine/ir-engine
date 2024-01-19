@@ -35,7 +35,7 @@ import {
 
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { VRM } from '@pixiv/three-vrm'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { useGLTF } from '../../assets/functions/resourceHooks'
 import { isClient } from '../../common/functions/getEnvironment'
 import {
   defineComponent,
@@ -215,30 +215,28 @@ export const LoopAnimationComponent = defineComponent({
       }
     }, [modelComponent?.asset])
 
+    const [gltf, unload] = useGLTF(loopAnimationComponent.animationPack.value, entity)
+
     useEffect(() => {
       const asset = modelComponent?.asset.get(NO_PROXY) ?? null
+      const model = gltf.value
       if (
-        !asset?.scene ||
+        !model ||
         !animComponent ||
+        !asset?.scene ||
         !loopAnimationComponent.animationPack.value ||
         lastAnimationPack.value === loopAnimationComponent.animationPack.value
       )
         return
 
-      let aborted = false
       animComponent.mixer.time.set(0)
-      AssetLoader.loadAsync(loopAnimationComponent.animationPack.value).then((model) => {
-        if (aborted) return
-        const animations = model.animations ?? model.scene.animations
-        for (let i = 0; i < animations.length; i++) retargetAnimationClip(animations[i], model.scene)
-        lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
-        animComponent.animations.set(animations)
-      })
+      const animations = model.animations ?? model.scene.animations
+      for (let i = 0; i < animations.length; i++) retargetAnimationClip(animations[i], model.scene)
+      lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
+      animComponent.animations.set(animations)
 
-      return () => {
-        aborted = true
-      }
-    }, [animComponent, loopAnimationComponent.animationPack])
+      return unload
+    }, [gltf, animComponent, loopAnimationComponent.animationPack])
 
     return null
   }

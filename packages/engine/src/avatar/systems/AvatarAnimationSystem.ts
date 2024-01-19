@@ -26,11 +26,20 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import {
+  NO_PROXY,
+  defineState,
+  getMutableState,
+  getState,
+  none,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
 
+import config from '@etherealengine/common/src/config'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { useBatchGLTF } from '../../assets/functions/resourceHooks'
 import { Q_X_90, Q_Y_180, V_001, V_010, V_100 } from '../../common/constants/MathConstants'
-import { isClient } from '../../common/functions/getEnvironment'
 import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -48,6 +57,7 @@ import { XRControlsState, XRState } from '../../xr/XRState'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
 import { AvatarHeadDecapComponent, AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
+import { AnimationState } from '../AnimationManager'
 import { IKSerialization } from '../IKSerialization'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
@@ -55,7 +65,7 @@ import { ikTargets, preloadedAnimations } from '../animation/Util'
 import { getArmIKHint } from '../animation/getArmIKHint'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
-import { loadBundledAnimations } from '../functions/avatarFunctions'
+import { retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 import { AnimationSystem } from './AnimationSystem'
 
@@ -337,11 +347,38 @@ const execute = () => {
 }
 
 const reactor = () => {
+  /**loads animation bundles. assumes the bundle is a glb */
+  const animations = [preloadedAnimations.locomotion, preloadedAnimations.emotes]
+  const [gltfs, unload] = useBatchGLTF(
+    animations.map((animationFile) => {
+      return `${config.client.fileServer}/projects/default-project/assets/animations/${animationFile}.glb`
+    })
+  )
+  const manager = useMutableState(AnimationState)
+
   useEffect(() => {
-    if (isClient) {
-      loadBundledAnimations([preloadedAnimations.locomotion, preloadedAnimations.emotes])
+    const assets = gltfs.get(NO_PROXY)
+    if (assets.length !== animations.length) return
+
+    for (let i = 0; i < assets.length; i++) {
+      const asset = assets[i]
+      // delete unneeded geometry data to save memory
+      asset.scene.traverse((node) => {
+        delete (node as any).geometry
+        delete (node as any).material
+      })
+      for (let i = 0; i < asset.animations.length; i++) {
+        retargetAnimationClip(asset.animations[i], asset.scene)
+      }
+      //ensure animations are always placed in the scene
+      asset.scene.animations = asset.animations
+      manager.loadedAnimations[animations[i]].set(asset)
     }
 
+    return unload
+  }, [gltfs])
+
+  useEffect(() => {
     const networkState = getMutableState(NetworkState)
 
     networkState.networkSchema[IKSerialization.ID].set({
