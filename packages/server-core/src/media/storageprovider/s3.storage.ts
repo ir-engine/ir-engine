@@ -412,7 +412,11 @@ export class S3Provider implements StorageProviderInterface {
   async createInvalidation(invalidationItems: string[]) {
     if (!invalidationItems || invalidationItems.length === 0) return
     // for non-standard s3 setups, we don't use cloudfront
-    if (config.server.storageProvider !== 's3-do' || config.aws.s3.s3DevMode === 'local') return
+    if (
+      (config.server.storageProvider !== 's3' && config.server.storageProvider !== 's3-do') ||
+      config.aws.s3.s3DevMode === 'local'
+    )
+      return
     const params = {
       DistributionId: config.aws.cloudfront.distributionId,
       InvalidationBatch: {
@@ -430,7 +434,11 @@ export class S3Provider implements StorageProviderInterface {
   }
 
   async getOriginURLs(): Promise<string[]> {
-    if (config.server.storageProvider !== 's3-do' || config.aws.s3.s3DevMode === 'local') return [this.cacheDomain]
+    if (
+      (config.server.storageProvider !== 's3-do' && config.server.storageProvider !== 's3') ||
+      config.aws.s3.s3DevMode === 'local'
+    )
+      return [this.cacheDomain]
     const getDistributionParams = {
       Id: config.aws.cloudfront.distributionId
     }
@@ -441,7 +449,7 @@ export class S3Provider implements StorageProviderInterface {
   }
 
   async listFunctions(marker: string | null, functions: FunctionSummary[]): Promise<FunctionSummary[]> {
-    if (config.server.storageProvider !== 's3-do') return []
+    if (config.server.storageProvider !== 's3-do' && config.server.storageProvider !== 's3-do') return []
     const params: ListFunctionsCommandInput = {
       MaxItems: MAX_ITEMS
     }
