@@ -29,9 +29,58 @@ import {
   NodeCategory,
   SocketsList,
   Variable,
+  makeEventNodeDefinition,
   makeFlowNodeDefinition,
   makeFunctionNodeDefinition
 } from '@behave-graph/core'
+import { uniqueId } from 'lodash'
+import { useEffect } from 'react'
+import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
+import { SystemUUID, defineSystem, destroySystem } from '../../../../../ecs/functions/SystemFunctions'
+
+export const EngineVariableGet = makeFunctionNodeDefinition({
+  typeName: 'engine/variable/get',
+  category: NodeCategory.Query,
+  label: 'Get',
+  configuration: {
+    variableName: {
+      valueType: 'string',
+      defaultValue: 'variable'
+    }
+  },
+  in: (configuration, graph) => {
+    const sockets: SocketsList = [
+      {
+        key: Object.keys(EngineVariableGet.configuration!).find((key) => key === 'variableName')!,
+        valueType: EngineVariableGet.configuration!.variableName?.valueType
+      }
+    ]
+    return sockets
+  },
+  out: (configuration, graph) => {
+    const variableId = Object.values(graph.variables).find((variable) => variable.name === configuration.variableName)
+      ?.id
+
+    const variable = variableId !== undefined ? graph.variables[variableId] : new Variable('-1', 'value', 'string', '')
+
+    const result: SocketsList = [
+      {
+        key: 'value',
+        valueType: variable.valueTypeName,
+        label: variable.name
+      }
+    ]
+
+    return result
+  },
+  exec: ({ read, write, graph: { variables }, configuration }) => {
+    const variableId = Object.values(variables).find((variable) => variable.name === read<string>('variableName'))?.id
+    const variable = variables[variableId!]
+    if (!variable) return
+    const value = variable.get()
+    write('value', value)
+  }
+})
 
 export const EngineVariableSet = makeFlowNodeDefinition({
   typeName: 'engine/variable/set',
@@ -76,16 +125,25 @@ export const EngineVariableSet = makeFlowNodeDefinition({
     const variable = variables[variableId!]
 
     if (!variable) return
-    const value = read('value')
-    variable.set(value)
+
+    variable.set(read('value'))
+
     commit('flow')
   }
 })
 
-export const EngineVariableGet = makeFunctionNodeDefinition({
-  typeName: 'engine/variable/get',
-  category: NodeCategory.Query,
-  label: 'Get',
+type State = {
+  systemUUID: SystemUUID
+}
+
+const initialState = (): State => ({
+  systemUUID: '' as SystemUUID
+})
+
+export const EngineVariableUse = makeEventNodeDefinition({
+  typeName: 'engine/variable/use',
+  category: NodeCategory.Event,
+  label: 'Use',
   configuration: {
     variableName: {
       valueType: 'string',
@@ -109,6 +167,10 @@ export const EngineVariableGet = makeFunctionNodeDefinition({
 
     const result: SocketsList = [
       {
+        key: 'valueChange',
+        valueType: 'flow'
+      },
+      {
         key: 'value',
         valueType: variable.valueTypeName,
         label: variable.name
@@ -117,13 +179,41 @@ export const EngineVariableGet = makeFunctionNodeDefinition({
 
     return result
   },
-  exec: ({ read, write, graph: { variables }, configuration }) => {
-    const variableId = Object.values(variables).find(
-      (variable) => variable.name === read(Object.keys(configuration).find((key) => key === 'variableName')!)
-    )?.id
-    const variable = variables[variableId!]
-    if (!variable) return
-    const value = variable.get()
-    write('value', value)
+  initialState: initialState(),
+  init: ({ read, commit, write, graph: { variables } }) => {
+    const variableId = Object.values(variables).find((variable) => variable.name === read<string>('variableName'))?.id
+    if (variableId === undefined) return initialState()
+    const variableValueQueue: any[] = [variables[variableId].get()]
+    const changeVariable = (variable) => {
+      variableValueQueue.unshift(variable.get())
+    }
+    const systemUUID = defineSystem({
+      uuid: `behave-graph-useVariable-${read<string>('variableName')}-` + uniqueId(),
+      insert: { with: InputSystemGroup },
+      execute: () => {
+        const value = variableValueQueue.pop()
+        if (value === undefined) return
+        write('value', value)
+        commit('valueChange')
+      },
+      reactor: () => {
+        useEffect(() => {
+          variables[variableId].onChanged.addListener(changeVariable)
+          return () => {
+            variables[variableId].onChanged.removeListener(changeVariable)
+          }
+        }, [])
+        return null
+      }
+    })
+
+    const state: State = {
+      systemUUID
+    }
+    return state
+  },
+  dispose: ({ state: { systemUUID }, graph: { variables } }) => {
+    destroySystem(systemUUID)
+    return initialState()
   }
 })

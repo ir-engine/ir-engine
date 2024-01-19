@@ -36,7 +36,8 @@ import {
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import {
   EngineVariableGet,
-  EngineVariableSet
+  EngineVariableSet,
+  EngineVariableUse
 } from '@etherealengine/engine/src/behave-graph/nodes/Profiles/Engine/Values/VariableNodes'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { useEffect, useState } from 'react'
@@ -58,20 +59,17 @@ export class NodeSpecGenerator {
 
     const generateCacheKey = () => {
       let cacheKey = nodeTypeName + '\x01' + JSON.stringify(configuration)
-      if (nodeTypeName === EngineVariableSet.typeName || nodeTypeName === EngineVariableGet.typeName) {
-        const variable = graphComponent.graph.variables?.find(
-          (variable) => variable.name === configuration.variableName
-        )
-        if (variable === undefined) return cacheKey
-        cacheKey = nodeTypeName + '\x01' + JSON.stringify(configuration) + '\x01' + variable.valueTypeName
-      }
+      if (!nodeTypeName.includes('variable')) return cacheKey
+      const variable = graphComponent.graph.variables?.find((variable) => variable.name === configuration.variableName)
+      if (variable === undefined) return cacheKey
+      cacheKey = nodeTypeName + '\x01' + JSON.stringify(configuration) + '\x01' + variable.valueTypeName
       return cacheKey
     }
 
     const cacheKey = generateCacheKey()
     if (!this.specsCache[cacheKey]) {
       const variableNodeAdjustSpec = () => {
-        if (nodeTypeName !== EngineVariableSet.typeName && nodeTypeName !== EngineVariableGet.typeName) return
+        if (!nodeTypeName.includes('variable')) return
         const variable = graphComponent.graph.variables?.find(
           (variable) => variable.name === configuration.variableName
         )
@@ -82,6 +80,7 @@ export class NodeSpecGenerator {
             sockets = specJson.inputs
             break
           }
+          case EngineVariableUse.typeName:
           case EngineVariableGet.typeName: {
             sockets = specJson.outputs
             break
@@ -99,6 +98,7 @@ export class NodeSpecGenerator {
             specJson.inputs = sockets
             break
           }
+          case EngineVariableUse.typeName:
           case EngineVariableGet.typeName: {
             specJson.outputs = sockets
             break
