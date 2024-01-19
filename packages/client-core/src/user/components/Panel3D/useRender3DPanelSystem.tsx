@@ -129,7 +129,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
     return () => {
       destroySystem(AvatarSelectRenderSystem)
       // todo - do we need to remove the system defintion?
-      //removeEntity(state.entity.value)
+      if (state.avatarEntity.value) removeEntity(state.avatarEntity.value)
       removeEntity(state.backLight.value)
       removeEntity(state.frontLight1.value)
       removeEntity(state.frontLight2.value)
