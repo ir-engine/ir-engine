@@ -83,7 +83,10 @@ cli.main(async () => {
     const putData = {
       Body: Buffer.from(JSON.stringify(filesToPrune)),
       ContentType: 'application/json',
-      Key: 'client/S3FilesToRemove.json'
+      Key: 'client/S3FilesToRemove.json',
+      Metadata: {
+        'Cache-Control': 'no-cache'
+      }
     }
     await storageProvider.putObject(putData, { isDirectory: false })
     await storageProvider.createInvalidation(['client/*'])
