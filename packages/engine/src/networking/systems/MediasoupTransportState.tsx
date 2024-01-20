@@ -139,11 +139,15 @@ export const MediasoupTransportState = defineState({
     const state = getMutableState(MediasoupTransportState)[networkID]
     if (!state) return
 
+    if (getState(MediasoupDataProducerConsumerState)[networkID]?.[transportID])
+      getMutableState(MediasoupDataProducerConsumerState)[networkID][transportID].set(none)
+
+    if (getState(MediasoupMediaProducerConsumerState)[networkID]?.[transportID])
+      getMutableState(MediasoupMediaProducerConsumerState)[networkID][transportID].set(none)
+
     const transport = state[transportID]
     if (!transport) return
 
-    getMutableState(MediasoupDataProducerConsumerState)[networkID][transportID].set(none)
-    getMutableState(MediasoupMediaProducerConsumerState)[networkID][transportID].set(none)
     transport.set(none)
 
     if (!state.keys.length) {
