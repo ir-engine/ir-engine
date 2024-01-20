@@ -31,7 +31,6 @@ import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
 import {
-  defineActionQueue,
   defineState,
   dispatchAction,
   getMutableState,
@@ -53,9 +52,8 @@ import { SimulationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { NetworkState } from '../NetworkState'
+import { NetworkUserState } from '../NetworkUserState'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { NetworkPeerFunctions } from '../functions/NetworkPeerFunctions'
 
 export const EntityNetworkState = defineState({
   name: 'ee.EntityNetworkState',
@@ -107,8 +105,13 @@ export const EntityNetworkState = defineState({
 
 const EntityNetworkReactor = memo((props: { uuid: EntityUUID }) => {
   const state = useHookstate(getMutableState(EntityNetworkState)[props.uuid])
+  const ownerID = state.ownerId.value
+  const userConnected =
+    !!useHookstate(getMutableState(NetworkUserState)[ownerID]).value || ownerID === Engine.instance.userID
 
   useEffect(() => {
+    if (!userConnected) return
+
     const entity = UUIDComponent.getOrCreateEntityByUUID(props.uuid)
     const sceneState = getState(SceneState)
     if (!sceneState.activeScene) {
@@ -127,19 +130,20 @@ const EntityNetworkReactor = memo((props: { uuid: EntityUUID }) => {
     return () => {
       removeEntity(entity)
     }
-  }, [])
+  }, [userConnected])
 
   useEffect(() => {
+    if (!userConnected) return
     const entity = UUIDComponent.getEntityByUUID(props.uuid)
     setComponent(entity, NetworkObjectComponent, {
       ownerId: state.ownerId.value,
       authorityPeerID: state.authorityPeerId.value,
       networkId: state.networkId.value
     })
-  }, [state.ownerId, state.authorityPeerId, state.networkId])
+  }, [userConnected, state.ownerId, state.authorityPeerId, state.networkId])
 
   useEffect(() => {
-    if (!state.requestingPeerId.value) return
+    if (!userConnected || !state.requestingPeerId.value) return
     // Authority request can only be processed by owner
     if (state.ownerId.value !== Engine.instance.userID) return
     dispatchAction(
@@ -148,22 +152,10 @@ const EntityNetworkReactor = memo((props: { uuid: EntityUUID }) => {
         newAuthority: state.requestingPeerId.value
       })
     )
-  }, [state.requestingPeerId])
+  }, [userConnected, state.requestingPeerId])
 
   return null
 })
-
-const worldDestroyActionQueue = defineActionQueue(WorldNetworkAction.destroyObject.matches)
-
-const execute = () => {
-  if (!NetworkState.worldNetwork?.isHosting) return
-
-  /** When a user disconnects, remove their actions from history */
-  for (const action of worldDestroyActionQueue()) {
-    NetworkPeerFunctions.clearCachedActionsForUser(action.entityUUID as any as UserID)
-    NetworkPeerFunctions.clearActionsHistoryForUser(action.entityUUID as any as UserID)
-  }
-}
 
 const reactor = () => {
   const state = useMutableState(EntityNetworkState)
@@ -178,7 +170,6 @@ const reactor = () => {
 
 export const EntityNetworkStateSystem = defineSystem({
   uuid: 'ee.networking.EntityNetworkStateSystem',
-  execute,
   reactor,
   insert: { with: SimulationSystemGroup }
 })

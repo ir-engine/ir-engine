@@ -230,7 +230,7 @@ export const useNetwork = (props: { online?: boolean }) => {
   useEffect(() => {
     getMutableState(NetworkState).config.set({
       world: !!props.online,
-      media: false, //!!props.online,
+      media: !!props.online,
       friends: !!props.online,
       instanceID: !!props.online,
       roomID: false
