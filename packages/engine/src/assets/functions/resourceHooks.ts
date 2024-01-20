@@ -29,9 +29,9 @@ import { Texture } from 'three'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { LoadingArgs } from '../classes/AssetLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
-import { ResourceManager, ResourceType } from '../state/ResourceState'
+import { AssetType, ResourceManager, ResourceType } from '../state/ResourceState'
 
-function useLoader<T>(
+function useLoader<T extends AssetType>(
   url: string,
   resourceType: ResourceType,
   entity: Entity = UndefinedEntity,
@@ -45,14 +45,14 @@ function useLoader<T>(
   const progress = useHookstate<ProgressEvent<EventTarget> | null>(null)
 
   const unload = () => {
-    ResourceManager.unload(url, resourceType, entity)
+    ResourceManager.unload(url, entity)
   }
 
   useEffect(() => {
     let unmounted = false
     if (url !== urlState.value) {
       if (urlState.value) {
-        ResourceManager.unload(urlState.value, resourceType, entity)
+        ResourceManager.unload(urlState.value, entity)
         value.set(null)
         progress.set(null)
         error.set(null)
@@ -61,13 +61,13 @@ function useLoader<T>(
       urlState.set(url)
     }
     if (!url) return
-    ResourceManager.load(
+    ResourceManager.load<T>(
       url,
       resourceType,
       entity,
       params,
       (response) => {
-        if (!unmounted) value.set(response as T)
+        if (!unmounted) value.set(response)
       },
       (request) => {
         if (!unmounted) progress.set(request)
@@ -85,7 +85,7 @@ function useLoader<T>(
   return [value, unload, error, progress]
 }
 
-function useBatchLoader<T>(
+function useBatchLoader<T extends AssetType>(
   urls: string[],
   resourceType: ResourceType,
   entity: Entity = UndefinedEntity,
@@ -96,7 +96,7 @@ function useBatchLoader<T>(
   const progress = useHookstate<ProgressEvent<EventTarget>[]>([])
 
   const unload = () => {
-    for (const url of urls) ResourceManager.unload(url, resourceType, entity)
+    for (const url of urls) ResourceManager.unload(url, entity)
   }
 
   useEffect(() => {
@@ -104,13 +104,13 @@ function useBatchLoader<T>(
 
     for (let i = 0; i < urls.length; i++) {
       const url = urls[i]
-      ResourceManager.load(
+      ResourceManager.load<T>(
         url,
         resourceType,
         entity,
         params,
         (response) => {
-          if (!unmounted) values[i].set(response as T)
+          if (!unmounted) values[i].set(response)
         },
         (request) => {
           if (!unmounted) progress[i].set(request)

@@ -74,7 +74,9 @@ type BaseMetadata = {
 
 type GLTFMetadata = BaseMetadata
 
-type TexutreMetadata = BaseMetadata
+type TexutreMetadata = {
+  onGPU: boolean
+} & BaseMetadata
 
 type Metadata = GLTFMetadata | TexutreMetadata
 
@@ -84,7 +86,6 @@ type Resource = {
   references: Entity[]
   assetRef?: AssetType
   metadata: Metadata
-  onGPU: boolean
 }
 
 export const ResourceState = defineState({
@@ -129,12 +130,12 @@ const Callbacks = {
   }
 }
 
-const load = (
+const load = <T extends AssetType>(
   url: string,
   resourceType: ResourceType,
   entity: Entity,
   args: LoadingArgs,
-  onLoad: (response: AssetType) => void,
+  onLoad: (response: T) => void,
   onProgress: (request: ProgressEvent) => void,
   onError: (event: ErrorEvent | Error) => void
 ) => {
@@ -146,8 +147,7 @@ const load = (
         status: ResourceStatus.Unloaded,
         type: resourceType,
         references: [entity],
-        metadata: {},
-        onGPU: false
+        metadata: {}
       }
     })
   } else {
@@ -160,7 +160,7 @@ const load = (
   AssetLoader.load(
     url,
     args,
-    (response) => {
+    (response: T) => {
       resource.status.set(ResourceStatus.Loaded)
       resource.assetRef.set(response)
       callback?.onLoad(response, resource)
@@ -179,7 +179,7 @@ const load = (
   )
 }
 
-const unload = (url: string, resourceType: ResourceType, entity: Entity) => {
+const unload = (url: string, entity: Entity) => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
   if (!resources[url].value) {
