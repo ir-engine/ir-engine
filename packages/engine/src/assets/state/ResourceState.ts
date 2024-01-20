@@ -108,6 +108,7 @@ const getCurrentSizeOfResources = () => {
 
 const Callbacks = {
   [ResourceType.GLTF]: {
+    onStart: (resource: State<Resource>) => {},
     onLoad: (response: GLTF, resource: State<Resource>) => {},
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {
       resource.metadata.size.set(request.total)
@@ -115,6 +116,9 @@ const Callbacks = {
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {}
   },
   [ResourceType.Texture]: {
+    onStart: (resource: State<Resource>) => {
+      resource.metadata.merge({ onGPU: false })
+    },
     onLoad: (response: Texture, resource: State<Resource>) => {
       if (response.mipmaps[0]) {
         resource.metadata.size.set(response.mipmaps[0].data.length)
@@ -155,25 +159,26 @@ const load = <T extends AssetType>(
   }
 
   const resource = resources[url]
-  const callback = Callbacks[resourceType]
+  const callbacks = Callbacks[resourceType]
   console.log('Resource Manager Loading Asset at: ' + url)
+  callbacks.onStart()
   AssetLoader.load(
     url,
     args,
     (response: T) => {
       resource.status.set(ResourceStatus.Loaded)
       resource.assetRef.set(response)
-      callback?.onLoad(response, resource)
+      callbacks.onLoad(response, resource)
       onLoad(response)
     },
     (request) => {
       resource.status.set(ResourceStatus.Loading)
-      callback?.onProgress(request, resource)
+      callbacks.onProgress(request, resource)
       onProgress(request)
     },
     (error) => {
       resource.status.set(ResourceStatus.Error)
-      callback?.onError(error, resource)
+      callbacks.onError(error, resource)
       onError(error)
     }
   )
