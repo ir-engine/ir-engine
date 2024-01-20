@@ -407,8 +407,9 @@ const _updateCachedActions = (incomingAction: Required<ResolvedActionType>) => {
       if (!incomingAction.$cache.disable) {
         cachedActions.push(incomingAction)
         if (incomingAction.$network) {
-          const topicCached = HyperFlux.store.actions.outgoing[incomingAction.$network]?.cached
-          if (topicCached) topicCached.push(incomingAction)
+          addOutgoingTopicIfNecessary(incomingAction.$network)
+          const topicCached = HyperFlux.store.actions.outgoing[incomingAction.$network].cached
+          topicCached.push(incomingAction)
         }
       }
     }

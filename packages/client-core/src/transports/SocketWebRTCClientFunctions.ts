@@ -419,7 +419,7 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
   for (const action of cachedActions!) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
 
   Engine.instance.store.actions.outgoing[network.topic].queue.push(
-    ...Engine.instance.store.actions.outgoing[network.topic].cached
+    ...Engine.instance.store.actions.outgoing[network.topic].history
   )
 
   const isWorldConnection = network.topic === NetworkTopics.world
