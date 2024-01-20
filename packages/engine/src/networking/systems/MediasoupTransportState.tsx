@@ -150,6 +150,9 @@ export const MediasoupTransportState = defineState({
 
     transport.set(none)
 
+    getState(MediasoupTransportObjectsState)[transportID].close()
+    getMutableState(MediasoupTransportObjectsState)[transportID].set(none)
+
     if (!state.keys.length) {
       state.set(none)
     }

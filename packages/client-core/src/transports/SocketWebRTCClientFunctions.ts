@@ -168,9 +168,8 @@ export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
   networkState.connected.set(false)
   networkState.authenticated.set(false)
   networkState.ready.set(false)
-  getMutableState(MediasoupTransportState)[network.id].set(none)
-  getMutableState(MediasoupMediaProducersConsumersObjectsState)[network.id].set(none)
-  getMutableState(MediasoupDataProducerConsumerState)[network.id].set(none)
+  for (const transportID of Object.keys(getState(MediasoupTransportState)[network.id]))
+    MediasoupTransportState.removeTransport(network.id, transportID)
   network.transport.heartbeat && clearInterval(network.transport.heartbeat)
   network.transport.primus?.end()
   network.transport.primus?.removeAllListeners()
@@ -178,9 +177,8 @@ export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
 }
 
 export const closeNetworkTransport = (network: SocketWebRTCClientNetwork) => {
-  getMutableState(MediasoupTransportState)[network.id].set(none)
-  getMutableState(MediasoupMediaProducersConsumersObjectsState)[network.id].set(none)
-  getMutableState(MediasoupDataProducerConsumerState)[network.id].set(none)
+  for (const transportID of Object.keys(getState(MediasoupTransportState)[network.id]))
+    MediasoupTransportState.removeTransport(network.id, transportID)
   network.transport.heartbeat && clearInterval(network.transport.heartbeat)
   network.transport.primus?.end()
   network.transport.primus?.removeAllListeners()
