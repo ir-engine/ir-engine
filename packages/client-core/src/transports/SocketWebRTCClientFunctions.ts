@@ -738,26 +738,26 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
           channelId
         })
         // ensure the network still exists and we want to re-create the transport
-        // if (
-        //   !getState(NetworkState).networks[network.id] ||
-        //   !network.transport.primus ||
-        //   network.transport.primus.disconnect
-        // )
-        //   return
+        if (
+          !getState(NetworkState).networks[network.id] ||
+          !network.transport.primus ||
+          network.transport.primus.disconnect
+        )
+          return
 
-        // const transportID = MediasoupTransportState.getTransport(network.id, direction, Engine.instance.peerID)
-        // getMutableState(MediasoupTransportState)[network.id][transportID].set(none)
+        const transportID = MediasoupTransportState.getTransport(network.id, direction, Engine.instance.peerID)
+        getMutableState(MediasoupTransportState)[network.id][transportID].set(none)
 
-        // dispatchAction(
-        //   MediasoupTransportActions.requestTransport({
-        //     peerID: Engine.instance.peerID,
-        //     direction,
-        //     sctpCapabilities: network.transport.mediasoupDevice.sctpCapabilities,
-        //     $network: network.id,
-        //     $topic: network.topic,
-        //     $to: network.hostPeerID
-        //   })
-        // )
+        dispatchAction(
+          MediasoupTransportActions.requestTransport({
+            peerID: Engine.instance.peerID,
+            direction,
+            sctpCapabilities: network.transport.mediasoupDevice.sctpCapabilities,
+            $network: network.id,
+            $topic: network.topic,
+            $to: network.hostPeerID
+          })
+        )
       }, 5000)
     }
   })
