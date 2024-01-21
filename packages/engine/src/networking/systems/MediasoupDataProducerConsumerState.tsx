@@ -65,14 +65,12 @@ export class MediasoupDataProducerActions {
     protocol: matches.string,
     sctpStreamParameters: matches.object as Validator<unknown, any>,
     dataChannel: matches.string as Validator<unknown, DataChannelType>,
-    appData: matches.object as Validator<unknown, any>,
-    $cache: true
+    appData: matches.object as Validator<unknown, any>
   })
 
   static producerClosed = defineAction({
     type: 'ee.engine.network.mediasoup.DATA_CLOSED_PRODUCER',
-    producerID: matches.string,
-    $cache: true
+    producerID: matches.string
   })
 }
 

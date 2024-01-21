@@ -349,13 +349,12 @@ export const dispatchAction = <A extends Action>(action: A) => {
   addOutgoingTopicIfNecessary(topic)
 }
 
-export function addOutgoingTopicIfNecessary(topic: string) {
+export function addOutgoingTopicIfNecessary(topic: Topic) {
   if (!HyperFlux.store.actions.outgoing[topic]) {
     logger.info(`Added topic ${topic}`)
     HyperFlux.store.actions.outgoing[topic] = {
       queue: [],
       history: [],
-      cached: [],
       forwardedUUIDs: new Set()
     }
   }
@@ -377,11 +376,6 @@ const _updateCachedActions = (incomingAction: Required<ResolvedActionType>) => {
             if (remove === true) {
               const idx = cachedActions.indexOf(a)
               cachedActions.splice(idx, 1)
-              if (incomingAction.$network) {
-                const topicCached = HyperFlux.store.actions.outgoing[incomingAction.$network].cached
-                const idx = topicCached.indexOf(a)
-                topicCached.splice(idx, 1)
-              }
             } else {
               let matches = true
               for (const key of remove) {
@@ -393,11 +387,6 @@ const _updateCachedActions = (incomingAction: Required<ResolvedActionType>) => {
               if (matches) {
                 const idx = cachedActions.indexOf(a)
                 cachedActions.splice(idx, 1)
-                if (incomingAction.$network) {
-                  const topicCached = HyperFlux.store.actions.outgoing[incomingAction.$network].cached
-                  const idx = topicCached.indexOf(a)
-                  topicCached.splice(idx, 1)
-                }
               }
             }
           }
@@ -406,11 +395,6 @@ const _updateCachedActions = (incomingAction: Required<ResolvedActionType>) => {
 
       if (!incomingAction.$cache.disable) {
         cachedActions.push(incomingAction)
-        if (incomingAction.$network) {
-          addOutgoingTopicIfNecessary(incomingAction.$network)
-          const topicCached = HyperFlux.store.actions.outgoing[incomingAction.$network].cached
-          topicCached.push(incomingAction)
-        }
       }
     }
   }
@@ -516,8 +500,8 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
 }
 
 const _forwardIfNecessary = (action: Required<ResolvedActionType>) => {
+  addOutgoingTopicIfNecessary(action.$topic)
   if (HyperFlux.store.peerID === action.$peer || HyperFlux.store.forwardingTopics.has(action.$topic)) {
-    addOutgoingTopicIfNecessary(action.$topic)
     const outgoingActions = HyperFlux.store.actions.outgoing[action.$topic]
     if (outgoingActions.forwardedUUIDs.has(action.$uuid)) return
     outgoingActions.queue.push(action)
@@ -550,7 +534,7 @@ export const applyIncomingActions = () => {
  */
 export const clearOutgoingActions = (topic: Topic) => {
   if (!HyperFlux.store.actions.outgoing[topic]) return
-  const { queue, history, cached, forwardedUUIDs } = HyperFlux.store.actions.outgoing[topic]
+  const { queue, history, forwardedUUIDs } = HyperFlux.store.actions.outgoing[topic]
   for (const action of queue) {
     history.push(action)
     forwardedUUIDs.add(action.$uuid)
