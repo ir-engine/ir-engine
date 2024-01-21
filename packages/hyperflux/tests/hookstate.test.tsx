@@ -78,7 +78,7 @@ describe('hookstate reactivity', () => {
       unmount()
     })
 
-    it('should not re-render a useEffect if value mutable state is set to its current value and proxy is used but .value is not called', async () => {
+    it('should not re-render a useEffect if value mutable state is set to its current value and proxy is used and .value is called', async () => {
       const TestState = defineState({
         name: 'test.state.' + testID++,
         initial: () => ({
@@ -215,7 +215,7 @@ describe('hookstate reactivity', () => {
       unmount()
     })
 
-    it('should not re-render a useEffect if value mutable state is set to its current value and .get(NO_PROXY_STEALTH) is used', async () => {
+    it('should not re-render a useEffect if value mutable state is set to its current value or a different value and .get(NO_PROXY_STEALTH) is used', async () => {
       const TestState = defineState({
         name: 'test.state.' + testID++,
         initial: () => ({
@@ -399,7 +399,7 @@ describe('hookstate reactivity', () => {
       unmount()
     })
 
-    it('should not re-render a useEffect if object mutable state is set to its current value and .get(NO_PROXY) is used', async () => {
+    it('should not re-render a useEffect if object mutable state is set to its current value and .get(NO_PROXY) is used, even if .value is used elsewhere', async () => {
       const TestState = defineState({
         name: 'test.state.' + testID++,
         initial: () => ({
@@ -416,6 +416,8 @@ describe('hookstate reactivity', () => {
 
       const Reactor = function () {
         const state = useHookstate(getMutableState(TestState).test)
+        // reference value
+        state.value
         useEffect(() => {
           count++
         }, [state.get(NO_PROXY)])
@@ -491,7 +493,7 @@ describe('hookstate reactivity', () => {
   })
 
   describe('nested mutable state reactivity with set', () => {
-    it('should not re-render a useEffect if nested value mutable state is set to without value changing and value is used', async () => {
+    it('should re-render a useEffect if nested value mutable state is set to without value changing and value is used', async () => {
       const TestState = defineState({
         name: 'test.state.' + testID++,
         initial: () => ({
@@ -685,7 +687,7 @@ describe('hookstate reactivity', () => {
   })
 
   describe('nested mutable state reactivity with merge', () => {
-    it('should not re-render a useEffect if nested value mutable state is merged to without value changing and value is used', async () => {
+    it('should re-render a useEffect if nested value mutable state is merged to without value changing and value is used', async () => {
       const TestState = defineState({
         name: 'test.state.' + testID++,
         initial: () => ({
