@@ -35,7 +35,6 @@ import {
 	ColorManagement,
 	DirectionalLight,
 	DoubleSide,
-	FileLoader,
 	FrontSide,
 	Group,
 	ImageBitmapLoader,
@@ -53,7 +52,6 @@ import {
 	LinearMipmapLinearFilter,
 	LinearMipmapNearestFilter,
 	LinearSRGBColorSpace,
-	Loader,
 	LoaderUtils,
 	Material,
 	MathUtils,
@@ -92,6 +90,9 @@ import {
 	SRGBColorSpace,
 	InstancedBufferAttribute
 } from 'three';
+
+import { FileLoader } from '../base/FileLoader';
+import { Loader } from '../base/Loader';
 
 /**
  * @param {BufferGeometry} geometry
@@ -307,7 +308,7 @@ class GLTFLoader extends Loader {
 
 	}
 
-	load( url, onLoad, onProgress, onError ) {
+	load( url, onLoad, onProgress, onError, signal ) {
 
 		const scope = this;
 
@@ -374,7 +375,7 @@ class GLTFLoader extends Loader {
 
 			}
 
-		}, onProgress, _onError );
+		}, onProgress, _onError, signal );
 
 	}
 

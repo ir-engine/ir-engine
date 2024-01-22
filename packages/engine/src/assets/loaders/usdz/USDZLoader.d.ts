@@ -34,7 +34,7 @@ export class USDAParser {
 export class USDZLoader extends Loader {
     register(plugin: USDZLoaderPlugin): void
     unregister(plugin: USDZLoaderPlugin): void
-    load(url: string, onLoad: (result) => void, onProgress: (progress) => void, onError: (error) => void): void
+    load(url: string, onLoad: (result) => void, onProgress: (progress) => void, onError: (error) => void, signal?: AbortSignal): void
     parse(buffer: string, onLoad: (result) => void): object
 }
 

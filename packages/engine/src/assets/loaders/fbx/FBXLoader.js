@@ -99,7 +99,7 @@ class FBXLoader extends Loader {
 
 	}
 
-	load( url, onLoad, onProgress, onError ) {
+	load( url, onLoad, onProgress, onError, signal ) {
 
 		const scope = this;
 
@@ -133,7 +133,7 @@ class FBXLoader extends Loader {
 
 			}
 
-		}, onProgress, onError );
+		}, onProgress, onError, signal );
 
 	}
 

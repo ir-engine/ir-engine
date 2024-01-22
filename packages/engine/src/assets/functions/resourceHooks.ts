@@ -31,6 +31,16 @@ import { LoadingArgs } from '../classes/AssetLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { AssetType, ResourceManager, ResourceType } from '../state/ResourceState'
 
+function getAbortController(url: string, callback: () => void): AbortController {
+  const controller = new AbortController()
+  controller.signal.onabort = (event) => {
+    console.warn('resourceHook: Aborted resource fetch for url: ' + url, event)
+    callback()
+  }
+
+  return controller
+}
+
 function useLoader<T extends AssetType>(
   url: string,
   resourceType: ResourceType,
@@ -49,7 +59,6 @@ function useLoader<T extends AssetType>(
   }
 
   useEffect(() => {
-    let unmounted = false
     if (url !== urlState.value) {
       if (urlState.value) {
         ResourceManager.unload(urlState.value, entity)
@@ -60,6 +69,10 @@ function useLoader<T extends AssetType>(
       }
       urlState.set(url)
     }
+
+    const controller = getAbortController(url, unload)
+    let completed = false
+
     if (!url) return
     ResourceManager.load<T>(
       url,
@@ -67,18 +80,22 @@ function useLoader<T extends AssetType>(
       entity,
       params,
       (response) => {
-        if (!unmounted) value.set(response)
+        completed = true
+        value.set(response)
       },
       (request) => {
-        if (!unmounted) progress.set(request)
+        completed = true
+        progress.set(request)
       },
       (err) => {
-        if (!unmounted) error.set(err)
-      }
+        completed = true
+        error.set(err)
+      },
+      controller.signal
     )
 
     return () => {
-      unmounted = true
+      if (!completed) controller.abort()
     }
   }, [url])
 
@@ -100,7 +117,8 @@ function useBatchLoader<T extends AssetType>(
   }
 
   useEffect(() => {
-    let unmounted = false
+    const completedArr = new Array(urls.length).fill(false) as boolean[]
+    const controller = getAbortController(urls.toString(), unload)
 
     for (let i = 0; i < urls.length; i++) {
       const url = urls[i]
@@ -110,19 +128,28 @@ function useBatchLoader<T extends AssetType>(
         entity,
         params,
         (response) => {
-          if (!unmounted) values[i].set(response)
+          completedArr[i] = true
+          values[i].set(response)
         },
         (request) => {
-          if (!unmounted) progress[i].set(request)
+          completedArr[i] = true
+          progress[i].set(request)
         },
         (err) => {
-          if (!unmounted) errors[i].set(err)
-        }
+          completedArr[i] = true
+          errors[i].set(err)
+        },
+        controller.signal
       )
     }
 
     return () => {
-      unmounted = true
+      for (const completed of completedArr) {
+        if (!completed) {
+          controller.abort()
+          return
+        }
+      }
     }
   }, [JSON.stringify(urls)])
 

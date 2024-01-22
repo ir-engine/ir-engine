@@ -45,7 +45,6 @@ import {
 	Data3DTexture,
 	DataTexture,
 	DisplayP3ColorSpace,
-	FileLoader,
 	FloatType,
 	HalfFloatType,
 	NoColorSpace,
@@ -53,7 +52,6 @@ import {
 	LinearMipmapLinearFilter,
 	LinearDisplayP3ColorSpace,
 	LinearSRGBColorSpace,
-	Loader,
 	RedFormat,
 	RGB_ETC1_Format,
 	RGB_ETC2_Format,
@@ -99,6 +97,8 @@ import {
 import { ZSTDDecoder } from './zstddec.module.js';
 import WebWorker from 'web-worker'
 import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
+import { FileLoader } from '../base/FileLoader';
+import { Loader } from '../base/Loader';
 
 const _taskCache = new WeakMap();
 
@@ -257,7 +257,7 @@ class KTX2Loader extends Loader {
 
 	}
 
-	load( url, onLoad, onProgress, onError ) {
+	load( url, onLoad, onProgress, onError, signal ) {
 
 		if ( this.workerConfig === null ) {
 
@@ -286,7 +286,7 @@ class KTX2Loader extends Loader {
 				.then( ( texture ) => onLoad ? onLoad( texture ) : null )
 				.catch( onError );
 
-		}, onProgress, onError );
+		}, onProgress, onError, signal );
 
 	}
 

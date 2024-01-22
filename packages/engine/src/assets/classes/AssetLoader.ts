@@ -380,7 +380,8 @@ const load = async (
   args: LoadingArgs,
   onLoad = (response: any) => {},
   onProgress = (request: ProgressEvent) => {},
-  onError = (event: ErrorEvent | Error) => {}
+  onError = (event: ErrorEvent | Error) => {},
+  signal?: AbortSignal
 ) => {
   if (!_url) {
     onError(new Error('URL is empty'))
@@ -431,7 +432,7 @@ const load = async (
   const callback = assetLoadCallback(url, args, assetType, onLoad)
 
   try {
-    return loader.load(url, callback, onProgress, onError)
+    return loader.load(url, callback, onProgress, onError, signal)
   } catch (error) {
     onError(error)
   }

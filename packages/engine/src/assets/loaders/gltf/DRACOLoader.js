@@ -75,7 +75,7 @@ class DRACOLoader extends Loader {
     return this
   }
 
-  load(url, onLoad, onProgress, onError) {
+  load(url, onLoad, onProgress, onError, signal) {
     const loader = new FileLoader(this.manager)
 
     loader.setPath(this.path)
@@ -95,7 +95,8 @@ class DRACOLoader extends Loader {
         this.decodeGeometry(buffer, taskConfig).then(onLoad).catch(onError)
       },
       onProgress,
-      onError
+      onError,
+      signal
     )
   }
 

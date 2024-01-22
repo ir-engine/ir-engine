@@ -132,6 +132,13 @@ const Callbacks = {
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {}
   }
+} as {
+  [key in ResourceType]: {
+    onStart: (resource: State<Resource>) => void
+    onLoad: (response: AssetType, resource: State<Resource>) => void
+    onProgress: (request: ProgressEvent, resource: State<Resource>) => void
+    onError: (event: ErrorEvent | Error, resource: State<Resource>) => void
+  }
 }
 
 const load = <T extends AssetType>(
@@ -141,7 +148,8 @@ const load = <T extends AssetType>(
   args: LoadingArgs,
   onLoad: (response: T) => void,
   onProgress: (request: ProgressEvent) => void,
-  onError: (event: ErrorEvent | Error) => void
+  onError: (event: ErrorEvent | Error) => void,
+  signal: AbortSignal
 ) => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
@@ -161,7 +169,7 @@ const load = <T extends AssetType>(
   const resource = resources[url]
   const callbacks = Callbacks[resourceType]
   console.log('Resource Manager Loading Asset at: ' + url)
-  callbacks.onStart()
+  callbacks.onStart(resource)
   AssetLoader.load(
     url,
     args,
@@ -180,7 +188,8 @@ const load = <T extends AssetType>(
       resource.status.set(ResourceStatus.Error)
       callbacks.onError(error, resource)
       onError(error)
-    }
+    },
+    signal
   )
 }
 
@@ -188,7 +197,7 @@ const unload = (url: string, entity: Entity) => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
   if (!resources[url].value) {
-    console.error('ResourceManager:unload No resource exists for url: ' + url)
+    console.warn('ResourceManager:unload No resource exists for url: ' + url)
     return
   }
 
@@ -211,7 +220,7 @@ const removeResource = (url: string) => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
   if (!resources[url].value) {
-    console.error('ResourceManager:removeResource No resource exists for url: ' + url)
+    console.warn('ResourceManager:removeResource No resource exists for url: ' + url)
     return
   }
 
