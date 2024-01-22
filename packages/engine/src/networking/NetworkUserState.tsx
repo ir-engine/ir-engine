@@ -83,8 +83,8 @@ const reactor = () => {
   )
 }
 
-export const NetworkUserStateSystem = defineSystem({
-  uuid: 'ee.networking.NetworkUserStateSystem',
+export const NetworkWorldUserStateSystem = defineSystem({
+  uuid: 'ee.networking.NetworkWorldUserStateSystem',
   reactor,
   insert: { with: SimulationSystemGroup }
 })

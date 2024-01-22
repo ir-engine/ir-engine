@@ -29,9 +29,9 @@ import React, { useEffect } from 'react'
 
 import { NO_PROXY, NO_PROXY_STEALTH, createHyperStore, defineState, getMutableState, none, useHookstate } from '..'
 
-describe('hookstate reactivity', () => {
-  let testID = 0
+let testID = 0
 
+describe('hookstate reactivity', () => {
   describe('value mutable state reactivity', () => {
     it('should not re-render a useEffect if value mutable state is set to its current value and proxy is used but .value is not called', async () => {
       const TestState = defineState({
@@ -886,8 +886,6 @@ describe('hookstate reactivity', () => {
 })
 
 describe('hookstate nested reactivity', () => {
-  let testID = 0
-
   describe('nested reactor mutable state reactivity', () => {
     it('should not re-render a sub reactor if a sibling state changes', async () => {
       const TestState = defineState({
