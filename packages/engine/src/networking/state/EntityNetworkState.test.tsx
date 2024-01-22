@@ -53,6 +53,7 @@ import { NetworkState } from '../NetworkState'
 import { act, render } from '@testing-library/react'
 import React from 'react'
 import { SystemDefinitions } from '../../ecs/functions/SystemFunctions'
+import { NetworkWorldUserStateSystem } from '../NetworkUserState'
 import { EntityNetworkStateSystem } from './EntityNetworkState'
 describe('EntityNetworkState', () => {
   beforeEach(async () => {
@@ -68,8 +69,14 @@ describe('EntityNetworkState', () => {
     return destroyEngine()
   })
 
-  const Reactor = SystemDefinitions.get(EntityNetworkStateSystem)!.reactor!
-  const tag = <Reactor />
+  const EntityNetworkStateSystemReactor = SystemDefinitions.get(EntityNetworkStateSystem)!.reactor!
+  const NetworkWorldUserStateSystemReactor = SystemDefinitions.get(NetworkWorldUserStateSystem)!.reactor!
+  const tag = (
+    <>
+      <EntityNetworkStateSystemReactor />
+      <NetworkWorldUserStateSystemReactor />
+    </>
+  )
 
   describe('spawnObject', () => {
     it('should spawn object owned by host', async () => {

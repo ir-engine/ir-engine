@@ -46,12 +46,14 @@ import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { setComponent } from '../../ecs/functions/ComponentFunctions'
+import { getOptionalComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { SimulationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { NetworkState, SceneUser } from '../NetworkState'
+import { NetworkWorldUserState } from '../NetworkUserState'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
 export const EntityNetworkState = defineState({
@@ -60,7 +62,7 @@ export const EntityNetworkState = defineState({
   initial: {} as Record<
     EntityUUID,
     {
-      ownerId: UserID
+      ownerId: UserID | typeof SceneUser
       networkId: NetworkId
       authorityPeerId: PeerID
       requestingPeerId?: PeerID
@@ -104,8 +106,14 @@ export const EntityNetworkState = defineState({
 
 const EntityNetworkReactor = memo((props: { uuid: EntityUUID }) => {
   const state = useHookstate(getMutableState(EntityNetworkState)[props.uuid])
+  const ownerID = state.ownerId.value
+  const userConnected =
+    !!useHookstate(getMutableState(NetworkWorldUserState)[ownerID]).value || ownerID === Engine.instance.userID
+  const isWorldNetworkConnected = !!useHookstate(NetworkState.worldNetworkState).value
 
   useEffect(() => {
+    if (!userConnected) return
+
     const entity = UUIDComponent.getOrCreateEntityByUUID(props.uuid)
     const sceneState = getState(SceneState)
     if (!sceneState.activeScene) {
@@ -124,43 +132,54 @@ const EntityNetworkReactor = memo((props: { uuid: EntityUUID }) => {
     return () => {
       removeEntity(entity)
     }
-  }, [])
+  }, [userConnected])
 
   useEffect(() => {
+    if (!userConnected) return
     const entity = UUIDComponent.getEntityByUUID(props.uuid)
     setComponent(entity, NetworkObjectComponent, {
-      ownerId: state.ownerId.value,
+      ownerId:
+        ownerID === SceneUser
+          ? isWorldNetworkConnected
+            ? NetworkState.worldNetwork.hostId
+            : Engine.instance.userID
+          : ownerID,
       authorityPeerID: state.authorityPeerId.value,
       networkId: state.networkId.value
     })
-  }, [state.ownerId, state.authorityPeerId, state.networkId])
+  }, [isWorldNetworkConnected, userConnected, state.ownerId, state.authorityPeerId, state.networkId])
 
   useEffect(() => {
-    if (!state.requestingPeerId.value) return
+    if (!userConnected || !state.requestingPeerId.value) return
     // Authority request can only be processed by owner
-    if (state.ownerId.value !== Engine.instance.userID) return
+
+    const entity = UUIDComponent.getEntityByUUID(props.uuid)
+    const ownerID = getOptionalComponent(entity, NetworkObjectComponent)?.ownerId
+    if (!ownerID || ownerID !== Engine.instance.userID) return
     dispatchAction(
       WorldNetworkAction.transferAuthorityOfObject({
         entityUUID: props.uuid,
         newAuthority: state.requestingPeerId.value
       })
     )
-  }, [state.requestingPeerId])
+  }, [userConnected, state.requestingPeerId])
 
   return null
 })
 
+const reactor = () => {
+  const state = useMutableState(EntityNetworkState)
+  return (
+    <>
+      {state.keys.map((uuid: EntityUUID) => (
+        <EntityNetworkReactor uuid={uuid} key={uuid} />
+      ))}
+    </>
+  )
+}
+
 export const EntityNetworkStateSystem = defineSystem({
   uuid: 'ee.networking.EntityNetworkStateSystem',
-  reactor: () => {
-    const state = useMutableState(EntityNetworkState)
-    return (
-      <>
-        {state.keys.map((uuid: EntityUUID) => (
-          <EntityNetworkReactor uuid={uuid} key={uuid} />
-        ))}
-      </>
-    )
-  },
+  reactor,
   insert: { with: SimulationSystemGroup }
 })
