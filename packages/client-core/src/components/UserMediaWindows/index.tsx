@@ -33,6 +33,7 @@ import { getMutableState } from '@etherealengine/hyperflux'
 
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
+import { FilteredUsersState } from '../../transports/FilteredUsersSystem'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { AuthState } from '../../user/services/AuthService'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
@@ -104,7 +105,13 @@ export const useMediaWindows = () => {
     windows.unshift({ peerID: selfPeerID, type: 'cam' })
   }
 
-  return windows
+  const filteredUsersState = useHookstate(getMutableState(FilteredUsersState))
+
+  const nearbyPeers = mediaNetwork
+    ? filteredUsersState.nearbyLayerUsers.value.map((userID) => mediaNetwork.users[userID]).flat()
+    : []
+
+  return windows.filter(({ peerID }) => peerID === Engine.instance.store.peerID || nearbyPeers.includes(peerID))
 }
 
 export const UserMediaWindows = () => {

@@ -349,7 +349,7 @@ export const dispatchAction = <A extends Action>(action: A) => {
   addOutgoingTopicIfNecessary(topic)
 }
 
-export function addOutgoingTopicIfNecessary(topic: string) {
+export function addOutgoingTopicIfNecessary(topic: Topic) {
   if (!HyperFlux.store.actions.outgoing[topic]) {
     logger.info(`Added topic ${topic}`)
     HyperFlux.store.actions.outgoing[topic] = {
@@ -393,7 +393,9 @@ const _updateCachedActions = (incomingAction: Required<ResolvedActionType>) => {
         }
       }
 
-      if (!incomingAction.$cache.disable) cachedActions.push(incomingAction)
+      if (!incomingAction.$cache.disable) {
+        cachedActions.push(incomingAction)
+      }
     }
   }
 }
@@ -458,7 +460,7 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
     //So the solution was to attempt to JSON.stringify them manually first to see if that would error.
     try {
       const jsonStringified = JSON.stringify(action)
-      logger.info('Repeat action %o', action)
+      // logger.info('Repeat action %o', action)
     } catch (err) {
       console.log('error in logging action', action)
     }
@@ -498,8 +500,8 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
 }
 
 const _forwardIfNecessary = (action: Required<ResolvedActionType>) => {
+  addOutgoingTopicIfNecessary(action.$topic)
   if (HyperFlux.store.peerID === action.$peer || HyperFlux.store.forwardingTopics.has(action.$topic)) {
-    addOutgoingTopicIfNecessary(action.$topic)
     const outgoingActions = HyperFlux.store.actions.outgoing[action.$topic]
     if (outgoingActions.forwardedUUIDs.has(action.$uuid)) return
     outgoingActions.queue.push(action)

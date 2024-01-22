@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
+import { none, useHookstate } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
@@ -36,18 +36,17 @@ import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { NetworkState, addNetwork } from '@etherealengine/engine/src/networking/NetworkState'
-import { Network, NetworkTopics, createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
-import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
+import { NetworkState, addNetwork, removeNetwork } from '@etherealengine/engine/src/networking/NetworkState'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { PortalComponent, PortalState } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
-import { AvatarState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { Network, NetworkTopics, createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
+import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { LinkState } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { RouterState } from '../../common/services/RouterService'
@@ -84,23 +83,18 @@ export const useLocationSpawnAvatar = (spectate = false) => {
 
     // the avatar should only be spawned once, after user auth and scene load
     const user = getState(AuthState).user
-    const avatarDetails = user.avatar
     const spawnPoint = getSearchParamFromURL('spawnPoint')
 
     const avatarSpawnPose = spawnPoint
       ? getSpawnPoint(spawnPoint, Engine.instance.userID)
       : getRandomSpawnPoint(Engine.instance.userID)
 
-    if (avatarDetails.modelResource?.url) {
-      spawnLocalAvatarInWorld({
-        avatarSpawnPose,
-        avatarID: user.avatar.id!,
-        name: user.name
-      })
-      spawned.set(true)
-    } else {
-      AvatarState.selectRandomAvatar()
-    }
+    spawnLocalAvatarInWorld({
+      avatarSpawnPose,
+      avatarID: user.avatar.id!,
+      name: user.name
+    })
+    spawned.set(true)
   }, [sceneLoaded])
 }
 
@@ -230,45 +224,51 @@ export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
   }, [sceneLoaded])
 }
 
-export const useOnlineNetwork = () => {
+export const useNetwork = (props: { online?: boolean }) => {
+  const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
+
   useEffect(() => {
     getMutableState(NetworkState).config.set({
-      world: true,
-      media: true,
-      friends: true,
-      instanceID: true,
+      world: !!props.online,
+      media: !!props.online,
+      friends: !!props.online,
+      instanceID: !!props.online,
       roomID: false
     })
-  }, [])
-}
+  }, [props.online])
 
-export const useOfflineNetwork = () => {
-  const engineState = useHookstate(getMutableState(EngineState))
-  const authState = useHookstate(getMutableState(AuthState))
-
+  /** Offline/local world network */
   useEffect(() => {
-    if (engineState.sceneLoaded.value) {
-      const userId = Engine.instance.userID
-      const peerID = Engine.instance.peerID
-      const userIndex = 1
-      const peerIndex = 1
+    if (!sceneLoaded.value || props.online) return
 
-      const networkState = getMutableState(NetworkState)
-      networkState.hostIds.world.set(userId as any as InstanceID)
-      addNetwork(createNetwork(userId as any as InstanceID, userId, NetworkTopics.world))
+    const userId = Engine.instance.userID
+    const peerID = Engine.instance.peerID
+    const userIndex = 1
+    const peerIndex = 1
 
-      NetworkState.worldNetworkState.authenticated.set(true)
-      NetworkState.worldNetworkState.connected.set(true)
-      NetworkState.worldNetworkState.ready.set(true)
+    const networkState = getMutableState(NetworkState)
+    networkState.hostIds.world.set(userId as any as InstanceID)
+    addNetwork(createNetwork(userId as any as InstanceID, userId, NetworkTopics.world))
+    addOutgoingTopicIfNecessary(NetworkTopics.world)
 
-      NetworkPeerFunctions.createPeer(
-        NetworkState.worldNetwork as Network,
-        peerID,
-        peerIndex,
-        userId,
-        userIndex,
-        authState.user.name.value
-      )
+    NetworkState.worldNetworkState.authenticated.set(true)
+    NetworkState.worldNetworkState.connected.set(true)
+    NetworkState.worldNetworkState.ready.set(true)
+
+    NetworkPeerFunctions.createPeer(
+      NetworkState.worldNetwork as Network,
+      peerID,
+      peerIndex,
+      userId,
+      userIndex,
+      getState(AuthState).user.name
+    )
+
+    const network = NetworkState.worldNetwork as Network
+
+    return () => {
+      removeNetwork(network)
+      networkState.hostIds.world.set(none)
     }
-  }, [engineState.sceneLoaded])
+  }, [sceneLoaded, props.online])
 }

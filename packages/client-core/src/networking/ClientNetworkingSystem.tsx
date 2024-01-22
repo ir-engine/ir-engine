@@ -58,7 +58,8 @@ const execute = () => {
   for (const action of transportCreatedActionQueue()) onTransportCreated(action)
   // TODO replace with event sourcing
   for (const action of updatePeersActionQueue()) {
-    const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork
+    const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork | undefined
+    if (!network) continue
 
     for (const peer of action.peers) {
       NetworkPeerFunctions.createPeer(network, peer.peerID, peer.peerIndex, peer.userID, peer.userIndex, peer.name)
@@ -71,10 +72,10 @@ const execute = () => {
 }
 
 const NetworkConnectionReactor = (props: { networkID: InstanceID }) => {
-  const networkState = getMutableState(NetworkState).networks[props.networkID] as State<SocketWebRTCClientNetwork>
   const transportState = useHookstate(getMutableState(MediasoupTransportObjectsState))
 
   useEffect(() => {
+    const networkState = getMutableState(NetworkState).networks[props.networkID] as State<SocketWebRTCClientNetwork>
     const topic = networkState.topic.value
     const topicEnabled = getState(NetworkState).config[topic]
     if (topicEnabled) {
