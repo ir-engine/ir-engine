@@ -31,7 +31,7 @@ import { LoadingArgs } from '../classes/AssetLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { AssetType, ResourceManager, ResourceType } from '../state/ResourceState'
 
-function getAbortController(url: string, callback: () => void): AbortController {
+function createAbortController(url: string, callback: () => void): AbortController {
   const controller = new AbortController()
   controller.signal.onabort = (event) => {
     console.warn('resourceHook: Aborted resource fetch for url: ' + url, event)
@@ -70,7 +70,7 @@ function useLoader<T extends AssetType>(
       urlState.set(url)
     }
 
-    const controller = getAbortController(url, unload)
+    const controller = createAbortController(url, unload)
     let completed = false
 
     if (!url) return
@@ -118,7 +118,7 @@ function useBatchLoader<T extends AssetType>(
 
   useEffect(() => {
     const completedArr = new Array(urls.length).fill(false) as boolean[]
-    const controller = getAbortController(urls.toString(), unload)
+    const controller = createAbortController(urls.toString(), unload)
 
     for (let i = 0; i < urls.length; i++) {
       const url = urls[i]
