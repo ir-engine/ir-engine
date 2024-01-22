@@ -25,23 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 import { useEffect } from 'react'
-import {
-  ArrowHelper,
-  BackSide,
-  Euler,
-  Mesh,
-  MeshBasicMaterial,
-  Quaternion,
-  SphereGeometry,
-  Texture,
-  Vector3
-} from 'three'
+import { ArrowHelper, BackSide, Euler, Mesh, MeshBasicMaterial, Quaternion, SphereGeometry, Vector3 } from 'three'
 
-import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { portalPath } from '@etherealengine/common/src/schema.type.module'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { useTexture } from '../../assets/functions/resourceHooks'
 import { V_100 } from '../../common/constants/MathConstants'
 import { matches } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
@@ -240,20 +230,24 @@ export const PortalComponent = defineComponent({
       previewImageURL: string
     }>(null)
 
+    const [textureState, unload] = useTexture(portalDetails.value?.previewImageURL || '', entity)
+
+    useEffect(() => {
+      if (!textureState.value) return
+      return unload
+    }, [textureState])
+
     useEffect(() => {
       if (!portalDetails.value?.previewImageURL) return
       portalComponent.remoteSpawnPosition.value.copy(portalDetails.value.spawnPosition)
       portalComponent.remoteSpawnRotation.value.copy(portalDetails.value.spawnRotation)
-      AssetLoader.loadAsync(portalDetails.value.previewImageURL).then((texture: Texture) => {
-        if (!portalComponent.mesh.value || aborted) return
-        portalComponent.mesh.value.material.map = texture
-        portalComponent.mesh.value.material.needsUpdate = true
-      })
-      let aborted = false
-      return () => {
-        aborted = true
-      }
-    }, [portalDetails, portalComponent.mesh])
+
+      const texture = textureState.get(NO_PROXY)
+      if (!texture || !portalComponent.mesh.value) return
+
+      portalComponent.mesh.value.material.map = texture
+      portalComponent.mesh.value.material.needsUpdate = true
+    }, [portalDetails, portalComponent.mesh, textureState])
 
     useEffect(() => {
       if (!isClient) return
