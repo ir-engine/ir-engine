@@ -161,7 +161,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
   const isActiveScene = useHookstate(getMutableState(SceneState).activeScene).value === props.sceneID
 
   useEffect(() => {
-    const scene = getState(SceneState).scenes[props.sceneID]
+    const scene = getState(SceneState).scenes[props.sceneID].value
     const { project } = scene.metadata
     const data = scene.snapshots[scene.index].data
     getSystemsFromSceneData(project, data).then((systems) => {
@@ -399,7 +399,7 @@ const ComponentLoadReactor = (props: {
     if (!componentState?.value) return
     const entity = UUIDComponent.getEntityByUUID(props.entityUUID)
     loadComponents(entity, [componentState.get(NO_PROXY)])
-  }, [componentState])
+  }, [componentState.get(NO_PROXY)])
 
   return null
 }

@@ -112,7 +112,7 @@ export const renameScene = async (projectName: string, newSceneName: string, old
 export const saveScene = async (projectName: string, sceneName: string, signal: AbortSignal) => {
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
 
-  const sceneData = getState(SceneState).scenes[getState(SceneState).activeScene!].snapshots.at(-1)?.data
+  const sceneData = getState(SceneState).scenes[getState(SceneState).activeScene!].value.snapshots.at(-1)?.data
 
   try {
     if (!sceneData) throw new Error(i18n.t('editor:errors.sceneDataNotFound'))

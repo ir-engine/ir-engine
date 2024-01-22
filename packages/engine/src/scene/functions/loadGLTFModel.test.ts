@@ -27,7 +27,7 @@ import assert from 'assert'
 import { Group, Layers, MathUtils, Mesh, Scene } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, hookstate } from '@etherealengine/hyperflux'
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { destroyEngine } from '../../ecs/classes/Engine'
@@ -103,24 +103,26 @@ describe.skip('loadGLTFModel', () => {
     //      then we can validate the ECS data directly like we were doing before
     const jsonHierarchy = parseGLTFModel(entity, scene)
     const sceneID = getModelSceneID(entity)
-    getMutableState(SceneState).scenes[sceneID].set({
-      metadata: {
-        name: 'test scene',
-        project: 'test project',
-        thumbnailUrl: ''
-      },
-      snapshots: [
-        {
-          data: {
-            entities: jsonHierarchy,
-            root: '' as EntityUUID,
-            version: 0
-          },
-          selectedEntities: []
-        }
-      ],
-      index: 0
-    })
+    getMutableState(SceneState).scenes[sceneID].set(
+      hookstate({
+        metadata: {
+          name: 'test scene',
+          project: 'test project',
+          thumbnailUrl: ''
+        },
+        snapshots: [
+          {
+            data: {
+              entities: jsonHierarchy,
+              root: '' as EntityUUID,
+              version: 0
+            },
+            selectedEntities: []
+          }
+        ],
+        index: 0
+      })
+    )
 
     const expectedLayer = new Layers()
     expectedLayer.set(ObjectLayers.Scene)

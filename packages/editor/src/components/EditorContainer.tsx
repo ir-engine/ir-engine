@@ -411,7 +411,7 @@ const EditorContainer = () => {
 
   useEffect(() => {
     if (!activeScene.value) return
-    const scene = getState(SceneState).scenes[activeScene.value]
+    const scene = getState(SceneState).scenes[activeScene.value].value
     sceneName.set(scene.metadata.name)
     projectName.set(scene.metadata.project)
   }, [activeScene])

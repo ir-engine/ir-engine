@@ -135,7 +135,7 @@ const onKeyX = () => {
 
 const onKeyZ = (control: boolean, shift: boolean) => {
   if (control) {
-    const state = getState(SceneState).scenes[getState(SceneState).activeScene!]
+    const state = getState(SceneState).scenes[getState(SceneState).activeScene!].value
     if (shift) {
       if (state.index >= state.snapshots.length - 1) return
       dispatchAction(SceneSnapshotAction.redo({ count: 1, sceneID: getState(SceneState).activeScene! }))
