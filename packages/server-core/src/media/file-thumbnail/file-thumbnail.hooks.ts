@@ -27,10 +27,7 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 import { SYNC } from 'feathers-sync'
 
-import {
-  fileThumbnailPatchValidator,
-  fileThumbnailUpdateValidator
-} from '@etherealengine/common/src/schemas/media/file-thumbnail.schema'
+import { fileThumbnailPatchValidator } from '@etherealengine/common/src/schemas/media/file-thumbnail.schema'
 import verifyScope from '../../hooks/verify-scope'
 
 export default {
@@ -44,7 +41,7 @@ export default {
         return context
       }
     ],
-    update: [() => schemaHooks.validateData(fileThumbnailUpdateValidator)],
+    update: [],
     patch: [
       (context) => {
         context[SYNC] = false

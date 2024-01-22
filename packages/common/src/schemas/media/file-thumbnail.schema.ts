@@ -28,36 +28,7 @@ import { getValidator, Type } from '@feathersjs/typebox'
 import { dataValidator } from '../validators'
 
 export const fileThumbnailPath = 'file-thumbnail'
-export const fileThumbnailMethods = ['create', 'find', 'get', 'patch', 'remove', 'update'] as const
-
-export const fileThumbnailContentSchema = Type.Object(
-  {
-    key: Type.String(),
-    type: Type.String(),
-    name: Type.String(),
-    url: Type.String(),
-    size: Type.Optional(Type.Number())
-  },
-  {
-    $id: 'FileThumbnailContent'
-  }
-)
-export interface FileThumbnailContentType extends Static<typeof fileThumbnailContentSchema> {}
-
-export const fileThumbnailUpdateSchema = Type.Object(
-  {
-    oldName: Type.String(),
-    newName: Type.String(),
-    oldPath: Type.String(),
-    newPath: Type.String(),
-    isCopy: Type.Optional(Type.Boolean()),
-    storageProviderName: Type.Optional(Type.String())
-  },
-  {
-    $id: 'FileThumbnailUpdate'
-  }
-)
-export interface FileThumbnailUpdate extends Static<typeof fileThumbnailUpdateSchema> {}
+export const fileThumbnailMethods = ['get', 'patch'] as const
 
 export const fileThumbnailPatchSchema = Type.Object(
   {
@@ -73,6 +44,4 @@ export const fileThumbnailPatchSchema = Type.Object(
 )
 export interface FileThumbnailPatch extends Static<typeof fileThumbnailPatchSchema> {}
 
-export const fileThumbnailContentValidator = /* @__PURE__ */ getValidator(fileThumbnailContentSchema, dataValidator)
-export const fileThumbnailUpdateValidator = /* @__PURE__ */ getValidator(fileThumbnailUpdateSchema, dataValidator)
 export const fileThumbnailPatchValidator = /* @__PURE__ */ getValidator(fileThumbnailPatchSchema, dataValidator)

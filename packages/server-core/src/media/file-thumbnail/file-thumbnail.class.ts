@@ -31,22 +31,13 @@ import path from 'path/posix'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
 import { isDev } from '@etherealengine/common/src/config'
-import {
-  FileThumbnailContentType,
-  FileThumbnailPatch,
-  FileThumbnailUpdate
-} from '@etherealengine/common/src/schemas/media/file-thumbnail.schema'
+import { FileThumbnailPatch } from '@etherealengine/common/src/schemas/media/file-thumbnail.schema'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
-import { projectPermissionPath } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
-import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import { KnexAdapterParams } from '@feathersjs/knex'
-import { Knex } from 'knex'
 import { Application } from '../../../declarations'
-import { getIncrementalName } from '../FileUtil'
 import { getCacheDomain } from '../storageprovider/getCacheDomain'
 import { getCachedURL } from '../storageprovider/getCachedURL'
 import { getStorageProvider } from '../storageprovider/storageprovider'
-import { StorageObjectInterface } from '../storageprovider/storageprovider.interface'
 import { createStaticResourceHash } from '../upload-asset/upload-asset.service'
 
 export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects')
@@ -73,13 +64,7 @@ const checkDirectoryInsideNesting = (directory: string, nestingDirectory?: strin
  * A class for File Browser service
  */
 export class FileThumbnailService
-  implements
-    ServiceInterface<
-      boolean | string | Paginated<FileThumbnailContentType>,
-      string | FileThumbnailUpdate | FileThumbnailPatch,
-      FileThumbnailParams,
-      FileThumbnailPatch
-    >
+  implements ServiceInterface<boolean | string, string | FileThumbnailPatch, FileThumbnailParams, FileThumbnailPatch>
 {
   app: Application
 
@@ -102,132 +87,6 @@ export class FileThumbnailService
     checkDirectoryInsideNesting(directory, params?.nestingDirectory)
 
     return await storageProvider.doesExist(file, directory)
-  }
-
-  /**
-   * Return the metadata for each file in a directory
-   */
-  async find(params?: FileThumbnailParams) {
-    if (!params) params = {}
-    if (!params.query) params.query = {}
-    const { $skip, $limit } = params.query
-    let { directory } = params.query
-
-    const skip = $skip ? $skip : 0
-    const limit = $limit ? $limit : 100
-
-    const storageProvider = getStorageProvider()
-    const isAdmin = params.user && (await checkScope(params.user, 'admin', 'admin'))
-    if (directory[0] === '/') directory = directory.slice(1)
-
-    checkDirectoryInsideNesting(directory, params.nestingDirectory)
-
-    let result = await storageProvider.listFolderContent(directory)
-    const total = result.length
-
-    result = result.slice(skip, skip + limit)
-
-    if (params.provider && !isAdmin) {
-      const knexClient: Knex = this.app.get('knexClient')
-      const projectPermissions = await knexClient
-        .from(projectPermissionPath)
-        .join('project', `${projectPermissionPath}.projectId`, 'project.id')
-        .where(`${projectPermissionPath}.userId`, params.user!.id)
-        .select()
-        .options({ nestTables: true })
-
-      const allowedProjectNames = projectPermissions.map((permission) => permission.project.name)
-      result = result.filter((item) => {
-        const projectRegexExec = /projects\/(.+)$/.exec(item.key)
-        const subFileRegexExec = /projects\/(.+)\//.exec(item.key)
-        return (
-          (subFileRegexExec && allowedProjectNames.indexOf(subFileRegexExec[1]) > -1) ||
-          (projectRegexExec && allowedProjectNames.indexOf(projectRegexExec[1]) > -1) ||
-          item.name === 'projects'
-        )
-      })
-    }
-
-    return {
-      total,
-      limit,
-      skip,
-      data: result
-    }
-  }
-
-  /**
-   * Create a directory
-   */
-  async create(directory: string, params?: FileThumbnailParams) {
-    const storageProvider = getStorageProvider(params?.query?.storageProviderName)
-    if (directory[0] === '/') directory = directory.slice(1)
-
-    checkDirectoryInsideNesting(directory, params?.nestingDirectory)
-
-    const parentPath = path.dirname(directory)
-    const key = await getIncrementalName(path.basename(directory), parentPath, storageProvider, true)
-    const keyPath = path.join(parentPath, key)
-
-    const result = await storageProvider.putObject({ Key: keyPath } as StorageObjectInterface, {
-      isDirectory: true
-    })
-
-    await storageProvider.createInvalidation([keyPath])
-
-    if (isDev && PROJECT_FILE_REGEX.test(directory))
-      fs.mkdirSync(path.resolve(projectsRootFolder, keyPath), { recursive: true })
-
-    return result
-  }
-
-  /**
-   * Move content from one path to another
-   */
-  async update(id: NullableId, data: FileThumbnailUpdate, params?: FileThumbnailParams) {
-    const storageProviderName = data.storageProviderName
-    delete data.storageProviderName
-    const storageProvider = getStorageProvider(storageProviderName)
-    const _oldPath = data.oldPath[0] === '/' ? data.oldPath.substring(1) : data.oldPath
-    const _newPath = data.newPath[0] === '/' ? data.newPath.substring(1) : data.newPath
-
-    const isDirectory = await storageProvider.isDirectory(data.oldName, _oldPath)
-    const fileName = await getIncrementalName(data.newName, _newPath, storageProvider, isDirectory)
-    const result = await storageProvider.moveObject(data.oldName, fileName, _oldPath, _newPath, data.isCopy)
-
-    await storageProvider.createInvalidation([_oldPath, _newPath])
-
-    const staticResources = (await this.app.service(staticResourcePath).find({
-      query: {
-        key: { $like: `%${path.join(_oldPath, data.oldName)}%` }
-      },
-      paginate: false
-    })) as StaticResourceType[]
-
-    if (staticResources?.length > 0) {
-      await Promise.all(
-        staticResources.map(async (resource) => {
-          const newKey = resource.key.replace(path.join(_oldPath, data.oldName), path.join(_newPath, fileName))
-          await this.app.service(staticResourcePath).patch(
-            resource.id,
-            {
-              key: newKey
-            },
-            { isInternal: true }
-          )
-        })
-      )
-    }
-
-    const oldNamePath = path.join(projectsRootFolder, _oldPath, data.oldName)
-    const newNamePath = path.join(projectsRootFolder, _newPath, fileName)
-
-    if (isDev && PROJECT_FILE_REGEX.test(_oldPath)) {
-      if (data.isCopy) fs.copyFileSync(oldNamePath, newNamePath)
-      else fs.renameSync(oldNamePath, newNamePath)
-    }
-
-    return result
   }
 
   /**
