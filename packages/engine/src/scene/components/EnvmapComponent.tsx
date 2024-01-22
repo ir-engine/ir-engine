@@ -39,9 +39,10 @@ import {
 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { useTexture } from '../../assets/functions/resourceHooks'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
@@ -133,40 +134,47 @@ export const EnvmapComponent = defineComponent({
       component.envmap.set(texture)
     }, [component.type, component.envMapSourceColor])
 
+    const [envMapTexture, unload, error] = useTexture(
+      component.envMapTextureType.value === EnvMapTextureType.Equirectangular ? component.envMapSourceURL.value : '',
+      entity
+    )
+
+    useEffect(() => {
+      const texture = envMapTexture.get(NO_PROXY)
+      if (!texture) return
+
+      texture.mapping = EquirectangularReflectionMapping
+      component.envmap.set(texture)
+      return unload
+    }, [envMapTexture])
+
+    useEffect(() => {
+      if (!error.value) return
+
+      component.envmap.set(null)
+      addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
+    }, [error])
+
     useEffect(() => {
       if (component.type.value !== EnvMapSourceType.Texture) return
 
-      switch (component.envMapTextureType.value) {
-        case EnvMapTextureType.Cubemap:
-          loadCubeMapTexture(
-            component.envMapSourceURL.value,
-            (texture: CubeTexture | undefined) => {
-              if (texture) {
-                texture.mapping = CubeReflectionMapping
-                texture.colorSpace = SRGBColorSpace
-                component.envmap.set(texture)
-                removeError(entity, EnvmapComponent, 'MISSING_FILE')
-              }
-            },
-            undefined,
-            (_) => {
-              component.envmap.set(null)
-              addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
-            }
-          )
-          break
-
-        case EnvMapTextureType.Equirectangular:
-          AssetLoader.loadAsync(component.envMapSourceURL.value, {}).then((texture) => {
+      if (component.envMapTextureType.value === EnvMapTextureType.Cubemap) {
+        loadCubeMapTexture(
+          component.envMapSourceURL.value,
+          (texture: CubeTexture | undefined) => {
             if (texture) {
-              texture.mapping = EquirectangularReflectionMapping
+              texture.mapping = CubeReflectionMapping
+              texture.colorSpace = SRGBColorSpace
               component.envmap.set(texture)
               removeError(entity, EnvmapComponent, 'MISSING_FILE')
-            } else {
-              component.envmap.set(null)
-              addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
             }
-          })
+          },
+          undefined,
+          (_) => {
+            component.envmap.set(null)
+            addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
+          }
+        )
       }
     }, [component.type, component.envMapSourceURL])
 
