@@ -45,6 +45,8 @@ import { useTranslation } from 'react-i18next'
 import RouterComp from '../route/public'
 import { ThemeContextProvider } from '../themes/themeContext'
 
+import './mui.styles.scss'
+
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
   interface DefaultTheme extends Theme {}
