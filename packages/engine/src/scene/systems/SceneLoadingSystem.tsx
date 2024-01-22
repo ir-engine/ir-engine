@@ -59,7 +59,8 @@ import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { QueryReactor, useQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem, destroySystem } from '../../ecs/functions/SystemFunctions'
 import { PresentationSystemGroup } from '../../ecs/functions/SystemGroups'
-import { NetworkState } from '../../networking/NetworkState'
+import { NetworkState, SceneUser } from '../../networking/NetworkState'
+import { NetworkTopics } from '../../networking/classes/Network'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -113,6 +114,7 @@ const reactor = () => {
           TransformComponent,
           UUIDComponent,
           SceneObjectComponent,
+          Not(GLTFLoadedComponent),
           Not(SceneTagComponent)
         ]}
         ChildEntityReactor={NetworkedSceneObjectReactor}
@@ -127,26 +129,23 @@ const reactor = () => {
 /** @todo - this needs to be rework according to #9105 # */
 const NetworkedSceneObjectReactor = () => {
   const entity = useEntityContext()
-  const loaded = useHookstate(false)
-  const worldNetwork = useHookstate(NetworkState.worldNetworkState)
 
   useEffect(() => {
-    if (loaded.value) return
-    if (NetworkState.worldNetwork?.isHosting) {
-      if (!entityExists(entity)) return
-      if (hasComponent(entity, GLTFLoadedComponent)) return
-      const uuid = getComponent(entity, UUIDComponent)
-      const transform = getComponent(entity, TransformComponent)
-      dispatchAction(
-        WorldNetworkAction.spawnObject({
-          entityUUID: uuid,
-          position: transform.position.clone(),
-          rotation: transform.rotation.clone()
-        })
-      )
-      loaded.set(true)
-    }
-  }, [worldNetwork])
+    if (!entityExists(entity)) return
+    const uuid = getComponent(entity, UUIDComponent)
+    const transform = getComponent(entity, TransformComponent)
+    const isHostingWorldNetwork = !!NetworkState.worldNetwork?.isHosting
+    dispatchAction(
+      WorldNetworkAction.spawnObject({
+        $from: SceneUser,
+        $time: isHostingWorldNetwork ? undefined : 0,
+        entityUUID: uuid,
+        position: transform.position.clone(),
+        rotation: transform.rotation.clone(),
+        $topic: isHostingWorldNetwork ? NetworkTopics.world : undefined
+      })
+    )
+  }, [])
 
   return null
 }
@@ -432,7 +431,10 @@ const loadComponents = (entity: Entity, components: ComponentJsonType[]) => {
 const sceneLoadedActionQueue = defineActionQueue(EngineActions.sceneLoaded.matches)
 
 const execute = () => {
-  if (sceneLoadedActionQueue().length) getMutableState(EngineState).merge({ sceneLoading: false, sceneLoaded: true })
+  if (sceneLoadedActionQueue().length) {
+    if (getState(EngineState).sceneLoading) getMutableState(EngineState).sceneLoading.set(false)
+    if (!getState(EngineState).sceneLoaded) getMutableState(EngineState).sceneLoaded.set(true)
+  }
 }
 
 export const SceneLoadingSystem = defineSystem({
