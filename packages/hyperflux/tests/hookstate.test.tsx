@@ -884,3 +884,87 @@ describe('hookstate reactivity', () => {
     })
   })
 })
+
+describe('hookstate nested reactivity', () => {
+  let testID = 0
+
+  describe('nested reactor mutable state reactivity', () => {
+    it('should not re-render a sub reactor if a sibling state changes', async () => {
+      const TestState = defineState({
+        name: 'test.state.' + testID++,
+        initial: () => ({
+          test: {} as Record<string, { nestedObject: string }>
+        })
+      })
+
+      const store = createHyperStore({
+        getDispatchId: () => 'id',
+        getDispatchTime: () => Date.now()
+      })
+
+      let targetKeyCount = 0
+      let otherKeyCount = 0
+
+      const targetKey = 'targetKey'
+      const otherKey = 'otherKey'
+
+      const SubReactor = function ({ nestedKey }) {
+        const state = useHookstate(getMutableState(TestState).test[nestedKey])
+        // reference value
+        state.value
+        useEffect(() => {
+          if (nestedKey === targetKey) targetKeyCount++
+          if (nestedKey === otherKey) otherKeyCount++
+        }, [state])
+        return null
+      }
+
+      const Reactor = function () {
+        const state = useHookstate(getMutableState(TestState).test)
+        return (
+          <>
+            {state.keys.map((key) => (
+              <SubReactor nestedKey={key} key={key} />
+            ))}
+          </>
+        )
+      }
+
+      const tag = <Reactor />
+      const { rerender, unmount } = render(tag)
+
+      await act(() => rerender(tag))
+
+      // add target sub state
+      getMutableState(TestState).test[targetKey].set({ nestedObject: 'my value' })
+
+      await act(() => rerender(tag))
+
+      assert.equal(targetKeyCount, 1)
+
+      // add other sub state
+      getMutableState(TestState).test[otherKey].set({ nestedObject: 'my value' })
+
+      await act(() => rerender(tag))
+
+      // should not re-render target
+      assert.equal(targetKeyCount, 1)
+
+      // should re-render other
+      assert.equal(otherKeyCount, 1)
+
+      // update target to new reference
+      getMutableState(TestState).test[targetKey].set({ nestedObject: 'my value' })
+
+      await act(() => rerender(tag))
+
+      // should re-render target
+      assert.equal(targetKeyCount, 2)
+
+      // should not re-render other
+      assert.equal(otherKeyCount, 1)
+
+      unmount()
+    })
+  })
+})
