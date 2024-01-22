@@ -33,11 +33,12 @@ import {
   clearOutgoingActions,
   createHyperStore,
   defineAction,
+  defineActionQueue,
   defineState,
   dispatchAction,
   getMutableState,
   getState,
-  registerState
+  removeActionQueue
 } from '..'
 
 describe('Hyperflux Unit Tests', () => {
@@ -114,7 +115,6 @@ describe('Hyperflux Unit Tests', () => {
   it('should be able to dispatch an action to a local store', () => {
     const store = createHyperStore({
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
@@ -123,7 +123,6 @@ describe('Hyperflux Unit Tests', () => {
     })
     dispatchAction(greet({}))
     assert.equal(store.actions.incoming.length, 1)
-    assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 1)
     assert(greet.matches.test(store.actions.incoming[0]))
     assert(store.actions.incoming[0].$from == 'id')
     assert(store.actions.incoming[0].$to == 'all')
@@ -140,9 +139,7 @@ describe('Hyperflux Unit Tests', () => {
 
   it('should be able to dispatch an action to a peer store', () => {
     const store = createHyperStore({
-      forwardIncomingActions: () => false,
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
@@ -151,12 +148,6 @@ describe('Hyperflux Unit Tests', () => {
     })
     dispatchAction(greet({}))
     assert.equal(store.actions.incoming.length, 1)
-    assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 1)
-    assert(greet.matches.test(store.actions.outgoing[store.defaultTopic].queue[0]))
-    assert(store.actions.outgoing[store.defaultTopic].queue[0].$from == 'id')
-    assert(store.actions.outgoing[store.defaultTopic].queue[0].$to == 'all')
-    assert(store.actions.outgoing[store.defaultTopic].queue[0].$time <= Date.now())
-    assert(store.actions.outgoing[store.defaultTopic].queue[0].$cache === false)
     applyIncomingActions()
     assert.equal(store.actions.history.length, 1)
     assert.equal(store.actions.incoming.length, 0)
@@ -171,9 +162,7 @@ describe('Hyperflux Unit Tests', () => {
 
   it('should be able to dispatch an action to a host store', () => {
     const store = createHyperStore({
-      forwardIncomingActions: () => true,
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
@@ -187,7 +176,6 @@ describe('Hyperflux Unit Tests', () => {
     assert(store.actions.incoming[0].$to == 'all')
     assert(store.actions.incoming[0].$time <= Date.now())
     assert(store.actions.incoming[0].$cache === false)
-    assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 0)
     applyIncomingActions()
     assert.equal(store.actions.incoming.length, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 1)
@@ -196,29 +184,9 @@ describe('Hyperflux Unit Tests', () => {
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 0)
   })
 
-  it('should be able to dispatch an action to a peer store', () => {
-    const store = createHyperStore({
-      forwardIncomingActions: () => false,
-      getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
-      getDispatchTime: () => Date.now()
-    })
-    const greet = defineAction({
-      type: 'TEST_GREETING',
-      greeting: matchesWithDefault(matches.string, () => 'hi')
-    })
-    dispatchAction(greet({}))
-    assert(greet.matches.test(store.actions.outgoing[store.defaultTopic].queue[0]))
-    assert(store.actions.outgoing[store.defaultTopic].queue[0].$from == 'id')
-    assert(store.actions.outgoing[store.defaultTopic].queue[0].$to == 'all')
-    assert(store.actions.outgoing[store.defaultTopic].queue[0].$time <= Date.now())
-    assert(store.actions.outgoing[store.defaultTopic].queue[0].$cache === false)
-  })
-
   it('should add incoming actions to cache as indicated', () => {
     const store = createHyperStore({
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
@@ -276,9 +244,7 @@ describe('Hyperflux Unit Tests', () => {
 
   it('should be able to apply incoming actions to receptors in a peer store', () => {
     const store = createHyperStore({
-      forwardIncomingActions: () => false,
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
@@ -286,10 +252,7 @@ describe('Hyperflux Unit Tests', () => {
       greeting: matchesWithDefault(matches.string, () => 'hi')
     })
     dispatchAction(greet({}))
-    assert(greet.matches.test(store.actions.outgoing[store.defaultTopic].queue[0]))
-    store.actions.incoming.push(...store.actions.outgoing[store.defaultTopic].queue)
     clearOutgoingActions(store.defaultTopic)
-    assert(store.actions.outgoing[store.defaultTopic].queue.length === 0)
     assert(greet.matches.test(store.actions.incoming[0]))
     applyIncomingActions()
     assert(store.actions.history.length)
@@ -297,9 +260,7 @@ describe('Hyperflux Unit Tests', () => {
 
   it('should be able to apply multiple actions at once to a peer store', () => {
     const store = createHyperStore({
-      forwardIncomingActions: () => false,
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
@@ -311,10 +272,8 @@ describe('Hyperflux Unit Tests', () => {
     dispatchAction(greet({}))
     dispatchAction(greet({}))
     assert.equal(store.actions.history.length, 0)
-    assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 4)
     clearOutgoingActions(store.defaultTopic)
     assert.equal(store.actions.history.length, 0)
-    assert.equal(store.actions.outgoing[store.defaultTopic].history.length, 4)
     assert.equal(store.actions.incoming.length, 4)
     applyIncomingActions()
     assert.equal(store.actions.history.length, 4)
@@ -329,9 +288,7 @@ describe('Hyperflux Unit Tests', () => {
 
   it('should be able to apply multiple actions at once to a host store', () => {
     const store = createHyperStore({
-      forwardIncomingActions: () => true,
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
@@ -344,11 +301,8 @@ describe('Hyperflux Unit Tests', () => {
     dispatchAction(greet({}))
     assert.equal(store.actions.history.length, 0)
     assert.equal(store.actions.incoming.length, 4)
-    assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 0)
     clearOutgoingActions(store.defaultTopic)
     assert.equal(store.actions.history.length, 0)
-    assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 0)
-    assert.equal(store.actions.outgoing[store.defaultTopic].history.length, 0)
     assert.equal(store.actions.incoming.length, 4)
     assert.equal(store.actions.history.length, 0)
     applyIncomingActions()
@@ -362,7 +316,7 @@ describe('Hyperflux Unit Tests', () => {
     assert.equal(store.actions.history.length, 4)
     assert.equal(store.actions.knownUUIDs.size, 4)
     assert.equal(store.actions.outgoing[store.defaultTopic].history.length, 4)
-    assert.equal(store.actions.outgoing[store.defaultTopic].historyUUIDs.size, 4)
+    assert.equal(store.actions.outgoing[store.defaultTopic].forwardedUUIDs.size, 4)
     const history = Array.from(store.actions.history.values())
     assert.equal(history[1], store.actions.outgoing[store.defaultTopic].history[1])
     assert.equal(history[2], store.actions.outgoing[store.defaultTopic].history[2])
@@ -377,7 +331,7 @@ describe('Hyperflux Unit Tests', () => {
     assert.equal(store.actions.history.length, 4)
     assert.equal(store.actions.knownUUIDs.size, 4)
     assert.equal(store.actions.outgoing[store.defaultTopic].history.length, 4)
-    assert.equal(store.actions.outgoing[store.defaultTopic].historyUUIDs.size, 4)
+    assert.equal(store.actions.outgoing[store.defaultTopic].forwardedUUIDs.size, 4)
   })
 
   it('should be able to define state and register it to a store', () => {
@@ -390,10 +344,9 @@ describe('Hyperflux Unit Tests', () => {
     })
     const store = createHyperStore({
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
-    registerState(HospitalityState)
+    getState(HospitalityState)
     assert(store.stateMap['test.hospitality.0'])
   })
 
@@ -410,10 +363,8 @@ describe('Hyperflux Unit Tests', () => {
     })
     const store = createHyperStore({
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
-    registerState(HospitalityState)
     const hospitality = getMutableState(HospitalityState).value
     assert.equal(hospitality.create, true)
   })
@@ -428,12 +379,10 @@ describe('Hyperflux Unit Tests', () => {
     })
     const store = createHyperStore({
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
-    registerState(HospitalityState)
-    assert(store.stateMap['test.hospitality.2'])
     const hospitality = getMutableState(HospitalityState).value
+    assert(store.stateMap['test.hospitality.2'])
     assert.equal(hospitality.greetingCount, 0)
   })
 
@@ -448,15 +397,211 @@ describe('Hyperflux Unit Tests', () => {
 
     const store = createHyperStore({
       getDispatchId: () => 'id',
-      getPeerId: () => 'peer',
       getDispatchTime: () => Date.now()
     })
-    registerState(HospitalityState)
-    assert(store.stateMap['test.hospitality.3'])
 
     const hospitality = getMutableState(HospitalityState)
+    assert(store.stateMap['test.hospitality.3'])
     hospitality.greetingCount.set(100)
 
     assert.equal(getState(HospitalityState).greetingCount, 100)
+  })
+
+  it('should be able to create action queues', () => {
+    const greet = defineAction({
+      type: 'TEST_GREETING',
+      greeting: matchesWithDefault(matches.string, () => 'hi')
+    })
+    const goodbye = defineAction({
+      type: 'TEST_GOODBYE',
+      greeting: matchesWithDefault(matches.string, () => 'bye')
+    })
+    const store = createHyperStore({
+      getDispatchId: () => 'id',
+      getDispatchTime: () => Date.now()
+    })
+    const queue = defineActionQueue([greet.matches, goodbye.matches])
+    assert.equal(queue().length, 0)
+    dispatchAction(greet({}))
+    dispatchAction(goodbye({}))
+    assert.equal(queue().length, 0)
+    dispatchAction(greet({}))
+    dispatchAction(goodbye({}))
+    applyIncomingActions()
+    const actions = queue()
+    assert.equal(actions.length, 4)
+    assert(greet.matches.test(actions[0]))
+    assert(goodbye.matches.test(actions[1]))
+    assert(greet.matches.test(actions[2]))
+    assert(goodbye.matches.test(actions[3]))
+  })
+
+  it('should be able to force a resync for action queues with out-of-order action', () => {
+    const greet = defineAction({
+      type: 'TEST_GREETING',
+      greeting: matchesWithDefault(matches.string, () => 'hi')
+    })
+    const goodbye = defineAction({
+      type: 'TEST_GOODBYE',
+      greeting: matchesWithDefault(matches.string, () => 'bye')
+    })
+    const store = createHyperStore({
+      getDispatchId: () => 'id',
+      getDispatchTime: () => Date.now()
+    })
+
+    const queue = defineActionQueue([greet.matches, goodbye.matches])
+    dispatchAction(goodbye({ $time: 200 }))
+    dispatchAction(greet({ $time: 100 }))
+
+    // ensure queue instance exists
+    const actionsPriorToApply = queue()
+
+    assert.equal(actionsPriorToApply.length, 0)
+
+    // populate queue
+    applyIncomingActions()
+
+    // manually force resync
+    queue.resync()
+
+    // receive queue
+    const actions = queue()
+    assert.equal(actions.length, 2)
+    assert(greet.matches.test(actions[0]))
+    assert(goodbye.matches.test(actions[1]))
+  })
+
+  it('should be able to create multiple action queues of the same type, that are independently managed', () => {
+    const greet = defineAction({
+      type: 'TEST_GREETING',
+      greeting: matchesWithDefault(matches.string, () => 'hi')
+    })
+    const goodbye = defineAction({
+      type: 'TEST_GOODBYE',
+      greeting: matchesWithDefault(matches.string, () => 'bye')
+    })
+    const store = createHyperStore({
+      getDispatchId: () => 'id',
+      getDispatchTime: () => Date.now()
+    })
+
+    const queue1 = defineActionQueue([greet.matches, goodbye.matches])
+    const queue2 = defineActionQueue([greet.matches, goodbye.matches])
+    dispatchAction(goodbye({ $time: 200 }))
+    dispatchAction(greet({ $time: 100 }))
+    applyIncomingActions()
+
+    queue1.resync()
+    queue2.resync()
+
+    const actions1 = queue1()
+    assert.equal(actions1.length, 2)
+    assert(greet.matches.test(actions1[0]))
+    assert(goodbye.matches.test(actions1[1]))
+    removeActionQueue(queue1)
+
+    const actions2 = queue2()
+    assert.equal(actions2.length, 2)
+    assert(greet.matches.test(actions2[0]))
+    assert(goodbye.matches.test(actions2[1]))
+  })
+
+  it('should be able to create action queues that reset when given actions out of order', () => {
+    const greet = defineAction({
+      type: 'TEST_GREETING',
+      greeting: matchesWithDefault(matches.string, () => 'hi')
+    })
+    const goodbye = defineAction({
+      type: 'TEST_GOODBYE',
+      greeting: matchesWithDefault(matches.string, () => 'bye')
+    })
+    const store = createHyperStore({
+      getDispatchId: () => 'id',
+      getDispatchTime: () => Date.now()
+    })
+
+    const queue = defineActionQueue([greet.matches, goodbye.matches])
+    dispatchAction(goodbye({ $time: 200 }))
+    dispatchAction(greet({ $time: 100 }))
+    applyIncomingActions()
+
+    queue.resync()
+
+    const actions1 = queue()
+    assert.equal(actions1.length, 2)
+    assert(greet.matches.test(actions1[0]))
+    assert(goodbye.matches.test(actions1[1]))
+
+    dispatchAction(greet({ $time: 300 }))
+    applyIncomingActions()
+    const actions2 = queue()
+    assert.equal(actions2.length, 1)
+    assert(greet.matches.test(actions2[0]))
+
+    dispatchAction(goodbye({ $time: 50 }))
+    applyIncomingActions()
+    queue.resync()
+
+    const actions3 = queue()
+    assert.equal(actions3.length, 4)
+    assert(goodbye.matches.test(actions3[0]))
+    assert(greet.matches.test(actions3[1]))
+    assert(goodbye.matches.test(actions3[2]))
+    assert(greet.matches.test(actions3[3]))
+  })
+
+  it('should be able to create networked state with receptors', () => {
+    const greet = defineAction({
+      type: 'TEST_GREETING',
+      greeting: matchesWithDefault(matches.string, () => 'hi')
+    })
+    const goodbye = defineAction({
+      type: 'TEST_GOODBYE',
+      greeting: matchesWithDefault(matches.string, () => 'bye')
+    })
+
+    const HospitalityState = defineState({
+      name: 'test.hospitality',
+
+      initial: () => ({
+        greetingCount: 0,
+        firstGreeting: null as string | null
+      }),
+
+      receptors: {
+        onGreet: greet.receive((action) => {
+          const state = getMutableState(HospitalityState)
+          state.greetingCount.set((v) => v + 1)
+          if (!state.firstGreeting.value) state.firstGreeting.set(action.greeting)
+        }),
+        onGoodbye: goodbye.receive((action) => {
+          const state = getMutableState(HospitalityState)
+          state.greetingCount.set((v) => v - 1)
+          if (!state.firstGreeting.value) state.firstGreeting.set(action.greeting)
+        })
+      }
+    })
+
+    const store = createHyperStore({
+      getDispatchId: () => 'id',
+      getDispatchTime: () => Date.now()
+    })
+
+    const hospitality = getMutableState(HospitalityState)
+
+    dispatchAction(greet({ $time: 100 }))
+    dispatchAction(goodbye({ $time: 100 }))
+    dispatchAction(greet({ $time: 100 }))
+    applyIncomingActions()
+
+    assert.equal(hospitality.greetingCount.value, 1)
+    assert.equal(hospitality.firstGreeting.value, 'hi')
+
+    dispatchAction(goodbye({ $time: 50 }))
+    applyIncomingActions()
+
+    assert.equal(hospitality.greetingCount.value, 0)
+    assert.equal(hospitality.firstGreeting.value, 'bye')
   })
 })

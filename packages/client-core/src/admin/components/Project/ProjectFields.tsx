@@ -637,10 +637,6 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
                 value={projectUpdateStatus.value?.updateSchedule || DefaultUpdateSchedule}
                 menu={[
                   {
-                    value: '* * * * *',
-                    label: `1 ${t('admin:components.project.minute')}`
-                  },
-                  {
                     value: '*/5 * * * *',
                     label: `5 ${t('admin:components.project.minutes')}`
                   },

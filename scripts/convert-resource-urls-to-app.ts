@@ -32,7 +32,7 @@ import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
-import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
+import { createFeathersKoaApp, serverJobPipe } from '@etherealengine/server-core/src/createApp'
 
 dotenv.config({
   path: appRootPath.path,
@@ -72,7 +72,7 @@ cli.main(async () => {
     })
 
     console.log('options', options)
-    const app = createFeathersKoaApp(ServerMode.API)
+    const app = createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
 
     const staticResources = await knexClient.from<StaticResourceType>(staticResourcePath)

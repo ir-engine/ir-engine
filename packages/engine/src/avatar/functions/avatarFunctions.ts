@@ -54,7 +54,7 @@ import { ModelComponent } from '../../scene/components/ModelComponent'
 import { XRState } from '../../xr/XRState'
 import avatarBoneMatching from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
-import { locomotionAnimation } from '../animation/Util'
+import { preloadedAnimations } from '../animation/Util'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -72,16 +72,12 @@ declare module '@pixiv/three-vrm/types/VRM' {
     }
   }
 }
-
-export const getPreloaded = () => {
-  return ['sitting']
-}
-
 /** Checks if the asset is a VRM. If not, attempt to use
  *  Mixamo based naming schemes to autocreate necessary VRM humanoid objects. */
 export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
   const scene = model.scene ?? model // FBX assets do not have 'scene' property
   if (!scene) return null!
+
   //vrm1's vrm object is in the userData property
   if (model.userData?.vrm instanceof VRM) {
     return model.userData.vrm
@@ -93,12 +89,12 @@ export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
     model.humanoid.normalizedHumanBonesRoot.removeFromParent()
     bones.hips.node.rotateY(Math.PI)
     const humanoid = new VRMHumanoid(bones)
-    model.scene.add(humanoid.normalizedHumanBonesRoot)
     const vrm = new VRM({
       humanoid,
       scene: model.scene,
       meta: { name: model.scene.children[0].name } as VRM1Meta
     })
+    scene.add(vrm.humanoid.normalizedHumanBonesRoot)
     if (!vrm.userData) vrm.userData = {}
     return vrm
   }
@@ -208,47 +204,39 @@ export const retargetAvatarAnimations = (entity: Entity) => {
   })
 }
 
-export const loadLocomotionAnimations = () => {
+/**loads animation bundles. assumes the bundle is a glb */
+export const loadBundledAnimations = (animationFiles: string[]) => {
   const manager = getMutableState(AnimationState)
 
-  //preload locomotion animations
-  AssetLoader.loadAsync(
-    `${config.client.fileServer}/projects/default-project/assets/animations/${locomotionAnimation}.glb`
-  ).then((locomotionAsset: GLTF) => {
-    for (let i = 0; i < locomotionAsset.animations.length; i++) {
-      retargetAnimationClip(locomotionAsset.animations[i], locomotionAsset.scene)
-    }
-    manager.loadedAnimations[locomotionAnimation].set(locomotionAsset)
-    //update avatar speed from root motion
-    // todo: refactor this for direct translation from root motion
-    setAvatarSpeedFromRootMotion()
-  })
-}
-
-export const loadAnimationArray = (animations: string[], subDir: string) => {
-  const manager = getMutableState(AnimationState)
-
-  for (let i = 0; i < animations.length; i++) {
+  //preload animations
+  for (const animationFile of animationFiles) {
     AssetLoader.loadAsync(
-      `${config.client.fileServer}/projects/default-project/assets/animations/${subDir}/${animations[i]}.fbx`
-    ).then((loadedEmotes: GLTF) => {
-      manager.loadedAnimations[animations[i]].set(loadedEmotes)
-      //fbx files need animations reassignment to maintain consistency with GLTF
-      loadedEmotes.animations = loadedEmotes.scene.animations
-      loadedEmotes.animations[0].name = animations[i]
-      retargetAnimationClip(loadedEmotes.animations[0], loadedEmotes.scene)
+      `${config.client.fileServer}/projects/default-project/assets/animations/${animationFile}.glb`
+    ).then((asset: GLTF) => {
+      // delete unneeded geometry data to save memory
+      asset.scene.traverse((node) => {
+        delete (node as any).geometry
+        delete (node as any).material
+      })
+      for (let i = 0; i < asset.animations.length; i++) {
+        retargetAnimationClip(asset.animations[i], asset.scene)
+      }
+      //ensure animations are always placed in the scene
+      asset.scene.animations = asset.animations
+      manager.loadedAnimations[animationFile].set(asset)
     })
   }
 }
 
-/**todo: stop using global state for avatar speed
+/**
+ * @todo: stop using global state for avatar speed
  * in future this will be derrived from the actual root motion of a
  * given avatar's locomotion animations
  */
 export const setAvatarSpeedFromRootMotion = () => {
   const manager = getState(AnimationState)
-  const run = manager.loadedAnimations[locomotionAnimation].animations[4] ?? [new AnimationClip()]
-  const walk = manager.loadedAnimations[locomotionAnimation].animations[6] ?? [new AnimationClip()]
+  const run = manager.loadedAnimations[preloadedAnimations.locomotion].animations[4] ?? [new AnimationClip()]
+  const walk = manager.loadedAnimations[preloadedAnimations.locomotion].animations[6] ?? [new AnimationClip()]
   const movement = getMutableState(AvatarMovementSettingsState)
   if (run) movement.runSpeed.set(getRootSpeed(run))
   if (walk) movement.walkSpeed.set(getRootSpeed(walk))

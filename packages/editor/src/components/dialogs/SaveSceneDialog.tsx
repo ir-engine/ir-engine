@@ -26,12 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-
-import Box from '@mui/material/Box'
-
-import { EditorHelperState } from '../../services/EditorHelperState'
-import BooleanInput from '../inputs/BooleanInput'
 import Dialog from './Dialog'
 
 /**
@@ -39,19 +33,12 @@ import Dialog from './Dialog'
  */
 export function SaveSceneDialog({
   onConfirm,
-  onCancel,
-  thumbnailUrl
+  onCancel
 }: {
   onConfirm: (val: boolean) => void
   onCancel: (val?: boolean) => void
-  thumbnailUrl: string
 }) {
   const { t } = useTranslation()
-  const state = useHookstate(getMutableState(EditorHelperState).isGenerateThumbnailsEnabled)
-
-  const onChangeGenerateThumbnails = (value) => {
-    state.set((enabled) => !enabled)
-  }
 
   /**
    * onConfirmCallback callback function is used handle confirm dialog.
@@ -86,33 +73,7 @@ export function SaveSceneDialog({
       onConfirm={onConfirmCallback}
       onCancel={onCancelCallback}
       confirmLabel={t('editor:dialog.saveScene.lbl-confirm')}
-    >
-      <div style={{ width: '100%' }}>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexDirection: 'column',
-            margin: '10px'
-          }}
-        >
-          <img
-            src={thumbnailUrl}
-            alt=""
-            crossOrigin="anonymous"
-            style={{
-              borderRadius: '6px',
-              marginBottom: '10px'
-            }}
-            height={160}
-            width={256}
-          />
-          <BooleanInput value={state.value} onChange={onChangeGenerateThumbnails} />
-          <label style={{ marginLeft: '10px' }}>{t('editor:dialog.saveScene.lbl-thumbnail')}</label>
-        </Box>
-      </div>
-    </Dialog>
+    />
   )
 }
 

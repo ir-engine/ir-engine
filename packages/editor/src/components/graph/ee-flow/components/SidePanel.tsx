@@ -154,7 +154,7 @@ export const SidePanel = ({
                   <StringInput
                     value={template.name}
                     onChange={(e) => {
-                      template.name = e.target.value
+                      template.name = e
                       handleEditTemplate(template)
                     }}
                   ></StringInput>
@@ -187,7 +187,7 @@ export const SidePanel = ({
                       <StringInput
                         value={variable.name}
                         onChange={(e) => {
-                          handleEditVariable({ ...variable, name: e.target.value })
+                          handleEditVariable({ ...variable, name: e })
                         }}
                       ></StringInput>
                       <Button

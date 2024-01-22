@@ -71,7 +71,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
   const transformParms = useHookstate<ModelTransformParameters>({
     ...DefaultModelTransformParameters,
     src: modelState.src.value,
-    modelFormat: modelState.src.value.endsWith('.gltf') ? 'gltf' : 'glb'
+    modelFormat: modelState.src.value.endsWith('.gltf') ? 'gltf' : modelState.src.value.endsWith('.vrm') ? 'vrm' : 'glb'
   })
 
   const vertexBakeOptions = useHookstate({
@@ -93,6 +93,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
       await Promise.all(
         materialsFromSource(src)?.map((matComponent) =>
           bakeToVertices<MeshStandardMaterial>(
+            entity,
             matComponent.material as MeshStandardMaterial,
             colors,
             attribs,
@@ -282,7 +283,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
           <InputGroup name="matcap" label="matcap">
             <TexturePreviewInput
               value={vertexBakeOptions.matcapPath.value}
-              onChange={(val: string) => {
+              onRelease={(val: string) => {
                 vertexBakeOptions.matcapPath.set(val)
               }}
             />

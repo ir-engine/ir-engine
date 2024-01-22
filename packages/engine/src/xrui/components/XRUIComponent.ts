@@ -39,7 +39,6 @@ export const XRUIComponent = defineComponent({
   onSet: (entity, component, json: WebContainer3D) => {
     if (typeof json !== 'undefined') {
       component.set(json)
-      XRUIComponent.valueMap[entity] = json
       json.interactionRays = getState(XRUIState).interactionRays
     }
   },

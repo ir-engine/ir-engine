@@ -50,19 +50,18 @@ import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  defineQuery,
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent,
-  useComponent,
-  useQuery
+  useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
-import { QueryReactor, defineSystem, useExecute } from '../../ecs/functions/SystemFunctions'
+import { QueryReactor, defineQuery, useQuery } from '../../ecs/functions/QueryFunctions'
+import { defineSystem, useExecute } from '../../ecs/functions/SystemFunctions'
+import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer, RenderSettingsState } from '../../renderer/WebGLRendererSystem'
 import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
@@ -143,9 +142,9 @@ const EntityCSMReactor = (props: { entity: Entity }) => {
     csm.shadowBias = directionalLight.shadow.bias
 
     for (const light of csm.lights) {
-      light.color = directionalLight.color
-      light.intensity = directionalLight.intensity
-      light.shadow.bias = directionalLight.shadow.bias
+      light.color.copy(directionalLightComponent.color.value)
+      light.intensity = directionalLightComponent.intensity.value
+      light.shadow.bias = directionalLightComponent.shadowBias.value
       light.shadow.mapSize.setScalar(shadowMapResolution.value)
       csm.needsUpdate = true
     }

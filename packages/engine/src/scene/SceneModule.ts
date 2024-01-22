@@ -75,6 +75,7 @@ import { EnvironmentSystem } from './systems/EnvironmentSystem'
 import { FogSystem } from './systems/FogSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
 import { PortalSystem } from './systems/PortalSystem'
+import { SDFSystem } from './systems/SDFSystem'
 import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
 import { SceneObjectDynamicLoadSystem } from './systems/SceneObjectDynamicLoadSystem'
 import { SceneObjectSystem } from './systems/SceneObjectSystem'
@@ -143,6 +144,7 @@ export {
   SceneLoadingSystem,
   SceneObjectDynamicLoadSystem,
   SceneObjectSystem,
+  SDFSystem,
   ShadowSystem,
   VariantSystem
 }

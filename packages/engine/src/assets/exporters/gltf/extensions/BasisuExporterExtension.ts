@@ -81,8 +81,16 @@ export default class BasisuExporterExtension extends ExporterExtension implement
   sampler: number
 
   writeTexture(_texture: CompressedTexture, textureDef) {
+    //only operate on compressed textures
     if (!_texture?.isCompressedTexture) return
     const writer = this.writer
+    //if we're not embedding images and this image already has a src, just use that
+    if (!writer.options.embedImages && _texture.userData.src) {
+      textureDef.extensions[this.name] = { source: textureDef.source }
+      writer.extensionsUsed[this.name] = true
+      delete textureDef.source
+      return
+    }
     _texture.colorSpace = NoColorSpace
     writer.pending.push(
       new Promise((resolve) => {

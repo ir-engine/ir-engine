@@ -41,7 +41,6 @@ import { ShadowMaterial } from './constants/material-prototypes/ShadowMaterial.m
 import { NoiseOffsetPlugin } from './constants/plugins/NoiseOffsetPlugin'
 import { registerMaterialPrototype } from './functions/MaterialLibraryFunctions'
 import { registerMaterialPlugin } from './functions/MaterialPluginFunctions'
-
 export const MaterialLibraryState = defineState({
   name: 'MaterialLibraryState',
   initial: {
@@ -52,7 +51,6 @@ export const MaterialLibraryState = defineState({
     initialized: false
   }
 })
-
 export function initializeMaterialLibrary() {
   const materialLibrary = getState(MaterialLibraryState)
   //load default prototypes from source

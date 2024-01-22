@@ -32,7 +32,6 @@ import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../commo
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  QueryComponents,
   defineComponent,
   getComponent,
   getMutableComponent,
@@ -42,10 +41,11 @@ import {
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { QueryReactor } from '../../ecs/functions/SystemFunctions'
+import { QueryComponents, QueryReactor } from '../../ecs/functions/QueryFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Layer } from './ObjectLayerComponent'
 import { RenderOrderComponent } from './RenderOrderComponent'
+export type Object3DWithEntity = Object3D & { entity: Entity }
 
 export const GroupComponent = defineComponent({
   name: 'GroupComponent',
@@ -85,17 +85,17 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.layers = new Layer(entity)
   obj.frustumCulled = false
 
+  if (!hasComponent(entity, RenderOrderComponent)) setComponent(entity, RenderOrderComponent, obj.renderOrder)
   Object.defineProperty(obj, 'renderOrder', {
     get: () => RenderOrderComponent.renderOrder[entity],
     set: (val: number) => setComponent(entity, RenderOrderComponent, val)
   })
-  obj.renderOrder = 0
 
   Object.assign(obj, {
     updateWorldMatrix: () => {}
   })
 
-  if (object !== Engine.instance.scene) Engine.instance.scene.add(object)
+  Engine.instance.scene.add(obj)
 
   // sometimes it's convenient to update the entity transform via the Object3D,
   // so allow people to do that via proxies

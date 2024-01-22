@@ -35,7 +35,7 @@ import {
   ResourceTransforms
 } from '../../../assets/classes/ModelTransform'
 import { Entity } from '../../../ecs/classes/Entity'
-import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { getComponent, getOptionalComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { iterateEntityNode } from '../../../ecs/functions/EntityTree'
 import { MeshComponent } from '../../components/MeshComponent'
 import { ModelComponent } from '../../components/ModelComponent'
@@ -52,11 +52,11 @@ export function getModelSceneID(entity: Entity): SceneID {
 }
 
 export function getModelResources(entity: Entity, defaultParms: ModelTransformParameters): ResourceTransforms {
-  const model = getComponent(entity, ModelComponent)
+  const model = getOptionalComponent(entity, ModelComponent)
   if (!model?.scene) return { geometries: [], images: [] }
   const geometries: GeometryTransformParameters[] = iterateEntityNode(entity, (entity) => {
     if (!hasComponent(entity, MeshComponent)) return []
-    const mesh = getComponent(entity, MeshComponent)
+    const mesh = getOptionalComponent(entity, MeshComponent)
     if (!mesh?.isMesh || !mesh.geometry) return []
     mesh.name && (mesh.geometry.name = mesh.name)
     return [mesh.geometry]
@@ -92,7 +92,7 @@ export function getModelResources(entity: Entity, defaultParms: ModelTransformPa
 
   const visitedMaterials: Set<Material> = new Set()
   const images: ImageTransformParameters[] = iterateEntityNode(entity, (entity) => {
-    const mesh = getComponent(entity, MeshComponent)
+    const mesh = getOptionalComponent(entity, MeshComponent)
     if (!mesh?.isMesh || !mesh.material || visitedMaterials.has(mesh.material as Material)) return []
     visitedMaterials.add(mesh.material as Material)
     const textures: Texture[] = Object.entries(mesh.material)

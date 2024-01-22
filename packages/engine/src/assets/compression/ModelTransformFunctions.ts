@@ -585,9 +585,12 @@ export async function transformModel(args: ModelTransformParameters) {
         await imgDoc.transform(textureResize(resizeParms))
         const originalName = texture.getName()
         const originalURI = texture.getURI()
+        const [_, fileName, extension] = /(.*)\.([^.]+)$/.exec(originalURI) ?? []
+        const quality = mergedParms.textureCompressionType === 'uastc' ? mergedParms.uastcLevel : mergedParms.compLevel
+        const nuURI = `${fileName}-${mergedParms.maxTextureSize}x${quality}.${extension}`
         texture.copy(nuTexture)
         texture.setName(originalName)
-        texture.setURI(originalURI)
+        texture.setURI(nuURI)
       }
 
       if (mergedParms.textureFormat === 'ktx2' && texture.getMimeType() !== 'image/ktx2') {
@@ -705,11 +708,11 @@ export async function transformModel(args: ModelTransformParameters) {
     }
   }
   let result
-  if (parms.modelFormat === 'glb') {
+  if (['glb', 'vrm'].includes(parms.modelFormat)) {
     const data = await io.writeBinary(document)
-    let finalPath = args.dst.replace(/\.gltf$/, '.glb')
-    if (!finalPath.endsWith('.glb')) {
-      finalPath += '.glb'
+    let finalPath = args.dst.replace(/\.[^.]*$/, `.${parms.modelFormat}`)
+    if (!finalPath.endsWith(`.${parms.modelFormat}`)) {
+      finalPath += `.${parms.modelFormat}`
     }
     await doUpload(data, finalPath)
 
@@ -810,7 +813,7 @@ export async function transformModel(args: ModelTransformParameters) {
         await doUpload(blob, uri)
       })
     )
-    let finalPath = args.dst.replace(/\.glb$/, '.gltf')
+    let finalPath = args.dst.replace(/\.[^.]*$/, '.gltf')
     if (!finalPath.endsWith('.gltf')) {
       finalPath += '.gltf'
     }

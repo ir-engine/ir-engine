@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { ChangeEvent, FocusEvent, useEffect, useRef, useState } from 'react'
+import React, { FocusEvent, useEffect, useRef, useState } from 'react'
 
 import './Input.css'
 
@@ -35,7 +35,7 @@ const inputStyle = {
 
 interface StyledStringInputProps {
   className?: string
-  onChange?: (e: ChangeEvent<HTMLInputElement>) => void
+  onChange: (e: string) => void
   onRelease?: (e: FocusEvent<HTMLInputElement>) => void
   onFocus?: (e: FocusEvent<HTMLInputElement>) => void
   onBlur?: (e: FocusEvent<HTMLInputElement>) => void
@@ -48,9 +48,8 @@ const StyledStringInput = React.forwardRef<any, StyledStringInputProps>(
     return (
       <input
         className={`StyledNumericInput ${className}`}
+        onChange={(ev) => onChange(ev.target.value)}
         style={inputStyle}
-        onBlur={onRelease}
-        onChange={onChange}
         {...rest}
         ref={ref}
       />
@@ -61,7 +60,7 @@ const StyledStringInput = React.forwardRef<any, StyledStringInputProps>(
 export interface StringInputProps {
   id?: string
   value?: string
-  onChange?: (e: ChangeEvent<HTMLInputElement>) => void
+  onChange?: (e: string) => void
   onBlur?: (e: FocusEvent<HTMLInputElement>) => void
   onRelease?: any
   onFocus?: any
@@ -78,7 +77,16 @@ export interface StringInputProps {
 
 const StringInput = React.forwardRef<any, StringInputProps>(({ onChange, onRelease, ...rest }, ref) => {
   const { error, canDrop, ...other } = rest
-  return <input className="Input" style={inputStyle} onBlur={onRelease} onChange={onChange} {...other} ref={ref} />
+  return (
+    <input
+      className="Input"
+      style={inputStyle}
+      onBlur={(event) => onRelease?.(event.target.value)}
+      onChange={(event) => onChange?.(event.target.value)}
+      {...other}
+      ref={ref}
+    />
+  )
 })
 
 StringInput.displayName = 'StringInput'
@@ -132,7 +140,7 @@ export const ControlledStringInput = React.forwardRef<any, StringInputProps>((va
       <StyledStringInput
         ref={inputRef}
         className="Input"
-        onChange={onChangeValue}
+        onChange={setTempValue}
         onBlur={onBlur}
         onKeyUp={onKeyUp}
         value={tempValue || ''}

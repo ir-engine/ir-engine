@@ -40,7 +40,15 @@ import Primus from 'primus-client'
 import config from '@etherealengine/common/src/config'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { ChannelID, InstanceID, InviteCode, UserID } from '@etherealengine/common/src/schema.type.module'
+import {
+  ChannelID,
+  InstanceID,
+  InviteCode,
+  LocationID,
+  MessageID,
+  RoomCode,
+  UserID
+} from '@etherealengine/common/src/schema.type.module'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -85,6 +93,7 @@ import { State, dispatchAction, getMutableState, getState, none } from '@etherea
 import {
   Action,
   Topic,
+  addOutgoingTopicIfNecessary,
   defineActionQueue,
   removeActionQueue
 } from '@etherealengine/hyperflux/functions/ActionFunctions'
@@ -105,9 +114,8 @@ import { NetworkActionFunctions } from '@etherealengine/engine/src/networking/fu
 import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import { encode } from 'msgpackr'
 
-import { LocationID, MessageID, RoomCode } from '@etherealengine/common/src/schema.type.module'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { defineSystem, destroySystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
 
@@ -160,17 +168,24 @@ export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
   networkState.connected.set(false)
   networkState.authenticated.set(false)
   networkState.ready.set(false)
-  const transportState = getState(MediasoupTransportState)[network.id]
-  if (transportState) {
-    for (const { transportID } of Object.values(transportState)) {
-      const transport = getState(MediasoupTransportObjectsState)[transportID]
-      transport.close()
-    }
-  }
+  for (const transportID of Object.keys(getState(MediasoupTransportState)[network.id]))
+    MediasoupTransportState.removeTransport(network.id, transportID)
   network.transport.heartbeat && clearInterval(network.transport.heartbeat)
   network.transport.primus?.end()
   network.transport.primus?.removeAllListeners()
   networkState.transport.primus.set(null!)
+}
+
+export const closeNetworkTransport = (network: SocketWebRTCClientNetwork) => {
+  for (const transportID of Object.keys(getState(MediasoupTransportState)[network.id]))
+    MediasoupTransportState.removeTransport(network.id, transportID)
+  network.transport.heartbeat && clearInterval(network.transport.heartbeat)
+  network.transport.primus?.end()
+  network.transport.primus?.removeAllListeners()
+  const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
+  networkState.transport.primus.set(null!)
+  networkState.authenticated.set(false)
+  networkState.ready.set(false)
 }
 
 export const initializeNetwork = (id: InstanceID, hostId: UserID, topic: Topic) => {
@@ -230,7 +245,7 @@ export const initializeNetwork = (id: InstanceID, hostId: UserID, topic: Topic) 
 
 export type SocketWebRTCClientNetwork = ReturnType<typeof initializeNetwork>
 
-export const connectToNetwork = async (
+export const connectToNetwork = (
   instanceID: InstanceID,
   ipAddress: string,
   port: string,
@@ -282,12 +297,22 @@ export const connectToNetwork = async (
     handleFailedConnection(locationId ? NetworkTopics.world : NetworkTopics.media, instanceID)
   }, 3000)
 
-  const onConnect = () => {
-    const topic = locationId ? NetworkTopics.world : NetworkTopics.media
-    getMutableState(NetworkState).hostIds[topic].set(instanceID)
-    const network = initializeNetwork(instanceID, instanceID as any, topic)
-    addNetwork(network)
+  let connecting = true
+  let disconnected = false
 
+  const onConnect = () => {
+    connecting = false
+
+    /** Check if a network already exists */
+    const existingNetwork = getState(NetworkState).networks[instanceID]
+    if (!existingNetwork) {
+      const topic = locationId ? NetworkTopics.world : NetworkTopics.media
+      getMutableState(NetworkState).hostIds[topic].set(instanceID)
+      const network = initializeNetwork(instanceID, instanceID as any, topic)
+      addNetwork(network)
+    }
+
+    const network = getState(NetworkState).networks[instanceID] as SocketWebRTCClientNetwork
     const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
 
     networkState.transport.primus.set(primus)
@@ -300,15 +325,32 @@ export const connectToNetwork = async (
     networkState.connected.set(true)
     authenticateNetwork(network)
 
+    /** Server closed the connection. */
     const onDisconnect = () => {
-      logger.info('Disonnected from network %o', { topic: network.topic, id: network.id })
-      leaveNetwork(network)
+      logger.info('Disonnected from network %o', { topic: network.topic, id: network.id, disconnected })
+      /**
+       * If we are disconnected (server closes our socket) rather than leave the network,
+       * we just need to destroy and recreate the transport
+       */
+      closeNetworkTransport(network)
+      connectToNetwork(instanceID, ipAddress, port, locationId, channelId, roomCode)
     }
     primus.on('incoming::end', onDisconnect)
   }
   primus.on('incoming::open', onConnect)
 
-  logger.info('Connecting to instance type: %o', { instanceID, ipAddress, port, channelId, roomCode })
+  return () => {
+    disconnected = true
+    if (connecting) {
+      primus.off('incoming::open', onConnect)
+      primus.removeAllListeners()
+      primus.end()
+      clearTimeout(connectionFailTimeout)
+    } else {
+      const network = getState(NetworkState).networks[instanceID] as SocketWebRTCClientNetwork
+      leaveNetwork(network)
+    }
+  }
 }
 
 export const getChannelIdFromTransport = (network: SocketWebRTCClientNetwork) => {
@@ -371,6 +413,8 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
     network.transport.onMessage(network.hostPeerID, message)
   })
 
+  addOutgoingTopicIfNecessary(network.topic)
+
   // handle cached actions
   for (const action of cachedActions!) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
 
@@ -387,37 +431,39 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
     }
   }
 
-  ;(network.transport.mediasoupDevice.loaded
-    ? Promise.resolve()
-    : network.transport.mediasoupDevice.load({
-        routerRtpCapabilities
-      })
-  ).then(() => {
-    networkState.transport.mediasoupLoaded.set(true)
-    dispatchAction(
-      MediasoupTransportActions.requestTransport({
-        peerID: Engine.instance.peerID,
-        direction: 'send',
-        sctpCapabilities: network.transport.mediasoupDevice.sctpCapabilities,
-        $network: network.id,
-        $topic: network.topic,
-        $to: network.hostPeerID
-      })
-    )
-
-    dispatchAction(
-      MediasoupTransportActions.requestTransport({
-        peerID: Engine.instance.peerID,
-        direction: 'recv',
-        sctpCapabilities: network.transport.mediasoupDevice.sctpCapabilities,
-        $network: network.id,
-        $topic: network.topic,
-        $to: network.hostPeerID
-      })
-    )
-
+  if (!network.transport.mediasoupDevice.loaded) {
+    await network.transport.mediasoupDevice.load({ routerRtpCapabilities })
     logger.info('Successfully loaded routerRtpCapabilities')
-  })
+    networkState.transport.mediasoupLoaded.set(true)
+  }
+
+  const transportSendID = MediasoupTransportState.getTransport(network.id, 'send', Engine.instance.peerID)
+  if (transportSendID) MediasoupTransportState.removeTransport(network.id, transportSendID)
+
+  const transportRecvID = MediasoupTransportState.getTransport(network.id, 'recv', Engine.instance.peerID)
+  if (transportRecvID) MediasoupTransportState.removeTransport(network.id, transportRecvID)
+
+  dispatchAction(
+    MediasoupTransportActions.requestTransport({
+      peerID: Engine.instance.peerID,
+      direction: 'send',
+      sctpCapabilities: network.transport.mediasoupDevice.sctpCapabilities,
+      $network: network.id,
+      $topic: network.topic,
+      $to: network.hostPeerID
+    })
+  )
+
+  dispatchAction(
+    MediasoupTransportActions.requestTransport({
+      peerID: Engine.instance.peerID,
+      direction: 'recv',
+      sctpCapabilities: network.transport.mediasoupDevice.sctpCapabilities,
+      $network: network.id,
+      $topic: network.topic,
+      $to: network.hostPeerID
+    })
+  )
 
   logger.info('Successfully connected to instance type: %o', { topic: network.topic, id: network.id })
 }
@@ -497,7 +543,7 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
           }
 
           const systemUUID = defineSystem({
-            uuid: '[WebRTC] transport connected ' + requestID,
+            uuid: '[WebRTC] transport connected ' + transportID,
             insert: { after: PresentationSystemGroup },
             execute: () => {
               for (const action of actionQueue()) {
@@ -698,6 +744,9 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
           network.transport.primus.disconnect
         )
           return
+
+        const transportID = MediasoupTransportState.getTransport(network.id, direction, Engine.instance.peerID)
+        getMutableState(MediasoupTransportState)[network.id][transportID].set(none)
 
         dispatchAction(
           MediasoupTransportActions.requestTransport({

@@ -38,15 +38,8 @@ import { StringInputProps } from './StringInput'
  * @param       {any} rest
  * @constructor
  */
-export function ScriptInput({ onChange, ...rest }: StringInputProps) {
-  return (
-    <FileBrowserInput
-      acceptFileTypes={CustomScriptFileTypes}
-      acceptDropItems={ItemTypes.Scripts}
-      onChange={onChange}
-      {...rest}
-    />
-  )
+export function ScriptInput({ ...rest }: StringInputProps) {
+  return <FileBrowserInput acceptFileTypes={CustomScriptFileTypes} acceptDropItems={ItemTypes.Scripts} {...rest} />
 }
 
 export default ScriptInput

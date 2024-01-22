@@ -35,8 +35,8 @@ import {
 } from '@behave-graph/core'
 import { uniqueId } from 'lodash'
 import { useEffect } from 'react'
-import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
 import { SystemUUID, defineSystem, destroySystem } from '../../../../../ecs/functions/SystemFunctions'
+import { InputSystemGroup } from '../../../../../ecs/functions/SystemGroups'
 
 export const EngineVariableGet = makeFunctionNodeDefinition({
   typeName: 'engine/variable/get',

@@ -45,8 +45,8 @@ import {
   recordingResourceUploadPath,
   RecordingSchemaType
 } from '@etherealengine/common/src/schema.type.module'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { RecordingAPIState } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { getMutableState, none } from '@etherealengine/hyperflux'
 import { PassThrough } from 'stream'

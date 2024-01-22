@@ -41,9 +41,10 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
+import { getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { RendererState } from '../../renderer/RendererState'
 import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
@@ -139,12 +140,16 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
   useEffect(() => {
     const source = hasComponent(entity, ModelComponent)
       ? getModelSceneID(entity)
-      : getComponent(entity, SourceComponent)
+      : getOptionalComponent(entity, SourceComponent)
     return () => {
       if (obj.isProxified) {
         disposeObject3D(obj)
       } else {
-        iterateObject3D(obj, disposeObject3D, (obj: Object3D) => getComponent(obj.entity, SourceComponent) === source)
+        iterateObject3D(
+          obj,
+          disposeObject3D,
+          (obj: Object3D) => getOptionalComponent(obj.entity, SourceComponent) === source
+        )
       }
     }
   }, [])

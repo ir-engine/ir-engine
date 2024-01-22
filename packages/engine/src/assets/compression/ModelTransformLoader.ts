@@ -46,6 +46,7 @@ import { FileLoader } from 'three'
 
 import { EEMaterialExtension } from './extensions/EE_MaterialTransformer'
 import { EEResourceIDExtension } from './extensions/EE_ResourceIDTransformer'
+import { VRMExtension } from './extensions/EE_VRMTransformer'
 import { MOZLightmapExtension } from './extensions/MOZ_LightmapTransformer'
 
 const transformHistory: string[] = []
@@ -67,7 +68,8 @@ export default async function ModelTransformLoader() {
     KHRTextureTransform,
     MOZLightmapExtension,
     EEResourceIDExtension,
-    EEMaterialExtension
+    EEMaterialExtension,
+    VRMExtension
   ])
   io.registerDependencies({
     'meshopt.decoder': MeshoptDecoder,
