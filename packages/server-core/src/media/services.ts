@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import FileBrowserUpload from './file-browser-upload/file-browser-upload'
 import FileBrowser from './file-browser/file-browser'
+import FileThumbnail from './file-thumbnail/file-thumbnail'
 import OEmbed from './oembed/oembed'
 import Archiver from './recursive-archiver/archiver'
 import StaticResourceFilters from './static-resource-filters/static-resource-filters'
@@ -38,6 +39,7 @@ export default [
   StaticResourceFilters,
   FileBrowser,
   FileBrowserUpload,
+  FileThumbnail,
   OEmbed,
   Upload,
   Archiver
