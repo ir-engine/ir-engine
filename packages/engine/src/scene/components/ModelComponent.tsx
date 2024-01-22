@@ -34,6 +34,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
+import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { autoconvertMixamoAvatar, isAvaturn } from '../../avatar/functions/avatarFunctions'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -62,6 +63,7 @@ import { getModelSceneID } from '../functions/loaders/ModelFunctions'
 import { EnvmapComponent } from './EnvmapComponent'
 import { GroupComponent, addObjectToGroup } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
+import { ObjectGridSnapComponent } from './ObjectGridSnapComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 import { ShadowComponent } from './ShadowComponent'
@@ -260,6 +262,11 @@ function ModelReactor(): JSX.Element {
       thumbnailUrl: ''
     })
     const src = modelComponent.src.value
+    if (!hasComponent(entity, AvatarRigComponent)) {
+      //if this is not an avatar, add bbox snap
+      setComponent(entity, ObjectGridSnapComponent)
+    }
+
     return () => {
       if (!(asset instanceof VRM)) clearMaterials(src) // [TODO] Replace with hooks and refrence counting
       getMutableState(SceneState).scenes[uuid].set(none)

@@ -57,7 +57,7 @@ export const getScreenSpacePosition = (() => {
       raycaster.ray.at(20, target)
     }
 
-    if (editorHelperState.snapMode === SnapMode.Grid) {
+    if (editorHelperState.gridSnap === SnapMode.Grid) {
       const translationSnap = editorHelperState.translationSnap
 
       target.set(
