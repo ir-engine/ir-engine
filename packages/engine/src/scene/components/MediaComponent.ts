@@ -27,9 +27,10 @@ import Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
-import { State, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { useTexture } from '../../assets/functions/resourceHooks'
 import { AudioState } from '../../audio/AudioState'
 import { removePannerNode } from '../../audio/PositionalAudioFunctions'
 import { isClient } from '../../common/functions/getEnvironment'
@@ -481,15 +482,22 @@ export function MediaReactor() {
   )
 
   const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
+  const [audioHelperTexture, unload] = useTexture(debugEnabled.value ? AUDIO_TEXTURE_PATH : '', entity)
+
+  useEffect(() => {
+    if (!audioHelperTexture.value) return
+    return unload
+  }, [audioHelperTexture])
 
   useEffect(() => {
     if (!debugEnabled.value) return
 
     const helper = new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide }))
     helper.name = `audio-helper-${entity}`
-    AssetLoader.loadAsync(AUDIO_TEXTURE_PATH).then((AUDIO_HELPER_TEXTURE) => {
-      helper.material.map = AUDIO_HELPER_TEXTURE
-    })
+    if (audioHelperTexture.value) {
+      const texture = audioHelperTexture.get(NO_PROXY)
+      helper.material.map = texture
+    }
 
     const helperEntity = createEntity()
     addObjectToGroup(helperEntity, helper)
@@ -503,7 +511,7 @@ export function MediaReactor() {
       removeEntity(helperEntity)
       media.helperEntity.set(none)
     }
-  }, [debugEnabled])
+  }, [debugEnabled, audioHelperTexture])
 
   return null
 }

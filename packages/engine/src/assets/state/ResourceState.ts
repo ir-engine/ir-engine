@@ -120,6 +120,11 @@ const Callbacks = {
       resource.metadata.merge({ onGPU: false })
     },
     onLoad: (response: Texture, resource: State<Resource>) => {
+      response.onUpdate = () => {
+        resource.metadata.merge({ onGPU: true })
+        //@ts-ignore
+        response.onUpdate = null
+      }
       if (response.mipmaps[0]) {
         resource.metadata.size.set(response.mipmaps[0].data.length)
       } else {
