@@ -77,6 +77,7 @@ export const SystemDebug = () => {
 export const SystemDagView = (props: { uuid: SystemUUID }) => {
   const { t } = useTranslation()
 
+  useHookstate(getMutableState(EngineState).frameTime).value
   const systemPerformanceProfilingEnabled = useHookstate(getMutableState(SystemState).performanceProfilingEnabled)
 
   return (

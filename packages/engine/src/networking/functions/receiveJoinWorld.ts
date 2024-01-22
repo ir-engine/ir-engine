@@ -81,6 +81,7 @@ export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
   createIkTargetsForLocalAvatar()
 }
 
+/** @todo put in a reactor in IK system */
 export const createIkTargetsForLocalAvatar = () => {
   const { userID } = Engine.instance
   const headUUID = (userID + ikTargets.head) as EntityUUID
