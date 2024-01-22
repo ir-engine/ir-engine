@@ -87,7 +87,8 @@ export const SidePanel = ({
   }, [examples, handleAddTemplate])
 
   return (
-    <div
+    <CollapsibleBlock
+      label={'Graph Utilities'}
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -174,7 +175,7 @@ export const SidePanel = ({
         </NodeEditor>
       </CollapsibleBlock>
 
-      <CollapsibleBlock label={'Graph Properties'}>
+      <CollapsibleBlock label={'Graph Variables'}>
         <NodeEditor entity={UndefinedEntity} description={t('editor:graphPanel.sidePanel.template.description')}>
           <PaginatedList
             options={{ countPerPage: 5 }}
@@ -240,7 +241,7 @@ export const SidePanel = ({
           </PropertiesPanelButton>
         </NodeEditor>
       </CollapsibleBlock>
-    </div>
+    </CollapsibleBlock>
   )
 }
 
