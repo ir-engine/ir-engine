@@ -158,7 +158,7 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
         $to: network.hostPeerID
       })
     )
-  }, [networkState.ready])
+  }, [networkState.ready.value])
 
   return null
 }
