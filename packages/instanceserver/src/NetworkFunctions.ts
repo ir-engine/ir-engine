@@ -221,13 +221,15 @@ export const handleConnectingPeer = (
     lastSeenTs: Date.now()
   })
 
-  updatePeers(network)
+  const updatePeersAction = updatePeers(network)
 
   logger.info('Connect to world from ' + userId)
 
-  const cachedActions = NetworkPeerFunctions.getCachedActionsForPeer(peerID).map((action) => {
-    return _.cloneDeep(action)
-  })
+  const cachedActions = NetworkPeerFunctions.getCachedActionsForPeer(peerID)
+    .map((action) => {
+      return _.cloneDeep(action)
+    })
+    .concat([updatePeersAction])
 
   const instanceServerState = getState(InstanceServerState)
   if (inviteCode && !instanceServerState.isMediaInstance) getUserSpawnFromInvite(network, user, inviteCode!)

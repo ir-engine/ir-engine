@@ -34,26 +34,26 @@ import { NetworkTopics } from './classes/Network'
 /**
  * NetworkUserState is a state that tracks which users are in which instances
  */
-export const NetworkUserState = defineState({
-  name: 'ee.engine.network.NetworkUserState',
+export const NetworkWorldUserState = defineState({
+  name: 'ee.engine.network.NetworkWorldUserState',
   initial: {} as Record<UserID, InstanceID[]>,
 
   userJoined: (userID: UserID, instanceID: InstanceID) => {
-    if (!getState(NetworkUserState)[userID]) getMutableState(NetworkUserState)[userID].set([])
-    if (!getState(NetworkUserState)[userID].includes(instanceID))
-      getMutableState(NetworkUserState)[userID].merge([instanceID])
+    if (!getState(NetworkWorldUserState)[userID]) getMutableState(NetworkWorldUserState)[userID].set([])
+    if (!getState(NetworkWorldUserState)[userID].includes(instanceID))
+      getMutableState(NetworkWorldUserState)[userID].merge([instanceID])
   },
 
   userLeft: (userID: UserID, instanceID: InstanceID) => {
-    getMutableState(NetworkUserState)[userID].set((ids) => ids.filter((id) => id !== instanceID))
-    if (getState(NetworkUserState)[userID].length === 0) getMutableState(NetworkUserState)[userID].set(none)
+    getMutableState(NetworkWorldUserState)[userID].set((ids) => ids.filter((id) => id !== instanceID))
+    if (getState(NetworkWorldUserState)[userID].length === 0) getMutableState(NetworkWorldUserState)[userID].set(none)
   }
 })
 
 const NetworkUserReactor = (props: { networkID: InstanceID; userID: UserID }) => {
   useEffect(() => {
-    NetworkUserState.userJoined(props.userID, props.networkID)
-    return () => NetworkUserState.userLeft(props.userID, props.networkID)
+    NetworkWorldUserState.userJoined(props.userID, props.networkID)
+    return () => NetworkWorldUserState.userLeft(props.userID, props.networkID)
   }, [])
   return null
 }
