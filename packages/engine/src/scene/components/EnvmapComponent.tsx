@@ -41,7 +41,6 @@ import {
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceHooks'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Entity } from '../../ecs/classes/Entity'
@@ -206,20 +205,23 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
   const bakeComponent = useComponent(bakeEntity, EnvMapBakeComponent)
   const group = useComponent(envmapEntity, GroupComponent)
   const renderState = useHookstate(getMutableState(RendererState))
+  const [envMaptexture, unload, error] = useTexture(bakeComponent.envMapOrigin.value, envmapEntity)
 
   /** @todo add an unmount cleanup for applyBoxprojection */
   useEffect(() => {
-    AssetLoader.loadAsync(bakeComponent.envMapOrigin.value, {}).then((texture) => {
-      if (texture) {
-        texture.mapping = EquirectangularReflectionMapping
-        getMutableComponent(envmapEntity, EnvmapComponent).envmap.set(texture)
-        if (bakeComponent.boxProjection.value) applyBoxProjection(bakeEntity, group.value)
-        removeError(envmapEntity, EnvmapComponent, 'MISSING_FILE')
-      } else {
-        addError(envmapEntity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
-      }
-    })
-  }, [renderState.forceBasicMaterials, bakeComponent.envMapOrigin])
+    const texture = envMaptexture.get(NO_PROXY)
+    if (!texture) return
+
+    texture.mapping = EquirectangularReflectionMapping
+    getMutableComponent(envmapEntity, EnvmapComponent).envmap.set(texture)
+    if (bakeComponent.boxProjection.value) applyBoxProjection(bakeEntity, group.value)
+    return unload
+  }, [envMaptexture])
+
+  useEffect(() => {
+    if (!error.value) return
+    addError(envmapEntity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
+  }, [error])
 
   return null
 }
