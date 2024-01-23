@@ -30,7 +30,7 @@ import path from 'path/posix'
 
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
-import { isDev } from '@etherealengine/common/src/config'
+import config, { isDev } from '@etherealengine/common/src/config'
 import {
   FileBrowserContentType,
   FileBrowserPatch,
@@ -126,6 +126,9 @@ export class FileBrowserService
     const total = result.length
 
     result = result.slice(skip, skip + limit)
+    result.forEach((file) => {
+      file.url = `${config.client.fileServer}/${file.key}`
+    })
 
     if (params.provider && !isAdmin) {
       const knexClient: Knex = this.app.get('knexClient')
@@ -304,7 +307,7 @@ export class FileBrowserService
       await storageProvider.createInvalidation([key])
     }
 
-    return url
+    return `${config.client.fileServer}/${key}`
   }
 
   /**
