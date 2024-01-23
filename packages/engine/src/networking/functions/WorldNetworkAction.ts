@@ -54,13 +54,6 @@ export class WorldNetworkAction {
     $topic: NetworkTopics.world
   })
 
-  static spawnObjectAll = defineAction(
-    WorldNetworkAction.spawnObject.extend({
-      type: 'ee.engine.world.SPAWN_OBJECT_ALL',
-      entityUUID: matchesEntityUUID
-    })
-  )
-
   static spawnCamera = defineAction(
     WorldNetworkAction.spawnObject.extend({
       type: 'ee.engine.world.SPAWN_CAMERA'
@@ -75,6 +68,7 @@ export class WorldNetworkAction {
   })
 
   static requestAuthorityOverObject = defineAction({
+    /** @todo embed $to restriction */
     type: 'ee.engine.world.REQUEST_AUTHORITY_OVER_OBJECT',
     entityUUID: matchesEntityUUID,
     newAuthority: matchesPeerID,
@@ -82,6 +76,7 @@ export class WorldNetworkAction {
   })
 
   static transferAuthorityOfObject = defineAction({
+    /** @todo embed $from restriction */
     type: 'ee.engine.world.TRANSFER_AUTHORITY_OF_OBJECT',
     entityUUID: matchesEntityUUID,
     newAuthority: matchesPeerID,
