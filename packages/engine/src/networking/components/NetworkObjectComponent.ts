@@ -36,7 +36,6 @@ import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   Component,
   defineComponent,
-  defineQuery,
   getComponent,
   hasComponent,
   removeComponent,
@@ -44,6 +43,7 @@ import {
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 
 /** ID of last network created. */
 let availableNetworkId = 0 as NetworkId
@@ -59,6 +59,7 @@ export const NetworkObjectComponent = defineComponent({
     return {
       /** The user who is authority over this object. */
       ownerId: '' as UserID,
+      ownerPeer: '' as PeerID,
       /** The peer who is authority over this object. */
       authorityPeerID: '' as PeerID,
       /** The network id for this object (this id is only unique per owner) */
@@ -69,6 +70,7 @@ export const NetworkObjectComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       ownerId: component.ownerId.value,
+      ownerPeer: component.ownerPeer.value,
       authorityPeerID: component.authorityPeerID.value,
       networkId: component.networkId.value
     }
@@ -76,6 +78,7 @@ export const NetworkObjectComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (typeof json?.ownerId === 'string') component.ownerId.set(json.ownerId)
+    if (typeof json?.ownerPeer === 'string') component.ownerPeer.set(json.ownerPeer)
     if (typeof json?.authorityPeerID === 'string') component.authorityPeerID.set(json.authorityPeerID)
     if (typeof json?.networkId === 'number') {
       component.networkId.set(json.networkId)
@@ -110,14 +113,14 @@ export const NetworkObjectComponent = defineComponent({
   },
 
   /**
-   * Get a network object by owner and NetworkId
+   * Get a network object by ownerPeer and NetworkId
    * @returns
    */
-  getNetworkObject(ownerId: UserID, networkId: NetworkId): Entity {
+  getNetworkObject(ownerPeer: PeerID, networkId: NetworkId): Entity {
     return (
       networkObjectQuery().find((eid) => {
         const networkObject = getComponent(eid, NetworkObjectComponent)
-        return networkObject.networkId === networkId && networkObject.ownerId === ownerId
+        return networkObject.networkId === networkId && networkObject.ownerPeer === ownerPeer
       }) || UndefinedEntity
     )
   },

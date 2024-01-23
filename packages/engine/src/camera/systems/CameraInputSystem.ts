@@ -35,7 +35,8 @@ import { throttle } from '../../common/functions/FunctionHelpers'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 
@@ -44,7 +45,7 @@ import { XRState } from '../../xr/XRState'
 import { InputState } from '../../input/state/InputState'
 
 import { isMobile } from '../../common/functions/isMobile'
-import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
+import { InputSystemGroup } from '../../ecs/functions/SystemGroups'
 import { CameraSettings } from '../CameraState'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
@@ -101,7 +102,7 @@ const onKeyC = () => {
 
 const lastLookDelta = new Vector2()
 let lastMouseMoved = false
-const INPUT_CAPTURE_DELAY = 0.2
+const INPUT_CAPTURE_DELAY = 0.1
 let accumulator = 0
 
 const throttleHandleCameraZoom = throttle(handleCameraZoom, 30, { leading: true, trailing: false })

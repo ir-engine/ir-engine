@@ -152,7 +152,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
   if (groundHits.length) {
     const hit = groundHits[0]
     const controllerOffset = controller.controller.offset()
-    controller.isInAir = hit.distance > 1 + controllerOffset * 10
+    controller.isInAir = hit.distance > avatarGroundRaycastDistanceOffset + controllerOffset * 10 // todo - 10 is way too big, should be 1, but this makes you fall down stairs
 
     if (!controller.isInAir) rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
     if (controller.isInAir && !beganFalling) {

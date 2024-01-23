@@ -31,30 +31,27 @@ Ethereal Engine. All Rights Reserved.
 import * as bitECS from 'bitecs'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
-import React, { startTransition, use, useEffect, useLayoutEffect } from 'react'
+import React, { startTransition, use, useLayoutEffect } from 'react'
 
 import config from '@etherealengine/common/src/config'
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { HookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
-import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
-import { ReactorRoot, startReactor } from '@etherealengine/hyperflux'
+import { HyperFlux, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
 import {
   hookstate,
   NO_PROXY,
   NO_PROXY_STEALTH,
   none,
   State,
-  StateMethodsDestroy,
   useHookstate
 } from '@etherealengine/hyperflux/functions/StateFunctions'
 
-import { Engine } from '../classes/Engine'
 import { Entity, UndefinedEntity } from '../classes/Entity'
-import { EntityContext } from './EntityFunctions'
+import { EntityContext, useEntityContext } from './EntityFunctions'
 import { useExecute } from './SystemFunctions'
-import { PresentationSystemGroup } from './EngineFunctions'
+import { PresentationSystemGroup } from './SystemGroups'
 
 /**
  * @description `@internal`
@@ -231,7 +228,7 @@ export const defineComponent = <
 >(
   def: ComponentPartial<ComponentType, Schema, JSON, SetJSON, Error> & ComponentExtras
 ) => {
-  const Component = bitECS.defineComponent(def.schema, INITIAL_COMPONENT_SIZE) as ComponentExtras &
+  const Component = (def.schema ? bitECS.defineComponent(def.schema, INITIAL_COMPONENT_SIZE) : {}) as ComponentExtras &
     SoAComponentType<Schema> &
     Component<ComponentType, Schema, JSON, SetJSON, Error>
   Component.isComponent = true
@@ -241,8 +238,7 @@ export const defineComponent = <
   Component.toJSON = (entity, component) => null!
   Component.errors = []
   Object.assign(Component, def)
-  if (Component.reactor && (!Component.reactor.name || Component.reactor.name === 'reactor'))
-    Object.defineProperty(Component.reactor, 'name', { value: `${Component.name}Reactor` })
+  if (Component.reactor) Object.defineProperty(Component.reactor, 'name', { value: `Internal${Component.name}Reactor` })
   Component.reactorMap = new Map()
   // We have to create an stateful existence map in order to reactively track which entities have a given component.
   // Unfortunately, we can't simply use a single shared state because hookstate will (incorrectly) invalidate other nested states when a single component
@@ -255,6 +251,23 @@ export const defineComponent = <
   ComponentMap.set(Component.name, Component)
 
   return Component as typeof Component & { _TYPE: ComponentType }
+
+  // const ExternalComponentReactor = (props: SetJSON) => {
+  //   const entity = useEntityContext()
+
+  //   useLayoutEffect(() => {
+  //     setComponent(entity, Component, props)
+  //     return () => {
+  //       removeComponent(entity, Component)
+  //     }
+  //   }, [props])
+
+  //   return null
+  // }
+  // Object.setPrototypeOf(ExternalComponentReactor, Component)
+  // Object.defineProperty(ExternalComponentReactor, 'name', { value: `${Component.name}Reactor` })
+
+  // return ExternalComponentReactor as typeof Component & { _TYPE: ComponentType } & typeof ExternalComponentReactor
 }
 
 export const getOptionalMutableComponent = <ComponentType>(
@@ -322,7 +335,7 @@ export const setComponent = <C extends Component>(
   if (!entity) {
     throw new Error('[setComponent]: entity is undefined')
   }
-  if (!bitECS.entityExists(Engine.instance, entity)) {
+  if (!bitECS.entityExists(HyperFlux.store, entity)) {
     throw new Error('[setComponent]: entity does not exist')
   }
   if (!hasComponent(entity, Component)) {
@@ -334,7 +347,7 @@ export const setComponent = <C extends Component>(
       Component.stateMap[entity]!.set(value)
     }
 
-    bitECS.addComponent(Engine.instance, Component, entity, false) // don't clear data on-add
+    bitECS.addComponent(HyperFlux.store, Component, entity, false) // don't clear data on-add
 
     if (Component.reactor && !Component.reactorMap.has(entity)) {
       const root = startReactor(() => {
@@ -399,13 +412,13 @@ export const updateComponent = <C extends Component>(
 export const hasComponent = <C extends Component>(entity: Entity, component: C) => {
   if (!component) throw new Error('[hasComponent]: component is undefined')
   if (!entity) return false
-  return bitECS.hasComponent(Engine.instance, component, entity)
+  return bitECS.hasComponent(HyperFlux.store, component, entity)
 }
 
 export const removeComponent = async <C extends Component>(entity: Entity, component: C) => {
   if (!hasComponent(entity, component)) return
   component.onRemove(entity, component.stateMap[entity]!)
-  bitECS.removeComponent(Engine.instance, component, entity, false)
+  bitECS.removeComponent(HyperFlux.store, component, entity, false)
   const root = component.reactorMap.get(entity)
   component.reactorMap.delete(entity)
   // we need to wait for the reactor to stop before removing the state, otherwise
@@ -441,8 +454,8 @@ export const componentJsonDefaults = <C extends Component>(component: C) => {
  * @returns An array containing all of the Entity's associated components.
  */
 export const getAllComponents = (entity: Entity): Component[] => {
-  if (!bitECS.entityExists(Engine.instance, entity)) return []
-  return bitECS.getEntityComponents(Engine.instance, entity) as Component[]
+  if (!bitECS.entityExists(HyperFlux.store, entity)) return []
+  return bitECS.getEntityComponents(HyperFlux.store, entity) as Component[]
 }
 
 export const useAllComponents = (entity: Entity) => {
@@ -469,36 +482,10 @@ export const getAllComponentData = (entity: Entity): { [name: string]: Component
   return Object.fromEntries(getAllComponents(entity).map((C) => [C.name, getComponent(entity, C)]))
 }
 
-/**
- * @description Creates a {@link Query} with the given {@link Component}, and returns the number of {@link Component}s currently stored in the engine's buffer for that {@link Component} type.
- * @param component The desired Component
- * @returns The amount of Component's that the engine stores for the given component type.
- */
-export const getComponentCountOfType = <C extends Component>(component: C): number => {
-  const query = defineQuery([component])
-  const length = query().length
-  bitECS.removeQuery(Engine.instance, query._query)
-  return length
-}
-
-/**
- * `@todo` Explain this function
- * @param component The desired Component
- * @returns An array of {@link ComponentType} components
- */
-export const getAllComponentsOfType = <C extends Component<any>>(component: C): ComponentType<C>[] => {
-  const query = defineQuery([component])
-  const entities = query()
-  bitECS.removeQuery(Engine.instance, query._query)
-  return entities.map((e) => {
-    return getComponent(e, component)!
-  })
-}
-
 export const removeAllComponents = (entity: Entity) => {
   const promises = [] as Promise<void>[]
   try {
-    for (const component of bitECS.getEntityComponents(Engine.instance, entity)) {
+    for (const component of bitECS.getEntityComponents(HyperFlux.store, entity)) {
       promises.push(removeComponent(entity, component as Component))
     }
   } catch (_) {
@@ -510,82 +497,6 @@ export const removeAllComponents = (entity: Entity) => {
 export const serializeComponent = <C extends Component<any, any, any>>(entity: Entity, Component: C) => {
   const component = getMutableComponent(entity, Component)
   return JSON.parse(JSON.stringify(Component.toJSON(entity, component))) as ReturnType<C['toJSON']>
-}
-
-export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier)[]) {
-  const query = bitECS.defineQuery(components) as bitECS.Query
-  const enterQuery = bitECS.enterQuery(query)
-  const exitQuery = bitECS.exitQuery(query)
-
-  const _remove = () => bitECS.removeQuery(Engine.instance, wrappedQuery._query)
-  const _removeEnter = () => bitECS.removeQuery(Engine.instance, wrappedQuery._enterQuery)
-  const _removeExit = () => bitECS.removeQuery(Engine.instance, wrappedQuery._exitQuery)
-
-  const wrappedQuery = () => {
-    Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)?.cleanupFunctions.add(_remove)
-    return query(Engine.instance) as Entity[]
-  }
-  wrappedQuery.enter = () => {
-    Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)?.cleanupFunctions.add(_removeEnter)
-    return enterQuery(Engine.instance) as Entity[]
-  }
-  wrappedQuery.exit = () => {
-    Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)?.cleanupFunctions.add(_removeExit)
-    return exitQuery(Engine.instance) as Entity[]
-  }
-
-  wrappedQuery._query = query
-  wrappedQuery._enterQuery = enterQuery
-  wrappedQuery._exitQuery = exitQuery
-  return wrappedQuery
-}
-
-export function removeQuery(query: ReturnType<typeof defineQuery>) {
-  bitECS.removeQuery(Engine.instance, query._query)
-  bitECS.removeQuery(Engine.instance, query._enterQuery)
-  bitECS.removeQuery(Engine.instance, query._exitQuery)
-}
-
-export type QueryComponents = (Component<any> | bitECS.QueryModifier | bitECS.Component)[]
-
-/**
- * Use a query in a reactive context (a React component)
- */
-export function useQuery(components: QueryComponents) {
-  const result = useHookstate([] as Entity[])
-  const forceUpdate = useForceUpdate()
-
-  // Use an immediate (layout) effect to ensure that `queryResult`
-  // is deleted from the `reactiveQueryStates` map immediately when the current
-  // component is unmounted, before any other code attempts to set it
-  // (component state can't be modified after a component is unmounted)
-  useLayoutEffect(() => {
-    const query = defineQuery(components)
-    result.set(query())
-    const queryState = { query, result, components }
-    Engine.instance.reactiveQueryStates.add(queryState)
-    return () => {
-      removeQuery(query)
-      Engine.instance.reactiveQueryStates.delete(queryState)
-    }
-  }, [])
-
-  // create an effect that forces an update when any components in the query change
-  useEffect(() => {
-    const entities = [...result.value]
-    const root = startReactor(function useQueryReactor() {
-      for (const entity of entities) {
-        components.forEach((C) => ('isComponent' in C ? useOptionalComponent(entity, C as any)?.value : undefined))
-      }
-      forceUpdate()
-      return null
-    })
-    return () => {
-      root.stop()
-    }
-  }, [result])
-
-  return result.value
 }
 
 // use seems to be unavailable in the server environment
@@ -633,8 +544,6 @@ export function useOptionalComponent<C extends Component<any>>(entity: Entity, C
   const component = useHookstate(Component.stateMap[entity]) as any as State<ComponentType<C>> // todo fix any cast
   return component.promised ? undefined : component
 }
-
-export type Query = ReturnType<typeof defineQuery>
 
 globalThis.EE_getComponent = getComponent
 globalThis.EE_getAllComponents = getAllComponents

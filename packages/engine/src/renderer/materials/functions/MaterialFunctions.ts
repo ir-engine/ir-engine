@@ -26,7 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { getState } from '@etherealengine/hyperflux'
 
-import { defineQuery, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../../../ecs/functions/QueryFunctions'
 import { MeshComponent } from '../../../scene/components/MeshComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
 
