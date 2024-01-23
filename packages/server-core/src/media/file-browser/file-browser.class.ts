@@ -30,7 +30,7 @@ import path from 'path/posix'
 
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
-import config, { isDev } from '@etherealengine/common/src/config'
+import { isDev } from '@etherealengine/common/src/config'
 import {
   FileBrowserContentType,
   FileBrowserPatch,
@@ -127,7 +127,7 @@ export class FileBrowserService
 
     result = result.slice(skip, skip + limit)
     result.forEach((file) => {
-      file.url = `${config.client.fileServer}/${file.key}`
+      file.url = getCachedURL(file.key, storageProvider.cacheDomain)
     })
 
     if (params.provider && !isAdmin) {
@@ -307,7 +307,7 @@ export class FileBrowserService
       await storageProvider.createInvalidation([key])
     }
 
-    return `${config.client.fileServer}/${key}`
+    return getCachedURL(key, storageProvider.cacheDomain)
   }
 
   /**
