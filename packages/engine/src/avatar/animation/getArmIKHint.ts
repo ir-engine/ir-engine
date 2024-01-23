@@ -45,7 +45,7 @@ export const getArmIKHint = (
 
   const handLocalQuat = _quat.copy(transform.rotation).invert().multiply(handRotation)
   hint
-    .set(side === 'left' ? 0.25 : -0.25, -0.25, 0)
+    .set(side === 'left' ? -0.25 : 0.25, -0.25, 0)
     .applyQuaternion(handLocalQuat)
     .add(handLocalPosition)
 

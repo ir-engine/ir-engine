@@ -37,8 +37,9 @@ import { Engine, destroyEngine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { UndefinedEntity } from '../../ecs/classes/Entity'
 import { SceneSnapshotAction, SceneSnapshotSystem, SceneState } from '../../ecs/classes/Scene'
-import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { SystemDefinitions } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
 import { PhysicsState } from '../../physics/state/PhysicsState'
@@ -81,14 +82,19 @@ describe('SceneLoadingSystem', () => {
     }
   })
 
+  afterEach(() => {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = undefined
+    return destroyEngine()
+  })
+
+  const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
+  const tag = <Reactor />
+
   it('will load entities', async () => {
     getMutableState(SceneState).activeScene.set(testID)
     getMutableState(PhysicsState).physicsWorld.set({} as any)
 
     // init
-
-    const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
-    const tag = <Reactor />
 
     SceneState.loadScene(testID, testScene)
 
@@ -209,8 +215,6 @@ describe('SceneLoadingSystem', () => {
     getMutableState(PhysicsState).physicsWorld.set({} as any)
 
     // init
-    const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
-    const tag = <Reactor />
     SceneState.loadScene(testID, testScene)
 
     // render
@@ -266,8 +270,6 @@ describe('SceneLoadingSystem', () => {
     }
 
     testScene.scene.entities['child_0'].components.push(dynamicLoadJson)
-    const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
-    const tag = <Reactor />
 
     // load scene
 
@@ -331,8 +333,6 @@ describe('SceneLoadingSystem', () => {
     }
 
     testScene.scene.entities['child_0'].components.push(dynamicLoadJson)
-    const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
-    const tag = <Reactor />
     // set to location mode
 
     // load scene
@@ -544,9 +544,6 @@ describe('SceneLoadingSystem', () => {
 
     // init
 
-    const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
-    const tag = <Reactor />
-
     SceneState.loadScene(testID, testScene)
 
     // render
@@ -693,10 +690,6 @@ describe('SceneLoadingSystem', () => {
     // unmount to cleanup
     unmount()
   })
-  afterEach(() => {
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = undefined
-    return destroyEngine()
-  })
 })
 
 describe('Snapshots', () => {
@@ -723,14 +716,24 @@ describe('Snapshots', () => {
     }
   })
 
+  afterEach(() => {
+    getMutableState(EngineState).isEditing.set(false)
+    getMutableState(EngineState).isEditor.set(false)
+
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = undefined
+    return destroyEngine()
+  })
+
+  const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
+  const tag = <Reactor />
+  const SceneReactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
+  const sceneTag = <SceneReactor />
+
   it('create snapshot', async () => {
     getMutableState(SceneState).activeScene.set(testID)
     getMutableState(PhysicsState).physicsWorld.set({} as any)
 
     // init
-    const SceneReactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
-    const sceneTag = <SceneReactor />
-
     SceneState.loadScene(testID, testScene)
 
     // render
@@ -871,8 +874,6 @@ describe('Snapshots', () => {
     getMutableState(PhysicsState).physicsWorld.set({} as any)
 
     // init
-    const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
-    const tag = <Reactor />
     SceneState.loadScene(testID, testScene)
 
     // render
@@ -1012,8 +1013,6 @@ describe('Snapshots', () => {
     getMutableState(PhysicsState).physicsWorld.set({} as any)
 
     // init
-    const Reactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
-    const tag = <Reactor />
     SceneState.loadScene(testID, testScene)
 
     // render
@@ -1157,12 +1156,5 @@ describe('Snapshots', () => {
 
     // unmount to cleanup
     unmount()
-  })
-  afterEach(() => {
-    getMutableState(EngineState).isEditing.set(false)
-    getMutableState(EngineState).isEditor.set(false)
-
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = undefined
-    return destroyEngine()
   })
 })

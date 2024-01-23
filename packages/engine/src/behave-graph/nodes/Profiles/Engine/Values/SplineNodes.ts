@@ -26,14 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { Assert, NodeCategory, makeAsyncNodeDefinition, makeFunctionNodeDefinition } from '@behave-graph/core'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { Entity } from '../../../../../ecs/classes/Entity'
-import {
-  defineQuery,
-  getComponent,
-  getOptionalComponent,
-  setComponent
-} from '../../../../../ecs/functions/ComponentFunctions'
-import { PresentationSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
+import { getComponent, getOptionalComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../../../../../ecs/functions/QueryFunctions'
 import { SystemUUID, defineSystem, destroySystem } from '../../../../../ecs/functions/SystemFunctions'
+import { PresentationSystemGroup } from '../../../../../ecs/functions/SystemGroups'
 import { NameComponent } from '../../../../../scene/components/NameComponent'
 import { SplineComponent } from '../../../../../scene/components/SplineComponent'
 import { SplineTrackComponent } from '../../../../../scene/components/SplineTrackComponent'

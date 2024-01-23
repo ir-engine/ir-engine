@@ -25,8 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { addOutgoingTopicIfNecessary, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
+import { Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '../../ecs/classes/Engine'
@@ -68,7 +69,6 @@ export const createNetwork = <Ext>(
     onBuffer: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => {}
   } as TransportInterface & Ext
 ) => {
-  addOutgoingTopicIfNecessary(topic)
   const network = {
     /** Connected peers */
     peers: {} as Record<PeerID, NetworkPeer>,
