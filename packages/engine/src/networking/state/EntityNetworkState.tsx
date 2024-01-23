@@ -78,7 +78,7 @@ export const EntityNetworkState = defineState({
       getMutableState(EntityNetworkState)[action.entityUUID].merge({
         ownerId: action.$from,
         networkId: action.networkId,
-        authorityPeerId: action.$peer,
+        authorityPeerId: action.authorityPeerId ?? action.$peer,
         ownerPeer: action.$peer,
         spawnPosition: action.position ?? new Vector3(),
         spawnRotation: action.rotation ?? new Quaternion()
@@ -109,8 +109,8 @@ export const EntityNetworkState = defineState({
 const EntityNetworkReactor = memo((props: { uuid: EntityUUID }) => {
   const state = useHookstate(getMutableState(EntityNetworkState)[props.uuid])
   const ownerID = state.ownerId.value
-  const userConnected =
-    !!useHookstate(getMutableState(NetworkWorldUserState)[ownerID]).value || ownerID === Engine.instance.userID
+  const isOwner = ownerID === Engine.instance.userID
+  const userConnected = !!useHookstate(getMutableState(NetworkWorldUserState)[ownerID]).value || isOwner
   const isWorldNetworkConnected = !!useHookstate(NetworkState.worldNetworkState).value
 
   useEffect(() => {
@@ -166,6 +166,35 @@ const EntityNetworkReactor = memo((props: { uuid: EntityUUID }) => {
       })
     )
   }, [userConnected, state.requestingPeerId])
+
+  return <>{isOwner && isWorldNetworkConnected && <OwnerPeerReactor uuid={props.uuid} />}</>
+})
+
+const OwnerPeerReactor = memo((props: { uuid: EntityUUID }) => {
+  const state = useHookstate(getMutableState(EntityNetworkState)[props.uuid])
+  const ownerPeer = state.ownerPeer.value
+  const networkState = useHookstate(NetworkState.worldNetworkState)
+
+  /** If the owner peer does not exist in the network, and we are the owner user, dispatch a spawn action so we take ownership */
+  useEffect(() => {
+    return () => {
+      // ensure reactor isn't completely unmounting
+      if (!getState(EntityNetworkState)[props.uuid]) return
+      if (ownerPeer !== Engine.instance.store.peerID && Engine.instance.userID === state.ownerId.value) {
+        const lowestPeer = [...networkState.users[Engine.instance.userID].value].sort((a, b) => (a > b ? 1 : -1))[0]
+        if (lowestPeer !== Engine.instance.store.peerID) return
+        dispatchAction(
+          WorldNetworkAction.spawnObject({
+            entityUUID: props.uuid,
+            // if the authority peer is not connected, we need to take authority
+            authorityPeerId: networkState.users[Engine.instance.userID].value.includes(ownerPeer)
+              ? undefined
+              : Engine.instance.store.peerID
+          })
+        )
+      }
+    }
+  }, [networkState.peers, networkState.users])
 
   return null
 })
