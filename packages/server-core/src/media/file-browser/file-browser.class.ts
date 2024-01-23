@@ -126,6 +126,9 @@ export class FileBrowserService
     const total = result.length
 
     result = result.slice(skip, skip + limit)
+    result.forEach((file) => {
+      file.url = getCachedURL(file.key, storageProvider.cacheDomain)
+    })
 
     if (params.provider && !isAdmin) {
       const knexClient: Knex = this.app.get('knexClient')
@@ -304,7 +307,7 @@ export class FileBrowserService
       await storageProvider.createInvalidation([key])
     }
 
-    return url
+    return getCachedURL(key, storageProvider.cacheDomain)
   }
 
   /**
