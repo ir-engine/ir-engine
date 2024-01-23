@@ -91,16 +91,19 @@ type Resource = {
 export const ResourceState = defineState({
   name: 'ResourceManagerState',
   initial: () => ({
-    resources: {} as Record<string, Resource>
+    resources: {} as Record<ResourceType, Record<string, Resource>>
   })
 })
 
 const getCurrentSizeOfResources = () => {
   let size = 0
   const resources = getState(ResourceState).resources
-  for (const key in resources) {
-    const resource = resources[key]
-    if (resource.metadata.size) size += resource.metadata.size
+  for (const resourceType in resources) {
+    const resourcesOfType = resources[resourceType]
+    for (const key in resourcesOfType) {
+      const resource = resourcesOfType[key]
+      if (resource.metadata.size) size += resource.metadata.size
+    }
   }
 
   return size
@@ -157,7 +160,13 @@ const load = <T extends AssetType>(
   signal: AbortSignal
 ) => {
   const resourceState = getMutableState(ResourceState)
-  const resources = resourceState.nested('resources')
+  const resourceRecord = resourceState.nested('resources')
+  if (!resourceRecord.nested(resourceType).value) {
+    resourceRecord.merge({
+      [resourceType]: {}
+    })
+  }
+  const resources = resourceRecord.nested(resourceType)
   if (!resources[url].value) {
     resources.merge({
       [url]: {
@@ -198,9 +207,9 @@ const load = <T extends AssetType>(
   )
 }
 
-const unload = (url: string, entity: Entity) => {
+const unload = (url: string, resourceType: ResourceType, entity: Entity) => {
   const resourceState = getMutableState(ResourceState)
-  const resources = resourceState.nested('resources')
+  const resources = resourceState.nested('resources').nested(resourceType)
   if (!resources[url].value) {
     console.warn('ResourceManager:unload No resource exists for url: ' + url)
     return
@@ -217,13 +226,13 @@ const unload = (url: string, entity: Entity) => {
   })
 
   if (resource.references.length == 0) {
-    removeResource(url)
+    removeResource(url, resourceType)
   }
 }
 
-const removeResource = (url: string) => {
+const removeResource = (url: string, resourceType: ResourceType) => {
   const resourceState = getMutableState(ResourceState)
-  const resources = resourceState.nested('resources')
+  const resources = resourceState.nested('resources').nested(resourceType)
   if (!resources[url].value) {
     console.warn('ResourceManager:removeResource No resource exists for url: ' + url)
     return

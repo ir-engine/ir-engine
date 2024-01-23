@@ -55,13 +55,13 @@ function useLoader<T extends AssetType>(
   const progress = useHookstate<ProgressEvent<EventTarget> | null>(null)
 
   const unload = () => {
-    ResourceManager.unload(url, entity)
+    ResourceManager.unload(url, resourceType, entity)
   }
 
   useEffect(() => {
     if (url !== urlState.value) {
       if (urlState.value) {
-        ResourceManager.unload(urlState.value, entity)
+        ResourceManager.unload(urlState.value, resourceType, entity)
         value.set(null)
         progress.set(null)
         error.set(null)
@@ -113,7 +113,7 @@ function useBatchLoader<T extends AssetType>(
   const progress = useHookstate<ProgressEvent<EventTarget>[]>([])
 
   const unload = () => {
-    for (const url of urls) ResourceManager.unload(url, entity)
+    for (const url of urls) ResourceManager.unload(url, resourceType, entity)
   }
 
   useEffect(() => {
