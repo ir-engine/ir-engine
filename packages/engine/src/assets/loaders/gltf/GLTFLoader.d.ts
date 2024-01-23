@@ -33,7 +33,6 @@ import {
   ColorSpace,
   Group,
   InterleavedBufferAttribute,
-  Loader,
   LoadingManager,
   Material,
   Mesh,

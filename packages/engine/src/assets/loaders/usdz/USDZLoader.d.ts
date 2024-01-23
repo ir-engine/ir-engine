@@ -25,7 +25,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 
-import { BufferGeometry, Group, Loader, Material } from "three";
+import { BufferGeometry, Group, Material } from "three";
+import { Loader } from "../base/Loader";
 
 export class USDAParser {
     parse(text: string): object

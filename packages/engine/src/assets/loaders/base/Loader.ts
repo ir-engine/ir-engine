@@ -53,7 +53,7 @@ class Loader<TData = unknown, TUrl = string> {
     signal?: AbortSignal
   ) {}
 
-  loadAsync(url, onProgress) {
+  loadAsync(url: TUrl, onProgress?: (event: ProgressEvent) => void): Promise<TData> {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const scope = this
 
@@ -62,29 +62,29 @@ class Loader<TData = unknown, TUrl = string> {
     })
   }
 
-  parse(data?: any) {}
+  parse(data?: TData) {}
 
-  setCrossOrigin(crossOrigin) {
+  setCrossOrigin(crossOrigin: string): this {
     this.crossOrigin = crossOrigin
     return this
   }
 
-  setWithCredentials(value) {
+  setWithCredentials(value: boolean): this {
     this.withCredentials = value
     return this
   }
 
-  setPath(path) {
+  setPath(path: string): this {
     this.path = path
     return this
   }
 
-  setResourcePath(resourcePath) {
+  setResourcePath(resourcePath: string): this {
     this.resourcePath = resourcePath
     return this
   }
 
-  setRequestHeader(requestHeader) {
+  setRequestHeader(requestHeader: { [header: string]: string }): this {
     this.requestHeader = requestHeader
     return this
   }

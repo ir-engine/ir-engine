@@ -28,7 +28,6 @@ import {
   AudioLoader,
   BufferAttribute,
   BufferGeometry,
-  FileLoader,
   Group,
   LOD,
   Material,
@@ -43,6 +42,8 @@ import {
   Texture,
   TextureLoader
 } from 'three'
+
+import { FileLoader } from '../loaders/base/FileLoader'
 
 import { getState } from '@etherealengine/hyperflux'
 

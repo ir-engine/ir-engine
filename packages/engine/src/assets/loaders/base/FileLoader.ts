@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Cache } from 'three'
+import { Cache, LoadingManager } from 'three'
 import { Loader } from './Loader'
 
 const loading = {}
@@ -40,7 +40,7 @@ class FileLoader<TData = unknown> extends Loader {
   mimeType: undefined | any
   responseType: undefined | string
 
-  constructor(manager) {
+  constructor(manager?: LoadingManager) {
     super(manager)
   }
 
@@ -238,12 +238,12 @@ class FileLoader<TData = unknown> extends Loader {
     this.manager.itemStart(url)
   }
 
-  setResponseType(value) {
+  setResponseType(value: string): this {
     this.responseType = value
     return this
   }
 
-  setMimeType(value) {
+  setMimeType(value): this {
     this.mimeType = value
     return this
   }
