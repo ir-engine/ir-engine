@@ -43,6 +43,8 @@ import {
   UniformsUtils,
   Vector2
 } from 'three'
+import { getLoader } from '../../assets/classes/AssetLoader'
+import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
@@ -303,13 +305,21 @@ const loadGeometryAsync = (url: string, targetData: DRACOTarget | GLBTarget | Un
 
 const loadTextureAsync = (url: string, repeat: Vector2, offset: Vector2) => {
   return new Promise<CompressedTexture>((resolve, reject) => {
-    getState(AssetLoaderState).gltfLoader.ktx2Loader!.load(url, (texture) => {
-      texture.repeat.copy(repeat)
-      texture.offset.copy(offset)
-      texture.updateMatrix()
-      // EngineRenderer.instance.renderer.initTexture(texture)
-      resolve(texture)
-    })
+    getLoader(AssetType.KTX2).load(
+      url,
+      (texture: CompressedTexture) => {
+        texture.repeat.copy(repeat)
+        texture.offset.copy(offset)
+        texture.updateMatrix()
+        // EngineRenderer.instance.renderer.initTexture(texture)
+        resolve(texture)
+      },
+      undefined,
+      (err) => {
+        console.error('Error loading texture: ', url, err)
+        reject(err)
+      }
+    )
   })
 }
 
@@ -877,10 +887,6 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
     const framesToFetch = Math.round((maxBufferHealth - currentBufferLength) * frameRate)
     const endFrame = Math.max(0, Math.min(startFrame + framesToFetch, targetData.frameCount - 1))
-
-    if (!getState(AssetLoaderState).gltfLoader.ktx2Loader) {
-      throw new Error('KTX2Loader not initialized')
-    }
 
     const oldBufferHealth = component.textureInfo[textureType].bufferHealth.value
     const startTime = engineState.elapsedSeconds
