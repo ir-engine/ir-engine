@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { PeerID, PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
-import { ChannelID, InstanceID, LocationID, RoomCode } from '@etherealengine/common/src/schema.type.module'
+import { ChannelID, InstanceID, LocationID, RoomCode, UserID } from '@etherealengine/common/src/schema.type.module'
 import { defineAction, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { Validator, matches } from '../common/functions/MatchesUtils'
 import { Network } from './classes/Network'
@@ -128,6 +128,8 @@ export type PeerMediaType = {
   /** @deprecated */
   channelId: ChannelID
 }
+
+export const SceneUser = 'scene' as UserID
 
 export type TransportDirection = 'send' | 'receive'
 

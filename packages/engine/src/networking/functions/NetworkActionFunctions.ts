@@ -24,7 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { Action, clearOutgoingActions, dispatchAction, getState } from '@etherealengine/hyperflux'
+import {
+  Action,
+  addOutgoingTopicIfNecessary,
+  clearOutgoingActions,
+  dispatchAction,
+  getState
+} from '@etherealengine/hyperflux'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkState } from '../NetworkState'
 import { Network } from '../classes/Network'
@@ -63,10 +69,10 @@ const sendActionsAsPeer = (network: Network) => {
 const sendActionsAsHost = (network: Network) => {
   if (!network.authenticated) return
 
+  addOutgoingTopicIfNecessary(network.topic)
+
   const actions = [...Engine.instance.store.actions.outgoing[network.topic].queue]
   if (!actions.length) return
-
-  const outgoing = Engine.instance.store.actions.outgoing
 
   for (const peerID of Object.keys(network.peers) as PeerID[]) {
     const arr: Action[] = []

@@ -45,13 +45,13 @@ export const updatePeers = (network: Network) => {
       name: userNames[peer.userId]
     }
   }) as Array<PeersUpdateType>
-  dispatchAction(
-    NetworkActions.updatePeers({
-      peers,
-      $topic: network.topic,
-      $network: network.id
-    })
-  )
+  const action = NetworkActions.updatePeers({
+    peers,
+    $topic: network.topic,
+    $network: network.id
+  })
+  dispatchAction(action)
+  return action
 }
 
 const execute = () => {

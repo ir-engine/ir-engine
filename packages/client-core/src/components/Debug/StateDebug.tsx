@@ -25,6 +25,7 @@ import { JSONTree } from 'react-json-tree'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import {
+  NO_PROXY,
   StateDefinitions,
   defineState,
   getMutableState,
@@ -32,6 +33,7 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import styles from './styles.module.scss'
 
 const labelRenderer = (data: Record<string | number, any>) => {
@@ -81,6 +83,7 @@ export function StateDebug() {
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([key, value]) => [key, value.receptorActionQueue!.instance])
   )
+  const networks = useHookstate(getMutableState(NetworkState).networks).get(NO_PROXY)
 
   return (
     <>
@@ -101,6 +104,10 @@ export function StateDebug() {
           labelRenderer={labelRenderer(eventSourcedHistory)}
           shouldExpandNodeInitially={() => false}
         />
+      </div>
+      <div className={styles.jsonPanel}>
+        <h1>{t('common:debug.networks')}</h1>
+        <JSONTree data={networks} shouldExpandNodeInitially={() => false} />
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.actionsHistory')}</h1>
