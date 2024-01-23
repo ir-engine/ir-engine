@@ -202,6 +202,7 @@ export const UVOL2Component = defineComponent({
       manifestPath: '',
       data: {} as PlayerManifest,
       hasAudio: false,
+      bufferedUntil: 0,
       geometryInfo: {
         targets: [] as string[],
         userTarget: -1, // -1 implies 'auto'
@@ -605,10 +606,10 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     return () => {
       removeObjectFromGroup(entity, group)
       clearInterval(intervalId)
-      for (const textureType of component.textureInfo.textureTypes.value) {
+      for (const textureType in textureBuffer) {
         const currentTextureBuffer = textureBuffer.get(textureType)
         if (currentTextureBuffer) {
-          for (const target in component.textureInfo[textureType].targets) {
+          for (const target in currentTextureBuffer) {
             const frameData = currentTextureBuffer.get(target)
             if (frameData) {
               for (const frameNo in frameData) {
@@ -708,15 +709,6 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         }
         if (!component.initialGeometryBuffersLoaded.value && (i + 1) / targetData.frameRate >= minBufferToStart) {
           component.initialGeometryBuffersLoaded.set(true)
-        } else {
-          console.log('DEBUGLOG: geometryInfo: ', {
-            i,
-            j,
-            frameRate: targetData.frameRate,
-            minBufferToStart,
-            comparLeft: (i + 1) / targetData.frameRate,
-            comparRight: minBufferToStart
-          })
         }
       })
 
@@ -730,9 +722,6 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   }
 
   const fetchUniformSolveGeometry = (startSegment: number, endSegment: number, target: string, extraTime: number) => {
-    console.log(
-      `DEBUGLOG: fetchUniformSolveGeometry Fetching segments ${startSegment} to ${endSegment} for target ${target}`
-    )
     const targetData = component.data.value.geometry.targets[target] as UniformSolveTarget
     const promises: Promise<Mesh | BufferGeometry>[] = []
 
@@ -822,15 +811,6 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
           component.geometryInfo.buffered[bufferedIndex].start.value
         if (!component.initialGeometryBuffersLoaded.value && _currentBufferedDuration >= minBufferToStart) {
           component.initialGeometryBuffersLoaded.set(true)
-        } else {
-          console.log('DEBUGLOG: geometryInfo: ', {
-            i,
-            j,
-            frameRate: targetData.frameRate,
-            minBufferToStart,
-            comparLeft: (j + 1) / targetData.frameRate,
-            comparRight: minBufferToStart
-          })
         }
       })
 
@@ -1599,6 +1579,31 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
     startTransition(() => {
       volumetric.currentTrackInfo.currentTime.set(_currentTime)
+      let _bufferedUntil = volumetric.currentTrackInfo.duration.value
+      let _relevantBufferIndex = -1
+      _relevantBufferIndex = component.geometryInfo.buffered.findIndex((tr) => {
+        if (tr.start.value <= _currentTime && tr.end.value >= _currentTime) {
+          return true
+        }
+      })
+
+      if (_relevantBufferIndex !== -1) {
+        _bufferedUntil = Math.min(_bufferedUntil, component.geometryInfo.buffered[_relevantBufferIndex].end.value)
+      }
+      for (const textureType of component.textureInfo.textureTypes.value) {
+        _relevantBufferIndex = component.textureInfo[textureType as TextureType].buffered.findIndex((tr) => {
+          if (tr.start.value <= _currentTime && tr.end.value >= _currentTime) {
+            return true
+          }
+        })
+        if (_relevantBufferIndex !== -1) {
+          _bufferedUntil = Math.min(
+            _bufferedUntil,
+            component.textureInfo[textureType].buffered[_relevantBufferIndex].end.value
+          )
+        }
+      }
+      component.bufferedUntil.set(_bufferedUntil)
     })
 
     if (volumetric.currentTrackInfo.currentTime.value > component.data.value.duration || audio.ended) {
