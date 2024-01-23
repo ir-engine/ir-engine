@@ -70,10 +70,10 @@ function useLoader<T extends AssetType>(
       urlState.set(url)
     }
 
+    if (!url) return
     const controller = createAbortController(url, unload)
     let completed = false
 
-    if (!url) return
     ResourceManager.load<T>(
       url,
       resourceType,

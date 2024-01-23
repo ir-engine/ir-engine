@@ -110,6 +110,10 @@ export const EnvmapComponent = defineComponent({
     const group = useComponent(entity, GroupComponent)
     const background = useHookstate(getMutableState(SceneState).background)
     const mesh = useOptionalComponent(entity, MeshComponent)?.value as Mesh<any, any> | null
+    const [envMapTexture, unload, error] = useTexture(
+      component.envMapTextureType.value === EnvMapTextureType.Equirectangular ? component.envMapSourceURL.value : '',
+      entity
+    )
 
     useEffect(() => {
       updateEnvMapIntensity(mesh, component.envMapIntensity.value)
@@ -133,11 +137,6 @@ export const EnvmapComponent = defineComponent({
 
       component.envmap.set(texture)
     }, [component.type, component.envMapSourceColor])
-
-    const [envMapTexture, unload, error] = useTexture(
-      component.envMapTextureType.value === EnvMapTextureType.Equirectangular ? component.envMapSourceURL.value : '',
-      entity
-    )
 
     useEffect(() => {
       const texture = envMapTexture.get(NO_PROXY)
