@@ -63,6 +63,7 @@ export const EntityNetworkState = defineState({
     EntityUUID,
     {
       ownerId: UserID | typeof SceneUser
+      ownerPeer: PeerID
       networkId: NetworkId
       authorityPeerId: PeerID
       requestingPeerId?: PeerID
@@ -78,6 +79,7 @@ export const EntityNetworkState = defineState({
         ownerId: action.$from,
         networkId: action.networkId,
         authorityPeerId: action.$peer,
+        ownerPeer: action.$peer,
         spawnPosition: action.position ?? new Vector3(),
         spawnRotation: action.rotation ?? new Quaternion()
       })
@@ -144,6 +146,7 @@ const EntityNetworkReactor = memo((props: { uuid: EntityUUID }) => {
             ? NetworkState.worldNetwork.hostId
             : Engine.instance.userID
           : ownerID,
+      ownerPeer: state.ownerPeer.value,
       authorityPeerID: state.authorityPeerId.value,
       networkId: state.networkId.value
     })

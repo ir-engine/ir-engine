@@ -269,6 +269,8 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
 }
 
 export const grabEntity = (grabberEntity: Entity, grabbedEntity: Entity, attachmentPoint: 'left' | 'right'): void => {
+  // todo, do we ever need to handle this in offline contexts?
+  if (!NetworkState.worldNetwork) return console.warn('[GrabbableSystem] no world network found')
   const networkComponent = getComponent(grabbedEntity, NetworkObjectComponent)
   if (networkComponent.authorityPeerID === Engine.instance.peerID) {
     dispatchAction(
@@ -280,11 +282,15 @@ export const grabEntity = (grabberEntity: Entity, grabbedEntity: Entity, attachm
       })
     )
   } else {
+    // todo, how can we avoid just picking a random peer for the user?
+    const ownerPeer = NetworkState.worldNetwork.users[networkComponent.ownerId][0]
+    if (!ownerPeer) return console.warn('[GrabbableSystem] no owner peer found for grabbable', networkComponent.ownerId)
     dispatchAction(
       WorldNetworkAction.requestAuthorityOverObject({
         entityUUID: getComponent(grabbedEntity, UUIDComponent),
         newAuthority: Engine.instance.peerID,
-        $to: networkComponent.authorityPeerID
+        // this should be a peer of the owner
+        $to: ownerPeer
       })
     )
   }
