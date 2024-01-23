@@ -72,7 +72,7 @@ export const SDFComponent = defineComponent({
     if (typeof json.mode === 'number') {
       component.mode.set(json.mode)
     }
-    if (typeof json.scale === 'number') {
+    if (json.scale?.isVector3) {
       component.scale.set(json.scale)
     }
   },
