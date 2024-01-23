@@ -25,7 +25,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 
-import { Group, Loader, LoadingManager } from 'three'
+import { Group, LoadingManager } from 'three'
+import { Loader } from '../base/Loader'
 
 export class FBXLoader extends Loader {
     constructor(manager?: LoadingManager);
