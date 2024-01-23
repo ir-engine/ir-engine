@@ -55,7 +55,6 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import {
   MediaStreamAppData,
-  MediaTagType,
   NetworkConnectionParams,
   NetworkState,
   addNetwork,
@@ -882,56 +881,6 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
   }
 }
 
-/** @todo this is unused, see if it's ever needed to add these checks */
-export async function subscribeToTrack(
-  network: SocketWebRTCClientNetwork,
-  peerID: PeerID,
-  mediaTag: MediaTagType,
-  producerId: string,
-  channelId: ChannelID
-) {
-  const primus = network.transport.primus
-  if (primus?.disconnect) return
-
-  const mediaStreamState = getState(MediaStreamState)
-
-  const selfProducerIds = [mediaStreamState.camVideoProducer?.id, mediaStreamState.camAudioProducer?.id]
-  const channelConnectionState = getState(MediaInstanceState)
-  const currentChannelInstanceConnection = channelConnectionState.instances[network.id]
-
-  const existingConsumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
-    network.id,
-    peerID,
-    mediaTag
-  ) as ConsumerExtension
-  const consumerMatch = !!existingConsumer && existingConsumer?.id === producerId
-
-  if (
-    !producerId ||
-    selfProducerIds.includes(producerId) ||
-    //The commented portion below was causing re-creation of consumers when the existing one was merely unable
-    //to provide data for a short time. If it's necessary for some logic to work, then it should be rewritten
-    //to do something like record when it started being muted, and only run if it's been muted for a while.
-    consumerMatch /*|| !(consumerMatch.track?.muted && consumerMatch.track?.enabled)*/ ||
-    currentChannelInstanceConnection.channelId !== channelId
-  ) {
-    return //console.error('Invalid consumer', producerId, selfProducerIds, consumerMatch, currentChannelInstanceConnection.channelId === channelId)
-  }
-
-  // ask the server to create a server-side consumer object and send us back the info we need to create a client-side consumer
-  dispatchAction(
-    MediasoupMediaConsumerActions.requestConsumer({
-      mediaTag,
-      peerID,
-      rtpCapabilities: network.transport.mediasoupDevice.rtpCapabilities,
-      channelID: channelId,
-      $network: network.id,
-      $topic: network.topic,
-      $to: network.hostPeerID
-    })
-  )
-}
-
 export const receiveConsumerHandler = async (
   action: typeof MediasoupMediaConsumerActions.consumerCreated.matches._TYPE
 ) => {
@@ -1109,14 +1058,12 @@ export const toggleMicrophonePaused = async () => {
 }
 
 export const toggleWebcamPaused = async () => {
-  console.log('toggleWebcamPaused')
   const mediaStreamState = getMutableState(MediaStreamState)
   const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
   if (await configureMediaTransports(['video'])) {
     if (!mediaStreamState.camVideoProducer.value) await createCamVideoProducer(mediaNetwork)
     else {
       const videoPaused = mediaStreamState.videoPaused.value
-      console.log({ videoPaused })
       if (videoPaused) resumeProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
       else pauseProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
       mediaStreamState.videoPaused.set(!videoPaused)
