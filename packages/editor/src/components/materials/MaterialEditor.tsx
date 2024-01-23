@@ -139,12 +139,7 @@ export function MaterialEditor(props: { materialID: string }) {
   return (
     <div style={{ position: 'relative' }}>
       <InputGroup name="Name" label={t('editor:properties.mesh.material.name')}>
-        <StringInput
-          value={materialComponent.material.name.value}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-            materialComponent.material.name.set(event.target.value)
-          }
-        />
+        <StringInput value={materialComponent.material.name.value} onChange={materialComponent.material.name.set} />
       </InputGroup>
       <InputGroup name="Source" label={t('editor:properties.mesh.material.source')}>
         <div className={styles.contentContainer}>

@@ -38,9 +38,8 @@ import {
   toggleScreenshare,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { ChannelID, ChannelType, channelPath, messagePath } from '@etherealengine/common/src/schema.type.module'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { Resizable } from 're-resizable'
 import { FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa'
 import { HiPhone, HiPhoneMissedCall } from 'react-icons/hi'

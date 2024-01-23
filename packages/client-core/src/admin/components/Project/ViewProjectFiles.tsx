@@ -30,7 +30,7 @@ import {
   AssetSelectionChangePropsType,
   AssetsPreviewPanel
 } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
-import FileBrowserContentPanel from '@etherealengine/editor/src/components/assets/FileBrowserContentPanel'
+import FileBrowserContentPanel from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserContentPanel'
 import { DockContainer } from '@etherealengine/editor/src/components/EditorContainer'
 
 import DrawerView from '../../common/DrawerView'

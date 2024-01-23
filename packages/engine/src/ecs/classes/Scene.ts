@@ -39,12 +39,6 @@ import {
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 
-import { useEffect } from 'react'
-import { Validator, matches } from '../../common/functions/MatchesUtils'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { SourceComponent } from '../../scene/components/SourceComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { serializeEntity } from '../../scene/functions/serializeWorld'
 import {
   EntityJsonType,
   SceneDataType,
@@ -52,11 +46,17 @@ import {
   SceneJsonType,
   SceneMetadataType,
   scenePath
-} from '../../schemas/projects/scene.schema'
+} from '@etherealengine/common/src/schema.type.module'
+import { useEffect } from 'react'
+import { Validator, matches } from '../../common/functions/MatchesUtils'
+import { NameComponent } from '../../scene/components/NameComponent'
+import { SourceComponent } from '../../scene/components/SourceComponent'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
+import { serializeEntity } from '../../scene/functions/serializeWorld'
 import { getComponent, getOptionalComponent } from '../functions/ComponentFunctions'
-import { PresentationSystemGroup } from '../functions/EngineFunctions'
 import { EntityTreeComponent } from '../functions/EntityTree'
 import { defineSystem } from '../functions/SystemFunctions'
+import { PresentationSystemGroup } from '../functions/SystemGroups'
 import { Engine } from './Engine'
 import { EngineState } from './EngineState'
 import { UndefinedEntity } from './Entity'

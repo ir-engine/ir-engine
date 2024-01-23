@@ -31,7 +31,7 @@ import {
   ApiJobPatch,
   ApiJobQuery,
   ApiJobType
-} from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
+} from '@etherealengine/common/src/schemas/cluster/api-job.schema'
 
 export interface ApiJobParams extends KnexAdapterParams<ApiJobQuery> {}
 

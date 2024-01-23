@@ -25,11 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
+import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
-import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
-import { UserName, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { inviteCodeLookupPath } from '@etherealengine/common/src/schemas/social/invite-code-lookup.schema'
+import { UserName, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 

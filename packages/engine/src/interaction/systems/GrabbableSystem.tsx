@@ -36,7 +36,6 @@ import {
   getMutableState,
   getState,
   none,
-  receiveActions,
   useHookstate
 } from '@etherealengine/hyperflux'
 
@@ -50,16 +49,17 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  defineQuery,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { entityExists } from '../../ecs/functions/EntityFunctions'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { SimulationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { NetworkState } from '../../networking/NetworkState'
@@ -100,25 +100,21 @@ export const GrabbableState = defineState({
     }
   >,
 
-  receptors: [
-    [
-      GrabbableNetworkAction.setGrabbedObject,
-      (state, action: typeof GrabbableNetworkAction.setGrabbedObject.matches._TYPE) => {
-        if (action.grabbed)
-          state[action.entityUUID].set({
-            attachmentPoint: action.attachmentPoint ?? 'right',
-            grabberUserId: action.grabberUserId
-          })
-        else state[action.entityUUID].set(none)
-      }
-    ],
-    [
-      WorldNetworkAction.destroyObject,
-      (state, action: typeof WorldNetworkAction.destroyObject.matches._TYPE) => {
-        state[action.entityUUID].set(none)
-      }
-    ]
-  ]
+  receptors: {
+    onSetGrabbedObject: GrabbableNetworkAction.setGrabbedObject.receive((action) => {
+      const state = getMutableState(GrabbableState)
+      if (action.grabbed)
+        state[action.entityUUID].set({
+          attachmentPoint: action.attachmentPoint ?? 'right',
+          grabberUserId: action.grabberUserId
+        })
+      else state[action.entityUUID].set(none)
+    }),
+    onDestroyObject: WorldNetworkAction.destroyObject.receive((action) => {
+      const state = getMutableState(GrabbableState)
+      state[action.entityUUID].set(none)
+    })
+  }
 })
 
 const GrabbableReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) => {
@@ -171,8 +167,6 @@ const GrabbableReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID })
 
 export const GrabbablesReactor = React.memo(() => {
   const grabbableState = Object.keys(useHookstate(getMutableState(GrabbableState)).value)
-  console.log('grabbableState', grabbableState)
-
   return (
     <>
       {grabbableState.map((entityUUID: EntityUUID) => (
@@ -187,7 +181,7 @@ export function transferAuthorityOfObjectReceptor(
   action: ReturnType<typeof WorldNetworkAction.transferAuthorityOfObject>
 ) {
   if (action.newAuthority !== Engine.instance.peerID) return
-  const grabbableEntity = NetworkObjectComponent.getNetworkObject(action.ownerId, action.networkId)!
+  const grabbableEntity = UUIDComponent.getEntityByUUID(action.entityUUID)
   if (hasComponent(grabbableEntity, GrabbableComponent)) {
     const grabberUserId = NetworkState.worldNetwork.peers[action.newAuthority]?.userId
     dispatchAction(
@@ -204,13 +198,13 @@ export function transferAuthorityOfObjectReceptor(
 
 // since grabbables are all client authoritative, we don't need to recompute this for all users
 export function grabbableQueryAll(grabbableEntity: Entity) {
-  const grabbedComponent = getComponent(grabbableEntity, GrabbedComponent)
+  const grabbedComponent = getOptionalComponent(grabbableEntity, GrabbedComponent)
   if (!grabbedComponent) return
   const attachmentPoint = grabbedComponent.attachmentPoint
 
   const target = getHandTarget(grabbedComponent.grabberEntity, attachmentPoint ?? 'right')!
 
-  const rigidbodyComponent = getComponent(grabbableEntity, RigidBodyComponent)
+  const rigidbodyComponent = getOptionalComponent(grabbableEntity, RigidBodyComponent)
 
   if (rigidbodyComponent) {
     rigidbodyComponent.targetKinematicPosition.copy(target.position)
@@ -232,7 +226,7 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
   TransformComponent.getWorldPosition(entity, xruiTransform.position)
 
   if (hasComponent(xrui.entity, VisibleComponent)) {
-    const boundingBox = getComponent(entity, BoundingBoxComponent)
+    const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
     if (boundingBox) {
       const boundingBoxHeight = boundingBox.box.max.y - boundingBox.box.min.y
       xruiTransform.position.y += boundingBoxHeight * 2
@@ -275,6 +269,8 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
 }
 
 export const grabEntity = (grabberEntity: Entity, grabbedEntity: Entity, attachmentPoint: 'left' | 'right'): void => {
+  // todo, do we ever need to handle this in offline contexts?
+  if (!NetworkState.worldNetwork) return console.warn('[GrabbableSystem] no world network found')
   const networkComponent = getComponent(grabbedEntity, NetworkObjectComponent)
   if (networkComponent.authorityPeerID === Engine.instance.peerID) {
     dispatchAction(
@@ -288,10 +284,9 @@ export const grabEntity = (grabberEntity: Entity, grabbedEntity: Entity, attachm
   } else {
     dispatchAction(
       WorldNetworkAction.requestAuthorityOverObject({
-        networkId: networkComponent.networkId,
-        ownerId: networkComponent.ownerId,
+        entityUUID: getComponent(grabbedEntity, UUIDComponent),
         newAuthority: Engine.instance.peerID,
-        $to: networkComponent.authorityPeerID
+        $to: networkComponent.ownerPeer
       })
     )
   }
@@ -315,8 +310,7 @@ export const dropEntity = (grabberEntity: Entity): void => {
   } else {
     dispatchAction(
       WorldNetworkAction.transferAuthorityOfObject({
-        networkId: networkComponent.networkId,
-        ownerId: networkComponent.ownerId,
+        entityUUID: getComponent(grabbedEntity, UUIDComponent),
         newAuthority: networkComponent.authorityPeerID
       })
     )
@@ -328,6 +322,7 @@ export const dropEntity = (grabberEntity: Entity): void => {
  */
 export const grabbableInteractMessage = 'Grab'
 
+/** @todo replace this with event sourcing */
 const transferAuthorityOfObjectQueue = defineActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)
 
 const ownedGrabbableQuery = defineQuery([GrabbableComponent, NetworkObjectAuthorityTag])
@@ -355,7 +350,6 @@ const onGrab = (targetEntity: Entity, handedness = getState(AvatarInputSettingsS
 
 const execute = () => {
   if (getState(EngineState).isEditor) return
-  receiveActions(GrabbableState)
 
   /** @todo this should move to input group */
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]

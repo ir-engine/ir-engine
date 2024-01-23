@@ -23,23 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { Intersection, Layers, MathUtils, Object3D, Raycaster } from 'three'
 
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
-  defineQuery,
   getComponent,
+  getOptionalComponent,
   hasComponent,
-  removeComponent,
-  setComponent,
-  useQuery
+  setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { InputComponent } from '@etherealengine/engine/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import { InfiniteGridComponent } from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
@@ -49,12 +47,11 @@ import { dispatchAction, getMutableState, getState, useHookstate } from '@ethere
 import { V_010 } from '@etherealengine/engine/src/common/constants/MathConstants'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
-import { useMeshOrModel } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-
 import { EditorCameraState } from '../classes/EditorCameraState'
 import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
@@ -69,6 +66,7 @@ import {
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
+import { ObjectGridSnapState } from './ObjectGridSnapSystem'
 
 const raycaster = new Raycaster()
 const raycasterResults: Intersection<Object3D>[] = []
@@ -80,6 +78,10 @@ let selectedEntities: Entity[]
 let dragging = false
 const gizmoQuery = defineQuery([TransformGizmoComponent])
 let primaryClickAccum = 0
+
+const onKeyB = () => {
+  getMutableState(ObjectGridSnapState).enabled.set(!getState(ObjectGridSnapState).enabled)
+}
 
 const onKeyQ = () => {
   const nodes = getState(SelectionState).selectedEntities
@@ -252,6 +254,7 @@ const execute = () => {
 
   if (editorHelperState.isFlyModeEnabled) return
 
+  if (buttons.KeyB?.down) onKeyB()
   if (buttons.KeyQ?.down) onKeyQ()
   if (buttons.KeyE?.down) onKeyE()
   if (buttons.KeyF?.down) onKeyF()
@@ -298,8 +301,16 @@ const execute = () => {
   }
   if (primaryClickAccum <= 0.2) {
     if (buttons.PrimaryClick?.up && inputSource.assignedButtonEntity) {
-      const clickedEntity = inputSource.assignedButtonEntity
-      SelectionState.updateSelection([clickedEntity])
+      let clickedEntity = inputSource.assignedButtonEntity
+      while (
+        !hasComponent(clickedEntity, SourceComponent) &&
+        getOptionalComponent(clickedEntity, EntityTreeComponent)?.parentEntity
+      ) {
+        clickedEntity = getComponent(clickedEntity, EntityTreeComponent).parentEntity!
+      }
+      if (hasComponent(clickedEntity, SourceComponent)) {
+        SelectionState.updateSelection([clickedEntity])
+      }
     }
   }
   if (buttons.PrimaryClick?.pressed) {
@@ -310,23 +321,9 @@ const execute = () => {
   }
 }
 
-const SceneObjectEntityReactor = (props: { entity: Entity }) => {
-  const isMeshOrModel = useMeshOrModel(props.entity)
-
-  useEffect(() => {
-    if (!isMeshOrModel) return
-
-    setComponent(props.entity, InputComponent)
-    return () => {
-      removeComponent(props.entity, InputComponent)
-    }
-  }, [isMeshOrModel])
-
-  return null
-}
-
 const reactor = () => {
-  const sceneObjectEntities = useQuery([SceneObjectComponent])
+  const selectionState = useHookstate(getMutableState(SelectionState))
+  const sceneQuery = defineQuery([SceneObjectComponent])
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
   const rendererState = useHookstate(getMutableState(RendererState))
 
@@ -347,13 +344,7 @@ const reactor = () => {
     setComponent(infiniteGridHelperEntity, InfiniteGridComponent, { size: editorHelperState.translationSnap.value })
   }, [editorHelperState.translationSnap, rendererState.infiniteGridHelperEntity])
 
-  return (
-    <>
-      {sceneObjectEntities.map((entity) => (
-        <SceneObjectEntityReactor key={entity} entity={entity} />
-      ))}
-    </>
-  )
+  return null
 }
 
 export const EditorControlSystem = defineSystem({

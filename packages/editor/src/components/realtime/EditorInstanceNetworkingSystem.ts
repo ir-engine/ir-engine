@@ -30,7 +30,8 @@ import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { EditorState } from '../../services/EditorServices'
 import { EditorActiveInstanceState } from './EditorActiveInstanceService'
 

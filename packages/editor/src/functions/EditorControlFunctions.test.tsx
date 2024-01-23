@@ -26,8 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { SceneDataType, SceneID, SceneJsonType, UserID } from '@etherealengine/common/src/schema.type.module'
 import { EventDispatcher } from '@etherealengine/engine/src/common/classes/EventDispatcher'
-import { destroyEngine, Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine, destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneSnapshotSystem, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
@@ -36,13 +37,11 @@ import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/En
 import { SystemDefinitions } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { PhysicsState } from '@etherealengine/engine/src/physics/state/PhysicsState'
+import { SceneLoadingSystem } from '@etherealengine/engine/src/scene/SceneModule'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { FogType } from '@etherealengine/engine/src/scene/constants/FogType'
-import { SceneLoadingSystem } from '@etherealengine/engine/src/scene/SceneModule'
-import { SceneDataType, SceneID, SceneJsonType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import testSceneJson from '@etherealengine/engine/tests/assets/SceneLoadingTest.scene.json'
 import { applyIncomingActions, getMutableState } from '@etherealengine/hyperflux'
@@ -107,7 +106,7 @@ describe('EditorControlFunctions', () => {
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
         getComponent(rootEntity, EntityTreeComponent).parentEntity,
-        null,
+        UndefinedEntity,
         'root entity does not have parentEntity'
       )
 
@@ -167,7 +166,7 @@ describe('EditorControlFunctions', () => {
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
         getComponent(rootEntity, EntityTreeComponent).parentEntity,
-        null,
+        UndefinedEntity,
         'root entity does not have parentEntity'
       )
 
@@ -217,7 +216,7 @@ describe('EditorControlFunctions', () => {
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
         getComponent(rootEntity, EntityTreeComponent).parentEntity,
-        null,
+        UndefinedEntity,
         'root entity does not have parentEntity'
       )
 
@@ -273,7 +272,7 @@ describe('EditorControlFunctions', () => {
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
         getComponent(rootEntity, EntityTreeComponent).parentEntity,
-        null,
+        UndefinedEntity,
         'root entity does not have parentEntity'
       )
 
@@ -353,7 +352,7 @@ describe('EditorControlFunctions', () => {
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
         getComponent(rootEntity, EntityTreeComponent).parentEntity,
-        null,
+        UndefinedEntity,
         'root entity does not have parentEntity'
       )
 
@@ -449,7 +448,7 @@ describe('EditorControlFunctions', () => {
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
         getComponent(rootEntity, EntityTreeComponent).parentEntity,
-        null,
+        UndefinedEntity,
         'root entity does not have parentEntity'
       )
 
@@ -584,7 +583,7 @@ describe('EditorControlFunctions', () => {
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
         getComponent(rootEntity, EntityTreeComponent).parentEntity,
-        null,
+        UndefinedEntity,
         'root entity does not have parentEntity'
       )
 
@@ -621,7 +620,7 @@ describe('EditorControlFunctions', () => {
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
         getComponent(rootEntity, EntityTreeComponent).parentEntity,
-        null,
+        UndefinedEntity,
         'root entity does not have parentEntity'
       )
 

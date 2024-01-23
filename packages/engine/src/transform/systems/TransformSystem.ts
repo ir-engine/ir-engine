@@ -35,10 +35,11 @@ import { V_000 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
+import { getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { BoundingBoxComponent, updateBoundingBox } from '../../interaction/components/BoundingBoxComponents'
 import { NetworkState } from '../../networking/NetworkState'
 import {
@@ -47,6 +48,7 @@ import {
   RigidBodyFixedTagComponent
 } from '../../physics/components/RigidBodyComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
+import { ScenePreviewCameraComponent } from '../../scene/components/ScenePreviewCamera'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
 import { TransformSerialization } from '../TransformSerialization'
@@ -74,6 +76,8 @@ const distanceFromLocalClientQuery = defineQuery([TransformComponent, DistanceFr
 const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCameraComponent])
 const frustumCulledQuery = defineQuery([TransformComponent, FrustumCullCameraComponent])
 
+const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraComponent])
+
 export const computeTransformMatrix = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
   updateTransformFromComputedTransform(entity)
@@ -81,7 +85,7 @@ export const computeTransformMatrix = (entity: Entity) => {
   const entityTree = getOptionalComponent(entity, EntityTreeComponent)
   const parentEntity = entityTree?.parentEntity
   if (parentEntity) {
-    const parentTransform = getComponent(parentEntity, TransformComponent)
+    const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
     if (parentTransform) transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
   } else {
     transform.matrixWorld.copy(transform.matrix)
@@ -319,6 +323,13 @@ const execute = () => {
     viewCamera.matrixWorldInverse.copy(camera.matrixWorldInverse)
     viewCamera.projectionMatrix.copy(camera.projectionMatrix)
     viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
+  }
+
+  const scenePreviewCameraDirty = scenePreviewCameraQuery().filter(isDirty)
+
+  for (const entity of scenePreviewCameraDirty) {
+    const camera = getComponent(entity, ScenePreviewCameraComponent).camera
+    camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
   }
 
   const dirtyBoundingBoxes = boundingBoxQuery().filter(isDirty)

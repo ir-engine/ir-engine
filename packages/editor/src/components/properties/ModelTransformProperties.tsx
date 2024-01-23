@@ -48,8 +48,8 @@ import { getModelResources } from '@etherealengine/engine/src/scene/functions/lo
 import { useHookstate } from '@etherealengine/hyperflux'
 import { getMutableState, NO_PROXY, State } from '@etherealengine/hyperflux/functions/StateFunctions'
 
+import { modelTransformPath } from '@etherealengine/common/src/schema.type.module'
 import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
-import { modelTransformPath } from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
 import exportGLTF from '../../functions/exportGLTF'
 import { SelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
@@ -71,7 +71,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
   const transformParms = useHookstate<ModelTransformParameters>({
     ...DefaultModelTransformParameters,
     src: modelState.src.value,
-    modelFormat: modelState.src.value.endsWith('.gltf') ? 'gltf' : 'glb'
+    modelFormat: modelState.src.value.endsWith('.gltf') ? 'gltf' : modelState.src.value.endsWith('.vrm') ? 'vrm' : 'glb'
   })
 
   const vertexBakeOptions = useHookstate({
@@ -93,6 +93,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
       await Promise.all(
         materialsFromSource(src)?.map((matComponent) =>
           bakeToVertices<MeshStandardMaterial>(
+            entity,
             matComponent.material as MeshStandardMaterial,
             colors,
             attribs,
@@ -134,12 +135,13 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
       const [_, directoryToRefresh, __] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
       let nuPath: string | null = null
 
-      const variants = textureSizes.map((maxTextureSize, index) => {
-        const suffix = batchCompressed ? `-transformed-LOD_${index}.glb` : '-transformed.glb'
-        nuPath = modelSrc.replace(/(-transformed)?\.glb$/, suffix)
-        const [_, __, dst] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(nuPath)!
-        return { ...transformParms.get(NO_PROXY), maxTextureSize, dst }
-      })
+      const variants = batchCompressed
+        ? textureSizes.map((maxTextureSize, index) => {
+            const suffix = `-LOD_${index}`
+            const dst = transformParms.dst.value.replace(/\.(glb|gltf|vrm)$/, `${suffix}.$1`)
+            return { ...transformParms.get(NO_PROXY), maxTextureSize, dst }
+          })
+        : [transformParms.get(NO_PROXY)]
 
       for (const variant of variants) {
         if (clientside) {
@@ -209,8 +211,8 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
   }, [modelState.src])
 
   useEffect(() => {
-    transformParms.resources.set(getModelResources(entity))
-  }, [modelState.scene])
+    transformParms.resources.set(getModelResources(entity, transformParms.value))
+  }, [modelState.scene, transformParms])
 
   return (
     <CollapsibleBlock label="Model Transform Properties">
@@ -281,7 +283,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
           <InputGroup name="matcap" label="matcap">
             <TexturePreviewInput
               value={vertexBakeOptions.matcapPath.value}
-              onChange={(val: string) => {
+              onRelease={(val: string) => {
                 vertexBakeOptions.matcapPath.set(val)
               }}
             />

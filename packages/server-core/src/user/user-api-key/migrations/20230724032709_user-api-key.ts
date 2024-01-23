@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 
 /**
  * @param { import("knex").Knex } knex

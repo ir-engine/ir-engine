@@ -29,6 +29,29 @@ import '@feathersjs/transport-commons'
 
 import { decode } from 'jsonwebtoken'
 
+import {
+  ChannelID,
+  ChannelType,
+  ChannelUserType,
+  IdentityProviderType,
+  InstanceData,
+  InstanceID,
+  InstanceType,
+  LocationID,
+  SceneID,
+  UserID,
+  UserKickType,
+  UserType,
+  channelPath,
+  channelUserPath,
+  identityProviderPath,
+  instanceAttendancePath,
+  instancePath,
+  locationPath,
+  scenePath,
+  userKickPath,
+  userPath
+} from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
@@ -37,24 +60,7 @@ import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Net
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
-import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import {
-  InstanceData,
-  InstanceID,
-  InstanceType,
-  instancePath
-} from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
-import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { LocationID, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import {
-  IdentityProviderType,
-  identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { UserKickType, userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
-import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { State, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { HyperFlux, State, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
@@ -261,6 +267,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
   const hostId = instanceServerState.instance.id as UserID & InstanceID
   Engine.instance.userID = hostId
   const topic = instanceServerState.isMediaInstance ? NetworkTopics.media : NetworkTopics.world
+  HyperFlux.store.forwardingTopics.add(topic)
 
   await setupIPs()
   const network = await initializeNetwork(app, hostId, hostId, topic)
@@ -442,6 +449,8 @@ const createOrUpdateInstance = async ({
         })
       const instance = await app.service(instancePath).get(instanceServerState.instance.id, { headers })
       if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return
+
+      logger.info(`Authorized user ${userId} to join server`)
       await serverState.agonesSDK.allocate()
       await app.service(instancePath).patch(
         instanceServerState.instance.id,

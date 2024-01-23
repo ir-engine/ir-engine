@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   defineComponent,
-  defineQuery,
   getComponent,
   setComponent,
   useComponent
@@ -34,25 +33,21 @@ import { createEntity, removeEntity, useEntityContext } from '@etherealengine/en
 import { TransformControls } from '@etherealengine/engine/src/scene/classes/TransformGizmo'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import {
-  SnapMode,
-  TransformMode,
-  TransformPivot,
-  TransformSpace
-} from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { SnapMode, TransformPivot } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { Box3, Euler, Vector3 } from 'three'
 import { degToRad } from 'three/src/math/MathUtils'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
+import { ObjectGridSnapState } from '../systems/ObjectGridSnapSystem'
 
 export const TransformGizmoComponent = defineComponent({
   name: 'TransformGizmo',
@@ -79,47 +74,17 @@ export const TransformGizmoComponent = defineComponent({
       // create dummy object to attach gizmo to, we can only attach to three js objects
 
       gizmoComponent.value.addEventListener('mouseUp', (event) => {
-        if (selectionState.selectedEntities.value.length <= 1) {
-          switch (gizmoComponent.value.mode) {
-            case TransformMode.translate:
-              EditorControlFunctions.positionObject([entity], [transformComponent.value.position])
-              break
-            case TransformMode.rotate:
-              EditorControlFunctions.rotateObject(
-                [entity],
-                [new Euler().setFromQuaternion(transformComponent.value.rotation)]
-              )
-              break
-            case TransformMode.scale:
-              EditorControlFunctions.scaleObject([entity], [transformComponent.value.scale], TransformSpace.local, true)
-              break
-          }
-
+        EditorControlFunctions.positionObject([entity], [transformComponent.value.position])
+        EditorControlFunctions.rotateObject(
+          [entity],
+          [new Euler().setFromQuaternion(transformComponent.value.rotation)]
+        )
+        EditorControlFunctions.scaleObject([entity], [transformComponent.value.scale], true)
+        //check for snap modes
+        if (!getState(ObjectGridSnapState).enabled) {
           EditorControlFunctions.commitTransformSave([entity])
         } else {
-          const entities = selectionState.selectedEntities.value.filter((value) => query().includes(value))
-
-          const translationVector = transformComponent.value.position.sub(gizmoComponent.value.worldPositionStart)
-
-          switch (gizmoComponent.value.mode) {
-            case TransformMode.translate:
-              EditorControlFunctions.positionObject(entities, [translationVector], gizmoComponent.value.space, true)
-              break
-            case TransformMode.rotate:
-              console.log(entities, transformComponent.value.position)
-              EditorControlFunctions.rotateAround(
-                entities,
-                gizmoComponent.value.rotationAxis,
-                gizmoComponent.value.rotationAngle,
-                gizmoComponent.value.worldPosition // pivot position
-              )
-              break
-            case TransformMode.scale:
-              EditorControlFunctions.scaleObject(entities, [transformComponent.value.scale], TransformSpace.local, true)
-              break
-          }
-
-          EditorControlFunctions.commitTransformSave(entities)
+          getMutableState(ObjectGridSnapState).apply.set(true)
         }
       })
 
@@ -186,7 +151,7 @@ export const TransformGizmoComponent = defineComponent({
     }, [editorHelperState.transformSpace])
 
     useEffect(() => {
-      switch (editorHelperState.snapMode.value) {
+      switch (editorHelperState.gridSnap.value) {
         case SnapMode.Disabled: // continous update
           gizmoComponent.value.setTranslationSnap(null)
           gizmoComponent.value.setRotationSnap(null)
@@ -198,18 +163,24 @@ export const TransformGizmoComponent = defineComponent({
           gizmoComponent.value.setScaleSnap(editorHelperState.scaleSnap.value)
           break
       }
-    }, [editorHelperState.snapMode])
+    }, [editorHelperState.gridSnap])
 
     useEffect(() => {
-      gizmoComponent.value.setTranslationSnap(editorHelperState.translationSnap.value)
+      gizmoComponent.value.setTranslationSnap(
+        editorHelperState.gridSnap.value === SnapMode.Grid ? editorHelperState.translationSnap.value : null
+      )
     }, [editorHelperState.translationSnap])
 
     useEffect(() => {
-      gizmoComponent.value.setRotationSnap(degToRad(editorHelperState.rotationSnap.value))
+      gizmoComponent.value.setRotationSnap(
+        editorHelperState.gridSnap.value === SnapMode.Grid ? degToRad(editorHelperState.rotationSnap.value) : null
+      )
     }, [editorHelperState.rotationSnap])
 
     useEffect(() => {
-      gizmoComponent.value.setScaleSnap(editorHelperState.scaleSnap.value)
+      gizmoComponent.value.setScaleSnap(
+        editorHelperState.gridSnap.value === SnapMode.Grid ? editorHelperState.scaleSnap.value : null
+      )
     }, [editorHelperState.scaleSnap])
 
     return null

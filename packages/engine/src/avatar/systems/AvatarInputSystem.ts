@@ -36,13 +36,13 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
-  defineQuery,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
@@ -56,7 +56,7 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
-import { XRControlsState } from '../../xr/XRState'
+import { XRControlsState, XRState } from '../../xr/XRState'
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { autopilotSetPosition } from '.././functions/autopilotFunctions'
@@ -215,7 +215,7 @@ const execute = () => {
 
   const { isCameraAttachedToAvatar, isMovementControlsEnabled } = getState(XRControlsState)
 
-  if (!isCameraAttachedToAvatar) {
+  if (!isCameraAttachedToAvatar && !getState(XRState).session) {
     const firstWalkableEntityWithInput = walkableQuery().find(
       (entity) => getComponent(entity, InputComponent)?.inputSources.length
     )

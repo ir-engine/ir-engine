@@ -31,20 +31,15 @@ import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils
 import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import {
-  defineQuery,
-  getComponent,
-  hasComponent,
-  setComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { getComponent, hasComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { WebcamInputComponent } from '@etherealengine/engine/src/input/components/WebcamInputComponent'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
+import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
-import { AnimationSystem } from '@etherealengine/engine/src/avatar/systems/AnimationSystem'
+import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { MediaStreamState } from '../../transports/MediaStreams'
 
 const FACE_EXPRESSION_THRESHOLD = 0.1
@@ -259,7 +254,7 @@ const setAvatarExpression = (entity: Entity): void => {
   if (morphValue === 0) return
 
   const morphName = morphNameByIndex[WebcamInputComponent.expressionIndex[entity]]
-  const skinnedMeshes = getComponent(entity, AvatarRigComponent).skinnedMeshes
+  const skinnedMeshes = getComponent(entity, AvatarComponent).skinnedMeshes
 
   for (const obj of skinnedMeshes) {
     if (!obj.morphTargetDictionary || !obj.morphTargetInfluences) continue
@@ -283,6 +278,7 @@ const webcamQuery = defineQuery([GroupComponent, AvatarRigComponent, WebcamInput
 const avatarSpawnQueue = defineActionQueue(AvatarNetworkAction.spawn.matches)
 
 const execute = () => {
+  /** @todo replace this with a reactor reacting to AvatarNetworkState */
   for (const action of avatarSpawnQueue()) {
     const entity = UUIDComponent.getEntityByUUID(action.entityUUID)
     setComponent(entity, WebcamInputComponent)
@@ -291,8 +287,8 @@ const execute = () => {
 }
 
 /** @todo - this system currently is not used and has been replaced by the /capture route */
-export const WebcamInputSystem = defineSystem({
-  uuid: 'ee.client.WebcamInputSystem',
-  insert: { with: AnimationSystem },
-  execute
-})
+// export const WebcamInputSystem = defineSystem({
+//   uuid: 'ee.client.WebcamInputSystem',
+//   insert: { with: AnimationSystem },
+//   execute
+// })

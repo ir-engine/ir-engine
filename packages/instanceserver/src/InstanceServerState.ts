@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceType } from '@etherealengine/common/src/schema.type.module'
 import { defineState } from '@etherealengine/hyperflux'
 
 type AgonesGameServer = {

@@ -27,7 +27,7 @@ import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
-import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
+import { createFeathersKoaApp, serverJobPipe } from '@etherealengine/server-core/src/createApp'
 import { checkProjectAutoUpdate } from '@etherealengine/server-core/src/projects/project/project-helper'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
@@ -56,7 +56,7 @@ const options = cli.parse({
 
 cli.main(async () => {
   try {
-    const app = createFeathersKoaApp(ServerMode.API)
+    const app = createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
     await checkProjectAutoUpdate(app, options.projectName)
     cli.exit(0)

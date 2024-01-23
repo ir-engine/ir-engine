@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import assert, { strictEqual } from 'assert'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { ActionRecipients, applyIncomingActions, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
@@ -59,7 +59,6 @@ describe('IncomingActionSystem Unit Tests', async () => {
       /* mock */
       const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserID,
-        prefab: '',
         // incoming action from future
         $time: 2,
         $to: '0' as ActionRecipients,
@@ -87,7 +86,6 @@ describe('IncomingActionSystem Unit Tests', async () => {
       /* mock */
       const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserID,
-        prefab: '',
         // incoming action from past
         $time: -1,
         $to: '0' as ActionRecipients,
@@ -110,7 +108,6 @@ describe('IncomingActionSystem Unit Tests', async () => {
       /* mock */
       const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserID,
-        prefab: '',
         // incoming action from past
         $time: 0,
         $to: '0' as ActionRecipients,

@@ -54,10 +54,11 @@ import { Q_IDENTITY, V_000, V_001, V_010, V_100 } from '../../common/constants/M
 import { Engine } from '../../ecs/classes/Engine'
 import { UndefinedEntity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
-import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { getComponent, hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { MeshComponent } from '../components/MeshComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { TransformAxis, TransformMode, TransformSpace } from '../constants/transformConstants'
 import { setObjectLayers } from '../functions/setObjectLayers'
@@ -537,10 +538,15 @@ class TransformControls extends Object3D<TransformControlsEventMap> {
     this.domElement.removeEventListener('pointermove', this._onPointerMove)
     this.domElement.removeEventListener('pointerup', this._onPointerUp)
 
-    this.traverse(function (child: Mesh) {
-      if (child.geometry) child.geometry.dispose()
-      if (child.material) (child.material as Material).dispose()
-    })
+    iterateEntityNode(
+      this.entity,
+      (entity) => {
+        const child = getComponent(entity, MeshComponent)
+        if (child.geometry) child.geometry.dispose()
+        if (child.material) (child.material as Material).dispose()
+      },
+      (entity) => hasComponent(entity, MeshComponent)
+    )
   }
 
   // Set current entity

@@ -43,6 +43,7 @@ import {
   CompletedPart,
   CopyObjectCommand,
   CreateMultipartUploadCommand,
+  CreateMultipartUploadCommandInput,
   DeleteObjectsCommand,
   GetObjectCommand,
   HeadObjectCommand,
@@ -68,7 +69,7 @@ import { PassThrough, Readable } from 'stream'
 import { MULTIPART_CHUNK_SIZE, MULTIPART_CUTOFF_SIZE } from '@etherealengine/common/src/constants/FileSizeConstants'
 import { Client } from 'minio'
 
-import { FileBrowserContentType } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
+import { FileBrowserContentType } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import config from '../../appconfig'
 import { getCacheDomain } from './getCacheDomain'
 import { getCachedURL } from './getCachedURL'
@@ -76,7 +77,6 @@ import {
   PutObjectParams,
   SignedURLResponse,
   StorageListObjectInterface,
-  StorageMultipartStartInterface,
   StorageObjectInterface,
   StorageObjectPutInterface,
   StorageProviderInterface
@@ -321,6 +321,12 @@ export class S3Provider implements StorageProviderInterface {
 
     if (data.Metadata) (args as StorageObjectInterface).Metadata = data.Metadata
 
+    const cacheControl = (args as StorageObjectInterface).Metadata?.['Cache-Control'] || ''
+    if (cacheControl) {
+      args['CacheControl'] = cacheControl
+      delete (args as StorageObjectInterface).Metadata!['Cache-Control']
+    }
+
     if (data.Body instanceof PassThrough) {
       try {
         const upload = new Upload(args as unknown as Options)
@@ -343,7 +349,11 @@ export class S3Provider implements StorageProviderInterface {
         Bucket: this.bucket,
         Key: key,
         ContentType: data.ContentType
-      } as StorageMultipartStartInterface
+      } as CreateMultipartUploadCommandInput
+
+      if (cacheControl) {
+        multiPartStartArgs.CacheControl = cacheControl
+      }
 
       if (data.ContentEncoding) multiPartStartArgs.ContentEncoding = data.ContentEncoding
       const startCommand = new CreateMultipartUploadCommand(multiPartStartArgs)

@@ -30,7 +30,7 @@ import {
   matchUserDataValidator,
   matchUserPatchValidator,
   matchUserQueryValidator
-} from '@etherealengine/engine/src/schemas/matchmaking/match-user.schema'
+} from '@etherealengine/common/src/schemas/matchmaking/match-user.schema'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import setLoggedInUserInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 

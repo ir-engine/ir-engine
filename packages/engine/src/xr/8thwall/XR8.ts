@@ -31,7 +31,8 @@ import { dispatchAction, getMutableState, getState, useHookstate } from '@ethere
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
-import { defineQuery, getComponent, useQuery } from '../../ecs/functions/ComponentFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, useQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { PersistentAnchorComponent } from '../XRAnchorComponents'
 import { endXRSession, getReferenceSpaces, requestXRSession } from '../XRSessionFunctions'
@@ -108,15 +109,15 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null)
 
   const cameraCanvas = document.createElement('canvas')
   cameraCanvas.id = 'camera-canvas'
-  cameraCanvas.style.position = 'fixed'
+  cameraCanvas.style.position = 'absolute'
+  cameraCanvas.style.top = '0px'
   cameraCanvas.style.zIndex = '-10000' // put behind canvas (and everything else)
   cameraCanvas.style.height = '100%'
   cameraCanvas.style.width = '100%'
   cameraCanvas.style.pointerEvents = 'none'
   cameraCanvas.style.userSelect = 'none'
 
-  const engineContainer = document.getElementById('engine-container')!
-  engineContainer.appendChild(cameraCanvas)
+  document.body.appendChild(cameraCanvas)
 
   const requiredPermissions = XR8.XrPermissions.permissions()
   return new Promise<HTMLCanvasElement>((resolve, reject) => {

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { authenticationSettingPath } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
+import { authenticationSettingPath } from '@etherealengine/common/src/schemas/setting/authentication-setting.schema'
 
 /**
  * @param { import("knex").Knex } knex

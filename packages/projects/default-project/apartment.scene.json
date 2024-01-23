@@ -4,10 +4,6 @@
     "60a390ad-4193-493d-84bf-cfb77b5095c2": {
       "components": [
         {
-          "name": "visible",
-          "props": {}
-        },
-        {
           "name": "transform",
           "props": {
             "position": {
@@ -229,6 +225,20 @@
             "toneMapping": 1,
             "toneMappingExposure": 0.8,
             "shadowMapType": 2
+          }
+        },
+        {
+          "name": "visible",
+          "props": true
+        },
+        {
+          "name": "scene-settings",
+          "props": {
+            "thumbnailURL": "__$project$__/default-project/apartment.thumbnail.jpg",
+            "loadingScreenURL": "__$project$__/default-project/apartment.loadingscreen.ktx2",
+            "primaryColor": "#A8B6C6",
+            "backgroundColor": "rgb(64, 70, 71)",
+            "alternativeColor": "#8EBBAE"
           }
         }
       ],
@@ -911,7 +921,7 @@
           "props": {
             "position": {
               "x": -12,
-              "y": 1.5,
+              "y": 0,
               "z": 14
             },
             "rotation": {
@@ -921,15 +931,11 @@
               "w": 1
             },
             "scale": {
-              "x": 0.5,
-              "y": 0.5,
-              "z": 0.5
+              "x": 1,
+              "y": 1,
+              "z": 1
             }
           }
-        },
-        {
-          "name": "visible",
-          "props": {}
         },
         {
           "name": "shadow",
@@ -962,10 +968,10 @@
           "props": {
             "location": "sky-station",
             "linkedPortalId": "6a1cf0d6-ddfe-4058-b5ca-5bb18bc7efae",
-            "redirect": false,
+            "redirect": true,
             "effectType": "Hyperspace",
             "previewType": "Spherical",
-            "previewImageURL": "__$project$__/default-project/apartment-Portal.png",
+            "previewImageURL": "__$project$__/default-project/apartment-Portal.ktx2",
             "spawnPosition": {
               "x": -12,
               "y": 0,
@@ -978,6 +984,10 @@
               "w": 1
             }
           }
+        },
+        {
+          "name": "visible",
+          "props": true
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",

@@ -27,12 +27,13 @@ import { useHookstate } from '@hookstate/core'
 import React from 'react'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
+import { FilteredUsersState } from '../../transports/FilteredUsersSystem'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { AuthState } from '../../user/services/AuthService'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
@@ -104,7 +105,13 @@ export const useMediaWindows = () => {
     windows.unshift({ peerID: selfPeerID, type: 'cam' })
   }
 
-  return windows
+  const filteredUsersState = useHookstate(getMutableState(FilteredUsersState))
+
+  const nearbyPeers = mediaNetwork
+    ? filteredUsersState.nearbyLayerUsers.value.map((userID) => mediaNetwork.users[userID]).flat()
+    : []
+
+  return windows.filter(({ peerID }) => peerID === Engine.instance.store.peerID || nearbyPeers.includes(peerID))
 }
 
 export const UserMediaWindows = () => {

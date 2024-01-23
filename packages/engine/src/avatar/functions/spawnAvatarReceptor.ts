@@ -27,14 +27,14 @@ import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapi
 import { AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getState } from '@etherealengine/hyperflux'
 
-import { setTargetCameraRotation } from '../../camera/systems/CameraInputSystem'
+import { setTargetCameraRotation } from '../../camera/functions/CameraFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
-import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
 import {
@@ -74,12 +74,11 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
   const isOwner = ownerID === (entityUUID as string as UserID)
 
-  if (isOwner) {
-    const existingAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(entityUUID as string as UserID)
-
-    // already spawned into the world on another device or tab
-    if (existingAvatarEntity) return
-  }
+  // if (isOwner) {
+  //   const existingAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(entityUUID as string as UserID)
+  //   // already spawned into the world on another device or tab
+  //   if (existingAvatarEntity) return
+  // }
 
   setComponent(entity, AvatarComponent, {
     avatarHalfHeight: defaultAvatarHalfHeight,
@@ -139,7 +138,6 @@ export const createAvatarCollider = (entity: Entity): Collider => {
   const transform = getComponent(entity, TransformComponent)
   rigidBody.position.copy(transform.position)
   rigidBody.rotation.copy(transform.rotation)
-
   const bodyColliderDesc = ColliderDesc.capsule(
     avatarComponent.avatarHalfHeight - avatarRadius - 0.25,
     avatarRadius
@@ -163,7 +161,14 @@ const createAvatarRigidBody = (entity: Entity): RigidBody => {
 }
 
 export const createAvatarController = (entity: Entity) => {
-  createAvatarRigidBody(entity)
+  if (!hasComponent(entity, RigidBodyComponent)) {
+    createAvatarRigidBody(entity)
+    setComponent(entity, AvatarControllerComponent, {
+      bodyCollider: createAvatarCollider(entity),
+      controller: Physics.createCharacterController(getState(PhysicsState).physicsWorld, {})
+    })
+  }
+
   const rigidbody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
   rigidbody.position.copy(transform.position)

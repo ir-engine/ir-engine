@@ -34,13 +34,13 @@ import {
   useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
-import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { EditorHelperState } from '../../services/EditorHelperState'
 import { SelectionState } from '../../services/SelectionServices'
+import { ObjectGridSnapState } from '../../systems/ObjectGridSnapSystem'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import EulerInput from '../inputs/EulerInput'
@@ -60,16 +60,24 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   useOptionalComponent(props.entity, SceneDynamicLoadTagComponent)
-  const hasParentTransform = useOptionalComponent(props.entity, EntityTreeComponent)?.parentEntity?.value
   const transformComponent = useComponent(props.entity, TransformComponent)
-  const useGlobalTransformComponent = useHookstate(false)
+  const transformSpace = useHookstate(getMutableState(EditorHelperState).transformSpace)
 
-  useGlobalTransformComponent.value
+  const bboxSnapState = getMutableState(ObjectGridSnapState)
+
+  transformSpace.value
     ? transformComponent.matrixWorld.value.decompose(position, rotation, scale)
     : transformComponent.matrix.value.decompose(position, rotation, scale)
 
+  /** Scaling only makes sense in local scale */
+  scale.copy(transformComponent.scale.value)
+
   const onRelease = () => {
-    EditorControlFunctions.commitTransformSave([props.entity])
+    if (bboxSnapState.enabled.value) {
+      bboxSnapState.apply.set(true)
+    } else {
+      EditorControlFunctions.commitTransformSave([props.entity])
+    }
   }
 
   const onChangeDynamicLoad = (value) => {
@@ -79,36 +87,17 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
 
   const onChangePosition = (value: Vector3) => {
     const nodes = getMutableState(SelectionState).selectedEntities.value
-    EditorControlFunctions.positionObject(
-      nodes,
-      [value],
-      useGlobalTransformComponent.value ? TransformSpace.world : TransformSpace.local
-    )
-    TransformComponent.stateMap[props.entity]!.set(TransformComponent.valueMap[props.entity])
+    EditorControlFunctions.positionObject(nodes, [value])
   }
 
   const onChangeRotation = (value: Euler) => {
     const nodes = getMutableState(SelectionState).selectedEntities.value
-    EditorControlFunctions.rotateObject(
-      nodes,
-      [value],
-      useGlobalTransformComponent.value ? TransformSpace.world : TransformSpace.local
-    )
-    TransformComponent.stateMap[props.entity]!.set(TransformComponent.valueMap[props.entity])
+    EditorControlFunctions.rotateObject(nodes, [value])
   }
 
   const onChangeScale = (value: Vector3) => {
-    if (useGlobalTransformComponent.value) {
-      transformComponent.scale.set(transformComponent.value.scale.copy(value))
-    }
     const nodes = getMutableState(SelectionState).selectedEntities.value
-    EditorControlFunctions.scaleObject(
-      nodes,
-      [value],
-      useGlobalTransformComponent.value ? TransformSpace.world : TransformSpace.local,
-      true
-    )
-    TransformComponent.stateMap[props.entity]!.set(TransformComponent.valueMap[props.entity])
+    EditorControlFunctions.scaleObject(nodes, [value], true)
   }
 
   return (
@@ -127,14 +116,6 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           />
         )}
       </InputGroup>
-      {hasParentTransform && (
-        <InputGroup name="Use Global Transform" label={t('editor:properties.transform.lbl-useGlobalTransform')}>
-          <BooleanInput
-            value={useGlobalTransformComponent.value}
-            onChange={() => useGlobalTransformComponent.set((prev) => !prev)}
-          />
-        </InputGroup>
-      )}
       <InputGroup name="Position" label={t('editor:properties.transform.lbl-position')}>
         <Vector3Input
           value={position}

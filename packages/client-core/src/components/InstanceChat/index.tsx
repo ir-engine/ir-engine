@@ -26,8 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { Fragment, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useWorldNetwork } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
+import { ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
@@ -44,10 +43,8 @@ import CloseIcon from '@mui/icons-material/Close'
 import MessageIcon from '@mui/icons-material/Message'
 import Fab from '@mui/material/Fab'
 
+import { InstanceID, MessageID, UserName, messagePath } from '@etherealengine/common/src/schema.type.module'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { MessageID, messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
-import { UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { AppState } from '../../common/services/AppService'
 import { AvatarUIActions, AvatarUIState } from '../../systems/state/AvatarUIState'
 import { useUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'
@@ -67,12 +64,15 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
 
   const targetChannelId = useHookstate(getMutableState(ChannelState).targetChannelId)
 
+  /** @todo allow paginated scrolling to retrieve earlier messages */
   const messages = useFind(messagePath, {
     query: {
-      channelId: targetChannelId.value
+      channelId: targetChannelId.value,
+      $limit: 20,
+      $sort: { createdAt: -1 }
     }
   })
-  const mutateMessage = useMutation(messagePath)
+  const mutateMessage = useMutation(messagePath, false)
 
   useEffect(() => {
     if (messages.data?.length && !chatWindowOpen) setUnreadMessages(true)
@@ -217,9 +217,7 @@ export const InstanceChat = ({ styles = defaultStyles }: InstanceChatProps) => {
     messageRefInput: messageRefInput as any
   })
 
-  const sortedMessages = messages.data
-    ? messages.data.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
-    : []
+  const sortedMessages = [...messages.data].reverse()
 
   const user = useHookstate(getMutableState(AuthState).user)
 
@@ -307,21 +305,21 @@ export const InstanceChat = ({ styles = defaultStyles }: InstanceChatProps) => {
                 } ${styles.dFlex}`}
               >
                 <div className={styles.msgWrapper}>
-                  {messages[index - 1] && messages[index - 1].isNotification ? (
+                  {sortedMessages[index - 1] && sortedMessages[index - 1].isNotification ? (
                     <h3 className={styles.sender}>{message.sender.name as UserName}</h3>
                   ) : (
-                    messages[index - 1] &&
-                    message.senderId !== messages[index - 1].senderId && (
+                    sortedMessages[index - 1] &&
+                    message.senderId !== sortedMessages[index - 1].senderId && (
                       <h3 className={styles.sender}>{message.sender.name as UserName}</h3>
                     )
                   )}
                   <p className={styles.text}>{message.text}</p>
                 </div>
-                {index !== 0 && messages[index - 1] && messages[index - 1].isNotification ? (
+                {index !== 0 && sortedMessages[index - 1] && sortedMessages[index - 1].isNotification ? (
                   <Avatar src={userThumbnail} className={styles.avatar} />
                 ) : (
-                  messages[index - 1] &&
-                  message.senderId !== messages[index - 1].senderId && (
+                  sortedMessages[index - 1] &&
+                  message.senderId !== sortedMessages[index - 1].senderId && (
                     <Avatar src={userThumbnail} className={styles.avatar} />
                   )
                 )}
@@ -445,16 +443,8 @@ export const InstanceChatWrapper = () => {
   const { t } = useTranslation()
   const { bottomShelfStyle } = useShelfStyles()
 
+  const networkWorldConfig = useHookstate(getMutableState(NetworkState).config.world)
   const targetChannelId = useHookstate(getMutableState(ChannelState).targetChannelId)
-
-  /**
-   * Provisioning logic
-   */
-  const worldNetwork = useWorldNetwork()
-
-  useEffect(() => {
-    if (worldNetwork?.connected?.value) ChannelService.getInstanceChannel()
-  }, [worldNetwork?.connected])
 
   return (
     <>
@@ -463,11 +453,15 @@ export const InstanceChatWrapper = () => {
           <InstanceChat />
         </div>
       ) : (
-        <div className={styles.modalConnecting}>
-          <div className={styles.modalConnectingTitle}>
-            <p>{t('common:loader.connectingToWorld')}</p>
-          </div>
-        </div>
+        <>
+          {networkWorldConfig.value && (
+            <div className={styles.modalConnecting}>
+              <div className={styles.modalConnectingTitle}>
+                <p>{t('common:loader.connectingToWorld')}</p>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </>
   )

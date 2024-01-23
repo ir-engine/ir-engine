@@ -29,12 +29,7 @@ import { useTranslation } from 'react-i18next'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import {
-  LocationData,
-  LocationID,
-  LocationType,
-  locationPath
-} from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationData, LocationID, LocationType, locationPath } from '@etherealengine/common/src/schema.type.module'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -42,8 +37,8 @@ import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
+import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
@@ -61,6 +56,7 @@ interface Props {
   mode: LocationDrawerMode
   selectedLocation?: LocationType
   onClose: () => void
+  selectedScene?: SceneID | null
 }
 
 const defaultState = {
@@ -82,7 +78,7 @@ const defaultState = {
   }
 }
 
-const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
+const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }: Props) => {
   const { t } = useTranslation()
   const editMode = useHookstate(false)
   const state = useHookstate({ ...defaultState })
@@ -96,12 +92,26 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
   const hasWriteAccess = user.scopes.get(NO_PROXY)?.find((item) => item?.type === 'location:write')
   const viewMode = mode === LocationDrawerMode.ViewEdit && !editMode.value
 
-  const sceneMenu: InputMenuItem[] = scenes.get(NO_PROXY).map((el) => {
-    return {
-      value: `${el.project}/${el.name}`,
-      label: `${el.name} (${el.project})`
-    }
-  })
+  const sceneName = selectedScene ? selectedScene.split('/')[1] : ''
+  const projectName = selectedScene ? selectedScene.split('/', 1)[0] : ''
+
+  useEffect(() => {
+    if (selectedScene) state.scene.set(selectedScene)
+  }, [selectedScene])
+
+  const sceneMenu: InputMenuItem[] = selectedScene
+    ? [
+        {
+          value: `${projectName}/${sceneName}`,
+          label: `${sceneName} (${projectName})`
+        }
+      ]
+    : scenes.get(NO_PROXY).map((el) => {
+        return {
+          value: `${el.project}/${el.name}`,
+          label: `${el.name} (${el.project})`
+        }
+      })
 
   // const locationTypesMenu: InputMenuItem[] = locationTypes.map((el) => {
   //   return {
@@ -111,7 +121,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
   // })
 
   useEffect(() => {
-    AdminSceneService.fetchAdminScenes()
+    if (!selectedScene) AdminSceneService.fetchAdminScenes()
   }, [])
 
   useEffect(() => {
@@ -251,7 +261,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
           value={state?.value?.scene}
           error={state?.value?.formErrors?.scene}
           menu={sceneMenu}
-          disabled={viewMode}
+          disabled={viewMode || selectedScene !== undefined}
           onChange={handleChange}
         />
 

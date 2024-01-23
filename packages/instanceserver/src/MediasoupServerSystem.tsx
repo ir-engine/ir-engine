@@ -26,8 +26,9 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import React, { useEffect } from 'react'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
@@ -40,7 +41,6 @@ import {
   MediasoupMediaConsumerActions
 } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { MediasoupTransportActions } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import {
@@ -55,6 +55,7 @@ import {
   handleWebRtcTransportCreate
 } from './WebRTCFunctions'
 
+/** @todo replace this with event sourcing */
 const requestConsumerActionQueue = defineActionQueue(MediasoupMediaConsumerActions.requestConsumer.matches)
 const consumerLayersActionQueue = defineActionQueue(MediasoupMediaConsumerActions.consumerLayers.matches)
 const requestProducerActionQueue = defineActionQueue(MediaProducerActions.requestProducer.matches)
