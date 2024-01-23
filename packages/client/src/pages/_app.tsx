@@ -43,7 +43,7 @@ import { StyledEngineProvider, Theme } from '@mui/material/styles'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { useTranslation } from 'react-i18next'
 import RouterComp from '../route/public'
-import { ThemeContextProvider } from '../themes/themeContext'
+import { ThemeContextProvider } from './themeContext'
 
 import './mui.styles.scss'
 

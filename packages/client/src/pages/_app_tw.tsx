@@ -37,8 +37,8 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 
+import { ThemeProvider } from '@etherealengine/client-core/src/common/services/ThemeService'
 import PublicRouter, { CenteredLoadingCircle } from '../route/public_tw'
-import { ThemeContextProvider } from '../themes/themeContext'
 
 import { useTranslation } from 'react-i18next'
 import '../themes/base.css'
@@ -92,7 +92,8 @@ const TailwindPage = () => {
   }, [notistackRef.current])
 
   return (
-    <ThemeContextProvider>
+    <>
+      <ThemeProvider />
       <SnackbarProvider
         ref={notistackRef as any}
         maxSnack={7}
@@ -102,7 +103,7 @@ const TailwindPage = () => {
         <AppPage />
         <Debug />
       </SnackbarProvider>
-    </ThemeContextProvider>
+    </>
   )
 }
 
