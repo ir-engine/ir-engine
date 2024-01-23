@@ -352,7 +352,11 @@ function VolumetricCurrentTimeScrubber(props: { entity: Entity }) {
         onScrubEnd={(value) => {
           if (!isChanging) return
           const uvol2Component = getOptionalMutableComponent(props.entity, UVOL2Component)
-          if (uvol2Component) {
+          if (
+            uvol2Component &&
+            volumetricComponent.currentTrackInfo.currentTime.value < value &&
+            value < uvol2Component.bufferedUntil.value
+          ) {
             const engineState = getState(EngineState)
             UVOL2Component.setStartAndPlaybackTime(props.entity, value, engineState.elapsedSeconds)
           }

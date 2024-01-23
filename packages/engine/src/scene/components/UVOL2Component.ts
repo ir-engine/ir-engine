@@ -780,7 +780,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
           } else {
             frameData[segmentOffset + index] = { position: attr }
           }
-          component.geometryInfo.buffered[bufferedIndex].end.set((segmentOffset + index) / targetData.frameRate)
+          component.geometryInfo.buffered[bufferedIndex].end.set((segmentOffset + index + 1) / targetData.frameRate)
         })
 
         if (
