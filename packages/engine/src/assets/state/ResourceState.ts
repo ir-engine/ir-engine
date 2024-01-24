@@ -24,8 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
-import { Cache, DefaultLoadingManager, LoadingManager, Texture } from 'three'
+import { Cache, CompressedTexture, DefaultLoadingManager, LoadingManager, Texture } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
+import { SourceType } from '../../renderer/materials/components/MaterialSource'
+import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { AssetLoader, LoadingArgs } from '../classes/AssetLoader'
 import { ResourceLoadingManager } from '../loaders/base/ResourceLoadingManager'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
@@ -48,7 +50,7 @@ export enum ResourceType {
   Unknown
 }
 
-export type AssetType = GLTF | Texture
+export type AssetType = GLTF | Texture | CompressedTexture
 
 type BaseMetadata = {
   size?: number
@@ -139,7 +141,7 @@ const Callbacks = {
     onStart: (resource: State<Resource>) => {
       resource.metadata.merge({ onGPU: false })
     },
-    onLoad: (response: Texture, resource: State<Resource>) => {
+    onLoad: (response: Texture | CompressedTexture, resource: State<Resource>) => {
       response.onUpdate = () => {
         resource.metadata.merge({ onGPU: true })
         //@ts-ignore
@@ -254,6 +256,7 @@ const removeResource = (url: string) => {
   if (asset) {
     switch (resource.type.value) {
       case ResourceType.GLTF:
+        removeMaterialSource({ type: SourceType.MODEL, path: url })
         break
       case ResourceType.Texture:
         ;(asset as Texture).dispose()
