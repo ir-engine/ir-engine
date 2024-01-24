@@ -32,9 +32,8 @@ export const fileThumbnailMethods = ['get', 'patch'] as const
 
 export const fileThumbnailPatchSchema = Type.Object(
   {
-    path: Type.String(),
-    fileName: Type.String(),
     body: Type.Any(),
+    isCustom: Type.Boolean(),
     contentType: Type.String(),
     storageProviderName: Type.Optional(Type.String())
   },
