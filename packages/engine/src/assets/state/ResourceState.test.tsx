@@ -26,10 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 
 import { getState } from '@etherealengine/hyperflux'
+import { LoadingManager } from 'three'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { destroyEngine } from '../../ecs/classes/Engine'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
+import { ResourceLoadingManager } from '../loaders/base/ResourceLoadingManager'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { ResourceManager, ResourceState, ResourceStatus, ResourceType } from './ResourceState'
 
@@ -211,6 +213,34 @@ describe('ResourceState', () => {
             controller.signal
           )
         },
+        (resquest) => {},
+        (error) => {
+          assert(false)
+        },
+        controller.signal
+      )
+    }, done)
+  })
+
+  it('Calls loading manager', (done) => {
+    const entity = createEntity()
+    const resourceState = getState(ResourceState)
+    const controller = new AbortController()
+    assert.doesNotThrow(() => {
+      ResourceManager.setDefaultLoadingManager(
+        new ResourceLoadingManager((startUrl) => {
+          assert(startUrl === url)
+          assert(resourceState.resources[url] !== undefined, 'Asset not added to resource manager')
+          done()
+        }) as LoadingManager
+      )
+
+      ResourceManager.load<GLTF>(
+        url,
+        ResourceType.GLTF,
+        entity,
+        {},
+        (response) => {},
         (resquest) => {},
         (error) => {
           assert(false)
