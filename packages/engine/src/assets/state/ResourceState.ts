@@ -106,9 +106,8 @@ const onStart = (url: string, loaded: number, total: number) => {}
 const onLoad = () => {
   const totalSize = getCurrentSizeOfResources()
   console.log('Loaded: ' + totalSize + ' bytes of resources')
-  //@ts-ignore
-  window.resources = getState(ResourceState)
 }
+
 const onProgress = (url: string, loaded: number, total: number) => {}
 const onError = (url: string) => {}
 
@@ -194,7 +193,6 @@ const load = <T extends AssetType>(
 
   const resource = resources[url]
   const callbacks = Callbacks[resourceType]
-  console.log('Resource Manager Loading Asset at: ' + url)
   callbacks.onStart(resource)
   AssetLoader.load(
     url,
@@ -248,8 +246,6 @@ const removeResource = (url: string, resourceType: ResourceType) => {
     console.warn('ResourceManager:removeResource No resource exists for url: ' + url)
     return
   }
-
-  console.log('Resource Manager Unloading Asset at: ' + url)
 
   Cache.remove(url)
   const resource = resources[url]
