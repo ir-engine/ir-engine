@@ -47,17 +47,12 @@ import {
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
 import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
-import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew'
 import AddIcon from '@mui/icons-material/Add'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder'
 import DownloadIcon from '@mui/icons-material/Download'
-import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual'
 import SettingsIcon from '@mui/icons-material/Settings'
-import VideocamIcon from '@mui/icons-material/Videocam'
-import ViewInArIcon from '@mui/icons-material/ViewInAr'
-import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
@@ -83,38 +78,8 @@ import styles from '../styles.module.scss'
 import { FileBrowserItem, FileTableWrapper } from './FileBrowserGrid'
 import { availableTableColumns, FilesViewModeSettings, FilesViewModeState } from './FileBrowserState'
 import { FileDataType } from './FileDataType'
+import { FileIcon } from './FileIcon'
 import { FilePropertiesPanel } from './FilePropertiesPanel'
-
-export const FileIconType = {
-  gltf: ViewInArIcon,
-  'gltf-binary': ViewInArIcon,
-  glb: ViewInArIcon,
-  vrm: AccessibilityNewIcon,
-  usdz: ViewInArIcon,
-  fbx: ViewInArIcon,
-  png: PhotoSizeSelectActualIcon,
-  jpeg: PhotoSizeSelectActualIcon,
-  jpg: PhotoSizeSelectActualIcon,
-  ktx2: PhotoSizeSelectActualIcon,
-  m3u8: VideocamIcon,
-  mp4: VideocamIcon,
-  mpeg: VolumeUpIcon,
-  mp3: VolumeUpIcon,
-  'model/gltf-binary': ViewInArIcon,
-  'model/gltf': ViewInArIcon,
-  'model/glb': ViewInArIcon,
-  'model/vrm': AccessibilityNewIcon,
-  'model/usdz': ViewInArIcon,
-  'model/fbx': ViewInArIcon,
-  'image/png': PhotoSizeSelectActualIcon,
-  'image/jpeg': PhotoSizeSelectActualIcon,
-  'image/jpg': PhotoSizeSelectActualIcon,
-  'application/pdf': null,
-  'application/vnd.apple.mpegurl': VideocamIcon,
-  'video/mp4': VideocamIcon,
-  'audio/mpeg': VolumeUpIcon,
-  'audio/mp3': VolumeUpIcon
-}
 
 type FileBrowserContentPanelProps = {
   onSelectionChanged: (assetSelectionChange: AssetSelectionChangePropsType) => void
@@ -185,7 +150,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       path: isFolder ? file.key.split(file.name)[0] : file.key.split(fullName)[0],
       fullName,
       isFolder,
-      Icon: FileIconType[file.type]
+      Icon: FileIcon(file)
     }
   })
 
