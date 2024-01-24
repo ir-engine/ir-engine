@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { matches, matchesEntity } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { defineComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { defineState } from '@etherealengine/hyperflux'
@@ -33,7 +32,7 @@ import { Vector3 } from 'three'
 export const ActiveOrbitCamera = defineState({
   name: 'ActiveOrbitCamera',
   initial: () => {
-    return Engine.instance.cameraEntity as Entity
+    return UndefinedEntity
   }
 })
 

@@ -307,6 +307,12 @@ const reactor = () => {
   }, [selectionState.selectedParentEntities])
 
   useEffect(() => {
+    // set the active orbit camera to the main camera
+    setComponent(Engine.instance.cameraEntity, CameraOrbitComponent)
+    getMutableState(ActiveOrbitCamera).set(Engine.instance.cameraEntity)
+  }, [])
+
+  useEffect(() => {
     const infiniteGridHelperEntity = rendererState.infiniteGridHelperEntity.value
     if (!infiniteGridHelperEntity) return
     setComponent(infiniteGridHelperEntity, InfiniteGridComponent, { size: editorHelperState.translationSnap.value })

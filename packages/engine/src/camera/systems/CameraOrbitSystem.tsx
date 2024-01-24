@@ -24,16 +24,39 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
 import { throttle } from '../../common/functions/FunctionHelpers'
-import { getComponent, getMutableComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
+import { isClient } from '../../common/functions/getEnvironment'
+import {
+  getComponent,
+  getMutableComponent,
+  getOptionalComponent,
+  hasComponent,
+  setComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '../../ecs/functions/SystemGroups'
+import { InputSystemGroup } from '../../ecs/functions/SystemGroups'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { InputState } from '../../input/state/InputState'
+import { GroupComponent } from '../../scene/components/GroupComponent'
+import obj3dFromUuid from '../../scene/util/obj3dFromUuid'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { CameraComponent } from '../components/CameraComponent'
 import { ActiveOrbitCamera, CameraOrbitComponent } from '../components/CameraOrbitComponent'
 
 let lastZoom = 0
+
+const ZOOM_SPEED = 0.1
+const MAX_FOCUS_DISTANCE = 1000
+const PAN_SPEED = 1
+const ORBIT_SPEED = 5
+
+const box = new Box3()
+const delta = new Vector3()
+const normalMatrix = new Matrix3()
+const sphere = new Sphere()
+const spherical = new Spherical()
 
 const doZoom = (zoom) => {
   const zoomDelta = typeof zoom === 'number' ? zoom - lastZoom : 0
@@ -45,6 +68,7 @@ const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
 const InputSourceQuery = defineQuery([InputSourceComponent])
 const orbitCameraQuery = defineQuery([CameraOrbitComponent])
 const execute = () => {
+  if (!isClient) return
   /**
    * assign active orbit camera based on which input source registers input
    */
@@ -55,6 +79,12 @@ const execute = () => {
     if (Object.keys(buttons).length > 0) getMutableState(ActiveOrbitCamera).set(entity)
   }
 
+  const entity = getState(ActiveOrbitCamera)
+  if (!entity) return
+
+  /**
+   * assign input source to active orbit camera if not already assigned
+   */
   const cameraOrbitComponent = getMutableComponent(getState(ActiveOrbitCamera), CameraOrbitComponent)
   if (!cameraOrbitComponent.inputEntity.value) cameraOrbitComponent.inputEntity.set(InputSourceQuery()[0])
 
@@ -85,10 +115,94 @@ const execute = () => {
   } else if (zoom) {
     throttleZoom(zoom)
   }
+
+  const editorCameraCenter = editorCamera.cameraOrbitCenter.value
+  const transform = getComponent(entity, TransformComponent)
+  const camera = getComponent(entity, CameraComponent)
+
+  if (editorCamera.zoomDelta.value) {
+    const distance = transform.position.distanceTo(editorCamera.cameraOrbitCenter.value)
+    delta.set(0, 0, editorCamera.zoomDelta.value * distance * ZOOM_SPEED)
+    if (delta.length() < distance) {
+      delta.applyMatrix3(normalMatrix.getNormalMatrix(camera.matrixWorld))
+      transform.position.add(delta)
+    }
+    getMutableComponent(entity, CameraOrbitComponent).zoomDelta.set(0)
+  }
+
+  if (editorCamera.refocus.value) {
+    let distance = 0
+    if (editorCamera.focusedObjects.length === 0) {
+      editorCameraCenter.set(0, 0, 0)
+      distance = 10
+    } else {
+      box.makeEmpty()
+      for (const object of editorCamera.focusedObjects.value) {
+        const group =
+          typeof object === 'string' ? [obj3dFromUuid(object)] : getOptionalComponent(object, GroupComponent) || []
+        for (const obj of group) {
+          box.expandByObject(obj)
+        }
+      }
+      if (box.isEmpty()) {
+        // Focusing on an Group, AmbientLight, etc
+        const object = editorCamera.focusedObjects[0].value
+
+        if (typeof object === 'string') {
+          editorCameraCenter.setFromMatrixPosition(obj3dFromUuid(object).matrixWorld)
+        } else if (hasComponent(object, TransformComponent)) {
+          const position = getComponent(object, TransformComponent).position
+          editorCameraCenter.copy(position)
+        }
+        distance = 0.1
+      } else {
+        box.getCenter(editorCameraCenter)
+        distance = box.getBoundingSphere(sphere).radius
+      }
+    }
+
+    delta
+      .set(0, 0, 1)
+      .applyQuaternion(transform.rotation)
+      .multiplyScalar(Math.min(distance, MAX_FOCUS_DISTANCE) * 4)
+    transform.position.copy(editorCameraCenter).add(delta)
+
+    setComponent(entity, CameraOrbitComponent, { focusedObjects: null!, refocus: false })
+  }
+
+  if (editorCamera.isPanning.value) {
+    const distance = transform.position.distanceTo(editorCameraCenter)
+    delta
+      .set(-editorCamera.cursorDeltaX.value, -editorCamera.cursorDeltaY.value, 0)
+      .multiplyScalar(Math.max(distance, 1) * PAN_SPEED)
+      .applyMatrix3(normalMatrix.getNormalMatrix(camera.matrix))
+    transform.position.add(delta)
+    editorCameraCenter.add(delta)
+
+    getMutableComponent(entity, CameraOrbitComponent).isPanning.set(false)
+  }
+
+  if (editorCamera.isOrbiting.value) {
+    delta.copy(transform.position).sub(editorCameraCenter)
+
+    spherical.setFromVector3(delta)
+    spherical.theta -= editorCamera.cursorDeltaX.value * ORBIT_SPEED
+    spherical.phi += editorCamera.cursorDeltaY.value * ORBIT_SPEED
+    spherical.makeSafe()
+    delta.setFromSpherical(spherical)
+
+    camera.position.copy(editorCameraCenter).add(delta)
+    camera.updateMatrix()
+    camera.lookAt(editorCameraCenter)
+    transform.position.copy(camera.position)
+    transform.rotation.copy(camera.quaternion)
+
+    getMutableComponent(entity, CameraOrbitComponent).isOrbiting.set(false)
+  }
 }
 
 export const CameraOrbitSystem = defineSystem({
   uuid: 'ee.engine.CameraOrbitSystem',
-  insert: { with: PresentationSystemGroup },
+  insert: { with: InputSystemGroup },
   execute
 })

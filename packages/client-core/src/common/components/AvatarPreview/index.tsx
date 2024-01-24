@@ -29,7 +29,10 @@ import { useTranslation } from 'react-i18next'
 import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import Text from '@etherealengine/client-core/src/common/components/Text'
-import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
+import {
+  PreviewPanelRendererState,
+  useRender3DPanelSystem
+} from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
@@ -51,6 +54,7 @@ import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDC
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { EnvMapSourceType } from '@etherealengine/engine/src/scene/constants/EnvMapEnum'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { MathUtils } from 'three'
 interface Props {
   fill?: boolean
@@ -67,15 +71,17 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
   const [avatarLoading, setAvatarLoading] = useState(false)
 
   const renderPanel = useRender3DPanelSystem(panelRef)
-  const { previewEntity, camera } = renderPanel.state
 
   useEffect(() => {
     loadAvatarPreview()
   }, [avatarUrl])
 
+  const renderPanelState = getMutableState(PreviewPanelRendererState)
+
   const loadAvatarPreview = () => {
     if (!avatarUrl) return
 
+    const renderPanelEntities = renderPanelState.entities[panelRef.current.id]
     const entity = createEntity()
     const uuid = MathUtils.generateUUID() as EntityUUID
     setComponent(entity, UUIDComponent, uuid)
@@ -90,11 +96,14 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     })
     setComponent(entity, EnvmapComponent, { type: EnvMapSourceType.Skybox })
 
-    if (previewEntity.value) removeEntity(previewEntity.value)
-    previewEntity.set(entity)
+    if (renderPanelEntities[1].value) removeEntity(renderPanelEntities[1].value)
+    renderPanelEntities[1].set(entity)
 
-    camera.position.value.y = 1.8
-    camera.position.value.z = 1
+    //if (previewEntity.value) removeEntity(previewEntity.value)
+    //previewEntity.set(entity)
+
+    //camera.position.value.y = 1.8
+    //camera.position.value.z = 1
   }
 
   return (
