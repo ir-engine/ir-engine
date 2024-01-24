@@ -25,13 +25,17 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
+import { getState } from '@etherealengine/hyperflux'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { destroyEngine } from '../../ecs/classes/Engine'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
-import { ResourceManager, ResourceType } from './ResourceState'
+import { GLTF } from '../loaders/gltf/GLTFLoader'
+import { ResourceManager, ResourceState, ResourceStatus, ResourceType } from './ResourceState'
 
 describe('ResourceState', () => {
+  const url = '/packages/projects/default-project/assets/collisioncube.glb'
+
   beforeEach(async () => {
     createEngine()
     loadEmptyScene()
@@ -41,25 +45,71 @@ describe('ResourceState', () => {
     return destroyEngine()
   })
 
-  it('Loads resource', async () => {
+  it('Errors when resource is missing', async () => {
     const entity = createEntity()
+    const resourceState = getState(ResourceState)
     const controller = new AbortController()
+    const nonExistingUrl = '/doesNotExist.glb'
     ResourceManager.load(
-      './doesNotExist.glb',
+      nonExistingUrl,
       ResourceType.GLTF,
       entity,
       {},
       (response) => {
-        console.log(response)
+        assert(false)
       },
       (resquest) => {
-        console.log(resquest)
+        assert(false)
       },
       (error) => {
-        assert(error.message)
-        // console.log(error)
+        assert(resourceState.resources[ResourceType.GLTF][nonExistingUrl].status === ResourceStatus.Error)
       },
       controller.signal
     )
+  })
+
+  it('Errors on abort', async () => {
+    const entity = createEntity()
+    const resourceState = getState(ResourceState)
+    const controller = new AbortController()
+    ResourceManager.load(
+      url,
+      ResourceType.GLTF,
+      entity,
+      {},
+      (response) => {
+        assert(false)
+      },
+      (resquest) => {
+        assert(false)
+      },
+      (error) => {
+        assert(resourceState.resources[ResourceType.GLTF][url].status === ResourceStatus.Error)
+      },
+      controller.signal
+    )
+    controller.abort()
+  })
+
+  it('Load Asset', async () => {
+    const entity = createEntity()
+    const resourceState = getState(ResourceState)
+    const controller = new AbortController()
+    ResourceManager.load<GLTF>(
+      url,
+      ResourceType.GLTF,
+      entity,
+      {},
+      (response) => {
+        assert(response.asset)
+        assert(resourceState.resources[ResourceType.GLTF][url].status === ResourceStatus.Loaded, 'Asset not loaded')
+      },
+      (resquest) => {},
+      (error) => {
+        assert(false)
+      },
+      controller.signal
+    )
+    assert(resourceState.resources[ResourceType.GLTF][url].status === ResourceStatus.Loading, ' Asset not loading')
   })
 })

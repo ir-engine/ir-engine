@@ -156,6 +156,35 @@ function useBatchLoader<T extends AssetType>(
   return [values, unload, errors, progress]
 }
 
+async function getLoader<T extends AssetType>(
+  url: string,
+  resourceType: ResourceType,
+  entity: Entity = UndefinedEntity,
+  params: LoadingArgs = {}
+): Promise<[T | null, () => void, ErrorEvent | Error | null]> {
+  const unload = () => {
+    ResourceManager.unload(url, resourceType, entity)
+  }
+
+  return new Promise((resolve) => {
+    const controller = createAbortController(url, unload)
+    ResourceManager.load<T>(
+      url,
+      resourceType,
+      entity,
+      params,
+      (response) => {
+        resolve([response, unload, null])
+      },
+      (request) => {},
+      (err) => {
+        resolve([null, unload, err])
+      },
+      controller.signal
+    )
+  })
+}
+
 export function useGLTF(
   url: string,
   entity?: Entity,
@@ -180,4 +209,12 @@ export function useTexture(
   onUnload?: (url: string) => void
 ): [State<Texture | null>, () => void, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>] {
   return useLoader<Texture>(url, ResourceType.Texture, entity, params, onUnload)
+}
+
+export async function getTextureAsync(
+  url: string,
+  entity?: Entity,
+  params?: LoadingArgs
+): Promise<[Texture | null, () => void, ErrorEvent | Error | null]> {
+  return getLoader<Texture>(url, ResourceType.Texture, entity, params)
 }

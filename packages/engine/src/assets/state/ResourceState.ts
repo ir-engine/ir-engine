@@ -24,33 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
-import { Cache, DefaultLoadingManager, Texture } from 'three'
+import { Cache, DefaultLoadingManager, LoadingManager, Texture } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { AssetLoader, LoadingArgs } from '../classes/AssetLoader'
+import { ResourceLoadingManager } from '../loaders/base/ResourceLoadingManager'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 
 Cache.enabled = true
 
-DefaultLoadingManager.onLoad = () => {
-  const totalSize = getCurrentSizeOfResources()
-  console.log('Loaded: ' + totalSize + ' bytes of resources')
-}
-
-// //Called when the item at the url passed in has completed loading
-// DefaultLoadingManager.onProgress = (url: string, loaded: number, total: number) => {
-//   console.log('On Progress', url, loaded, total)
-// }
-
-// DefaultLoadingManager.onError = (url: string) => {
-//   console.log('On Error', url)
-// }
-
-// //This doesn't work as you might imagine, it is only called once, the url parameter is pretty much useless
-// DefaultLoadingManager.onStart = (url: string, loaded: number, total: number) => {
-//   console.log('On Start', url, loaded, total)
-// }
-
-enum ResourceStatus {
+export enum ResourceStatus {
   Unloaded,
   Loading,
   Loaded,
@@ -91,19 +73,55 @@ type Resource = {
 export const ResourceState = defineState({
   name: 'ResourceManagerState',
   initial: () => ({
-    resources: {} as Record<ResourceType, Record<string, Resource>>
+    resources: {} as Record<string, Resource>
   })
 })
+
+const setDefaultLoadingManager = (loadingManager: LoadingManager) => {
+  DefaultLoadingManager.itemStart = loadingManager.itemStart
+  DefaultLoadingManager.itemEnd = loadingManager.itemEnd
+  DefaultLoadingManager.itemError = loadingManager.itemError
+  DefaultLoadingManager.resolveURL = loadingManager.resolveURL
+  DefaultLoadingManager.setURLModifier = loadingManager.setURLModifier
+  DefaultLoadingManager.addHandler = loadingManager.addHandler
+  DefaultLoadingManager.removeHandler = loadingManager.removeHandler
+  DefaultLoadingManager.getHandler = loadingManager.getHandler
+}
+
+const onItemStart = (url: string) => {
+  const resourceState = getMutableState(ResourceState)
+  const resources = resourceState.nested('resources')
+  if (!resources[url].value) {
+    // console.warn('ResourceManager: asset loaded outside of the resource manager, url: ' + url)
+    return
+  }
+
+  const resource = resources[url]
+  if (resource.status.value === ResourceStatus.Unloaded) {
+    resource.status.set(ResourceStatus.Loading)
+  }
+}
+
+const onStart = (url: string, loaded: number, total: number) => {}
+const onLoad = () => {
+  const totalSize = getCurrentSizeOfResources()
+  console.log('Loaded: ' + totalSize + ' bytes of resources')
+  //@ts-ignore
+  window.resources = getState(ResourceState)
+}
+const onProgress = (url: string, loaded: number, total: number) => {}
+const onError = (url: string) => {}
+
+setDefaultLoadingManager(
+  new ResourceLoadingManager(onItemStart, onStart, onLoad, onProgress, onError) as LoadingManager
+)
 
 const getCurrentSizeOfResources = () => {
   let size = 0
   const resources = getState(ResourceState).resources
-  for (const resourceType in resources) {
-    const resourcesOfType = resources[resourceType]
-    for (const key in resourcesOfType) {
-      const resource = resourcesOfType[key]
-      if (resource.metadata.size) size += resource.metadata.size
-    }
+  for (const key in resources) {
+    const resource = resources[key]
+    if (resource.metadata.size) size += resource.metadata.size
   }
 
   return size
@@ -160,13 +178,7 @@ const load = <T extends AssetType>(
   signal: AbortSignal
 ) => {
   const resourceState = getMutableState(ResourceState)
-  const resourceRecord = resourceState.nested('resources')
-  if (!resourceRecord.nested(resourceType).value) {
-    resourceRecord.merge({
-      [resourceType]: {}
-    })
-  }
-  const resources = resourceRecord.nested(resourceType)
+  const resources = resourceState.nested('resources')
   if (!resources[url].value) {
     resources.merge({
       [url]: {
@@ -194,7 +206,6 @@ const load = <T extends AssetType>(
       onLoad(response)
     },
     (request) => {
-      resource.status.set(ResourceStatus.Loading)
       callbacks.onProgress(request, resource)
       onProgress(request)
     },
@@ -209,7 +220,7 @@ const load = <T extends AssetType>(
 
 const unload = (url: string, resourceType: ResourceType, entity: Entity) => {
   const resourceState = getMutableState(ResourceState)
-  const resources = resourceState.nested('resources').nested(resourceType)
+  const resources = resourceState.nested('resources')
   if (!resources[url].value) {
     console.warn('ResourceManager:unload No resource exists for url: ' + url)
     return
@@ -232,7 +243,7 @@ const unload = (url: string, resourceType: ResourceType, entity: Entity) => {
 
 const removeResource = (url: string, resourceType: ResourceType) => {
   const resourceState = getMutableState(ResourceState)
-  const resources = resourceState.nested('resources').nested(resourceType)
+  const resources = resourceState.nested('resources')
   if (!resources[url].value) {
     console.warn('ResourceManager:removeResource No resource exists for url: ' + url)
     return
@@ -270,5 +281,6 @@ const removeResource = (url: string, resourceType: ResourceType) => {
 
 export const ResourceManager = {
   load,
-  unload
+  unload,
+  setDefaultLoadingManager
 }
