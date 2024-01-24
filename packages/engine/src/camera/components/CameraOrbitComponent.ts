@@ -31,7 +31,7 @@ import { defineState } from '@etherealengine/hyperflux'
 import { Vector3 } from 'three'
 
 export const ActiveOrbitCamera = defineState({
-  name: 'OrbitCameraState',
+  name: 'ActiveOrbitCamera',
   initial: () => {
     return Engine.instance.cameraEntity as Entity
   }

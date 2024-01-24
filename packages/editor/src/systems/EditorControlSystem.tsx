@@ -26,9 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Intersection, Layers, Object3D, Raycaster } from 'three'
 
-import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   getComponent,
   getMutableComponent,
@@ -46,14 +44,16 @@ import { SceneObjectComponent } from '@etherealengine/engine/src/scene/component
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import {
+  ActiveOrbitCamera,
+  CameraOrbitComponent
+} from '@etherealengine/engine/src/camera/components/CameraOrbitComponent'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
-import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
-import { ActiveOrbitCamera, CameraOrbitComponent } from '../components/CameraOrbitComponent'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { addMediaNode } from '../functions/addMediaNode'
 import isInputSelected from '../functions/isInputSelected'
@@ -70,12 +70,6 @@ import { ObjectGridSnapState } from './ObjectGridSnapSystem'
 
 const raycaster = new Raycaster()
 const raycasterResults: Intersection<Object3D>[] = []
-const raycastIgnoreLayers = new Layers()
-
-const isMacOS = /Mac|iPod|iPhone|iPad/.test(navigator.platform)
-let lastZoom = 0
-let selectedEntities: Entity[]
-let dragging = false
 let primaryClickAccum = 0
 
 const onKeyB = () => {
@@ -223,13 +217,7 @@ const findIntersectObjects = (object: Object3D, excludeObjects?: Object3D[], exc
   }
 }
 
-const doZoom = (zoom) => {
-  const zoomDelta = typeof zoom === 'number' ? zoom - lastZoom : 0
-  lastZoom = zoom
-  getMutableComponent(getState(ActiveOrbitCamera), CameraOrbitComponent).zoomDelta.set(zoomDelta)
-}
-
-const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
+const inputQuery = defineQuery([InputSourceComponent])
 
 const execute = () => {
   if (Engine.instance.localClientEntity) return // we are in live mode
@@ -237,16 +225,8 @@ const execute = () => {
 
   const editorHelperState = getState(EditorHelperState)
   const selectionState = getMutableState(SelectionState)
-  const pointerState = getState(InputState).pointerState
 
-  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
-  if (!nonCapturedInputSource) return
-
-  const cameraOrbitComponent = getMutableComponent(getState(ActiveOrbitCamera), CameraOrbitComponent)
-  if (cameraOrbitComponent.inputEntity.value === UndefinedEntity)
-    cameraOrbitComponent.inputEntity.set(nonCapturedInputSource)
-
-  const inputSource = getComponent(cameraOrbitComponent.inputEntity.value, InputSourceComponent)
+  const inputSource = getComponent(inputQuery()[0], InputSourceComponent)
   const buttons = inputSource.buttons
 
   if (editorHelperState.isFlyModeEnabled) return
@@ -267,31 +247,15 @@ const execute = () => {
 
   if (selectionState.selectedEntities) {
     const lastSelection = selectionState.selectedEntities[selectionState.selectedEntities.length - 1]
-    if (hasComponent(lastSelection.value as Entity, TransformGizmoComponent))
-      dragging = getComponent(lastSelection.value as Entity, TransformGizmoComponent).dragging
+    //if (hasComponent(lastSelection.value as Entity, TransformGizmoComponent))
+    //  dragging = getComponent(lastSelection.value as Entity, TransformGizmoComponent).dragging
   }
-  const selecting = buttons.PrimaryClick?.pressed && !dragging
-  const zoom = pointerState.scroll.y
-  const panning = buttons.AuxiliaryClick?.pressed
 
-  const editorCamera = getMutableComponent(getState(ActiveOrbitCamera), CameraOrbitComponent)
-
-  if (selecting) {
-    editorCamera.isOrbiting.set(true)
-    const mouseMovement = pointerState.movement
-    if (mouseMovement) {
-      editorCamera.cursorDeltaX.set(mouseMovement.x)
-      editorCamera.cursorDeltaY.set(mouseMovement.y)
-    }
-  } else if (panning) {
-    editorCamera.isPanning.set(true)
-    const mouseMovement = pointerState.movement
-    if (mouseMovement) {
-      editorCamera.cursorDeltaX.set(mouseMovement.x)
-      editorCamera.cursorDeltaY.set(mouseMovement.y)
-    }
-  } else if (zoom) {
-    throttleZoom(zoom)
+  if (buttons.PrimaryClick?.pressed) {
+    primaryClickAccum += deltaSeconds
+  }
+  if (buttons.PrimaryClick?.up) {
+    primaryClickAccum = 0
   }
   if (primaryClickAccum <= 0.2) {
     if (buttons.PrimaryClick?.up && inputSource.assignedButtonEntity) {
@@ -306,12 +270,6 @@ const execute = () => {
         SelectionState.updateSelection([clickedEntity])
       }
     }
-  }
-  if (buttons.PrimaryClick?.pressed) {
-    primaryClickAccum += deltaSeconds
-  }
-  if (buttons.PrimaryClick?.up) {
-    primaryClickAccum = 0
   }
 }
 

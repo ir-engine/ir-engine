@@ -39,9 +39,12 @@ import { GroupComponent } from '@etherealengine/engine/src/scene/components/Grou
 import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 
+import {
+  ActiveOrbitCamera,
+  CameraOrbitComponent
+} from '@etherealengine/engine/src/camera/components/CameraOrbitComponent'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { getState } from '@etherealengine/hyperflux'
-import { ActiveOrbitCamera, CameraOrbitComponent } from '../components/CameraOrbitComponent'
 
 const ZOOM_SPEED = 0.1
 const MAX_FOCUS_DISTANCE = 1000

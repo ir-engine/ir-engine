@@ -27,8 +27,8 @@ import React, { useEffect } from 'react'
 import { Color, DirectionalLight, Euler, Quaternion, Vector3, WebGLRenderer } from 'three'
 
 import { useHookstateFromFactory } from '@etherealengine/common/src/utils/useHookstateFromFactory'
-import { ActiveOrbitCamera, CameraOrbitComponent } from '@etherealengine/editor/src/components/CameraOrbitComponent'
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { CameraOrbitComponent } from '@etherealengine/engine/src/camera/components/CameraOrbitComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
@@ -162,20 +162,12 @@ export const render3DPanelSystem = defineSystem({
   insert: { with: PresentationSystemGroup },
   execute: () => {
     const rendererState = getMutableState(PreviewPanelRendererState)
-    getMutableState(ActiveOrbitCamera).set(Engine.instance.cameraEntity)
     // only render if this menu is open
     if (rendererState.renderers.value) {
       for (const id of rendererState.ids.value) {
-        const inputSource = getOptionalComponent(
-          InputSourceComponent.entitiesByCanvasId[rendererState.renderers[id].domElement.id.value],
-          InputSourceComponent
-        )
-        if (inputSource && Object.keys(inputSource.buttons).length)
-          getMutableState(ActiveOrbitCamera).set(rendererState.entities[id].value[0])
-
+        const cameraEntity = rendererState.entities[id].value[0]
         const group = getOptionalComponent(rendererState.entities[id].value[1], GroupComponent)
         if (group) enableObjectLayer(group[0], 31, true)
-        const cameraEntity = rendererState.entities[id].value[0]
         const cameraComponent = getComponent(cameraEntity, CameraComponent)
         // sync with view camera
         const viewCamera = cameraComponent.cameras[0]

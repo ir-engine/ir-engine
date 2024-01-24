@@ -107,7 +107,7 @@ export const addClientInputListeners = (canvas = EngineRenderer.instance.rendere
       return
     }
     const entity = createEntity()
-    setComponent(entity, InputSourceComponent, { source, canvasId: canvas.id })
+    setComponent(entity, InputSourceComponent, { source })
     setComponent(entity, EntityTreeComponent, {
       parentEntity: session?.interactionMode === 'world-space' ? Engine.instance.originEntity : UndefinedEntity
     })
@@ -322,7 +322,7 @@ export const addClientInputListeners = (canvas = EngineRenderer.instance.rendere
   } as XRInputSource
 
   const emulatedInputSourceEntity = createEntity()
-  setComponent(emulatedInputSourceEntity, InputSourceComponent, { source: emulatedInputSource, canvasId: canvas.id })
+  setComponent(emulatedInputSourceEntity, InputSourceComponent, { source: emulatedInputSource })
   setComponent(
     emulatedInputSourceEntity,
     NameComponent,
