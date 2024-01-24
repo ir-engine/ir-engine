@@ -27,34 +27,79 @@ import React from 'react'
 
 import MaterialLibraryIcon from '@mui/icons-material/Yard'
 
-import { TabData } from 'rc-dock'
+import DockLayout, { DockMode, TabData } from 'rc-dock'
 import { useTranslation } from 'react-i18next'
+import { DockContainer } from '../EditorContainer'
+import { MaterialPreviewPanel } from '../assets/AssetPreviewPanels/MaterialPreviewPanel'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
-import { InfoTooltip } from '../layout/Tooltip'
-import styles from '../styles.module.scss'
 import MaterialLibraryPanel from './MaterialLibraryPanelContainer'
 
 export const MaterialLibraryPanelTitle = () => {
   const { t } = useTranslation()
+  const materialPreviewPanelRef = React.useRef()
+  // const onLayoutChangedCallback = () => {
+  //   ;(assetsPreviewPanelRef as any).current?.onLayoutChanged?.()
+  // }
+
+  // const onSelectionChanged = (props: AssetSelectionChangePropsType) => {
+  //   ;(assetsPreviewPanelRef as any).current?.onSelectionChanged?.(props)
+  // }
+  const defaultLayout = {
+    dockbox: {
+      mode: 'vertical' as DockMode,
+      children: [
+        {
+          size: 7,
+          mode: 'horizontal' as DockMode,
+          children: [
+            {
+              tabs: [
+                {
+                  id: 'materialLibraryPanel',
+                  title: t('editor:layout.filebrowser.tab-name'),
+                  content: <MaterialLibraryPanel />
+                }
+              ]
+            }
+          ]
+        },
+        {
+          size: 5,
+          tabs: [
+            {
+              id: 'previewPanel',
+              title: t('editor:layout.scene-assets.preview'),
+              cached: true,
+              content: <MaterialPreviewPanel ref={materialPreviewPanelRef} />
+            }
+          ]
+        }
+      ]
+    }
+  }
 
   return (
-    <div className={styles.dockableTab}>
-      <PanelDragContainer>
-        <PanelIcon as={MaterialLibraryIcon} size={12} />
-        <PanelTitle>
-          <InfoTooltip title={t('editor:materialLibrary.info')}>
-            <span>{t('editor:materialLibrary.lbl')}</span>
-          </InfoTooltip>
-        </PanelTitle>
-      </PanelDragContainer>
-    </div>
+    <>
+      <DockContainer id="materialLibraryPanel" dividerAlpha={0.3}>
+        <DockLayout
+          defaultLayout={defaultLayout}
+          style={{ pointerEvents: 'none', position: 'absolute', left: 0, top: 5, right: 5, bottom: 5 }}
+          //onLayoutChange={onLayoutChangedCallback}
+        />
+      </DockContainer>
+    </>
   )
 }
 
 export const MaterialLibraryPanelTab: TabData = {
   id: 'materialLibraryPanel',
-  title: <MaterialLibraryPanelTitle />,
   closable: true,
   cached: true,
-  content: <MaterialLibraryPanel />
+  title: (
+    <PanelDragContainer>
+      <PanelIcon as={MaterialLibraryIcon} size={12} />
+      <PanelTitle>Material Library</PanelTitle>
+    </PanelDragContainer>
+  ),
+  content: <MaterialLibraryPanelTitle />
 }

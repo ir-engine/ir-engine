@@ -46,7 +46,6 @@ import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFun
 import { useQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { EditorCameraState } from '../../classes/EditorCameraState'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { addMediaNode } from '../../functions/addMediaNode'
@@ -226,9 +225,9 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 
   const onClick = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {
     if (e.detail === 2) {
-      const editorCameraState = getMutableState(EditorCameraState)
-      editorCameraState.focusedObjects.set([node.entity])
-      editorCameraState.refocus.set(true)
+      //const editorCameraState = getMutableState(EditorCameraState)
+      //editorCameraState.focusedObjects.set([node.entity])
+      //editorCameraState.refocus.set(true)
     }
   }, [])
 

@@ -23,33 +23,41 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { Color, DirectionalLight, Euler, PerspectiveCamera, Quaternion, SRGBColorSpace, WebGLRenderer } from 'three'
+import React, { useEffect } from 'react'
+import { Color, DirectionalLight, Euler, Quaternion, Vector3, WebGLRenderer } from 'three'
 
 import { useHookstateFromFactory } from '@etherealengine/common/src/utils/useHookstateFromFactory'
+import { ActiveOrbitCamera, CameraOrbitComponent } from '@etherealengine/editor/src/components/CameraOrbitComponent'
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  getComponent,
+  getOptionalComponent,
+  setComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { defineSystem, destroySystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
-import { getOrbitControls } from '@etherealengine/engine/src/input/functions/loadOrbitControl'
+import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
+import { addClientInputListeners } from '@etherealengine/engine/src/input/systems/ClientInputSystem'
 import { DirectionalLightComponent } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
+import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { enableObjectLayer } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { defineState, getState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 export const PreviewPanelRendererState = defineState({
   name: 'previewPanelRendererState',
   initial: () => ({
-    renderer: new WebGLRenderer({
-      antialias: true,
-      preserveDrawingBuffer: true,
-      alpha: true
-    })
+    renderers: {} as Record<string, WebGLRenderer>,
+    entities: {} as Record<string, Entity[]>,
+    ids: [] as string[]
   })
 })
 
@@ -67,69 +75,63 @@ const initialize3D = () => {
     setComponent(light, NameComponent, '3D Preview Light 2')
     return light
   }
-
-  const camera = new PerspectiveCamera(60, 1, 0.25, 1000)
-  camera.position.set(0, 1.75, 0.5)
-  camera.layers.set(ObjectLayers.AssetPreview)
-
-  const renderer = getState(PreviewPanelRendererState).renderer
-  renderer.setPixelRatio(window.devicePixelRatio)
-  renderer.outputColorSpace = SRGBColorSpace
-
-  const controls = getOrbitControls(camera, renderer.domElement)
-  controls.minDistance = 0.1
-  controls.maxDistance = 10000
-  controls.target.set(0, 1.65, 0)
-  controls.update()
-
   const backLight = createLight(new Euler(-0.5, 0, 0), 2)
   const frontLight1 = createLight(new Euler(-4, Math.PI * 0.1, 0), 2)
   const frontLight2 = createLight(new Euler(-4, -Math.PI * 0.1, 0), 2)
-  const previewEntity = null as Entity | null
   return {
-    controls,
-    camera,
-    renderer,
-    previewEntity,
     backLight,
     frontLight1,
     frontLight2
   }
 }
 
-let i = 0
+const initializePreviewPanel = (id: string) => {
+  const cameraEntity = createEntity()
+  setComponent(cameraEntity, CameraComponent)
+  setComponent(cameraEntity, TransformComponent, { position: new Vector3(0, 0, -5) })
+  setComponent(cameraEntity, VisibleComponent, true)
+  setComponent(cameraEntity, NameComponent, '3D Preview Camera for ' + id)
+  setComponent(cameraEntity, CameraOrbitComponent, { inputEntity: defineQuery([InputSourceComponent])().pop() })
+  setComponent(cameraEntity, ObjectLayerMaskComponent)
+  ObjectLayerMaskComponent.setLayer(cameraEntity, ObjectLayers.AssetPreview)
+  const previewEntity = createEntity()
+  getMutableState(PreviewPanelRendererState).entities[id].set([cameraEntity, previewEntity])
+}
 
 export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElement>) {
   const state = useHookstateFromFactory(initialize3D)
+  const rendererState = getMutableState(PreviewPanelRendererState)
 
   const resize = () => {
-    if (!panel.current || !state.camera.value) return
+    if (!panel.current?.id) return
     const bounds = panel.current.getBoundingClientRect()!
-    state.camera.value.aspect = bounds.width / bounds.height
-    state.camera.value.updateProjectionMatrix()
-    state.renderer.value.setSize(bounds.width, bounds.height)
+    const camera = getComponent(rendererState.entities[panel.current.id].value[0], CameraComponent)
+    camera.aspect = bounds.width / bounds.height
+    camera.updateProjectionMatrix()
+    rendererState.renderers.value[panel.current.id].setSize(bounds.width, bounds.height)
   }
 
   useEffect(() => {
     window.addEventListener('resize', resize)
+
+    if (!rendererState.renderers.value[panel.current.id]) {
+      rendererState.renderers[panel.current.id].set(
+        new WebGLRenderer({
+          antialias: true,
+          preserveDrawingBuffer: true,
+          alpha: true
+        })
+      )
+      rendererState.renderers[panel.current.id].value.domElement.id = panel.current.id
+      addClientInputListeners(rendererState.renderers[panel.current.id].domElement.value)
+      rendererState.ids.set([...rendererState.ids.value, panel.current.id])
+    }
+
+    initializePreviewPanel(panel.current.id)
+
     resize()
 
-    const AvatarSelectRenderSystem = defineSystem({
-      uuid: 'ee.client.AvatarSelectRenderSystem-' + i++,
-      insert: { with: PresentationSystemGroup },
-      execute: () => {
-        // only render if this menu is open
-        if (!!panel.current && state.renderer.value) {
-          state.controls.value.update()
-          state.renderer.value.render(Engine.instance.scene, state.camera.value)
-        }
-      }
-    })
-
     return () => {
-      destroySystem(AvatarSelectRenderSystem)
-      // todo - do we need to remove the system defintion?
-      if (state.previewEntity.value) removeEntity(state.previewEntity.value)
       removeEntity(state.backLight.value)
       removeEntity(state.frontLight1.value)
       removeEntity(state.frontLight2.value)
@@ -138,15 +140,53 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
   }, [])
 
   useEffect(() => {
-    if (!panel.current || !state.renderer.value) return
+    if (!panel.current || !rendererState.renderers.value) return
     const bounds = panel.current.getBoundingClientRect()
-    state.renderer.value.setSize(bounds.width, bounds.height)
-    panel.current.appendChild(state.renderer.value.domElement)
+    const thisRenderer = rendererState.renderers.value[panel.current.id]
+    thisRenderer.setSize(bounds.width, bounds.height)
+    panel.current.appendChild(thisRenderer.domElement)
     resize()
+
     return () => {
-      if (panel.current) panel.current.removeChild(state.renderer.value.domElement)
+      if (panel.current && rendererState.value[panel.current.id])
+        panel.current.removeChild(rendererState.value[panel.current.id].domElement)
     }
   }, [panel.current, state])
 
   return { state, resize }
 }
+
+const inputQuery = defineQuery([InputSourceComponent])
+export const render3DPanelSystem = defineSystem({
+  uuid: 'ee.client.render3DPanelSystem',
+  insert: { with: PresentationSystemGroup },
+  execute: () => {
+    const rendererState = getMutableState(PreviewPanelRendererState)
+    getMutableState(ActiveOrbitCamera).set(Engine.instance.cameraEntity)
+    // only render if this menu is open
+    if (rendererState.renderers.value) {
+      for (const id of rendererState.ids.value) {
+        const inputSource = getOptionalComponent(
+          InputSourceComponent.entitiesByCanvasId[rendererState.renderers[id].domElement.id.value],
+          InputSourceComponent
+        )
+        if (inputSource && Object.keys(inputSource.buttons).length)
+          getMutableState(ActiveOrbitCamera).set(rendererState.entities[id].value[0])
+
+        const group = getOptionalComponent(rendererState.entities[id].value[1], GroupComponent)
+        if (group) enableObjectLayer(group[0], 31, true)
+        const cameraEntity = rendererState.entities[id].value[0]
+        const cameraComponent = getComponent(cameraEntity, CameraComponent)
+        // sync with view camera
+        const viewCamera = cameraComponent.cameras[0]
+        viewCamera.projectionMatrix.copy(cameraComponent.projectionMatrix)
+        viewCamera.quaternion.copy(cameraComponent.quaternion)
+        viewCamera.position.copy(cameraComponent.position)
+        viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
+        rendererState.renderers[id].value.render(Engine.instance.scene, viewCamera)
+
+        if (group) enableObjectLayer(group[0], 31, false)
+      }
+    }
+  }
+})

@@ -28,9 +28,10 @@ import { Intersection, Layers, Object3D, Raycaster } from 'three'
 
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -51,8 +52,8 @@ import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/function
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { EditorCameraState } from '../classes/EditorCameraState'
 import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
+import { ActiveOrbitCamera, CameraOrbitComponent } from '../components/CameraOrbitComponent'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { addMediaNode } from '../functions/addMediaNode'
 import isInputSelected from '../functions/isInputSelected'
@@ -108,9 +109,9 @@ const onEscape = () => {
   EditorControlFunctions.replaceSelection([])
 }
 const onKeyF = () => {
-  const editorCameraState = getMutableState(EditorCameraState)
-  editorCameraState.focusedObjects.set(getState(SelectionState).selectedEntities)
-  editorCameraState.refocus.set(true)
+  const editorCamera = getMutableComponent(getState(ActiveOrbitCamera), CameraOrbitComponent)
+  editorCamera.focusedObjects.set(getState(SelectionState).selectedEntities)
+  editorCamera.refocus.set(true)
 }
 
 const onKeyT = () => {
@@ -225,7 +226,7 @@ const findIntersectObjects = (object: Object3D, excludeObjects?: Object3D[], exc
 const doZoom = (zoom) => {
   const zoomDelta = typeof zoom === 'number' ? zoom - lastZoom : 0
   lastZoom = zoom
-  getMutableState(EditorCameraState).zoomDelta.set(zoomDelta)
+  getMutableComponent(getState(ActiveOrbitCamera), CameraOrbitComponent).zoomDelta.set(zoomDelta)
 }
 
 const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
@@ -241,7 +242,11 @@ const execute = () => {
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
   if (!nonCapturedInputSource) return
 
-  const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
+  const cameraOrbitComponent = getMutableComponent(getState(ActiveOrbitCamera), CameraOrbitComponent)
+  if (cameraOrbitComponent.inputEntity.value === UndefinedEntity)
+    cameraOrbitComponent.inputEntity.set(nonCapturedInputSource)
+
+  const inputSource = getComponent(cameraOrbitComponent.inputEntity.value, InputSourceComponent)
   const buttons = inputSource.buttons
 
   if (editorHelperState.isFlyModeEnabled) return
@@ -269,21 +274,21 @@ const execute = () => {
   const zoom = pointerState.scroll.y
   const panning = buttons.AuxiliaryClick?.pressed
 
+  const editorCamera = getMutableComponent(getState(ActiveOrbitCamera), CameraOrbitComponent)
+
   if (selecting) {
-    const editorCameraState = getMutableState(EditorCameraState)
-    editorCameraState.isOrbiting.set(true)
+    editorCamera.isOrbiting.set(true)
     const mouseMovement = pointerState.movement
     if (mouseMovement) {
-      editorCameraState.cursorDeltaX.set(mouseMovement.x)
-      editorCameraState.cursorDeltaY.set(mouseMovement.y)
+      editorCamera.cursorDeltaX.set(mouseMovement.x)
+      editorCamera.cursorDeltaY.set(mouseMovement.y)
     }
   } else if (panning) {
-    const editorCameraState = getMutableState(EditorCameraState)
-    editorCameraState.isPanning.set(true)
+    editorCamera.isPanning.set(true)
     const mouseMovement = pointerState.movement
     if (mouseMovement) {
-      editorCameraState.cursorDeltaX.set(mouseMovement.x)
-      editorCameraState.cursorDeltaY.set(mouseMovement.y)
+      editorCamera.cursorDeltaX.set(mouseMovement.x)
+      editorCamera.cursorDeltaY.set(mouseMovement.y)
     }
   } else if (zoom) {
     throttleZoom(zoom)

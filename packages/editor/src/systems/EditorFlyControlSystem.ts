@@ -39,7 +39,6 @@ import { getMutableState } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
-import { editorCameraCenter } from '../classes/EditorCameraState'
 import { EditorHelperState } from '../services/EditorHelperState'
 
 const tempVec3 = new Vector3()
@@ -60,11 +59,11 @@ const onSecondaryClick = () => {
 const onSecondaryReleased = () => {
   const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
   if (hasComponent(Engine.instance.cameraEntity, FlyControlComponent)) {
-    const distance = camera.position.distanceTo(editorCameraCenter)
-    editorCameraCenter.addVectors(
-      camera.position,
-      tempVec3.set(0, 0, -distance).applyMatrix3(normalMatrix.getNormalMatrix(camera.matrix))
-    )
+    // const distance = camera.position.distanceTo(editorCameraCenter)
+    // editorCameraCenter.addVectors(
+    //   camera.position,
+    //   tempVec3.set(0, 0, -distance).applyMatrix3(normalMatrix.getNormalMatrix(camera.matrix))
+    // )
     removeComponent(Engine.instance.cameraEntity, FlyControlComponent)
     getMutableState(EditorHelperState).isFlyModeEnabled.set(false)
   }

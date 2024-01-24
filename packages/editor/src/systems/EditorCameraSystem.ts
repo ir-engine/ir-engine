@@ -29,17 +29,19 @@ import { CameraComponent } from '@etherealengine/engine/src/camera/components/Ca
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
-  hasComponent
+  hasComponent,
+  setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
-import { editorCameraCenter, EditorCameraState } from '../classes/EditorCameraState'
+import { getState } from '@etherealengine/hyperflux'
+import { ActiveOrbitCamera, CameraOrbitComponent } from '../components/CameraOrbitComponent'
 
 const ZOOM_SPEED = 0.1
 const MAX_FOCUS_DISTANCE = 1000
@@ -54,19 +56,24 @@ const spherical = new Spherical()
 
 const execute = () => {
   if (Engine.instance.localClientEntity) return
-  const editorCamera = getState(EditorCameraState)
-  const entity = Engine.instance.cameraEntity
+
+  const entity = getState(ActiveOrbitCamera)
+
+  if (!hasComponent(entity, CameraOrbitComponent)) setComponent(entity, CameraOrbitComponent)
+
+  const editorCamera = getComponent(entity, CameraOrbitComponent)
+  const editorCameraCenter = editorCamera.cameraOrbitCenter
   const transform = getComponent(entity, TransformComponent)
   const camera = getComponent(entity, CameraComponent)
 
   if (editorCamera.zoomDelta) {
-    const distance = transform.position.distanceTo(editorCameraCenter)
+    const distance = transform.position.distanceTo(editorCamera.cameraOrbitCenter)
     delta.set(0, 0, editorCamera.zoomDelta * distance * ZOOM_SPEED)
     if (delta.length() < distance) {
       delta.applyMatrix3(normalMatrix.getNormalMatrix(camera.matrixWorld))
       transform.position.add(delta)
     }
-    getMutableState(EditorCameraState).zoomDelta.set(0)
+    getMutableComponent(entity, CameraOrbitComponent).zoomDelta.set(0)
   }
 
   if (editorCamera.refocus) {
@@ -106,9 +113,7 @@ const execute = () => {
       .multiplyScalar(Math.min(distance, MAX_FOCUS_DISTANCE) * 4)
     transform.position.copy(editorCameraCenter).add(delta)
 
-    const editorCameraState = getMutableState(EditorCameraState)
-    editorCameraState.focusedObjects.set(null!)
-    editorCameraState.refocus.set(false)
+    setComponent(entity, CameraOrbitComponent, { focusedObjects: null!, refocus: false })
   }
 
   if (editorCamera.isPanning) {
@@ -120,7 +125,7 @@ const execute = () => {
     transform.position.add(delta)
     editorCameraCenter.add(delta)
 
-    getMutableState(EditorCameraState).isPanning.set(false)
+    getMutableComponent(entity, CameraOrbitComponent).isPanning.set(false)
   }
 
   if (editorCamera.isOrbiting) {
@@ -138,7 +143,7 @@ const execute = () => {
     transform.position.copy(camera.position)
     transform.rotation.copy(camera.quaternion)
 
-    getMutableState(EditorCameraState).isOrbiting.set(false)
+    getMutableComponent(entity, CameraOrbitComponent).isOrbiting.set(false)
   }
 }
 

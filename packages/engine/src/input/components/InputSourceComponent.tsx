@@ -67,6 +67,7 @@ export const InputSourceComponent = defineComponent({
   onInit: () => {
     return {
       source: null! as XRInputSource,
+      canvasId: null! as string,
       buttons: {} as Readonly<ButtonStateMap>,
       // internals
       assignedButtonEntity: UndefinedEntity as Entity,
@@ -74,14 +75,17 @@ export const InputSourceComponent = defineComponent({
     }
   },
 
-  onSet: (entity, component, args: { source: XRInputSource }) => {
-    const { source } = args
+  onSet: (entity, component, args: { source: XRInputSource; canvasId: string }) => {
+    const { source, canvasId } = args
     component.source.set(source)
+    component.canvasId.set(canvasId)
     InputSourceComponent.entitiesByInputSource.set(args.source, entity)
+    InputSourceComponent.entitiesByCanvasId[args.canvasId] = entity
     setComponent(entity, XRSpaceComponent, source.targetRaySpace)
   },
 
   entitiesByInputSource: new WeakMap<XRInputSource>(),
+  entitiesByCanvasId: {} as Record<string, Entity>,
 
   captureButtons: (targetEntity: Entity, handedness = handednesses) => {
     const state = getMutableState(InputSourceCaptureState)

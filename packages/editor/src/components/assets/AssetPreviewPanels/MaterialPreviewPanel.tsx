@@ -27,33 +27,30 @@ import debounce from 'lodash.debounce'
 import React, { useEffect, useRef } from 'react'
 import ResizeObserver from 'resize-observer-polyfill'
 
-import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import {
   PreviewPanelRendererState,
   useRender3DPanelSystem
 } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
-import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { MathUtils } from 'three'
-import styles from '../styles.module.scss'
+import { MathUtils, Mesh, SphereGeometry } from 'three'
+import { MaterialSelectionState } from '../../materials/MaterialLibraryState'
 
-export const ModelPreviewPanel = (props) => {
-  const url = props.resourceProps.resourceUrl
-  const loading = useHookstate(true)
-
-  const error = useHookstate('')
+export const MaterialPreviewPanel = (props) => {
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
   const renderPanel = useRender3DPanelSystem(panelRef)
+  const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
   const renderPanelState = getMutableState(PreviewPanelRendererState)
 
   useEffect(() => {
@@ -83,30 +80,26 @@ export const ModelPreviewPanel = (props) => {
   }, [])
 
   useEffect(() => {
+    if (!selectedMaterial.value) return
     const renderPanelEntities = renderPanelState.entities[panelRef.current.id]
     const entity = createEntity()
-    setComponent(entity, NameComponent, '3D Preview Entity')
+    setComponent(entity, NameComponent, 'Material Preview Entity')
     const uuid = MathUtils.generateUUID() as EntityUUID
     setComponent(entity, UUIDComponent, uuid)
-    setComponent(entity, ModelComponent, { src: url })
+    setComponent(entity, VisibleComponent, true)
+    const material = getState(MaterialLibraryState).materials[selectedMaterial.value].material
+    if (!material) return
+    addObjectToGroup(entity, new Mesh(new SphereGeometry(1, 32, 32), material))
     setComponent(entity, EnvmapComponent, { type: 'Skybox' })
-    setComponent(entity, VisibleComponent, false)
 
     ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.AssetPreview)
-    if (renderPanelEntities[1].value) removeEntity(renderPanelEntities[1].value)
+    if (renderPanelEntities[1]) removeEntity(renderPanelEntities[1].value)
     renderPanelEntities[1].set(entity)
-    loading.set(false)
-  }, [url])
+  }, [selectedMaterial])
 
   return (
     <>
-      {loading.value && <LoadingView />}
-      {error.value && (
-        <div className={styles.container}>
-          <h1 className={styles.error}>{error.value}</h1>
-        </div>
-      )}
-      <div id="modelPreview" ref={panelRef} style={{ minHeight: '250px', width: '100%', height: '100%' }}></div>
+      <div id="materialPreview" ref={panelRef} style={{ minHeight: '250px', width: '100%', height: '100%' }}></div>
     </>
   )
 }

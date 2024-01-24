@@ -81,12 +81,10 @@ function preventDefault(e) {
   e.preventDefault()
 }
 
-export const addClientInputListeners = () => {
+export const addClientInputListeners = (canvas = EngineRenderer.instance.renderer.domElement) => {
   const xrState = getState(XRState)
 
-  const canvas = EngineRenderer.instance.renderer.domElement
-
-  window.addEventListener('DOMMouseScroll', preventDefault, false)
+  canvas.addEventListener('DOMMouseScroll', preventDefault, false)
 
   const preventDefaultKeyDown = (evt) => {
     if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') return
@@ -109,7 +107,7 @@ export const addClientInputListeners = () => {
       return
     }
     const entity = createEntity()
-    setComponent(entity, InputSourceComponent, { source })
+    setComponent(entity, InputSourceComponent, { source, canvasId: canvas.id })
     setComponent(entity, EntityTreeComponent, {
       parentEntity: session?.interactionMode === 'world-space' ? Engine.instance.originEntity : UndefinedEntity
     })
@@ -241,8 +239,8 @@ export const addClientInputListeners = () => {
     )
   }
 
-  window.addEventListener('touchmove', handleTouchMove, { passive: true, capture: true })
-  window.addEventListener('mousemove', handleMouseMove, { passive: true, capture: true })
+  canvas.addEventListener('touchmove', handleTouchMove, { passive: true, capture: true })
+  canvas.addEventListener('mousemove', handleMouseMove, { passive: true, capture: true })
   canvas.addEventListener('mouseup', handleMouseClick)
   canvas.addEventListener('mousedown', handleMouseClick)
   canvas.addEventListener('touchstart', handleMouseClick)
@@ -324,7 +322,7 @@ export const addClientInputListeners = () => {
   } as XRInputSource
 
   const emulatedInputSourceEntity = createEntity()
-  setComponent(emulatedInputSourceEntity, InputSourceComponent, { source: emulatedInputSource })
+  setComponent(emulatedInputSourceEntity, InputSourceComponent, { source: emulatedInputSource, canvasId: canvas.id })
   setComponent(
     emulatedInputSourceEntity,
     NameComponent,
@@ -334,7 +332,7 @@ export const addClientInputListeners = () => {
   return () => {
     inputSources().map((eid) => removeEntity(eid))
 
-    window.removeEventListener('DOMMouseScroll', preventDefault, false)
+    canvas.removeEventListener('DOMMouseScroll', preventDefault, false)
     window.removeEventListener('keydown', preventDefaultKeyDown, false)
     document.removeEventListener('gesturestart', preventDefault)
     canvas.removeEventListener('contextmenu', preventDefault)
