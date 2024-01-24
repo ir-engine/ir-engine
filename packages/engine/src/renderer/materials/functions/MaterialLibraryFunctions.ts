@@ -28,6 +28,7 @@ import { Color, Material, Texture } from 'three'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { stringHash } from '../../../common/functions/MathFunctions'
+import { Entity } from '../../../ecs/classes/Entity'
 import { SceneState } from '../../../ecs/classes/Scene'
 import { getOptionalComponent } from '../../../ecs/functions/ComponentFunctions'
 import { iterateEntityNode } from '../../../ecs/functions/EntityTree'
@@ -84,6 +85,11 @@ export function formatMaterialArgs(args, defaultArgs: any = undefined) {
       })
       .filter(([_, v]) => v !== undefined)
   )
+}
+
+export function materialIsRegistered(material: Material): boolean {
+  const materialLibrary = getState(MaterialLibraryState)
+  return materialLibrary.materials[material.uuid] !== undefined
 }
 
 export function materialFromId(matId: string): MaterialComponentType {
@@ -160,6 +166,13 @@ export function getSourceItems(src: MaterialSource): string[] | undefined {
   return materialLibrary.sources[hashMaterialSource(src)]?.entries
 }
 
+export function getMaterialSource(material: Material): string | null {
+  const materialLibrary = getState(MaterialLibraryState)
+  const matEntry = materialLibrary.materials[material.uuid]
+  if (!matEntry) return null
+  return matEntry.src.path
+}
+
 export function removeMaterialSource(src: MaterialSource): boolean {
   const materialLibrary = getMutableState(MaterialLibraryState)
   const srcId = hashMaterialSource(src)
@@ -199,7 +212,8 @@ export function registerMaterial(material: Material, src: MaterialSource, params
       plugins: [],
       prototype: prototype.prototypeId,
       src,
-      status: 'LOADED'
+      status: 'LOADED',
+      instances: []
     })
   } catch (error) {
     if (error instanceof PrototypeNotFoundError) {
@@ -210,7 +224,8 @@ export function registerMaterial(material: Material, src: MaterialSource, params
         plugins: [],
         prototype: prototypeId,
         src,
-        status: 'MISSING'
+        status: 'MISSING',
+        instances: []
       })
     } else throw error
   }
@@ -225,6 +240,9 @@ export function unregisterMaterial(material: Material) {
     materialLibrary.materials[material.uuid].set(none)
     const srcEntry = materialLibrary.sources[hashMaterialSource(matEntry.src)].entries
     srcEntry.set(srcEntry.value.filter((matId) => matId !== material.uuid))
+    if (srcEntry.value.length === 0) {
+      removeMaterialSource(matEntry.src)
+    }
     return matEntry
   } catch (error) {
     if (error instanceof MaterialNotFoundError) {
@@ -245,6 +263,19 @@ export function registerMaterialPrototype(prototype: MaterialPrototypeComponentT
     )
   }
   materialLibrary.prototypes[prototype.prototypeId].set(prototype)
+}
+
+export function registerMaterialInstance(material: Material, entity: Entity) {
+  const materialLibrary = getMutableState(MaterialLibraryState)
+  const materialComponent = materialLibrary.materials[material.uuid]
+  materialComponent.instances.set([...materialComponent.instances.value, entity])
+}
+
+export function unregisterMaterialInstance(material: Material, entity: Entity): number {
+  const materialLibrary = getMutableState(MaterialLibraryState)
+  const materialComponent = materialLibrary.materials[material.uuid]
+  materialComponent.instances.set(materialComponent.instances.value.filter((e) => e !== entity))
+  return materialComponent.instances.value.length
 }
 
 export function materialsFromSource(src: MaterialSource) {

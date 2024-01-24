@@ -38,12 +38,21 @@ import { CameraComponent } from '@etherealengine/engine/src/camera/components/Ca
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
+import { SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
+import {
+  getMaterialSource,
+  materialIsRegistered,
+  registerMaterial,
+  registerMaterialInstance,
+  unregisterMaterial,
+  unregisterMaterialInstance
+} from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { ObjectLayerComponents } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import iterateObject3D from '@etherealengine/engine/src/scene/util/iterateObject3D'
 import { getState } from '@etherealengine/hyperflux'
-import { Material, Mesh, Raycaster, Vector2 } from 'three'
+import { Material, MathUtils, Mesh, Raycaster, Vector2 } from 'three'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
@@ -90,8 +99,19 @@ export async function addMediaNode(
           (mesh: Mesh) => mesh.material as Material,
           (mesh: Mesh) => mesh?.isMesh
         )[0]
+        if (!material) return
+        unregisterMaterial(material)
+        const cacheKey = MathUtils.generateUUID()
+        material.customProgramCacheKey = () => cacheKey
         iterateObject3D(intersected.object, (mesh: Mesh) => {
           if (!mesh?.isMesh) return
+          const src = getMaterialSource(mesh.material as Material)
+          if (!src) return
+          if (!materialIsRegistered(material)) registerMaterial(material, { type: SourceType.MODEL, path: src })
+          registerMaterialInstance(material, mesh.entity)
+          if (unregisterMaterialInstance(mesh.material as Material, mesh.entity) === 0) {
+            unregisterMaterial(mesh.material as Material)
+          }
           mesh.material = material
         })
       })

@@ -23,13 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Mesh, Object3D } from 'three'
+import { MathUtils, Mesh, Object3D } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
 import { SourceType } from '../../../../renderer/materials/components/MaterialSource'
-import { registerMaterial } from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
+import {
+  materialIsRegistered,
+  registerMaterial,
+  registerMaterialInstance
+} from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
+import { UUIDComponent } from '../../../../scene/components/UUIDComponent'
 import iterateObject3D from '../../../../scene/util/iterateObject3D'
 import { GLTF, GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
@@ -38,12 +44,18 @@ export function registerMaterials(root: Object3D, type: SourceType = SourceType.
   const materialLibrary = getState(MaterialLibraryState)
   iterateObject3D(root, (mesh: Mesh) => {
     if (!mesh?.isMesh) return
+    mesh.entity = UUIDComponent.getOrCreateEntityByUUID(mesh.uuid as EntityUUID)
     const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
     materials
       .filter((material) => !materialLibrary.materials[material.uuid])
       .map((material) => {
-        const materialComponent = registerMaterial(material, { type, path })
-        material.userData?.plugins && materialComponent.plugins.set(material.userData['plugins'])
+        if (!materialIsRegistered(material)) {
+          const cacheKey = MathUtils.generateUUID()
+          material.customProgramCacheKey = () => cacheKey
+          const materialComponent = registerMaterial(material, { type, path })
+          material.userData?.plugins && materialComponent.plugins.set(material.userData['plugins'])
+        }
+        registerMaterialInstance(material, mesh.entity)
         //iterate intersected object in the scene and set material
       })
   })

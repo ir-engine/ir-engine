@@ -201,11 +201,21 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
     children: {
       get() {
         if (EngineRenderer.instance?.rendering) return []
-        return hasComponent(objEntity, EntityTreeComponent)
-          ? getComponent(objEntity, EntityTreeComponent)
-              .children.filter((child) => getOptionalComponent(child, GroupComponent)?.length)
-              .flatMap((child) => getComponent(child, GroupComponent))
-          : []
+        if (hasComponent(objEntity, EntityTreeComponent)) {
+          const childEntities = getComponent(objEntity, EntityTreeComponent).children.filter((child) =>
+            hasComponent(child, SceneObjectComponent)
+          )
+          const result: Object3D[] = []
+          for (const childEntity of childEntities) {
+            if (!hasComponent(childEntity, GroupComponent)) continue
+            const objs = getComponent(childEntity, GroupComponent)
+            if (objs.length === 0) continue
+            result.push(objs[0])
+          }
+          return result
+        } else {
+          return []
+        }
       },
       set(value) {
         throw new Error('Cannot set children of proxified object')
