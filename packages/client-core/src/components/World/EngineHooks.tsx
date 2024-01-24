@@ -186,7 +186,7 @@ export const usePortalTeleport = () => {
     } else {
       getMutableState(PortalState).portalReady.set(true)
       // teleport player to where the portal spawn position is
-      teleportAvatar(Engine.instance.localClientEntity, activePortal.remoteSpawnPosition)
+      teleportAvatar(Engine.instance.localClientEntity, activePortal.remoteSpawnPosition, true)
     }
   }, [portalState.activePortalEntity])
 
@@ -198,6 +198,10 @@ export const usePortalTeleport = () => {
 
     RouterState.navigate('/location/' + activePortal.location)
     LocationService.getLocationByName(activePortal.location)
+
+    if (activePortal.effectType === 'None') {
+      getMutableState(PortalState).activePortalEntity.set(UndefinedEntity)
+    }
   }, [portalState.portalReady])
 }
 
