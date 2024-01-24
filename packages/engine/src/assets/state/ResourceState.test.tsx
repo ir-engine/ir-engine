@@ -62,7 +62,7 @@ describe('ResourceState', () => {
         assert(false)
       },
       (error) => {
-        assert(resourceState.resources[ResourceType.GLTF][nonExistingUrl].status === ResourceStatus.Error)
+        assert(resourceState.resources[nonExistingUrl].status === ResourceStatus.Error)
       },
       controller.signal
     )
@@ -84,14 +84,14 @@ describe('ResourceState', () => {
         assert(false)
       },
       (error) => {
-        assert(resourceState.resources[ResourceType.GLTF][url].status === ResourceStatus.Error)
+        assert(resourceState.resources[url].status === ResourceStatus.Error)
       },
       controller.signal
     )
     controller.abort()
   })
 
-  it('Load Asset', async () => {
+  it('Loads asset', async () => {
     const entity = createEntity()
     const resourceState = getState(ResourceState)
     const controller = new AbortController()
@@ -102,7 +102,7 @@ describe('ResourceState', () => {
       {},
       (response) => {
         assert(response.asset)
-        assert(resourceState.resources[ResourceType.GLTF][url].status === ResourceStatus.Loaded, 'Asset not loaded')
+        assert(resourceState.resources[url].status === ResourceStatus.Loaded, 'Asset not loaded')
       },
       (resquest) => {},
       (error) => {
@@ -110,6 +110,118 @@ describe('ResourceState', () => {
       },
       controller.signal
     )
-    assert(resourceState.resources[ResourceType.GLTF][url].status === ResourceStatus.Loading, ' Asset not loading')
+  })
+
+  it('Removes asset', async () => {
+    const entity = createEntity()
+    const resourceState = getState(ResourceState)
+    const controller = new AbortController()
+    ResourceManager.load<GLTF>(
+      url,
+      ResourceType.GLTF,
+      entity,
+      {},
+      (response) => {
+        ResourceManager.unload(url, entity)
+        assert(resourceState.resources[url] === undefined, 'Asset not removed')
+      },
+      (resquest) => {},
+      (error) => {
+        assert(false)
+      },
+      controller.signal
+    )
+  })
+
+  it('Loads asset once, but references twice', async () => {
+    const entity = createEntity()
+    const entity2 = createEntity()
+    const resourceState = getState(ResourceState)
+    const controller = new AbortController()
+    ResourceManager.load<GLTF>(
+      url,
+      ResourceType.GLTF,
+      entity,
+      {},
+      (response) => {
+        assert(resourceState.resources[url].references.length === 1, 'References not counted')
+        assert(resourceState.resources[url].references.indexOf(entity) !== -1, 'Entity not referenced')
+
+        ResourceManager.load<GLTF>(
+          url,
+          ResourceType.GLTF,
+          entity2,
+          {},
+          (response) => {
+            assert(response.asset)
+            assert(resourceState.resources[url].references.length === 2, 'References not counted')
+            assert(resourceState.resources[url].references.indexOf(entity) !== -1, 'Entity not referenced')
+            assert(resourceState.resources[url].references.indexOf(entity) !== -1, 'Entity2 not referenced')
+            ResourceManager.unload(url, entity)
+
+            assert(resourceState.resources[url].references.length.valueOf() === 1, 'Entity reference not removed')
+            assert(resourceState.resources[url].references.indexOf(entity) === -1)
+
+            ResourceManager.unload(url, entity2)
+            assert(resourceState.resources[url] === undefined, 'Asset not removed')
+          },
+          (resquest) => {},
+          (error) => {
+            assert(false)
+          },
+          controller.signal
+        )
+      },
+      (resquest) => {},
+      (error) => {
+        assert(false)
+      },
+      controller.signal
+    )
+  })
+
+  it('Counts references when entity is the same', async () => {
+    const entity = createEntity()
+    const resourceState = getState(ResourceState)
+    const controller = new AbortController()
+    ResourceManager.load<GLTF>(
+      url,
+      ResourceType.GLTF,
+      entity,
+      {},
+      (response) => {
+        assert(resourceState.resources[url].references.length === 1, 'References not counted')
+        assert(resourceState.resources[url].references.indexOf(entity) !== -1, 'Entity not referenced')
+
+        ResourceManager.load<GLTF>(
+          url,
+          ResourceType.GLTF,
+          entity,
+          {},
+          (response) => {
+            assert(response.asset)
+            assert(resourceState.resources[url].references.length === 2, 'References not counted')
+            assert(resourceState.resources[url].references.indexOf(entity) !== -1, 'Entity not referenced')
+            ResourceManager.unload(url, entity)
+
+            assert(resourceState.resources[url].references.length.valueOf() === 1, 'Entity reference not removed')
+            assert(resourceState.resources[url].references.indexOf(entity) === -1)
+
+            ResourceManager.unload(url, entity)
+            assert(resourceState.resources[url] === undefined, 'Asset not removed')
+          },
+          (resquest) => {},
+          (error) => {
+            assert(false)
+          },
+          controller.signal
+        )
+      },
+      (resquest) => {},
+      (error) => {
+        assert(false)
+      },
+      controller.signal
+    )
   })
 })

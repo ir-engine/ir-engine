@@ -216,7 +216,7 @@ const load = <T extends AssetType>(
   )
 }
 
-const unload = (url: string, resourceType: ResourceType, entity: Entity) => {
+const unload = (url: string, entity: Entity) => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
   if (!resources[url].value) {
@@ -235,11 +235,11 @@ const unload = (url: string, resourceType: ResourceType, entity: Entity) => {
   })
 
   if (resource.references.length == 0) {
-    removeResource(url, resourceType)
+    removeResource(url)
   }
 }
 
-const removeResource = (url: string, resourceType: ResourceType) => {
+const removeResource = (url: string) => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
   if (!resources[url].value) {
