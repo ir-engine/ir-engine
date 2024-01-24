@@ -198,10 +198,6 @@ export const usePortalTeleport = () => {
 
     RouterState.navigate('/location/' + activePortal.location)
     LocationService.getLocationByName(activePortal.location)
-
-    // shut down connection with existing world instance server
-    // leaving a world instance server will check if we are in a location media instance and shut that down too
-    leaveNetwork(NetworkState.worldNetwork as SocketWebRTCClientNetwork)
   }, [portalState.portalReady])
 }
 
