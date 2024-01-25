@@ -91,10 +91,13 @@ const initialize3D = () => {
 const initializePreviewPanel = (id: string) => {
   const cameraEntity = createEntity()
   setComponent(cameraEntity, CameraComponent)
-  setComponent(cameraEntity, TransformComponent, { position: new Vector3(0, 0, -5) })
+  setComponent(cameraEntity, TransformComponent, { position: new Vector3(0, 0, -1) })
   setComponent(cameraEntity, VisibleComponent, true)
   setComponent(cameraEntity, NameComponent, '3D Preview Camera for ' + id)
-  setComponent(cameraEntity, CameraOrbitComponent, { inputEntity: defineQuery([InputSourceComponent])().pop() })
+  setComponent(cameraEntity, CameraOrbitComponent, {
+    inputEntity: defineQuery([InputSourceComponent])().pop(),
+    refocus: true
+  })
   setComponent(cameraEntity, ObjectLayerMaskComponent)
   ObjectLayerMaskComponent.setLayer(cameraEntity, ObjectLayers.AssetPreview)
   const previewEntity = createEntity()
@@ -126,7 +129,9 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
           alpha: true
         })
       )
-      rendererState.renderers[id].value.domElement.id = id
+      const canvas = rendererState.renderers[id].value.domElement
+      canvas.id = id
+      canvas.tabIndex = 1
       addClientInputListeners(rendererState.renderers[id].domElement.value)
       rendererState.ids.set([...rendererState.ids.value, id])
     }

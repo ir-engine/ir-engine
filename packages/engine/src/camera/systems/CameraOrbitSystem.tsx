@@ -25,9 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
+import { SelectionState } from '../../../../editor/src/services/SelectionServices'
 import { V_010 } from '../../common/constants/MathConstants'
 import { throttle } from '../../common/functions/FunctionHelpers'
 import { isClient } from '../../common/functions/getEnvironment'
+import { Engine } from '../../ecs/classes/Engine'
 import {
   getComponent,
   getMutableComponent,
@@ -87,7 +89,7 @@ const execute = () => {
   /**
    * assign input source to active orbit camera if not already assigned
    */
-  const cameraOrbitComponent = getMutableComponent(getState(ActiveOrbitCamera), CameraOrbitComponent)
+  const cameraOrbitComponent = getMutableComponent(entity, CameraOrbitComponent)
   if (!cameraOrbitComponent.inputEntity.value) cameraOrbitComponent.inputEntity.set(InputSourceQuery()[0])
 
   const pointerState = getState(InputState).pointerState
@@ -98,8 +100,13 @@ const execute = () => {
   const zoom = pointerState.scroll.y
   const panning = buttons.AuxiliaryClick?.pressed
 
-  const editorCamera = getMutableComponent(getState(ActiveOrbitCamera), CameraOrbitComponent)
-
+  const editorCamera = getMutableComponent(entity, CameraOrbitComponent)
+  if (buttons.KeyF?.down) {
+    //only use selection state if it's the main camera
+    if (entity === Engine.instance.cameraEntity)
+      editorCamera.focusedObjects.set(getState(SelectionState).selectedEntities)
+    editorCamera.refocus.set(true)
+  }
   if (selecting) {
     editorCamera.isOrbiting.set(true)
     const mouseMovement = pointerState.movement

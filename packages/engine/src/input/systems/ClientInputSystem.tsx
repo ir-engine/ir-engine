@@ -93,7 +93,7 @@ export const addClientInputListeners = (canvas = EngineRenderer.instance.rendere
     if (evt.code === 'Space' || evt.code === 'Enter') evt.preventDefault()
   }
 
-  window.addEventListener('keydown', preventDefaultKeyDown, false)
+  //canvas.addEventListener('keydown', preventDefaultKeyDown, false)
 
   document.addEventListener('gesturestart', preventDefault)
   canvas.addEventListener('contextmenu', preventDefault)
@@ -171,8 +171,8 @@ export const addClientInputListeners = (canvas = EngineRenderer.instance.rendere
     else if (buttonState[code]) buttonState[code].up = true
   }
 
-  document.addEventListener('keyup', onKeyEvent)
-  document.addEventListener('keydown', onKeyEvent)
+  canvas.addEventListener('keyup', onKeyEvent)
+  canvas.addEventListener('keydown', onKeyEvent)
 
   /** Clear mouse events */
   const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick']
@@ -185,8 +185,8 @@ export const addClientInputListeners = (canvas = EngineRenderer.instance.rendere
       if (!val?.up && val?.pressed) state[button].up = true
     }
   }
-  window.addEventListener('focus', clearKeyState)
-  window.addEventListener('blur', clearKeyState)
+  canvas.addEventListener('focus', clearKeyState)
+  canvas.addEventListener('blur', clearKeyState)
   canvas.addEventListener('mouseleave', clearKeyState)
 
   const handleVisibilityChange = (event: Event) => {
@@ -333,7 +333,7 @@ export const addClientInputListeners = (canvas = EngineRenderer.instance.rendere
     inputSources().map((eid) => removeEntity(eid))
 
     canvas.removeEventListener('DOMMouseScroll', preventDefault, false)
-    window.removeEventListener('keydown', preventDefaultKeyDown, false)
+    canvas.removeEventListener('keydown', preventDefaultKeyDown, false)
     document.removeEventListener('gesturestart', preventDefault)
     canvas.removeEventListener('contextmenu', preventDefault)
 
@@ -342,19 +342,19 @@ export const addClientInputListeners = (canvas = EngineRenderer.instance.rendere
     window.removeEventListener('gamepadconnected', addGamepad)
     window.removeEventListener('gamepaddisconnected', removeGamepad)
 
-    document.removeEventListener('keyup', onKeyEvent)
-    document.removeEventListener('keydown', onKeyEvent)
+    canvas.removeEventListener('keyup', onKeyEvent)
+    canvas.removeEventListener('keydown', onKeyEvent)
 
-    window.removeEventListener('focus', clearKeyState)
-    window.removeEventListener('blur', clearKeyState)
+    canvas.removeEventListener('focus', clearKeyState)
+    canvas.removeEventListener('blur', clearKeyState)
     canvas.removeEventListener('mouseleave', clearKeyState)
 
     document.removeEventListener('visibilitychange', handleVisibilityChange)
 
     canvas.removeEventListener('wheel', onWheelEvent)
 
-    window.removeEventListener('touchmove', handleTouchMove)
-    window.removeEventListener('mousemove', handleMouseMove)
+    canvas.removeEventListener('touchmove', handleTouchMove)
+    canvas.removeEventListener('mousemove', handleMouseMove)
     canvas.removeEventListener('mouseup', handleMouseClick)
     canvas.removeEventListener('mousedown', handleMouseClick)
     canvas.removeEventListener('touchstart', handleMouseClick)

@@ -29,7 +29,6 @@ import { Intersection, Layers, Object3D, Raycaster } from 'three'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -101,11 +100,6 @@ const onKeyE = () => {
 }
 const onEscape = () => {
   EditorControlFunctions.replaceSelection([])
-}
-const onKeyF = () => {
-  const editorCamera = getMutableComponent(getState(ActiveOrbitCamera), CameraOrbitComponent)
-  editorCamera.focusedObjects.set(getState(SelectionState).selectedEntities)
-  editorCamera.refocus.set(true)
 }
 
 const onKeyT = () => {
@@ -234,7 +228,6 @@ const execute = () => {
   if (buttons.KeyB?.down) onKeyB()
   if (buttons.KeyQ?.down) onKeyQ()
   if (buttons.KeyE?.down) onKeyE()
-  if (buttons.KeyF?.down) onKeyF()
   if (buttons.KeyT?.down) onKeyT()
   if (buttons.KeyR?.down) onKeyR()
   if (buttons.KeyY?.down) onKeyY()
