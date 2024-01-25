@@ -269,6 +269,8 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
 }
 
 export const grabEntity = (grabberEntity: Entity, grabbedEntity: Entity, attachmentPoint: 'left' | 'right'): void => {
+  // todo, do we ever need to handle this in offline contexts?
+  if (!NetworkState.worldNetwork) return console.warn('[GrabbableSystem] no world network found')
   const networkComponent = getComponent(grabbedEntity, NetworkObjectComponent)
   if (networkComponent.authorityPeerID === Engine.instance.peerID) {
     dispatchAction(
@@ -284,7 +286,7 @@ export const grabEntity = (grabberEntity: Entity, grabbedEntity: Entity, attachm
       WorldNetworkAction.requestAuthorityOverObject({
         entityUUID: getComponent(grabbedEntity, UUIDComponent),
         newAuthority: Engine.instance.peerID,
-        $to: networkComponent.authorityPeerID
+        $to: networkComponent.ownerPeer
       })
     )
   }

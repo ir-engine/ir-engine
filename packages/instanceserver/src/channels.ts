@@ -449,6 +449,8 @@ const createOrUpdateInstance = async ({
         })
       const instance = await app.service(instancePath).get(instanceServerState.instance.id, { headers })
       if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return
+
+      logger.info(`Authorized user ${userId} to join server`)
       await serverState.agonesSDK.allocate()
       await app.service(instancePath).patch(
         instanceServerState.instance.id,

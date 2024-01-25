@@ -221,13 +221,15 @@ export const handleConnectingPeer = (
     lastSeenTs: Date.now()
   })
 
-  updatePeers(network)
+  const updatePeersAction = updatePeers(network)
 
   logger.info('Connect to world from ' + userId)
 
-  const cachedActions = NetworkPeerFunctions.getCachedActionsForPeer(peerID).map((action) => {
-    return _.cloneDeep(action)
-  })
+  const cachedActions = NetworkPeerFunctions.getCachedActionsForPeer(peerID)
+    .map((action) => {
+      return _.cloneDeep(action)
+    })
+    .concat([updatePeersAction])
 
   const instanceServerState = getState(InstanceServerState)
   if (inviteCode && !instanceServerState.isMediaInstance) getUserSpawnFromInvite(network, user, inviteCode!)
@@ -344,8 +346,8 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerI
     logger.info(`Disconnecting user ${userId} on spark ${peerID}`)
     const recvTransport = MediasoupTransportState.getTransport(network.id, 'recv', peerID) as WebRTCTransportExtension
     const sendTransport = MediasoupTransportState.getTransport(network.id, 'send', peerID) as WebRTCTransportExtension
-    if (recvTransport) recvTransport.close()
-    if (sendTransport) sendTransport.close()
+    if (recvTransport) MediasoupTransportState.removeTransport(network.id, recvTransport.id)
+    if (sendTransport) MediasoupTransportState.removeTransport(network.id, sendTransport.id)
   } else {
     logger.warn("Spark didn't match for disconnecting client.")
   }
