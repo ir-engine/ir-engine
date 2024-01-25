@@ -55,7 +55,6 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import {
   MediaStreamAppData,
-  MediaTagType,
   NetworkConnectionParams,
   NetworkState,
   addNetwork,
@@ -164,12 +163,19 @@ const handleFailedConnection = (topic: Topic, instanceID: InstanceID) => {
 }
 
 export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
+  if (!network.transport?.primus) return console.warn('No primus to close')
+
   const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
   networkState.connected.set(false)
   networkState.authenticated.set(false)
   networkState.ready.set(false)
-  for (const transportID of Object.keys(getState(MediasoupTransportState)[network.id]))
-    MediasoupTransportState.removeTransport(network.id, transportID)
+
+  if (getState(MediasoupTransportState)[network.id]) {
+    for (const transportID of Object.keys(getState(MediasoupTransportState)[network.id])) {
+      MediasoupTransportState.removeTransport(network.id, transportID)
+    }
+  }
+
   network.transport.heartbeat && clearInterval(network.transport.heartbeat)
   network.transport.primus?.end()
   network.transport.primus?.removeAllListeners()
@@ -177,15 +183,22 @@ export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
 }
 
 export const closeNetworkTransport = (network: SocketWebRTCClientNetwork) => {
-  for (const transportID of Object.keys(getState(MediasoupTransportState)[network.id]))
-    MediasoupTransportState.removeTransport(network.id, transportID)
-  network.transport.heartbeat && clearInterval(network.transport.heartbeat)
-  network.transport.primus?.end()
-  network.transport.primus?.removeAllListeners()
+  if (!network.transport?.primus) return console.warn('No primus to close')
+
   const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
   networkState.transport.primus.set(null!)
   networkState.authenticated.set(false)
   networkState.ready.set(false)
+
+  if (getState(MediasoupTransportState)[network.id]) {
+    for (const transportID of Object.keys(getState(MediasoupTransportState)[network.id]))
+      MediasoupTransportState.removeTransport(network.id, transportID)
+  }
+
+  network.transport.heartbeat && clearInterval(network.transport.heartbeat)
+  network.transport.primus?.end()
+  network.transport.primus?.removeAllListeners()
+  networkState.transport.primus.set(null!)
 }
 
 export const initializeNetwork = (id: InstanceID, hostId: UserID, topic: Topic) => {
@@ -373,7 +386,7 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
   const inviteCode = getSearchParamFromURL('inviteCode') as InviteCode
   const payload = { accessToken, peerID: Engine.instance.peerID, inviteCode }
 
-  const { status, routerRtpCapabilities, cachedActions } = await new Promise<AuthTask>((resolve) => {
+  const { status, routerRtpCapabilities, cachedActions, error } = await new Promise<AuthTask>((resolve) => {
     const onAuthentication = (response: AuthTask) => {
       if (response.status !== 'pending') {
         clearInterval(interval)
@@ -398,7 +411,7 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
 
   if (status !== 'success') {
     logger.error(status)
-    return logger.error(new Error('Unable to connect with credentials'))
+    return logger.error(new Error('Unable to connect with credentials' + error))
   }
 
   networkState.authenticated.set(true)
@@ -482,7 +495,8 @@ export const waitForTransports = async (network: SocketWebRTCClientNetwork) => {
 }
 
 export const onTransportCreated = async (action: typeof MediasoupTransportActions.transportCreated.matches._TYPE) => {
-  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork
+  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork | undefined
+  if (!network) return console.warn('Network not found', action.$network)
 
   const { transportID, direction, sctpParameters, iceParameters, iceCandidates, dtlsParameters } = action
 
@@ -882,56 +896,6 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
   }
 }
 
-/** @todo this is unused, see if it's ever needed to add these checks */
-export async function subscribeToTrack(
-  network: SocketWebRTCClientNetwork,
-  peerID: PeerID,
-  mediaTag: MediaTagType,
-  producerId: string,
-  channelId: ChannelID
-) {
-  const primus = network.transport.primus
-  if (primus?.disconnect) return
-
-  const mediaStreamState = getState(MediaStreamState)
-
-  const selfProducerIds = [mediaStreamState.camVideoProducer?.id, mediaStreamState.camAudioProducer?.id]
-  const channelConnectionState = getState(MediaInstanceState)
-  const currentChannelInstanceConnection = channelConnectionState.instances[network.id]
-
-  const existingConsumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
-    network.id,
-    peerID,
-    mediaTag
-  ) as ConsumerExtension
-  const consumerMatch = !!existingConsumer && existingConsumer?.id === producerId
-
-  if (
-    !producerId ||
-    selfProducerIds.includes(producerId) ||
-    //The commented portion below was causing re-creation of consumers when the existing one was merely unable
-    //to provide data for a short time. If it's necessary for some logic to work, then it should be rewritten
-    //to do something like record when it started being muted, and only run if it's been muted for a while.
-    consumerMatch /*|| !(consumerMatch.track?.muted && consumerMatch.track?.enabled)*/ ||
-    currentChannelInstanceConnection.channelId !== channelId
-  ) {
-    return //console.error('Invalid consumer', producerId, selfProducerIds, consumerMatch, currentChannelInstanceConnection.channelId === channelId)
-  }
-
-  // ask the server to create a server-side consumer object and send us back the info we need to create a client-side consumer
-  dispatchAction(
-    MediasoupMediaConsumerActions.requestConsumer({
-      mediaTag,
-      peerID,
-      rtpCapabilities: network.transport.mediasoupDevice.rtpCapabilities,
-      channelID: channelId,
-      $network: network.id,
-      $topic: network.topic,
-      $to: network.hostPeerID
-    })
-  )
-}
-
 export const receiveConsumerHandler = async (
   action: typeof MediasoupMediaConsumerActions.consumerCreated.matches._TYPE
 ) => {
@@ -1109,14 +1073,12 @@ export const toggleMicrophonePaused = async () => {
 }
 
 export const toggleWebcamPaused = async () => {
-  console.log('toggleWebcamPaused')
   const mediaStreamState = getMutableState(MediaStreamState)
   const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
   if (await configureMediaTransports(['video'])) {
     if (!mediaStreamState.camVideoProducer.value) await createCamVideoProducer(mediaNetwork)
     else {
       const videoPaused = mediaStreamState.videoPaused.value
-      console.log({ videoPaused })
       if (videoPaused) resumeProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
       else pauseProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
       mediaStreamState.videoPaused.set(!videoPaused)

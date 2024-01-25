@@ -273,16 +273,6 @@ export async function closeDataProducer(
   dataProducer.close()
 }
 
-export function producerClosed(network: SocketWebRTCServerNetwork, producerID: string) {
-  dispatchAction(
-    MediaProducerActions.producerClosed({
-      producerID: producerID,
-      $topic: network.topic,
-      $network: network.id
-    })
-  )
-}
-
 export async function createWebRtcTransport(
   network: SocketWebRTCServerNetwork,
   { peerID, direction, sctpCapabilities, channelId }: WebRtcTransportParams
@@ -742,7 +732,15 @@ export async function handleRequestProducer(action: typeof MediaProducerActions.
       getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[producer.id].set(none)
     })
 
-    producer.on('transportclose', () => producerClosed(network, producer.id))
+    producer.on('transportclose', () => {
+      dispatchAction(
+        MediaProducerActions.producerClosed({
+          producerID: producer.id,
+          $topic: network.topic,
+          $network: network.id
+        })
+      )
+    })
 
     logger.info(`New Producer: peerID "${peerID}", Media stream "${appData.mediaTag}"`)
 

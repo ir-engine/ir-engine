@@ -391,7 +391,7 @@ const NetworkProducerConsumerPause = (props: { networkID: InstanceID; producerID
         $topic: network.topic
       })
     )
-  }, [producerState.paused, consumerState])
+  }, [producerState.paused.value])
 
   return null
 }
