@@ -80,7 +80,8 @@ export const SceneState = defineState({
     /** @todo replace activeScene with proper multi-scene support */
     activeScene: null as null | SceneID,
     background: null as null | Color | Texture,
-    environment: null as null | Texture
+    environment: null as null | Texture,
+    newSceneName: null as null | string
   }),
 
   getCurrentScene: () => {
@@ -142,6 +143,10 @@ export const SceneState = defineState({
     getMutableState(SceneState).scenes[sceneID].set(none)
     if (getState(SceneState).activeScene === sceneID) {
       getMutableState(SceneState).activeScene.set(null)
+    }
+
+    if (getState(SceneState).newSceneName) {
+      getMutableState(SceneState).newSceneName.set(null)
     }
   },
 

@@ -38,6 +38,7 @@ import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from 
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { SceneDataType } from '@etherealengine/common/src/schema.type.module'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { TabData } from 'rc-dock'
 import { deleteScene, getScenes, onNewScene, renameScene, setSceneInState } from '../../functions/sceneFunctions'
@@ -151,6 +152,7 @@ export default function ScenesPanel() {
   const finishRenaming = async () => {
     setRenaming(false)
     await renameScene(editorState.projectName.value as string, newName, activeScene!.name)
+    getMutableState(SceneState).newSceneName.set(newName)
     setNewName('')
     fetchItems()
   }
