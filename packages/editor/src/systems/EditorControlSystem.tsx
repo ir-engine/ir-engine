@@ -35,7 +35,6 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
@@ -43,6 +42,7 @@ import { InputSourceComponent } from '@etherealengine/engine/src/input/component
 import { InfiniteGridComponent } from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { EngineState } from '@etherealengine/ecs/src/EngineState'

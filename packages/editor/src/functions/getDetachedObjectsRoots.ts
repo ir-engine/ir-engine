@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { findIndexOfEntityNode } from '@etherealengine/ecs/src/EntityTree'
+import { findIndexOfEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import traverseEarlyOut from './traverseEarlyOut'

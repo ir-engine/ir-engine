@@ -35,8 +35,8 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
-import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'

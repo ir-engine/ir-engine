@@ -29,7 +29,7 @@ import { useTranslation } from 'react-i18next'
 import ProjectDrawer from '@etherealengine/client-core/src/admin/components/Project/ProjectDrawer'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
+import multiLogger from '@etherealengine/common/src/logger'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import ArrowRightRounded from '@mui/icons-material/ArrowRightRounded'

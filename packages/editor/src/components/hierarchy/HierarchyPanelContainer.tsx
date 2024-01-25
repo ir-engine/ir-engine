@@ -31,11 +31,11 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 
 import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { EntityTreeComponent, traverseEntityNode } from '@etherealengine/ecs/src/EntityTree'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { EntityTreeComponent, traverseEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { NO_PROXY, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import MenuItem from '@mui/material/MenuItem'

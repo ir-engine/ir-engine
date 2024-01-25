@@ -28,9 +28,9 @@ import { matches, Parser, Validator } from 'ts-matches'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import multiLogger from '@etherealengine/common/src/logger'
 import { InstanceID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { deepEqual } from '@etherealengine/engine/src/common/functions/deepEqual'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'

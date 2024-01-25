@@ -50,6 +50,7 @@ import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext } from './EntityFunctions'
 import { useExecute } from './SystemFunctions'
 import { PresentationSystemGroup } from './SystemGroups'
+import { defineQuery } from './QueryFunctions'
 
 /**
  * @description
@@ -534,4 +535,20 @@ export function useOptionalComponent<C extends Component<any>>(entity: Entity, C
   if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(none)
   const component = useHookstate(Component.stateMap[entity]) as any as State<ComponentType<C>> // todo fix any cast
   return component.promised ? undefined : component
+}
+
+export const getComponentCountOfType = <C extends Component>(component: C): number => {
+  const query = defineQuery([component])
+  const length = query().length
+  bitECS.removeQuery(HyperFlux.store, query._query)
+  return length
+}
+
+export const getAllComponentsOfType = <C extends Component<any>>(component: C): ComponentType<C>[] => {
+  const query = defineQuery([component])
+  const entities = query()
+  bitECS.removeQuery(HyperFlux.store, query._query)
+  return entities.map((e) => {
+    return getComponent(e, component)!
+  })
 }

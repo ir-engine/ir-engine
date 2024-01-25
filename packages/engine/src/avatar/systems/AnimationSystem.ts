@@ -32,9 +32,9 @@ import {
   hasComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { EngineState } from '@etherealengine/ecs/src/EngineState'
-import { traverseEntityNode } from '@etherealengine/ecs/src/EntityTree'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { traverseEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { VRM } from '@pixiv/three-vrm'
 import { MeshComponent } from '../../scene/components/MeshComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'

@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import i18n from 'i18next'
 import { useEffect } from 'react'
 
+import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import {

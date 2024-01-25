@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable @typescript-eslint/ban-types */
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { iterateEntityNode } from '@etherealengine/ecs/src/EntityTree'
+import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import {
   BoxGeometry,
   BufferGeometry,

@@ -36,7 +36,7 @@ import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import waitForClientAuthenticated from '@etherealengine/client-core/src/util/wait-for-client-authenticated'
-import { pipeLogs } from '@etherealengine/engine/src/common/functions/logger'
+import { pipeLogs } from '@etherealengine/common/src/logger'
 import { initializei18n } from './util'
 
 const initializeLogs = async () => {

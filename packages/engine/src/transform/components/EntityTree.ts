@@ -24,10 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { NO_PROXY, none } from '@etherealengine/hyperflux'
-
-import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
-import { matchesEntityUUID } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import {
   defineComponent,
   getComponent,
@@ -37,9 +33,11 @@ import {
   hasComponent,
   removeComponent,
   setComponent
-} from './ComponentFunctions'
-import { Entity, UndefinedEntity } from './Entity'
-import { entityExists, removeEntity } from './EntityFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { entityExists, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
+import { NO_PROXY, none } from '@etherealengine/hyperflux'
 
 type EntityTreeSetType = {
   parentEntity: Entity
@@ -94,7 +92,7 @@ export const EntityTreeComponent = defineComponent({
 
     const parentEntity = component.parentEntity.value
 
-    if (matchesEntityUUID.test(json?.uuid) && !hasComponent(entity, UUIDComponent))
+    if (typeof json?.uuid === 'string' && !hasComponent(entity, UUIDComponent))
       setComponent(entity, UUIDComponent, json.uuid)
 
     if (parentEntity && entityExists(parentEntity)) {

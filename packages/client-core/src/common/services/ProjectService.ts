@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
+import multiLogger from '@etherealengine/common/src/logger'
 import { githubRepoAccessRefreshPath } from '@etherealengine/common/src/schema.type.module'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import {

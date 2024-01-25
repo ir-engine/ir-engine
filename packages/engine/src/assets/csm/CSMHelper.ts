@@ -42,7 +42,7 @@ import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFun
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { GroupComponent, addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'

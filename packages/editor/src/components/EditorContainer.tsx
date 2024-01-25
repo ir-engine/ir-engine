@@ -31,8 +31,8 @@ import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
+import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import Dialog from '@mui/material/Dialog'

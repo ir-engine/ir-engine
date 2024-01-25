@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 /** Functions to provide engine level functionalities. */
 
-import logger from '@etherealengine/engine/src/common/functions/logger'
+import logger from '@etherealengine/common/src/logger'
 import { HyperFlux, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { EngineState } from './EngineState'

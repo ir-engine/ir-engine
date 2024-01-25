@@ -29,7 +29,6 @@ import { createHyperStore, getState } from '@etherealengine/hyperflux'
 import { HyperFlux, HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 import * as bitECS from 'bitecs'
 
-import './patchEngineNode'
 import './threejsPatches'
 
 import type { FeathersApplication } from '@feathersjs/feathers'

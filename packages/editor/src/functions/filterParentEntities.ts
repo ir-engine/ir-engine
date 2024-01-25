@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 
 /**

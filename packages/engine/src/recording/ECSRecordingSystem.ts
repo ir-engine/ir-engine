@@ -28,10 +28,10 @@ import { PassThrough } from 'stream'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Network, NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import {

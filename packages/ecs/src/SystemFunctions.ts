@@ -28,7 +28,7 @@ Ethereal Engine. All Rights Reserved.
 import { FC, useEffect } from 'react'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
+import multiLogger from '@etherealengine/common/src/logger'
 import { getMutableState, getState, startReactor } from '@etherealengine/hyperflux'
 
 import { MathUtils } from 'three'

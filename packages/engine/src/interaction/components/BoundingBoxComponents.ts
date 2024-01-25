@@ -37,7 +37,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/ecs/src/EntityTree'
+import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { matches } from '../../common/functions/MatchesUtils'
 import { RendererState } from '../../renderer/RendererState'
 import { GroupComponent, addObjectToGroup } from '../../scene/components/GroupComponent'

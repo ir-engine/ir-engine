@@ -27,7 +27,7 @@ import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, Mesh } from 'three'

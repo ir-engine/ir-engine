@@ -33,10 +33,10 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
-import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
 import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import {
   HyperFlux,
   NO_PROXY,

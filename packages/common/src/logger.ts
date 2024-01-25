@@ -35,12 +35,12 @@ Ethereal Engine. All Rights Reserved.
  *
  */
 
-import { ServiceTypes } from '@etherealengine/common/declarations'
-import config from '@etherealengine/common/src/config'
-import { logsApiPath } from '@etherealengine/common/src/schema.type.module'
 import type { FeathersApplication } from '@feathersjs/feathers'
 import NodeCache from 'node-cache'
 import schedule from 'node-schedule'
+import { ServiceTypes } from '../declarations'
+import config from './config'
+import { logsApiPath } from './schema.type.module'
 
 // Initialize the cache
 const engineCache = new NodeCache()

@@ -36,8 +36,8 @@ import {
   toggleScreenshare,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import logger from '@etherealengine/common/src/logger'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import logger from '@etherealengine/engine/src/common/functions/logger'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { endXRSession, requestXRSession } from '@etherealengine/engine/src/xr/XRSessionFunctions'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'

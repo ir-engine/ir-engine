@@ -31,8 +31,8 @@ import {
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { useEffect } from 'react'
 import { Box3, SkinnedMesh, Vector3 } from 'three'
 import { matches } from '../../common/functions/MatchesUtils'

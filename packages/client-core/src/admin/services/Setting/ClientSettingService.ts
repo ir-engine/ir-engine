@@ -26,9 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 
 import config from '@etherealengine/common/src/config'
+import multiLogger from '@etherealengine/common/src/logger'
 import { ClientSettingPatch, clientSettingPath, ClientSettingType } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { NotificationService } from '../../../common/services/NotificationService'

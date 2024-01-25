@@ -52,7 +52,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import exportGLTF from '../../functions/exportGLTF'
 
-import { removeEntityNodeRecursively } from '@etherealengine/ecs/src/EntityTree'
+import { removeEntityNodeRecursively } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { Box, ListItemButton, ListItemText, MenuItem, Modal, PopoverPosition } from '@mui/material'
 import { ContextMenu } from '../layout/ContextMenu'
 import { List, ListItem } from '../layout/List'

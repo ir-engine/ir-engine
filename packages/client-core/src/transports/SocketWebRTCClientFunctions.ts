@@ -40,6 +40,7 @@ import Primus from 'primus-client'
 import config from '@etherealengine/common/src/config'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import multiLogger from '@etherealengine/common/src/logger'
 import {
   ChannelID,
   InstanceID,
@@ -52,7 +53,6 @@ import {
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { EngineState } from '@etherealengine/ecs/src/EngineState'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import {
   MediaStreamAppData,
   NetworkConnectionParams,

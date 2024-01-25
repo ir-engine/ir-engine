@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getState } from '@etherealengine/hyperflux'
+import { defineSystem } from './SystemFunctions'
+import { PresentationSystemGroup } from './SystemGroups'
 import { SystemState } from './SystemState'
 
 export const ReactiveQuerySystem = defineSystem({

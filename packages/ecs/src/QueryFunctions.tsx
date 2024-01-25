@@ -27,7 +27,7 @@ import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
 import { HyperFlux, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
 import * as bitECS from 'bitecs'
 import React, { ErrorInfo, FC, Suspense, memo, useEffect, useLayoutEffect, useMemo } from 'react'
-import { Component, ComponentType, getComponent, useOptionalComponent } from './ComponentFunctions'
+import { Component, useOptionalComponent } from './ComponentFunctions'
 import { Entity } from './Entity'
 import { EntityContext } from './EntityFunctions'
 import { defineSystem } from './SystemFunctions'
@@ -173,20 +173,4 @@ class QueryReactorErrorBoundary extends React.Component<any, ErrorState> {
   public render() {
     return this.state.error ? null : this.props.children
   }
-}
-
-export const getComponentCountOfType = <C extends Component>(component: C): number => {
-  const query = defineQuery([component])
-  const length = query().length
-  bitECS.removeQuery(HyperFlux.store, query._query)
-  return length
-}
-
-export const getAllComponentsOfType = <C extends Component<any>>(component: C): ComponentType<C>[] => {
-  const query = defineQuery([component])
-  const entities = query()
-  bitECS.removeQuery(HyperFlux.store, query._query)
-  return entities.map((e) => {
-    return getComponent(e, component)!
-  })
 }

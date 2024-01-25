@@ -41,8 +41,8 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { iterateEntityNode } from '@etherealengine/ecs/src/EntityTree'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import matches from 'ts-matches'
 import { InputComponent } from '../../input/components/InputComponent'
 import { Physics } from '../../physics/classes/Physics'

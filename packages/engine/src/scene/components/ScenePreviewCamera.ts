@@ -32,7 +32,7 @@ import { defineComponent, getComponent, setComponent, useComponent } from '@ethe
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'

@@ -30,7 +30,7 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { defineComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { iterateEntityNode } from '@etherealengine/ecs/src/EntityTree'
+import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { MeshComponent } from '../../scene/components/MeshComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { RendererState } from '../RendererState'

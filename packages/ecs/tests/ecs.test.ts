@@ -32,14 +32,14 @@ import {
   hasComponent,
   removeComponent,
   setComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { executeSystems } from '@etherealengine/ecs/src/EngineFunctions'
-import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+} from '../src/ComponentFunctions'
 import { Engine, destroyEngine } from '../src/Engine'
+import { executeSystems } from '../src/EngineFunctions'
 import { Entity } from '../src/Entity'
+import { createEntity, removeEntity } from '../src/EntityFunctions'
+import { defineQuery } from '../src/QueryFunctions'
+import { defineSystem } from '../src/SystemFunctions'
+import { AnimationSystemGroup } from '../src/SystemGroups'
 
 const mockDeltaMillis = 1000 / 60
 

@@ -32,7 +32,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { iterateEntityNode } from '@etherealengine/ecs/src/EntityTree'
+import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { getState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import {

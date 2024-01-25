@@ -32,7 +32,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, entityExists, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { WebContainer3D } from '@etherealengine/xrui'
 import { useEffect } from 'react'
 import {

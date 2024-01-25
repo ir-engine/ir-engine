@@ -45,7 +45,7 @@ import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { initializeNode } from '@etherealengine/engine/src/initializeNode'
 import { getMutableState } from '@etherealengine/hyperflux'
 
-import { pipeLogs } from '@etherealengine/engine/src/common/functions/logger'
+import { pipeLogs } from '@etherealengine/common/src/logger'
 import { Application } from '../declarations'
 import { logger } from './ServerLogger'
 import { ServerMode, ServerState, ServerTypeMode } from './ServerState'

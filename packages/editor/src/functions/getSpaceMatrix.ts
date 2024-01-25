@@ -27,7 +27,7 @@ import { Matrix4 } from 'three'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getState } from '@etherealengine/hyperflux'
 

@@ -27,9 +27,9 @@ import { createState, SetInitialStateAction, State, useHookstate } from '@hookst
 import type { Object as _Object, Function, String } from 'ts-toolbelt'
 
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
+import multiLogger from '@etherealengine/common/src/logger'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { resolveObject } from '@etherealengine/common/src/utils/resolveObject'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 
 import { ActionQueueHandle, ActionReceptor } from './ActionFunctions'
 import { HyperFlux, HyperStore } from './StoreFunctions'

@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { Component, SerializedComponentType, updateComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { iterateEntityNode } from '@etherealengine/ecs/src/EntityTree'
 import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'

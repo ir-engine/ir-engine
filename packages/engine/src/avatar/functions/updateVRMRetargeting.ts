@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { getComponent, getOptionalComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { VRM, VRMHumanBoneList } from '@pixiv/three-vrm'
 import { Matrix4, Object3D, Quaternion, Vector3 } from 'three'
 import { TransformComponent } from '../../transform/components/TransformComponent'

@@ -60,7 +60,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { iterateEntityNode } from '@etherealengine/ecs/src/EntityTree'
+import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { V_000 } from '../../common/constants/MathConstants'
 import { MeshComponent } from '../../scene/components/MeshComponent'

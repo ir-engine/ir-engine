@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { SnackbarProvider, VariantType } from 'notistack'
 
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
+import multiLogger from '@etherealengine/common/src/logger'
 import { defineState, getState } from '@etherealengine/hyperflux'
 
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'

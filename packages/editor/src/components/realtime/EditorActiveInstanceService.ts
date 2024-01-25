@@ -28,6 +28,7 @@ import {
   LocationInstanceState
 } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import logger from '@etherealengine/common/src/logger'
 import {
   InstanceActiveType,
   InstanceID,
@@ -37,7 +38,6 @@ import {
   instanceProvisionPath
 } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import logger from '@etherealengine/engine/src/common/functions/logger'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 export const EditorActiveInstanceState = defineState({

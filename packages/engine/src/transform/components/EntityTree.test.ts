@@ -27,6 +27,10 @@ import assert from 'assert'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 
+import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
@@ -36,10 +40,6 @@ import { VisibleComponent } from '@etherealengine/engine/src/scene/components/Vi
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { loadEmptyScene } from '@etherealengine/engine/tests/util/loadEmptyScene'
 import { getState } from '@etherealengine/hyperflux'
-import { getComponent, hasComponent, removeComponent, setComponent } from './ComponentFunctions'
-import { destroyEngine } from './Engine'
-import { Entity, UndefinedEntity } from './Entity'
-import { createEntity } from './EntityFunctions'
 import {
   EntityTreeComponent,
   destroyEntityTree,
