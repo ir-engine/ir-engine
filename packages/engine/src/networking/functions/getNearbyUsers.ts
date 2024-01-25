@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 

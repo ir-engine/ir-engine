@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
-import { Engine, destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { UserID, identityProviderPath, locationPath } from '@etherealengine/common/src/schema.type.module'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import appRootPath from 'app-root-path'

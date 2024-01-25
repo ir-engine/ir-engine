@@ -41,14 +41,7 @@ import {
 import config from '@etherealengine/common/src/config'
 import { defineState, getMutableState, getState, hookstate, useHookstate } from '@etherealengine/hyperflux'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { CSM } from '../../assets/csm/CSM'
-import { CSMHelper } from '../../assets/csm/CSMHelper'
-import { V_001 } from '../../common/constants/MathConstants'
-import { isClient } from '../../common/functions/getEnvironment'
-import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   getComponent,
   getOptionalComponent,
@@ -56,12 +49,19 @@ import {
   removeComponent,
   setComponent,
   useComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
-import { QueryReactor, defineQuery, useQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem, useExecute } from '../../ecs/functions/SystemFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/ecs/src/EntityTree'
+import { QueryReactor, defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem, useExecute } from '@etherealengine/ecs/src/SystemFunctions'
+import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { CSM } from '../../assets/csm/CSM'
+import { CSMHelper } from '../../assets/csm/CSMHelper'
+import { V_001 } from '../../common/constants/MathConstants'
+import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer, RenderSettingsState } from '../../renderer/WebGLRendererSystem'
 import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'

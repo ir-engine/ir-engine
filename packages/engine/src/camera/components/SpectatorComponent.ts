@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
 export const SpectatorComponent = defineComponent({
   name: 'SpectatorComponent',

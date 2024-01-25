@@ -38,8 +38,8 @@ import {
   Vector3
 } from 'three'
 
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { Entity } from '../../ecs/classes/Entity'
 import { CloudComponent } from '../components/CloudComponent'
 import { addError, removeError } from '../functions/ErrorFunctions'
 

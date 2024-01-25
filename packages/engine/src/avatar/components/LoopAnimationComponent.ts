@@ -33,10 +33,7 @@ import {
   NormalAnimationBlendMode
 } from 'three'
 
-import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
-import { VRM } from '@pixiv/three-vrm'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { isClient } from '../../common/functions/getEnvironment'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   defineComponent,
   getComponent,
@@ -44,8 +41,11 @@ import {
   setComponent,
   useComponent,
   useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { VRM } from '@pixiv/three-vrm'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CallbackComponent, StandardCallbacks, setCallback } from '../../scene/components/CallbackComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'

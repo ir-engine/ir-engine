@@ -30,8 +30,6 @@ import { Quaternion, Vector3 } from 'three'
 import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import matches from 'ts-matches'
-import { SceneState } from '../../ecs/classes/Scene'
 import {
   defineComponent,
   getComponent,
@@ -41,9 +39,11 @@ import {
   setComponent,
   useComponent,
   useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { iterateEntityNode } from '../../ecs/functions/EntityTree'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { iterateEntityNode } from '@etherealengine/ecs/src/EntityTree'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import matches from 'ts-matches'
 import { InputComponent } from '../../input/components/InputComponent'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'

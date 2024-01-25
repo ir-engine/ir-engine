@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import {
   Action,
   addOutgoingTopicIfNecessary,
@@ -31,7 +32,6 @@ import {
   dispatchAction,
   getState
 } from '@etherealengine/hyperflux'
-import { Engine } from '../../ecs/classes/Engine'
 import { NetworkState } from '../NetworkState'
 import { Network } from '../classes/Network'
 

@@ -22,13 +22,12 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import React, { useEffect } from 'react'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
@@ -41,6 +40,7 @@ import {
   MediasoupMediaConsumerActions
 } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { MediasoupTransportActions } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import {

@@ -29,8 +29,8 @@ Ethereal Engine. All Rights Reserved.
 import { VRM, VRM1Meta, VRMHumanBone, VRMHumanBones, VRMHumanoid, VRMParameters } from '@pixiv/three-vrm'
 import { Bone, Euler, Group, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
+import { Object3DUtils } from '@etherealengine/ecs/src/Object3DUtils'
 import { GLTF } from '../assets/loaders/gltf/GLTFLoader'
-import { Object3DUtils } from '../common/functions/Object3DUtils'
 
 export type BoneNames =
   | 'Root'

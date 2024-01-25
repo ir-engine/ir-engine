@@ -39,15 +39,7 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
-import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
-import { AvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
-import { matches, matchesEntityUUID } from '../../common/functions/MatchesUtils'
-import { isClient } from '../../common/functions/getEnvironment'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   getComponent,
   getOptionalComponent,
@@ -55,11 +47,20 @@ import {
   removeComponent,
   setComponent,
   useComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { entityExists } from '../../ecs/functions/EntityFunctions'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { SimulationSystemGroup } from '../../ecs/functions/SystemGroups'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
+import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
+import { AvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
+import { matches, matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { NetworkState } from '../../networking/NetworkState'
@@ -69,7 +70,6 @@ import { WorldNetworkAction } from '../../networking/functions/WorldNetworkActio
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponents'

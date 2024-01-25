@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import config from '@etherealengine/common/src/config'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { SceneJsonType } from '@etherealengine/common/src/schema.type.module'
-import { ComponentType } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { SystemDefinitions, SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { ComponentType } from '@etherealengine/ecs/src/ComponentFunctions'
+import { SystemDefinitions, SystemUUID } from '@etherealengine/ecs/src/SystemFunctions'
 import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
 
 export type SystemImportType = {

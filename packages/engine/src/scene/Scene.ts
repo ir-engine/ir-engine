@@ -47,19 +47,19 @@ import {
   SceneMetadataType,
   scenePath
 } from '@etherealengine/common/src/schema.type.module'
+import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
 import { useEffect } from 'react'
-import { Validator, matches } from '../../common/functions/MatchesUtils'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { SourceComponent } from '../../scene/components/SourceComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { serializeEntity } from '../../scene/functions/serializeWorld'
-import { getComponent, getOptionalComponent } from '../functions/ComponentFunctions'
-import { EntityTreeComponent } from '../functions/EntityTree'
-import { defineSystem } from '../functions/SystemFunctions'
-import { PresentationSystemGroup } from '../functions/SystemGroups'
-import { Engine } from './Engine'
-import { EngineState } from './EngineState'
-import { UndefinedEntity } from './Entity'
+import matches, { Validator } from 'ts-matches'
+import { NameComponent } from './components/NameComponent'
+import { SourceComponent } from './components/SourceComponent'
+import { serializeEntity } from './functions/serializeWorld'
 
 export interface SceneSnapshotInterface {
   data: SceneJsonType

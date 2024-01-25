@@ -24,6 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { usePrevious } from '@etherealengine/common/src/utils/usePrevious'
+import {
+  defineComponent,
+  getMutableComponent,
+  removeComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
+import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getState } from '@etherealengine/hyperflux'
 import { startTransition, useEffect, useMemo, useRef } from 'react'
 import {
@@ -49,18 +61,6 @@ import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
 import { isIPhone, isMobile } from '../../common/functions/isMobile'
-import { EngineState } from '../../ecs/classes/EngineState'
-import {
-  defineComponent,
-  getMutableComponent,
-  removeComponent,
-  setComponent,
-  useComponent,
-  useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { useExecute } from '../../ecs/functions/SystemFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { PlayMode } from '../constants/PlayMode'
 import {

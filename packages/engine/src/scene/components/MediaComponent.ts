@@ -29,11 +29,7 @@ import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
 import { State, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { AudioState } from '../../audio/AudioState'
-import { removePannerNode } from '../../audio/PositionalAudioFunctions'
-import { isClient } from '../../common/functions/getEnvironment'
-import { Entity } from '../../ecs/classes/Entity'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   defineComponent,
   getComponent,
@@ -44,9 +40,13 @@ import {
   setComponent,
   useComponent,
   useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { AudioState } from '../../audio/AudioState'
+import { removePannerNode } from '../../audio/PositionalAudioFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ObjectLayers } from '../constants/ObjectLayers'

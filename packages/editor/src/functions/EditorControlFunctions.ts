@@ -26,27 +26,23 @@ Ethereal Engine. All Rights Reserved.
 import { Euler, Material, MathUtils, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   Component,
-  componentJsonDefaults,
   ComponentJSONIDMap,
+  SerializedComponentType,
+  componentJsonDefaults,
   getComponent,
   hasComponent,
   serializeComponent,
-  SerializedComponentType,
   updateComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import {
-  EntityTreeComponent,
-  iterateEntityNode,
-  traverseEntityNode
-} from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { materialFromId } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { EntityTreeComponent, iterateEntityNode, traverseEntityNode } from '@etherealengine/ecs/src/EntityTree'
+import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
 import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { materialFromId } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'

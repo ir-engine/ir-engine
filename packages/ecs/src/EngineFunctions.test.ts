@@ -23,16 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createEngine } from '../../initializeEngine'
-import { destroyEngine } from '../classes/Engine'
+import { createEngine } from '@etherealengine/engine/src/initializeEngine'
+import { destroyEngine } from './Engine'
 
 import assert from 'assert'
 import { afterEach } from 'mocha'
 
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { EngineState } from '../classes/EngineState'
 import { executeSystems } from './EngineFunctions'
+import { EngineState } from './EngineState'
 import { defineSystem } from './SystemFunctions'
 import { SimulationSystemGroup } from './SystemGroups'
 

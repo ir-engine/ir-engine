@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { moveAvatar, updateLocalAvatarRotation } from '../../avatar/functions/moveAvatar'
-import { Engine } from '../../ecs/classes/Engine'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { computeTransformMatrix } from './TransformSystem'
 
 const execute = () => {

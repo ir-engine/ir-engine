@@ -25,30 +25,32 @@ Ethereal Engine. All Rights Reserved.
 
 import type { UserID } from '@etherealengine/common/src/schema.type.module'
 import * as Hyperflux from '@etherealengine/hyperflux'
-import { ReactorRoot, State, createHyperStore, getState } from '@etherealengine/hyperflux'
+import { createHyperStore, getState } from '@etherealengine/hyperflux'
 import { HyperFlux, HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
+import * as bitECS from 'bitecs'
 
-import '../../patchEngineNode'
-import '../utils/threejsPatches'
+import './patchEngineNode'
+import './threejsPatches'
 
 import type { FeathersApplication } from '@feathersjs/feathers'
 
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 
-import { isDev } from '@etherealengine/common/src/config'
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { getAllEntities } from 'bitecs'
 import { Group, Scene } from 'three'
-import { Timer } from '../../common/functions/Timer'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { removeEntity } from '../functions/EntityFunctions'
-import { Query, QueryComponents, removeQuery } from '../functions/QueryFunctions'
-import { SystemUUID } from '../functions/SystemFunctions'
 import { EngineState } from './EngineState'
 import { Entity, UndefinedEntity } from './Entity'
+import { removeEntity } from './EntityFunctions'
+import { removeQuery } from './QueryFunctions'
+import { SystemState } from './SystemState'
+import { Timer } from './Timer'
 
 export class Engine {
   static instance: Engine
+
+  constructor() {
+    const UndefinedEntity = bitECS.addEntity(HyperFlux.store)
+  }
 
   api: FeathersApplication<ServiceTypes>
 
@@ -67,7 +69,7 @@ export class Engine {
     getDispatchId: () => Engine.instance.userID,
     getDispatchTime: () => getState(EngineState).simulationTime,
     defaultDispatchDelay: () => getState(EngineState).simulationTimestep,
-    getCurrentReactorRoot: () => Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)
+    getCurrentReactorRoot: () => getState(SystemState).activeSystemReactors.get(getState(SystemState).currentSystemUUID)
   }) as HyperStore
 
   engineTimer = null! as ReturnType<typeof Timer>
@@ -95,24 +97,16 @@ export class Engine {
   /**
    * The local client entity
    */
-  get localClientEntity() {
-    return UUIDComponent.getEntityByUUID(Engine.instance.userID as any as EntityUUID)
-  }
+  localClientEntity = UndefinedEntity
 
   entityQuery = () => getAllEntities(HyperFlux.store) as Entity[]
-
-  activeSystemReactors = new Map<SystemUUID, ReactorRoot>()
-  currentSystemUUID = '__null__' as SystemUUID
-  reactiveQueryStates = new Set<{ query: Query; result: State<Entity[]>; components: QueryComponents }>()
-
-  systemPerformanceProfilingEnabled = isDev
 }
 
 globalThis.Engine = Engine
 globalThis.Hyperflux = Hyperflux
 
 export async function destroyEngine() {
-  Engine.instance.engineTimer.clear()
+  Engine.instance.engineTimer?.clear()
 
   if (Engine.instance.api) {
     if ((Engine.instance.api as any).server) await Engine.instance.api.teardown()
@@ -130,7 +124,7 @@ export async function destroyEngine() {
 
   await Promise.all(entityPromises)
 
-  for (const query of Engine.instance.reactiveQueryStates) {
+  for (const query of getState(SystemState).reactiveQueryStates) {
     removeQuery(query.query)
   }
 

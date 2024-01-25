@@ -30,9 +30,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
-import { defineComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { useEntityContext } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 
 import { Color, Material, MathUtils, Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector2 } from 'three'
 import { Text as TroikaText } from 'troika-three-text'

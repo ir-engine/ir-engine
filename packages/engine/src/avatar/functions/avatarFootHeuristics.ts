@@ -24,12 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
 import { Euler, MathUtils, Quaternion, Vector3 } from 'three'
 import { V_010 } from '../../common/constants/MathConstants'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ikTargets } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'

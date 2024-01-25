@@ -38,16 +38,15 @@ import {
 
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
-import { isClient } from '../common/functions/getEnvironment'
-import { nowMilliseconds } from '../common/functions/nowMilliseconds'
-import { Engine } from '../ecs/classes/Engine'
-import { EngineState } from '../ecs/classes/EngineState'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '../ecs/functions/SystemGroups'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { EffectMapType, defaultPostProcessingSchema } from '../scene/constants/PostProcessing'
 import { WebXRManager, createWebXRManager } from '../xr/WebXRManager'
@@ -260,7 +259,7 @@ export class EngineRenderer {
    * Change the quality of the renderer.
    */
   changeQualityLevel(): void {
-    const time = nowMilliseconds()
+    const time = Date.now()
     const delta = time - lastRenderTime
     lastRenderTime = time
 

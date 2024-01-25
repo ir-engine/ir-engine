@@ -26,9 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NO_PROXY, none } from '@etherealengine/hyperflux'
 
-import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { Entity, UndefinedEntity } from '../classes/Entity'
+import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
+import { matchesEntityUUID } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import {
   defineComponent,
   getComponent,
@@ -38,8 +37,9 @@ import {
   hasComponent,
   removeComponent,
   setComponent
-} from '../functions/ComponentFunctions'
-import { entityExists, removeEntity } from '../functions/EntityFunctions'
+} from './ComponentFunctions'
+import { Entity, UndefinedEntity } from './Entity'
+import { entityExists, removeEntity } from './EntityFunctions'
 
 type EntityTreeSetType = {
   parentEntity: Entity

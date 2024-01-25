@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { CameraMode } from '../../camera/types/CameraMode'
-import { Entity } from '../../ecs/classes/Entity'
-import { getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 
 type SwitchCameraModeProps = {
   cameraMode: CameraMode

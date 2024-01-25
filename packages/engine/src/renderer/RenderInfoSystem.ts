@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { EngineState } from '../ecs/classes/EngineState'
-import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { EngineRenderer, WebGLRendererSystem } from './WebGLRendererSystem'
 
 export const RenderInfoState = defineState({

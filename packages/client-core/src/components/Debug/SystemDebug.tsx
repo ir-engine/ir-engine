@@ -27,15 +27,16 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { JSONTree } from 'react-json-tree'
 
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { System, SystemDefinitions, SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { System, SystemDefinitions, SystemUUID } from '@etherealengine/ecs/src/SystemFunctions'
 import {
   AnimationSystemGroup,
   InputSystemGroup,
   PresentationSystemGroup,
   SimulationSystemGroup
-} from '@etherealengine/engine/src/ecs/functions/SystemGroups'
-import { HyperFlux, SystemState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+} from '@etherealengine/ecs/src/SystemGroups'
+import { SystemState } from '@etherealengine/ecs/src/SystemState'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { Color } from 'three'
 import styles from './styles.module.scss'
@@ -53,15 +54,15 @@ const convertSystemExecutionTimeToColor = (systemDuration: number, targetTimeste
 
 export const SystemDebug = () => {
   useHookstate(getMutableState(EngineState).frameTime).value
-  const systemPerformanceProfilingEnabled = useHookstate(getMutableState(SystemState).performanceProfilingEnabled)
+  const performanceProfilingEnabled = useHookstate(getMutableState(SystemState).performanceProfilingEnabled)
   const { t } = useTranslation()
 
   return (
     <div className={styles.jsonPanel}>
       <h1>{t('common:debug.systems')}</h1>
       <button
-        onClick={() => systemPerformanceProfilingEnabled.set((val) => !val)}
-        className={styles.flagBtn + (systemPerformanceProfilingEnabled.value ? ' ' + styles.active : '')}
+        onClick={() => performanceProfilingEnabled.set((val) => !val)}
+        className={styles.flagBtn + (performanceProfilingEnabled.value ? ' ' + styles.active : '')}
         style={{ width: '100px' }}
       >
         {'Profile'}
@@ -78,7 +79,7 @@ export const SystemDagView = (props: { uuid: SystemUUID }) => {
   const { t } = useTranslation()
 
   useHookstate(getMutableState(EngineState).frameTime).value
-  const systemPerformanceProfilingEnabled = useHookstate(getMutableState(SystemState).performanceProfilingEnabled)
+  const performanceProfilingEnabled = useHookstate(getMutableState(SystemState).performanceProfilingEnabled)
 
   return (
     <JSONTree
@@ -91,7 +92,7 @@ export const SystemDagView = (props: { uuid: SystemUUID }) => {
       }}
       valueRenderer={(raw, value, ...keyPath) => {
         const system = SystemDefinitions.get(keyPath[0] as SystemUUID)!
-        const systemReactor = system ? HyperFlux.store.activeSystemReactors.get(system.uuid) : undefined
+        const systemReactor = system ? getState(SystemState).activeSystemReactors.get(system.uuid) : undefined
         const targetTimestep = getState(EngineState).simulationTimestep / 2
 
         const renderSystemDuration = () => {
@@ -107,7 +108,7 @@ export const SystemDagView = (props: { uuid: SystemUUID }) => {
 
         return (
           <>
-            {systemPerformanceProfilingEnabled.value && renderSystemDuration()}
+            {performanceProfilingEnabled.value && renderSystemDuration()}
             {systemReactor?.errors.map((e) => {
               return (
                 <span style={{ color: 'red' }}>

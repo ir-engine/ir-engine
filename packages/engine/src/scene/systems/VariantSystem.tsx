@@ -25,11 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { Not } from 'bitecs'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { SceneState } from '../../ecs/classes/Scene'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { MeshComponent } from '../components/MeshComponent'

@@ -26,30 +26,30 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Intersection, Layers, Object3D, Raycaster } from 'three'
 
-import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import { InfiniteGridComponent } from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
+import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { EditorCameraState } from '../classes/EditorCameraState'
 import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'

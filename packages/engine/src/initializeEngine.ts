@@ -23,26 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { executeSystems } from '@etherealengine/ecs/src/EngineFunctions'
+import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
 import { BoxGeometry, Mesh, MeshNormalMaterial, Vector3 } from 'three'
 import { CameraComponent } from './camera/components/CameraComponent'
-import { Timer } from './common/functions/Timer'
-import { isClient } from './common/functions/getEnvironment'
-import { Engine } from './ecs/classes/Engine'
-import { UndefinedEntity } from './ecs/classes/Entity'
-import { getComponent, setComponent } from './ecs/functions/ComponentFunctions'
-import { executeSystems } from './ecs/functions/EngineFunctions'
-import { createEntity } from './ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from './ecs/functions/EntityTree'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 
 // core module
+import { Timer } from '@etherealengine/ecs/src/Timer'
 import '@etherealengine/engine/src/ecs/ECSModule'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { addObjectToGroup } from './scene/components/GroupComponent'
 import { NameComponent } from './scene/components/NameComponent'
 import { VisibleComponent } from './scene/components/VisibleComponent'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { setObjectLayers } from './scene/functions/setObjectLayers'
 import { TransformComponent } from './transform/components/TransformComponent'
+import { XRState } from './xr/XRState'
 
 /**
  * Creates a new instance of the engine and engine renderer. This initializes all properties and state for the engine,
@@ -85,7 +87,14 @@ export const createEngine = () => {
     EngineRenderer.instance = new EngineRenderer()
     EngineRenderer.instance.initialize()
   }
-  Engine.instance.engineTimer = Timer(executeSystems)
+  Engine.instance.engineTimer = Timer(
+    (time, xrFrame) => {
+      getMutableState(XRState).xrFrame.set(xrFrame)
+      executeSystems(time)
+      getMutableState(XRState).xrFrame.set(null)
+    },
+    EngineRenderer.instance?.renderer
+  )
 
   executeSystems(0)
 }

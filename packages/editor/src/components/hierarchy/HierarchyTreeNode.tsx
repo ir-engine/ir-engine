@@ -27,15 +27,15 @@ import React, { KeyboardEvent, StyleHTMLAttributes, useCallback, useEffect } fro
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   getAllComponents,
   getComponent,
   getOptionalComponent,
   useOptionalComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
+import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 

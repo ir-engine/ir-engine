@@ -28,9 +28,9 @@ import assert, { strictEqual } from 'assert'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { getMutableState } from '@etherealengine/hyperflux'
 
-import { destroyEngine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEngine } from '../../initializeEngine'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import {

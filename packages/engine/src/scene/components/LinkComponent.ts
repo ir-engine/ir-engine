@@ -23,15 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
-import { useEffect } from 'react'
-import { MathUtils, MeshBasicMaterial, Vector3 } from 'three'
-import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
-import { matches } from '../../common/functions/MatchesUtils'
-import { isClient } from '../../common/functions/getEnvironment'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   defineComponent,
   getComponent,
@@ -41,10 +33,18 @@ import {
   setComponent,
   useComponent,
   useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { useExecute } from '../../ecs/functions/SystemFunctions'
-import { InputSystemGroup } from '../../ecs/functions/SystemGroups'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
+import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
+import { MathUtils, MeshBasicMaterial, Vector3 } from 'three'
+import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
+import { matches } from '../../common/functions/MatchesUtils'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'

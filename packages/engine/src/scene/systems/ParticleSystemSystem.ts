@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { EngineState } from '../../ecs/classes/EngineState'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { ParticleState } from '../components/ParticleSystemComponent'
 import { SceneObjectSystem } from './SceneObjectSystem'
 

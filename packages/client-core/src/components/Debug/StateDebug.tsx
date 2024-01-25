@@ -22,8 +22,8 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { JSONTree } from 'react-json-tree'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import {
   NO_PROXY,
   StateDefinitions,

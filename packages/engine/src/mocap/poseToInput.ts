@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { getState, none } from '@etherealengine/hyperflux'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
-import { EngineState } from '../ecs/classes/EngineState'
-import { Entity } from '../ecs/classes/Entity'
-import { getComponent, getMutableComponent } from '../ecs/functions/ComponentFunctions'
 import { MotionCapturePoseComponent } from './MotionCapturePoseComponent'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 

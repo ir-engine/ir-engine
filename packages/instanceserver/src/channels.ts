@@ -52,13 +52,13 @@ import {
   userKickPath,
   userPath
 } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { NetworkConnectionParams, NetworkState, addNetwork } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { HyperFlux, State, getMutableState, getState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'

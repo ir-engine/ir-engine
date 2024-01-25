@@ -22,21 +22,3 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
-import { Engine } from './classes/Engine'
-
-export const ReactiveQuerySystem = defineSystem({
-  uuid: 'ee.ecs.ReactiveQuerySystem',
-  insert: { after: PresentationSystemGroup },
-  execute: () => {
-    for (const { query, result } of Engine.instance.reactiveQueryStates) {
-      const entitiesAdded = query.enter().length
-      const entitiesRemoved = query.exit().length
-      if (entitiesAdded || entitiesRemoved) {
-        result.set(query())
-      }
-    }
-  }
-})

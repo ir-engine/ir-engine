@@ -27,14 +27,14 @@ import { Validator, matches } from 'ts-matches'
 
 import { defineAction, defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { useEffect } from 'react'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { SceneState } from '../../ecs/classes/Scene'
-import { hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { defineQuery, removeQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { InputSystemGroup } from '../../ecs/functions/SystemGroups'
 import { BehaveGraphComponent } from '../components/BehaveGraphComponent'
 
 export const BehaveGraphActions = {

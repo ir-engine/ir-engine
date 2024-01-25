@@ -31,9 +31,9 @@ import {
   uploadToFeathersService
 } from '@etherealengine/client-core/src/util/upload'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/pathResolver'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
 

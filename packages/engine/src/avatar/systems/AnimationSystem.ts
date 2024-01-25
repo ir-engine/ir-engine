@@ -25,17 +25,17 @@ Ethereal Engine. All Rights Reserved.
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { VRM } from '@pixiv/three-vrm'
-import { EngineState } from '../../ecs/classes/EngineState'
 import {
   getComponent,
   getOptionalComponent,
   getOptionalMutableComponent,
   hasComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { traverseEntityNode } from '../../ecs/functions/EntityTree'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { traverseEntityNode } from '@etherealengine/ecs/src/EntityTree'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { VRM } from '@pixiv/three-vrm'
 import { MeshComponent } from '../../scene/components/MeshComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'

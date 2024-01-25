@@ -39,7 +39,7 @@ import {
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import {
   ECSRecordingActions,
   PlaybackState,
@@ -53,7 +53,6 @@ import { LocationState } from '@etherealengine/client-core/src/social/services/L
 import { RecordingID, StaticResourceType, recordingPath } from '@etherealengine/common/src/schema.type.module'
 import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
-import { SceneServices, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   MotionCaptureFunctions,
   MotionCaptureResults,
@@ -61,6 +60,7 @@ import {
 } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
+import { SceneServices, SceneState } from '@etherealengine/engine/src/scene/Scene'
 import {
   defineState,
   dispatchAction,

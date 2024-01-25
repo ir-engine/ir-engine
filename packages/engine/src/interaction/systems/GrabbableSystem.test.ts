@@ -39,12 +39,12 @@ import {
   getState
 } from '@etherealengine/hyperflux'
 
+import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
-import { destroyEngine, Engine } from '../../ecs/classes/Engine'
-import { getComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'

@@ -26,10 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { BackSide, Color, CompressedTexture, Mesh, MeshBasicMaterial, SphereGeometry, Texture, Vector2 } from 'three'
 
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   getComponent,
   getMutableComponent,
@@ -37,12 +33,16 @@ import {
   hasComponent,
   removeComponent,
   setComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent
@@ -53,12 +53,12 @@ import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/Ob
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
-import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { InputComponent } from '@etherealengine/engine/src/input/components/InputComponent'
 import { addObjectToGroup, GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'

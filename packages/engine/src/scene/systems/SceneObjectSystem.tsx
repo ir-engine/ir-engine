@@ -39,12 +39,12 @@ import {
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
+import { getComponent, getOptionalComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { RendererState } from '../../renderer/RendererState'
 import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'

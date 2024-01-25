@@ -31,7 +31,7 @@ import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 
 export * from 'ts-matches'
 export {

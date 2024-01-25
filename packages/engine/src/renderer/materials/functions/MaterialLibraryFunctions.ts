@@ -27,10 +27,10 @@ import { Color, Material, Texture } from 'three'
 
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
+import { getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { iterateEntityNode } from '@etherealengine/ecs/src/EntityTree'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { stringHash } from '../../../common/functions/MathFunctions'
-import { SceneState } from '../../../ecs/classes/Scene'
-import { getOptionalComponent } from '../../../ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '../../../ecs/functions/EntityTree'
 import { MeshComponent } from '../../../scene/components/MeshComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
 import { MaterialComponentType } from '../components/MaterialComponent'

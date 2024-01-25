@@ -40,7 +40,7 @@ import {
   RoomCode,
   SceneID
 } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
 

@@ -24,13 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getNearbyUsers } from '@etherealengine/engine/src/networking/functions/getNearbyUsers'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { useEffect } from 'react'
 import { MediaInstanceState, useMediaNetwork } from '../common/services/MediaInstanceConnectionService'

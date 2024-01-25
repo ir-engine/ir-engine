@@ -29,14 +29,20 @@ import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
+import {
+  ComponentType,
+  getComponent,
+  getOptionalComponent,
+  hasComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
 import { V_000, V_010 } from '../../common/constants/MathConstants'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { ComponentType, getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectComponent'
 import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
 import { Physics } from '../../physics/classes/Physics'
@@ -44,7 +50,6 @@ import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '../../transform/updateWorldOrigin'
 import { XRControlsState, XRState } from '../../xr/XRState'

@@ -38,13 +38,6 @@ import {
 import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
 import { ComponentJsonType, EntityJsonType, SceneID, scenePath } from '@etherealengine/common/src/schema.type.module'
-import { Not } from 'bitecs'
-import React from 'react'
-import { Group } from 'three'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import { SceneState } from '../../ecs/classes/Scene'
 import {
   ComponentJSONIDMap,
   getComponent,
@@ -52,12 +45,20 @@ import {
   removeComponent,
   setComponent,
   useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { QueryReactor, useQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem, destroySystem } from '../../ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '../../ecs/functions/SystemGroups'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { entityExists, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
+import { QueryReactor, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { Not } from 'bitecs'
+import React from 'react'
+import { Group } from 'three'
 import { NetworkState, SceneUser } from '../../networking/NetworkState'
 import { NetworkTopics } from '../../networking/classes/Network'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
@@ -71,7 +72,6 @@ import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagC
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
 import { SourceComponent } from '../components/SourceComponent'
-import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 

@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Component } from '@etherealengine/ecs/src/ComponentFunctions'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
-import { Component } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { AmbientLightComponent } from '@etherealengine/engine/src/scene/components/AmbientLightComponent'
 import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
 import { ColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'

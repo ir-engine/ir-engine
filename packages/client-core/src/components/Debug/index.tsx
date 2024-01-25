@@ -26,20 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { AvatarControllerComponent } from '@etherealengine/engine/src/avatar/components/AvatarControllerComponent'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
-import {
-  HyperFlux,
-  defineState,
-  getMutableState,
-  syncStateWithLocalStorage,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { defineState, getMutableState, syncStateWithLocalStorage, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { EntityDebug } from './EntityDebug'
@@ -187,7 +181,6 @@ export const DebugToggle = () => {
       if (keyCode === 192) {
         showingStateRef.current = !showingStateRef.current
         setShowing(showingStateRef.current)
-        HyperFlux.store.systemPerformanceProfilingEnabled = showingStateRef.current
       }
     }
     window.addEventListener('keydown', downHandler)

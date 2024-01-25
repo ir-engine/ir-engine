@@ -27,8 +27,8 @@ import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { Joystick } from 'react-joystick-component'
 
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { isTouchAvailable } from '@etherealengine/engine/src/common/functions/DetectFeatures'
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import {
   AnyButton,

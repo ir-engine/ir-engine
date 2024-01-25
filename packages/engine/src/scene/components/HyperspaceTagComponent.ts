@@ -24,6 +24,21 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import config from '@etherealengine/common/src/config'
+import {
+  defineComponent,
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { EntityTreeComponent, destroyEntityTree } from '@etherealengine/ecs/src/EntityTree'
+import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import {
@@ -46,21 +61,6 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { teleportAvatar } from '../../avatar/functions/moveAvatar'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import { SceneState } from '../../ecs/classes/Scene'
-import {
-  defineComponent,
-  getComponent,
-  getMutableComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent, destroyEntityTree } from '../../ecs/functions/EntityTree'
-import { useExecute } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { SceneLoadingSystem } from '../SceneModule'

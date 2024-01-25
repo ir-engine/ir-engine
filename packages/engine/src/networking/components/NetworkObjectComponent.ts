@@ -30,8 +30,6 @@ import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   Component,
   defineComponent,
@@ -40,9 +38,11 @@ import {
   removeComponent,
   setComponent,
   useComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 
 /** ID of last network created. */
 let availableNetworkId = 0 as NetworkId

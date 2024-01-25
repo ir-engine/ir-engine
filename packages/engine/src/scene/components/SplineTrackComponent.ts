@@ -24,23 +24,23 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { useExecute } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { getState } from '@etherealengine/hyperflux'
-import { useEffect } from 'react'
-import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
-import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
   getComponent,
   getOptionalComponent,
   useComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
+import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
+import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
+import { getState } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { SplineComponent } from './SplineComponent'
-import { UUIDComponent } from './UUIDComponent'
 
 const _euler = new Euler()
 const _quat = new Quaternion()

@@ -59,7 +59,7 @@ import {
   userPath,
   userSettingPath
 } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { AuthenticationResult } from '@feathersjs/authentication'
 import { API } from '../../API'

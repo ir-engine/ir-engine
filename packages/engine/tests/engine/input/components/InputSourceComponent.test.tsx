@@ -27,10 +27,10 @@ import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 
+import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState } from '@etherealengine/hyperflux'
-import { destroyEngine, Engine } from '../../../../src/ecs/classes/Engine'
-import { getComponent, hasComponent, setComponent } from '../../../../src/ecs/functions/ComponentFunctions'
-import { createEntity } from '../../../../src/ecs/functions/EntityFunctions'
 import { createEngine } from '../../../../src/initializeEngine'
 import { InputComponent } from '../../../../src/input/components/InputComponent'
 import {
@@ -39,8 +39,8 @@ import {
   InputSourceCaptureState,
   InputSourceComponent
 } from '../../../../src/input/components/InputSourceComponent'
-import { loadEmptyScene } from '../../../util/loadEmptyScene'
 import { MockXRInputSource, MockXRSpace } from '../../../util/MockXR'
+import { loadEmptyScene } from '../../../util/loadEmptyScene'
 
 describe('InputSourceComponent', () => {
   beforeEach(() => {

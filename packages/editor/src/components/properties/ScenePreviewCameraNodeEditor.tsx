@@ -27,8 +27,8 @@ import { debounce } from 'lodash'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 
 import CameraAltIcon from '@mui/icons-material/CameraAlt'

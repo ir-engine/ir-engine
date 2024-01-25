@@ -1,3 +1,4 @@
+
 /*
 CPAL-1.0 License
 
@@ -23,12 +24,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { isDev } from '@etherealengine/common/src/config'
-import { defineState } from '../functions/StateFunctions'
 
-export const SystemState = defineState({
-  name: 'ee.meta.SystemState',
-  initial: () => ({
-    performanceProfilingEnabled: isDev
-  })
-})
+module.exports = {
+  failZero: false,
+  parallel: true,
+  spec: ['tests/**/*.test.ts'],
+  require: [
+    'tests/mocha.env', // init env here
+    'jsdom-global/register'
+  ],
+  extension: [
+    'ts'
+  ],
+  exit: true,
+  recursive: true,
+  jobs: '1',
+  timeout: '300000'
+};

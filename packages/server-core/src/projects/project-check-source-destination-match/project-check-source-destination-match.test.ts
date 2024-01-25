@@ -30,7 +30,7 @@ import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schem
 import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import { UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import assert from 'assert'
 import nock from 'nock'
 import { v1 } from 'uuid'

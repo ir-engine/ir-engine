@@ -24,18 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { useEffect } from 'react'
-import { Box3, SkinnedMesh, Vector3 } from 'three'
-import { matches } from '../../common/functions/MatchesUtils'
 import {
   defineComponent,
   getComponent,
   getOptionalComponent,
   useComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { useEffect } from 'react'
+import { Box3, SkinnedMesh, Vector3 } from 'three'
+import { matches } from '../../common/functions/MatchesUtils'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { SkinnedMeshComponent } from './SkinnedMeshComponent'

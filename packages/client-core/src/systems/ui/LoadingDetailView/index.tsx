@@ -30,7 +30,7 @@ import { useTranslation } from 'react-i18next'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { getMutableState } from '@etherealengine/hyperflux'
 
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import ProgressBar from './SimpleProgressBar'
 import LoadingDetailViewStyle from './style'
 

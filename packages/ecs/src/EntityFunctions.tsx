@@ -27,8 +27,8 @@ import * as bitECS from 'bitecs'
 import React from 'react'
 
 import { HyperFlux } from '@etherealengine/hyperflux'
-import { Entity, UndefinedEntity } from '../classes/Entity'
 import { removeAllComponents } from './ComponentFunctions'
+import { Entity, UndefinedEntity } from './Entity'
 
 export const createEntity = (): Entity => {
   let entity = bitECS.addEntity(HyperFlux.store)

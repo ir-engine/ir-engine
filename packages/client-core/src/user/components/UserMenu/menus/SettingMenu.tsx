@@ -35,14 +35,14 @@ import Text from '@etherealengine/client-core/src/common/components/Text'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import {
   AvatarAxesControlScheme,
   AvatarInputSettingsState
 } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'

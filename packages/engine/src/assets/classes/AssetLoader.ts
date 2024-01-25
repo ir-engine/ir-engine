@@ -46,11 +46,11 @@ import {
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { isClient } from '../../common/functions/getEnvironment'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { iOS } from '../../common/functions/isMobile'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTexture'
 import iterateObject3D from '../../scene/util/iterateObject3D'

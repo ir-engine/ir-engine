@@ -28,10 +28,10 @@ Ethereal Engine. All Rights Reserved.
 import logger from '@etherealengine/engine/src/common/functions/logger'
 import { HyperFlux, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
-import { EngineState } from '../classes/EngineState'
+import { EngineState } from './EngineState'
 import { SystemUUID, executeSystem } from './SystemFunctions'
 import { AnimationSystemGroup, InputSystemGroup, PresentationSystemGroup, SimulationSystemGroup } from './SystemGroups'
+import { nowMilliseconds } from './Timer'
 
 const TimerConfig = {
   MAX_DELTA_SECONDS: 1 / 10

@@ -25,9 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { useLayoutEffect } from 'react'
 
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, removeComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import {
+  defineComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 
 export const InputComponent = defineComponent({

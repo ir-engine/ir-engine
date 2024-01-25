@@ -28,9 +28,9 @@ import { DataTexture, IUniform, Uniform } from 'three'
 
 import { getMutableState, getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
-import { isClient } from '../../../../common/functions/getEnvironment'
-import { EngineState } from '../../../../ecs/classes/EngineState'
-import { defineSystem } from '../../../../ecs/functions/SystemFunctions'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SceneLoadingSystem } from '../../../../scene/systems/SceneLoadingSystem'
 import { MaterialPluginType } from '../../components/MaterialPluginComponent'
 import { SourceType } from '../../components/MaterialSource'

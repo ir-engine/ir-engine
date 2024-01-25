@@ -27,9 +27,9 @@ import { VRMLoaderPlugin } from '@pixiv/three-vrm'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { Group } from 'three'
-import { isClient } from '../../common/functions/getEnvironment'
-import { EngineState } from '../../ecs/classes/EngineState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
 import { GLTFLoader } from '../loaders/gltf/GLTFLoader'

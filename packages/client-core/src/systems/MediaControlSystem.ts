@@ -26,17 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import { getState } from '@etherealengine/hyperflux'
 import { WebLayer3D } from '@etherealengine/xrui'
 
-import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import {
-  getComponent,
-  getOptionalComponent,
-  setComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { getComponent, getOptionalComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { addInteractableUI } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'

@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { getMutableComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
 import { NO_PROXY } from '@etherealengine/hyperflux'
 import assert from 'assert'
-import { destroyEngine } from '../../../../src/ecs/classes/Engine'
-import { getMutableComponent, setComponent } from '../../../../src/ecs/functions/ComponentFunctions'
-import { createEntity } from '../../../../src/ecs/functions/EntityFunctions'
-import { SystemDefinitions } from '../../../../src/ecs/functions/SystemFunctions'
 import { createEngine } from '../../../../src/initializeEngine'
 import { InputSourceComponent } from '../../../../src/input/components/InputSourceComponent'
 import { ButtonCleanupSystem } from '../../../../src/input/systems/ButtonCleanupSystem'

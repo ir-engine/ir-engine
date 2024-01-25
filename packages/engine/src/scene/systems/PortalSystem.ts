@@ -25,17 +25,17 @@ Ethereal Engine. All Rights Reserved.
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
 import { useEffect } from 'react'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { CameraMode } from '../../camera/types/CameraMode'
-import { Engine } from '../../ecs/classes/Engine'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
 import { PortalComponent, PortalState } from '../components/PortalComponent'
-import { UUIDComponent } from '../components/UUIDComponent'
 
 const reactor = () => {
   const activePortalEntityState = useHookstate(getMutableState(PortalState).activePortalEntity)

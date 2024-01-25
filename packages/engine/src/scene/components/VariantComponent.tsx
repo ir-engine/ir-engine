@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React, { ReactElement, useEffect } from 'react'
 import matches from 'ts-matches'
 
-import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getOptionalComponent,
@@ -35,8 +34,9 @@ import {
   setComponent,
   useComponent,
   useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
 import { setInstancedMeshVariant, setMeshVariant, setModelVariant } from '../functions/loaders/VariantFunctions'
 import { InstancingComponent } from './InstancingComponent'

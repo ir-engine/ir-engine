@@ -38,11 +38,11 @@ import {
   PlaneGeometry
 } from 'three'
 
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
 import { GroupComponent, addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'

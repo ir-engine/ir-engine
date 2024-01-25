@@ -26,14 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { Quaternion, Vector3 } from 'three'
 
 import { isDev } from '@etherealengine/common/src/config'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { CameraComponent } from '../../camera/components/CameraComponent'
-import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
-import { V_000, V_010 } from '../../common/constants/MathConstants'
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
   getComponent,
@@ -41,9 +36,14 @@ import {
   getOptionalComponent,
   removeComponent,
   setComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { CameraComponent } from '../../camera/components/CameraComponent'
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
+import { V_000, V_010 } from '../../common/constants/MathConstants'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { StandardGamepadButton } from '../../input/state/ButtonState'

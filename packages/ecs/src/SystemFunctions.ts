@@ -29,11 +29,11 @@ import { FC, useEffect } from 'react'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { startReactor } from '@etherealengine/hyperflux'
+import { getMutableState, getState, startReactor } from '@etherealengine/hyperflux'
 
-import { HyperFlux } from '@etherealengine/hyperflux'
 import { MathUtils } from 'three'
-import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
+import { SystemState } from './SystemState'
+import { nowMilliseconds } from './Timer'
 
 const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
 
@@ -91,26 +91,26 @@ export function executeSystem(systemUUID: SystemUUID) {
     executeSystem(system.preSystems[i])
   }
 
-  if (system.reactor && !HyperFlux.store.activeSystemReactors.has(system.uuid)) {
+  if (system.reactor && !getState(SystemState).activeSystemReactors.has(system.uuid)) {
     const reactor = startReactor(system.reactor)
-    HyperFlux.store.activeSystemReactors.set(system.uuid, reactor)
+    getState(SystemState).activeSystemReactors.set(system.uuid, reactor)
   }
 
   const startTime = nowMilliseconds()
 
   try {
-    HyperFlux.store.currentSystemUUID = systemUUID
+    getMutableState(SystemState).currentSystemUUID.set(systemUUID)
     system.execute()
   } catch (e) {
     logger.error(`Failed to execute system ${system.uuid}`)
     logger.error(e)
   } finally {
-    HyperFlux.store.currentSystemUUID = '__null__' as SystemUUID
+    getMutableState(SystemState).currentSystemUUID.set('__null__' as SystemUUID)
   }
 
   const endTime = nowMilliseconds()
 
-  if (HyperFlux.store.systemPerformanceProfilingEnabled) {
+  if (getState(SystemState).performanceProfilingEnabled) {
     const systemDuration = endTime - startTime
     system.systemDuration = systemDuration
     if (systemDuration > 50 && (lastWarningTime.get(systemUUID) ?? 0) < endTime - warningCooldownDuration) {
@@ -196,9 +196,9 @@ export const destroySystem = (systemUUID: SystemUUID) => {
     destroySystem(subSystem)
   }
 
-  const reactor = HyperFlux.store.activeSystemReactors.get(system.uuid as SystemUUID)!
+  const reactor = getState(SystemState).activeSystemReactors.get(system.uuid as SystemUUID)!
   if (reactor) {
-    HyperFlux.store.activeSystemReactors.delete(system.uuid as SystemUUID)
+    getState(SystemState).activeSystemReactors.delete(system.uuid as SystemUUID)
     reactor.stop()
   }
 

@@ -30,25 +30,25 @@ import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { deleteSearchParams } from '@etherealengine/common/src/utils/deleteSearchParams'
 import { defineActionQueue, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { getState } from '@etherealengine/hyperflux'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { FlyControlComponent } from '../../avatar/components/FlyControlComponent'
-import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
-import { createConeOfVectors } from '../../common/functions/MathFunctions'
-import { smoothDamp } from '../../common/functions/MathLerpFunctions'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
 import {
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { getState } from '@etherealengine/hyperflux'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { FlyControlComponent } from '../../avatar/components/FlyControlComponent'
+import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
+import { createConeOfVectors } from '../../common/functions/MathFunctions'
+import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { MeshComponent } from '../../scene/components/MeshComponent'

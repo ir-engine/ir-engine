@@ -29,23 +29,23 @@ import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { isClient } from '../../common/functions/getEnvironment'
-import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   getComponent,
   getOptionalComponent,
   removeComponent,
   setComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
 import { NetworkState } from '../../networking/NetworkState'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformSystem } from '../../transform/TransformModule'
 import { compareDistanceToCamera } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'

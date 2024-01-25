@@ -31,15 +31,15 @@ import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import Dialog from '@mui/material/Dialog'
 
 import { scenePath } from '@etherealengine/common/src/schema.type.module'
-import { SceneServices, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { useQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
+import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { SceneServices, SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { t } from 'i18next'

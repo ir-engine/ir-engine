@@ -23,15 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { getComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
+import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getState } from '@etherealengine/hyperflux'

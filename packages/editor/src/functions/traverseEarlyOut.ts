@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
 
 export default function traverseEarlyOut(entity: Entity, cb: (entity: Entity) => boolean): boolean {
   let stopTravel = cb(entity)

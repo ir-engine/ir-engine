@@ -29,7 +29,7 @@ import fs from 'fs'
 import path from 'path'
 import { v4 as uuid } from 'uuid'
 
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { RouteType, routePath } from '@etherealengine/common/src/schemas/route/route.schema'

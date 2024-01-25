@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { AdminAssetUploadArgumentsType } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import {

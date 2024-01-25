@@ -27,15 +27,15 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 
 import VideocamIcon from '@mui/icons-material/Videocam'
 
-import { useQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
+import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import { Vector2Input } from '../inputs/Vector2Input'

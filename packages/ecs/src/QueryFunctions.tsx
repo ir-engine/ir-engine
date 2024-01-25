@@ -24,14 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
-import { HyperFlux, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { HyperFlux, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
 import * as bitECS from 'bitecs'
 import React, { ErrorInfo, FC, Suspense, memo, useEffect, useLayoutEffect, useMemo } from 'react'
-import { Entity } from '../classes/Entity'
 import { Component, ComponentType, getComponent, useOptionalComponent } from './ComponentFunctions'
+import { Entity } from './Entity'
 import { EntityContext } from './EntityFunctions'
 import { defineSystem } from './SystemFunctions'
 import { PresentationSystemGroup } from './SystemGroups'
+import { SystemState } from './SystemState'
 
 export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier)[]) {
   const query = bitECS.defineQuery(components) as bitECS.Query
@@ -66,7 +67,7 @@ export const ReactiveQuerySystem = defineSystem({
   uuid: 'ee.hyperflux.ReactiveQuerySystem',
   insert: { after: PresentationSystemGroup },
   execute: () => {
-    for (const { query, result } of HyperFlux.store.reactiveQueryStates) {
+    for (const { query, result } of getState(SystemState).reactiveQueryStates) {
       const entitiesAdded = query.enter().length
       const entitiesRemoved = query.exit().length
       if (entitiesAdded || entitiesRemoved) {
@@ -91,10 +92,10 @@ export function useQuery(components: QueryComponents) {
     const query = defineQuery(components)
     result.set(query())
     const queryState = { query, result, components }
-    HyperFlux.store.reactiveQueryStates.add(queryState)
+    getState(SystemState).reactiveQueryStates.add(queryState)
     return () => {
       removeQuery(query)
-      HyperFlux.store.reactiveQueryStates.delete(queryState)
+      getState(SystemState).reactiveQueryStates.delete(queryState)
     }
   }, [])
 

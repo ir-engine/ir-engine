@@ -26,15 +26,15 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
 
 import CameraswitchIcon from '@mui/icons-material/Cameraswitch'
 
-import { useQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
+import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInput from '../inputs/NumericInput'

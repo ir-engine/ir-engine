@@ -28,11 +28,11 @@ import { AnimationClip, AnimationMixer, LoopOnce, LoopRepeat, Object3D, Vector3 
 
 import { defineActionQueue, getState } from '@etherealengine/hyperflux'
 
+import { getComponent, getMutableComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
 import { lerp } from '../../common/functions/MathLerpFunctions'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'

@@ -25,12 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { getComponent, getMutableComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { isMobile } from '../../common/functions/isMobile'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { getComponent, getMutableComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { SceneLoadingSystem } from './SceneLoadingSystem'

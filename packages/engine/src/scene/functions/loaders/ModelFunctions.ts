@@ -27,6 +27,10 @@ import { DracoOptions } from '@gltf-transform/functions'
 import { Material, Texture } from 'three'
 
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
+import { getComponent, getOptionalComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { iterateEntityNode } from '@etherealengine/ecs/src/EntityTree'
+import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
 import {
   GeometryTransformParameters,
   ImageTransformParameters,
@@ -34,12 +38,8 @@ import {
   ResourceID,
   ResourceTransforms
 } from '../../../assets/classes/ModelTransform'
-import { Entity } from '../../../ecs/classes/Entity'
-import { getComponent, getOptionalComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '../../../ecs/functions/EntityTree'
 import { MeshComponent } from '../../components/MeshComponent'
 import { ModelComponent } from '../../components/ModelComponent'
-import { UUIDComponent } from '../../components/UUIDComponent'
 
 export function getModelSceneID(entity: Entity): SceneID {
   if (!hasComponent(entity, ModelComponent)) {

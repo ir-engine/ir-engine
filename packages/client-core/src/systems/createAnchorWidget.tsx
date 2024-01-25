@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getComponent, removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { XRAction, XRState } from '@etherealengine/engine/src/xr/XRState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
@@ -39,8 +39,8 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { AvatarInputSettingsState } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { InputComponent } from '@etherealengine/engine/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import { XRStandardGamepadAxes, XRStandardGamepadButton } from '@etherealengine/engine/src/input/state/ButtonState'

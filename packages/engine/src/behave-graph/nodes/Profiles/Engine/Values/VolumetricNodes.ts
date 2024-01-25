@@ -24,10 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, makeFlowNodeDefinition } from '@behave-graph/core'
+import { getMutableComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { Tween } from '@tweenjs/tween.js'
-import { Entity } from '../../../../../ecs/classes/Entity'
-import { getMutableComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '../../../../../ecs/functions/EntityFunctions'
 import { VolumetricComponent } from '../../../../../scene/components/VolumetricComponent'
 import { TweenComponent } from '../../../../../transform/components/TweenComponent'
 

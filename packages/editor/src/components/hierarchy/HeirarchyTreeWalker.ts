@@ -24,10 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
+import { EntityTreeComponent } from '@etherealengine/ecs/src/EntityTree'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { getState } from '@etherealengine/hyperflux'
 import { EditorState } from '../../services/EditorServices'

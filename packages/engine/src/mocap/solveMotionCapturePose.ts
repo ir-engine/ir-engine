@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
-import { getComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 
 import {
   BufferAttribute,
@@ -40,10 +40,13 @@ import {
   Vector3
 } from 'three'
 
-import { Entity } from '../ecs/classes/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 
 import { Mesh, MeshBasicMaterial } from 'three'
 
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getState } from '@etherealengine/hyperflux'
 import {
   NormalizedLandmark,
@@ -57,9 +60,6 @@ import {
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { V_010, V_100 } from '../common/constants/MathConstants'
-import { Engine } from '../ecs/classes/Engine'
-import { EngineState } from '../ecs/classes/EngineState'
-import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
 import { RendererState } from '../renderer/RendererState'
 import { GroupComponent, addObjectToGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'

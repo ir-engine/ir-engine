@@ -27,15 +27,13 @@ Ethereal Engine. All Rights Reserved.
  * @fileoverview
  * @todo Write the `fileoverview` for `ComponentFunctions.ts`
  */
-
 import * as bitECS from 'bitecs'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
-import React, { startTransition, use, useLayoutEffect } from 'react'
+import React, { startTransition, use } from 'react'
 
 import config from '@etherealengine/common/src/config'
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { HookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
 import { HyperFlux, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
@@ -48,17 +46,10 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux/functions/StateFunctions'
 
-import { Entity, UndefinedEntity } from '../classes/Entity'
-import { EntityContext, useEntityContext } from './EntityFunctions'
+import { Entity, UndefinedEntity } from './Entity'
+import { EntityContext } from './EntityFunctions'
 import { useExecute } from './SystemFunctions'
 import { PresentationSystemGroup } from './SystemGroups'
-
-/**
- * @description `@internal`
- * Shorthand for the logger that will be used throughout this file.
- * Contains a multiLogger.child, that uses a component ID referencing the purpose of this file.
- */
-const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
 
 /**
  * @description
@@ -489,7 +480,7 @@ export const removeAllComponents = (entity: Entity) => {
       promises.push(removeComponent(entity, component as Component))
     }
   } catch (_) {
-    logger.warn('Components of entity already removed')
+    // entity does not exist
   }
   return promises
 }
@@ -544,9 +535,3 @@ export function useOptionalComponent<C extends Component<any>>(entity: Entity, C
   const component = useHookstate(Component.stateMap[entity]) as any as State<ComponentType<C>> // todo fix any cast
   return component.promised ? undefined : component
 }
-
-globalThis.EE_getComponent = getComponent
-globalThis.EE_getAllComponents = getAllComponents
-globalThis.EE_getAllComponentData = getAllComponentData
-globalThis.EE_setComponent = setComponent
-globalThis.EE_removeComponent = removeComponent

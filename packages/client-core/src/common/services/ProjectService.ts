@@ -47,7 +47,7 @@ import {
   projectPermissionPath,
   ProjectType
 } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { ProjectParams } from '@etherealengine/server-core/src/projects/project/project.class'
 import { Paginated } from '@feathersjs/feathers'
 import { API } from '../../API'

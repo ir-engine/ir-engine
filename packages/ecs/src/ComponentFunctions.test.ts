@@ -26,8 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import { Types } from 'bitecs'
 
-import { createEngine } from '../../initializeEngine'
-import { destroyEngine } from '../classes/Engine'
+import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import {
   ComponentMap,
   defineComponent,
@@ -37,6 +36,7 @@ import {
   removeComponent,
   setComponent
 } from './ComponentFunctions'
+import { destroyEngine } from './Engine'
 import { createEntity } from './EntityFunctions'
 
 describe('ComponentFunctions', async () => {

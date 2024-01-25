@@ -27,10 +27,10 @@ import { EventDispatcher, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { V_111 } from '../../common/constants/MathConstants'
-import { Engine } from '../../ecs/classes/Engine'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRState } from '../XRState'
 import { XR8 } from './XR8'
 
