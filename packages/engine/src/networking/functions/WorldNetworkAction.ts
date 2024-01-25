@@ -49,6 +49,7 @@ export class WorldNetworkAction {
     entityUUID: matchesEntityUUID,
     networkId: matchesWithDefault(matchesNetworkId, () => NetworkObjectComponent.createNetworkId()),
     position: matchesVector3.optional(),
+    authorityPeerId: matchesPeerID.optional(),
     rotation: matchesQuaternion.optional(),
     $cache: true,
     $topic: NetworkTopics.world

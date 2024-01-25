@@ -39,7 +39,7 @@ export const HighlightState = defineState({
     edgeStrength: 1.0,
     pulseSpeed: 0.0,
     visibleEdgeColor: 0xffffff,
-    hiddenEdgeColor: 0x999999,
+    hiddenEdgeColor: 0x7777ff,
     kernelSize: KernelSize.MEDIUM,
     blur: false,
     xRay: true,
