@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { FileBrowserContentType } from '@etherealengine/common/src/schema.type.module'
-import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
+import { FileBrowserContentType, fileThumbnailPath } from '@etherealengine/common/src/schema.type.module'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew'
 import DescriptionIcon from '@mui/icons-material/Description'
 import FolderIcon from '@mui/icons-material/Folder'
@@ -32,8 +32,9 @@ import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual
 import VideocamIcon from '@mui/icons-material/Videocam'
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 import VolumeUpIcon from '@mui/icons-material/VolumeUp'
-import React from 'react'
+import React, { useState } from 'react'
 import { isFolder } from '../../../functions/isFolder'
+import { generateImageFileThumbnail } from '../../../functions/thumbnails'
 import styles from '../styles.module.scss'
 
 const FileIconType = {
@@ -67,32 +68,57 @@ const FileIconType = {
   'audio/mp3': VolumeUpIcon
 }
 
-const fileConsistsOfContentType = function (file: FileBrowserContentType, contentType: string): boolean {
-  if (isFolder(file)) {
-    return contentType.startsWith('image')
-  } else {
-    const guessedType: string = CommonKnownContentTypes[file.type]
-    return guessedType?.startsWith(contentType)
+const pendingThumbnails = new Map<string, Promise<string>>()
+
+const createThumbnailKey = async (file: FileBrowserContentType): Promise<string> => {
+  let thumbnailBlob: Blob | null = null
+  switch (file.type.split('/')[0]) {
+    case 'model': {
+      break
+    }
+    case 'image': {
+      const imageBlob = await fetch(file.url).then((response) => response.blob())
+      thumbnailBlob = await generateImageFileThumbnail(imageBlob, 256, 256, 'transparent')
+      break
+    }
   }
+
+  if (thumbnailBlob == null) {
+    return ''
+  }
+
+  const thumbnailKey = await Engine.instance.api.service(fileThumbnailPath).patch(file.key, {
+    body: thumbnailBlob,
+    isCustom: false,
+    contentType: 'image/png'
+  })
+
+  pendingThumbnails.delete(file.key)
+  return thumbnailKey ?? ''
+}
+
+const getThumbnailKey = (file: FileBrowserContentType): Promise<string> => {
+  if (file.thumbnailKey != null) {
+    return Promise.resolve(file.thumbnailKey)
+  }
+
+  if (!pendingThumbnails.has(file.key)) {
+    pendingThumbnails.set(file.key, createThumbnailKey(file))
+  }
+
+  return pendingThumbnails.get(file.key)!
 }
 
 export const FileIcon = ({ file, showRibbon }: { file: FileBrowserContentType; showRibbon?: boolean }) => {
   const fallback = { icon: FileIconType[file.type] }
-
-  if (file.thumbnailKey == null) {
-    if (fileConsistsOfContentType(file, 'model')) {
-      // create thumbnail of model, then upload it
-    } else if (fileConsistsOfContentType(file, 'image')) {
-      // create thumbnail of image, then upload it
-    }
-  }
-
+  const [thumbnailKey, setThumbnailKey] = useState<string>()
+  getThumbnailKey(file).then((key) => setThumbnailKey(key))
   return (
     <>
       {isFolder(file) ? (
         <FolderIcon fontSize={'inherit'} />
-      ) : file.thumbnailKey ? (
-        <img style={{ maxHeight: '50px' }} crossOrigin="anonymous" src={file.thumbnailKey} alt="" />
+      ) : (thumbnailKey?.length ?? 0) > 0 ? (
+        <img style={{ maxHeight: '50px' }} crossOrigin="anonymous" src={thumbnailKey} alt="" />
       ) : fallback ? (
         <fallback.icon fontSize={'inherit'} />
       ) : (

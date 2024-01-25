@@ -193,6 +193,8 @@ export const fileBrowserPath = 'file-browser'
 
 export const fileBrowserUploadPath = 'file-browser-upload'
 
+export const fileThumbnailPath = 'file-thumbnail'
+
 export const staticResourcePath = 'static-resource'
 
 export const oembedPath = 'oembed'
