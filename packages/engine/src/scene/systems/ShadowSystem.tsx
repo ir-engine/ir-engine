@@ -308,16 +308,22 @@ function ShadowMeshReactor(props: { entity: Entity; obj: Mesh<any, Material> }) 
   useEffect(() => {
     obj.castShadow = shadowComponent.cast.value
     obj.receiveShadow = shadowComponent.receive.value
+  }, [shadowComponent.cast, shadowComponent.receive])
 
+  useEffect(() => {
     const csm = getState(RendererState).csm
-    if (obj.material && obj.receiveShadow) {
-      csm?.setupMaterial(obj)
+    if (!csm || !obj.receiveShadow) return
+
+    if (obj.material) {
+      csm.setupMaterial(obj)
     }
 
     return () => {
-      if (obj.material) csm?.teardownMaterial(obj.material)
+      if (obj.material) {
+        csm.teardownMaterial(obj.material)
+      }
     }
-  }, [shadowComponent.cast, shadowComponent.receive, csm])
+  }, [shadowComponent.receive, csm])
 
   return null
 }

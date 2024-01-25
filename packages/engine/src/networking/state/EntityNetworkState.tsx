@@ -41,9 +41,7 @@ import {
 } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { SceneState } from '../../ecs/classes/Scene'
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getOptionalComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
@@ -117,16 +115,6 @@ const EntityNetworkReactor = memo((props: { uuid: EntityUUID }) => {
     if (!userConnected) return
 
     const entity = UUIDComponent.getOrCreateEntityByUUID(props.uuid)
-    const sceneState = getState(SceneState)
-    if (!sceneState.activeScene) {
-      throw new Error('Trying to spawn an object with no active scene')
-    }
-    // TODO: get the active scene for each world network
-    const activeSceneID = SceneState.getCurrentScene()!.root
-    const activeSceneEntity = UUIDComponent.getEntityByUUID(activeSceneID)
-    setComponent(entity, EntityTreeComponent, {
-      parentEntity: activeSceneEntity
-    })
     setComponent(entity, TransformComponent, {
       position: state.spawnPosition.value!,
       rotation: state.spawnRotation.value!

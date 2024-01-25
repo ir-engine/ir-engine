@@ -169,9 +169,10 @@ export const DirectionalLightComponent = defineComponent({
     const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
 
     useEffect(() => {
-      addObjectToGroup(entity, directionalLightComponent.light.value)
+      const light = directionalLightComponent.light.value
+      addObjectToGroup(entity, light)
       return () => {
-        removeObjectFromGroup(entity, directionalLightComponent.light.value)
+        removeObjectFromGroup(entity, light)
       }
     }, [])
 
