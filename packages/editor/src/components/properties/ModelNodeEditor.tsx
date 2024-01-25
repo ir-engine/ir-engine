@@ -98,7 +98,8 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     exporting.set(true)
     const fileName = `${srcPath.value}.${exportType.value}`
     exportRelativeGLTF(entity, srcProject.value, fileName).then(() => {
-      modelComponent.src.set(pathJoin(config.client.fileServer, 'projects', srcProject.value, fileName))
+      const nuPath = pathJoin(config.client.fileServer, 'projects', srcProject.value, fileName)
+      commitProperty(ModelComponent, 'src')(nuPath)
       exporting.set(false)
     })
   }

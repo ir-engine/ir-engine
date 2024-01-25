@@ -27,6 +27,7 @@ import { Color, Material, Texture } from 'three'
 
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
+import { MaterialSelectionState } from '../../../../../editor/src/components/materials/MaterialLibraryState'
 import { stringHash } from '../../../common/functions/MathFunctions'
 import { Entity } from '../../../ecs/classes/Entity'
 import { SceneState } from '../../../ecs/classes/Scene'
@@ -175,11 +176,15 @@ export function getMaterialSource(material: Material): string | null {
 
 export function removeMaterialSource(src: MaterialSource): boolean {
   const materialLibrary = getMutableState(MaterialLibraryState)
+  const materialSelectionState = getMutableState(MaterialSelectionState)
   const srcId = hashMaterialSource(src)
   if (materialLibrary.sources[srcId].value) {
     const srcComp = materialLibrary.sources[srcId].value
     srcComp.entries.map((matId) => {
       const toDelete = materialFromId(matId)
+      if (materialSelectionState.selectedMaterial.value === matId) {
+        materialSelectionState.selectedMaterial.set(null)
+      }
       Object.values(toDelete.parameters)
         .filter((val) => (val as Texture)?.isTexture)
         .map((val: Texture) => val.dispose())
@@ -237,6 +242,10 @@ export function unregisterMaterial(material: Material) {
   const materialLibrary = getMutableState(MaterialLibraryState)
   try {
     const matEntry = materialFromId(material.uuid)
+    const materialSelectionState = getMutableState(MaterialSelectionState)
+    if (materialSelectionState.selectedMaterial.value === material.uuid) {
+      materialSelectionState.selectedMaterial.set(null)
+    }
     materialLibrary.materials[material.uuid].set(none)
     const srcEntry = materialLibrary.sources[hashMaterialSource(matEntry.src)].entries
     srcEntry.set(srcEntry.value.filter((matId) => matId !== material.uuid))

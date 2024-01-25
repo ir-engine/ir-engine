@@ -53,6 +53,7 @@ export default class ImageRoutingExtension extends ExporterExtension implements 
       if (field === 'envMap') continue
       if (value instanceof Texture) {
         const texture = value as Texture
+        if (texture.image instanceof ImageBitmap) continue
         let oldURI = texture.userData.src
         if (!oldURI) {
           const resolved = pathResolver().exec(texture.image.src)!
