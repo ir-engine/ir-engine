@@ -95,15 +95,15 @@ describe('addClientInputListeners', () => {
   beforeEach(() => {
     createEngine()
     loadEmptyScene()
+    EngineRenderer.instance = new MockEngineRenderer()
   })
 
   afterEach(() => {
+    EngineRenderer.instance = undefined!
     return destroyEngine()
   })
 
   it('should add client input listeners', () => {
-    EngineRenderer.instance = new MockEngineRenderer()
-
     const cleanup = addClientInputListeners()
 
     assert(typeof cleanup === 'function')

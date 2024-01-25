@@ -14,8 +14,8 @@
   "author": "Ethereal Engine",
   "license": "CPAL",
   "dependencies": {
-    "@etherealengine/common": "1.6.0",
-    "@etherealengine/hyperflux": "1.6.0",
+    "@etherealengine/common": "^1.6.0",
+    "@etherealengine/hyperflux": "^1.6.0",
     "bitecs": "0.3.40",
     "three": "0.158.0"
   },

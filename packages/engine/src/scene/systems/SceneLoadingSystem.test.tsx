@@ -50,7 +50,7 @@ import { NameComponent } from '../components/NameComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneLoadingSystem } from './SceneLoadingSystem'
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1'
+const NODE_TLS_REJECT_UNAUTHORIZED = process.env.NODE_TLS_REJECT_UNAUTHORIZED
 const modelLink = '/packages/projects/default-project/assets/collisioncube.glb'
 const testScene = {
   name: '',
@@ -64,6 +64,7 @@ const testID = 'test' as SceneID
 overrideFileLoaderLoad()
 describe('SceneLoadingSystem', () => {
   beforeEach(async () => {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1'
     createEngine()
     Engine.instance.userID = 'user' as UserID
     Engine.instance.store.defaultDispatchDelay = () => 0
@@ -83,7 +84,7 @@ describe('SceneLoadingSystem', () => {
   })
 
   afterEach(() => {
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = undefined
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = NODE_TLS_REJECT_UNAUTHORIZED
     return destroyEngine()
   })
 
