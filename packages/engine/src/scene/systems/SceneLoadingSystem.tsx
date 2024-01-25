@@ -145,14 +145,6 @@ const NetworkedSceneObjectReactor = () => {
         $topic: isHostingWorldNetwork ? NetworkTopics.world : undefined
       })
     )
-    return () => {
-      dispatchAction(
-        WorldNetworkAction.destroyObject({
-          entityUUID: uuid,
-          $topic: isHostingWorldNetwork ? NetworkTopics.world : undefined
-        })
-      )
-    }
   }, [])
 
   return null
@@ -363,7 +355,7 @@ const EntityChildLoadReactor = (props: {
       uuid,
       childIndex: entityJSONState.index.value
     })
-  }, [entityJSONState.parent.value, entityJSONState.index.value, selfEntity.value])
+  }, [entityJSONState.parent, entityJSONState.index, selfEntity])
 
   return (
     <>

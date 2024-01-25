@@ -67,14 +67,12 @@ export const useEngineInjection = () => {
 
 export const useLocationSpawnAvatar = (spectate = false) => {
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
-  const spawned = useHookstate(false)
 
   useEffect(() => {
-    if (!sceneLoaded.value || spawned.value) return
+    if (!sceneLoaded.value) return
 
     if (spectate) {
       dispatchAction(EngineActions.spectateUser({}))
-      spawned.set(true)
       return
     }
 
@@ -94,8 +92,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
       avatarID: user.avatar.id!,
       name: user.name
     })
-    spawned.set(true)
-  }, [sceneLoaded])
+  }, [sceneLoaded.value])
 }
 
 /**
@@ -270,5 +267,5 @@ export const useNetwork = (props: { online?: boolean }) => {
       removeNetwork(network)
       networkState.hostIds.world.set(none)
     }
-  }, [sceneLoaded, props.online])
+  }, [sceneLoaded.value, props.online])
 }

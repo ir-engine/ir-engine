@@ -495,7 +495,8 @@ export const waitForTransports = async (network: SocketWebRTCClientNetwork) => {
 }
 
 export const onTransportCreated = async (action: typeof MediasoupTransportActions.transportCreated.matches._TYPE) => {
-  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork
+  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork | undefined
+  if (!network) return console.warn('Network not found', action.$network)
 
   const { transportID, direction, sctpParameters, iceParameters, iceCandidates, dtlsParameters } = action
 
