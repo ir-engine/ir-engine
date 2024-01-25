@@ -163,12 +163,19 @@ const handleFailedConnection = (topic: Topic, instanceID: InstanceID) => {
 }
 
 export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
+  if (!network.transport?.primus) return console.warn('No primus to close')
+
   const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
   networkState.connected.set(false)
   networkState.authenticated.set(false)
   networkState.ready.set(false)
-  for (const transportID of Object.keys(getState(MediasoupTransportState)[network.id]))
-    MediasoupTransportState.removeTransport(network.id, transportID)
+
+  if (getState(MediasoupTransportState)[network.id]) {
+    for (const transportID of Object.keys(getState(MediasoupTransportState)[network.id])) {
+      MediasoupTransportState.removeTransport(network.id, transportID)
+    }
+  }
+
   network.transport.heartbeat && clearInterval(network.transport.heartbeat)
   network.transport.primus?.end()
   network.transport.primus?.removeAllListeners()
@@ -176,15 +183,22 @@ export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
 }
 
 export const closeNetworkTransport = (network: SocketWebRTCClientNetwork) => {
-  for (const transportID of Object.keys(getState(MediasoupTransportState)[network.id]))
-    MediasoupTransportState.removeTransport(network.id, transportID)
-  network.transport.heartbeat && clearInterval(network.transport.heartbeat)
-  network.transport.primus?.end()
-  network.transport.primus?.removeAllListeners()
+  if (!network.transport?.primus) return console.warn('No primus to close')
+
   const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
   networkState.transport.primus.set(null!)
   networkState.authenticated.set(false)
   networkState.ready.set(false)
+
+  if (getState(MediasoupTransportState)[network.id]) {
+    for (const transportID of Object.keys(getState(MediasoupTransportState)[network.id]))
+      MediasoupTransportState.removeTransport(network.id, transportID)
+  }
+
+  network.transport.heartbeat && clearInterval(network.transport.heartbeat)
+  network.transport.primus?.end()
+  network.transport.primus?.removeAllListeners()
+  networkState.transport.primus.set(null!)
 }
 
 export const initializeNetwork = (id: InstanceID, hostId: UserID, topic: Topic) => {
@@ -372,7 +386,7 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
   const inviteCode = getSearchParamFromURL('inviteCode') as InviteCode
   const payload = { accessToken, peerID: Engine.instance.peerID, inviteCode }
 
-  const { status, routerRtpCapabilities, cachedActions } = await new Promise<AuthTask>((resolve) => {
+  const { status, routerRtpCapabilities, cachedActions, error } = await new Promise<AuthTask>((resolve) => {
     const onAuthentication = (response: AuthTask) => {
       if (response.status !== 'pending') {
         clearInterval(interval)
@@ -397,7 +411,7 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
 
   if (status !== 'success') {
     logger.error(status)
-    return logger.error(new Error('Unable to connect with credentials'))
+    return logger.error(new Error('Unable to connect with credentials' + error))
   }
 
   networkState.authenticated.set(true)
@@ -481,7 +495,8 @@ export const waitForTransports = async (network: SocketWebRTCClientNetwork) => {
 }
 
 export const onTransportCreated = async (action: typeof MediasoupTransportActions.transportCreated.matches._TYPE) => {
-  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork
+  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork | undefined
+  if (!network) return console.warn('Network not found', action.$network)
 
   const { transportID, direction, sctpParameters, iceParameters, iceCandidates, dtlsParameters } = action
 

@@ -135,6 +135,7 @@ const renderAllEntities = (filter: string, queryString: string) => {
           return [label, renderEntityComponents(eid)]
         })
         .filter((exists) => !!exists)
+        .sort(([a], [b]) => a.localeCompare(b))
     )
   }
 }
