@@ -42,6 +42,8 @@ import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
 import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import { Box, Button } from '@mui/material'
 
+import './index.scss'
+
 const ROOT_REDIRECT = config.client.rootRedirect
 
 export const HomePage = (): any => {
