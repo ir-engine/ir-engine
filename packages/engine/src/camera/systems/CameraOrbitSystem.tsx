@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
+import { V_010 } from '../../common/constants/MathConstants'
 import { throttle } from '../../common/functions/FunctionHelpers'
 import { isClient } from '../../common/functions/getEnvironment'
 import {
@@ -57,6 +58,7 @@ const delta = new Vector3()
 const normalMatrix = new Matrix3()
 const sphere = new Sphere()
 const spherical = new Spherical()
+const toOrbitCenter = new Vector3()
 
 const doZoom = (zoom) => {
   const zoomDelta = typeof zoom === 'number' ? zoom - lastZoom : 0
@@ -191,11 +193,9 @@ const execute = () => {
     spherical.makeSafe()
     delta.setFromSpherical(spherical)
 
-    camera.position.copy(editorCameraCenter).add(delta)
-    camera.updateMatrix()
-    camera.lookAt(editorCameraCenter)
-    transform.position.copy(camera.position)
-    transform.rotation.copy(camera.quaternion)
+    transform.position.copy(editorCameraCenter).add(delta)
+    transform.matrix.lookAt(transform.position, editorCameraCenter, V_010)
+    transform.rotation.setFromRotationMatrix(transform.matrix)
 
     getMutableComponent(entity, CameraOrbitComponent).isOrbiting.set(false)
   }
