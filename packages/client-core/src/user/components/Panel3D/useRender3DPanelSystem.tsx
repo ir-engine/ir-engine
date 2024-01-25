@@ -28,9 +28,12 @@ import { Color, DirectionalLight, Euler, Quaternion, Vector3, WebGLRenderer } fr
 
 import { useHookstateFromFactory } from '@etherealengine/common/src/utils/useHookstateFromFactory'
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
-import { CameraOrbitComponent } from '@etherealengine/engine/src/camera/components/CameraOrbitComponent'
+import {
+  ActiveOrbitCamera,
+  CameraOrbitComponent
+} from '@etherealengine/engine/src/camera/components/CameraOrbitComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   getComponent,
   getOptionalComponent,
@@ -50,7 +53,7 @@ import { VisibleComponent } from '@etherealengine/engine/src/scene/components/Vi
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { enableObjectLayer } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
 
 export const PreviewPanelRendererState = defineState({
   name: 'previewPanelRendererState',
@@ -101,62 +104,66 @@ const initializePreviewPanel = (id: string) => {
 export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElement>) {
   const state = useHookstateFromFactory(initialize3D)
   const rendererState = getMutableState(PreviewPanelRendererState)
+  let id = ''
 
   const resize = () => {
     if (!panel.current?.id) return
     const bounds = panel.current.getBoundingClientRect()!
-    const camera = getComponent(rendererState.entities[panel.current.id].value[0], CameraComponent)
+    const camera = getComponent(rendererState.entities[id].value[0], CameraComponent)
     camera.aspect = bounds.width / bounds.height
     camera.updateProjectionMatrix()
-    rendererState.renderers.value[panel.current.id].setSize(bounds.width, bounds.height)
+    rendererState.renderers.value[id].setSize(bounds.width, bounds.height)
   }
 
   useEffect(() => {
     window.addEventListener('resize', resize)
-
-    if (!rendererState.renderers.value[panel.current.id]) {
-      rendererState.renderers[panel.current.id].set(
+    id = panel.current.id
+    if (!rendererState.renderers.value[id]) {
+      rendererState.renderers[id].set(
         new WebGLRenderer({
           antialias: true,
           preserveDrawingBuffer: true,
           alpha: true
         })
       )
-      rendererState.renderers[panel.current.id].value.domElement.id = panel.current.id
-      addClientInputListeners(rendererState.renderers[panel.current.id].domElement.value)
-      rendererState.ids.set([...rendererState.ids.value, panel.current.id])
+      rendererState.renderers[id].value.domElement.id = id
+      addClientInputListeners(rendererState.renderers[id].domElement.value)
+      rendererState.ids.set([...rendererState.ids.value, id])
     }
 
-    initializePreviewPanel(panel.current.id)
+    initializePreviewPanel(id)
 
     resize()
 
     return () => {
-      removeEntity(state.backLight.value)
-      removeEntity(state.frontLight1.value)
-      removeEntity(state.frontLight2.value)
       window.removeEventListener('resize', resize)
+
+      // cleanup entities associated with this 3d panel
+      for (const entity of rendererState.entities[id].value) removeEntity(entity)
+      getMutableState(ActiveOrbitCamera).set(UndefinedEntity)
+      const thisIdIndex = rendererState.ids.value.findIndex((value) => value === id)
+      rendererState.ids[thisIdIndex].set(none)
+      rendererState.renderers[id].set(none)
     }
   }, [])
 
   useEffect(() => {
+    id = panel.current.id
     if (!panel.current || !rendererState.renderers.value) return
     const bounds = panel.current.getBoundingClientRect()
-    const thisRenderer = rendererState.renderers.value[panel.current.id]
+    const thisRenderer = rendererState.renderers.value[id]
     thisRenderer.setSize(bounds.width, bounds.height)
     panel.current.appendChild(thisRenderer.domElement)
     resize()
 
     return () => {
-      if (panel.current && rendererState.value[panel.current.id])
-        panel.current.removeChild(rendererState.value[panel.current.id].domElement)
+      if (panel.current && rendererState.value[id]) panel.current.removeChild(rendererState.value[id].domElement)
     }
   }, [panel.current, state])
 
   return { state, resize }
 }
 
-const inputQuery = defineQuery([InputSourceComponent])
 export const render3DPanelSystem = defineSystem({
   uuid: 'ee.client.render3DPanelSystem',
   insert: { with: PresentationSystemGroup },
