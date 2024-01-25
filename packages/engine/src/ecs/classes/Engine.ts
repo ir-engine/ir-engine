@@ -35,10 +35,11 @@ import type { FeathersApplication } from '@feathersjs/feathers'
 
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { getAllEntities } from 'bitecs'
 import { Group, Scene } from 'three'
 import { Timer } from '../../common/functions/Timer'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { removeEntity } from '../functions/EntityFunctions'
 import { removeQuery } from '../functions/QueryFunctions'
 import { EngineState } from './EngineState'
@@ -92,7 +93,7 @@ export class Engine {
    * The local client entity
    */
   get localClientEntity() {
-    return NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
+    return UUIDComponent.getEntityByUUID(Engine.instance.userID as any as EntityUUID)
   }
 
   entityQuery = () => getAllEntities(HyperFlux.store) as Entity[]

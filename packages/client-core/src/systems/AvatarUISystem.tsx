@@ -77,7 +77,7 @@ export const AvatarMenus = {
 }
 
 export const renderAvatarContextMenu = (userId: UserID, contextMenuEntity: Entity) => {
-  const userEntity = NetworkObjectComponent.getUserAvatarEntity(userId)
+  const userEntity = AvatarComponent.getUserAvatarEntity(userId)
   if (!userEntity) return
 
   const contextMenuXRUI = getComponent(contextMenuEntity, XRUIComponent)

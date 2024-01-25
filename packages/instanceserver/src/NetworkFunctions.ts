@@ -58,7 +58,7 @@ import {
   userKickPath,
   UserType
 } from '@etherealengine/common/src/schema.type.module'
-import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
+import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { MediasoupTransportState } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
@@ -269,7 +269,7 @@ const getUserSpawnFromInvite = async (
           bothOnSameInstance = true
       }
       if (bothOnSameInstance) {
-        const selfAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(user.id as UserID)
+        const selfAvatarEntity = AvatarComponent.getUserAvatarEntity(user.id as UserID)
         if (!selfAvatarEntity) {
           if (iteration >= 100) {
             logger.warn(
@@ -280,7 +280,7 @@ const getUserSpawnFromInvite = async (
           return setTimeout(() => getUserSpawnFromInvite(network, user, inviteCode, iteration + 1), 50)
         }
         const inviterUserId = inviterUser.id
-        const inviterUserAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(inviterUserId as UserID)
+        const inviterUserAvatarEntity = AvatarComponent.getUserAvatarEntity(inviterUserId as UserID)
         if (!inviterUserAvatarEntity) {
           if (iteration >= 100) {
             logger.warn(

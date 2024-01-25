@@ -38,7 +38,7 @@ const compareDistance = (a: NearbyUser, b: NearbyUser) => a.distance - b.distanc
 const remoteAvatars = defineQuery([NetworkObjectComponent, AvatarComponent, TransformComponent])
 
 export function getNearbyUsers(userId: UserID, nonChannelUserIds: UserID[]): Array<UserID> {
-  const userAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(userId)
+  const userAvatarEntity = AvatarComponent.getUserAvatarEntity(userId)
   if (!userAvatarEntity) return []
   const userPosition = getComponent(userAvatarEntity, TransformComponent).position
   if (!userPosition) return []

@@ -23,12 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { useEffect } from 'react'
 import { Box3, SkinnedMesh, Vector3 } from 'three'
 import { matches } from '../../common/functions/MatchesUtils'
-import { defineComponent, getOptionalComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  getOptionalComponent,
+  useComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { SkinnedMeshComponent } from './SkinnedMeshComponent'
 
@@ -105,5 +113,16 @@ export const AvatarComponent = defineComponent({
     }, [entityTreeComponent.children])
 
     return null
+  },
+
+  /**
+   * Get the user avatar entity (the network object w/ an Avatar component)
+   * @param userId
+   * @returns
+   */
+  getUserAvatarEntity(userId: UserID) {
+    return avatarNetworkObjectQuery().find((eid) => getComponent(eid, NetworkObjectComponent).ownerId === userId)!
   }
 })
+
+const avatarNetworkObjectQuery = defineQuery([NetworkObjectComponent, AvatarComponent])

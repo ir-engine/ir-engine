@@ -66,7 +66,6 @@ import {
   userPath
 } from '@etherealengine/common/src/schema.type.module'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
-import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import {
   addDataChannelHandler,
@@ -76,6 +75,7 @@ import {
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import matches, { Validator } from 'ts-matches'
+import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { checkScope } from '../common/functions/checkScope'
 import { isClient } from '../common/functions/getEnvironment'
 import { matchesUserId } from '../common/functions/MatchesUtils'
@@ -415,7 +415,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
 
     activeRecording.serializer = ECSSerialization.createSerializer({
       entities: () => {
-        return [NetworkObjectComponent.getUserAvatarEntity(userID)]
+        return [AvatarComponent.getUserAvatarEntity(userID)]
       },
       schema: serializationSchema,
       chunkLength,

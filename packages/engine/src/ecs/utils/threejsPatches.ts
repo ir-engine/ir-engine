@@ -24,22 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import * as THREE from 'three'
-import {
-  BufferGeometry,
-  Euler,
-  Matrix4,
-  Mesh,
-  Object3D,
-  Quaternion,
-  Scene,
-  SkinnedMesh,
-  Vector2,
-  Vector3,
-  Vector4
-} from 'three'
-import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
+import { Euler, Matrix4, Object3D, Quaternion, Scene, SkinnedMesh, Vector2, Vector3, Vector4 } from 'three'
 
-import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
 import { Entity } from '../classes/Entity'
 
@@ -130,10 +116,6 @@ Quaternion.prototype.fastSlerp = fastSlerp
 Euler.prototype.toJSON = function () {
   return { x: this._x, y: this._y, z: this._z, order: this._order }
 }
-
-Mesh.prototype.raycast = acceleratedRaycast
-BufferGeometry.prototype['disposeBoundsTree'] = disposeBoundsTree
-BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
 
 declare module 'three/src/core/Object3D' {
   export interface Object3D {
@@ -229,4 +211,4 @@ SkinnedMesh.prototype.applyBoneTransform = function (index, vector) {
   return vector.applyMatrix4(this.bindMatrixInverse)
 }
 
-globalThis.THREE = { ...THREE, GLTFLoader } as any
+globalThis.THREE = { ...THREE } as any

@@ -31,8 +31,8 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { InstancedMesh, LineBasicMaterial, Mesh, Object3D, SkinnedMesh } from 'three'
-import { MeshBVHVisualizer } from 'three-mesh-bvh'
+import { BufferGeometry, InstancedMesh, LineBasicMaterial, Mesh, Object3D, SkinnedMesh } from 'three'
+import { MeshBVHVisualizer, acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -42,6 +42,10 @@ import { MeshComponent } from './MeshComponent'
 import { ModelComponent } from './ModelComponent'
 import { ObjectLayerMaskComponent } from './ObjectLayerComponent'
 import { VisibleComponent } from './VisibleComponent'
+
+Mesh.prototype.raycast = acceleratedRaycast
+BufferGeometry.prototype['disposeBoundsTree'] = disposeBoundsTree
+BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
 
 const edgeMaterial = new LineBasicMaterial({
   color: 0x00ff88,

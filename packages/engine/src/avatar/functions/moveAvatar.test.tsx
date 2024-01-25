@@ -38,7 +38,6 @@ import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { SystemDefinitions } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
 import { EntityNetworkStateSystem } from '../../networking/NetworkModule'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { PhysicsState } from '../../physics/state/PhysicsState'
@@ -49,6 +48,7 @@ import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 
 import { act, render } from '@testing-library/react'
 import React from 'react'
+import { AvatarComponent } from '../components/AvatarComponent'
 
 describe('moveAvatar function tests', () => {
   beforeEach(async () => {
@@ -101,7 +101,7 @@ describe('moveAvatar function tests', () => {
     await act(() => rerender(tag))
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
-    const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
+    const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
 
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
     const avatar = getComponent(entity, AvatarControllerComponent)
@@ -139,7 +139,7 @@ describe('moveAvatar function tests', () => {
     await act(() => rerender(tag))
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
-    const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
+    const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
 
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
 
@@ -179,7 +179,7 @@ describe('moveAvatar function tests', () => {
     await act(() => rerender(tag))
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
-    const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
+    const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
 
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
 
@@ -216,7 +216,7 @@ describe('moveAvatar function tests', () => {
     await act(() => rerender(tag))
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
-    const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
+    const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
 
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
 
