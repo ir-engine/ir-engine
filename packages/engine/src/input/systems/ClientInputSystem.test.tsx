@@ -80,7 +80,7 @@ describe('addClientInputListeners', () => {
     globalThis.document.removeEventListener = mockDocEvents.removeEventListener as any
     globalThis.window.addEventListener = mockWinEvents.addEventListener as any
     globalThis.window.removeEventListener = mockWinEvents.removeEventListener as any
-    globalThis.navigator = new MockNavigator() as any
+    Object.defineProperty(globalThis, 'navigator', { value: new MockNavigator() as any })
     globalThis.ReferenceSpace.origin = new MockXRReferenceSpace()
   })
 
@@ -89,7 +89,7 @@ describe('addClientInputListeners', () => {
     globalThis.document.removeEventListener = documentRemoveEvent
     globalThis.window.addEventListener = windowAddEvent
     globalThis.window.removeEventListener = windowRemoveEvent
-    globalThis.navigator = navigatorCopy
+    Object.defineProperty(globalThis, 'navigator', { value: navigatorCopy })
   })
 
   beforeEach(() => {
