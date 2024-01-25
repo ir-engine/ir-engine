@@ -43,12 +43,13 @@ import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectL
 import { SnapMode, TransformPivot } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { Euler, Object3D } from 'three'
 import { degToRad } from 'three/src/math/MathUtils'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { EditorHelperState } from '../services/EditorHelperState'
+import { ObjectGridSnapState } from '../systems/ObjectGridSnapSystem'
 
 export const TransformGizmoComponent = defineComponent({
   name: 'TransformGizmo',
@@ -79,7 +80,12 @@ export const TransformGizmoComponent = defineComponent({
           [new Euler().setFromQuaternion(transformComponent.value.rotation)]
         )
         EditorControlFunctions.scaleObject([entity], [transformComponent.value.scale], true)
-        EditorControlFunctions.commitTransformSave([entity])
+        //check for snap modes
+        if (!getState(ObjectGridSnapState).enabled) {
+          EditorControlFunctions.commitTransformSave([entity])
+        } else {
+          getMutableState(ObjectGridSnapState).apply.set(true)
+        }
       })
 
       const dummy = new Object3D()
@@ -137,7 +143,7 @@ export const TransformGizmoComponent = defineComponent({
     }, [editorHelperState.transformSpace])
 
     useEffect(() => {
-      switch (editorHelperState.snapMode.value) {
+      switch (editorHelperState.gridSnap.value) {
         case SnapMode.Disabled: // continous update
           gizmoComponent.value.setTranslationSnap(null)
           gizmoComponent.value.setRotationSnap(null)
@@ -149,23 +155,23 @@ export const TransformGizmoComponent = defineComponent({
           gizmoComponent.value.setScaleSnap(editorHelperState.scaleSnap.value)
           break
       }
-    }, [editorHelperState.snapMode])
+    }, [editorHelperState.gridSnap])
 
     useEffect(() => {
       gizmoComponent.value.setTranslationSnap(
-        editorHelperState.snapMode.value === SnapMode.Grid ? editorHelperState.translationSnap.value : null
+        editorHelperState.gridSnap.value === SnapMode.Grid ? editorHelperState.translationSnap.value : null
       )
     }, [editorHelperState.translationSnap])
 
     useEffect(() => {
       gizmoComponent.value.setRotationSnap(
-        editorHelperState.snapMode.value === SnapMode.Grid ? degToRad(editorHelperState.rotationSnap.value) : null
+        editorHelperState.gridSnap.value === SnapMode.Grid ? degToRad(editorHelperState.rotationSnap.value) : null
       )
     }, [editorHelperState.rotationSnap])
 
     useEffect(() => {
       gizmoComponent.value.setScaleSnap(
-        editorHelperState.snapMode.value === SnapMode.Grid ? editorHelperState.scaleSnap.value : null
+        editorHelperState.gridSnap.value === SnapMode.Grid ? editorHelperState.scaleSnap.value : null
       )
     }, [editorHelperState.scaleSnap])
 

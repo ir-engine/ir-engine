@@ -1,4 +1,11 @@
-@import '@etherealengine/client-core/src/styles/imports.module.scss';
+@mixin paper-modal() {
+  padding: 24px 32px;
+  box-shadow:
+    0 3px 5px -1px rgb(0 0 0 / 20%),
+    0 5px 8px 0 rgb(0 0 0 / 14%),
+    0 1px 14px 0 rgb(0 0 0 / 12%);
+  background-color: #fff;
+}
 
 .defaultFont {
   font-family: var(--lato);

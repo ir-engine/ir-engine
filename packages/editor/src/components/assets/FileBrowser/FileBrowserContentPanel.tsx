@@ -66,6 +66,7 @@ import {
   fileBrowserUploadPath,
   staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
+import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
@@ -79,8 +80,9 @@ import { unique } from '../../../functions/utils'
 import StringInput from '../../inputs/StringInput'
 import { ToolButton } from '../../toolbar/ToolButton'
 import { AssetSelectionChangePropsType } from '../AssetsPreviewPanel'
-import CompressionPanel from '../CompressionPanel'
+import ImageCompressionPanel from '../ImageCompressionPanel'
 import ImageConvertPanel from '../ImageConvertPanel'
+import ModelCompressionPanel from '../ModelCompressionPanel'
 import styles from '../styles.module.scss'
 import { FileBrowserItem, FileTableWrapper } from './FileBrowserGrid'
 import { availableTableColumns, FilesViewModeSettings, FilesViewModeState } from './FileBrowserState'
@@ -102,6 +104,15 @@ type DnDFileType = {
 
 export function isFileBrowserContentType(value: any): value is FileBrowserContentType {
   return value && value.key
+}
+
+const fileConsistsOfContentType = function (file: FileBrowserContentType, contentType: string): boolean {
+  if (isFolder(file)) {
+    return contentType.startsWith('image')
+  } else {
+    const guessedType: string = CommonKnownContentTypes[file.type]
+    return guessedType?.startsWith(contentType)
+  }
 }
 
 /**
@@ -622,8 +633,16 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         />
       )}
 
-      {openCompress.value && fileProperties.value && (
-        <CompressionPanel
+      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'model') && (
+        <ModelCompressionPanel
+          openCompress={openCompress}
+          fileProperties={fileProperties as any}
+          onRefreshDirectory={refreshDirectory}
+        />
+      )}
+
+      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'image') && (
+        <ImageCompressionPanel
           openCompress={openCompress}
           fileProperties={fileProperties as any}
           onRefreshDirectory={refreshDirectory}

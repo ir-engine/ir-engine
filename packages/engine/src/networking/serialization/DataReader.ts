@@ -212,12 +212,12 @@ export const readEntity = (
   serializationSchema: SerializationSchema[]
 ) => {
   const netId = readUint32(v) as NetworkId
-  const ownerIndex = readUint32(v) as NetworkId
+  const ownerPeerIndex = readUint32(v) as NetworkId
   const changeMask = readUint8(v)
 
-  const ownerId = network.userIndexToUserID[ownerIndex]!
+  const ownerPeer = network.peerIndexToPeerID[ownerPeerIndex]!
 
-  let entity = NetworkObjectComponent.getNetworkObject(ownerId, netId)
+  let entity = NetworkObjectComponent.getNetworkObject(ownerPeer, netId)
   if (entity && hasComponent(entity, NetworkObjectAuthorityTag)) entity = UndefinedEntity
 
   let b = 0

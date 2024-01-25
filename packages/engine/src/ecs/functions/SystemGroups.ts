@@ -23,12 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MediasoupDataProducerConsumerStateSystem } from './MediasoupDataProducerConsumerState'
-import { MediasoupMediaProducerConsumerStateSystem } from './MediasoupMediaProducerConsumerState'
-import { MediasoupTransportStateSystem } from './MediasoupTransportState'
+import { defineSystem } from './SystemFunctions'
 
-export {
-  MediasoupDataProducerConsumerStateSystem,
-  MediasoupMediaProducerConsumerStateSystem,
-  MediasoupTransportStateSystem
-}
+export const InputSystemGroup = defineSystem({
+  uuid: 'ee.engine.input-group',
+  insert: {}
+})
+
+/** Run inside of fixed pipeline */
+export const SimulationSystemGroup = defineSystem({
+  uuid: 'ee.engine.simulation-group',
+  timeStep: 1 / 60,
+  insert: {}
+})
+
+export const AnimationSystemGroup = defineSystem({
+  uuid: 'ee.engine.animation-group',
+  insert: {}
+})
+
+export const PresentationSystemGroup = defineSystem({
+  uuid: 'ee.engine.presentation-group',
+  insert: {}
+})
+
+export const DefaultSystemPipeline = [
+  InputSystemGroup,
+  SimulationSystemGroup,
+  AnimationSystemGroup,
+  PresentationSystemGroup
+]
