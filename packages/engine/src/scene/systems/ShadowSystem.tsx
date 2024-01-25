@@ -50,7 +50,7 @@ import {
   setComponent,
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { QueryReactor, defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
@@ -61,7 +61,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'
 import { CSMHelper } from '../../assets/csm/CSMHelper'
 import { V_001 } from '../../common/constants/MathConstants'
-import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
+import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../common/functions/PriorityQueue'
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer, RenderSettingsState } from '../../renderer/WebGLRendererSystem'
 import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
@@ -336,7 +336,7 @@ const sortedEntityTransforms = [] as Entity[]
 const cameraLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Camera], MeshComponent])
 
 const updateDropShadowTransforms = () => {
-  const { deltaSeconds } = getState(EngineState)
+  const { deltaSeconds } = getState(ECSState)
   const { priorityQueue } = getState(ShadowSystemState)
 
   sortAndApplyPriorityQueue(priorityQueue, sortedEntityTransforms, deltaSeconds)

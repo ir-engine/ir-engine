@@ -22,3 +22,21 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+
+import { defineState } from '@etherealengine/hyperflux'
+
+// TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
+export const EngineState = defineState({
+  name: 'EngineState',
+  initial: {
+    userReady: false,
+    /**
+     * An empty share link will default to the current URL, plus any modifiers (such as spectate mode)
+     */
+    publicPath: '',
+    isBot: false,
+    /** @deprecated use isEditing instead */
+    isEditor: false,
+    isEditing: false
+  }
+})

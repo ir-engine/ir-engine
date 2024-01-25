@@ -28,9 +28,9 @@ import { useTranslation } from 'react-i18next'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 
 import VideocamIcon from '@mui/icons-material/Videocam'

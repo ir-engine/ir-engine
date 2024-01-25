@@ -29,10 +29,10 @@ import {
   hasComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'

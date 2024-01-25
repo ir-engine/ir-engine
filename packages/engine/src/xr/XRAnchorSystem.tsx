@@ -47,8 +47,8 @@ import {
   setComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
@@ -159,7 +159,7 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
 
   if (!transform || !xrFrame || !xrSession) return
 
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
   const lerpAlpha = smootheLerpAlpha(5, deltaSeconds)
 
   const sceneScaleAutoMode = xrState.sceneScaleAutoMode

@@ -28,7 +28,7 @@ import { defineState, getMutableState, none, useHookstate } from '@etherealengin
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import React, { useEffect } from 'react'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { NameComponent } from '../../scene/components/NameComponent'

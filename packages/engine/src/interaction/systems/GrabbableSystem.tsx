@@ -48,14 +48,15 @@ import {
   setComponent,
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
@@ -256,7 +257,7 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
       transition.setState('OUT')
     }
   }
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
   transition.update(deltaSeconds, (opacity) => {
     if (opacity === 0) {
       removeComponent(xrui.entity, VisibleComponent)

@@ -33,9 +33,9 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
-import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import {
   HyperFlux,
@@ -54,6 +54,7 @@ import { JSONTree } from 'react-json-tree'
 import { defineQuery, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { getAllEntities } from 'bitecs'
 import styles from './styles.module.scss'
 
 const renderEntityTreeRoots = () => {
@@ -115,7 +116,7 @@ const getQueryFromString = (queryString: string) => {
 }
 
 const renderAllEntities = (filter: string, queryString: string) => {
-  const entities = queryString ? getQueryFromString(queryString) : Engine.instance.entityQuery()
+  const entities = queryString ? getQueryFromString(queryString) : (getAllEntities(HyperFlux.store) as Entity[])
   return {
     ...Object.fromEntries(
       [...entities.entries()]

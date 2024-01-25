@@ -23,30 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
+import { defineState } from '@etherealengine/hyperflux'
 
-import updateKeyVal from '../../../src/common/functions/updateKeyVal'
-
-describe('updateKeyVal', () => {
-  it('works', () => {
-    const map = new Map<string, number>()
-
-    const add = updateKeyVal(
-      map.get.bind(map),
-      // @ts-ignore
-      map.set.bind(map),
-      (value: number, addend: number) => {
-        return value + addend
-      },
-      0
-    )
-
-    add('beer', 2)
-    add('beer', 3)
-    add('hotdog', 7)
-    add('hotdog', -2)
-
-    assert(map.get('beer') === 5)
-    assert(map.get('hotdog') === 5)
-  })
+export const ECSState = defineState({
+  name: 'ECSState',
+  initial: {
+    simulationTimestep: 1000 / 60,
+    frameTime: Date.now(),
+    simulationTime: Date.now(),
+    deltaSeconds: 0,
+    elapsedSeconds: 0
+  }
 })

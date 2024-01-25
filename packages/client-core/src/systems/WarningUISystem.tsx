@@ -28,8 +28,8 @@ import { useTranslation } from 'react-i18next'
 import { MeshBasicMaterial } from 'three'
 
 import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
@@ -182,7 +182,7 @@ const execute = () => {
   const state = getState(WarningUIState)
   const { transition, ui } = getState(WarningUISystemState)
 
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
 
   if (state.timeRemaining > 0) {
     accumulator += deltaSeconds

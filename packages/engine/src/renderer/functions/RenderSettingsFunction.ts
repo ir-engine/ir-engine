@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { iOS } from '../../common/functions/isMobile'
 import { RendererState } from '../../renderer/RendererState'
 import { DirectionalLightComponent } from '../../scene/components/DirectionalLightComponent'

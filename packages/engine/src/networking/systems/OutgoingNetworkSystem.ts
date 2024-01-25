@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkState } from '../NetworkState'
 import { Network } from '../classes/Network'

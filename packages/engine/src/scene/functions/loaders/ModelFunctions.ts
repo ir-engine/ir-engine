@@ -29,7 +29,7 @@ import { Material, Texture } from 'three'
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { getComponent, getOptionalComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import {
   GeometryTransformParameters,

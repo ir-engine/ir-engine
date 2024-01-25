@@ -29,10 +29,10 @@ import React from 'react'
 
 import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { createEngine } from '../../../../src/initializeEngine'
-import { InputComponent } from '../../../../src/input/components/InputComponent'
-import { HighlightComponent } from '../../../../src/renderer/components/HighlightComponent'
-import { loadEmptyScene } from '../../../util/loadEmptyScene'
+import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
+import { createEngine } from '../../initializeEngine'
+import { HighlightComponent } from '../../renderer/components/HighlightComponent'
+import { InputComponent } from './InputComponent'
 
 describe('InputComponent', () => {
   beforeEach(() => {

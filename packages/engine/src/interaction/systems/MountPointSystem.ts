@@ -36,11 +36,11 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { useEffect } from 'react'
 import { emoteAnimations, preloadedAnimations } from '../../avatar/animation/Util'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'

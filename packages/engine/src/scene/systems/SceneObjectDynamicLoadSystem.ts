@@ -26,10 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import { getState } from '@etherealengine/hyperflux'
 
 import { getComponent, getMutableComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { isMobile } from '../../common/functions/isMobile'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
@@ -45,7 +46,7 @@ const execute = () => {
   const engineState = getState(EngineState)
   if (engineState.isEditor) return
 
-  accumulator += engineState.deltaSeconds
+  accumulator += getState(ECSState).deltaSeconds
 
   if (accumulator < 1) {
     return

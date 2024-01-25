@@ -28,7 +28,7 @@ Ethereal Engine. All Rights Reserved.
 import logger from '@etherealengine/common/src/logger'
 import { HyperFlux, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { EngineState } from './EngineState'
+import { ECSState } from './ECSState'
 import { SystemUUID, executeSystem } from './SystemFunctions'
 import { AnimationSystemGroup, InputSystemGroup, PresentationSystemGroup, SimulationSystemGroup } from './SystemGroups'
 import { nowMilliseconds } from './Timer'
@@ -43,17 +43,17 @@ const TimerConfig = {
  * @param elapsedTime the current frame time in milliseconds (DOMHighResTimeStamp) relative to performance.timeOrigin
  */
 export const executeSystems = (elapsedTime: number) => {
-  const engineState = getMutableState(EngineState)
-  engineState.frameTime.set(performance.timeOrigin + elapsedTime)
+  const ecsState = getMutableState(ECSState)
+  ecsState.frameTime.set(performance.timeOrigin + elapsedTime)
 
   const start = nowMilliseconds()
   const incomingActions = [...HyperFlux.store.actions.incoming]
 
   const elapsedSeconds = elapsedTime / 1000
-  engineState.deltaSeconds.set(
-    Math.max(0.001, Math.min(TimerConfig.MAX_DELTA_SECONDS, elapsedSeconds - engineState.elapsedSeconds.value))
+  ecsState.deltaSeconds.set(
+    Math.max(0.001, Math.min(TimerConfig.MAX_DELTA_SECONDS, elapsedSeconds - ecsState.elapsedSeconds.value))
   )
-  engineState.elapsedSeconds.set(elapsedSeconds)
+  ecsState.elapsedSeconds.set(elapsedSeconds)
 
   executeSystem(InputSystemGroup)
   executeFixedSystem(SimulationSystemGroup)
@@ -74,8 +74,8 @@ export const executeFixedSystem = (systemUUID: SystemUUID) => {
   const start = nowMilliseconds()
   let timeUsed = 0
 
-  const engineState = getMutableState(EngineState)
-  const { frameTime, simulationTime, simulationTimestep } = getState(EngineState)
+  const ecsState = getMutableState(ECSState)
+  const { frameTime, simulationTime, simulationTimestep } = getState(ECSState)
 
   let simulationDelay = frameTime - simulationTime
 
@@ -86,7 +86,7 @@ export const executeFixedSystem = (systemUUID: SystemUUID) => {
   const maxSimulationDelay = 5000 // 5 seconds
 
   if (simulationDelay < simulationTimestep) {
-    engineState.simulationTime.set(Math.floor(frameTime / simulationTimestep) * simulationTimestep)
+    ecsState.simulationTime.set(Math.floor(frameTime / simulationTimestep) * simulationTimestep)
     // simulation time is already up-to-date with frame time, so do nothing
     return
   }
@@ -95,9 +95,7 @@ export const executeFixedSystem = (systemUUID: SystemUUID) => {
   let updatesLimitReached = false
 
   while (simulationDelay > simulationTimestep && !timeout && !updatesLimitReached) {
-    engineState.simulationTime.set(
-      (t) => Math.floor((t + simulationTimestep) / simulationTimestep) * simulationTimestep
-    )
+    ecsState.simulationTime.set((t) => Math.floor((t + simulationTimestep) / simulationTimestep) * simulationTimestep)
 
     executeSystem(systemUUID)
 
@@ -107,7 +105,7 @@ export const executeFixedSystem = (systemUUID: SystemUUID) => {
 
     if (simulationDelay >= maxSimulationDelay) {
       // fast-forward if the simulation is too far behind
-      engineState.simulationTime.set((t) => Math.floor(frameTime / simulationTimestep) * simulationTimestep)
+      ecsState.simulationTime.set((t) => Math.floor(frameTime / simulationTimestep) * simulationTimestep)
       break
     }
   }

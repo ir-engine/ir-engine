@@ -33,10 +33,10 @@ import {
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, useState } from '@etherealengine/hyperflux'

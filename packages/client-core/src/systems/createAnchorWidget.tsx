@@ -39,7 +39,7 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { AvatarInputSettingsState } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { InputComponent } from '@etherealengine/engine/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
@@ -83,7 +83,7 @@ export function createAnchorWidget() {
           return
         }
 
-        const { deltaSeconds } = getState(EngineState)
+        const { deltaSeconds } = getState(ECSState)
 
         const xAxisInput = inputComponent.source.gamepad.axes[XRStandardGamepadAxes.ThumbstickX]
         const yAxisInput = inputComponent.source.gamepad.axes[XRStandardGamepadAxes.ThumbstickY]

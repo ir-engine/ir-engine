@@ -13,7 +13,12 @@
   "repository": "http://github.com/etherealengine/etherealengine",
   "author": "Ethereal Engine",
   "license": "CPAL",
-  "dependencies": {},
+  "dependencies": {
+    "@etherealengine/common": "1.6.0",
+    "@etherealengine/hyperflux": "1.6.0",
+    "bitecs": "0.3.40",
+    "three": "0.158.0"
+  },
   "devDependencies": {
     "@types/mocha": "10.0.1",
     "@types/node": "18.15.5",

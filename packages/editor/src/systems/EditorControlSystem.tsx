@@ -45,7 +45,7 @@ import { TransformMode } from '@etherealengine/engine/src/scene/constants/transf
 import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
@@ -232,7 +232,7 @@ const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
 
 const execute = () => {
   if (Engine.instance.localClientEntity) return // we are in live mode
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
 
   const editorHelperState = getState(EditorHelperState)
   const selectionState = getMutableState(SelectionState)

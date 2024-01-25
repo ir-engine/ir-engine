@@ -25,14 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { ParticleState } from '../components/ParticleSystemComponent'
 import { SceneObjectSystem } from './SceneObjectSystem'
 
 const execute = () => {
   const batchRenderer = getState(ParticleState).batchRenderer
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
   batchRenderer.update(deltaSeconds)
 }
 

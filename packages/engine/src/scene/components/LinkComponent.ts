@@ -34,12 +34,13 @@ import {
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { MathUtils, MeshBasicMaterial, Vector3 } from 'three'
@@ -104,7 +105,7 @@ const onLinkInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInte
     transition.setState('OUT')
   }
 
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
   transition.update(deltaSeconds, (opacity) => {
     if (opacity === 0) {
       removeComponent(xrui.entity, VisibleComponent)

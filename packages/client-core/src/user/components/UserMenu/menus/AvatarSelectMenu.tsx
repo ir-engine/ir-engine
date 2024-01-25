@@ -42,7 +42,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { AvatarID, avatarPath } from '@etherealengine/common/src/schema.type.module'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { AvatarState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { debounce } from 'lodash'

@@ -36,7 +36,7 @@ import { VolumetricFileTypes } from '@etherealengine/engine/src/assets/constants
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { UVOL1Component } from '@etherealengine/engine/src/scene/components/UVOL1Component'
 import { UVOL2Component } from '@etherealengine/engine/src/scene/components/UVOL2Component'
@@ -344,7 +344,7 @@ function VolumetricCurrentTimeScrubber(props: { entity: Entity }) {
         onChange={(value) => {
           const uvol2Component = getOptionalMutableComponent(props.entity, UVOL2Component)
           if (uvol2Component) {
-            const engineState = getState(EngineState)
+            const engineState = getState(ECSState)
             UVOL2Component.setStartAndPlaybackTime(props.entity, value, engineState.elapsedSeconds)
           }
         }}

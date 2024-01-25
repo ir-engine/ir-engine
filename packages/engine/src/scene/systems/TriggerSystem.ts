@@ -27,7 +27,7 @@ import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/Comp
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { PhysicsSystem } from '../../physics/systems/PhysicsSystem'
 import { ColliderHitEvent, CollisionEvents } from '../../physics/types/PhysicsTypes'

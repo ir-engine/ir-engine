@@ -47,8 +47,8 @@ import {
 import { getState } from '@etherealengine/hyperflux'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { iOS } from '../../common/functions/isMobile'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'

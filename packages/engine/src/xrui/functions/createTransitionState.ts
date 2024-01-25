@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -72,7 +72,7 @@ export const useAnimationTransition = (
 
   useExecute(
     () => {
-      const deltaSeconds = getState(EngineState).deltaSeconds
+      const deltaSeconds = getState(ECSState).deltaSeconds
       state.get(NO_PROXY).update(deltaSeconds, onTransition)
     },
     { with: AnimationSystemGroup }

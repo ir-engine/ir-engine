@@ -27,8 +27,8 @@ import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import * as THREE from 'three'
 import { Euler, Matrix4, Object3D, Quaternion, Scene, SkinnedMesh, Vector2, Vector3, Vector4 } from 'three'
 
-import { Entity } from './Entity'
-import { Object3DUtils } from './Object3DUtils'
+import { Object3DUtils } from '@etherealengine/common/src/utils/Object3DUtils'
+import { Entity } from '@etherealengine/ecs'
 
 //@ts-ignore
 Vector3.prototype.toJSON = function () {

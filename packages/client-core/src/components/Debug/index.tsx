@@ -28,7 +28,6 @@ import { useTranslation } from 'react-i18next'
 
 import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { AvatarControllerComponent } from '@etherealengine/engine/src/avatar/components/AvatarControllerComponent'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
 
@@ -36,6 +35,7 @@ import { RendererState } from '@etherealengine/engine/src/renderer/RendererState
 import { defineState, getMutableState, syncStateWithLocalStorage, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { EntityDebug } from './EntityDebug'
 import { StateDebug } from './StateDebug'
 import { StatsPanel } from './StatsPanel'
@@ -59,7 +59,7 @@ export const DebugTabs = {
 }
 
 export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefObject<boolean> }) => {
-  useHookstate(getMutableState(EngineState).frameTime).value
+  useHookstate(getMutableState(ECSState).frameTime).value
   const rendererState = useHookstate(getMutableState(RendererState))
   const activeTab = useHookstate(getMutableState(DebugState).activeTab)
 

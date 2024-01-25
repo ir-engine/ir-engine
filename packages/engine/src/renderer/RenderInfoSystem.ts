@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { EngineRenderer, WebGLRendererSystem } from './WebGLRendererSystem'
 
@@ -52,7 +52,7 @@ const execute = () => {
   const state = getState(RenderInfoState)
   if (state.visible) {
     const info = EngineRenderer.instance.renderer.info
-    const deltaSeconds = getState(EngineState).deltaSeconds
+    const deltaSeconds = getState(ECSState).deltaSeconds
 
     const fps = 1 / deltaSeconds
     const frameTime = deltaSeconds * 1000

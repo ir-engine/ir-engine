@@ -28,7 +28,7 @@ import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { checkBitflag } from '../networking/serialization/DataReader'
 import { SerializationSchema } from '../networking/serialization/Utils'
 import {

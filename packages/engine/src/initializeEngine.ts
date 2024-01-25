@@ -24,19 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { executeSystems } from '@etherealengine/ecs/src/EngineFunctions'
-import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { BoxGeometry, Mesh, MeshNormalMaterial, Vector3 } from 'three'
 import { CameraComponent } from './camera/components/CameraComponent'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 
 // core module
+import { createEntity, executeSystems, getComponent, setComponent } from '@etherealengine/ecs'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { Timer } from '@etherealengine/ecs/src/Timer'
-import '@etherealengine/engine/src/ecs/ECSModule'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { addObjectToGroup } from './scene/components/GroupComponent'
 import { NameComponent } from './scene/components/NameComponent'

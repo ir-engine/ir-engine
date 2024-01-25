@@ -42,8 +42,7 @@ export {
   matchesEntityUUID,
   matchesVector3,
   matchesQuaternion,
-  matchesActionFromUser,
-  matchesWithDefault
+  matchesActionFromUser
 }
 
 const matchesVec3Shape = matches.shape({
@@ -77,10 +76,4 @@ const matchesEntityUUID = matches.string as Validator<unknown, EntityUUID>
 
 const matchesActionFromUser = (userId: UserID) => {
   return matches.shape({ $from: matches.literal(userId) })
-}
-
-export type MatchesWithDefault<A> = { matches: Validator<unknown, A>; defaultValue: () => A }
-
-const matchesWithDefault = <A>(matches: Validator<unknown, A>, defaultValue: () => A): MatchesWithDefault<A> => {
-  return { matches, defaultValue }
 }

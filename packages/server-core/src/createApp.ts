@@ -40,7 +40,7 @@ import healthcheck from 'koa-simple-healthcheck'
 
 import { pipe } from '@etherealengine/common/src/utils/pipe'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { initializeNode } from '@etherealengine/engine/src/initializeNode'
 import { getMutableState } from '@etherealengine/hyperflux'

@@ -37,12 +37,13 @@ import {
   removeComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { getState } from '@etherealengine/hyperflux'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { FlyControlComponent } from '../../avatar/components/FlyControlComponent'
@@ -114,7 +115,7 @@ export const updateCameraTargetRotation = (cameraEntity: Entity) => {
     return
   }
 
-  const delta = getState(EngineState).deltaSeconds
+  const delta = getState(ECSState).deltaSeconds
   followCamera.phi = smoothDamp(followCamera.phi, target.phi, target.phiVelocity, target.time, delta)
   followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
 }
@@ -217,7 +218,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
 
   // Zoom smoothing
   let smoothingSpeed = isInsideWall ? 0.1 : 0.3
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
 
   followCamera.distance = smoothDamp(
     followCamera.distance,

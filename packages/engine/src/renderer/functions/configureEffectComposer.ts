@@ -44,7 +44,7 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
 import { ShaderPass } from 'postprocessing'
 import { CameraComponent } from '../../camera/components/CameraComponent'

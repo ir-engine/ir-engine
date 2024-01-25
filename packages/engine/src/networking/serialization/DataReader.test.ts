@@ -32,32 +32,32 @@ import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { roundNumberToPlaces } from '../../../tests/util/MathTestUtils'
+import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { createEngine } from '../../initializeEngine'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import {
+  TransformSerialization,
   readPosition,
   readRotation,
   readTransform,
-  TransformSerialization,
   writePosition,
   writeRotation,
   writeTransform
 } from '../../transform/TransformSerialization'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Network } from '../classes/Network'
 // import { XRHandBones } from '../../xr/XRHandBones'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { NetworkState } from '../NetworkState'
 import {
   NetworkObjectAuthorityTag,
   NetworkObjectComponent,
   NetworkObjectSendPeriodicUpdatesTag
 } from '../components/NetworkObjectComponent'
-import { NetworkState } from '../NetworkState'
 import {
   checkBitflag,
   readComponent,
@@ -889,7 +889,7 @@ describe('DataReader', () => {
 
     const peerID = 'peerID' as PeerID
     const network = NetworkState.worldNetwork as Network
-    const engineState = getMutableState(EngineState)
+    const engineState = getMutableState(ECSState)
     engineState.simulationTime.set(1)
 
     const n = 10
@@ -973,7 +973,7 @@ describe('DataReader', () => {
     const write = createDataWriter()
 
     const network = NetworkState.worldNetwork as Network
-    const engineState = getMutableState(EngineState)
+    const engineState = getMutableState(ECSState)
     engineState.simulationTime.set(1)
     const peerID = Engine.instance.store.peerID
 

@@ -40,7 +40,7 @@ import {
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { getComponent, getOptionalComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
@@ -164,7 +164,7 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
 const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
 
 const execute = () => {
-  const delta = getState(EngineState).deltaSeconds
+  const delta = getState(ECSState).deltaSeconds
   for (const entity of updatableQuery()) {
     const callbacks = getComponent(entity, CallbackComponent)
     callbacks.get(UpdatableCallback)?.(delta)

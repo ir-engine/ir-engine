@@ -35,7 +35,6 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
@@ -53,12 +52,13 @@ import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/Ob
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { InputComponent } from '@etherealengine/engine/src/input/components/InputComponent'
 import { addObjectToGroup, GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
@@ -231,7 +231,7 @@ const execute = () => {
   const { transition, ui, meshEntity, ready } = getState(LoadingUISystemState)
   if (!transition) return
 
-  const engineState = getState(EngineState)
+  const ecsState = getState(ECSState)
 
   if (transition.state === 'OUT' && transition.alpha === 0) {
     removeComponent(ui.entity, ComputedTransformComponent)
@@ -264,7 +264,7 @@ const execute = () => {
 
   mainThemeColor.set(ui.state.colors.alternate.value)
 
-  transition.update(engineState.deltaSeconds, (opacity) => {
+  transition.update(ecsState.deltaSeconds, (opacity) => {
     getMutableState(LoadingSystemState).loadingScreenOpacity.set(opacity)
   })
 

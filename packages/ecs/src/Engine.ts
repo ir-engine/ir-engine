@@ -29,15 +29,13 @@ import { createHyperStore, getState } from '@etherealengine/hyperflux'
 import { HyperFlux, HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 import * as bitECS from 'bitecs'
 
-import './threejsPatches'
-
 import type { FeathersApplication } from '@feathersjs/feathers'
 
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 
 import { getAllEntities } from 'bitecs'
 import { Group, Scene } from 'three'
-import { EngineState } from './EngineState'
+import { ECSState } from './ECSState'
 import { Entity, UndefinedEntity } from './Entity'
 import { removeEntity } from './EntityFunctions'
 import { removeQuery } from './QueryFunctions'
@@ -66,8 +64,8 @@ export class Engine {
 
   store = createHyperStore({
     getDispatchId: () => Engine.instance.userID,
-    getDispatchTime: () => getState(EngineState).simulationTime,
-    defaultDispatchDelay: () => getState(EngineState).simulationTimestep,
+    getDispatchTime: () => getState(ECSState).simulationTime,
+    defaultDispatchDelay: () => getState(ECSState).simulationTimestep,
     getCurrentReactorRoot: () => getState(SystemState).activeSystemReactors.get(getState(SystemState).currentSystemUUID)
   }) as HyperStore
 
@@ -115,7 +113,7 @@ export async function destroyEngine() {
   }
 
   /** Remove all entities */
-  const entities = Engine.instance.entityQuery()
+  const entities = getAllEntities(HyperFlux.store) as Entity[]
 
   const entityPromises = [] as Promise<void>[]
 

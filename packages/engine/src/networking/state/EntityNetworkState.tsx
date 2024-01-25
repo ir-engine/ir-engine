@@ -48,7 +48,7 @@ import { getOptionalComponent, setComponent } from '@etherealengine/ecs/src/Comp
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkState, SceneUser } from '../NetworkState'

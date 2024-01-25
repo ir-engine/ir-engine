@@ -30,8 +30,8 @@ import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { getComponent, getOptionalComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
@@ -255,7 +255,7 @@ const execute = () => {
   /**
    * Sort transforms if needed
    */
-  const engineState = getState(EngineState)
+  const ecsState = getState(ECSState)
   const xrFrame = getState(XRState).xrFrame
 
   let needsSorting = TransformComponent.transformsNeedSorting
@@ -292,8 +292,8 @@ const execute = () => {
   for (const entity of dirtyKinematicRigidbodyEntities) copyTransformToRigidBody(entity)
 
   // lerp awake clean rigidbody entities (and make their transforms dirty)
-  const simulationRemainder = engineState.frameTime - engineState.simulationTime
-  const alpha = Math.min(simulationRemainder / engineState.simulationTimestep, 1)
+  const simulationRemainder = ecsState.frameTime - ecsState.simulationTime
+  const alpha = Math.min(simulationRemainder / ecsState.simulationTimestep, 1)
   for (const entity of awakeCleanRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
 
   // entities with dirty parent or reference entities, or computed transforms, should also be dirty

@@ -27,7 +27,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { JSONTree } from 'react-json-tree'
 
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { System, SystemDefinitions, SystemUUID } from '@etherealengine/ecs/src/SystemFunctions'
 import {
   AnimationSystemGroup,
@@ -53,7 +53,7 @@ const convertSystemExecutionTimeToColor = (systemDuration: number, targetTimeste
 }
 
 export const SystemDebug = () => {
-  useHookstate(getMutableState(EngineState).frameTime).value
+  useHookstate(getMutableState(ECSState).frameTime).value
   const performanceProfilingEnabled = useHookstate(getMutableState(SystemState).performanceProfilingEnabled)
   const { t } = useTranslation()
 
@@ -78,7 +78,7 @@ export const SystemDebug = () => {
 export const SystemDagView = (props: { uuid: SystemUUID }) => {
   const { t } = useTranslation()
 
-  useHookstate(getMutableState(EngineState).frameTime).value
+  useHookstate(getMutableState(ECSState).frameTime).value
   const performanceProfilingEnabled = useHookstate(getMutableState(SystemState).performanceProfilingEnabled)
 
   return (
@@ -93,7 +93,7 @@ export const SystemDagView = (props: { uuid: SystemUUID }) => {
       valueRenderer={(raw, value, ...keyPath) => {
         const system = SystemDefinitions.get(keyPath[0] as SystemUUID)!
         const systemReactor = system ? getState(SystemState).activeSystemReactors.get(system.uuid) : undefined
-        const targetTimestep = getState(EngineState).simulationTimestep / 2
+        const targetTimestep = getState(ECSState).simulationTimestep / 2
 
         const renderSystemDuration = () => {
           if (typeof system.systemDuration === 'number') {

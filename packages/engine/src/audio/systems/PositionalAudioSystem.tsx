@@ -30,8 +30,8 @@ import { Vector3 } from 'three'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { ComponentType, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { createQueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
@@ -153,7 +153,7 @@ const execute = () => {
     avatarAudioStreams.set(networkObject, stream)
   }
 
-  const endTime = audioContext.currentTime + getState(EngineState).deltaSeconds
+  const endTime = audioContext.currentTime + getState(ECSState).deltaSeconds
 
   /**
    * Update panner nodes

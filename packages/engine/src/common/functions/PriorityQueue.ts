@@ -29,7 +29,7 @@ import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { Query } from '@etherealengine/ecs/src/QueryFunctions'
-import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../transform/components/DistanceComponents'
+import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 
 export const createPriorityQueue = (args: { accumulationBudget: number }) => {
   const accumulatingPriorities = new Map<

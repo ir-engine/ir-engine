@@ -44,8 +44,8 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 
 import { Mesh, MeshBasicMaterial } from 'three'
 
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getState } from '@etherealengine/hyperflux'
 import {
@@ -260,7 +260,7 @@ export function solveMotionCapturePose(
         continue
       }
       const visibility = ((newLandmarks[i].visibility ?? 0) + (prevLandmarks[i].visibility ?? 0)) / 2
-      const alpha = getState(EngineState).deltaSeconds * 15
+      const alpha = getState(ECSState).deltaSeconds * 15
       filteredLandmarks[i] = {
         visibility,
         x: MathUtils.lerp(prevLandmarks[i].x, newLandmarks[i].x, alpha),

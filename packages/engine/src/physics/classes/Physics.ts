@@ -58,8 +58,8 @@ import {
   removeComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { V_000 } from '../../common/constants/MathConstants'

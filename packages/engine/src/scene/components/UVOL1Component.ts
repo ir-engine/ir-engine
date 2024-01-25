@@ -33,10 +33,11 @@ import {
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { useEffect, useMemo, useRef } from 'react'
 import {
@@ -280,7 +281,7 @@ function UVOL1Reactor() {
       //do not execute if the cortoloader has not been initialized
       if (getState(AssetLoaderState).cortoLoader === null) return
 
-      const delta = getState(EngineState).deltaSeconds
+      const delta = getState(ECSState).deltaSeconds
 
       if (
         component.loadingEffectStarted.value &&

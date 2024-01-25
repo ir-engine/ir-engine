@@ -52,7 +52,7 @@ import {
 } from '@etherealengine/common/src/schema.type.module'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import {
   MediaStreamAppData,
   NetworkConnectionParams,

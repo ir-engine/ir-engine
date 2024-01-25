@@ -35,10 +35,10 @@ import {
   getOptionalComponent,
   hasComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
 import { V_000, V_010 } from '../../common/constants/MathConstants'
@@ -215,7 +215,7 @@ const walkPoint = new Vector3()
 
 const currentDirection = new Vector3()
 export const applyAutopilotInput = (entity: Entity) => {
-  const deltaSeconds = getState(EngineState).simulationTimestep / 1000
+  const deltaSeconds = getState(ECSState).simulationTimestep / 1000
 
   const markerState = getState(AutopilotMarker)
 
@@ -261,7 +261,7 @@ export const applyGamepadInput = (entity: Entity) => {
   if (!entity) return
 
   const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-  const deltaSeconds = getState(EngineState).simulationTimestep / 1000
+  const deltaSeconds = getState(ECSState).simulationTimestep / 1000
   const controller = getComponent(entity, AvatarControllerComponent)
 
   const avatarMovementSettings = getState(AvatarMovementSettingsState)
@@ -418,14 +418,14 @@ const _updateLocalAvatarRotationAttachedMode = (entity: Entity) => {
   }
   // for immersive and attached avatars, we don't want to interpolate the rigidbody in the transform system, so set
   // previous and current rotation to the target rotation
-  transform.rotation.slerp(avatarRotation, 5 * getState(EngineState).deltaSeconds)
+  transform.rotation.slerp(avatarRotation, 5 * getState(ECSState).deltaSeconds)
 }
 
 export const updateLocalAvatarRotation = (entity: Entity) => {
   if (getState(XRControlsState).isCameraAttachedToAvatar) {
     _updateLocalAvatarRotationAttachedMode(entity)
   } else {
-    const deltaSeconds = getState(EngineState).deltaSeconds
+    const deltaSeconds = getState(ECSState).deltaSeconds
     const alpha = smootheLerpAlpha(3, deltaSeconds)
     if (hasComponent(entity, AvatarHeadDecapComponent)) {
       _slerpBodyTowardsCameraDirection(entity, alpha)

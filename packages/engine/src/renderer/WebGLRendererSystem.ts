@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import '../threejsPatches'
+
 import { EffectComposer, NormalPass, RenderPass } from 'postprocessing'
 import { useEffect } from 'react'
 import {
@@ -40,10 +42,11 @@ import { defineState, getMutableState, getState, useHookstate } from '@ethereale
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
@@ -301,7 +304,7 @@ export const PostProcessingSettingsState = defineState({
 
 const execute = () => {
   if (!EngineRenderer.instance) return
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
   EngineRenderer.instance.execute(deltaSeconds)
 }
 

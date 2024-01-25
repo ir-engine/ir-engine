@@ -25,9 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { Not } from 'bitecs'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -54,8 +55,10 @@ function execute() {
   const engineState = getState(EngineState)
   if (!getState(SceneState).sceneLoaded || engineState.isEditing) return
 
-  if (engineState.elapsedSeconds - lastUpdate < updateFrequency) return
-  lastUpdate = engineState.elapsedSeconds
+  const ecsState = getState(ECSState)
+
+  if (ecsState.elapsedSeconds - lastUpdate < updateFrequency) return
+  lastUpdate = ecsState.elapsedSeconds
 
   for (const entity of modelVariantQuery()) {
     setModelVariant(entity)

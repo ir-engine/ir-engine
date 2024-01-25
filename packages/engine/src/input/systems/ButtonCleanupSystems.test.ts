@@ -29,11 +29,11 @@ import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
 import { NO_PROXY } from '@etherealengine/hyperflux'
 import assert from 'assert'
-import { createEngine } from '../../../../src/initializeEngine'
-import { InputSourceComponent } from '../../../../src/input/components/InputSourceComponent'
-import { ButtonCleanupSystem } from '../../../../src/input/systems/ButtonCleanupSystem'
-import { MockXRInputSource, MockXRSpace } from '../../../util/MockXR'
-import { loadEmptyScene } from '../../../util/loadEmptyScene'
+import { MockXRInputSource, MockXRSpace } from '../../../tests/util/MockXR'
+import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
+import { createEngine } from '../../initializeEngine'
+import { InputSourceComponent } from '../components/InputSourceComponent'
+import { ButtonCleanupSystem } from './ButtonCleanupSystem'
 
 describe('ButtonCleanupSystem', () => {
   let focusCopy

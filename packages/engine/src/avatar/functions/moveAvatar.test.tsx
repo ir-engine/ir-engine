@@ -32,7 +32,6 @@ import { applyIncomingActions, dispatchAction, getMutableState, getState } from 
 import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { EventDispatcher } from '../../common/classes/EventDispatcher'
@@ -46,6 +45,7 @@ import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { applyGamepadInput } from './moveAvatar'
 import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { act, render } from '@testing-library/react'
 import React from 'react'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -82,8 +82,8 @@ describe('moveAvatar function tests', () => {
   })
 
   it('should apply world.fixedDelta @ 60 tick to avatar movement, consistent with physics simulation', async () => {
-    const engineState = getMutableState(EngineState)
-    engineState.simulationTimestep.set(1000 / 60)
+    const ecsState = getMutableState(ECSState)
+    ecsState.simulationTimestep.set(1000 / 60)
 
     dispatchAction(
       AvatarNetworkAction.spawn({
@@ -120,8 +120,8 @@ describe('moveAvatar function tests', () => {
   })
 
   it('should apply world.fixedDelta @ 120 tick to avatar movement, consistent with physics simulation', async () => {
-    const engineState = getMutableState(EngineState)
-    engineState.simulationTimestep.set(1000 / 60)
+    const ecsState = getMutableState(ECSState)
+    ecsState.simulationTimestep.set(1000 / 60)
 
     dispatchAction(
       AvatarNetworkAction.spawn({
@@ -157,8 +157,8 @@ describe('moveAvatar function tests', () => {
   it('should take world.physics.timeScale into account when moving avatars, consistent with physics simulation', async () => {
     Engine.instance.userID = 'user' as UserID
 
-    const engineState = getMutableState(EngineState)
-    engineState.simulationTimestep.set(1000 / 60)
+    const ecsState = getMutableState(ECSState)
+    ecsState.simulationTimestep.set(1000 / 60)
 
     /* mock */
     getState(PhysicsState).physicsWorld.timestep = 1 / 2
@@ -197,8 +197,8 @@ describe('moveAvatar function tests', () => {
   it('should not allow velocity to breach a full unit through multiple frames', async () => {
     Engine.instance.userID = 'user' as UserID
 
-    const engineState = getMutableState(EngineState)
-    engineState.simulationTimestep.set(1000 / 60)
+    const ecsState = getMutableState(ECSState)
+    ecsState.simulationTimestep.set(1000 / 60)
 
     dispatchAction(
       AvatarNetworkAction.spawn({

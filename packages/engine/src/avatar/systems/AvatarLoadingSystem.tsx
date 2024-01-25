@@ -28,7 +28,7 @@ import { SRGBColorSpace } from 'three'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { QueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
@@ -55,7 +55,7 @@ const growQuery = defineQuery([SpawnEffectComponent])
 const dissolveQuery = defineQuery([AvatarDissolveComponent])
 
 const execute = () => {
-  const delta = getState(EngineState).deltaSeconds
+  const delta = getState(ECSState).deltaSeconds
 
   for (const entity of growQuery()) {
     TransformComponent.dirtyTransforms[entity] = true

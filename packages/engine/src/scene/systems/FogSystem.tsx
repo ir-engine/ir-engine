@@ -29,8 +29,8 @@ import { Fog, FogExp2, Mesh, MeshStandardMaterial, Shader } from 'three'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin, PluginType, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
@@ -154,7 +154,7 @@ const reactor = () => {
     if (scene.fog && fogData.type === FogType.Brownian)
       for (const s of FogShaders) {
         s.uniforms.fogTimeScale.value = fogData.timeScale
-        s.uniforms.fogTime.value = getState(EngineState).elapsedSeconds
+        s.uniforms.fogTime.value = getState(ECSState).elapsedSeconds
       }
   }, [fog.height])
 

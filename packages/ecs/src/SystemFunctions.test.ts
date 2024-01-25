@@ -23,16 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createEngine } from '@etherealengine/engine/src/initializeEngine'
-import { destroyEngine } from './Engine'
+import { Engine, destroyEngine } from './Engine'
 
 import assert from 'assert'
 import { afterEach } from 'mocha'
 
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { executeSystems } from './EngineFunctions'
-import { EngineState } from './EngineState'
+import { ECS } from '..'
+import { ECSState } from './ECSState'
 import { defineSystem } from './SystemFunctions'
 import { SimulationSystemGroup } from './SystemGroups'
 
@@ -51,9 +50,9 @@ const MockSystem = defineSystem({
   execute
 })
 
-describe('EngineFunctions', () => {
+describe('SystemFunctions', () => {
   beforeEach(() => {
-    createEngine()
+    Engine.instance = new Engine()
   })
 
   afterEach(() => {
@@ -66,23 +65,23 @@ describe('EngineFunctions', () => {
 
     const ticks = 3
     const simulationDelay = (ticks * 1001) / 60
-    const engineState = getMutableState(EngineState)
-    engineState.simulationTime.set(performance.timeOrigin - simulationDelay)
-    executeSystems(0)
+    const ecsState = getMutableState(ECSState)
+    ecsState.simulationTime.set(performance.timeOrigin - simulationDelay)
+    ECS.executeSystems(0)
     assert.equal(mockState.count.value, ticks)
   })
 
   it('can skip simulation ticks to catch up to elapsed time', async () => {
     const mockState = getMutableState(MockState)
-    const engineState = getMutableState(EngineState)
+    const ecsState = getMutableState(ECSState)
 
     assert.equal(mockState.count.value, 0)
 
     const simulationDelay = 1000 * 60 // 1 minute should be too much to catch up to wihtout skipping
-    engineState.simulationTime.set(performance.timeOrigin - simulationDelay)
-    executeSystems(0)
+    ecsState.simulationTime.set(performance.timeOrigin - simulationDelay)
+    ECS.executeSystems(0)
 
-    assert(performance.timeOrigin - engineState.simulationTime.value < engineState.simulationTimestep.value)
+    assert(performance.timeOrigin - ecsState.simulationTime.value < ecsState.simulationTimestep.value)
     assert.equal(mockState.count.value, 1)
   })
 })

@@ -31,16 +31,16 @@ import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/sr
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState } from '@etherealengine/hyperflux'
-import { createEngine } from '../../../../src/initializeEngine'
-import { InputComponent } from '../../../../src/input/components/InputComponent'
+import { MockXRInputSource, MockXRSpace } from '../../../tests/util/MockXR'
+import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
+import { createEngine } from '../../initializeEngine'
+import { InputComponent } from './InputComponent'
 import {
   InputSourceAxesCapturedComponent,
   InputSourceButtonsCapturedComponent,
   InputSourceCaptureState,
   InputSourceComponent
-} from '../../../../src/input/components/InputSourceComponent'
-import { MockXRInputSource, MockXRSpace } from '../../../util/MockXR'
-import { loadEmptyScene } from '../../../util/loadEmptyScene'
+} from './InputSourceComponent'
 
 describe('InputSourceComponent', () => {
   beforeEach(() => {

@@ -31,10 +31,10 @@ import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils
 import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
 import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { WebcamInputComponent } from '@etherealengine/engine/src/input/components/WebcamInputComponent'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'

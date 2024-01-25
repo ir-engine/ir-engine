@@ -30,7 +30,6 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { Network, NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
@@ -66,8 +65,8 @@ import {
   userPath
 } from '@etherealengine/common/src/schema.type.module'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import {
@@ -76,6 +75,7 @@ import {
   removeDataChannelHandler
 } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import matches, { Validator } from 'ts-matches'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { checkScope } from '../common/functions/checkScope'
@@ -385,7 +385,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
 
   const startTime = Date.now()
 
-  const chunkLength = Math.floor((1000 / getState(EngineState).simulationTimestep) * 60) // 1 minute
+  const chunkLength = Math.floor((1000 / getState(ECSState).simulationTimestep) * 60) // 1 minute
 
   const dataChannelRecorder = (network: Network, dataChannel: DataChannelType, fromPeerID: PeerID, message: any) => {
     try {

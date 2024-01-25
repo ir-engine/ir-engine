@@ -30,8 +30,8 @@ import { defineState } from '@etherealengine/hyperflux'
 import { WebLayer3D } from '@etherealengine/xrui'
 
 import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
@@ -97,7 +97,7 @@ export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof cre
   if (transition.state === 'IN' && !inRange) {
     transition.setState('OUT')
   }
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
   transition.update(deltaSeconds, (opacity) => {
     xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
       const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
@@ -138,7 +138,7 @@ const interactableQuery = defineQuery([InteractableComponent, Not(AvatarComponen
 let gatherAvailableInteractablesTimer = 0
 
 const execute = () => {
-  gatherAvailableInteractablesTimer += getState(EngineState).deltaSeconds
+  gatherAvailableInteractablesTimer += getState(ECSState).deltaSeconds
   // update every 0.3 seconds
   if (gatherAvailableInteractablesTimer > 0.1) gatherAvailableInteractablesTimer = 0
 

@@ -187,7 +187,7 @@ const execute = () => {
     //       lerp(
     //         worldHipsParent.position.y,
     //         MotionCaptureRigComponent.footOffset[entity],
-    //         getState(EngineState).deltaSeconds * 5
+    //         getState(ECSState).deltaSeconds * 5
     //       )
     //     )
     //   else worldHipsParent.position.setY(0)

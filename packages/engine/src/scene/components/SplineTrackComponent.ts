@@ -30,11 +30,12 @@ import {
   getOptionalComponent,
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { UUIDComponent } from '@etherealengine/ecs/src/UUIDComponent'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { getState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
@@ -87,7 +88,8 @@ export const SplineTrackComponent = defineComponent({
 
     useExecute(
       () => {
-        const { isEditor, deltaSeconds } = getState(EngineState)
+        const { isEditor } = getState(EngineState)
+        const { deltaSeconds } = getState(ECSState)
         if (isEditor) return
         if (!component.splineEntityUUID.value) return
         const splineTargetEntity = UUIDComponent.getEntityByUUID(component.splineEntityUUID.value)

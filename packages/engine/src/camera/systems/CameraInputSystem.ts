@@ -29,7 +29,6 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
@@ -44,6 +43,7 @@ import { XRState } from '../../xr/XRState'
 
 import { InputState } from '../../input/state/InputState'
 
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { isMobile } from '../../common/functions/isMobile'
 import { CameraSettings } from '../CameraState'
@@ -110,7 +110,7 @@ let capturedInputSource: Entity | undefined = undefined
 const execute = () => {
   if (getState(XRState).xrFrame) return
 
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
   accumulator += deltaSeconds
 
   const { localClientEntity } = Engine.instance

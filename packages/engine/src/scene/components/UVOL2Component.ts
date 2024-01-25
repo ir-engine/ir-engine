@@ -32,7 +32,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
@@ -392,7 +392,7 @@ function UVOL2Reactor() {
   const component = useComponent(entity, UVOL2Component)
   const shadow = useOptionalComponent(entity, ShadowComponent)
 
-  const engineState = getState(EngineState)
+  const ecsState = getState(ECSState)
 
   const mediaElement = getMutableComponent(entity, MediaElementComponent).value
   const audioContext = getState(AudioState).audioContext
@@ -631,7 +631,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     const promises: Promise<Mesh | BufferGeometry>[] = []
 
     const oldBufferHealth = component.geometryInfo.bufferHealth.value
-    const startTime = engineState.elapsedSeconds
+    const startTime = ecsState.elapsedSeconds
 
     for (let i = startFrame; i <= endFrame; i++) {
       const frameURL = resolvePath(
@@ -675,7 +675,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       })
 
       const playTime = component.geometryInfo.bufferHealth.value - oldBufferHealth
-      const fetchTime = engineState.elapsedSeconds - startTime
+      const fetchTime = ecsState.elapsedSeconds - startTime
       const metric = fetchTime / playTime
       adjustGeometryTarget(metric)
     })
@@ -686,7 +686,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     const promises: Promise<Mesh | BufferGeometry>[] = []
 
     const oldBufferHealth = component.geometryInfo.bufferHealth.value
-    const startTime = engineState.elapsedSeconds
+    const startTime = ecsState.elapsedSeconds
 
     for (let i = startSegment; i <= endSegment; i++) {
       const segmentURL = resolvePath(
@@ -763,7 +763,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       })
 
       const playTime = component.geometryInfo.bufferHealth.value - oldBufferHealth
-      const fetchTime = engineState.elapsedSeconds - startTime
+      const fetchTime = ecsState.elapsedSeconds - startTime
       const metric = fetchTime / playTime
       adjustGeometryTarget(metric)
       if (extraTime >= 0) {
@@ -889,7 +889,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     const endFrame = Math.max(0, Math.min(startFrame + framesToFetch, targetData.frameCount - 1))
 
     const oldBufferHealth = component.textureInfo[textureType].bufferHealth.value
-    const startTime = engineState.elapsedSeconds
+    const startTime = ecsState.elapsedSeconds
     const promises: Promise<CompressedTexture>[] = []
 
     for (let i = startFrame; i <= endFrame; i++) {
@@ -946,7 +946,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       })
 
       const playTime = component.textureInfo[textureType].bufferHealth.value - oldBufferHealth
-      const fetchTime = engineState.elapsedSeconds - startTime
+      const fetchTime = ecsState.elapsedSeconds - startTime
       const metric = fetchTime / playTime
       adjustTextureTarget(textureType, metric)
     })
@@ -1030,7 +1030,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     UVOL2Component.setStartAndPlaybackTime(
       entity,
       volumetric.currentTrackInfo.currentTime.value,
-      engineState.elapsedSeconds
+      ecsState.elapsedSeconds
     )
 
     if (mesh.material !== material) {
@@ -1407,7 +1407,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   const isWaiting = useRef(false)
 
   const update = () => {
-    const delta = getState(EngineState).deltaSeconds
+    const delta = getState(ECSState).deltaSeconds
     if (
       component.loadingEffectStarted.value &&
       !component.loadingEffectEnded.value &&
@@ -1456,7 +1456,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         UVOL2Component.setStartAndPlaybackTime(
           entity,
           volumetric.currentTrackInfo.currentTime.value,
-          engineState.elapsedSeconds
+          ecsState.elapsedSeconds
         )
         isWaiting.current = false
       } else if (isWaiting.current && isWaitingNow) {
@@ -1470,7 +1470,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     } else {
       _currentTime =
         volumetric.currentTrackInfo.mediaStartTime.value +
-        (engineState.elapsedSeconds - volumetric.currentTrackInfo.playbackStartDate.value)
+        (ecsState.elapsedSeconds - volumetric.currentTrackInfo.playbackStartDate.value)
     }
     _currentTime *= volumetric.currentTrackInfo.playbackRate.value
 
@@ -1481,7 +1481,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     if (volumetric.currentTrackInfo.currentTime.value > component.data.value.duration || audio.ended) {
       if (component.data.deletePreviousBuffers.value === false && volumetric.playMode.value === PlayMode.loop) {
         volumetric.currentTrackInfo.currentTime.set(0)
-        volumetric.currentTrackInfo.playbackStartDate.set(engineState.elapsedSeconds)
+        volumetric.currentTrackInfo.playbackStartDate.set(ecsState.elapsedSeconds)
       } else {
         volumetric.ended.set(true)
         return

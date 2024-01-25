@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { Quaternion, Vector3 } from 'three'
 
 import { isDev } from '@etherealengine/common/src/config'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import {
@@ -37,6 +36,7 @@ import {
   removeComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
@@ -180,13 +180,13 @@ const getAvatarDoubleClick = (buttons): boolean => {
   }
   if (clickCount < 1) return false
   if (clickCount > 1) {
-    secondClickTimer += getState(EngineState).deltaSeconds
+    secondClickTimer += getState(ECSState).deltaSeconds
     if (secondClickTimer <= secondClickTimeout) return true
     secondClickTimer = 0
     clickCount = 0
     return false
   }
-  douubleClickTimer += getState(EngineState).deltaSeconds
+  douubleClickTimer += getState(ECSState).deltaSeconds
   if (douubleClickTimer <= clickTimeout) return false
   douubleClickTimer = 0
   clickCount = 0
@@ -205,7 +205,7 @@ const execute = () => {
 
   applyInputSourcePoseToIKTargets(localClientEntity)
 
-  const { deltaSeconds } = getState(EngineState)
+  const { deltaSeconds } = getState(ECSState)
   setIkFootTarget(localClientEntity, deltaSeconds)
 
   const avatarInputSettings = getState(AvatarInputSettingsState)

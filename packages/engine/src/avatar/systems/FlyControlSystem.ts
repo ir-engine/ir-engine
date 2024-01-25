@@ -29,7 +29,7 @@ import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '../../camera/components/CameraComponent'
@@ -115,7 +115,7 @@ const execute = () => {
     // translate
     direction.set(lateralMovement, 0, forwardMovement)
     const boostSpeed = inputState.ShiftLeft?.pressed ? flyControlComponent.boostSpeed : 1
-    const deltaSeconds = getState(EngineState).deltaSeconds
+    const deltaSeconds = getState(ECSState).deltaSeconds
     const speed = deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
 
     if (direction.lengthSq() > EPSILON) camera.translateOnAxis(direction, speed)

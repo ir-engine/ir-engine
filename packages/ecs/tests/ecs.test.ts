@@ -25,6 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
+import { HyperFlux } from '@etherealengine/hyperflux'
+import { getAllEntities } from 'bitecs'
+import { ECS } from '..'
 import {
   defineComponent,
   getComponent,
@@ -34,11 +37,7 @@ import {
   setComponent
 } from '../src/ComponentFunctions'
 import { Engine, destroyEngine } from '../src/Engine'
-import { executeSystems } from '../src/EngineFunctions'
 import { Entity } from '../src/Entity'
-import { createEntity, removeEntity } from '../src/EntityFunctions'
-import { defineQuery } from '../src/QueryFunctions'
-import { defineSystem } from '../src/SystemFunctions'
 import { AnimationSystemGroup } from '../src/SystemGroups'
 
 const mockDeltaMillis = 1000 / 60
@@ -62,7 +61,7 @@ const MockComponent = defineComponent({
 
 const MockSystemState = new Set<Entity>()
 
-const mockQuery = defineQuery([MockComponent])
+const mockQuery = ECS.defineQuery([MockComponent])
 
 const execute = () => {
   for (const entity of mockQuery.enter()) {
@@ -74,7 +73,7 @@ const execute = () => {
   }
 }
 
-const MockSystem = defineSystem({
+const MockSystem = ECS.defineSystem({
   uuid: 'MockSystem',
   insert: { with: AnimationSystemGroup },
   execute
@@ -90,22 +89,22 @@ describe('ECS', () => {
   })
 
   it('should create ECS world', () => {
-    const entities = Engine.instance.entityQuery()
+    const entities = getAllEntities(HyperFlux.store)
     assert(Array.isArray(entities))
     assert.equal(entities.length, 1)
   })
 
   it('should add entity', async () => {
-    const entityLengthBeforeCreate = Engine.instance.entityQuery().length
-    const entity = createEntity()
-    const entitiesAfterCreate = Engine.instance.entityQuery()
+    const entityLengthBeforeCreate = getAllEntities(HyperFlux.store).length
+    const entity = ECS.createEntity()
+    const entitiesAfterCreate = getAllEntities(HyperFlux.store)
     assert(entitiesAfterCreate.includes(entity))
     assert.strictEqual(entitiesAfterCreate.length, entityLengthBeforeCreate + 1)
   })
 
   it('should support enter and exit queries', () => {
-    const entity = createEntity()
-    const query = defineQuery([MockComponent])
+    const entity = ECS.createEntity()
+    const query = ECS.defineQuery([MockComponent])
 
     assert.equal(query().length, 0)
     assert.equal(query.enter().length, 0)
@@ -153,7 +152,7 @@ describe('ECS', () => {
   })
 
   it('should add component', async () => {
-    const entity = createEntity()
+    const entity = ECS.createEntity()
     const mockValue = Math.random()
     setComponent(entity, MockComponent, { mockValue })
     const component = getComponent(entity, MockComponent)
@@ -162,45 +161,45 @@ describe('ECS', () => {
   })
 
   it('should query component in systems', async () => {
-    const entity = createEntity()
+    const entity = ECS.createEntity()
     const mockValue = Math.random()
     setComponent(entity, MockComponent, { mockValue })
     const component = getComponent(entity, MockComponent)
-    executeSystems(mockDeltaMillis)
+    ECS.executeSystems(mockDeltaMillis)
     assert(MockSystemState.has(entity))
 
-    const entity2 = createEntity()
+    const entity2 = ECS.createEntity()
     const mockValue2 = Math.random()
     setComponent(entity2, MockComponent, { mockValue: mockValue2 })
     const component2 = getComponent(entity2, MockComponent)
-    executeSystems(mockDeltaMillis * 2)
+    ECS.executeSystems(mockDeltaMillis * 2)
     assert(MockSystemState.has(entity2))
   })
 
   it('should remove and clean up component', async () => {
-    const entity = createEntity()
+    const entity = ECS.createEntity()
     const mockValue = Math.random()
 
     setComponent(entity, MockComponent, { mockValue })
     removeComponent(entity, MockComponent)
 
-    const query = defineQuery([MockComponent])
+    const query = ECS.defineQuery([MockComponent])
     assert.deepStrictEqual([...query()], [])
     assert.deepStrictEqual(query.enter(), [])
     assert.deepStrictEqual(query.exit(), [])
 
-    executeSystems(mockDeltaMillis)
+    ECS.executeSystems(mockDeltaMillis)
     assert(!MockSystemState.has(entity))
   })
 
   it('should re-add component', async () => {
-    const entity = createEntity()
+    const entity = ECS.createEntity()
 
     const mockValue = Math.random()
     setComponent(entity, MockComponent, { mockValue })
 
     removeComponent(entity, MockComponent)
-    executeSystems(mockDeltaMillis)
+    ECS.executeSystems(mockDeltaMillis)
     assert(!MockSystemState.has(entity))
 
     const newMockValue = 1 + Math.random()
@@ -210,42 +209,42 @@ describe('ECS', () => {
     const component = getComponent(entity, MockComponent)
     assert(component)
     assert.strictEqual(component.mockValue, newMockValue)
-    executeSystems(mockDeltaMillis * 2)
-    executeSystems(mockDeltaMillis * 3)
+    ECS.executeSystems(mockDeltaMillis * 2)
+    ECS.executeSystems(mockDeltaMillis * 3)
     assert(MockSystemState.has(entity))
   })
 
   it('should remove and clean up entity', async () => {
-    const entity = createEntity()
+    const entity = ECS.createEntity()
     const mockValue = Math.random()
     setComponent(entity, MockComponent, { mockValue })
-    const entities = Engine.instance.entityQuery()
+    const entities = getAllEntities(HyperFlux.store)
     assert(entities.includes(entity))
-    removeEntity(entity)
+    ECS.removeEntity(entity)
     assert.ok(!getOptionalComponent(entity, MockComponent))
-    executeSystems(mockDeltaMillis)
+    ECS.executeSystems(mockDeltaMillis)
     assert(!MockSystemState.has(entity))
-    assert.ok(!Engine.instance.entityQuery().includes(entity))
+    assert.ok(!getAllEntities(HyperFlux.store).includes(entity))
   })
 
   it('should remove entity', async () => {
-    const entity = createEntity()
+    const entity = ECS.createEntity()
 
-    const lengthBefore = Engine.instance.entityQuery().length
-    removeEntity(entity)
-    const entities = Engine.instance.entityQuery()
+    const lengthBefore = getAllEntities(HyperFlux.store).length
+    ECS.removeEntity(entity)
+    const entities = getAllEntities(HyperFlux.store)
     assert.equal(entities.length, lengthBefore - 1)
   })
 
   it('should noop with entity that is already removed', async () => {
-    const entity = createEntity()
+    const entity = ECS.createEntity()
 
-    const lengthBefore = Engine.instance.entityQuery().length
+    const lengthBefore = getAllEntities(HyperFlux.store).length
 
-    removeEntity(entity)
-    removeEntity(entity)
+    ECS.removeEntity(entity)
+    ECS.removeEntity(entity)
 
-    const entities = Engine.instance.entityQuery()
+    const entities = getAllEntities(HyperFlux.store)
     assert.equal(entities.length, lengthBefore - 1)
   })
 })

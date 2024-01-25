@@ -32,8 +32,8 @@ import {
   removeComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
@@ -228,7 +228,7 @@ export const HyperspaceTagComponent = defineComponent({
     useExecute(
       () => {
         if (!hasComponent(entity, HyperspaceTagComponent)) return
-        const engineState = getState(EngineState)
+        const ecsState = getState(ECSState)
         const sceneLoaded = getState(SceneState).sceneLoaded
 
         if (sceneLoaded && transition.alpha >= 1 && transition.state === 'IN') {
@@ -236,8 +236,8 @@ export const HyperspaceTagComponent = defineComponent({
           camera.layers.enable(ObjectLayers.Scene)
         }
 
-        transition.update(engineState.deltaSeconds, (opacity) => {
-          hyperspaceEffect.update(engineState.deltaSeconds)
+        transition.update(ecsState.deltaSeconds, (opacity) => {
+          hyperspaceEffect.update(ecsState.deltaSeconds)
           hyperspaceEffect.tubeMaterial.opacity = opacity
         })
 
@@ -267,7 +267,7 @@ export const HyperspaceTagComponent = defineComponent({
         getComponent(hyperspaceEffectEntity, TransformComponent).position.copy(cameraTransform.position)
 
         if (camera.zoom > 0.75) {
-          camera.zoom -= engineState.deltaSeconds
+          camera.zoom -= ecsState.deltaSeconds
           camera.updateProjectionMatrix()
         }
       },

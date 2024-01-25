@@ -43,8 +43,8 @@ import {
 import { defineState, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
@@ -158,7 +158,7 @@ const execute = () => {
   if (!guidelineEntity) return
 
   if (fadeBackInAccumulator >= 0) {
-    fadeBackInAccumulator += getState(EngineState).deltaSeconds
+    fadeBackInAccumulator += getState(ECSState).deltaSeconds
     if (fadeBackInAccumulator > 0.25) {
       fadeBackInAccumulator = -1
       teleportAvatar(Engine.instance.localClientEntity, getComponent(guideCursorEntity, TransformComponent).position)
@@ -244,7 +244,7 @@ const execute = () => {
     }
     setVisibleComponent(guideCursorEntity, canTeleport)
   }
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
   transition.update(deltaSeconds, (alpha) => {
     if (alpha === 0 && transition.state === 'OUT') {
       setVisibleComponent(guidelineEntity, false)

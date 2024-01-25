@@ -29,7 +29,7 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getNearbyUsers } from '@etherealengine/engine/src/networking/functions/getNearbyUsers'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { useEffect } from 'react'
@@ -71,6 +71,7 @@ export const updateNearbyAvatars = () => {
 
   if (!nearbyUserIds.length) return
 
+  /** @todo move this to event sourcing state */
   // for (const consumer of network.consumers) {
   //   if (consumer.appData.peerID === Engine.instance.peerID) continue
   //   if (!nearbyUserIds.includes(network.peers.get(consumer.appData.peerID)?.userId!)) {
@@ -89,7 +90,7 @@ const NEARBY_AVATAR_UPDATE_PERIOD = 5
 let accumulator = 0
 
 const execute = () => {
-  accumulator += getState(EngineState).deltaSeconds
+  accumulator += getState(ECSState).deltaSeconds
   if (accumulator > NEARBY_AVATAR_UPDATE_PERIOD) {
     accumulator = 0
     updateNearbyAvatars()

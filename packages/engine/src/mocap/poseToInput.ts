@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { getState, none } from '@etherealengine/hyperflux'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
@@ -43,7 +43,7 @@ export const evaluatePose = (entity: Entity) => {
   const rig = getComponent(entity, AvatarRigComponent).normalizedRig
   if (!rig) return
 
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
   const pose = getMutableComponent(entity, MotionCapturePoseComponent)
   if (!MotionCaptureRigComponent.solvingLowerBody[entity]) return 'none'
 

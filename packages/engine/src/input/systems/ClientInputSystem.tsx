@@ -28,6 +28,7 @@ import { Mesh, MeshBasicMaterial, Object3D, Quaternion, Ray, Raycaster, Vector3 
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { Object3DUtils } from '@etherealengine/common/src/utils/Object3DUtils'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   getComponent,
@@ -38,13 +39,12 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { Object3DUtils } from '@etherealengine/ecs/src/Object3DUtils'
 import { defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import React from 'react'
 import { CameraComponent } from '../../camera/components/CameraComponent'

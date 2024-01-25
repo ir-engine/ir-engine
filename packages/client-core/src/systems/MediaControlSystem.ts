@@ -28,10 +28,11 @@ import { WebLayer3D } from '@etherealengine/xrui'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { getComponent, getOptionalComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { EngineState } from '@etherealengine/ecs/src/EngineState'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { addInteractableUI } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
@@ -77,7 +78,7 @@ const onUpdate = (entity: Entity, mediaControls: ReturnType<typeof createMediaCo
   if (!intersectObjects.length) {
     transition.setState('OUT')
   }
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
   transition.update(deltaSeconds, (opacity) => {
     buttonLayer?.scale.setScalar(0.9 + 0.1 * opacity * opacity)
     xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
