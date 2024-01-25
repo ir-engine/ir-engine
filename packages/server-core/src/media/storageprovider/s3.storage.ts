@@ -46,6 +46,7 @@ import {
   CompletedPart,
   CopyObjectCommand,
   CreateMultipartUploadCommand,
+  CreateMultipartUploadCommandInput,
   DeleteObjectsCommand,
   GetObjectCommand,
   HeadObjectCommand,
@@ -79,7 +80,6 @@ import {
   PutObjectParams,
   SignedURLResponse,
   StorageListObjectInterface,
-  StorageMultipartStartInterface,
   StorageObjectInterface,
   StorageObjectPutInterface,
   StorageProviderInterface
@@ -323,6 +323,12 @@ export class S3Provider implements StorageProviderInterface {
 
     if (data.Metadata) (args as StorageObjectInterface).Metadata = data.Metadata
 
+    const cacheControl = (args as StorageObjectInterface).Metadata?.['Cache-Control'] || ''
+    if (cacheControl) {
+      args['CacheControl'] = cacheControl
+      delete (args as StorageObjectInterface).Metadata!['Cache-Control']
+    }
+
     if (data.Body instanceof PassThrough) {
       try {
         const upload = new Upload(args as unknown as Options)
@@ -345,7 +351,11 @@ export class S3Provider implements StorageProviderInterface {
         Bucket: this.bucket,
         Key: key,
         ContentType: data.ContentType
-      } as StorageMultipartStartInterface
+      } as CreateMultipartUploadCommandInput
+
+      if (cacheControl) {
+        multiPartStartArgs.CacheControl = cacheControl
+      }
 
       if (data.ContentEncoding) multiPartStartArgs.ContentEncoding = data.ContentEncoding
       const startCommand = new CreateMultipartUploadCommand(multiPartStartArgs)

@@ -106,7 +106,7 @@ describe('EditorControlFunctions', () => {
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
         getComponent(rootEntity, EntityTreeComponent).parentEntity,
-        null,
+        UndefinedEntity,
         'root entity does not have parentEntity'
       )
 
@@ -166,7 +166,7 @@ describe('EditorControlFunctions', () => {
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
         getComponent(rootEntity, EntityTreeComponent).parentEntity,
-        null,
+        UndefinedEntity,
         'root entity does not have parentEntity'
       )
 
@@ -216,7 +216,7 @@ describe('EditorControlFunctions', () => {
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
         getComponent(rootEntity, EntityTreeComponent).parentEntity,
-        null,
+        UndefinedEntity,
         'root entity does not have parentEntity'
       )
 
@@ -272,7 +272,7 @@ describe('EditorControlFunctions', () => {
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
         getComponent(rootEntity, EntityTreeComponent).parentEntity,
-        null,
+        UndefinedEntity,
         'root entity does not have parentEntity'
       )
 
@@ -352,7 +352,7 @@ describe('EditorControlFunctions', () => {
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
         getComponent(rootEntity, EntityTreeComponent).parentEntity,
-        null,
+        UndefinedEntity,
         'root entity does not have parentEntity'
       )
 
@@ -448,7 +448,7 @@ describe('EditorControlFunctions', () => {
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
         getComponent(rootEntity, EntityTreeComponent).parentEntity,
-        null,
+        UndefinedEntity,
         'root entity does not have parentEntity'
       )
 
@@ -583,7 +583,7 @@ describe('EditorControlFunctions', () => {
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
         getComponent(rootEntity, EntityTreeComponent).parentEntity,
-        null,
+        UndefinedEntity,
         'root entity does not have parentEntity'
       )
 
@@ -620,7 +620,7 @@ describe('EditorControlFunctions', () => {
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
         getComponent(rootEntity, EntityTreeComponent).parentEntity,
-        null,
+        UndefinedEntity,
         'root entity does not have parentEntity'
       )
 

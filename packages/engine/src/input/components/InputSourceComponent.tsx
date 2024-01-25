@@ -31,14 +31,15 @@ import { defineState, getMutableState, none, useHookstate } from '@etherealengin
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
-  defineQuery,
   getOptionalComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { ButtonStateMap } from '../state/ButtonState'
 import { InputComponent } from './InputComponent'
@@ -192,7 +193,7 @@ const InputSourceAssignmentReactor = React.memo((props: { assignedEntity: Entity
     const idx = input.inputSources.value.indexOf(sourceEntity)
     idx === -1 && input.inputSources.merge([sourceEntity])
     return () => {
-      if (!input.inputSources?.value) return
+      if (!hasComponent(props.assignedEntity, InputComponent) || !input.inputSources?.value) return
       const idx = input.inputSources.value.indexOf(sourceEntity)
       idx > -1 && input.inputSources[idx].set(none)
     }

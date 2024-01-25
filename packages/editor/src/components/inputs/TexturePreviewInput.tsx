@@ -49,12 +49,11 @@ import Vector2Input from './Vector2Input'
  * @param       {any} rest
  * @constructor
  */
-export function TextureInput({ onChange, ...rest }: StringInputProps) {
+export function TextureInput({ ...rest }: StringInputProps) {
   return (
     <FileBrowserInput
       acceptFileTypes={[...ImageFileTypes, ...VideoFileTypes]}
       acceptDropItems={[...ItemTypes.Images, ...ItemTypes.Videos]}
-      onChange={onChange}
       {...rest}
     />
   )
@@ -62,11 +61,11 @@ export function TextureInput({ onChange, ...rest }: StringInputProps) {
 
 export default function TexturePreviewInput({
   value,
-  onChange,
+  onRelease,
   ...rest
 }: {
   value: string | Texture
-  onChange: (value: any) => void
+  onRelease: (value: any) => void
   preview?: string
 }) {
   const previewStyle = {
@@ -107,7 +106,7 @@ export default function TexturePreviewInput({
   return (
     <ImageContainer>
       <Stack>
-        <TextureInput value={inputSrc} onChange={onChange} />
+        <TextureInput value={inputSrc} onRelease={onRelease} />
         {showPreview && (
           <Fragment>
             {(typeof preview === 'string' ||
@@ -164,7 +163,7 @@ export default function TexturePreviewInput({
             <div>
               <Button
                 onClick={() => {
-                  onChange('')
+                  onRelease('')
                 }}
               >
                 Clear
@@ -177,10 +176,10 @@ export default function TexturePreviewInput({
   )
 }
 
-export function TexturePreviewInputGroup({ name, label, value, onChange, ...rest }) {
+export function TexturePreviewInputGroup({ name, label, value, onRelease, ...rest }) {
   return (
     <InputGroup name={name} label={label} {...rest}>
-      <TexturePreviewInput value={value} onChange={onChange} />
+      <TexturePreviewInput value={value} onRelease={onRelease} />
     </InputGroup>
   )
 }

@@ -32,11 +32,7 @@ import { FixedSizeList } from 'react-window'
 
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import {
-  getComponent,
-  getOptionalComponent,
-  useQuery
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent, traverseEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
@@ -45,12 +41,15 @@ import { NO_PROXY, getMutableState, getState, none, useHookstate } from '@ethere
 import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { useQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { EditorCameraState } from '../../classes/EditorCameraState'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
+import { CopyPasteFunctions } from '../../functions/CopyPasteFunctions'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
@@ -67,9 +66,7 @@ import { HierarchyTreeNode, HierarchyTreeNodeProps, RenameNodeData, getNodeElId 
 import styles from './styles.module.scss'
 
 /**
- * uploadOption initializing object containing Properties multiple, accepts.
- *
- * @type {Object}
+ * initializes object containing Properties multiple, accepts.
  */
 const uploadOptions = {
   multiple: true,
@@ -78,8 +75,6 @@ const uploadOptions = {
 
 /**
  * HierarchyPanel function component provides view for hierarchy tree.
- *
- * @constructor
  */
 function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID }) {
   const { t } = useTranslation()
@@ -337,6 +332,27 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 
     EditorControlFunctions.groupObjects(objs)
   }, [])
+
+  const onCopyNode = useCallback((node: HeirarchyTreeNodeType) => {
+    handleClose()
+
+    const nodes = node.selected ? getState(SelectionState).selectedEntities : [node.entity]
+    CopyPasteFunctions.copyEntities(nodes)
+  }, [])
+
+  const onPasteNode = useCallback(async (node: HeirarchyTreeNodeType) => {
+    handleClose()
+
+    CopyPasteFunctions.getPastedEntities()
+      .then((nodeComponentJSONs) => {
+        nodeComponentJSONs.forEach((componentJSONs) => {
+          EditorControlFunctions.createObjectFromSceneElement(componentJSONs, undefined, node.entity)
+        })
+      })
+      .catch(() => {
+        NotificationService.dispatchNotify(t('editor:hierarchy.copy-paste.no-hierarchy-nodes'), { variant: 'error' })
+      })
+  }, [])
   /* Event handlers */
 
   /* Rename functions */
@@ -495,6 +511,32 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
           <MenuItem onClick={() => onGroupNodes(contextSelectedItem!)}>
             {t('editor:hierarchy.lbl-group')}
             <div>{cmdOrCtrlString + ' + g'}</div>
+          </MenuItem>
+        </Hotkeys>
+        <Hotkeys
+          keyName={cmdOrCtrlString + '+c'}
+          onKeyUp={(_, e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            selectedNode && onCopyNode(selectedNode)
+          }}
+        >
+          <MenuItem onClick={() => onCopyNode(contextSelectedItem!)}>
+            {t('editor:hierarchy.lbl-copy')}
+            <div>{cmdOrCtrlString + ' + c'}</div>
+          </MenuItem>
+        </Hotkeys>
+        <Hotkeys
+          keyName={cmdOrCtrlString + '+v'}
+          onKeyUp={(_, e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            selectedNode && onPasteNode(selectedNode)
+          }}
+        >
+          <MenuItem onClick={() => onPasteNode(contextSelectedItem!)}>
+            {t('editor:hierarchy.lbl-paste')}
+            <div>{cmdOrCtrlString + ' + v'}</div>
           </MenuItem>
         </Hotkeys>
         <MenuItem onClick={() => onDeleteNode(contextSelectedItem!)}>{t('editor:hierarchy.lbl-delete')}</MenuItem>

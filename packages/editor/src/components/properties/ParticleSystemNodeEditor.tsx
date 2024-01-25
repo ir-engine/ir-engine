@@ -346,7 +346,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Texture" label={t('editor:properties.particle-system.texture')}>
         <TexturePreviewInput
           value={particleSystem.systemParameters.texture ?? ''}
-          onChange={onSetSystemParm('texture')}
+          onRelease={onSetSystemParm('texture')}
         />
       </InputGroup>
       <InputGroup name="U Tiles" label={t('editor:properties.particle-system.u-tiles')}>
@@ -390,7 +390,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Mesh" label={t('editor:properties.particle-system.mesh')}>
         <ModelInput
           value={particleSystem.systemParameters.instancingGeometry}
-          onChange={onSetState(
+          onRelease={onSetState(
             (particleSystemState.systemParameters as unknown as State<ExtraSystemJSON>).instancingGeometry
           )}
         />

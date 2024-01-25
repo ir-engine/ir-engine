@@ -28,12 +28,13 @@ import { getState } from '@etherealengine/hyperflux'
 import { VRM } from '@pixiv/three-vrm'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
-  defineQuery,
   getComponent,
+  getOptionalComponent,
   getOptionalMutableComponent,
   hasComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { traverseEntityNode } from '../../ecs/functions/EntityTree'
+import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { MeshComponent } from '../../scene/components/MeshComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
@@ -65,7 +66,7 @@ const execute = () => {
     /** @todo for some reason, the animation clips do not apply their data to the proxified quaternions */
     if (hasComponent(entity, ModelComponent))
       traverseEntityNode(entity, (childEntity) => {
-        const mesh = getComponent(childEntity, MeshComponent)
+        const mesh = getOptionalComponent(childEntity, MeshComponent)
         if (!mesh) return
         const rotation = getComponent(childEntity, TransformComponent).rotation
         rotation.copy(mesh.quaternion)

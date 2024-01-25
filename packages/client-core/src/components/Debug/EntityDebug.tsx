@@ -29,24 +29,31 @@ import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   Component,
   ComponentMap,
-  defineQuery,
   getComponent,
   getOptionalComponent,
-  hasComponent,
-  removeQuery
+  hasComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { NO_PROXY, defineState, getMutableState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
+import {
+  HyperFlux,
+  NO_PROXY,
+  defineState,
+  getMutableState,
+  getState,
+  syncStateWithLocalStorage
+} from '@etherealengine/hyperflux'
 import { useHookstate } from '@hookstate/core'
 import { getEntityComponents } from 'bitecs'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { JSONTree } from 'react-json-tree'
 
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { defineQuery, removeQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
+import { useExecute } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import styles from './styles.module.scss'
 
 const renderEntityTreeRoots = () => {
@@ -57,7 +64,7 @@ const renderEntityTreeRoots = () => {
         const entity = UUIDComponent.getEntityByUUID(root)
         if (!entity || !entityExists(entity)) return []
         return [
-          `${entity} - ${getComponent(entity, NameComponent) ?? getComponent(entity, UUIDComponent)}`,
+          `${entity} - ${getOptionalComponent(entity, NameComponent) ?? getOptionalComponent(entity, UUIDComponent)}`,
           renderEntityTree(entity)
         ]
       })
@@ -74,8 +81,9 @@ const renderEntityTree = (entity: Entity) => {
           ...node.children.reduce(
             (r, child) =>
               Object.assign(r, {
-                [`${child} - ${getComponent(child, NameComponent) ?? getComponent(child, UUIDComponent)}`]:
-                  renderEntityTree(child)
+                [`${child} - ${
+                  getOptionalComponent(child, NameComponent) ?? getOptionalComponent(child, UUIDComponent)
+                }`]: renderEntityTree(child)
               }),
             {}
           )
@@ -87,7 +95,7 @@ const renderEntityTree = (entity: Entity) => {
 const renderEntityComponents = (entity: Entity) => {
   return Object.fromEntries(
     entityExists(entity)
-      ? getEntityComponents(Engine.instance, entity).reduce<[string, any][]>((components, C: Component<any, any>) => {
+      ? getEntityComponents(HyperFlux.store, entity).reduce<[string, any][]>((components, C: Component<any, any>) => {
           if (C !== NameComponent) components.push([C.name, getComponent(entity, C)])
           return components
         }, [])
@@ -127,6 +135,7 @@ const renderAllEntities = (filter: string, queryString: string) => {
           return [label, renderEntityComponents(eid)]
         })
         .filter((exists) => !!exists)
+        .sort(([a], [b]) => a.localeCompare(b))
     )
   }
 }
@@ -143,7 +152,6 @@ const EntitySearchState = defineState({
 })
 
 export const EntityDebug = () => {
-  useHookstate(getMutableState(EngineState).frameTime).value
   const { t } = useTranslation()
 
   const namedEntities = useHookstate({})
@@ -166,8 +174,14 @@ export const EntityDebug = () => {
       })
       .flat()
   )
-  namedEntities.set(renderAllEntities(entitySearch.value, entityQuery.value))
-  entityTree.set(renderEntityTreeRoots())
+
+  useExecute(
+    () => {
+      namedEntities.set(renderAllEntities(entitySearch.value, entityQuery.value))
+      entityTree.set(renderEntityTreeRoots())
+    },
+    { after: PresentationSystemGroup }
+  )
 
   return (
     <>
