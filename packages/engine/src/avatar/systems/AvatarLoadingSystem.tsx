@@ -37,6 +37,7 @@ import { QueryReactor, defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { AnimationState } from '../AnimationManager'
 import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { SpawnEffectComponent } from '../components/SpawnEffectComponent'
@@ -129,7 +130,7 @@ const reactor = () => {
     })
   }, [])
 
-  const loadingEffect = useHookstate(getMutableState(EngineState).avatarLoadingEffect)
+  const loadingEffect = useHookstate(getMutableState(AnimationState).avatarLoadingEffect)
 
   if (!loadingEffect.value || !assetsReady.value) return null
 

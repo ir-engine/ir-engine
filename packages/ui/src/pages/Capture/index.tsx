@@ -53,8 +53,7 @@ import { LocationState } from '@etherealengine/client-core/src/social/services/L
 import { RecordingID, StaticResourceType, recordingPath } from '@etherealengine/common/src/schema.type.module'
 import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SceneServices } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { SceneServices, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   MotionCaptureFunctions,
   MotionCaptureResults,
@@ -557,7 +556,7 @@ const PlaybackMode = () => {
     return () => {
       cleanup()
       // hack
-      getMutableState(EngineState).sceneLoaded.set(false)
+      getMutableState(SceneState).sceneLoaded.set(false)
     }
   }, [locationState])
 

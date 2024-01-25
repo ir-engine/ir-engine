@@ -114,8 +114,8 @@ export const LoadingUISystemState = defineState({
 })
 
 const LoadingReactor = () => {
-  const loadingProgress = useHookstate(getMutableState(EngineState).loadingProgress)
-  const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
+  const loadingProgress = useHookstate(getMutableState(SceneState).loadingProgress)
+  const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
   const state = useHookstate(getMutableState(LoadingUISystemState))
   const locationState = useHookstate(getMutableState(LocationState))
   const meshEntity = state.meshEntity.value

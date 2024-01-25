@@ -37,7 +37,7 @@ import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   getComponent,
@@ -60,6 +60,7 @@ import {
 } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraSettingsState } from '../CameraSceneMetadata'
+import { CameraActions } from '../CameraState'
 import { CameraComponent } from '../components/CameraComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { SpectatorComponent } from '../components/SpectatorComponent'
@@ -257,8 +258,8 @@ const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent
 const ownedNetworkCamera = defineQuery([CameraComponent, NetworkObjectOwnedTag])
 const spectatorQuery = defineQuery([SpectatorComponent])
 const cameraSpawnActions = defineActionQueue(WorldNetworkAction.spawnCamera.matches)
-const spectateUserActions = defineActionQueue(EngineActions.spectateUser.matches)
-const exitSpectateActions = defineActionQueue(EngineActions.exitSpectate.matches)
+const spectateUserActions = defineActionQueue(CameraActions.spectateUser.matches)
+const exitSpectateActions = defineActionQueue(CameraActions.exitSpectate.matches)
 
 function CameraReactor() {
   const cameraSettings = useHookstate(getMutableState(CameraSettingsState))

@@ -34,7 +34,7 @@ import { getRandomSpawnPoint, getSpawnPoint } from '@etherealengine/engine/src/a
 import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/moveAvatar'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { NetworkState, addNetwork, removeNetwork } from '@etherealengine/engine/src/networking/NetworkState'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
@@ -44,7 +44,9 @@ import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState, getState 
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
+import { CameraActions } from '@etherealengine/engine/src/camera/CameraState'
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { Network, NetworkTopics, createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
@@ -66,13 +68,13 @@ export const useEngineInjection = () => {
 }
 
 export const useLocationSpawnAvatar = (spectate = false) => {
-  const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
+  const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
 
   useEffect(() => {
     if (!sceneLoaded.value) return
 
     if (spectate) {
-      dispatchAction(EngineActions.spectateUser({}))
+      dispatchAction(CameraActions.spectateUser({}))
       return
     }
 
@@ -207,7 +209,7 @@ type Props = {
 }
 
 export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
-  const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
+  const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
 
   useLocationSpawnAvatar(spectate)
   usePortalTeleport()
@@ -222,7 +224,7 @@ export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
 }
 
 export const useNetwork = (props: { online?: boolean }) => {
-  const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
+  const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
 
   useEffect(() => {
     getMutableState(NetworkState).config.set({

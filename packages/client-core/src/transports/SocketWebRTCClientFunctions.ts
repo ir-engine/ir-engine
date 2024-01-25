@@ -52,7 +52,7 @@ import {
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import {
   MediaStreamAppData,
   NetworkConnectionParams,
@@ -113,6 +113,7 @@ import { NetworkActionFunctions } from '@etherealengine/engine/src/networking/fu
 import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import { encode } from 'msgpackr'
 
+import { CameraActions } from '@etherealengine/engine/src/camera/CameraState'
 import { defineSystem, destroySystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 
@@ -440,7 +441,7 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
   if (isWorldConnection) {
     const spectateUserId = getSearchParamFromURL('spectate')
     if (spectateUserId) {
-      dispatchAction(EngineActions.spectateUser({ user: spectateUserId }))
+      dispatchAction(CameraActions.spectateUser({ user: spectateUserId }))
     }
   }
 

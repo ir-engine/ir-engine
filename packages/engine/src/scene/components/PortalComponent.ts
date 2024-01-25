@@ -46,8 +46,8 @@ import { V_100 } from '../../common/constants/MathConstants'
 import { matches } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
+import { SceneState } from '../../ecs/classes/Scene'
 import {
   ComponentType,
   SerializedComponentType,
@@ -151,7 +151,7 @@ export const PortalComponent = defineComponent({
     }
 
     if (
-      !getState(EngineState).sceneLoaded &&
+      !getState(SceneState).sceneLoaded &&
       hasComponent(entity, SceneObjectComponent) &&
       !hasComponent(entity, RigidBodyComponent)
     )

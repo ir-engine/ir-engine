@@ -38,7 +38,6 @@ import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationCompo
 import { autoconvertMixamoAvatar, isAvaturn } from '../../avatar/functions/avatarFunctions'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
@@ -121,7 +120,7 @@ export const ModelComponent = defineComponent({
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
      */
     if (
-      !getState(EngineState).sceneLoaded &&
+      !getState(SceneState).sceneLoaded &&
       hasComponent(entity, SceneObjectComponent) &&
       component.src.value &&
       !component.scene.value

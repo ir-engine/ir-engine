@@ -174,7 +174,7 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
 
   setObjectLayers(model.scene, ObjectLayers.Avatar)
 
-  const loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
+  const loadingEffect = getState(AnimationState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
 
   removeComponent(entity, AvatarPendingComponent)
 

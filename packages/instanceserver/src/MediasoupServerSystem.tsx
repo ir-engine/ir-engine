@@ -27,7 +27,7 @@ import React, { useEffect } from 'react'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
@@ -69,7 +69,7 @@ const transportCloseActionQueue = defineActionQueue(MediasoupTransportActions.tr
 
 const execute = () => {
   // queues will accumulate actions until the scene is loaded, then they will be processed
-  if (!getState(EngineState).sceneLoaded) return
+  if (!getState(SceneState).sceneLoaded) return
 
   for (const action of requestConsumerActionQueue()) {
     handleRequestConsumer(action)

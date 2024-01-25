@@ -49,6 +49,7 @@ import { ObjectDirection } from '../../common/constants/Axis3D'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
+import { SceneState } from '../../ecs/classes/Scene'
 import {
   defineComponent,
   getComponent,
@@ -228,7 +229,7 @@ export const HyperspaceTagComponent = defineComponent({
       () => {
         if (!hasComponent(entity, HyperspaceTagComponent)) return
         const engineState = getState(EngineState)
-        const sceneLoaded = engineState.sceneLoaded
+        const sceneLoaded = getState(SceneState).sceneLoaded
 
         if (sceneLoaded && transition.alpha >= 1 && transition.state === 'IN') {
           transition.setState('OUT')

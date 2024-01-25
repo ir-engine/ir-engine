@@ -77,6 +77,9 @@ export const SceneState = defineState({
         index: number
       }
     >,
+    sceneLoading: false,
+    sceneLoaded: false,
+    loadingProgress: 0,
     /** @todo replace activeScene with proper multi-scene support */
     activeScene: null as null | SceneID,
     background: null as null | Color | Texture,
@@ -215,7 +218,7 @@ export const SceneState = defineState({
     const snapshot = state.snapshots[state.index]
 
     if (snapshot.data) {
-      getMutableState(EngineState).merge({
+      getMutableState(SceneState).merge({
         sceneLoading: true
       })
     }

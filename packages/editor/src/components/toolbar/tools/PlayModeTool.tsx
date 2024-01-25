@@ -53,7 +53,7 @@ const PlayModeTool = () => {
 
   const isEditing = useHookstate(getMutableState(EngineState).isEditing)
   const authState = useHookstate(getMutableState(AuthState))
-  const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded).value
+  const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded).value
 
   const onTogglePlayMode = () => {
     if (Engine.instance.localClientEntity) {

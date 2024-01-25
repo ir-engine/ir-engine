@@ -53,14 +53,13 @@ import {
   userPath
 } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { NetworkConnectionParams, NetworkState, addNetwork } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
-import { HyperFlux, State, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { HyperFlux, State, getMutableState, getState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
@@ -287,7 +286,10 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
 
   if (instanceServerState.isMediaInstance) {
     getMutableState(NetworkState).hostIds.media.set(hostId)
-    dispatchAction(EngineActions.sceneLoaded({}))
+    getMutableState(SceneState).merge({
+      sceneLoading: false,
+      sceneLoaded: true
+    })
   } else {
     getMutableState(NetworkState).hostIds.world.set(hostId)
 
@@ -303,7 +305,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
 
       await new Promise<void>((resolve) => {
         const interval = setInterval(() => {
-          if (getState(EngineState).sceneLoaded) {
+          if (getState(SceneState).sceneLoaded) {
             clearInterval(interval)
             resolve()
           }

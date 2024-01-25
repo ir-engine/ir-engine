@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import React, { useEffect, useState } from 'react'
@@ -38,6 +37,7 @@ import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from 
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { SceneDataType } from '@etherealengine/common/src/schema.type.module'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { TabData } from 'rc-dock'
 import { deleteScene, getScenes, onNewScene, renameScene, setSceneInState } from '../../functions/sceneFunctions'
@@ -112,7 +112,7 @@ export default function ScenesPanel() {
     if (activeScene) {
       await deleteScene(editorState.projectName.value, activeScene.name)
       if (editorState.sceneName.value === activeScene.name) {
-        getMutableState(EngineState).sceneLoaded.set(false)
+        getMutableState(SceneState).sceneLoaded.set(false)
         editorState.sceneName.set(null)
       }
 

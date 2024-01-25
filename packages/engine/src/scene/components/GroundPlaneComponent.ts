@@ -30,7 +30,7 @@ import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 
 import { getState } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import { EngineState } from '../../ecs/classes/EngineState'
+import { SceneState } from '../../ecs/classes/Scene'
 import {
   defineComponent,
   hasComponent,
@@ -75,7 +75,7 @@ export const GroundPlaneComponent = defineComponent({
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
      */
     if (
-      !getState(EngineState).sceneLoaded &&
+      !getState(SceneState).sceneLoaded &&
       hasComponent(entity, SceneObjectComponent) &&
       !hasComponent(entity, RigidBodyComponent)
     )

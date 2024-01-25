@@ -23,9 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineAction, defineState } from '@etherealengine/hyperflux'
-
-import { matches } from '../../common/functions/MatchesUtils'
+import { defineState } from '@etherealengine/hyperflux'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
 export const EngineState = defineState({
@@ -43,11 +41,6 @@ export const EngineState = defineState({
 
     physicsSubsteps: 1,
 
-    sceneLoading: false,
-    sceneLoaded: false,
-    loadingProgress: 0,
-    spectating: false,
-    avatarLoadingEffect: false,
     /**
      * An empty share link will default to the current URL, plus any modifiers (such as spectate mode)
      */
@@ -58,27 +51,3 @@ export const EngineState = defineState({
     isEditing: false
   }
 })
-
-export class EngineActions {
-  /** @deprecated */
-  static sceneLoaded = defineAction({
-    type: 'ee.engine.Engine.SCENE_LOADED' as const
-  })
-
-  static spectateUser = defineAction({
-    type: 'ee.engine.Engine.SPECTATE_USER' as const,
-    user: matches.string.optional()
-  })
-
-  static exitSpectate = defineAction({
-    type: 'ee.engine.Engine.EXIT_SPECTATE' as const
-  })
-
-  static notification = defineAction({
-    type: 'ee.engine.Engine.ERROR' as const,
-    text: matches.string,
-    variant: matches.literals('default', 'error', 'success', 'warning', 'info') // from notistack
-    /** @todo add more action types in NotificationService */
-    // actionType: matches.literal('default')
-  })
-}

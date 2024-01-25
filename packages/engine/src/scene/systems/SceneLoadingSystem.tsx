@@ -30,7 +30,6 @@ import {
   ErrorBoundary,
   NO_PROXY,
   State,
-  defineActionQueue,
   dispatchAction,
   getMutableState,
   getState,
@@ -43,7 +42,7 @@ import { Not } from 'bitecs'
 import React from 'react'
 import { Group } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
@@ -85,21 +84,20 @@ const reactor = () => {
   const physicsWorld = useHookstate(getMutableState(PhysicsState).physicsWorld)
 
   useEffect(() => {
-    if (!getState(EngineState).sceneLoading) return
+    if (!getState(SceneState).sceneLoading) return
 
     const values = Object.values(assetLoadingState.value)
     const total = values.reduce((acc, curr) => acc + curr.totalAmount, 0)
     const loaded = values.reduce((acc, curr) => acc + curr.loadedAmount, 0)
     const progress = !sceneAssetPendingTagQuery.length || total === 0 ? 100 : Math.round((100 * loaded) / total)
 
-    getMutableState(EngineState).loadingProgress.set(progress)
+    getMutableState(SceneState).loadingProgress.set(progress)
 
-    if (!sceneAssetPendingTagQuery.length && !getState(EngineState).sceneLoaded) {
-      getMutableState(EngineState).merge({
+    if (!sceneAssetPendingTagQuery.length && !getState(SceneState).sceneLoaded) {
+      getMutableState(SceneState).merge({
         sceneLoading: false,
         sceneLoaded: true
       })
-      dispatchAction(EngineActions.sceneLoaded({}))
       SceneAssetPendingTagComponent.loadingProgress.set({})
     }
   }, [sceneAssetPendingTagQuery.length, assetLoadingState, entities.keys])
@@ -166,7 +164,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     getSystemsFromSceneData(project, data).then((systems) => {
       // wait to set scene loading state until systems are loaded
       if (isActiveScene)
-        getMutableState(EngineState).merge({
+        getMutableState(SceneState).merge({
           sceneLoading: true,
           sceneLoaded: false
         })
@@ -428,18 +426,8 @@ const loadComponents = (entity: Entity, components: ComponentJsonType[]) => {
   }
 }
 
-const sceneLoadedActionQueue = defineActionQueue(EngineActions.sceneLoaded.matches)
-
-const execute = () => {
-  if (sceneLoadedActionQueue().length) {
-    if (getState(EngineState).sceneLoading) getMutableState(EngineState).sceneLoading.set(false)
-    if (!getState(EngineState).sceneLoaded) getMutableState(EngineState).sceneLoaded.set(true)
-  }
-}
-
 export const SceneLoadingSystem = defineSystem({
   uuid: 'ee.engine.scene.SceneLoadingSystem',
   insert: { after: PresentationSystemGroup },
-  execute,
   reactor
 })

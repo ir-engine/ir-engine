@@ -31,7 +31,7 @@ import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import matches from 'ts-matches'
-import { EngineState } from '../../ecs/classes/EngineState'
+import { SceneState } from '../../ecs/classes/Scene'
 import {
   defineComponent,
   getComponent,
@@ -133,7 +133,7 @@ export const ColliderComponent = defineComponent({
     }
 
     if (
-      !getState(EngineState).sceneLoaded &&
+      !getState(SceneState).sceneLoaded &&
       hasComponent(entity, SceneObjectComponent) &&
       !hasComponent(entity, RigidBodyComponent)
     )

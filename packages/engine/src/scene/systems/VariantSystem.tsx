@@ -27,6 +27,7 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { Not } from 'bitecs'
 import { EngineState } from '../../ecs/classes/EngineState'
+import { SceneState } from '../../ecs/classes/Scene'
 import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -51,7 +52,7 @@ const instancedMeshVariantQuery = defineQuery([
 
 function execute() {
   const engineState = getState(EngineState)
-  if (!engineState.sceneLoaded || engineState.isEditing) return
+  if (!getState(SceneState).sceneLoaded || engineState.isEditing) return
 
   if (engineState.elapsedSeconds - lastUpdate < updateFrequency) return
   lastUpdate = engineState.elapsedSeconds
