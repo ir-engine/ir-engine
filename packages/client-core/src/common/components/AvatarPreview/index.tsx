@@ -79,7 +79,10 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     /** @todo this is a hack */
     const override = !isAvaturn(avatarUrl) ? undefined : AssetType.glB
 
-    initializeKTX2Loader(AssetLoader.getLoader(AssetType.glB) as GLTFLoader)
+    const gltfLoader = AssetLoader.getLoader(AssetType.glTF) as GLTFLoader
+    if (!gltfLoader.ktx2Loader) {
+      initializeKTX2Loader(gltfLoader)
+    }
 
     AssetLoader.loadAsync(avatarUrl, {
       forceAssetType: override
