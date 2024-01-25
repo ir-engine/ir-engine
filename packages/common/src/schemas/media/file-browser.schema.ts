@@ -36,12 +36,15 @@ export const fileBrowserContentSchema = Type.Object(
     type: Type.String(),
     name: Type.String(),
     url: Type.String(),
-    size: Type.Optional(Type.Number())
+    size: Type.Optional(Type.Number()),
+    thumbnailKey: Type.String(),
+    hasCustomThumbnail: Type.Boolean()
   },
   {
     $id: 'FileBrowserContent'
   }
 )
+
 export interface FileBrowserContentType extends Static<typeof fileBrowserContentSchema> {}
 
 export const fileBrowserUpdateSchema = Type.Object(

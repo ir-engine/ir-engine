@@ -32,22 +32,23 @@ import { FileBrowserService } from '@etherealengine/client-core/src/common/servi
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { StateMethods, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import DescriptionIcon from '@mui/icons-material/Description'
-import FolderIcon from '@mui/icons-material/Folder'
 import InputBase from '@mui/material/InputBase'
 import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
+import { FileBrowserContentType } from '@etherealengine/common/src/schema.type.module'
 import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
 import { Vector3 } from 'three'
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { addMediaNode } from '../../../functions/addMediaNode'
+import { isFolder } from '../../../functions/isFolder'
 import { getSpawnPositionAtCenter } from '../../../functions/screenSpaceFunctions'
+import { toLegacyFileData } from '../../../functions/toLegacyFileData'
 import { ContextMenu } from '../../layout/ContextMenu'
 import styles from '../styles.module.scss'
 import { FilesViewModeSettings, availableTableColumns } from './FileBrowserState'
-import { FileDataType } from './FileDataType'
+import { FileIcon } from './FileIcon'
 
 const RenameInput = ({ fileName, onNameChanged }: { fileName: string; onNameChanged: (newName: string) => void }) => {
   const newFileName = useHookstate(fileName)
@@ -112,7 +113,7 @@ export const FileTableListBody = ({
   isOver,
   drag
 }: {
-  file: FileDataType
+  file: FileBrowserContentType
   onContextMenu: React.MouseEventHandler
   isRenaming: boolean
   onNameChanged: (newName: string) => void
@@ -130,14 +131,8 @@ export const FileTableListBody = ({
   const tableColumns = {
     name: (
       <span className={styles.cellName}>
-        {file.isFolder ? (
-          <FolderIcon fontSize="inherit" />
-        ) : file.Icon ? (
-          <file.Icon fontSize="inherit" />
-        ) : (
-          <DescriptionIcon fontSize="inherit" />
-        )}
-        {isRenaming ? <RenameInput fileName={file.name} onNameChanged={onNameChanged} /> : file.fullName}
+        <FileIcon file={file} />
+        {isRenaming ? <RenameInput fileName={file.name} onNameChanged={onNameChanged} /> : file.name}
       </span>
     ),
     type: file.type.toUpperCase(),
@@ -147,7 +142,7 @@ export const FileTableListBody = ({
   return (
     <TableRow
       key={file.key}
-      sx={{ border: file.isFolder ? (isOver ? '3px solid #ccc' : '') : '', height: fontSize * 3 }}
+      sx={{ border: isFolder(file) ? (isOver ? '3px solid #ccc' : '') : '', height: fontSize * 3 }}
       onContextMenu={onContextMenu}
       onClick={isRenaming ? () => {} : onClick}
       onDoubleClick={isRenaming ? () => {} : onDoubleClick}
@@ -166,7 +161,7 @@ export const FileTableListBody = ({
 }
 
 type FileGridItemProps = {
-  item: FileDataType
+  item: FileBrowserContentType
   isRenaming: boolean
   onDoubleClick?: MouseEventHandler<HTMLDivElement>
   onClick?: MouseEventHandler<HTMLDivElement>
@@ -178,8 +173,8 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   return (
     <div
       className={styles.fileListItemContainer}
-      onDoubleClick={props.item.isFolder ? props.onDoubleClick : undefined}
-      onClick={props.item.isFolder ? undefined : props.onClick}
+      onDoubleClick={isFolder(props.item) ? props.onDoubleClick : undefined}
+      onClick={isFolder(props.item) ? undefined : props.onClick}
       style={{
         fontSize: 0.2 * iconSize,
         width: iconSize + 10,
@@ -194,38 +189,29 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
           fontSize: iconSize
         }}
       >
-        {props.item.isFolder ? (
-          <FolderIcon fontSize={'inherit'} />
-        ) : props.item.Icon ? (
-          <props.item.Icon fontSize={'inherit'} />
-        ) : (
-          <>
-            <DescriptionIcon fontSize={'inherit'} />
-            <span className={styles.extensionRibbon}>{props.item.type}</span>
-          </>
-        )}
+        <FileIcon file={props.item} showRibbon />
       </div>
       {props.isRenaming ? (
         <RenameInput fileName={props.item.name} onNameChanged={props.onNameChanged} />
       ) : (
-        props.item.fullName
+        props.item.name
       )}
     </div>
   )
 }
 
 type FileBrowserItemType = {
-  item: FileDataType
+  item: FileBrowserContentType
   disableDnD?: boolean
-  currentContent: MutableRefObject<{ item: FileDataType; isCopy: boolean }>
+  currentContent: MutableRefObject<{ item: FileBrowserContentType; isCopy: boolean }>
   setFileProperties: any
   setOpenPropertiesModal: any
   setOpenCompress: any
   setOpenConvert: any
   isFilesLoading: StateMethods<boolean>
   deleteContent: (contentPath: string, type: string) => void
-  onClick: (params: FileDataType) => void
-  dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
+  onClick: (params: FileBrowserContentType) => void
+  dropItemsOnPanel: (data: any, dropOn?: FileBrowserContentType) => void
   moveContent: (oldName: string, newName: string, oldPath: string, newPath: string, isCopy?: boolean) => Promise<void>
   addFolder: () => void
   refreshDirectory: () => Promise<void>
@@ -321,11 +307,13 @@ export function FileBrowserItem({
     if (isFilesLoading.value) return
     isFilesLoading.set(true)
 
+    const legacyData = toLegacyFileData(currentContent.current.item)
+
     await FileBrowserService.moveContent(
-      currentContent.current.item.fullName,
-      currentContent.current.item.fullName,
-      currentContent.current.item.path,
-      item.isFolder ? item.path + item.fullName : item.path,
+      legacyData.fullName,
+      legacyData.fullName,
+      legacyData.path,
+      isFolder(item) ? legacyData.path + legacyData.fullName : legacyData.path,
       currentContent.current.isCopy
     )
 
@@ -362,8 +350,14 @@ export function FileBrowserItem({
 
   const onNameChanged = async (fileName: string): Promise<void> => {
     setRenamingAsset(false)
-
-    await moveContent(item.fullName, item.isFolder ? fileName : `${fileName}.${item.type}`, item.path, item.path, false)
+    const legacyData = toLegacyFileData(item)
+    await moveContent(
+      legacyData.fullName,
+      isFolder(item) ? fileName : `${fileName}.${item.type}`,
+      legacyData.path,
+      legacyData.path,
+      false
+    )
   }
 
   const rename = () => {
@@ -412,7 +406,7 @@ export function FileBrowserItem({
           drag={drag}
         />
       ) : (
-        <div ref={drop} style={{ border: item.isFolder ? (isOver ? '3px solid #ccc' : '') : '' }}>
+        <div ref={drop} style={{ border: isFolder(item) ? (isOver ? '3px solid #ccc' : '') : '' }}>
           <div ref={drag}>
             <div onContextMenu={handleContextMenu}>
               <FileGridItem
@@ -429,11 +423,11 @@ export function FileBrowserItem({
 
       <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
         <MenuItem onClick={addFolder}>{t('editor:layout.filebrowser.addNewFolder')}</MenuItem>
-        {!item.isFolder && <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>}
-        {!item.isFolder && (
+        {!isFolder(item) && <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>}
+        {!isFolder(item) && (
           <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
         )}
-        {!item.isFolder && <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>}
+        {!isFolder(item) && <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>}
         <MenuItem onClick={copyURL}>{t('editor:layout.assetGrid.copyURL')}</MenuItem>
         <MenuItem onClick={Cut}>{t('editor:layout.filebrowser.cutAsset')}</MenuItem>
         <MenuItem onClick={Copy}>{t('editor:layout.filebrowser.copyAsset')}</MenuItem>

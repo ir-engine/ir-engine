@@ -38,12 +38,11 @@ import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProg
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
-import { fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
+import { FileBrowserContentType, fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
-import { FileType } from './FileBrowser/FileBrowserContentPanel'
 import styles from './styles.module.scss'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
@@ -61,6 +60,7 @@ import { createSceneEntity } from '@etherealengine/engine/src/ecs/functions/crea
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import exportGLTF from '../../functions/exportGLTF'
+import { isFolder } from '../../functions/isFolder'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 
 const UASTCFlagOptions = [
@@ -77,8 +77,8 @@ const UASTCFlagOptions = [
   { label: 'Disable Flip and Individual', value: 256 }
 ]
 
-const fileConsistsOfContentType = function (file: FileType, contentType: string): boolean {
-  if (file.isFolder) {
+const fileConsistsOfContentType = function (file: FileBrowserContentType, contentType: string): boolean {
+  if (isFolder(file)) {
     return contentType.startsWith('image')
   } else {
     const guessedType: string = CommonKnownContentTypes[file.type]
@@ -92,7 +92,7 @@ export default function CompressionPanel({
   onRefreshDirectory
 }: {
   openCompress: State<boolean>
-  fileProperties: State<FileType>
+  fileProperties: State<FileBrowserContentType>
   onRefreshDirectory: () => Promise<void>
 }) {
   const compressProperties = useHookstate<KTX2EncodeArguments>(KTX2EncodeDefaultArguments)
@@ -262,7 +262,7 @@ export default function CompressionPanel({
         </>
       }
     >
-      <InputGroup name="fileType" label={fileProperties.value?.isFolder ? 'Directory' : 'File'}>
+      <InputGroup name="fileType" label={isFolder(fileProperties.value) ? 'Directory' : 'File'}>
         <Typography variant="body2">{t('editor:properties.model.transform.compress') as string}</Typography>
       </InputGroup>
 

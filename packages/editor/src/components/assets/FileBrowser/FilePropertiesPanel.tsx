@@ -32,24 +32,27 @@ import { useTranslation } from 'react-i18next'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import styles from '../styles.module.scss'
-import { FileType } from './FileBrowserContentPanel'
 
 import { logger } from '@etherealengine/client-core/src/user/services/AuthService'
-import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import {
+  FileBrowserContentType,
+  StaticResourceType,
+  staticResourcePath
+} from '@etherealengine/common/src/schema.type.module'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { saveProjectResources } from '../../../functions/saveProjectResources'
 import { Button } from '../../inputs/Button'
 
 export const FilePropertiesPanel = (props: {
   openProperties: State<boolean>
-  fileProperties: State<FileType | null>
+  fileProperties: State<FileBrowserContentType | null>
 }) => {
   const { openProperties, fileProperties } = props
   const { t } = useTranslation()
   if (!fileProperties.value) return null
 
-  const modifiableProperties: State<FileType> = useHookstate(
-    JSON.parse(JSON.stringify(fileProperties.get(NO_PROXY))) as FileType
+  const modifiableProperties: State<FileBrowserContentType> = useHookstate(
+    JSON.parse(JSON.stringify(fileProperties.get(NO_PROXY))) as FileBrowserContentType
   )
 
   const isModified = useHookstate(false)

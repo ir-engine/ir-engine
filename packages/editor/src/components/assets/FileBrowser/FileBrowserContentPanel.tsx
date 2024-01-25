@@ -60,7 +60,12 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { Breadcrumbs, Link, Popover, TablePagination } from '@mui/material'
 
 import InputSlider from '@etherealengine/client-core/src/common/components/InputSlider'
-import { archiverPath, fileBrowserUploadPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import {
+  archiverPath,
+  FileBrowserContentType,
+  fileBrowserUploadPath,
+  staticResourcePath
+} from '@etherealengine/common/src/schema.type.module'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
@@ -68,7 +73,9 @@ import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { inputFileWithAddToScene } from '../../../functions/assetFunctions'
-import { bytesToSize, unique } from '../../../functions/utils'
+import { isFolder } from '../../../functions/isFolder'
+import { toLegacyFileData } from '../../../functions/toLegacyFileData'
+import { unique } from '../../../functions/utils'
 import StringInput from '../../inputs/StringInput'
 import { ToolButton } from '../../toolbar/ToolButton'
 import { AssetSelectionChangePropsType } from '../AssetsPreviewPanel'
@@ -77,8 +84,6 @@ import ImageConvertPanel from '../ImageConvertPanel'
 import styles from '../styles.module.scss'
 import { FileBrowserItem, FileTableWrapper } from './FileBrowserGrid'
 import { availableTableColumns, FilesViewModeSettings, FilesViewModeState } from './FileBrowserState'
-import { FileDataType } from './FileDataType'
-import { FileIcon } from './FileIcon'
 import { FilePropertiesPanel } from './FilePropertiesPanel'
 
 type FileBrowserContentPanelProps = {
@@ -95,18 +100,7 @@ type DnDFileType = {
   items: DataTransferItemList
 }
 
-export type FileType = {
-  fullName: string
-  isFolder: boolean
-  key: string
-  name: string
-  path: string
-  size: string
-  type: string
-  url: string
-}
-
-export function isFileDataType(value: any): value is FileDataType {
+export function isFileBrowserContentType(value: any): value is FileBrowserContentType {
   return value && value.key
 }
 
@@ -119,7 +113,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const originalPath = `/${props.folderName || 'projects'}/${props.selectedFile ? props.selectedFile + '/' : ''}`
   const selectedDirectory = useHookstate(originalPath)
   const nestingDirectory = useHookstate(props.nestingDirectory || 'projects')
-  const fileProperties = useHookstate<FileType | null>(null)
+  const fileProperties = useHookstate<FileBrowserContentType | null>(null)
   const isLoading = useHookstate(true)
 
   const openProperties = useHookstate(false)
@@ -140,19 +134,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const { skip, total, retrieving } = fileState.value
 
   let page = skip / FILES_PAGE_LIMIT
-  const files = fileState.files.value.map((file) => {
-    const isFolder = file.type === 'folder'
-    const fullName = isFolder ? file.name : file.name + '.' + file.type
-
-    return {
-      ...file,
-      size: file.size ? bytesToSize(file.size) : '0',
-      path: isFolder ? file.key.split(file.name)[0] : file.key.split(fullName)[0],
-      fullName,
-      isFolder,
-      Icon: FileIcon(file)
-    }
-  })
+  const files = fileState.files.value
 
   useEffect(() => {
     if (filesValue) {
@@ -173,13 +155,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     FileBrowserService.resetSkip()
   }
 
-  const onSelect = (params: FileDataType) => {
+  const onSelect = (params: FileBrowserContentType) => {
     if (params.type !== 'folder') {
       props.onSelectionChanged({
         resourceUrl: params.url,
         name: params.name,
         contentType: params.type,
-        size: params.size
+        size: params.size?.toString()
       })
     } else {
       const newPath = `${selectedDirectory.value}${params.name}/`
@@ -197,14 +179,15 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     await refreshDirectory()
   }
 
-  const dropItemsOnPanel = async (data: FileDataType | DnDFileType, dropOn?: FileDataType) => {
+  const dropItemsOnPanel = async (data: FileBrowserContentType | DnDFileType, dropOn?: FileBrowserContentType) => {
     if (isLoading.value) return
 
-    const path = dropOn?.isFolder ? dropOn.key : selectedDirectory.value
+    const path = isFolder(dropOn) ? dropOn!.key : selectedDirectory.value
 
-    if (isFileDataType(data)) {
-      if (dropOn?.isFolder) {
-        moveContent(data.fullName, data.fullName, data.path, path, false)
+    if (isFileBrowserContentType(data)) {
+      if (isFolder(dropOn)) {
+        const legacyData = toLegacyFileData(data)
+        moveContent(legacyData.fullName, legacyData.fullName, legacyData.path, path, false)
       }
     } else {
       isLoading.set(true)
@@ -274,7 +257,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     await refreshDirectory()
   }
 
-  const currentContentRef = useRef(null! as { item: FileDataType; isCopy: boolean })
+  const currentContentRef = useRef(null! as { item: FileBrowserContentType; isCopy: boolean })
 
   const showUploadAndDownloadButtons =
     selectedDirectory.value.slice(1).startsWith('projects/') &&
@@ -357,7 +340,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const validFiles = useHookstate<typeof files>([])
 
   useEffect(() => {
-    validFiles.set(files.filter((file) => file.fullName.toLowerCase().includes(searchText.value.toLowerCase())))
+    validFiles.set(files.filter((file) => file.name.toLowerCase().includes(searchText.value.toLowerCase())))
   }, [searchText.value, fileState.files])
 
   const DropArea = () => {
@@ -661,5 +644,3 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     </div>
   )
 }
-
-export default FileBrowserContentPanel

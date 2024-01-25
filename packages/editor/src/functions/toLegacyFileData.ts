@@ -23,14 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export type FileDataType = {
-  key: string
-  path: string
-  name: string
-  fullName: string
-  size?: string
-  url: string
-  type: string
-  isFolder: boolean
-  Icon: any
+import { isFolder } from './isFolder'
+
+export const toLegacyFileData = (file) => {
+  const fileIsFolder = isFolder(file)
+  const fullName = fileIsFolder ? file.name : file.name + '.' + file.type
+  const path = fileIsFolder ? file.key.split(file.name)[0] : file.key.split(fullName)[0]
+  return { fullName, path }
 }
