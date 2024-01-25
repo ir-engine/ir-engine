@@ -28,7 +28,7 @@ import { NO_PROXY, defineAction, getMutableState, useState } from '@etherealengi
 import { useEffect } from 'react'
 
 import { UploadRequestState } from '@etherealengine/engine/src/assets/state/UploadRequestState'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { uploadProjectFiles } from '../functions/assetFunctions'
 
 const clearUploadQueueAction = defineAction({

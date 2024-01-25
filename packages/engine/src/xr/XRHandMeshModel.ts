@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Group, Object3D, SkinnedMesh } from 'three'
 
+import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { Entity } from './../ecs/classes/Entity'
 import { XRHandBones } from './XRHandBones'
 
@@ -39,7 +40,7 @@ export class XRHandMeshModel extends Object3D {
     this.controller = controller
     this.bones = []
     this.handedness = handedness
-    this.add(model)
+    addObjectToGroup(entity, model)
 
     const mesh = model.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
     mesh.frustumCulled = false

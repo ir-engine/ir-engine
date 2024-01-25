@@ -52,14 +52,15 @@ import {
   hasComponent,
   removeComponent,
   setComponent,
-  useOptionalComponent,
-  useQuery
+  useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { QueryReactor, defineSystem, destroySystem } from '../../ecs/functions/SystemFunctions'
-import { NetworkState } from '../../networking/NetworkState'
+import { QueryReactor, useQuery } from '../../ecs/functions/QueryFunctions'
+import { defineSystem, destroySystem } from '../../ecs/functions/SystemFunctions'
+import { PresentationSystemGroup } from '../../ecs/functions/SystemGroups'
+import { NetworkState, SceneUser } from '../../networking/NetworkState'
+import { NetworkTopics } from '../../networking/classes/Network'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -113,6 +114,7 @@ const reactor = () => {
           TransformComponent,
           UUIDComponent,
           SceneObjectComponent,
+          Not(GLTFLoadedComponent),
           Not(SceneTagComponent)
         ]}
         ChildEntityReactor={NetworkedSceneObjectReactor}
@@ -127,27 +129,23 @@ const reactor = () => {
 /** @todo - this needs to be rework according to #9105 # */
 const NetworkedSceneObjectReactor = () => {
   const entity = useEntityContext()
-  const loaded = useHookstate(false)
-  const worldNetwork = useHookstate(NetworkState.worldNetworkState)
 
   useEffect(() => {
-    if (loaded.value) return
-    if (NetworkState.worldNetwork?.isHosting) {
-      if (!entityExists(entity)) return
-      if (hasComponent(entity, GLTFLoadedComponent)) return
-      const uuid = getComponent(entity, UUIDComponent)
-      const transform = getComponent(entity, TransformComponent)
-      dispatchAction(
-        WorldNetworkAction.spawnObject({
-          entityUUID: uuid,
-          prefab: '',
-          position: transform.position.clone(),
-          rotation: transform.rotation.clone()
-        })
-      )
-      loaded.set(true)
-    }
-  }, [worldNetwork])
+    if (!entityExists(entity)) return
+    const uuid = getComponent(entity, UUIDComponent)
+    const transform = getComponent(entity, TransformComponent)
+    const isHostingWorldNetwork = !!NetworkState.worldNetwork?.isHosting
+    dispatchAction(
+      WorldNetworkAction.spawnObject({
+        $from: SceneUser,
+        $time: isHostingWorldNetwork ? undefined : 0,
+        entityUUID: uuid,
+        position: transform.position.clone(),
+        rotation: transform.rotation.clone(),
+        $topic: isHostingWorldNetwork ? NetworkTopics.world : undefined
+      })
+    )
+  }, [])
 
   return null
 }
@@ -197,7 +195,8 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     Engine.instance.api.service(scenePath).on('updated', sceneUpdatedListener)
 
     return () => {
-      Engine.instance.api.service(scenePath).off('updated', sceneUpdatedListener)
+      // the ? is for testing
+      Engine.instance?.api.service(scenePath).off('updated', sceneUpdatedListener)
     }
   }, [])
 
@@ -246,7 +245,7 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
     setComponent(entity, SceneTagComponent, true)
     setComponent(entity, TransformComponent)
     setComponent(entity, SceneObjectComponent)
-    setComponent(entity, EntityTreeComponent, { parentEntity: null })
+    setComponent(entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
 
     loadComponents(entity, entityState.components.get(NO_PROXY))
 
@@ -399,7 +398,7 @@ const ComponentLoadReactor = (props: {
     if (!componentState?.value) return
     const entity = UUIDComponent.getEntityByUUID(props.entityUUID)
     loadComponents(entity, [componentState.get(NO_PROXY)])
-  }, [componentState])
+  }, [componentState.get(NO_PROXY)])
 
   return null
 }
@@ -432,7 +431,10 @@ const loadComponents = (entity: Entity, components: ComponentJsonType[]) => {
 const sceneLoadedActionQueue = defineActionQueue(EngineActions.sceneLoaded.matches)
 
 const execute = () => {
-  if (sceneLoadedActionQueue().length) getMutableState(EngineState).merge({ sceneLoading: false, sceneLoaded: true })
+  if (sceneLoadedActionQueue().length) {
+    if (getState(EngineState).sceneLoading) getMutableState(EngineState).sceneLoading.set(false)
+    if (!getState(EngineState).sceneLoaded) getMutableState(EngineState).sceneLoaded.set(true)
+  }
 }
 
 export const SceneLoadingSystem = defineSystem({

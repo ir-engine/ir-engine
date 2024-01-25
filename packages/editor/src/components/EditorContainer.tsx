@@ -40,17 +40,14 @@ import Dialog from '@mui/material/Dialog'
 
 import { scenePath } from '@etherealengine/common/src/schema.type.module'
 import { SceneServices, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { t } from 'i18next'
 import { inputFileWithAddToScene } from '../functions/assetFunctions'
 import { onNewScene, saveScene, setSceneInState } from '../functions/sceneFunctions'
-import { takeScreenshot } from '../functions/takeScreenshot'
-import { uploadSceneBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
-import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import './EditorContainer.css'
 import { COMPONENT_PROPERTIES_TAB, DockContainer, DockContainerProvider, defaultLayout } from './EditorDockContainer'
@@ -164,21 +161,14 @@ const onSaveAs = async () => {
   const abortController = new AbortController()
   try {
     if (sceneName || editorState.sceneModified.value) {
-      const thumbnailBlob = await takeScreenshot(512, 320, 'jpeg')
-      const file = new File([thumbnailBlob!], editorState.sceneName + '.thumbnail.jpg')
       const result: { name: string } | void = await new Promise((resolve) => {
         DialogState.setDialog(
-          <SaveNewSceneDialog
-            thumbnailUrl={URL.createObjectURL(thumbnailBlob!)}
-            initialName={Engine.instance.scene.name}
-            onConfirm={resolve}
-            onCancel={resolve}
-          />
+          <SaveNewSceneDialog initialName={Engine.instance.scene.name} onConfirm={resolve} onCancel={resolve} />
         )
       })
       DialogState.setDialog(null)
       if (result?.name && projectName) {
-        await saveScene(projectName, result.name, file, abortController.signal)
+        await saveScene(projectName, result.name, abortController.signal)
         editorState.sceneModified.set(false)
         const newSceneData = await Engine.instance.api
           .service(scenePath)
@@ -204,7 +194,8 @@ const onSaveScene = async () => {
   const { projectName, sceneName } = getState(EditorState)
   const { sceneModified } = getState(EditorState)
   const { sceneLoaded } = getState(EngineState)
-  console.log('onSaveScene')
+
+  if (!projectName) return
 
   // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
   if (!sceneLoaded) {
@@ -219,13 +210,8 @@ const onSaveScene = async () => {
     return
   }
 
-  const thumbnailBlob = await takeScreenshot(512, 320)
-  const file = new File([thumbnailBlob!], sceneName + '.thumbnail.jpg')
-
   const result = (await new Promise((resolve) => {
-    DialogState.setDialog(
-      <SaveSceneDialog onConfirm={resolve} onCancel={resolve} thumbnailUrl={URL.createObjectURL(thumbnailBlob!)} />
-    )
+    DialogState.setDialog(<SaveSceneDialog onConfirm={resolve} onCancel={resolve} />)
   })) as any
 
   if (!result) {
@@ -250,15 +236,7 @@ const onSaveScene = async () => {
   await new Promise((resolve) => setTimeout(resolve, 5))
 
   try {
-    if (projectName) {
-      const isGenerateThumbnailsEnabled = getState(EditorHelperState).isGenerateThumbnailsEnabled
-      if (isGenerateThumbnailsEnabled) {
-        await uploadSceneBakeToServer()
-        await saveScene(projectName, sceneName, file, abortController.signal)
-      } else {
-        await saveScene(projectName, sceneName, null, abortController.signal)
-      }
-    }
+    await saveScene(projectName, sceneName, abortController.signal)
 
     getMutableState(EditorState).sceneModified.set(false)
 

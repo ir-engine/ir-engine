@@ -30,31 +30,31 @@ import { isDev } from '@etherealengine/common/src/config'
 import { V_001, V_010 } from '@etherealengine/engine/src/common/constants/MathConstants'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
-  defineQuery,
   getComponent,
   hasComponent,
   removeComponent,
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '@etherealengine/engine/src/input/state/ButtonState'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { VisibleComponent, setVisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent
 } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { isMobileXRHeadset, ReferenceSpace, XRState } from '@etherealengine/engine/src/xr/XRState'
-import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
+import { ReferenceSpace, XRState, isMobileXRHeadset } from '@etherealengine/engine/src/xr/XRState'
 import {
   RegisteredWidgets,
   WidgetAppActions,
   WidgetAppService,
   WidgetAppState
 } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
 import {
   defineActionQueue,
   defineState,
@@ -68,6 +68,7 @@ import { createAnchorWidget } from './createAnchorWidget'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
 // import { createMediaWidget } from './createMediaWidget'
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
@@ -88,7 +89,7 @@ const WidgetUISystemState = defineState({
   name: 'WidgetUISystemState',
   initial: () => {
     const widgetMenuUI = createWidgetButtonsView()
-    setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: null })
+    setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
     setComponent(widgetMenuUI.entity, TransformComponent)
     removeComponent(widgetMenuUI.entity, VisibleComponent)
     setComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
@@ -160,7 +161,7 @@ const execute = () => {
   }
   for (const action of unregisterWidgetQueue()) {
     const widget = RegisteredWidgets.get(action.id)!
-    setComponent(widget.ui.entity, EntityTreeComponent, { parentEntity: null })
+    setComponent(widget.ui.entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
     if (typeof widget.cleanup === 'function') widget.cleanup()
   }
 
@@ -191,7 +192,7 @@ const execute = () => {
     }
   } else {
     if (!hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
-      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: null })
+      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
       setComputedTransformComponent(widgetMenuUI.entity, Engine.instance.cameraEntity, () => {
         const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
         const distance = camera.near * 1.1 // 10% in front of camera
