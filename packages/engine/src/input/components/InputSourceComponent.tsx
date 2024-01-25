@@ -32,6 +32,7 @@ import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getOptionalComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
@@ -192,7 +193,7 @@ const InputSourceAssignmentReactor = React.memo((props: { assignedEntity: Entity
     const idx = input.inputSources.value.indexOf(sourceEntity)
     idx === -1 && input.inputSources.merge([sourceEntity])
     return () => {
-      if (!input.inputSources?.value) return
+      if (!hasComponent(props.assignedEntity, InputComponent) || !input.inputSources?.value) return
       const idx = input.inputSources.value.indexOf(sourceEntity)
       idx > -1 && input.inputSources[idx].set(none)
     }
