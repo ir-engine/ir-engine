@@ -67,14 +67,12 @@ export const useEngineInjection = () => {
 
 export const useLocationSpawnAvatar = (spectate = false) => {
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
-  const spawned = useHookstate(false)
 
   useEffect(() => {
-    if (!sceneLoaded.value || spawned.value) return
+    if (!sceneLoaded.value) return
 
     if (spectate) {
       dispatchAction(EngineActions.spectateUser({}))
-      spawned.set(true)
       return
     }
 
@@ -94,8 +92,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
       avatarID: user.avatar.id!,
       name: user.name
     })
-    spawned.set(true)
-  }, [sceneLoaded])
+  }, [sceneLoaded.value])
 }
 
 /**
@@ -186,7 +183,7 @@ export const usePortalTeleport = () => {
     } else {
       getMutableState(PortalState).portalReady.set(true)
       // teleport player to where the portal spawn position is
-      teleportAvatar(Engine.instance.localClientEntity, activePortal.remoteSpawnPosition)
+      teleportAvatar(Engine.instance.localClientEntity, activePortal.remoteSpawnPosition, true)
     }
   }, [portalState.activePortalEntity])
 
@@ -199,9 +196,9 @@ export const usePortalTeleport = () => {
     RouterState.navigate('/location/' + activePortal.location)
     LocationService.getLocationByName(activePortal.location)
 
-    // shut down connection with existing world instance server
-    // leaving a world instance server will check if we are in a location media instance and shut that down too
-    leaveNetwork(NetworkState.worldNetwork as SocketWebRTCClientNetwork)
+    if (activePortal.effectType === 'None') {
+      getMutableState(PortalState).activePortalEntity.set(UndefinedEntity)
+    }
   }, [portalState.portalReady])
 }
 
@@ -270,5 +267,5 @@ export const useNetwork = (props: { online?: boolean }) => {
       removeNetwork(network)
       networkState.hostIds.world.set(none)
     }
-  }, [sceneLoaded, props.online])
+  }, [sceneLoaded.value, props.online])
 }

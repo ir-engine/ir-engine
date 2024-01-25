@@ -285,3 +285,10 @@ export function findIndexOfEntityNode(arr: Entity[], obj: Entity): number {
   }
   return -1
 }
+
+export function isDeepChildOf(child: Entity, parent: Entity): boolean {
+  const childTreeNode = getOptionalComponent(child, EntityTreeComponent)
+  if (!childTreeNode) return false
+  if (childTreeNode.parentEntity === parent) return true
+  return isDeepChildOf(childTreeNode.parentEntity, parent)
+}
