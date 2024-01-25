@@ -37,7 +37,7 @@ export const useVariableHandler = ({
 }: Pick<BehaveGraphFlow, 'variables' | 'setVariables'>) => {
   const createVariable = (): VariableJSON => ({
     id: uuidv4(),
-    name: uniqueId('New Variable '),
+    name: uniqueId('variable '),
     valueTypeName: 'string',
     initialValue: ''
   })

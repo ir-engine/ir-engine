@@ -98,9 +98,9 @@ export const getCameraEntity = makeFunctionNodeDefinition({
 })
 
 export const onEntity = makeFlowNodeDefinition({
-  typeName: 'engine/entity/onEntity',
+  typeName: 'engine/entity/exists',
   category: NodeCategory.Action,
-  label: 'Test if entity is valid',
+  label: 'Entity exists',
   in: {
     flow: 'flow',
     entity: 'entity'
@@ -108,6 +108,7 @@ export const onEntity = makeFlowNodeDefinition({
   out: {
     flow: 'flow',
     entity: 'entity',
+    uuid: 'string',
     exists: 'bool',
     position: 'vec3',
     rotation: 'quat',
@@ -127,6 +128,7 @@ export const onEntity = makeFlowNodeDefinition({
       write('rotation', transform.rotation)
       write('scale', transform.scale)
       write('matrix', transform.matrix)
+      write('uuid', getComponent(entity, UUIDComponent) as string)
     }
     commit('flow')
   }

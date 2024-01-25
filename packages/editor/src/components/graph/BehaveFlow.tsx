@@ -29,7 +29,7 @@ import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/funct
 import { useQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { isEqual } from 'lodash'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { ReactFlowProvider } from 'reactflow'
@@ -50,10 +50,6 @@ export const ActiveBehaveGraph = (props: { entity }) => {
   const graphComponent = getComponent(entity, BehaveGraphComponent)
   const [activeGraph, setActiveGraph] = useState(graphComponent.graph)
 
-  useEffect(() => {
-    commitProperty(BehaveGraphComponent, 'graph')(activeGraph)
-  }, [activeGraph])
-
   return (
     <ReactFlowProvider>
       <Flow
@@ -64,6 +60,7 @@ export const ActiveBehaveGraph = (props: { entity }) => {
           (newGraph) => {
             if (!newGraph) return
             if (isEqual(activeGraph, newGraph)) return
+            commitProperty(BehaveGraphComponent, 'graph')(newGraph)
             setActiveGraph(newGraph)
           }
           // need this to smoothen UX

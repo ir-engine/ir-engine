@@ -52,14 +52,16 @@ export const EngineVariableGet = makeFunctionNodeDefinition({
     const sockets: SocketsList = [
       {
         key: Object.keys(EngineVariableGet.configuration!).find((key) => key === 'variableName')!,
-        valueType: EngineVariableGet.configuration!.variableName?.valueType
+        valueType: EngineVariableGet.configuration!.variableName?.valueType,
+        choices: Object.values(graph.variables).map((variable: Variable) => variable.name)
       }
     ]
     return sockets
   },
   out: (configuration, graph) => {
-    const variableId = Object.values(graph.variables).find((variable) => variable.name === configuration.variableName)
-      ?.id
+    const variableId = Object.values(graph.variables).find(
+      (variable: Variable) => variable.name === configuration.variableName
+    )?.id
 
     const variable = variableId !== undefined ? graph.variables[variableId] : new Variable('-1', 'value', 'string', '')
 
@@ -74,7 +76,9 @@ export const EngineVariableGet = makeFunctionNodeDefinition({
     return result
   },
   exec: ({ read, write, graph: { variables }, configuration }) => {
-    const variableId = Object.values(variables).find((variable) => variable.name === read<string>('variableName'))?.id
+    const variableId = Object.values(variables).find(
+      (variable: Variable) => variable.name === read<string>('variableName')
+    )?.id
     const variable = variables[variableId!]
     if (!variable) return
     const value = variable.get()
@@ -93,8 +97,9 @@ export const EngineVariableSet = makeFlowNodeDefinition({
     }
   },
   in: (configuration, graph: IGraph) => {
-    const variableId = Object.values(graph.variables).find((variable) => variable.name === configuration.variableName)
-      ?.id
+    const variableId = Object.values(graph.variables).find(
+      (variable: Variable) => variable.name === configuration.variableName
+    )?.id
 
     const variable = variableId !== undefined ? graph.variables[variableId] : new Variable('-1', 'value', 'string', '')
 
@@ -105,7 +110,8 @@ export const EngineVariableSet = makeFlowNodeDefinition({
       },
       {
         key: Object.keys(EngineVariableSet.configuration!).find((key) => key === 'variableName')!,
-        valueType: EngineVariableSet.configuration!.variableName?.valueType
+        valueType: EngineVariableSet.configuration!.variableName?.valueType,
+        choices: Object.values(graph.variables).map((variable: Variable) => variable.name)
       },
       {
         key: 'value',
@@ -120,7 +126,7 @@ export const EngineVariableSet = makeFlowNodeDefinition({
   out: { flow: 'flow' },
   triggered: ({ read, commit, graph: { variables }, configuration }) => {
     const variableId = Object.values(variables).find(
-      (variable) => variable.name === read(Object.keys(configuration).find((key) => key === 'variableName')!)
+      (variable: Variable) => variable.name === read(Object.keys(configuration).find((key) => key === 'variableName')!)
     )?.id
     const variable = variables[variableId!]
 
@@ -154,7 +160,8 @@ export const EngineVariableUse = makeEventNodeDefinition({
     const sockets: SocketsList = [
       {
         key: Object.keys(EngineVariableGet.configuration!).find((key) => key === 'variableName')!,
-        valueType: EngineVariableGet.configuration!.variableName?.valueType
+        valueType: EngineVariableGet.configuration!.variableName?.valueType,
+        choices: Object.values(graph.variables).map((variable: Variable) => variable.name)
       }
     ]
     return sockets

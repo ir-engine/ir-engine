@@ -74,7 +74,7 @@ export function getComponentSetters() {
       continue
     }
     const node = makeFlowNodeDefinition({
-      typeName: `engine/component/set${componentName}`,
+      typeName: `engine/component/${componentName}/set`,
       category: NodeCategory.Action,
       label: `set ${componentName}`,
       in: {
@@ -116,7 +116,7 @@ export function getComponentGetters() {
       continue
     }
     const node = makeFlowNodeDefinition({
-      typeName: `engine/component/get${componentName}`,
+      typeName: `engine/component/${componentName}/get`,
       category: NodeCategory.Query,
       label: `get ${componentName}`,
       in: {
