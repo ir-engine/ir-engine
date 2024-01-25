@@ -152,6 +152,12 @@ function ModelReactor(): JSX.Element {
   })
 
   useEffect(() => {
+    /* unload should only be called when the component is unmounted
+      the useGLTF hook will handle unloading if the model source is changed ie. the user changes their avatar model */
+    return unload
+  }, [])
+
+  useEffect(() => {
     const onprogress = progress.value
     if (!onprogress) return
     if (hasComponent(entity, SceneAssetPendingTagComponent))
@@ -162,6 +168,15 @@ function ModelReactor(): JSX.Element {
         }
       })
   }, [progress])
+
+  useEffect(() => {
+    const err = error.value
+    if (!err) return
+
+    console.error(err)
+    addError(entity, ModelComponent, 'INVALID_SOURCE', err.message)
+    removeComponent(entity, SceneAssetPendingTagComponent)
+  }, [error])
 
   useEffect(() => {
     const loadedAsset = gltf.get(NO_PROXY)
@@ -176,36 +191,13 @@ function ModelReactor(): JSX.Element {
     const boneMatchedAsset = modelComponent.convertToVRM.value
       ? (autoconvertMixamoAvatar(loadedAsset) as GLTF)
       : loadedAsset
+
     /**if we've loaded or converted to vrm, create animation component whose mixer's root is the normalized rig */
     if (boneMatchedAsset instanceof VRM)
       setComponent(entity, AnimationComponent, {
         animations: loadedAsset.animations,
         mixer: new AnimationMixer(boneMatchedAsset.humanoid.normalizedHumanBones.hips.node)
       })
-
-    modelComponent.asset.set(boneMatchedAsset)
-
-    return unload
-  }, [gltf])
-
-  useEffect(() => {
-    const err = error.value
-    if (!err) return
-
-    console.error(err)
-    addError(entity, ModelComponent, 'INVALID_SOURCE', err.message)
-    removeComponent(entity, SceneAssetPendingTagComponent)
-  }, [error])
-
-  useEffect(() => {
-    let aborted = false
-    if (variantComponent && !variantComponent.calculated.value) return
-    const model = modelComponent.value
-    if (!model.src) {
-      modelComponent.scene.set(null)
-      modelComponent.asset.set(null)
-      return
-    }
 
     if (!hasComponent(entity, GroupComponent)) {
       const obj3d = new Group()
@@ -214,17 +206,22 @@ function ModelReactor(): JSX.Element {
       proxifyParentChildRelationships(obj3d)
     }
 
+    modelComponent.asset.set(boneMatchedAsset)
+
     return () => {
-      aborted = true
+      modelComponent.scene.set(null)
+      modelComponent.asset.set(null)
     }
-  }, [modelComponent.src, modelComponent.convertToVRM, variantComponent?.calculated])
+  }, [gltf])
 
   useEffect(() => {
     const model = modelComponent.get(NO_PROXY)!
     const asset = model.asset as GLTF | null
     if (!asset) return
+
     const group = getOptionalComponent(entity, GroupComponent)
     if (!group) return
+
     removeError(entity, ModelComponent, 'INVALID_SOURCE')
     removeError(entity, ModelComponent, 'LOADING_ERROR')
     const sceneObj = group[0] as Scene
@@ -270,14 +267,13 @@ function ModelReactor(): JSX.Element {
       project: '',
       thumbnailUrl: ''
     })
-    const src = modelComponent.src.value
+
     if (!hasComponent(entity, AvatarRigComponent)) {
       //if this is not an avatar, add bbox snap
       setComponent(entity, ObjectGridSnapComponent)
     }
 
     return () => {
-      if (!(asset instanceof VRM)) clearMaterials(src) // [TODO] Replace with hooks and refrence counting
       getMutableState(SceneState).scenes[uuid].set(none)
     }
   }, [modelComponent.scene])

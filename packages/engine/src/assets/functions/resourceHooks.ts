@@ -84,7 +84,6 @@ function useLoader<T extends AssetType>(
         value.set(response)
       },
       (request) => {
-        completed = true
         progress.set(request)
       },
       (err) => {
@@ -132,7 +131,6 @@ function useBatchLoader<T extends AssetType>(
           values[i].set(response)
         },
         (request) => {
-          completedArr[i] = true
           progress[i].set(request)
         },
         (err) => {

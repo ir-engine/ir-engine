@@ -29,6 +29,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { AssetLoader, LoadingArgs } from '../classes/AssetLoader'
+import { Geometry } from '../constants/Geometry'
 import { ResourceLoadingManager } from '../loaders/base/ResourceLoadingManager'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 
@@ -50,7 +51,7 @@ export enum ResourceType {
   Unknown
 }
 
-export type AssetType = GLTF | Texture | CompressedTexture
+export type AssetType = GLTF | Texture | CompressedTexture | Geometry
 
 type BaseMetadata = {
   size?: number
@@ -196,6 +197,9 @@ const load = <T extends AssetType>(
   const resource = resources[url]
   const callbacks = Callbacks[resourceType]
   callbacks.onStart(resource)
+
+  console.log('ResourceManager:load Loading resource: ' + url + ' for entity: ' + entity)
+
   AssetLoader.load(
     url,
     args,
@@ -226,6 +230,8 @@ const unload = (url: string, entity: Entity) => {
     return
   }
 
+  console.log('ResourceManager:unload Unloading resource: ' + url + ' for entity: ' + entity)
+
   const resource = resources[url]
 
   resource.references.set((entities) => {
@@ -249,6 +255,8 @@ const removeResource = (url: string) => {
     return
   }
 
+  console.log('ResourceManager:removeResource: Removing resource: ' + url)
+
   Cache.remove(url)
   const resource = resources[url]
 
@@ -262,6 +270,7 @@ const removeResource = (url: string) => {
         ;(asset as Texture).dispose()
         break
       case ResourceType.Geometry:
+        ;(asset as Geometry).dispose
         break
       case ResourceType.ECSData:
         break
