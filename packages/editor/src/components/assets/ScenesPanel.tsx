@@ -38,6 +38,7 @@ import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from 
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { SceneDataType, SceneID } from '@etherealengine/common/src/schema.type.module'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { TabData } from 'rc-dock'
 import { deleteScene, getScenes, onNewScene, renameScene, setSceneInState } from '../../functions/sceneFunctions'
@@ -65,6 +66,7 @@ export default function ScenesPanel() {
   const [isRenaming, setRenaming] = useState(false)
   const [activeScene, setActiveScene] = useState<SceneDataType | null>(null)
   const editorState = useHookstate(getMutableState(EditorState))
+  const sceneState = useHookstate(getMutableState(SceneState))
   const [scenesLoading, setScenesLoading] = useState(true)
 
   const [thumbnails, setThumbnails] = useState<Map<string, string>>(new Map<string, string>())
@@ -136,7 +138,7 @@ export default function ScenesPanel() {
   }
 
   const startRenaming = () => {
-    if (editorState.sceneModified.value) {
+    if (sceneState.sceneModified.value) {
       DialogState.setDialog(
         <ErrorDialog title={t('editor:errors.unsavedChanges')} message={t('editor:errors.unsavedChangesMsg')} />
       )
