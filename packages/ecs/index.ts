@@ -92,6 +92,7 @@ globalThis.ECS = ECS
 export default ECS
 
 export * from './src/ComponentFunctions'
+export * from './src/Engine'
 export * from './src/EngineFunctions'
 export * from './src/Entity'
 export * from './src/EntityFunctions'

@@ -45,7 +45,6 @@ import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getOptionalComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
@@ -117,19 +116,11 @@ const EntityNetworkReactor = memo((props: { uuid: EntityUUID }) => {
 
     const entity = UUIDComponent.getOrCreateEntityByUUID(props.uuid)
 
-    if ((props.uuid as any as UserID) === Engine.instance.userID) {
-      Engine.instance.localClientEntity = entity
-    }
-
     setComponent(entity, TransformComponent, {
       position: state.spawnPosition.value!,
       rotation: state.spawnRotation.value!
     })
     return () => {
-      if ((props.uuid as any as UserID) === Engine.instance.userID) {
-        Engine.instance.localClientEntity = UndefinedEntity
-      }
-
       removeEntity(entity)
     }
   }, [userConnected])
