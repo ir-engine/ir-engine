@@ -31,33 +31,33 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { createMockNetwork } from '../../../tests/util/createMockNetwork'
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { roundNumberToPlaces } from '../../../tests/util/MathTestUtils'
-import { destroyEngine, Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { createEngine } from '../../initializeEngine'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import {
+  TransformSerialization,
   readPosition,
   readRotation,
   readTransform,
-  TransformSerialization,
   writePosition,
   writeRotation,
   writeTransform
 } from '../../transform/TransformSerialization'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Network } from '../classes/Network'
 // import { XRHandBones } from '../../xr/XRHandBones'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { NetworkState } from '../NetworkState'
 import {
   NetworkObjectAuthorityTag,
   NetworkObjectComponent,
   NetworkObjectSendPeriodicUpdatesTag
 } from '../components/NetworkObjectComponent'
-import { NetworkState } from '../NetworkState'
 import {
   checkBitflag,
   readComponent,
@@ -889,7 +889,7 @@ describe('DataReader', () => {
 
     const peerID = 'peerID' as PeerID
     const network = NetworkState.worldNetwork as Network
-    const engineState = getMutableState(EngineState)
+    const engineState = getMutableState(ECSState)
     engineState.simulationTime.set(1)
 
     const n = 10
@@ -973,7 +973,7 @@ describe('DataReader', () => {
     const write = createDataWriter()
 
     const network = NetworkState.worldNetwork as Network
-    const engineState = getMutableState(EngineState)
+    const engineState = getMutableState(ECSState)
     engineState.simulationTime.set(1)
     const peerID = Engine.instance.store.peerID
 

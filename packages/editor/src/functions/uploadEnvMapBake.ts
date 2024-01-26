@@ -25,11 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { Vector3 } from 'three'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { getComponent, hasComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import CubemapCapturer from '@etherealengine/engine/src/scene/classes/CubemapCapturer'
 import {
   convertCubemapToEquiImageData,
@@ -41,7 +41,7 @@ import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/co
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getState } from '@etherealengine/hyperflux'
 
-import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { EditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'
 

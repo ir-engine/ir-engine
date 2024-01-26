@@ -41,7 +41,7 @@ import {
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserName } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { State, getMutableState, useHookstate } from '@etherealengine/hyperflux'

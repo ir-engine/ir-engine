@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { Matrix4 } from 'three'
 
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { getComponent, getOptionalComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { GroupComponent } from '../components/GroupComponent'
 
 export const reparentObject3D = (node: Entity, parent: Entity, before?: Entity): void => {

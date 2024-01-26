@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { Camera, Intersection, Object3D, Raycaster, Vector2 } from 'three'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { getState } from '@etherealengine/hyperflux'

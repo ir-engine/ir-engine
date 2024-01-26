@@ -36,7 +36,7 @@ import {
 } from 'three'
 import { BurstParameters, RenderMode } from 'three.quarks'
 
-import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import {
   ApplyForceBehaviorJSON,
   BehaviorJSON,

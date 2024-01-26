@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState } from '@etherealengine/hyperflux'
-import { destroyEngine } from '../../ecs/classes/Engine'
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../classes/Physics'
 import { PhysicsState } from '../state/PhysicsState'

@@ -25,21 +25,21 @@ Ethereal Engine. All Rights Reserved.
 
 import { AdditiveBlending, DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry, Vector3 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
-import { Easing, Tween } from '@tweenjs/tween.js'
-import { useEffect } from 'react'
-import { ObjectDirection } from '../../common/constants/Axis3D'
-import { V_010, V_100 } from '../../common/constants/MathConstants'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
   getMutableComponent,
   removeComponent,
   setComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { getState } from '@etherealengine/hyperflux'
+import { Easing, Tween } from '@tweenjs/tween.js'
+import { useEffect } from 'react'
+import { ObjectDirection } from '../../common/constants/Axis3D'
+import { V_010, V_100 } from '../../common/constants/MathConstants'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'

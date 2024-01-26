@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import './avatar/AvatarModule'
 import './camera/CameraModule'
-import './ecs/ECSModule'
 import './input/InputModule'
 import './interaction/InteractionModule'
 import './interaction/MediaModule'

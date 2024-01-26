@@ -25,6 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import {
   NO_PROXY_STEALTH,
   defineAction,
@@ -36,8 +38,6 @@ import {
 } from '@etherealengine/hyperflux'
 import React, { useEffect } from 'react'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { MediasoupTransportObjectsState } from './MediasoupTransportState'
 
 export class MediasoupDataProducerActions {

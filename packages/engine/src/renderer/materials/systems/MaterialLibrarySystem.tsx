@@ -27,7 +27,7 @@ import React, { ReactElement, useEffect } from 'react'
 
 import { NO_PROXY, getMutableState, useState } from '@etherealengine/hyperflux'
 
-import { defineSystem } from '../../../ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SceneLoadingSystem } from '../../../scene/systems/SceneLoadingSystem'
 import { MaterialLibraryState, initializeMaterialLibrary } from '../MaterialLibrary'
 import {

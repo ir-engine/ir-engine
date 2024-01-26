@@ -30,9 +30,6 @@ import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   Component,
   defineComponent,
@@ -41,9 +38,11 @@ import {
   removeComponent,
   setComponent,
   useComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 
 /** ID of last network created. */
 let availableNetworkId = 0 as NetworkId
@@ -126,15 +125,6 @@ export const NetworkObjectComponent = defineComponent({
   },
 
   /**
-   * Get the user avatar entity (the network object w/ an Avatar component)
-   * @param userId
-   * @returns
-   */
-  getUserAvatarEntity(userId: UserID) {
-    return avatarNetworkObjectQuery().find((eid) => getComponent(eid, NetworkObjectComponent).ownerId === userId)!
-  },
-
-  /**
    * Get the user entity that has a specific component
    * @param userId
    * @param component
@@ -170,7 +160,6 @@ export const NetworkObjectComponent = defineComponent({
  * Network object query
  */
 const networkObjectQuery = defineQuery([NetworkObjectComponent])
-const avatarNetworkObjectQuery = defineQuery([NetworkObjectComponent, AvatarComponent])
 
 /**
  * Authority is peer-specific.

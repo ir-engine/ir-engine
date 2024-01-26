@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ScreenshareTargetComponent } from '@etherealengine/engine/src/scene/components/ScreenshareTargetComponent'
 
 import ScreenShareIcon from '@mui/icons-material/ScreenShare'

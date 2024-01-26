@@ -27,7 +27,7 @@ import assert from 'assert'
 import fs from 'fs'
 import path from 'path/posix'
 
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { copyRecursiveSync, getIncrementalName } from './FileUtil'
 import { projectsRootFolder } from './file-browser/file-browser.class'

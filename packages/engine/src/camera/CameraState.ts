@@ -35,6 +35,15 @@ export const CameraSettings = defineState({
 })
 
 export class CameraActions {
+  static spectateUser = defineAction({
+    type: 'ee.engine.Engine.SPECTATE_USER' as const,
+    user: matches.string.optional()
+  })
+
+  static exitSpectate = defineAction({
+    type: 'ee.engine.Engine.EXIT_SPECTATE' as const
+  })
+
   static fadeToBlack = defineAction({
     type: 'xre.engine.CameraActions.FadeToBlack' as const,
     in: matches.boolean,

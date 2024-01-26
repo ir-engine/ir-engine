@@ -29,7 +29,7 @@ import fs from 'fs'
 import nock from 'nock'
 import path from 'path'
 
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'

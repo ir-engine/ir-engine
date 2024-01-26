@@ -28,9 +28,9 @@ import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { RendererState } from '../../renderer/RendererState'
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'

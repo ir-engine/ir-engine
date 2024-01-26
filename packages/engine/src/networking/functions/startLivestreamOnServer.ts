@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 // import Twitch from 'twitch-m3u8'
 
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 
-// import { getComponent } from '../../ecs/functions/ComponentFunctions'
+// import { getComponent } from '@etherealengine/ecs/srcComponentFunctions'
 // import LivestreamProxyComponent from '../../scene/components/LivestreamProxyComponent'
 
 export const startLivestreamOnServer = async (entity: Entity): Promise<void> => {

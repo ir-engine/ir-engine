@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { CSM } from '../assets/csm/CSM'
 import CSMHelper from '../assets/csm/CSMHelper'
 import { isIPhone } from '../common/functions/isMobile'
-import { Entity } from '../ecs/classes/Entity'
 import { RenderModes, RenderModesType } from './constants/RenderModes'
 
 export const RendererState = defineState({

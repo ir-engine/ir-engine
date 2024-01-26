@@ -27,25 +27,25 @@ import { Vector2 } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { AvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
 import { getThumbstickOrThumbpadAxes } from '../../avatar/systems/AvatarInputSystem'
 import { throttle } from '../../common/functions/FunctionHelpers'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 
 import { XRState } from '../../xr/XRState'
 
 import { InputState } from '../../input/state/InputState'
 
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { isMobile } from '../../common/functions/isMobile'
-import { InputSystemGroup } from '../../ecs/functions/SystemGroups'
 import { CameraSettings } from '../CameraState'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
@@ -110,7 +110,7 @@ let capturedInputSource: Entity | undefined = undefined
 const execute = () => {
   if (getState(XRState).xrFrame) return
 
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
   accumulator += deltaSeconds
 
   const { localClientEntity } = Engine.instance

@@ -23,15 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, Mesh } from 'three'
 import matches from 'ts-matches'
-import { Engine } from '../ecs/classes/Engine'
-import { Entity } from '../ecs/classes/Entity'
-import { defineComponent, setComponent, useComponent } from '../ecs/functions/ComponentFunctions'
-import { createEntity, useEntityContext } from '../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../ecs/functions/EntityTree'
 import { addObjectToGroup, removeObjectFromGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'

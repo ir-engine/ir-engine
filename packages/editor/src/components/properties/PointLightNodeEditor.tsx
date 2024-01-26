@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { PointLightComponent } from '@etherealengine/engine/src/scene/components/PointLightComponent'
 
 import LightbulbIcon from '@mui/icons-material/Lightbulb'

@@ -29,6 +29,16 @@ import {
   makeFlowNodeDefinition,
   makeFunctionNodeDefinition
 } from '@behave-graph/core'
+import {
+  getComponent,
+  getMutableComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 import { Tween } from '@tweenjs/tween.js'
 import {
@@ -49,16 +59,6 @@ import { AnimationState } from '../../../../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../../../../avatar/components/LoopAnimationComponent'
 import { CameraActions } from '../../../../../camera/CameraState'
 import { FollowCameraComponent } from '../../../../../camera/components/FollowCameraComponent'
-import { Engine } from '../../../../../ecs/classes/Engine'
-import { Entity } from '../../../../../ecs/classes/Entity'
-import {
-  getComponent,
-  getMutableComponent,
-  getOptionalComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '../../../../../ecs/functions/ComponentFunctions'
 import { GroupComponent } from '../../../../../scene/components/GroupComponent'
 import { MediaComponent } from '../../../../../scene/components/MediaComponent'
 import { VideoComponent } from '../../../../../scene/components/VideoComponent'

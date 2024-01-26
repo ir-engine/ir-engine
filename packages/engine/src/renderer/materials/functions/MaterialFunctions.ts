@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
+import multiLogger from '@etherealengine/common/src/logger'
 import { getState } from '@etherealengine/hyperflux'
 
-import { getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { defineQuery } from '../../../ecs/functions/QueryFunctions'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { MeshComponent } from '../../../scene/components/MeshComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
 

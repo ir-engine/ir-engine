@@ -28,7 +28,7 @@ import React from 'react'
 
 import { MediaInstanceState } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { NetworkState, screenshareVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 

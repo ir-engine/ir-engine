@@ -26,10 +26,15 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Vector3 } from 'three'
 
+import {
+  defineComponent,
+  getComponent,
+  removeComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { entityExists, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { Tween } from '@tweenjs/tween.js'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
 

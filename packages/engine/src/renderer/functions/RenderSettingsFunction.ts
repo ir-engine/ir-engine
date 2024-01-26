@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { iOS } from '../../common/functions/isMobile'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { DirectionalLightComponent } from '../../scene/components/DirectionalLightComponent'
 import { isMobileXRHeadset } from '../../xr/XRState'

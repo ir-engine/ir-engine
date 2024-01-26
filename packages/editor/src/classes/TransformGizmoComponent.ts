@@ -29,12 +29,12 @@ import {
   removeComponent,
   setComponent,
   useComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { TransformControls } from '@etherealengine/engine/src/scene/classes/TransformGizmo'
 
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'

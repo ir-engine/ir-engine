@@ -27,10 +27,10 @@ import { useEffect } from 'react'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { Texture } from 'three'
-import { Engine } from '../../ecs/classes/Engine'
-import { SceneState } from '../../ecs/classes/Scene'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { XRLightProbeState } from '../../xr/XRLightProbeSystem'
 import { XRState } from '../../xr/XRState'
 import { SceneLoadingSystem } from './SceneLoadingSystem'
