@@ -61,20 +61,5 @@ export const initializeBrowser = () => {
   WebLayerManager.initialize(renderer, gltfLoader.ktx2Loader!)
   WebLayerManager.instance.ktx2Encoder.pool.setWorkerLimit(1)
 
-  setupInitialClickListener()
   Engine.instance.engineTimer.start()
-}
-
-const setupInitialClickListener = () => {
-  const canvas = EngineRenderer.instance.renderer.domElement
-  const initialClickListener = () => {
-    window.removeEventListener('click', initialClickListener)
-    window.removeEventListener('touchend', initialClickListener)
-    canvas.removeEventListener('click', initialClickListener)
-    canvas.removeEventListener('touchend', initialClickListener)
-  }
-  window.addEventListener('click', initialClickListener)
-  window.addEventListener('touchend', initialClickListener)
-  canvas.addEventListener('click', initialClickListener)
-  canvas.addEventListener('touchend', initialClickListener)
 }
