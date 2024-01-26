@@ -94,6 +94,8 @@ import {
 import { FileLoader } from '../base/FileLoader';
 import { Loader } from '../base/Loader';
 
+import { ResourceType } from "../../state/ResourceState"
+
 /**
  * @param {BufferGeometry} geometry
  * @param {number} drawMode
@@ -3312,7 +3314,7 @@ class GLTFParser {
 			parser.associations.set( texture, { textures: textureIndex } );
 
 			if(parser.fileLoader.manager.itemEndFor) 
-				parser.fileLoader.manager.itemEndFor(parser.options.url, 1, texture.uuid, texture)
+				parser.fileLoader.manager.itemEndFor(parser.options.url, ResourceType.Texture, texture.uuid, texture)
 
 			return texture;
 
@@ -3728,6 +3730,9 @@ class GLTFParser {
 			parser.associations.set( material, { materials: materialIndex } );
 
 			if ( materialDef.extensions ) addUnknownExtensionsToUserData( extensions, material, materialDef );
+
+			if(parser.fileLoader.manager.itemEndFor) 
+				parser.fileLoader.manager.itemEndFor(parser.options.url, ResourceType.Material, material.uuid, material)
 
 			return material;
 
@@ -4799,6 +4804,10 @@ function addPrimitiveAttributes( geometry, primitiveDef, parser ) {
 	computeBounds( geometry, primitiveDef, parser );
 
 	return Promise.all( pending ).then( function () {
+
+		if(parser.fileLoader.manager.itemEndFor) 
+			parser.fileLoader.manager.itemEndFor(parser.options.url, ResourceType.Geometry, geometry.uuid, geometry)
+
 
 		return primitiveDef.targets !== undefined
 			? addMorphTargets( geometry, primitiveDef.targets, parser )

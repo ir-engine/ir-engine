@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Entity } from '@etherealengine/ecs'
 import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
-import { Cache, CompressedTexture, DefaultLoadingManager, LoadingManager, Texture } from 'three'
+import { Cache, CompressedTexture, DefaultLoadingManager, LoadingManager, Material, Texture } from 'three'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { AssetLoader, LoadingArgs } from '../classes/AssetLoader'
@@ -46,12 +46,13 @@ export enum ResourceType {
   GLTF,
   Texture,
   Geometry,
+  Material,
   ECSData,
   Audio,
   Unknown
 }
 
-export type AssetType = GLTF | Texture | CompressedTexture | Geometry
+export type AssetType = GLTF | Texture | CompressedTexture | Geometry | Material
 
 type BaseMetadata = {
   size?: number
@@ -208,6 +209,28 @@ const Callbacks = {
     },
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {}
+  },
+  [ResourceType.Material]: {
+    onStart: (resource: State<Resource>) => {},
+    onLoad: (response: Material, resource: State<Resource>) => {},
+    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
+    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {}
+  },
+  [ResourceType.Geometry]: {
+    onStart: (resource: State<Resource>) => {},
+    onLoad: (response: Geometry, resource: State<Resource>) => {
+      let size = 0
+      for (const name in response.attributes) {
+        const attr = response.getAttribute(name)
+        size += attr.count * attr.itemSize * attr.array.BYTES_PER_ELEMENT
+      }
+
+      const indices = response.getIndex()
+      size += indices ? indices.count * indices.itemSize * indices.array.BYTES_PER_ELEMENT : 0
+      resource.metadata.size.set(size)
+    },
+    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
+    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {}
   }
 } as {
   [key in ResourceType]: {
@@ -343,7 +366,10 @@ const removeResource = (id: string) => {
         ;(asset as Texture).dispose()
         break
       case ResourceType.Geometry:
-        ;(asset as Geometry).dispose
+        ;(asset as Geometry).dispose()
+        break
+      case ResourceType.Material:
+        ;(asset as Material).dispose()
         break
       case ResourceType.ECSData:
         break
