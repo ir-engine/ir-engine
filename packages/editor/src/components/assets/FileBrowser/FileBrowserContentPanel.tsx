@@ -80,6 +80,7 @@ import { ToolButton } from '../../toolbar/ToolButton'
 import { AssetSelectionChangePropsType } from '../AssetsPreviewPanel'
 import ImageCompressionPanel from '../ImageCompressionPanel'
 import ImageConvertPanel from '../ImageConvertPanel'
+import ImportSettingsPanel from '../ImportSettingsPanel'
 import ModelCompressionPanel from '../ModelCompressionPanel'
 import styles from '../styles.module.scss'
 import { FileBrowserItem, FileTableWrapper } from './FileBrowserGrid'
@@ -704,6 +705,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       {openProperties.value && fileProperties.value && (
         <FilePropertiesPanel openProperties={openProperties} fileProperties={fileProperties} />
       )}
+      <ImportSettingsPanel openImportSettings={true} />
       <ConfirmDialog
         open={openConfirm.value}
         description={t('editor:dialog.delete.confirm-content', {

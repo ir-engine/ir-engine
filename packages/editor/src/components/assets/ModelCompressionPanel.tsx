@@ -54,6 +54,7 @@ import exportGLTF from '../../functions/exportGLTF'
 
 import { removeEntityNodeRecursively } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { Box, ListItemButton, ListItemText, MenuItem, Modal, PopoverPosition } from '@mui/material'
+import { LODList } from '../../constants/GLTFPresets'
 import { ContextMenu } from '../layout/ContextMenu'
 import { List, ListItem } from '../layout/List'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
@@ -66,56 +67,6 @@ type LODVariantDescriptor = {
 }
 
 // TODO: Find place to put hard-coded list
-const LODList: ModelTransformParameters[] = [
-  {
-    ...defaultParams,
-    src: 'Desktop - Low',
-    dst: 'Desktop - Low',
-    maxTextureSize: 1024
-  },
-  {
-    ...defaultParams,
-    src: 'Desktop - Medium',
-    dst: 'Desktop - Medium',
-    maxTextureSize: 2048
-  },
-  {
-    ...defaultParams,
-    src: 'Desktop - High',
-    dst: 'Desktop - High',
-    maxTextureSize: 2048
-  },
-  {
-    ...defaultParams,
-    src: 'Mobile - Low',
-    dst: 'Mobile - Low',
-    maxTextureSize: 512
-  },
-  {
-    ...defaultParams,
-    src: 'Mobile - High',
-    dst: 'Mobile - High',
-    maxTextureSize: 1024
-  },
-  {
-    ...defaultParams,
-    src: 'XR - Low',
-    dst: 'XR - Low',
-    maxTextureSize: 1024
-  },
-  {
-    ...defaultParams,
-    src: 'XR - Medium',
-    dst: 'XR - Medium',
-    maxTextureSize: 1024
-  },
-  {
-    ...defaultParams,
-    src: 'XR - High',
-    dst: 'XR - High',
-    maxTextureSize: 2048
-  }
-]
 
 export default function ModelCompressionPanel({
   openCompress,
