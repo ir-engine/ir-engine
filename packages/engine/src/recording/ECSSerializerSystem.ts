@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
@@ -108,9 +107,7 @@ const createSerializer = ({ entities, schema, chunkLength, onCommitChunk }: Seri
         data.entities.push(uuid)
       }
 
-      // reuse networkid as temp hack to reuse writeEntity
-      // maybe we should rename networkid to entityid in writeEntity args?
-      const entityIndex = data.entities.indexOf(uuid) as NetworkId
+      const entityIndex = data.entities.indexOf(uuid)
 
       count += writeEntity(view, entityIndex, entity, schema) ? 1 : 0
     }
@@ -158,7 +155,7 @@ export type ECSSerializer = ReturnType<typeof createSerializer>
 export const ActiveSerializers = new Set<ECSSerializer>()
 
 export const readEntity = (v: ViewCursor, entities: EntityUUID[], serializationSchema: SerializationSchema[]) => {
-  const entityIndex = readUint32(v) as NetworkId
+  const entityIndex = readUint32(v)
   const changeMask = readUint8(v)
 
   const entity = UUIDComponent.getEntityByUUID(entities[entityIndex])

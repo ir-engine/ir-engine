@@ -29,20 +29,20 @@ import { useEffect } from 'react'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-
 import {
   Component,
+  Engine,
+  Entity,
+  UndefinedEntity,
   defineComponent,
+  defineQuery,
   getComponent,
   hasComponent,
   removeComponent,
   setComponent,
-  useComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+  useComponent,
+  useEntityContext
+} from '@etherealengine/ecs'
 
 /** ID of last network created. */
 let availableNetworkId = 0 as NetworkId
