@@ -35,6 +35,7 @@ cli.main(async () => {
     const packageJson = JSON.parse(fs.readFileSync(join(appRootPath.path, 'package.json')).toString())
     packageJson.workspaces = [
       'packages/common',
+      'packages/ecs',
       'packages/engine',
       'packages/hyperflux',
       'packages/matchmaking',
