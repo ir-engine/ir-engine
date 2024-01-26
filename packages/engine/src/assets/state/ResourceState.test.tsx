@@ -232,6 +232,7 @@ describe('ResourceState', () => {
           assert(startUrl === url)
           assert(resourceState.resources[url] !== undefined, 'Asset not added to resource manager')
           done()
+          ResourceManager.setDefaultLoadingManager()
         }) as LoadingManager
       )
 

@@ -3311,6 +3311,9 @@ class GLTFParser {
 
 			parser.associations.set( texture, { textures: textureIndex } );
 
+			if(parser.fileLoader.manager.itemEndFor) 
+				parser.fileLoader.manager.itemEndFor(parser.options.url, 1, texture.uuid, texture)
+
 			return texture;
 
 		} ).catch( function (error) {

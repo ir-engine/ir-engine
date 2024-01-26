@@ -66,21 +66,32 @@ type TexutreMetadata = {
 type Metadata = GLTFMetadata | TexutreMetadata
 
 type Resource = {
+  id: string
   status: ResourceStatus
   type: ResourceType
   references: Entity[]
-  assetRef?: AssetType
+  asset?: AssetType
+  assetRefs: string[]
   metadata: Metadata
 }
 
 export const ResourceState = defineState({
   name: 'ResourceManagerState',
   initial: () => ({
-    resources: {} as Record<string, Resource>
+    resources: {} as Record<string, Resource>,
+    referencedAssets: {} as Record<string, string[]>
   })
 })
 
-const setDefaultLoadingManager = (loadingManager: LoadingManager) => {
+const setDefaultLoadingManager = (
+  loadingManager: LoadingManager = new ResourceLoadingManager(
+    onItemStart,
+    onStart,
+    onLoad,
+    onProgress,
+    onError
+  ) as LoadingManager
+) => {
   DefaultLoadingManager.itemStart = loadingManager.itemStart
   DefaultLoadingManager.itemEnd = loadingManager.itemEnd
   DefaultLoadingManager.itemError = loadingManager.itemError
@@ -89,6 +100,8 @@ const setDefaultLoadingManager = (loadingManager: LoadingManager) => {
   DefaultLoadingManager.addHandler = loadingManager.addHandler
   DefaultLoadingManager.removeHandler = loadingManager.removeHandler
   DefaultLoadingManager.getHandler = loadingManager.getHandler
+  //@ts-ignore
+  DefaultLoadingManager.itemEndFor = onItemLoadedFor
 }
 
 const onItemStart = (url: string) => {
@@ -109,14 +122,50 @@ const onStart = (url: string, loaded: number, total: number) => {}
 const onLoad = () => {
   const totalSize = getCurrentSizeOfResources()
   console.log('Loaded: ' + totalSize + ' bytes of resources')
+
+  //@ts-ignore
+  window.resources = getState(ResourceState)
+}
+
+const onItemLoadedFor = <T extends AssetType>(url: string, resourceType: ResourceType, id: string, asset: T) => {
+  const resourceState = getMutableState(ResourceState)
+  const resources = resourceState.nested('resources')
+  const referencedAssets = resourceState.nested('referencedAssets')
+  if (!resources[url].value) {
+    console.warn('ResourceManager:loadedFor asset loaded for asset that is not loaded: ' + url)
+    return
+  }
+  if (!referencedAssets[id].value) {
+    referencedAssets.merge({
+      [id]: []
+    })
+  }
+
+  if (!resources[id].value) {
+    resources.merge({
+      [id]: {
+        id: id,
+        status: ResourceStatus.Loaded,
+        type: resourceType,
+        references: [],
+        asset: asset,
+        assetRefs: [],
+        metadata: {}
+      }
+    })
+    const callbacks = Callbacks[resourceType]
+    callbacks.onStart(resources[id])
+    callbacks.onLoad(asset, resources[id])
+  }
+
+  resources[url].assetRefs.merge([id])
+  referencedAssets[id].merge([url])
 }
 
 const onProgress = (url: string, loaded: number, total: number) => {}
 const onError = (url: string) => {}
 
-setDefaultLoadingManager(
-  new ResourceLoadingManager(onItemStart, onStart, onLoad, onProgress, onError) as LoadingManager
-)
+setDefaultLoadingManager()
 
 const getCurrentSizeOfResources = () => {
   let size = 0
@@ -184,10 +233,12 @@ const load = <T extends AssetType>(
   if (!resources[url].value) {
     resources.merge({
       [url]: {
+        id: url,
         status: ResourceStatus.Unloaded,
         type: resourceType,
         references: [entity],
-        metadata: {}
+        metadata: {},
+        assetRefs: []
       }
     })
   } else {
@@ -205,7 +256,7 @@ const load = <T extends AssetType>(
     args,
     (response: T) => {
       resource.status.set(ResourceStatus.Loaded)
-      resource.assetRef.set(response)
+      resource.asset.set(response)
       callbacks.onLoad(response, resource)
       onLoad(response)
     },
@@ -247,24 +298,46 @@ const unload = (url: string, entity: Entity) => {
   }
 }
 
-const removeResource = (url: string) => {
+const removeReferencedResources = (resource: State<Resource>) => {
+  const resourceState = getMutableState(ResourceState)
+  const referencedAssets = resourceState.nested('referencedAssets')
+
+  for (const ref of resource.assetRefs.value) {
+    referencedAssets[ref].set((refs) => {
+      const index = refs.indexOf(resource.id.value)
+      if (index > -1) {
+        refs.splice(index, 1)
+      }
+      return refs
+    })
+
+    if (referencedAssets[ref].length == 0) {
+      removeResource(ref)
+      referencedAssets[ref].set(none)
+    }
+  }
+}
+
+const removeResource = (id: string) => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
-  if (!resources[url].value) {
-    console.warn('ResourceManager:removeResource No resource exists for url: ' + url)
+  if (!resources[id].value) {
+    console.warn('ResourceManager:removeResource No resource exists at id: ' + id)
     return
   }
 
-  console.log('ResourceManager:removeResource: Removing resource: ' + url)
+  console.log('ResourceManager:removeResource: Removing resource: ' + id)
 
-  Cache.remove(url)
-  const resource = resources[url]
+  Cache.remove(id)
+  const resource = resources[id]
 
-  const asset = resource.assetRef.get(NO_PROXY)
+  removeReferencedResources(resource)
+
+  const asset = resource.asset.get(NO_PROXY)
   if (asset) {
     switch (resource.type.value) {
       case ResourceType.GLTF:
-        removeMaterialSource({ type: SourceType.MODEL, path: url })
+        removeMaterialSource({ type: SourceType.MODEL, path: id })
         break
       case ResourceType.Texture:
         ;(asset as Texture).dispose()
@@ -284,7 +357,7 @@ const removeResource = (url: string) => {
     }
   }
 
-  resources[url].set(none)
+  resources[id].set(none)
 }
 
 export const ResourceManager = {
