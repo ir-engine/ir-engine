@@ -13,11 +13,11 @@ COPY package.json .
 COPY packages/client/package.json ./packages/client/
 COPY packages/client-core/package.json ./packages/client-core/
 COPY packages/common/package.json ./packages/common/
+COPY packages/ecs/package.json ./packages/ecs/
 COPY packages/editor/package.json ./packages/editor/
 COPY packages/engine/package.json ./packages/engine/
 COPY packages/instanceserver/package.json ./packages/instanceserver/
 COPY packages/hyperflux/package.json ./packages/hyperflux/
-COPY packages/engine/package.json ./packages/engine/
 COPY packages/matchmaking/package.json ./packages/matchmaking/
 COPY packages/server/package.json ./packages/server/
 COPY packages/server-core/package.json ./packages/server-core/
