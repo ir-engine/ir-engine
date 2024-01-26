@@ -32,6 +32,7 @@ import { isDev } from '@etherealengine/common/src/config'
 import { FileThumbnailPatch } from '@etherealengine/common/src/schemas/media/file-thumbnail.schema'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
+import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import { getCacheDomain } from '../storageprovider/getCacheDomain'
 import { getCachedURL } from '../storageprovider/getCachedURL'
@@ -69,7 +70,7 @@ export class FileThumbnailService
     const thumbnail = findResults?.[0]
 
     if (thumbnail == null) {
-      return null
+      return null // TODO: maybe '' to represent a failed thumbnail upload
     }
 
     return getCachedURL(thumbnail.key, getStorageProvider().cacheDomain)
@@ -83,21 +84,22 @@ export class FileThumbnailService
       query: { key: assetKey },
       paginate: false
     })) as StaticResourceType[]
+    const asset = findResults?.[0]
 
-    if (findResults?.length === 0) {
-      return null
+    if (asset == null) {
+      return null // TODO: maybe '' to represent a failed thumbnail upload
     }
 
-    const thumbnail = findResults[0]
-
-    await this.app.service(staticResourcePath).patch(thumbnail.id, {
-      hasCustomThumbnail: data.isCustom
-    })
+    let { thumbnailKey } = asset
+    if (thumbnailKey == null) {
+      const extension = data.contentType.split('/').pop()
+      thumbnailKey = asset.thumbnailKey ?? `projects/${asset.project}/thumbnails/${v4()}.${extension}`
+    }
 
     const storageProvider = getStorageProvider()
     await storageProvider.putObject(
       {
-        Key: thumbnail.key,
+        Key: thumbnailKey,
         Body: data.body,
         ContentType: data.contentType
       },
@@ -106,16 +108,21 @@ export class FileThumbnailService
       }
     )
 
-    if (isDev && PROJECT_FILE_REGEX.test(thumbnail.key)) {
-      const filePath = path.resolve(projectsRootFolder, thumbnail.key)
+    if (isDev && PROJECT_FILE_REGEX.test(thumbnailKey)) {
+      const filePath = path.resolve(projectsRootFolder, thumbnailKey)
       const dirname = path.dirname(filePath)
       fs.mkdirSync(dirname, { recursive: true })
       fs.writeFileSync(filePath, data.body)
     }
 
-    await storageProvider.createInvalidation([thumbnail.key])
+    await storageProvider.createInvalidation([thumbnailKey])
+
+    await this.app.service(staticResourcePath).patch(asset.id, {
+      thumbnailKey,
+      hasCustomThumbnail: data.isCustom
+    })
 
     const cacheDomain = getCacheDomain(storageProvider, params && params.provider == null)
-    return getCachedURL(thumbnail.key, cacheDomain)
+    return getCachedURL(thumbnailKey, cacheDomain)
   }
 }
