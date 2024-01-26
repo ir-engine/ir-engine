@@ -23,16 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { PhysicsSystem } from '../../physics/systems/PhysicsSystem'
 import { ColliderHitEvent, CollisionEvents } from '../../physics/types/PhysicsTypes'
 import { CallbackComponent } from '../components/CallbackComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
-import { UUIDComponent } from '../components/UUIDComponent'
 
 export const triggerEnter = (entity: Entity, otherEntity: Entity, hit: ColliderHitEvent) => {
   const triggerEntity = hit.shapeSelf.isSensor() ? entity : otherEntity

@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 import { Euler, Quaternion, Vector3 } from 'three'
 
 import { API } from '@etherealengine/client-core/src/API'
-import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import {
   PortalComponent,

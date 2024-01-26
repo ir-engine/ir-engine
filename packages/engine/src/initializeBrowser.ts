@@ -27,10 +27,10 @@ import { BotUserAgent } from '@etherealengine/common/src/constants/BotUserAgent'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { WebLayerManager } from '@etherealengine/xrui'
 
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { CameraComponent } from './camera/components/CameraComponent'
-import { Engine } from './ecs/classes/Engine'
-import { EngineState } from './ecs/classes/EngineState'
-import { getComponent } from './ecs/functions/ComponentFunctions'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PortalType, portalPath } from '@etherealengine/common/src/schemas/projects/portal.schema'
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import assert from 'assert'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'

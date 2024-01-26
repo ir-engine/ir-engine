@@ -25,11 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { BufferAttribute, Color, Material, Object3D, Texture } from 'three'
 
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import createReadableTexture from '../../../assets/functions/createReadableTexture'
-import { Engine } from '../../../ecs/classes/Engine'
-import { Entity } from '../../../ecs/classes/Entity'
-import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '../../../ecs/functions/EntityTree'
 import { MeshComponent } from '../../../scene/components/MeshComponent'
 import { changeMaterialPrototype } from './MaterialLibraryFunctions'
 

@@ -23,6 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { IncomingActionSystem } from '../networking/systems/IncomingActionSystem'
+import { OutgoingActionSystem } from '../networking/systems/OutgoingActionSystem'
+import { ECSRecordingSystem } from '../recording/ECSRecordingSystem'
 import { EntityNetworkStateSystem } from './state/EntityNetworkState'
 import { IncomingNetworkSystem } from './systems/IncomingNetworkSystem'
 import { MediasoupMediaProducerConsumerStateSystem } from './systems/MediasoupMediaProducerConsumerState'
@@ -32,5 +35,8 @@ export {
   EntityNetworkStateSystem,
   IncomingNetworkSystem,
   MediasoupMediaProducerConsumerStateSystem,
-  OutgoingNetworkSystem
+  OutgoingNetworkSystem,
+  IncomingActionSystem,
+  OutgoingActionSystem,
+  ECSRecordingSystem
 }

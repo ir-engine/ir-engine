@@ -26,8 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 
-import { Entity } from '../ecs/classes/Entity'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { checkBitflag } from '../networking/serialization/DataReader'
 import { SerializationSchema } from '../networking/serialization/Utils'
 import {
@@ -40,7 +41,6 @@ import {
   spaceUint32,
   spaceUint8
 } from '../networking/serialization/ViewCursor'
-import { UUIDComponent } from '../scene/components/UUIDComponent'
 
 export type SerializedChunk = {
   startTimecode: number

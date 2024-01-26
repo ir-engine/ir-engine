@@ -31,7 +31,7 @@ import Primus from 'primus-client'
 
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 import config from '@etherealengine/common/src/config'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 
 import primusClient from './util/primus-client'
 

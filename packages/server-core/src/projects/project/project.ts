@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import _ from 'lodash'
 
-import logger from '@etherealengine/engine/src/common/functions/logger'
+import logger from '@etherealengine/common/src/logger'
 
 import {
   ProjectPermissionType,

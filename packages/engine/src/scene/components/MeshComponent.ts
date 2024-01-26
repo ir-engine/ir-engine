@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Mesh } from 'three'
 
-import { defineComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
 export const MeshComponent = defineComponent({
   name: 'Mesh Component',

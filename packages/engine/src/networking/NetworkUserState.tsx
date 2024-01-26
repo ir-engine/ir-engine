@@ -24,10 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { InstanceID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import React, { useEffect } from 'react'
-import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { SimulationSystemGroup } from '../ecs/functions/SystemGroups'
 import { NetworkState } from './NetworkState'
 import { NetworkTopics } from './classes/Network'
 

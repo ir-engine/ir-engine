@@ -30,8 +30,6 @@ import { Quaternion, Vector3 } from 'three'
 import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import matches from 'ts-matches'
-import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
   getComponent,
@@ -41,9 +39,11 @@ import {
   setComponent,
   useComponent,
   useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { iterateEntityNode } from '../../ecs/functions/EntityTree'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
+import matches from 'ts-matches'
 import { InputComponent } from '../../input/components/InputComponent'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -133,7 +133,7 @@ export const ColliderComponent = defineComponent({
     }
 
     if (
-      !getState(EngineState).sceneLoaded &&
+      !getState(SceneState).sceneLoaded &&
       hasComponent(entity, SceneObjectComponent) &&
       !hasComponent(entity, RigidBodyComponent)
     )

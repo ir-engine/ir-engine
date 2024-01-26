@@ -30,7 +30,7 @@ import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '../../ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { NetworkPeer } from '../interfaces/NetworkPeer'
 
 /**

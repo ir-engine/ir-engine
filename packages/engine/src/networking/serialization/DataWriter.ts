@@ -28,28 +28,29 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getState } from '@etherealengine/hyperflux'
 
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 // import { XRHandsInputComponent } from '../../xr/XRComponents'
 // import { XRHandBones } from '../../xr/XRHandBones'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { NetworkState } from '../NetworkState'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent, NetworkObjectSendPeriodicUpdatesTag } from '../components/NetworkObjectComponent'
-import { NetworkState } from '../NetworkState'
 import {
-  compress,
-  flatten,
-  getVector4IndexBasedComponentValue,
   QUAT_MAX_RANGE,
   QUAT_PRECISION_MULT,
   SerializationSchema,
   VEC3_MAX_RANGE,
   VEC3_PRECISION_MULT,
   Vector3SoA,
-  Vector4SoA
+  Vector4SoA,
+  compress,
+  flatten,
+  getVector4IndexBasedComponentValue
 } from './Utils'
 import {
+  ViewCursor,
   createViewCursor,
   rewindViewCursor,
   sliceViewCursor,
@@ -57,7 +58,6 @@ import {
   spaceUint32,
   spaceUint64,
   spaceUint8,
-  ViewCursor,
   writeFloat64,
   writePropIfChanged,
   writeUint32
@@ -307,7 +307,7 @@ export const writeEntities = (v: ViewCursor, network: Network, entities: Entity[
 export const writeMetadata = (v: ViewCursor, network: Network, userId: UserID, peerID: PeerID) => {
   writeUint32(v, network.userIDToUserIndex[userId])
   writeUint32(v, network.peerIDToPeerIndex[peerID])
-  writeFloat64(v, getState(EngineState).simulationTime)
+  writeFloat64(v, getState(ECSState).simulationTime)
 }
 
 export const createDataWriter = (size = 100000) => {

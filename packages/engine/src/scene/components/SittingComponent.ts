@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UndefinedEntity } from '../../ecs/classes/Entity'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 
 export const SittingComponent = defineComponent({
   name: 'SittingComponent',

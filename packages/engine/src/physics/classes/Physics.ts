@@ -52,17 +52,17 @@ import {
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
-import { V_000 } from '../../common/constants/MathConstants'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   getComponent,
   getOptionalComponent,
   removeComponent,
   setComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '../../ecs/functions/EntityTree'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
+import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
+import { V_000 } from '../../common/constants/MathConstants'
 import { MeshComponent } from '../../scene/components/MeshComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'

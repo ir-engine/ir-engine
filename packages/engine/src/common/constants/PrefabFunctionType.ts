@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Object3D } from 'three'
 
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 
 export type ComponentDeserializeFunction = (entity: Entity, componentData: any) => void
 export type ComponentSerializeFunction = (entity: Entity) => any | undefined

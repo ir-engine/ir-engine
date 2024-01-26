@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent, useOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { CloudComponent } from '@etherealengine/engine/src/scene/components/CloudComponent'
 import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 
