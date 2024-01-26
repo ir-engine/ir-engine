@@ -49,7 +49,7 @@ import { addEntityToScene } from '../helper/entityHelper'
 
 const sceneQuery = defineQuery([SceneObjectComponent])
 export const getEntity = makeFunctionNodeDefinition({
-  typeName: 'engine/entity/getEntityInScene',
+  typeName: 'logic/entity/get/entityInScene',
   category: NodeCategory.Query,
   label: 'Get entity in scene',
   in: {
@@ -74,7 +74,7 @@ export const getEntity = makeFunctionNodeDefinition({
 })
 
 export const getLocalClientEntity = makeFunctionNodeDefinition({
-  typeName: 'engine/entity/getLocalClientEntity',
+  typeName: 'logic/entity/get/localClientEntity',
   category: NodeCategory.Query,
   label: 'Get local client entity',
   in: {},
@@ -86,7 +86,7 @@ export const getLocalClientEntity = makeFunctionNodeDefinition({
 })
 
 export const getCameraEntity = makeFunctionNodeDefinition({
-  typeName: 'engine/entity/getCameraEntity',
+  typeName: 'logic/entity/get/cameraEntity',
   category: NodeCategory.Query,
   label: 'Get camera entity',
   in: {},
@@ -98,7 +98,7 @@ export const getCameraEntity = makeFunctionNodeDefinition({
 })
 
 export const onEntity = makeFlowNodeDefinition({
-  typeName: 'engine/entity/onEntity',
+  typeName: 'logic/entity/exists',
   category: NodeCategory.Action,
   label: 'Test if entity is valid',
   in: {
@@ -133,9 +133,9 @@ export const onEntity = makeFlowNodeDefinition({
 })
 
 export const getEntityTransform = makeFunctionNodeDefinition({
-  typeName: 'engine/entity/getEntityTransform',
+  typeName: 'engine/transformComponent/get',
   category: NodeCategory.Query,
-  label: 'Get entity transform',
+  label: 'get transformComponent',
   in: {
     entity: 'entity'
   },
@@ -151,7 +151,7 @@ export const getEntityTransform = makeFunctionNodeDefinition({
 })
 
 export const addEntity = makeFlowNodeDefinition({
-  typeName: 'engine/entity/addEntity',
+  typeName: 'logic/entity/addEntity',
   category: NodeCategory.Action,
   label: 'Add entity',
   in: {
@@ -196,7 +196,7 @@ export const addEntity = makeFlowNodeDefinition({
 })
 
 export const deleteEntity = makeFlowNodeDefinition({
-  typeName: 'engine/entity/deleteEntity',
+  typeName: 'logic/entity/deleteEntity',
   category: NodeCategory.Action,
   label: 'Delete entity',
   in: {
@@ -223,9 +223,9 @@ export const deleteEntity = makeFlowNodeDefinition({
 })
 
 export const setEntityTransform = makeFlowNodeDefinition({
-  typeName: 'engine/entity/setEntityTransform',
+  typeName: 'engine/transformComponent/set',
   category: NodeCategory.Action,
-  label: 'Set entity transform',
+  label: 'set transformComponent',
   in: {
     flow: 'flow',
     entity: 'entity',
@@ -251,7 +251,7 @@ export const setEntityTransform = makeFlowNodeDefinition({
 })
 
 export const getUUID = makeInNOutFunctionDesc({
-  name: 'engine/entity/getUuid',
+  name: 'logic/entity/getUuid',
   label: 'Entity uuid',
   in: ['entity'],
   out: 'string',
@@ -259,7 +259,7 @@ export const getUUID = makeInNOutFunctionDesc({
 })
 
 export const Constant = makeInNOutFunctionDesc({
-  name: 'engine/entity',
+  name: 'logic/entity/constant',
   label: 'Entity',
   in: ['entity'],
   out: 'entity',
@@ -267,7 +267,7 @@ export const Constant = makeInNOutFunctionDesc({
 })
 
 export const Equal = makeInNOutFunctionDesc({
-  name: 'engine/equal/entity',
+  name: 'logic/entity/compare/equal',
   label: 'Entity =',
   in: ['entity', 'entity'],
   out: 'boolean',

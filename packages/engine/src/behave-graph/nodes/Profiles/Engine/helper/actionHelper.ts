@@ -81,7 +81,7 @@ export function getActionDispatchers() {
     const namePath = nameArray.splice(1).join('/')
 
     const node = makeFlowNodeDefinition({
-      typeName: `action/${namePath}/dispatch${dispatchName}`,
+      typeName: `action/${namePath}/${dispatchName}/dispatch`,
       category: NodeCategory.Action,
       label: `dispatch ${namePath} ${dispatchName}`,
       in: {
