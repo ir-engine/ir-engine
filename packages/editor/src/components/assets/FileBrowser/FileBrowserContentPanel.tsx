@@ -663,3 +663,5 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     </div>
   )
 }
+
+export default FileBrowserContentPanel

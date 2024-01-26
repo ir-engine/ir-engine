@@ -34,7 +34,7 @@ import ViewInArIcon from '@mui/icons-material/ViewInAr'
 import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 import React, { useState } from 'react'
 import { isFolder } from '../../../functions/isFolder'
-import { generateImageFileThumbnail } from '../../../functions/thumbnails'
+import { generateImageFileThumbnail, generateVideoFileThumbnail } from '../../../functions/thumbnails'
 import styles from '../styles.module.scss'
 
 const FileIconType = {
@@ -68,42 +68,81 @@ const FileIconType = {
   'audio/mp3': VolumeUpIcon
 }
 
+const generatorTypes = [
+  {
+    types: ['image/jpeg', 'image/jpg', 'image/png', 'jpeg', 'jpg', 'png'], // TODO: , ktx2
+    gen: async (file) => {
+      const imageBlob = await fetch(file.url).then((response) => response.blob())
+      return await generateImageFileThumbnail(imageBlob, 256, 256, 'transparent')
+    }
+  },
+  {
+    types: ['application/vnd.apple.mpegurl', 'm3u8', 'mp4', 'video/mp4'],
+    gen: async (file) => {
+      const videoBlob = await fetch(file.url).then((response) => response.blob())
+      return await generateVideoFileThumbnail(videoBlob, 256, 256, 'transparent')
+    }
+  },
+  {
+    types: [
+      'fbx',
+      'glb',
+      'gltf',
+      'gltf-binary',
+      'model/fbx',
+      'model/glb',
+      'model/gltf',
+      'model/gltf-binary',
+      'model/usdz',
+      'model/vrm',
+      'usdz',
+      'vrm'
+    ],
+    gen: null // TODO: model file thumbnail, based on ECS preview support
+  }
+]
+
+const thumbnailGeneratorsByType = new Map()
+for (const entry of generatorTypes) {
+  for (const type of entry.types) {
+    thumbnailGeneratorsByType.set(type, entry.gen)
+  }
+}
+
 const pendingThumbnails = new Map<string, Promise<string>>()
 
-const createThumbnailKey = async (file: FileBrowserContentType): Promise<string> => {
-  let thumbnailBlob: Blob | null = null
-  switch (file.type.split('/')[0]) {
-    case 'model': {
-      break
-    }
-    case 'image': {
-      const imageBlob = await fetch(file.url).then((response) => response.blob())
-      thumbnailBlob = await generateImageFileThumbnail(imageBlob, 256, 256, 'transparent')
-      break
-    }
-  }
-
-  if (thumbnailBlob == null) {
+const uploadThumbnail = async (file, blob) => {
+  if (blob == null) {
     return ''
   }
 
   const thumbnailKey = await Engine.instance.api.service(fileThumbnailPath).patch(file.key, {
-    body: thumbnailBlob,
+    body: blob,
     isCustom: false,
     contentType: 'image/png'
   })
 
-  pendingThumbnails.delete(file.key)
   return thumbnailKey ?? ''
 }
 
-const getThumbnailKey = (file: FileBrowserContentType): Promise<string> => {
+const getThumbnailKey = (file: FileBrowserContentType, gen): Promise<string> => {
   if (file.thumbnailKey != null) {
     return Promise.resolve(file.thumbnailKey)
   }
 
   if (!pendingThumbnails.has(file.key)) {
-    pendingThumbnails.set(file.key, createThumbnailKey(file))
+    let finished = false
+    const promise = gen(file)
+      .then((blob) => uploadThumbnail(file, blob))
+      .then((result) => {
+        finished = true
+        return result
+      })
+    if (finished) {
+      return promise
+    } else {
+      pendingThumbnails.set(file.key, promise)
+    }
   }
 
   return pendingThumbnails.get(file.key)!
@@ -112,14 +151,19 @@ const getThumbnailKey = (file: FileBrowserContentType): Promise<string> => {
 export const FileIcon = ({ file, showRibbon }: { file: FileBrowserContentType; showRibbon?: boolean }) => {
   const fallback = { icon: FileIconType[file.type] }
   const [thumbnailKey, setThumbnailKey] = useState<string>()
-  getThumbnailKey(file).then((key) => setThumbnailKey(key))
+  if (file.thumbnailKey == null) {
+    const thumbnailGenerator = thumbnailGeneratorsByType.get(file.type)
+    if (thumbnailGenerator != null) {
+      getThumbnailKey(file, thumbnailGenerator).then((key) => setThumbnailKey(key))
+    }
+  }
   return (
     <>
       {isFolder(file) ? (
         <FolderIcon fontSize={'inherit'} />
       ) : (thumbnailKey?.length ?? 0) > 0 ? (
         <img style={{ maxHeight: '50px' }} crossOrigin="anonymous" src={thumbnailKey} alt="" />
-      ) : fallback ? (
+      ) : fallback.icon ? (
         <fallback.icon fontSize={'inherit'} />
       ) : (
         <>
