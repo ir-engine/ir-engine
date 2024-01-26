@@ -31,8 +31,8 @@ import { UserType, userPath } from '@etherealengine/common/src/schemas/user/user
 import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { AsyncLocalStorage } from 'async_hooks'
 import { isProvider } from 'feathers-hooks-common'
+import { Application } from '../../declarations'
 import config from '../appconfig'
-import { Application } from './../../declarations'
 
 const { authenticate } = authentication.hooks
 
@@ -112,7 +112,7 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
 
 /**
  * A method to check if the service requesting is whitelisted.
- * In that scenario we dont need to perform authentication check.
+ * In that scenario we don't need to perform authentication check.
  */
 const checkWhitelist = (context: HookContext<Application>): boolean => {
   for (const item of config.authentication.whiteList) {

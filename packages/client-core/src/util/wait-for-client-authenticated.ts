@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Engine } from '@etherealengine/ecs/src/Engine'
-
 import { FeathersClient } from '../API'
 
 async function waitForClientAuthenticated(): Promise<void> {

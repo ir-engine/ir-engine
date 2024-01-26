@@ -121,6 +121,14 @@ else
   NODE_ENV=$NODE_ENV
 fi
 
+if [ -z "$VITE_FEATHERS_STORE_KEY" ]
+then
+  VITE_FEATHERS_STORE_KEY=EtherealEngine-Auth-Store
+else
+  VITE_FEATHERS_STORE_KEY=VITE_FEATHERS_STORE_KEY
+fi
+
+echo $VITE_APP_HOST
 
 # ./generate-certs.sh
 
@@ -152,6 +160,7 @@ docker buildx build \
   --build-arg VITE_8TH_WALL=$VITE_8TH_WALL \
   --build-arg VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET \
   --build-arg VITE_AVATURN_URL=$VITE_AVATURN_URL \
-  --build-arg VITE_AVATURN_API=$VITE_AVATURN_API .
+  --build-arg VITE_AVATURN_API=$VITE_AVATURN_API \
+  --build-arg VITE_FEATHERS_STORE_KEY=$VITE_FEATHERS_STORE_KEY .
 
 #DOCKER_BUILDKIT=1 docker build -t etherealengine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .

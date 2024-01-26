@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { API } from '@etherealengine/client-core/src/API'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { ImageConvertParms } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
 import { State } from '@etherealengine/hyperflux'
 
@@ -51,7 +51,7 @@ export default function ImageConvertPanel({
   function convertImage() {
     const props = fileProperties.value
     convertProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
-    API.instance.client
+    Engine.instance.api
       .service('image-convert')
       .create(convertProperties.value)
       .then(() => {
