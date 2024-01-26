@@ -40,6 +40,7 @@ import Primus from 'primus-client'
 import config from '@etherealengine/common/src/config'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import multiLogger from '@etherealengine/common/src/logger'
 import {
   ChannelID,
   InstanceID,
@@ -50,9 +51,8 @@ import {
   UserID
 } from '@etherealengine/common/src/schema.type.module'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import {
   MediaStreamAppData,
   NetworkConnectionParams,
@@ -113,8 +113,9 @@ import { NetworkActionFunctions } from '@etherealengine/engine/src/networking/fu
 import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import { encode } from 'msgpackr'
 
-import { defineSystem, destroySystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
+import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { CameraActions } from '@etherealengine/engine/src/camera/CameraState'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
 
@@ -163,12 +164,19 @@ const handleFailedConnection = (topic: Topic, instanceID: InstanceID) => {
 }
 
 export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
+  if (!network.transport?.primus) return console.warn('No primus to close')
+
   const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
   networkState.connected.set(false)
   networkState.authenticated.set(false)
   networkState.ready.set(false)
-  for (const transportID of Object.keys(getState(MediasoupTransportState)[network.id]))
-    MediasoupTransportState.removeTransport(network.id, transportID)
+
+  if (getState(MediasoupTransportState)[network.id]) {
+    for (const transportID of Object.keys(getState(MediasoupTransportState)[network.id])) {
+      MediasoupTransportState.removeTransport(network.id, transportID)
+    }
+  }
+
   network.transport.heartbeat && clearInterval(network.transport.heartbeat)
   network.transport.primus?.end()
   network.transport.primus?.removeAllListeners()
@@ -176,15 +184,22 @@ export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
 }
 
 export const closeNetworkTransport = (network: SocketWebRTCClientNetwork) => {
-  for (const transportID of Object.keys(getState(MediasoupTransportState)[network.id]))
-    MediasoupTransportState.removeTransport(network.id, transportID)
-  network.transport.heartbeat && clearInterval(network.transport.heartbeat)
-  network.transport.primus?.end()
-  network.transport.primus?.removeAllListeners()
+  if (!network.transport?.primus) return console.warn('No primus to close')
+
   const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
   networkState.transport.primus.set(null!)
   networkState.authenticated.set(false)
   networkState.ready.set(false)
+
+  if (getState(MediasoupTransportState)[network.id]) {
+    for (const transportID of Object.keys(getState(MediasoupTransportState)[network.id]))
+      MediasoupTransportState.removeTransport(network.id, transportID)
+  }
+
+  network.transport.heartbeat && clearInterval(network.transport.heartbeat)
+  network.transport.primus?.end()
+  network.transport.primus?.removeAllListeners()
+  networkState.transport.primus.set(null!)
 }
 
 export const initializeNetwork = (id: InstanceID, hostId: UserID, topic: Topic) => {
@@ -372,7 +387,7 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
   const inviteCode = getSearchParamFromURL('inviteCode') as InviteCode
   const payload = { accessToken, peerID: Engine.instance.peerID, inviteCode }
 
-  const { status, routerRtpCapabilities, cachedActions } = await new Promise<AuthTask>((resolve) => {
+  const { status, routerRtpCapabilities, cachedActions, error } = await new Promise<AuthTask>((resolve) => {
     const onAuthentication = (response: AuthTask) => {
       if (response.status !== 'pending') {
         clearInterval(interval)
@@ -397,7 +412,7 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
 
   if (status !== 'success') {
     logger.error(status)
-    return logger.error(new Error('Unable to connect with credentials'))
+    return logger.error(new Error('Unable to connect with credentials' + error))
   }
 
   networkState.authenticated.set(true)
@@ -426,7 +441,7 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
   if (isWorldConnection) {
     const spectateUserId = getSearchParamFromURL('spectate')
     if (spectateUserId) {
-      dispatchAction(EngineActions.spectateUser({ user: spectateUserId }))
+      dispatchAction(CameraActions.spectateUser({ user: spectateUserId }))
     }
   }
 
@@ -481,7 +496,8 @@ export const waitForTransports = async (network: SocketWebRTCClientNetwork) => {
 }
 
 export const onTransportCreated = async (action: typeof MediasoupTransportActions.transportCreated.matches._TYPE) => {
-  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork
+  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork | undefined
+  if (!network) return console.warn('Network not found', action.$network)
 
   const { transportID, direction, sctpParameters, iceParameters, iceCandidates, dtlsParameters } = action
 

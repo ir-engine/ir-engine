@@ -26,10 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { BackSide, Color, CompressedTexture, Mesh, MeshBasicMaterial, SphereGeometry, Texture, Vector2 } from 'three'
 
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   getComponent,
   getMutableComponent,
@@ -37,12 +33,15 @@ import {
   hasComponent,
   removeComponent,
   setComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent
@@ -53,8 +52,9 @@ import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/Ob
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
-import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { InputComponent } from '@etherealengine/engine/src/input/components/InputComponent'
 import { addObjectToGroup, GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
@@ -114,8 +114,8 @@ export const LoadingUISystemState = defineState({
 })
 
 const LoadingReactor = () => {
-  const loadingProgress = useHookstate(getMutableState(EngineState).loadingProgress)
-  const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
+  const loadingProgress = useHookstate(getMutableState(SceneState).loadingProgress)
+  const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
   const state = useHookstate(getMutableState(LoadingUISystemState))
   const locationState = useHookstate(getMutableState(LocationState))
   const meshEntity = state.meshEntity.value
@@ -231,7 +231,7 @@ const execute = () => {
   const { transition, ui, meshEntity, ready } = getState(LoadingUISystemState)
   if (!transition) return
 
-  const engineState = getState(EngineState)
+  const ecsState = getState(ECSState)
 
   if (transition.state === 'OUT' && transition.alpha === 0) {
     removeComponent(ui.entity, ComputedTransformComponent)
@@ -264,7 +264,7 @@ const execute = () => {
 
   mainThemeColor.set(ui.state.colors.alternate.value)
 
-  transition.update(engineState.deltaSeconds, (opacity) => {
+  transition.update(ecsState.deltaSeconds, (opacity) => {
     getMutableState(LoadingSystemState).loadingScreenOpacity.set(opacity)
   })
 

@@ -27,15 +27,15 @@ import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapi
 import { AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getState } from '@etherealengine/hyperflux'
 
+import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { setTargetCameraRotation } from '../../camera/functions/CameraFunctions'
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { SceneState } from '../../ecs/classes/Scene'
-import { getComponent, hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
 import {
   NetworkObjectComponent,
@@ -52,7 +52,6 @@ import { EnvmapComponent } from '../../scene/components/EnvmapComponent'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { EnvMapSourceType } from '../../scene/constants/EnvMapEnum'
 import { proxifyParentChildRelationships } from '../../scene/functions/loadGLTFModel'
@@ -72,13 +71,6 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   if (!entity) return
 
   const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
-  const isOwner = ownerID === (entityUUID as string as UserID)
-
-  // if (isOwner) {
-  //   const existingAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(entityUUID as string as UserID)
-  //   // already spawned into the world on another device or tab
-  //   if (existingAvatarEntity) return
-  // }
 
   setComponent(entity, AvatarComponent, {
     avatarHalfHeight: defaultAvatarHalfHeight,

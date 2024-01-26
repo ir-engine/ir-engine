@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { DirectionalLight, SpotLight, Vector3 } from 'three'
-import { useExecute } from '../../ecs/functions/SystemFunctions'
 import { TransformSystem } from '../../transform/TransformModule'
 
 export const useUpdateLight = (light: DirectionalLight | SpotLight) => {

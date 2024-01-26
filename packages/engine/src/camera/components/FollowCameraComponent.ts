@@ -27,8 +27,8 @@ import { ArrowHelper, Clock, Vector3 } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { CameraSettingsState } from '../CameraSceneMetadata'
 import { CameraMode } from '../types/CameraMode'
 

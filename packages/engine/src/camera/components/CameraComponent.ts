@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { ArrayCamera, PerspectiveCamera } from 'three'
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 
 export const CameraComponent = defineComponent({

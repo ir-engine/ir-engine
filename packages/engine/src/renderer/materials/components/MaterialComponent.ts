@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Material } from 'three'
 
-import { Entity } from '../../../ecs/classes/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { MaterialSource } from './MaterialSource'
 
 export type MaterialWithEntity = Material & { entity: Entity }

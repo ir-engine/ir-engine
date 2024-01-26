@@ -20,7 +20,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
 
 import InputGroup from '../inputs/InputGroup'

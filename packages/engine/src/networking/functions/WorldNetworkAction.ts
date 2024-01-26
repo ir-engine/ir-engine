@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineAction } from '@etherealengine/hyperflux'
+import { defineAction, matchesWithDefault } from '@etherealengine/hyperflux'
 
 import {
   matches,
@@ -31,8 +31,7 @@ import {
   matchesNetworkId,
   matchesPeerID,
   matchesQuaternion,
-  matchesVector3,
-  matchesWithDefault
+  matchesVector3
 } from '../../common/functions/MatchesUtils'
 import { NetworkTopics } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
@@ -49,6 +48,7 @@ export class WorldNetworkAction {
     entityUUID: matchesEntityUUID,
     networkId: matchesWithDefault(matchesNetworkId, () => NetworkObjectComponent.createNetworkId()),
     position: matchesVector3.optional(),
+    authorityPeerId: matchesPeerID.optional(),
     rotation: matchesQuaternion.optional(),
     $cache: true,
     $topic: NetworkTopics.world

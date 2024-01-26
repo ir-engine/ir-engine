@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Types } from 'bitecs'
 
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 
 export const DistanceComponentSchema = { squaredDistance: Types.f32 }
 

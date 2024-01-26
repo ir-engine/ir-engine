@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { dispatchAction } from '@etherealengine/hyperflux'
 
-import { Entity } from '../ecs/classes/Entity'
-import { createXRUI } from './functions/createXRUI'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { RegisteredWidgets, WidgetAppActions } from './WidgetAppService'
+import { createXRUI } from './functions/createXRUI'
 
 /**
  * The widget interface.

@@ -28,13 +28,13 @@ import { CylinderGeometry, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from '
 
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { V_010 } from '../../common/constants/MathConstants'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { InputState } from '../../input/state/InputState'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
@@ -107,7 +107,7 @@ const setupMarker = () => {
 
 export const scaleFluctuate = (sinOffset = 4, scaleMultiplier = 0.2, pulseSpeed = 10) => {
   const markerEntity = getState(AutopilotMarker).markerEntity!
-  const elapsedSeconds = getState(EngineState).elapsedSeconds
+  const elapsedSeconds = getState(ECSState).elapsedSeconds
   const scalePulse = scaleMultiplier * (sinOffset + Math.sin(pulseSpeed * elapsedSeconds))
   const transformComponent = getComponent(markerEntity, TransformComponent)
   transformComponent.scale.set(scalePulse, 1, scalePulse)

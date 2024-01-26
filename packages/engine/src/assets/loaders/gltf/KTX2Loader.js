@@ -96,9 +96,9 @@ import {
 } from './ktx-parse.module.js';
 import { ZSTDDecoder } from './zstddec.module.js';
 import WebWorker from 'web-worker'
-import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
 import { FileLoader } from '../base/FileLoader';
 import { Loader } from '../base/Loader';
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 
 const _taskCache = new WeakMap();
 

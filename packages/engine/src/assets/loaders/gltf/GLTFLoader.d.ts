@@ -42,7 +42,7 @@ import {
   SkinnedMesh,
   Texture
 } from 'three'
-import { Entity } from '../../../ecs/classes/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 
 import { DRACOLoader } from './DRACOLoader'
 import { KTX2Loader } from './KTX2Loader'

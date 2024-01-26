@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { HookContext, Paginated } from '@feathersjs/feathers/lib'
 import assert from 'assert'
 
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { scopePath, ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { AvatarID } from '@etherealengine/common/src/schemas/user/avatar.schema'

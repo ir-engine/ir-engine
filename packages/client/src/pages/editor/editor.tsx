@@ -34,9 +34,9 @@ import { PopupMenuInline } from '@etherealengine/client-core/src/user/components
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
 import { scenePath } from '@etherealengine/common/src/schema.type.module'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { EditorPage, useStudioEditor } from '@etherealengine/editor/src/pages/EditorPage'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 const RedirectStudio = () => {

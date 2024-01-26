@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { isClient } from './getEnvironment'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 
 export function isBot(window: Window) {
   if (!isClient) return false

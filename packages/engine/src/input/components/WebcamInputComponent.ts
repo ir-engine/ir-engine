@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Types } from 'bitecs'
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
 export type WebcamInputComponentType = {
   expressionValue: number

@@ -22,7 +22,3 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
-import { isClient } from './getEnvironment'
-
-export const performance: Performance = isClient ? window.performance : require('perf_hooks').performance

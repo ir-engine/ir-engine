@@ -23,20 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   Component,
   ComponentMap,
   getComponent,
   getOptionalComponent,
   hasComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import {
   HyperFlux,
   NO_PROXY,
@@ -51,9 +51,10 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { JSONTree } from 'react-json-tree'
 
-import { defineQuery, removeQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
-import { useExecute } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
+import { defineQuery, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { getAllEntities } from 'bitecs'
 import styles from './styles.module.scss'
 
 const renderEntityTreeRoots = () => {
@@ -115,7 +116,7 @@ const getQueryFromString = (queryString: string) => {
 }
 
 const renderAllEntities = (filter: string, queryString: string) => {
-  const entities = queryString ? getQueryFromString(queryString) : Engine.instance.entityQuery()
+  const entities = queryString ? getQueryFromString(queryString) : (getAllEntities(HyperFlux.store) as Entity[])
   return {
     ...Object.fromEntries(
       [...entities.entries()]
@@ -135,6 +136,7 @@ const renderAllEntities = (filter: string, queryString: string) => {
           return [label, renderEntityComponents(eid)]
         })
         .filter((exists) => !!exists)
+        .sort(([a], [b]) => a.localeCompare(b))
     )
   }
 }
