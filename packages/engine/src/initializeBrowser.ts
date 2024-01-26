@@ -30,6 +30,7 @@ import { WebLayerManager } from '@etherealengine/xrui'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { EngineState } from '@etherealengine/engine/src/EngineState'
+import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
 import { AssetLoaderState } from './assets/state/AssetLoaderState'
 import { CameraComponent } from './camera/components/CameraComponent'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
@@ -54,7 +55,10 @@ export const initializeBrowser = () => {
   const renderer = EngineRenderer.instance.renderer
   if (!renderer) throw new Error('EngineRenderer.instance.renderer does not exist!')
 
-  WebLayerManager.initialize(renderer, getState(AssetLoaderState).gltfLoader.ktx2Loader!)
+  const gltfLoader = getState(AssetLoaderState).gltfLoader
+  initializeKTX2Loader(gltfLoader)
+
+  WebLayerManager.initialize(renderer, gltfLoader.ktx2Loader!)
   WebLayerManager.instance.ktx2Encoder.pool.setWorkerLimit(1)
 
   setupInitialClickListener()
