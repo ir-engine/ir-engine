@@ -25,6 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { SceneDataType, SceneID, SceneJsonType, UserID } from '@etherealengine/common/src/schema.type.module'
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
+import { SceneSnapshotAction, SceneSnapshotSystem, SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { act, render, waitFor } from '@testing-library/react'
 import assert from 'assert'
@@ -33,24 +42,15 @@ import { EditorControlFunctions } from '../../../../editor/src/functions/EditorC
 import testSceneJson from '../../../tests/assets/SceneLoadingTest.scene.json'
 import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { EventDispatcher } from '../../common/classes/EventDispatcher'
-import { Engine, destroyEngine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { UndefinedEntity } from '../../ecs/classes/Entity'
-import { SceneSnapshotAction, SceneSnapshotSystem, SceneState } from '../../ecs/classes/Scene'
-import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { SystemDefinitions } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { FogSettingsComponent } from '../components/FogSettingsComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
-import { UUIDComponent } from '../components/UUIDComponent'
 import { SceneLoadingSystem } from './SceneLoadingSystem'
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1'
+const NODE_TLS_REJECT_UNAUTHORIZED = process.env.NODE_TLS_REJECT_UNAUTHORIZED
 const modelLink = '/packages/projects/default-project/assets/collisioncube.glb'
 const testScene = {
   name: '',
@@ -64,6 +64,7 @@ const testID = 'test' as SceneID
 overrideFileLoaderLoad()
 describe('SceneLoadingSystem', () => {
   beforeEach(async () => {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1'
     createEngine()
     Engine.instance.userID = 'user' as UserID
     Engine.instance.store.defaultDispatchDelay = () => 0
@@ -83,7 +84,7 @@ describe('SceneLoadingSystem', () => {
   })
 
   afterEach(() => {
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = undefined
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = NODE_TLS_REJECT_UNAUTHORIZED
     return destroyEngine()
   })
 

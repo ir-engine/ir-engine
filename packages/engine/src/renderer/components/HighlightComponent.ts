@@ -28,9 +28,9 @@ import { Mesh } from 'three'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { defineComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { iterateEntityNode } from '../../ecs/functions/EntityTree'
+import { defineComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { MeshComponent } from '../../scene/components/MeshComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { RendererState } from '../RendererState'

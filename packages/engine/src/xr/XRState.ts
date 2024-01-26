@@ -28,11 +28,11 @@ import matches from 'ts-matches'
 
 import { defineAction, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { useEffect } from 'react'
 import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
-import { Entity } from '../ecs/classes/Entity'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { defineQuery } from '../ecs/functions/QueryFunctions'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { DepthDataTexture } from './DepthDataTexture'
 

@@ -29,23 +29,24 @@ import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { isClient } from '../../common/functions/getEnvironment'
-import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   getComponent,
   getOptionalComponent,
   removeComponent,
   setComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../common/functions/PriorityQueue'
 import { NetworkState } from '../../networking/NetworkState'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformSystem } from '../../transform/TransformModule'
 import { compareDistanceToCamera } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -96,7 +97,7 @@ const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(avatarComponen
 
 const execute = () => {
   const { priorityQueue, sortedTransformEntities, visualizers } = getState(AvatarAnimationState)
-  const { elapsedSeconds, deltaSeconds } = getState(EngineState)
+  const { elapsedSeconds, deltaSeconds } = getState(ECSState)
 
   /** Calculate avatar locomotion animations outside of priority queue */
 
@@ -111,7 +112,7 @@ const execute = () => {
       avatarAnimationComponent.locomotion.z = MathUtils.lerp(
         avatarAnimationComponent.locomotion.z || 0,
         _vector3.copy(rigidbodyComponent.linearVelocity).setComponent(1, 0).length(),
-        10 * getState(EngineState).deltaSeconds
+        10 * deltaSeconds
       )
     } else {
       avatarAnimationComponent.locomotion.setScalar(0)

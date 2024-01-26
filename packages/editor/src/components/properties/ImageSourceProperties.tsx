@@ -27,7 +27,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { BackSide, DoubleSide, FrontSide } from 'three'
 
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ImageAlphaMode, ImageProjection } from '@etherealengine/engine/src/scene/classes/ImageUtils'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 

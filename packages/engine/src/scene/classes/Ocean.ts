@@ -44,11 +44,11 @@ import {
   WebGLRenderTarget
 } from 'three'
 
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { insertAfterString, insertBeforeString } from '../../common/functions/string'
-import { Entity } from '../../ecs/classes/Entity'
 import { OceanComponent } from '../components/OceanComponent'
 import { addError, removeError } from '../functions/ErrorFunctions'
 

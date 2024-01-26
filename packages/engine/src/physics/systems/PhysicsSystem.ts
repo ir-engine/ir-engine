@@ -30,12 +30,12 @@ import { Quaternion, Vector3 } from 'three'
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { SimulationSystemGroup } from '../../ecs/functions/SystemGroups'
+import { getComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { NetworkState } from '../../networking/NetworkState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PhysicsSerialization } from '../PhysicsSerialization'
@@ -143,19 +143,19 @@ const execute = () => {
     }
   }
 
-  const engineState = getState(EngineState)
+  const { physicsSubsteps } = getState(PhysicsState)
+  const { simulationTimestep } = getState(ECSState)
 
   // step physics world
-  const substeps = engineState.physicsSubsteps
-  const timestep = engineState.simulationTimestep / 1000 / substeps
+  const timestep = simulationTimestep / 1000 / physicsSubsteps
   physicsWorld.timestep = timestep
   // const smoothnessMultiplier = 50
   // const smoothAlpha = smoothnessMultiplier * timestep
   const kinematicPositionEntities = kinematicPositionBodyQuery()
   const kinematicVelocityEntities = kinematicVelocityBodyQuery()
-  for (let i = 0; i < substeps; i++) {
+  for (let i = 0; i < physicsSubsteps; i++) {
     // smooth kinematic pose changes
-    const substep = (i + 1) / substeps
+    const substep = (i + 1) / physicsSubsteps
     for (const entity of kinematicPositionEntities) smoothPositionBasedKinematicBody(entity, timestep, substep)
     for (const entity of kinematicVelocityEntities) smoothVelocityBasedKinematicBody(entity, timestep, substep)
     physicsWorld.step(physicsCollisionEventQueue)

@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import exportModelGLTF from '@etherealengine/engine/src/assets/functions/exportModelGLTF'
 import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 
 import { uploadProjectFiles } from './assetFunctions'
 

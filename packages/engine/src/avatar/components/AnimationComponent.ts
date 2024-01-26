@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { AnimationClip, AnimationMixer } from 'three'
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
 export const AnimationComponent = defineComponent({
   name: 'AnimationComponent',

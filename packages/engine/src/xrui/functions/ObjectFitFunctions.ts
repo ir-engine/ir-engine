@@ -27,10 +27,10 @@ import { Matrix4, Quaternion, Vector2, Vector3 } from 'three'
 
 import type { WebContainer3D } from '@etherealengine/xrui'
 
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { CameraComponent } from '../../camera/components/CameraComponent'
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 
 const _size = new Vector2()

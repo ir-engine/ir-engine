@@ -30,7 +30,7 @@ import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import styles from '../styles.module.scss'
 import { FileType } from './FileBrowserContentPanel'
 

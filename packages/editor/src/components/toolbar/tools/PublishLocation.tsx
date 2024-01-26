@@ -31,7 +31,7 @@ import LocationDrawer, {
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { SceneID, locationPath } from '@etherealengine/common/src/schema.type.module'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { Button } from '@mui/material'
 import { useTranslation } from 'react-i18next'

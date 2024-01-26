@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Group, Object3D, SkinnedMesh } from 'three'
 
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
-import { Entity } from './../ecs/classes/Entity'
 import { XRHandBones } from './XRHandBones'
 
 export class XRHandMeshModel extends Object3D {
