@@ -123,9 +123,6 @@ const onStart = (url: string, loaded: number, total: number) => {}
 const onLoad = () => {
   const totalSize = getCurrentSizeOfResources()
   console.log('Loaded: ' + totalSize + ' bytes of resources')
-
-  //@ts-ignore
-  window.resources = getState(ResourceState)
 }
 
 const onItemLoadedFor = <T extends AssetType>(url: string, resourceType: ResourceType, id: string, asset: T) => {
@@ -198,8 +195,14 @@ const Callbacks = {
         //@ts-ignore
         response.onUpdate = null
       }
+      //Compressed texture size
       if (response.mipmaps[0]) {
-        resource.metadata.size.set(response.mipmaps[0].data.length)
+        let size = 0
+        for (const mip of response.mipmaps) {
+          size += mip.data.byteLength
+        }
+        resource.metadata.size.set(size)
+        // Non compressed texture size
       } else {
         const height = response.image.height
         const width = response.image.width
@@ -219,6 +222,7 @@ const Callbacks = {
   [ResourceType.Geometry]: {
     onStart: (resource: State<Resource>) => {},
     onLoad: (response: Geometry, resource: State<Resource>) => {
+      // Estimated geometry size
       let size = 0
       for (const name in response.attributes) {
         const attr = response.getAttribute(name)
@@ -271,9 +275,7 @@ const load = <T extends AssetType>(
   const resource = resources[url]
   const callbacks = Callbacks[resourceType]
   callbacks.onStart(resource)
-
-  console.log('ResourceManager:load Loading resource: ' + url + ' for entity: ' + entity)
-
+  // console.log('ResourceManager:load Loading resource: ' + url + ' for entity: ' + entity)
   AssetLoader.load(
     url,
     args,
@@ -304,10 +306,8 @@ const unload = (url: string, entity: Entity) => {
     return
   }
 
-  console.log('ResourceManager:unload Unloading resource: ' + url + ' for entity: ' + entity)
-
+  // console.log('ResourceManager:unload Unloading resource: ' + url + ' for entity: ' + entity)
   const resource = resources[url]
-
   resource.references.set((entities) => {
     const index = entities.indexOf(entity)
     if (index > -1) {
@@ -349,11 +349,9 @@ const removeResource = (id: string) => {
     return
   }
 
-  console.log('ResourceManager:removeResource: Removing resource: ' + id)
-
+  // console.log('ResourceManager:removeResource: Removing resource: ' + id)
   Cache.remove(id)
   const resource = resources[id]
-
   removeReferencedResources(resource)
 
   const asset = resource.asset.get(NO_PROXY)

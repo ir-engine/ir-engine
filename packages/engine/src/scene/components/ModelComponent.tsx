@@ -206,11 +206,6 @@ function ModelReactor(): JSX.Element {
     }
 
     modelComponent.asset.set(boneMatchedAsset)
-
-    return () => {
-      modelComponent.scene.set(null)
-      modelComponent.asset.set(null)
-    }
   }, [gltf])
 
   useEffect(() => {

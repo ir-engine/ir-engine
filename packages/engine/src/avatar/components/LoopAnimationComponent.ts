@@ -218,6 +218,10 @@ export const LoopAnimationComponent = defineComponent({
     const [gltf, unload] = useGLTF(loopAnimationComponent.animationPack.value, entity)
 
     useEffect(() => {
+      return unload
+    }, [])
+
+    useEffect(() => {
       const asset = modelComponent?.asset.get(NO_PROXY) ?? null
       const model = gltf.value
       if (
@@ -234,8 +238,6 @@ export const LoopAnimationComponent = defineComponent({
       for (let i = 0; i < animations.length; i++) retargetAnimationClip(animations[i], model.scene)
       lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
       animComponent.animations.set(animations)
-
-      return unload
     }, [gltf, animComponent, loopAnimationComponent.animationPack])
 
     return null
