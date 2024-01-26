@@ -34,7 +34,6 @@ import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHoo
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { Button } from '@mui/material'
-import { lastIndexOf } from 'lodash'
 import { useTranslation } from 'react-i18next'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
@@ -43,18 +42,8 @@ export const PublishLocation = () => {
   const { t } = useTranslation()
   const openLocationDrawer = useHookstate(false)
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
-  const newName = useHookstate(getMutableState(SceneState).newSceneName)
-  let currentScene = activeScene.value
-
-  if (newName.value && currentScene && !activeScene.value!.includes(newName.value)) {
-    currentScene = activeScene.value!.replace(
-      currentScene.substring(lastIndexOf(currentScene, '/') + 1, currentScene.length),
-      newName.value
-    ) as SceneID
-  }
-
-  const selectedScene = currentScene
-    ? (currentScene!.replace('.scene.json', '').replace(`${currentScene!.split('/', 1)[0]}/`, '') as SceneID)
+  const selectedScene = activeScene.value
+    ? (activeScene.value!.replace('.scene.json', '').replace(`${activeScene.value!.split('/', 1)[0]}/`, '') as SceneID)
     : null
 
   const drawerMode = useHookstate<LocationDrawerMode>(LocationDrawerMode.Create)
@@ -67,7 +56,7 @@ export const PublishLocation = () => {
       $limit: 1,
       action: 'studio',
       sceneId: {
-        $like: `%${currentScene}%` as SceneID
+        $like: `%${activeScene.value}%` as SceneID
       }
     }
   })
@@ -94,7 +83,7 @@ export const PublishLocation = () => {
           <Button
             onClick={handleOpenLocationDrawer}
             className={styles.toolButton}
-            disabled={!currentScene || !hasWriteAccess}
+            disabled={!activeScene.value || !hasWriteAccess}
           >
             {t(`editor:toolbar.publishLocation.title`)}
           </Button>
