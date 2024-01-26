@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Entity, UndefinedEntity } from '@etherealengine/ecs'
 import { State, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { Texture } from 'three'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { LoadingArgs } from '../classes/AssetLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { AssetType, ResourceManager, ResourceType } from '../state/ResourceState'

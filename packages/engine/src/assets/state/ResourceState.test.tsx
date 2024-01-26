@@ -25,11 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
+import { createEntity, destroyEngine } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
 import { LoadingManager } from 'three'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
-import { destroyEngine } from '../../ecs/classes/Engine'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { ResourceLoadingManager } from '../loaders/base/ResourceLoadingManager'
 import { GLTF } from '../loaders/gltf/GLTFLoader'

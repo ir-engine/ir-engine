@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Entity } from '@etherealengine/ecs'
 import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { Cache, CompressedTexture, DefaultLoadingManager, LoadingManager, Texture } from 'three'
-import { Entity } from '../../ecs/classes/Entity'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { AssetLoader, LoadingArgs } from '../classes/AssetLoader'
