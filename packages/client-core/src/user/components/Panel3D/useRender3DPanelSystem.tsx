@@ -187,8 +187,9 @@ export const render3DPanelSystem = defineSystem({
         viewCamera.quaternion.copy(cameraComponent.quaternion)
         viewCamera.position.copy(cameraComponent.position)
         viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
+        Engine.instance.scene.backgroundIntensity = 0
         rendererState.renderers[id].value.render(Engine.instance.scene, viewCamera)
-
+        Engine.instance.scene.backgroundIntensity = 1
         if (group) enableObjectLayer(group[0], 31, false)
       }
     }

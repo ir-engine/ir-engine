@@ -96,7 +96,6 @@ export const ModelComponent = defineComponent({
       /** optional, only for bone matchable avatars */
       convertToVRM: false as boolean,
       /** optional, used for placing model in another scene */
-      sceneOverride: null as Scene | null,
       // internal
       scene: null as Scene | null,
       asset: null as VRM | GLTF | null
@@ -107,8 +106,7 @@ export const ModelComponent = defineComponent({
     return {
       src: component.src.value,
       cameraOcclusion: component.cameraOcclusion.value,
-      convertToVRM: component.convertToVRM.value,
-      sceneOverride: component.sceneOverride.value
+      convertToVRM: component.convertToVRM.value
     }
   },
 
@@ -119,7 +117,6 @@ export const ModelComponent = defineComponent({
       component.cameraOcclusion.set(!(json as any).avoidCameraOcclusion)
     if (typeof json.cameraOcclusion === 'boolean') component.cameraOcclusion.set(json.cameraOcclusion)
     if (typeof json.convertToVRM === 'boolean') component.convertToVRM.set(json.convertToVRM)
-    if (typeof json.sceneOverride === 'object') component.sceneOverride.set(json.sceneOverride)
 
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load

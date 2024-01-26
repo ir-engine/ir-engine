@@ -93,6 +93,7 @@ export const ModelPreviewPanel = (props) => {
     setComponent(entity, VisibleComponent, false)
 
     ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.AssetPreview)
+
     if (renderPanelEntities[1].value) removeEntity(renderPanelEntities[1].value)
     renderPanelEntities[1].set(entity)
     loading.set(false)
