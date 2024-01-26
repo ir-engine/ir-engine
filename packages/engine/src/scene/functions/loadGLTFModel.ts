@@ -27,11 +27,6 @@ import { AnimationMixer, Bone, InstancedMesh, Mesh, Object3D, Scene, SkinnedMesh
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJsonType, EntityJsonType } from '@etherealengine/common/src/schema.type.module'
-import { AnimationComponent } from '../../avatar/components/AnimationComponent'
-import { BoneComponent } from '../../avatar/components/BoneComponent'
-import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   ComponentJSONIDMap,
   ComponentMap,
@@ -39,8 +34,14 @@ import {
   getOptionalComponent,
   hasComponent,
   setComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { AnimationComponent } from '../../avatar/components/AnimationComponent'
+import { BoneComponent } from '../../avatar/components/BoneComponent'
+import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -54,7 +55,6 @@ import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { ObjectLayerMaskComponent } from '../components/ObjectLayerComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
-import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import iterateObject3D from '../util/iterateObject3D'
 

@@ -31,16 +31,15 @@ import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import multiLogger from '@etherealengine/common/src/logger'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import Dialog from '@mui/material/Dialog'
 
 import { scenePath } from '@etherealengine/common/src/schema.type.module'
-import { SceneServices, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { useQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
+import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { SceneServices, SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { t } from 'i18next'
@@ -89,7 +88,7 @@ export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }
 
 const SceneLoadingProgress = () => {
   const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
-  const loadingProgress = useHookstate(getMutableState(EngineState).loadingProgress).value
+  const loadingProgress = useHookstate(getMutableState(SceneState).loadingProgress).value
   return (
     <div style={{ top: '50px', position: 'relative' }}>
       <div
@@ -163,7 +162,7 @@ const onCloseProject = () => {
 const onSaveAs = async () => {
   const { projectName, sceneName } = getState(EditorState)
   const editorState = getMutableState(EditorState)
-  const sceneLoaded = getState(EngineState).sceneLoaded
+  const sceneLoaded = getState(SceneState).sceneLoaded
 
   // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
   if (!sceneLoaded) {
@@ -206,7 +205,7 @@ const onImportAsset = async () => {
 const onSaveScene = async () => {
   const { projectName, sceneName } = getState(EditorState)
   const { sceneModified } = getState(EditorState)
-  const { sceneLoaded } = getState(EngineState)
+  const { sceneLoaded } = getState(SceneState)
 
   if (!projectName) return
 
@@ -348,7 +347,7 @@ const tabs = [
  */
 const EditorContainer = () => {
   const { sceneName, projectName, sceneID, sceneModified } = useHookstate(getMutableState(EditorState))
-  const sceneLoaded = useHookstate(getMutableState(EngineState)).sceneLoaded
+  const sceneLoaded = useHookstate(getMutableState(SceneState)).sceneLoaded
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
 
   const sceneLoading = sceneID.value && !sceneLoaded.value

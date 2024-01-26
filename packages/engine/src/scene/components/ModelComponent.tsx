@@ -28,19 +28,6 @@ import { AnimationMixer, Group, Scene } from 'three'
 
 import { NO_PROXY, createState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { VRM } from '@pixiv/three-vrm'
-import React from 'react'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { AssetType } from '../../assets/enum/AssetType'
-import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { AnimationComponent } from '../../avatar/components/AnimationComponent'
-import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
-import { autoconvertMixamoAvatar, isAvaturn } from '../../avatar/functions/avatarFunctions'
-import { CameraComponent } from '../../camera/components/CameraComponent'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { SceneState } from '../../ecs/classes/Scene'
 import {
   defineComponent,
   getComponent,
@@ -51,9 +38,22 @@ import {
   setComponent,
   useComponent,
   useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { useQuery } from '../../ecs/functions/QueryFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { VRM } from '@pixiv/three-vrm'
+import React from 'react'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { AssetType } from '../../assets/enum/AssetType'
+import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import { AnimationComponent } from '../../avatar/components/AnimationComponent'
+import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
+import { autoconvertMixamoAvatar, isAvaturn } from '../../avatar/functions/avatarFunctions'
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
@@ -68,7 +68,6 @@ import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { SourceComponent } from './SourceComponent'
-import { UUIDComponent } from './UUIDComponent'
 import { VariantComponent } from './VariantComponent'
 
 function clearMaterials(src: string) {
@@ -122,7 +121,7 @@ export const ModelComponent = defineComponent({
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
      */
     if (
-      !getState(EngineState).sceneLoaded &&
+      !getState(SceneState).sceneLoaded &&
       hasComponent(entity, SceneObjectComponent) &&
       component.src.value &&
       !component.scene.value

@@ -26,10 +26,15 @@ Ethereal Engine. All Rights Reserved.
 import { RigidBody, RigidBodyType } from '@dimforge/rapier3d-compat'
 import { Types } from 'bitecs'
 
+import {
+  defineComponent,
+  getComponent,
+  removeComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { getState } from '@etherealengine/hyperflux'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { PhysicsState } from '../state/PhysicsState'
 
 const { f64 } = Types

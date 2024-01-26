@@ -27,15 +27,15 @@ import { Color, DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } f
 
 import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, entityExists, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { useEffect } from 'react'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { SceneState } from '../../ecs/classes/Scene'
-import { getComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, entityExists, removeEntity } from '../../ecs/functions/EntityFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
@@ -87,7 +87,7 @@ const execute = () => {
     }
   }
 
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
   transition.update(deltaSeconds, (alpha) => {
     mesh.material.opacity = alpha
     setVisibleComponent(entity, alpha > 0)

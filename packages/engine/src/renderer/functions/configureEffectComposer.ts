@@ -42,12 +42,12 @@ import { DepthTexture, NearestFilter, PerspectiveCamera, RGBAFormat, UnsignedInt
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
 import { ShaderPass } from 'postprocessing'
 import { CameraComponent } from '../../camera/components/CameraComponent'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/PostProcessing'
 import { HighlightState } from '../HighlightState'

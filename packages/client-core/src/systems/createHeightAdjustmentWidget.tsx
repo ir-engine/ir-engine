@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { setTrackingSpace } from '@etherealengine/engine/src/xr/XRScaleAdjustmentFunctions'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'

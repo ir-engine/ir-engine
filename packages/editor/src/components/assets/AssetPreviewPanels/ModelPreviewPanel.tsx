@@ -36,8 +36,7 @@ import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectL
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { createEntity, removeEntity, setComponent } from '@etherealengine/ecs'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'

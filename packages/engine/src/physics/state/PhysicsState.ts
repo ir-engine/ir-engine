@@ -30,6 +30,7 @@ export const PhysicsState = defineState({
   name: 'ee.engine.PhysicsState',
   initial: () => {
     return {
+      physicsSubsteps: 1,
       physicsWorld: null! as PhysicsWorld,
       physicsCollisionEventQueue: null! as EventQueue
     }

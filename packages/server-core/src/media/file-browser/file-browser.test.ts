@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { fileBrowserPath } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import { Application } from '../../../declarations'

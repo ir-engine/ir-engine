@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import { v1 } from 'uuid'
 
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import {
   IdentityProviderType,

@@ -26,31 +26,31 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Intersection, Layers, Object3D, Raycaster } from 'three'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import { InfiniteGridComponent } from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { PresentationSystemGroup } from '@etherealengine/ecs'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import {
   ActiveOrbitCamera,
   CameraOrbitComponent
 } from '@etherealengine/engine/src/camera/components/CameraOrbitComponent'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
+import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
@@ -215,7 +215,7 @@ const inputQuery = defineQuery([InputSourceComponent])
 
 const execute = () => {
   if (Engine.instance.localClientEntity) return // we are in live mode
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
 
   const editorHelperState = getState(EditorHelperState)
   const selectionState = getMutableState(SelectionState)

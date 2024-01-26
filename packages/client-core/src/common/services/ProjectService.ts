@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
+import multiLogger from '@etherealengine/common/src/logger'
 import { githubRepoAccessRefreshPath } from '@etherealengine/common/src/schema.type.module'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import {
@@ -47,7 +47,7 @@ import {
   projectPermissionPath,
   ProjectType
 } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { ProjectParams } from '@etherealengine/server-core/src/projects/project/project.class'
 import { Paginated } from '@feathersjs/feathers'
 import { API } from '../../API'

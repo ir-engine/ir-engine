@@ -28,7 +28,6 @@ import React, { useEffect, useLayoutEffect } from 'react'
 
 import { defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getOptionalComponent,
@@ -37,9 +36,10 @@ import {
   setComponent,
   useComponent,
   useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { ButtonStateMap } from '../state/ButtonState'
 import { InputComponent } from './InputComponent'

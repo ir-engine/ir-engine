@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 
 import { LocationID, locationPath, LocationType } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { locationBanPath, SceneID, UserID } from '@etherealengine/common/src/schema.type.module'

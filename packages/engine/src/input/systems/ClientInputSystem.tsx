@@ -28,14 +28,8 @@ import { Mesh, MeshBasicMaterial, Object3D, Quaternion, Ray, Raycaster, Vector3 
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import React from 'react'
-import { CameraComponent } from '../../camera/components/CameraComponent'
-import { ObjectDirection } from '../../common/constants/Axis3D'
-import { Object3DUtils } from '../../common/functions/Object3DUtils'
-import { isClient } from '../../common/functions/getEnvironment'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
+import { Object3DUtils } from '@etherealengine/common/src/utils/Object3DUtils'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   getComponent,
   getMutableComponent,
@@ -43,12 +37,18 @@ import {
   hasComponent,
   removeComponent,
   setComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { defineQuery, useQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { InputSystemGroup } from '../../ecs/functions/SystemGroups'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
+import React from 'react'
+import { CameraComponent } from '../../camera/components/CameraComponent'
+import { ObjectDirection } from '../../common/constants/Axis3D'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'

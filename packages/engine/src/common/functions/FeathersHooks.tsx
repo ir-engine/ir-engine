@@ -42,7 +42,7 @@ import { ServiceTypes } from '@etherealengine/common/declarations'
 import { NO_PROXY, State, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
-import { Engine } from '../../ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 
 export type Methods = 'find' | 'get' | 'create' | 'update' | 'patch' | 'remove'
 

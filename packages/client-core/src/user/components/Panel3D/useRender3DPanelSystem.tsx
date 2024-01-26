@@ -27,22 +27,24 @@ import React, { useEffect } from 'react'
 import { Color, DirectionalLight, Euler, Quaternion, Vector3, WebGLRenderer } from 'three'
 
 import { useHookstateFromFactory } from '@etherealengine/common/src/utils/useHookstateFromFactory'
+import {
+  Engine,
+  Entity,
+  PresentationSystemGroup,
+  UndefinedEntity,
+  createEntity,
+  defineQuery,
+  defineSystem,
+  getComponent,
+  getOptionalComponent,
+  removeEntity,
+  setComponent
+} from '@etherealengine/ecs'
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import {
   ActiveOrbitCamera,
   CameraOrbitComponent
 } from '@etherealengine/engine/src/camera/components/CameraOrbitComponent'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import {
-  getComponent,
-  getOptionalComponent,
-  setComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import { addClientInputListeners } from '@etherealengine/engine/src/input/systems/ClientInputSystem'
 import { DirectionalLightComponent } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'

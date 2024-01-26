@@ -23,9 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import {
+  defineComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { Types } from 'bitecs'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 
 const maxBitWidth = 32
 

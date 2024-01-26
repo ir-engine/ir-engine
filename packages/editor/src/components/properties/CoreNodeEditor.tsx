@@ -26,11 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import {
-  getComponent,
-  hasComponent,
-  useOptionalComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { SceneTagComponent } from '@etherealengine/engine/src/scene/components/SceneTagComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'

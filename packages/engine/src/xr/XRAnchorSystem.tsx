@@ -39,12 +39,6 @@ import {
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
 import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
-import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
-import { V_010 } from '../common/constants/MathConstants'
-import { Engine } from '../ecs/classes/Engine'
-import { EngineState } from '../ecs/classes/EngineState'
-import { Entity } from '../ecs/classes/Entity'
 import {
   ComponentType,
   getComponent,
@@ -52,11 +46,17 @@ import {
   removeComponent,
   setComponent,
   useOptionalComponent
-} from '../ecs/functions/ComponentFunctions'
-import { createEntity } from '../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../ecs/functions/EntityTree'
-import { defineQuery, useQuery } from '../ecs/functions/QueryFunctions'
-import { defineSystem } from '../ecs/functions/SystemFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
+import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
+import { V_010 } from '../common/constants/MathConstants'
 import { InputComponent } from '../input/components/InputComponent'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
@@ -159,7 +159,7 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
 
   if (!transform || !xrFrame || !xrSession) return
 
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
   const lerpAlpha = smootheLerpAlpha(5, deltaSeconds)
 
   const sceneScaleAutoMode = xrState.sceneScaleAutoMode

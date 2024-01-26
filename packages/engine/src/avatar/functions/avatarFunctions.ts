@@ -28,8 +28,6 @@ import { AnimationClip, AnimationMixer, Scene, Vector3 } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { Entity } from '../../ecs/classes/Entity'
 import {
   getComponent,
   getMutableComponent,
@@ -37,19 +35,21 @@ import {
   hasComponent,
   removeComponent,
   setComponent
-} from '../../ecs/functions/ComponentFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
+import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { isClient } from '../../common/functions/getEnvironment'
 import { iOS } from '../../common/functions/isMobile'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { XRState } from '../../xr/XRState'
 import avatarBoneMatching from '../AvatarBoneMatching'
@@ -174,7 +174,7 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
 
   setObjectLayers(model.scene, ObjectLayers.Avatar)
 
-  const loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
+  const loadingEffect = getState(AnimationState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
 
   removeComponent(entity, AvatarPendingComponent)
 

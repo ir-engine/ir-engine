@@ -34,7 +34,7 @@ import Debug from '@etherealengine/client-core/src/components/Debug'
 import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import '@etherealengine/client-core/src/util/GlobalStyle.css'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 
@@ -71,8 +71,6 @@ const AppPage = ({ route }: { route: string }) => {
   useEffect(() => {
     notificationstate.snackbar.set(notistackRef.current)
   }, [notistackRef.current])
-
-  NotificationState.useNotifications()
 
   useEffect(() => {
     if (!isLoggedIn.value || projectComponents) return

@@ -23,20 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  defineComponent,
-  getComponent,
-  setComponent,
-  useComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, useEntityContext } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { Color, Vector3 } from 'three'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 //import { CameraSystem } from '../../camera/systems/CameraSystem'
-import { Engine } from '../../ecs/classes/Engine'
-import { UndefinedEntity } from '../../ecs/classes/Entity'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { SDFShader } from '../../renderer/effects/SDFShader'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { setCallback } from './CallbackComponent'

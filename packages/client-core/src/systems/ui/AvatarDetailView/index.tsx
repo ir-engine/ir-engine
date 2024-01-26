@@ -27,7 +27,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { CircleGeometry, Mesh, MeshBasicMaterial } from 'three'
 
-import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'

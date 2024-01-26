@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '../ecs/classes/Entity'
-import { getOptionalComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
+import { getOptionalComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { checkBitflag, readVector3, readVector4 } from '../networking/serialization/DataReader'
 import { writeVector3, writeVector4 } from '../networking/serialization/DataWriter'
 import { ViewCursor, readUint8, rewindViewCursor, spaceUint8 } from '../networking/serialization/ViewCursor'

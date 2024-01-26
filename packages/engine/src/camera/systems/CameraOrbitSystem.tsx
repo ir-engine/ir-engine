@@ -23,23 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getMutableState, getState } from '@etherealengine/hyperflux'
-import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
-import { SelectionState } from '../../../../editor/src/services/SelectionServices'
-import { V_010 } from '../../common/constants/MathConstants'
-import { throttle } from '../../common/functions/FunctionHelpers'
-import { isClient } from '../../common/functions/getEnvironment'
-import { Engine } from '../../ecs/classes/Engine'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
+  Engine,
+  InputSystemGroup,
+  defineQuery,
+  defineSystem,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
   setComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { InputSystemGroup } from '../../ecs/functions/SystemGroups'
+} from '@etherealengine/ecs'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
+import { SelectionState } from '../../../../editor/src/services/SelectionServices'
+import { V_010 } from '../../common/constants/MathConstants'
+import { throttle } from '../../common/functions/FunctionHelpers'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { InputState } from '../../input/state/InputState'
 import { GroupComponent } from '../../scene/components/GroupComponent'

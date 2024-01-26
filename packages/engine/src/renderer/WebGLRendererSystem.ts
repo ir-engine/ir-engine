@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import '../threejsPatches'
+
 import { EffectComposer, NormalPass, RenderPass } from 'postprocessing'
 import { useEffect } from 'react'
 import {
@@ -38,16 +40,16 @@ import {
 
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
-import { isClient } from '../common/functions/getEnvironment'
-import { nowMilliseconds } from '../common/functions/nowMilliseconds'
-import { Engine } from '../ecs/classes/Engine'
-import { EngineState } from '../ecs/classes/EngineState'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '../ecs/functions/SystemGroups'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { EffectMapType, defaultPostProcessingSchema } from '../scene/constants/PostProcessing'
 import { WebXRManager, createWebXRManager } from '../xr/WebXRManager'
@@ -260,7 +262,7 @@ export class EngineRenderer {
    * Change the quality of the renderer.
    */
   changeQualityLevel(): void {
-    const time = nowMilliseconds()
+    const time = Date.now()
     const delta = time - lastRenderTime
     lastRenderTime = time
 
@@ -302,7 +304,7 @@ export const PostProcessingSettingsState = defineState({
 
 const execute = () => {
   if (!EngineRenderer.instance) return
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
   EngineRenderer.instance.execute(deltaSeconds)
 }
 

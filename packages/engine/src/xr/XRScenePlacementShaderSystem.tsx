@@ -28,8 +28,8 @@ import { Material, Mesh, Object3D } from 'three'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '../ecs/functions/SystemGroups'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { GroupQueryReactor } from '../scene/components/GroupComponent'
 import { SceneObjectComponent } from '../scene/components/SceneObjectComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'

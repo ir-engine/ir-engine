@@ -28,17 +28,17 @@ import { Box3, Box3Helper, BufferGeometry, Mesh } from 'three'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { matches } from '../../common/functions/MatchesUtils'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
   getOptionalComponent,
   setComponent,
   useComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { matches } from '../../common/functions/MatchesUtils'
 import { RendererState } from '../../renderer/RendererState'
 import { GroupComponent, addObjectToGroup } from '../../scene/components/GroupComponent'
 import { MeshComponent } from '../../scene/components/MeshComponent'

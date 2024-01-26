@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ComponentType, defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { ComponentType, defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
 export const GLTFLoadedComponent = defineComponent({
   name: 'GLTFLoadedComponent',
