@@ -27,6 +27,7 @@ import { AvatarNetworkSystem } from './state/AvatarNetworkState'
 import { AnimationSystem } from './systems/AnimationSystem'
 import { AvatarAnimationSystem } from './systems/AvatarAnimationSystem'
 import { AvatarAutopilotSystem } from './systems/AvatarAutopilotSystem'
+import { AvatarCameraInputSystem } from './systems/AvatarCameraInputSystem'
 import { AvatarControllerSystem } from './systems/AvatarControllerSystem'
 import { AvatarIKTargetSystem } from './systems/AvatarIKTargetSystem'
 import { AvatarInputSystem } from './systems/AvatarInputSystem'
@@ -40,6 +41,7 @@ export default {
   AnimationSystem,
   AvatarAnimationSystem,
   AvatarAutopilotSystem,
+  AvatarCameraInputSystem,
   AvatarControllerSystem,
   AvatarIKTargetSystem,
   AvatarInputSystem,
