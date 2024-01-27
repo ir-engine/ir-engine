@@ -40,12 +40,8 @@ import {
   useMutableState
 } from '@etherealengine/hyperflux'
 
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { getOptionalComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { Engine, defineSystem, getOptionalComponent, removeEntity, setComponent } from '@etherealengine/ecs'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'

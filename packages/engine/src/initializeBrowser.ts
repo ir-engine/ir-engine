@@ -24,12 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BotUserAgent } from '@etherealengine/common/src/constants/BotUserAgent'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { WebLayerManager } from '@etherealengine/xrui'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { EngineState } from '@etherealengine/engine/src/EngineState'
+import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
+import { AssetLoaderState } from './assets/state/AssetLoaderState'
 import { CameraComponent } from './camera/components/CameraComponent'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
@@ -53,23 +55,11 @@ export const initializeBrowser = () => {
   const renderer = EngineRenderer.instance.renderer
   if (!renderer) throw new Error('EngineRenderer.instance.renderer does not exist!')
 
-  WebLayerManager.initialize(renderer)
+  const gltfLoader = getState(AssetLoaderState).gltfLoader
+  initializeKTX2Loader(gltfLoader)
+
+  WebLayerManager.initialize(renderer, gltfLoader.ktx2Loader!)
   WebLayerManager.instance.ktx2Encoder.pool.setWorkerLimit(1)
 
-  setupInitialClickListener()
   Engine.instance.engineTimer.start()
-}
-
-const setupInitialClickListener = () => {
-  const canvas = EngineRenderer.instance.renderer.domElement
-  const initialClickListener = () => {
-    window.removeEventListener('click', initialClickListener)
-    window.removeEventListener('touchend', initialClickListener)
-    canvas.removeEventListener('click', initialClickListener)
-    canvas.removeEventListener('touchend', initialClickListener)
-  }
-  window.addEventListener('click', initialClickListener)
-  window.addEventListener('touchend', initialClickListener)
-  canvas.addEventListener('click', initialClickListener)
-  canvas.addEventListener('touchend', initialClickListener)
 }
