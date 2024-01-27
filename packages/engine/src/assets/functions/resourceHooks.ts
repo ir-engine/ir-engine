@@ -61,11 +61,14 @@ function useLoader<T extends AssetType>(
   useEffect(() => {
     if (url !== urlState.value) {
       if (urlState.value) {
-        ResourceManager.unload(urlState.value, entity)
-        value.set(null)
-        progress.set(null)
-        error.set(null)
-        onUnload(urlState.value)
+        const oldUrl = urlState.value
+        window.requestAnimationFrame(() => {
+          ResourceManager.unload(oldUrl, entity)
+          value.set(null)
+          progress.set(null)
+          error.set(null)
+          onUnload(oldUrl)
+        })
       }
       urlState.set(url)
     }

@@ -30,13 +30,11 @@ import ResizeObserver from 'resize-observer-polyfill'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import { setupSceneForPreview } from '@etherealengine/client-core/src/user/components/Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
-import { SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
-import { removeMaterialSource } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { InfiniteGridHelper } from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import { useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { useGLTF } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import styles from '../styles.module.scss'
 
 export const ModelPreviewPanel = (props) => {
@@ -53,6 +51,7 @@ export const ModelPreviewPanel = (props) => {
   gridHelper.children.forEach((child) => {
     child.layers.set(ObjectLayers.Panel)
   })
+  const [model, unload] = useGLTF(url, entity.value)
 
   useEffect(() => {
     scene.value.add(gridHelper)
@@ -77,23 +76,22 @@ export const ModelPreviewPanel = (props) => {
       resizeObserver.disconnect()
       handleSizeChangeDebounced.cancel()
       scene.value.remove(gridHelper)
+      unload()
     }
   }, [])
 
   useEffect(() => {
+    const avatar = model.get(NO_PROXY)
+    if (!avatar) return
+
     //add to the threejs scene for previewing
-    AssetLoader.loadAsync(url).then((avatar) => {
-      scene.value.add(setupSceneForPreview(avatar))
-    })
+    const avatarObj = setupSceneForPreview(avatar)
+    scene.value.add(avatarObj)
 
     return () => {
-      const sceneVal = scene.value
-      const avatar = sceneVal.children.find((child) => child.name === 'avatar')
-      if (avatar?.userData['src']) {
-        removeMaterialSource({ type: SourceType.MODEL, path: avatar.userData['src'] })
-      }
+      scene.value.remove(avatarObj)
     }
-  }, [url])
+  }, [model])
 
   return (
     <>

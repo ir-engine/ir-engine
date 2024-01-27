@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Entity } from '@etherealengine/ecs'
 import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { Cache, CompressedTexture, DefaultLoadingManager, LoadingManager, Material, Texture } from 'three'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { AssetLoader, LoadingArgs } from '../classes/AssetLoader'
@@ -176,6 +177,13 @@ const getCurrentSizeOfResources = () => {
   return size
 }
 
+const getRendererInfo = () => {
+  return {
+    memory: EngineRenderer.instance.renderer.info.memory,
+    programCount: EngineRenderer.instance.renderer.info.programs?.length
+  }
+}
+
 const Callbacks = {
   [ResourceType.GLTF]: {
     onStart: (resource: State<Resource>) => {},
@@ -317,7 +325,9 @@ const unload = (url: string, entity: Entity) => {
   })
 
   if (resource.references.length == 0) {
+    // console.log("Before Removing Resources", JSON.stringify(getRendererInfo()))
     removeResource(url)
+    // console.log("After Removing Resources", JSON.stringify(getRendererInfo()))
   }
 }
 

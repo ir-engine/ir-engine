@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
@@ -37,14 +37,13 @@ import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
 import { SxProps, Theme } from '@mui/material/styles'
 
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import styles from './index.module.scss'
 
 import { setupSceneForPreview } from '@etherealengine/client-core/src/user/components/Panel3D/helperFunctions'
 import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
-import { initializeKTX2Loader } from '@etherealengine/engine/src/assets/functions/createGLTFLoader'
-import { GLTFLoader } from '@etherealengine/engine/src/assets/loaders/gltf/GLTFLoader'
+import { useGLTF } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { isAvaturn } from '@etherealengine/engine/src/avatar/functions/avatarFunctions'
+import { NO_PROXY } from '@etherealengine/hyperflux'
 interface Props {
   fill?: boolean
   avatarUrl?: string
@@ -62,43 +61,47 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
   const renderPanel = useRender3DPanelSystem(panelRef)
   const { entity, camera, scene, renderer } = renderPanel.state
 
+  const override = !isAvaturn(avatarUrl || '') ? undefined : AssetType.glB
+  const [model, unload, error] = useGLTF(avatarUrl || '', entity.value, {
+    forceAssetType: override
+  })
+
   useEffect(() => {
-    loadAvatarPreview()
-  }, [avatarUrl])
-
-  const loadAvatarPreview = async () => {
-    const oldAvatar = scene.value.children.find((item) => item.name === 'avatar')
-    if (oldAvatar) {
-      scene.value.remove(oldAvatar)
-    }
-
     if (!avatarUrl) return
 
     setAvatarLoading(true)
     resetAnimationLogic(entity.value)
-    /** @todo this is a hack */
-    const override = !isAvaturn(avatarUrl) ? undefined : AssetType.glB
+  }, [avatarUrl])
 
-    const gltfLoader = AssetLoader.getLoader(AssetType.glTF) as GLTFLoader
-    if (!gltfLoader.ktx2Loader) {
-      initializeKTX2Loader(gltfLoader)
+  useEffect(() => {
+    return unload
+  }, [])
+
+  useEffect(() => {
+    if (!error.value) return
+    onAvatarError && onAvatarError(error.value.message)
+  }, [error])
+
+  useLayoutEffect(() => {
+    const avatar = model.get(NO_PROXY)
+    if (!avatar) return
+
+    const loadedAvatar = setupSceneForPreview(avatar)
+    loadedAvatar.name = 'avatar'
+    loadedAvatar.rotateY(Math.PI)
+    setAvatarLoading(false)
+    onAvatarLoaded && onAvatarLoaded()
+
+    loadedAvatar.getWorldPosition(camera.value.position)
+    camera.value.position.y += 1.8
+    camera.value.position.z = 1
+
+    scene.value.add(loadedAvatar)
+
+    return () => {
+      scene.value.remove(loadedAvatar)
     }
-
-    AssetLoader.loadAsync(avatarUrl, {
-      forceAssetType: override
-    }).then((avatar) => {
-      const loadedAvatar = setupSceneForPreview(avatar)
-      scene.value.add(loadedAvatar)
-      loadedAvatar.name = 'avatar'
-      loadedAvatar.rotateY(Math.PI)
-      setAvatarLoading(false)
-      onAvatarLoaded && onAvatarLoaded()
-
-      loadedAvatar.getWorldPosition(camera.value.position)
-      camera.value.position.y += 1.8
-      camera.value.position.z = 1
-    })
-  }
+  }, [model])
 
   return (
     <Box className={`${commonStyles.preview} ${fill ? styles.fill : ''}`} sx={sx}>
