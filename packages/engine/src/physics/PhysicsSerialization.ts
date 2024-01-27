@@ -24,7 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getOptionalComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { getState } from '@etherealengine/hyperflux'
+import { NetworkObjectSendPeriodicUpdatesTag } from '../networking/components/NetworkObjectComponent'
 import { checkBitflag, readVector3, readVector4 } from '../networking/serialization/DataReader'
 import { writeVector3, writeVector4 } from '../networking/serialization/DataWriter'
 import { ViewCursor, readUint8, rewindViewCursor, spaceUint8 } from '../networking/serialization/ViewCursor'
@@ -82,10 +85,14 @@ export const writeRigidBody = (v: ViewCursor, entity: Entity) => {
   let changeMask = 0
   let b = 0
 
-  changeMask |= writeBodyPosition(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeBodyRotation(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeBodyLinearVelocity(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeBodyAngularVelocity(v, entity) ? 1 << b++ : b++ && 0
+  const ignoreHasChanged =
+    hasComponent(entity, NetworkObjectSendPeriodicUpdatesTag) &&
+    getState(ECSState).simulationTime % getState(ECSState).periodicUpdateFrequency === 0
+
+  changeMask |= writeBodyPosition(v, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
+  changeMask |= writeBodyRotation(v, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
+  changeMask |= writeBodyLinearVelocity(v, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
+  changeMask |= writeBodyAngularVelocity(v, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
