@@ -63,8 +63,6 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 
 export const avatarRadius = 0.125
-export const defaultAvatarHeight = 1.8
-export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
 
 export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   const entity = UUIDComponent.getEntityByUUID(entityUUID)
@@ -72,10 +70,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
 
-  setComponent(entity, AvatarComponent, {
-    avatarHalfHeight: defaultAvatarHalfHeight,
-    avatarHeight: defaultAvatarHeight
-  })
+  setComponent(entity, AvatarComponent)
 
   const userNames = getState(WorldState).userNames
   const userName = userNames[entityUUID]
@@ -130,11 +125,11 @@ export const createAvatarCollider = (entity: Entity): Collider => {
   const transform = getComponent(entity, TransformComponent)
   rigidBody.position.copy(transform.position)
   rigidBody.rotation.copy(transform.rotation)
-  const bodyColliderDesc = ColliderDesc.capsule(
-    avatarComponent.avatarHalfHeight - avatarRadius - 0.25,
-    avatarRadius
-  ).setCollisionGroups(interactionGroups)
-  bodyColliderDesc.setTranslation(0, avatarComponent.avatarHalfHeight + 0.25, 0)
+  const halfHeight = avatarComponent.avatarHeight * 0.5
+  const bodyColliderDesc = ColliderDesc.capsule(halfHeight - avatarRadius - 0.25, avatarRadius).setCollisionGroups(
+    interactionGroups
+  )
+  bodyColliderDesc.setTranslation(0, halfHeight + 0.25, 0)
 
   return Physics.createColliderAndAttachToRigidBody(
     getState(PhysicsState).physicsWorld,

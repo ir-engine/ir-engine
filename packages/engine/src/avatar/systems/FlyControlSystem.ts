@@ -29,16 +29,16 @@ import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 
+import { InputSystemGroup } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '../../camera/components/CameraComponent'
+import { FlyControlComponent } from '../../camera/components/FlyControlComponent'
 import { V_010 } from '../../common/constants/MathConstants'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { InputState } from '../../input/state/InputState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { FlyControlComponent } from '../components/FlyControlComponent'
-import { AvatarInputSystem } from './AvatarInputSystem'
 
 const EPSILON = 10e-5
 const IDENTITY = new Matrix4().identity()
@@ -130,6 +130,6 @@ const execute = () => {
 
 export const FlyControlSystem = defineSystem({
   uuid: 'ee.engine.FlyControlSystem',
-  insert: { after: AvatarInputSystem },
+  insert: { with: InputSystemGroup },
   execute
 })

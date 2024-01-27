@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
-import { CameraMode } from '../../camera/types/CameraMode'
+import { FollowCameraComponent } from '../components/FollowCameraComponent'
+import { CameraMode } from '../types/CameraMode'
 
 type SwitchCameraModeProps = {
   cameraMode: CameraMode
