@@ -95,8 +95,6 @@ export class Engine {
    * The local client entity
    */
   localClientEntity = UndefinedEntity
-
-  entityQuery = () => getAllEntities(HyperFlux.store) as Entity[]
 }
 
 globalThis.Engine = Engine
