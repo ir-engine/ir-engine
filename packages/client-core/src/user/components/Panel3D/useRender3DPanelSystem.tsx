@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { Color, DirectionalLight, Euler, Quaternion, Vector3, WebGLRenderer } from 'three'
 
-import { useHookstateFromFactory } from '@etherealengine/common/src/utils/useHookstateFromFactory'
 import {
   Engine,
   Entity,
@@ -62,6 +61,7 @@ import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
 export const PreviewPanelRendererState = defineState({
   name: 'previewPanelRendererState',
   initial: () => ({
+    environment: [] as Entity[],
     renderers: {} as Record<string, WebGLRenderer>,
     entities: {} as Record<string, Entity[]>,
     ids: [] as string[]
@@ -71,30 +71,6 @@ export const PreviewPanelRendererState = defineState({
 export enum PanelEntities {
   'camera',
   'model'
-}
-
-const initialize3D = () => {
-  const createLight = (rotation: Euler, intensity: number) => {
-    const light = createEntity()
-    ObjectLayerMaskComponent.setLayer(light, ObjectLayers.AssetPreview)
-    setComponent(light, TransformComponent, { rotation: new Quaternion().setFromEuler(rotation) })
-    setComponent(light, DirectionalLightComponent, {
-      light: new DirectionalLight(),
-      intensity,
-      color: new Color(1, 1, 1)
-    })
-    setComponent(light, VisibleComponent, true)
-    setComponent(light, NameComponent, '3D Preview Light 2')
-    return light
-  }
-  const backLight = createLight(new Euler(-0.5, 0, 0), 2)
-  const frontLight1 = createLight(new Euler(-4, Math.PI * 0.1, 0), 2)
-  const frontLight2 = createLight(new Euler(-4, -Math.PI * 0.1, 0), 2)
-  return {
-    backLight,
-    frontLight1,
-    frontLight2
-  }
 }
 
 const initializePreviewPanel = (id: string) => {
@@ -115,10 +91,9 @@ const initializePreviewPanel = (id: string) => {
 }
 
 export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElement>) {
-  const state = useHookstateFromFactory(initialize3D)
   const rendererState = getMutableState(PreviewPanelRendererState)
-  let id = ''
 
+  let id = ''
   const resize = () => {
     if (!panel.current?.id) return
     const bounds = panel.current.getBoundingClientRect()!
@@ -131,6 +106,28 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
   useEffect(() => {
     window.addEventListener('resize', resize)
     id = panel.current.id
+
+    if (!rendererState.environment.value.length) {
+      const createLight = (rotation: Euler, intensity: number) => {
+        const light = createEntity()
+        ObjectLayerMaskComponent.setLayer(light, ObjectLayers.AssetPreview)
+        setComponent(light, TransformComponent, { rotation: new Quaternion().setFromEuler(rotation) })
+        setComponent(light, DirectionalLightComponent, {
+          light: new DirectionalLight(),
+          intensity,
+          color: new Color(1, 1, 1)
+        })
+        setComponent(light, VisibleComponent, true)
+        setComponent(light, NameComponent, '3D Preview Light')
+        return light
+      }
+      const backLight = createLight(new Euler(-0.5, 0, 0), 2)
+      const frontLight1 = createLight(new Euler(-4, Math.PI * 0.1, 0), 2)
+      const frontLight2 = createLight(new Euler(-4, -Math.PI * 0.1, 0), 2)
+
+      rendererState.environment.set([backLight, frontLight1, frontLight2])
+    }
+
     if (!rendererState.renderers.value[id]) {
       rendererState.renderers[id].set(
         new WebGLRenderer({
@@ -176,9 +173,9 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
     return () => {
       if (panel.current && rendererState.value[id]) panel.current.removeChild(rendererState.value[id].domElement)
     }
-  }, [panel.current, state])
+  }, [panel.current])
 
-  return { state, resize }
+  return { resize }
 }
 
 export const render3DPanelSystem = defineSystem({
