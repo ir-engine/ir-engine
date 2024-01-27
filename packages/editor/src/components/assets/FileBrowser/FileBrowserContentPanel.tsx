@@ -348,11 +348,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }
 
   const searchText = useHookstate('')
-  const validFiles = useHookstate<typeof files>([])
-
-  useEffect(() => {
-    validFiles.set(files.filter((file) => file.name.toLowerCase().includes(searchText.value.toLowerCase())))
-  }, [searchText.value, fileState.files])
+  const validFiles = files.filter((file) => file.name.toLowerCase().includes(searchText.value.toLowerCase()))
 
   const DropArea = () => {
     const [{ isFileDropOver }, fileDropRef] = useDrop({
@@ -365,7 +361,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     const staticResourceData = useFind(staticResourcePath, {
       query: {
         key: {
-          $in: isListView ? validFiles.value.map((file) => file.key) : []
+          $in: isListView ? validFiles.map((file) => file.key) : []
         },
         $select: ['key', 'updatedAt'] as any,
         $limit: FILES_PAGE_LIMIT
@@ -390,7 +386,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         <div className={styles.contentContainer}>
           <FileTableWrapper wrap={isListView}>
             <>
-              {unique(validFiles.get(NO_PROXY), (file) => file.key).map((file, i) => (
+              {unique(validFiles, (file) => file.key).map((file, i) => (
                 <FileBrowserItem
                   key={file.key}
                   item={file}
@@ -414,7 +410,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             </>
           </FileTableWrapper>
 
-          {total > 0 && validFiles.value.length < total && (
+          {total > 0 && validFiles.length < total && (
             <TablePagination
               className={styles.pagination}
               component="div"
