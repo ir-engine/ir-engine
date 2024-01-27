@@ -159,7 +159,7 @@ export const DataChannel = (props: { networkID: InstanceID; dataChannelType: Dat
     return () => {
       // todo - cleanup
     }
-  }, [networkState.ready])
+  }, [networkState.ready.value])
 
   return null
 }
