@@ -36,7 +36,7 @@ import {
   defineQuery,
   defineSystem,
   getComponent,
-  getOptionalComponent,
+  removeComponent,
   removeEntity,
   setComponent
 } from '@etherealengine/ecs'
@@ -48,12 +48,14 @@ import {
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import { addClientInputListeners } from '@etherealengine/engine/src/input/systems/ClientInputSystem'
 import { DirectionalLightComponent } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { ObjectLayerMaskComponent } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
+import {
+  ObjectLayerComponents,
+  ObjectLayerMaskComponent
+} from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import { enableObjectLayer } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
+import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
 
@@ -65,6 +67,11 @@ export const PreviewPanelRendererState = defineState({
     ids: [] as string[]
   })
 })
+
+export enum PanelEntities {
+  'camera',
+  'model'
+}
 
 const initialize3D = () => {
   const createLight = (rotation: Euler, intensity: number) => {
@@ -103,6 +110,7 @@ const initializePreviewPanel = (id: string) => {
   setComponent(cameraEntity, ObjectLayerMaskComponent)
   ObjectLayerMaskComponent.setLayer(cameraEntity, ObjectLayers.AssetPreview)
   const previewEntity = createEntity()
+  ObjectLayerMaskComponent.setLayer(previewEntity, ObjectLayers.AssetPreview)
   getMutableState(PreviewPanelRendererState).entities[id].set([cameraEntity, previewEntity])
 }
 
@@ -114,7 +122,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
   const resize = () => {
     if (!panel.current?.id) return
     const bounds = panel.current.getBoundingClientRect()!
-    const camera = getComponent(rendererState.entities[id].value[0], CameraComponent)
+    const camera = getComponent(rendererState.entities[id].value[PanelEntities.camera], CameraComponent)
     camera.aspect = bounds.width / bounds.height
     camera.updateProjectionMatrix()
     rendererState.renderers.value[id].setSize(bounds.width, bounds.height)
@@ -144,8 +152,10 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
 
     return () => {
       window.removeEventListener('resize', resize)
-
-      // cleanup entities associated with this 3d panel
+      // cleanup entities and state associated with this 3d panel
+      removeEntity(
+        getComponent(rendererState.entities[id].value[PanelEntities.camera], CameraOrbitComponent).inputEntity
+      )
       for (const entity of rendererState.entities[id].value) removeEntity(entity)
       getMutableState(ActiveOrbitCamera).set(UndefinedEntity)
       const thisIdIndex = rendererState.ids.value.findIndex((value) => value === id)
@@ -179,9 +189,11 @@ export const render3DPanelSystem = defineSystem({
     // only render if this menu is open
     if (rendererState.renderers.value) {
       for (const id of rendererState.ids.value) {
-        const cameraEntity = rendererState.entities[id].value[0]
-        const group = getOptionalComponent(rendererState.entities[id].value[1], GroupComponent)
-        if (group) enableObjectLayer(group[0], 31, true)
+        const cameraEntity = rendererState.entities[id].value[PanelEntities.camera]
+        const previewEntity = rendererState.entities[id].value[PanelEntities.model]
+        iterateEntityNode(previewEntity, (entity) => {
+          setComponent(entity, ObjectLayerComponents[ObjectLayers.AssetPreview])
+        })
         const cameraComponent = getComponent(cameraEntity, CameraComponent)
         // sync with view camera
         const viewCamera = cameraComponent.cameras[0]
@@ -192,7 +204,9 @@ export const render3DPanelSystem = defineSystem({
         Engine.instance.scene.backgroundIntensity = 0
         rendererState.renderers[id].value.render(Engine.instance.scene, viewCamera)
         Engine.instance.scene.backgroundIntensity = 1
-        if (group) enableObjectLayer(group[0], 31, false)
+        iterateEntityNode(previewEntity, (entity) => {
+          removeComponent(entity, ObjectLayerComponents[ObjectLayers.AssetPreview])
+        })
       }
     }
   }
