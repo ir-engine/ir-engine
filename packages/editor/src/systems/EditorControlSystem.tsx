@@ -63,7 +63,7 @@ import {
   toggleTransformSpace
 } from '../functions/transformFunctions'
 import { EditorErrorState } from '../services/EditorErrorServices'
-import { EditorHelperState } from '../services/EditorHelperState'
+import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
 import { ObjectGridSnapState } from './ObjectGridSnapSystem'
 
@@ -115,6 +115,15 @@ const onKeyF = () => {
 
 const onKeyT = () => {
   setTransformMode(TransformMode.translate)
+}
+
+const onKeyP = () => {
+  const editorHelperState = getMutableState(EditorHelperState)
+  if (editorHelperState.placementMode.value === PlacementMode.CLICK) {
+    editorHelperState.placementMode.set(PlacementMode.DRAG)
+  } else {
+    editorHelperState.placementMode.set(PlacementMode.CLICK)
+  }
 }
 
 const onKeyR = () => {
@@ -251,6 +260,7 @@ const execute = () => {
   if (buttons.KeyE?.down) onKeyE()
   if (buttons.KeyF?.down) onKeyF()
   if (buttons.KeyT?.down) onKeyT()
+  if (buttons.KeyP?.down) onKeyP()
   if (buttons.KeyR?.down) onKeyR()
   if (buttons.KeyY?.down) onKeyY()
   if (buttons.KeyC?.down) onKeyC()

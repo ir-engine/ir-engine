@@ -23,10 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ComponentJsonType } from '@etherealengine/common/src/schema.type.module'
+import { ComponentJsonType, EntityJsonType } from '@etherealengine/common/src/schema.type.module'
 import { Entity } from '../../ecs/classes/Entity'
-import { getAllComponents, getOptionalComponent, serializeComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  getAllComponents,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  serializeComponent
+} from '../../ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
+import { NameComponent } from '../components/NameComponent'
+import { UUIDComponent } from '../components/UUIDComponent'
 
 export const serializeEntity = (entity: Entity) => {
   const ignoreComponents = getOptionalComponent(entity, GLTFLoadedComponent)
@@ -47,6 +56,19 @@ export const serializeEntity = (entity: Entity) => {
     }
   }
   return jsonComponents
+}
+
+export const toEntityJson = (entity: Entity) => {
+  const components = serializeEntity(entity)
+  const result: EntityJsonType = {
+    components,
+    name: getOptionalComponent(entity, NameComponent) ?? ''
+  }
+  const parent = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
+  if (parent && hasComponent(parent, UUIDComponent)) {
+    result.parent = getComponent(parent, UUIDComponent)
+  }
+  return result
 }
 
 globalThis.serializeEntity = serializeEntity

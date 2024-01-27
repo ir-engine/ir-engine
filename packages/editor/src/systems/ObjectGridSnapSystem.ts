@@ -45,14 +45,16 @@ import { useEffect } from 'react'
 import { Box3, Color, LineBasicMaterial, LineSegments, Matrix4, Quaternion, Vector3 } from 'three'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { SelectionState } from '../services/SelectionServices'
+import { ClickPlacementState } from './ClickPlacementSystem'
 
 const objectGridQuery = defineQuery([ObjectGridSnapComponent])
 
 function isParentSelected(entity: Entity) {
   let walker: Entity | null = entity
+  const placementEntity = getState(ClickPlacementState).placementEntity
   const selectedEntities = getState(SelectionState).selectedEntities
   while (walker) {
-    if (selectedEntities.includes(walker)) return walker
+    if (walker === placementEntity || selectedEntities.includes(walker)) return walker
     walker = getOptionalComponent(walker, EntityTreeComponent)?.parentEntity ?? null
   }
   return false
@@ -335,9 +337,8 @@ export const ObjectGridSnapSystem = defineSystem({
       if (closestEntity === UndefinedEntity) {
         commitNoOp()
         continue
-      } else {
-        setHelperColor(closestEntity, new Color(0, 1, 0))
       }
+      setHelperColor(closestEntity, new Color(0, 1, 0))
       const closestBBox = getComponent(closestEntity, ObjectGridSnapComponent).bbox
       const closestMatrixWorld = getComponent(closestEntity, TransformComponent).matrixWorld
       const parentMatrixWorld = getComponent(selectedParent, TransformComponent).matrixWorld

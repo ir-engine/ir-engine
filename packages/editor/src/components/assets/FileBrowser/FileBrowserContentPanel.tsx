@@ -45,7 +45,7 @@ import {
   ImageConvertDefaultParms,
   ImageConvertParms
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
-import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
 import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew'
 import AddIcon from '@mui/icons-material/Add'
@@ -75,6 +75,8 @@ import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlL
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { inputFileWithAddToScene } from '../../../functions/assetFunctions'
 import { bytesToSize, unique } from '../../../functions/utils'
+import { EditorHelperState, PlacementMode } from '../../../services/EditorHelperState'
+import { ClickPlacementState } from '../../../systems/ClickPlacementSystem'
 import StringInput from '../../inputs/StringInput'
 import { ToolButton } from '../../toolbar/ToolButton'
 import { AssetSelectionChangePropsType } from '../AssetsPreviewPanel'
@@ -227,6 +229,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         contentType: params.type,
         size: params.size
       })
+      const editorHelperState = getState(EditorHelperState)
+      if (editorHelperState.placementMode === PlacementMode.CLICK) {
+        getMutableState(ClickPlacementState).selectedAsset.set(params.url)
+      }
     } else {
       const newPath = `${selectedDirectory.value}${params.name}/`
       changeDirectoryByPath(newPath)
