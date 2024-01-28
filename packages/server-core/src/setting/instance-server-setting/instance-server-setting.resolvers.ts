@@ -33,7 +33,7 @@ import {
 } from '@etherealengine/common/src/schemas/setting/instance-server-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const instanceServerSettingResolver = resolve<InstanceServerSettingType, HookContext>({
   createdAt: virtual(async (instanceServerSetting) => fromDateTimeSql(instanceServerSetting.createdAt)),

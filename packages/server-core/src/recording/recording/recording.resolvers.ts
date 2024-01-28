@@ -41,7 +41,7 @@ import {
   RecordingType
 } from '@etherealengine/common/src/schemas/recording/recording.schema'
 import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const recordingDbToSchema = (rawData: RecordingDatabaseType): RecordingType => {
   let schema = JSON.parse(rawData.schema) as RecordingSchemaType

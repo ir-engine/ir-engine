@@ -28,9 +28,9 @@ import assert from 'assert'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
+import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
-import { getDateTimeSql } from '../../util/datetime-sql'
 
 describe('api job service', () => {
   let app: Application
