@@ -36,8 +36,8 @@ import { FileType } from './FileBrowserContentPanel'
 
 import { logger } from '@etherealengine/client-core/src/user/services/AuthService'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { projectResourcesPath } from '@etherealengine/common/src/schemas/media/project-resource.schema'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { projectResourcesPath } from '@etherealengine/server-core/src/media/static-resource/project-resource.service'
 import { Button } from '../../inputs/Button'
 
 export const FilePropertiesPanel = (props: {

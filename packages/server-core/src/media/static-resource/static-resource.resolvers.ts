@@ -32,9 +32,9 @@ import {
   StaticResourceQuery,
   StaticResourceType
 } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { nanoid } from 'nanoid'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const staticResourceDbToSchema = (rawData: StaticResourceDatabaseType): StaticResourceType => {
   let metadata = JSON.parse(rawData.metadata) as any

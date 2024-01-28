@@ -26,8 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import fs from 'fs'
 import path from 'path'
 
-import logger from '../ServerLogger'
-
 export function writeFileSyncRecursive(filename, content, charset = undefined) {
   // -- normalize path separator to '/' instead of path.sep,
   // -- as / works in node for Windows as well, and mixed \\ and / can appear in the path
@@ -112,11 +110,11 @@ export function copyFileSync(source, target) {
       const writeStream = fs.createWriteStream(targetFile)
       readStream.pipe(writeStream)
       writeStream.on('error', (err) => {
-        logger.error('error copying file locally', err)
+        console.error('error copying file locally', err)
         reject(err)
       })
       writeStream.on('finish', () => {
-        logger.info('finished copying large file from ', source, 'to', targetFile)
+        console.info('finished copying large file from ', source, 'to', targetFile)
         resolve(true)
       })
     })
