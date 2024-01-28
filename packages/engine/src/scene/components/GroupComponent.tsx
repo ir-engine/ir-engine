@@ -45,6 +45,7 @@ import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../commo
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Layer } from './ObjectLayerComponent'
 import { RenderOrderComponent } from './RenderOrderComponent'
+
 export type Object3DWithEntity = Object3D & { entity: Entity }
 
 export const GroupComponent = defineComponent({

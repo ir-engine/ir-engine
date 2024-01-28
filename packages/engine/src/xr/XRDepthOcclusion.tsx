@@ -27,7 +27,6 @@ Ethereal Engine. All Rights Reserved.
  * Adapted from https://github.com/tentone/webxr-occlusion-lighting/tree/main/src/material
  */
 
-import { Not } from 'bitecs'
 import React, { useEffect } from 'react'
 import { Material, Matrix4, Mesh, Shader, ShaderMaterial, ShadowMaterial, Vector2 } from 'three'
 
@@ -37,7 +36,6 @@ import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { addOBCPlugin, removeOBCPlugin } from '../common/functions/OnBeforeCompilePlugin'
 import { GroupComponent, GroupQueryReactor } from '../scene/components/GroupComponent'
-import { SceneTagComponent } from '../scene/components/SceneTagComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { DepthCanvasTexture } from './DepthCanvasTexture'
 import { DepthDataTexture } from './DepthDataTexture'
@@ -297,12 +295,7 @@ const reactor = () => {
     }
   }, [xrState.sessionActive])
 
-  return (
-    <GroupQueryReactor
-      GroupChildReactor={DepthOcclusionReactor}
-      Components={[Not(SceneTagComponent), VisibleComponent]}
-    />
-  )
+  return <GroupQueryReactor GroupChildReactor={DepthOcclusionReactor} Components={[VisibleComponent]} />
 }
 
 export const XRDepthOcclusionSystem = defineSystem({
