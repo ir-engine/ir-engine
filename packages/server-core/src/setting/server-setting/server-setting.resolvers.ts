@@ -35,7 +35,7 @@ import {
 } from '@etherealengine/common/src/schemas/setting/server-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const serverDbToSchema = (rawData: ServerSettingDatabaseType): ServerSettingType => {
   let hub = JSON.parse(rawData.hub) as ServerHubType

@@ -37,8 +37,8 @@ import {
   ProjectSettingType,
   ProjectType
 } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const projectDbToSchema = (rawData: ProjectDatabaseType): ProjectType => {
   let settings: ProjectSettingType[]

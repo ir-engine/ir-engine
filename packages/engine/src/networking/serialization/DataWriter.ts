@@ -28,28 +28,26 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getState } from '@etherealengine/hyperflux'
 
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-// import { XRHandsInputComponent } from '../../xr/XRComponents'
-// import { XRHandBones } from '../../xr/XRHandBones'
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { NetworkState } from '../NetworkState'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent, NetworkObjectSendPeriodicUpdatesTag } from '../components/NetworkObjectComponent'
-import { NetworkState } from '../NetworkState'
 import {
-  compress,
-  flatten,
-  getVector4IndexBasedComponentValue,
   QUAT_MAX_RANGE,
   QUAT_PRECISION_MULT,
   SerializationSchema,
   VEC3_MAX_RANGE,
   VEC3_PRECISION_MULT,
   Vector3SoA,
-  Vector4SoA
+  Vector4SoA,
+  compress,
+  flatten,
+  getVector4IndexBasedComponentValue
 } from './Utils'
 import {
+  ViewCursor,
   createViewCursor,
   rewindViewCursor,
   sliceViewCursor,
@@ -57,7 +55,6 @@ import {
   spaceUint32,
   spaceUint64,
   spaceUint8,
-  ViewCursor,
   writeFloat64,
   writePropIfChanged,
   writeUint32
@@ -109,47 +106,45 @@ export const writeVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Ent
 }
 
 // Writes a compressed Vector3 value to the DataView.
-export const writeCompressedVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Entity) => {
-  const rewind = rewindViewCursor(v)
-  const writeChangeMask = spaceUint8(v)
-  const rewindUptoChageMask = rewindViewCursor(v)
-  let changeMask = 0
-  let b = 0
+export const writeCompressedVector3 =
+  (vector3: Vector3SoA, offset_mult = 1) =>
+  (v: ViewCursor, entity: Entity) => {
+    const rewind = rewindViewCursor(v)
+    const writeChangeMask = spaceUint8(v)
+    const rewindUptoChageMask = rewindViewCursor(v)
+    let changeMask = 0
+    let b = 0
 
-  const ignoreHasChanged = hasComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
+    const ignoreHasChanged = hasComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
 
-  changeMask |= writePropIfChanged(v, vector3.x, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
-  changeMask |= writePropIfChanged(v, vector3.y, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
-  changeMask |= writePropIfChanged(v, vector3.z, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
+    changeMask |= writePropIfChanged(v, vector3.x, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
+    changeMask |= writePropIfChanged(v, vector3.y, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
+    changeMask |= writePropIfChanged(v, vector3.z, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
 
-  if (changeMask > 0) {
-    rewindUptoChageMask()
-    let [x, y, z] = [vector3.x[entity], vector3.y[entity], vector3.z[entity]]
+    if (changeMask > 0) {
+      rewindUptoChageMask()
+      let [x, y, z] = [vector3.x[entity], vector3.y[entity], vector3.z[entity]]
 
-    // Since avatar velocity values are too small and precison is lost when quantized
-    let offset_mult = 1
-    if (hasComponent(entity, AvatarComponent)) offset_mult = 100
+      x *= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
+      y *= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
+      z *= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
 
-    x *= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
-    y *= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
-    z *= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
+      x = compress(x, 10)
+      y = compress(y, 10)
+      z = compress(z, 10)
 
-    x = compress(x, 10)
-    y = compress(y, 10)
-    z = compress(z, 10)
+      let binaryData = 0
+      binaryData = binaryData | x
+      binaryData = binaryData << 10
+      binaryData = binaryData | y
+      binaryData = binaryData << 10
+      binaryData = binaryData | z
 
-    let binaryData = 0
-    binaryData = binaryData | x
-    binaryData = binaryData << 10
-    binaryData = binaryData | y
-    binaryData = binaryData << 10
-    binaryData = binaryData | z
+      writeUint32(v, binaryData)
+    }
 
-    writeUint32(v, binaryData)
+    return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
   }
-
-  return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
-}
 
 export const writeVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Entity) => {
   const rewind = rewindViewCursor(v)
@@ -307,7 +302,7 @@ export const writeEntities = (v: ViewCursor, network: Network, entities: Entity[
 export const writeMetadata = (v: ViewCursor, network: Network, userId: UserID, peerID: PeerID) => {
   writeUint32(v, network.userIDToUserIndex[userId])
   writeUint32(v, network.peerIDToPeerIndex[peerID])
-  writeFloat64(v, getState(EngineState).simulationTime)
+  writeFloat64(v, getState(ECSState).simulationTime)
 }
 
 export const createDataWriter = (size = 100000) => {

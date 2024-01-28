@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { VideoTexture } from 'three'
 
-import { isClient } from '../../../common/functions/getEnvironment'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 
 export default function loadVideoTexture(src, onLoad = (result) => {}) {
   if (!isClient) return

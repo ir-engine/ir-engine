@@ -40,6 +40,7 @@ import Primus from 'primus-client'
 import config from '@etherealengine/common/src/config'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import multiLogger from '@etherealengine/common/src/logger'
 import {
   ChannelID,
   InstanceID,
@@ -50,9 +51,8 @@ import {
   UserID
 } from '@etherealengine/common/src/schema.type.module'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import {
   MediaStreamAppData,
   NetworkConnectionParams,
@@ -113,8 +113,9 @@ import { NetworkActionFunctions } from '@etherealengine/engine/src/networking/fu
 import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import { encode } from 'msgpackr'
 
-import { defineSystem, destroySystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
+import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { CameraActions } from '@etherealengine/engine/src/camera/CameraState'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
 
@@ -440,7 +441,7 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
   if (isWorldConnection) {
     const spectateUserId = getSearchParamFromURL('spectate')
     if (spectateUserId) {
-      dispatchAction(EngineActions.spectateUser({ user: spectateUserId }))
+      dispatchAction(CameraActions.spectateUser({ user: spectateUserId }))
     }
   }
 

@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { Vector3 } from 'three'
 
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { matches } from '../../common/functions/MatchesUtils'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const DropShadowComponent = defineComponent({
   name: 'DropShadowComponent',

@@ -39,12 +39,6 @@ import {
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
 import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
-import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
-import { V_010 } from '../common/constants/MathConstants'
-import { Engine } from '../ecs/classes/Engine'
-import { EngineState } from '../ecs/classes/EngineState'
-import { Entity } from '../ecs/classes/Entity'
 import {
   ComponentType,
   getComponent,
@@ -52,13 +46,19 @@ import {
   removeComponent,
   setComponent,
   useOptionalComponent
-} from '../ecs/functions/ComponentFunctions'
-import { createEntity } from '../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../ecs/functions/EntityTree'
-import { defineQuery, useQuery } from '../ecs/functions/QueryFunctions'
-import { defineSystem } from '../ecs/functions/SystemFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
+import { V_010 } from '../common/constants/MathConstants'
 import { InputComponent } from '../input/components/InputComponent'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
+import { InputState } from '../input/state/InputState'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { VisibleComponent, setVisibleComponent } from '../scene/components/VisibleComponent'
@@ -159,7 +159,7 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
 
   if (!transform || !xrFrame || !xrSession) return
 
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
   const lerpAlpha = smootheLerpAlpha(5, deltaSeconds)
 
   const sceneScaleAutoMode = xrState.sceneScaleAutoMode
@@ -335,11 +335,11 @@ const reactor = () => {
 
       const inputSourceComponent = getComponent(entity, InputSourceComponent)
 
-      const avatarInputSettings = getState(AvatarInputSettingsState)
+      const inputState = getState(InputState)
       if (
         inputSourceComponent.source.targetRayMode !== 'tracked-pointer' ||
         inputSourceComponent.source.gamepad?.mapping !== 'xr-standard' ||
-        inputSourceComponent.source.handedness !== avatarInputSettings.preferredHand
+        inputSourceComponent.source.handedness !== inputState.preferredHand
       )
         continue
 
@@ -353,9 +353,9 @@ const reactor = () => {
 
   useEffect(() => {
     if (scenePlacementMode.value !== 'placing' || !xrSession.value) return
-    const avatarInputSettings = getState(AvatarInputSettingsState)
-    InputSourceComponent.captureAxes(scenePlacementEntity, [avatarInputSettings.preferredHand])
-    InputSourceComponent.captureButtons(scenePlacementEntity, [avatarInputSettings.preferredHand])
+    const inputState = getState(InputState)
+    InputSourceComponent.captureAxes(scenePlacementEntity, [inputState.preferredHand])
+    InputSourceComponent.captureButtons(scenePlacementEntity, [inputState.preferredHand])
     return () => {
       InputSourceComponent.releaseAxes()
       InputSourceComponent.releaseButtons()

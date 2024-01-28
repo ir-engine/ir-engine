@@ -25,20 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
 
+import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import {
-  getComponent,
-  getOptionalComponent,
-  hasComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { editorCameraCenter, EditorCameraState } from '../classes/EditorCameraState'
 
 const ZOOM_SPEED = 0.1
@@ -76,23 +71,18 @@ const execute = () => {
       distance = 10
     } else {
       box.makeEmpty()
-      for (const object of editorCamera.focusedObjects) {
-        const group =
-          typeof object === 'string' ? [obj3dFromUuid(object)] : getOptionalComponent(object, GroupComponent) || []
-        for (const obj of group) {
-          box.expandByObject(obj)
-        }
+      for (const entity of editorCamera.focusedObjects) {
+        const group = getOptionalComponent(entity, GroupComponent)
+        if (group)
+          for (const obj of group) {
+            box.expandByObject(obj)
+          }
       }
       if (box.isEmpty()) {
         // Focusing on an Group, AmbientLight, etc
-        const object = editorCamera.focusedObjects[0]
-
-        if (typeof object === 'string') {
-          editorCameraCenter.setFromMatrixPosition(obj3dFromUuid(object).matrixWorld)
-        } else if (hasComponent(object, TransformComponent)) {
-          const position = getComponent(object, TransformComponent).position
-          editorCameraCenter.copy(position)
-        }
+        const entity = editorCamera.focusedObjects[0]
+        const position = getComponent(entity, TransformComponent).position
+        editorCameraCenter.copy(position)
         distance = 0.1
       } else {
         box.getCenter(editorCameraCenter)

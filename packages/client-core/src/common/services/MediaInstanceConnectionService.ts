@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
+import multiLogger from '@etherealengine/common/src/logger'
 import { ChannelID, InstanceID, RoomCode, instanceProvisionPath } from '@etherealengine/common/src/schema.type.module'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { State, defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'

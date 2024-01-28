@@ -42,7 +42,7 @@ import {
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { AuthenticationSettingPatch } from '@etherealengine/common/src/schemas/setting/authentication-setting.schema'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const authenticationSettingSchemaToDb = (patch: AuthenticationSettingPatch) => {
   return {

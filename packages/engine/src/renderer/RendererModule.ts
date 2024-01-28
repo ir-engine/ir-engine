@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DebugRendererSystem } from '../debug/systems/DebugRendererSystem'
+import { DebugRendererSystem } from './DebugRendererSystem'
 import { RenderInfoSystem } from './RenderInfoSystem'
 import { WebGLRendererSystem } from './WebGLRendererSystem'
 

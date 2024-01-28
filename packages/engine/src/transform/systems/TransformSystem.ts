@@ -29,17 +29,21 @@ import { Camera, Frustum, Matrix4, Mesh, Vector3 } from 'three'
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
+import {
+  AnimationSystemGroup,
+  Engine,
+  Entity,
+  defineQuery,
+  defineSystem,
+  getComponent,
+  getOptionalComponent,
+  hasComponent
+} from '@etherealengine/ecs'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { Not } from 'bitecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { V_000 } from '../../common/constants/MathConstants'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { BoundingBoxComponent, updateBoundingBox } from '../../interaction/components/BoundingBoxComponents'
 import { NetworkState } from '../../networking/NetworkState'
 import {
@@ -255,7 +259,7 @@ const execute = () => {
   /**
    * Sort transforms if needed
    */
-  const engineState = getState(EngineState)
+  const ecsState = getState(ECSState)
   const xrFrame = getState(XRState).xrFrame
 
   let needsSorting = TransformComponent.transformsNeedSorting
@@ -292,8 +296,8 @@ const execute = () => {
   for (const entity of dirtyKinematicRigidbodyEntities) copyTransformToRigidBody(entity)
 
   // lerp awake clean rigidbody entities (and make their transforms dirty)
-  const simulationRemainder = engineState.frameTime - engineState.simulationTime
-  const alpha = Math.min(simulationRemainder / engineState.simulationTimestep, 1)
+  const simulationRemainder = ecsState.frameTime - ecsState.simulationTime
+  const alpha = Math.min(simulationRemainder / ecsState.simulationTimestep, 1)
   for (const entity of awakeCleanRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
 
   // entities with dirty parent or reference entities, or computed transforms, should also be dirty

@@ -40,15 +40,11 @@ import {
   useMutableState
 } from '@etherealengine/hyperflux'
 
-import { Engine } from '../../ecs/classes/Engine'
-import { removeEntity } from '../../ecs/functions/EntityFunctions'
-
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { getOptionalComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { SimulationSystemGroup } from '../../ecs/functions/SystemGroups'
+import { Engine, defineSystem, getOptionalComponent, removeEntity, setComponent } from '@etherealengine/ecs'
+import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkState, SceneUser } from '../NetworkState'
 import { NetworkWorldUserState } from '../NetworkUserState'
@@ -115,6 +111,7 @@ const EntityNetworkReactor = memo((props: { uuid: EntityUUID }) => {
     if (!userConnected) return
 
     const entity = UUIDComponent.getOrCreateEntityByUUID(props.uuid)
+
     setComponent(entity, TransformComponent, {
       position: state.spawnPosition.value!,
       rotation: state.spawnRotation.value!

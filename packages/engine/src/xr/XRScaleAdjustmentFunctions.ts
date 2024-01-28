@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
-import { Engine } from '../ecs/classes/Engine'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { ReferenceSpace, XRState } from './XRState'
 
 export const getTrackingSpaceOffset = (height: number) => {

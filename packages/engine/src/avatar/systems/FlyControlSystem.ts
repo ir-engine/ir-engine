@@ -25,20 +25,20 @@ Ethereal Engine. All Rights Reserved.
 
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 
+import { InputSystemGroup } from '@etherealengine/ecs'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '../../camera/components/CameraComponent'
+import { FlyControlComponent } from '../../camera/components/FlyControlComponent'
 import { V_010 } from '../../common/constants/MathConstants'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { InputState } from '../../input/state/InputState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { FlyControlComponent } from '../components/FlyControlComponent'
-import { AvatarInputSystem } from './AvatarInputSystem'
 
 const EPSILON = 10e-5
 const IDENTITY = new Matrix4().identity()
@@ -115,7 +115,7 @@ const execute = () => {
     // translate
     direction.set(lateralMovement, 0, forwardMovement)
     const boostSpeed = inputState.ShiftLeft?.pressed ? flyControlComponent.boostSpeed : 1
-    const deltaSeconds = getState(EngineState).deltaSeconds
+    const deltaSeconds = getState(ECSState).deltaSeconds
     const speed = deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
 
     if (direction.lengthSq() > EPSILON) camera.translateOnAxis(direction, speed)
@@ -130,6 +130,6 @@ const execute = () => {
 
 export const FlyControlSystem = defineSystem({
   uuid: 'ee.engine.FlyControlSystem',
-  insert: { after: AvatarInputSystem },
+  insert: { with: InputSystemGroup },
   execute
 })

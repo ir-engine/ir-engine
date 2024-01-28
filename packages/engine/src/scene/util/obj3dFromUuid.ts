@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '../../ecs/classes/Engine'
-import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { GroupComponent } from '../components/GroupComponent'
-import { UUIDComponent } from '../components/UUIDComponent'
 
 export default function obj3dFromUuid(uuid: string) {
   const entity = UUIDComponent.getEntityByUUID(uuid as any)

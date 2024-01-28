@@ -27,11 +27,10 @@ import { useEffect } from 'react'
 import { DirectionalLight, HemisphereLight, PerspectiveCamera, Scene, SRGBColorSpace, WebGLRenderer } from 'three'
 
 import { useHookstateFromFactory } from '@etherealengine/common/src/utils/useHookstateFromFactory'
-import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { defineSystem, destroySystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
-import { getOrbitControls } from '@etherealengine/engine/src/input/functions/loadOrbitControl'
+import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 
@@ -62,7 +61,8 @@ const initialize3D = () => {
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.outputColorSpace = SRGBColorSpace
 
-  const controls = getOrbitControls(camera, renderer.domElement)
+  // @ts-ignore /** @todo this is a hack fix until #9626 is in */
+  const controls = new THREE.OrbitControls(camera, renderer.domElement) as Record<any, any>
 
   controls.minDistance = 0.1
   controls.maxDistance = 10000

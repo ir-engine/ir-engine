@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { createState } from '@hookstate/core'
 import React from 'react'
 
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createXRUI } from '../../xrui/functions/createXRUI'
 import { useXRUIState } from '../../xrui/functions/useXRUIState'
 

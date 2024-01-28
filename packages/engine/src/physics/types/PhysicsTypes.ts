@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import RAPIER, { ActiveCollisionTypes, RigidBodyType, ShapeType, Vector } from '@dimforge/rapier3d-compat'
 
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 
 export interface Vec3 {
   x: number

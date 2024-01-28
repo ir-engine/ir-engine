@@ -26,12 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getOptionalComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getOptionalComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { useHookstate } from '@etherealengine/hyperflux'
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'

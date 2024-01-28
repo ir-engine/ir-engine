@@ -28,9 +28,9 @@ import { DataTexture, IUniform, Uniform } from 'three'
 
 import { getMutableState, getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
-import { isClient } from '../../../../common/functions/getEnvironment'
-import { EngineState } from '../../../../ecs/classes/EngineState'
-import { defineSystem } from '../../../../ecs/functions/SystemFunctions'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SceneLoadingSystem } from '../../../../scene/systems/SceneLoadingSystem'
 import { MaterialPluginType } from '../../components/MaterialPluginComponent'
 import { SourceType } from '../../components/MaterialSource'
@@ -55,7 +55,7 @@ export const NoiseOffsetPlugin: MaterialPluginType = {
       shader.uniforms['textureSize'] = new Uniform(parameters.textureSize)
       shader.uniforms['noiseTexture'] = new Uniform(parameters.noiseTexture)
       shader.uniforms['frequency'] = new Uniform(parameters.frequency)
-      const elapsedSeconds = getState(EngineState).elapsedSeconds
+      const elapsedSeconds = getState(ECSState).elapsedSeconds
       time = new Uniform(elapsedSeconds)
       shader.uniforms['time'] = time
       shader.vertexShader = shader.vertexShader.replace(
@@ -125,7 +125,7 @@ transformed += offset;
 
 const execute = () => {
   if (!time) return
-  const elapsedSeconds = getState(EngineState).elapsedSeconds
+  const elapsedSeconds = getState(ECSState).elapsedSeconds
   time.value = elapsedSeconds
 }
 
