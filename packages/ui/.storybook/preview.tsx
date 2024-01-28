@@ -28,7 +28,7 @@ import { Preview } from '@storybook/react'
 import React from 'react'
 import { withRouter } from 'storybook-addon-react-router-v6'
 
-import { ThemeContextProvider } from '@etherealengine/client/src/themes/themeContext'
+import { ThemeContextProvider } from '@etherealengine/client/src/pages/themeContext'
 
 export const decorators = [
   withRouter,
