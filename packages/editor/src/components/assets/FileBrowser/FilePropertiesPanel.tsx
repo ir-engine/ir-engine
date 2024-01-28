@@ -37,7 +37,7 @@ import { FileType } from './FileBrowserContentPanel'
 import { logger } from '@etherealengine/client-core/src/user/services/AuthService'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { saveProjectResources } from '../../../functions/saveProjectResources'
+import { projectResourcesPath } from '@etherealengine/server-core/src/media/static-resource/project-resource.service'
 import { Button } from '../../inputs/Button'
 
 export const FilePropertiesPanel = (props: {
@@ -70,7 +70,7 @@ export const FilePropertiesPanel = (props: {
         licensing: resourceProperties.licensing.value,
         attribution: resourceProperties.attribution.value
       })
-      await saveProjectResources(resourceProperties.project.value)
+      await Engine.instance.api.service(projectResourcesPath).create({ project: resourceProperties.project.value })
       isModified.set(false)
       openProperties.set(false)
     }
