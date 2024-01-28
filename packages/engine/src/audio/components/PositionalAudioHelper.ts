@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { BufferAttribute, BufferGeometry, InterleavedBufferAttribute, Line, LineBasicMaterial, MathUtils } from 'three'
 
-import { AudioNodeGroup } from '../scene/components/MediaComponent'
+import { AudioNodeGroup } from '../../scene/components/MediaComponent'
 
 class PositionalAudioHelper extends Line {
   audio: AudioNodeGroup
