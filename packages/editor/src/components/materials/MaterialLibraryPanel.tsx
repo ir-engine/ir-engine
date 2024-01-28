@@ -49,7 +49,7 @@ export const MaterialLibraryPanelTitle = () => {
       mode: 'vertical' as DockMode,
       children: [
         {
-          size: 7,
+          size: 5,
           mode: 'horizontal' as DockMode,
           children: [
             {

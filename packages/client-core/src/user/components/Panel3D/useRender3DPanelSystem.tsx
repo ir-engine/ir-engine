@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
-import { Color, DirectionalLight, Euler, Quaternion, Vector3, WebGLRenderer } from 'three'
+import { Euler, Quaternion, Vector3, WebGLRenderer } from 'three'
 
 import {
   Engine,
@@ -113,9 +113,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
         ObjectLayerMaskComponent.setLayer(light, ObjectLayers.AssetPreview)
         setComponent(light, TransformComponent, { rotation: new Quaternion().setFromEuler(rotation) })
         setComponent(light, DirectionalLightComponent, {
-          light: new DirectionalLight(),
-          intensity,
-          color: new Color(1, 1, 1)
+          intensity
         })
         setComponent(light, VisibleComponent, true)
         setComponent(light, NameComponent, '3D Preview Light')
@@ -139,7 +137,6 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
       const canvas = rendererState.renderers[id].value.domElement
       canvas.id = id
       canvas.tabIndex = 1
-      addClientInputListeners(rendererState.renderers[id].domElement.value)
       rendererState.ids.set([...rendererState.ids.value, id])
     }
 
@@ -160,6 +157,8 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
       rendererState.renderers[id].set(none)
     }
   }, [])
+
+  useEffect(addClientInputListeners(rendererState.renderers[id].domElement.value), [])
 
   useEffect(() => {
     id = panel.current.id
@@ -198,9 +197,11 @@ export const render3DPanelSystem = defineSystem({
         viewCamera.quaternion.copy(cameraComponent.quaternion)
         viewCamera.position.copy(cameraComponent.position)
         viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
-        Engine.instance.scene.backgroundIntensity = 0
+        // hack to make the background transparent for the preview
+        const lastBackground = Engine.instance.scene.background
+        Engine.instance.scene.background = null
         rendererState.renderers[id].value.render(Engine.instance.scene, viewCamera)
-        Engine.instance.scene.backgroundIntensity = 1
+        Engine.instance.scene.background = lastBackground
         iterateEntityNode(previewEntity, (entity) => {
           removeComponent(entity, ObjectLayerComponents[ObjectLayers.AssetPreview])
         })
