@@ -33,7 +33,7 @@ import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI
 import { createState, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { AvatarInputSettingsState } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
+import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
 import { setTrackingSpace } from '../../../../../engine/src/xr/XRScaleAdjustmentFunctions'
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
@@ -79,7 +79,7 @@ const WidgetButton = ({ icon, toggle, label, disabled }: WidgetButtonProps) => {
 }
 
 const HandednessWidgetButton = () => {
-  const preferredHand = useHookstate(getMutableState(AvatarInputSettingsState).preferredHand)
+  const preferredHand = useHookstate(getMutableState(InputState).preferredHand)
   const mouseOver = useHookstate(false)
   return (
     <XRIconButton
