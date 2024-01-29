@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
@@ -62,9 +62,19 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
   const { entity, camera, scene, renderer } = renderPanel.state
 
   const override = !isAvaturn(avatarUrl || '') ? undefined : AssetType.glB
-  const [model, unload, error] = useGLTF(avatarUrl || '', entity.value, {
-    forceAssetType: override
-  })
+  const [model, unload, error] = useGLTF(
+    avatarUrl || '',
+    entity.value,
+    {
+      forceAssetType: override
+    },
+    () => {
+      const oldAvatar = scene.value.children.find((item) => item.name === 'avatar')
+      if (oldAvatar) {
+        scene.value.remove(oldAvatar)
+      }
+    }
+  )
 
   useEffect(() => {
     if (!avatarUrl) return
@@ -82,7 +92,7 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     onAvatarError && onAvatarError(error.value.message)
   }, [error])
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const avatar = model.get(NO_PROXY)
     if (!avatar) return
 
@@ -97,10 +107,6 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     camera.value.position.z = 1
 
     scene.value.add(loadedAvatar)
-
-    return () => {
-      scene.value.remove(loadedAvatar)
-    }
   }, [model])
 
   return (

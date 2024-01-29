@@ -207,6 +207,10 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
   const renderState = useHookstate(getMutableState(RendererState))
   const [envMaptexture, unload, error] = useTexture(bakeComponent.envMapOrigin.value, envmapEntity)
 
+  useEffect(() => {
+    return unload
+  }, [])
+
   /** @todo add an unmount cleanup for applyBoxprojection */
   useEffect(() => {
     const texture = envMaptexture.get(NO_PROXY)
@@ -215,7 +219,6 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
     texture.mapping = EquirectangularReflectionMapping
     getMutableComponent(envmapEntity, EnvmapComponent).envmap.set(texture)
     if (bakeComponent.boxProjection.value) applyBoxProjection(bakeEntity, group.value)
-    return unload
   }, [envMaptexture])
 
   useEffect(() => {

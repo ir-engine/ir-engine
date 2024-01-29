@@ -55,20 +55,18 @@ function useLoader<T extends AssetType>(
   const progress = useHookstate<ProgressEvent<EventTarget> | null>(null)
 
   const unload = () => {
-    ResourceManager.unload(url, entity)
+    if (url) ResourceManager.unload(url, entity)
   }
 
   useEffect(() => {
     if (url !== urlState.value) {
       if (urlState.value) {
         const oldUrl = urlState.value
-        window.requestAnimationFrame(() => {
-          ResourceManager.unload(oldUrl, entity)
-          value.set(null)
-          progress.set(null)
-          error.set(null)
-          onUnload(oldUrl)
-        })
+        ResourceManager.unload(oldUrl, entity)
+        value.set(null)
+        progress.set(null)
+        error.set(null)
+        onUnload(oldUrl)
       }
       urlState.set(url)
     }

@@ -145,10 +145,18 @@ function ModelReactor(): JSX.Element {
 
   /** @todo this is a hack */
   const override = !isAvaturn(modelComponent.value.src) ? undefined : AssetType.glB
-  const [gltf, unload, error, progress] = useGLTF(modelComponent.value.src, entity, {
-    forceAssetType: override,
-    ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
-  })
+  const [gltf, unload, error, progress] = useGLTF(
+    modelComponent.value.src,
+    entity,
+    {
+      forceAssetType: override,
+      ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
+    },
+    () => {
+      const uuid = getModelSceneID(entity)
+      getMutableState(SceneState).scenes[uuid].set(none)
+    }
+  )
 
   useEffect(() => {
     /* unload should only be called when the component is unmounted
