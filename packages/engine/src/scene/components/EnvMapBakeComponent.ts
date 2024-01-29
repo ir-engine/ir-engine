@@ -49,8 +49,8 @@ import {
   envmapReplaceLambert,
   worldposReplace
 } from '../classes/BPCEMShader'
+import { setObjectLayers } from '../components/ObjectLayerComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
 import { addObjectToGroup } from './GroupComponent'

@@ -38,9 +38,9 @@ import { useEffect } from 'react'
 import { NameComponent } from '../../common/NameComponent'
 import { createTransitionState } from '../../common/functions/createTransitionState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
+import { setObjectLayers } from '../../scene/components/ObjectLayerComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent

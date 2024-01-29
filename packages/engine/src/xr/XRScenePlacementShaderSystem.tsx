@@ -79,7 +79,7 @@ const removeShaderFromObject = (object: Object3D) => {
  * @returns
  */
 
-function XRScenePLacementReactor({ obj }) {
+function XRScenePlacementReactor({ obj }) {
   const xrState = getMutableState(XRState)
   const scenePlacementMode = useHookstate(xrState.scenePlacementMode)
   const sessionActive = useHookstate(xrState.sessionActive)
@@ -100,7 +100,7 @@ function XRScenePLacementReactor({ obj }) {
 const reactor = () => {
   return (
     <GroupQueryReactor
-      GroupChildReactor={XRScenePLacementReactor}
+      GroupChildReactor={XRScenePlacementReactor}
       Components={[VisibleComponent, SceneObjectComponent]}
     />
   )

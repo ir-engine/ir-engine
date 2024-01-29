@@ -31,6 +31,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { Types } from 'bitecs'
+import { Object3D } from 'three'
 
 const maxBitWidth = 32
 
@@ -167,4 +168,25 @@ export class Layer {
   isEnabled(channel: number) {
     return (this.mask & ((1 << channel) | 0)) !== 0
   }
+}
+
+/**
+ * @deprecated use ObjectLayerMaskComponent instead
+ */
+export function setObjectLayers(object: Object3D, ...layers: number[]) {
+  object.traverse((obj: Object3D) => {
+    obj.layers.disableAll()
+    for (const layer of layers) {
+      obj.layers.enable(layer)
+    }
+  })
+}
+
+/**
+ * @deprecated use ObjectLayerMaskComponent instead
+ */
+export function enableObjectLayer(object: Object3D, layer: number, enable: boolean) {
+  object.traverse((obj: Object3D) => {
+    enable ? obj.layers.enable(layer) : obj.layers.disable(layer)
+  })
 }

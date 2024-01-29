@@ -35,9 +35,9 @@ import { PhysicsState } from '../physics/state/PhysicsState'
 import { RendererState } from '../renderer/RendererState'
 import { WebGLRendererSystem } from '../renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '../scene/components/GroupComponent'
+import { setObjectLayers } from '../scene/components/ObjectLayerComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import { createInfiniteGridHelper } from './components/InfiniteGridHelper'
 
 const execute = () => {

@@ -35,18 +35,16 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
-  removeComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
-import React from 'react'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { NameComponent } from '../../common/NameComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
@@ -58,8 +56,6 @@ import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { GroupComponent } from '../../scene/components/GroupComponent'
-import { useMeshOrModel } from '../../scene/components/ModelComponent'
-import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -575,37 +571,14 @@ const execute = () => {
   }
 }
 
-const SceneObjectEntityReactor = (props: { entity: Entity }) => {
-  const isMeshOrModel = useMeshOrModel(props.entity)
-
-  useEffect(() => {
-    if (!isMeshOrModel) return
-
-    setComponent(props.entity, InputComponent, { highlight: getState(EngineState).isEditing })
-    return () => {
-      removeComponent(props.entity, InputComponent)
-    }
-  }, [isMeshOrModel])
-
-  return null
-}
-
 const reactor = () => {
   if (!isClient) return null
-
-  const sceneObjectEntities = useQuery([SceneObjectComponent])
 
   const xrState = useHookstate(getMutableState(XRState))
 
   useEffect(addClientInputListeners, [xrState.session])
 
-  return (
-    <>
-      {sceneObjectEntities.map((entity) => (
-        <SceneObjectEntityReactor key={entity} entity={entity} />
-      ))}
-    </>
-  )
+  return null
 }
 
 export const ClientInputSystem = defineSystem({

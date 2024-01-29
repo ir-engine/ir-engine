@@ -36,8 +36,8 @@ import { EntityTreeComponent } from '@etherealengine/engine/src/transform/compon
 import { NameComponent } from '../../common/NameComponent'
 import { RendererState } from '../../renderer/RendererState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { setObjectLayers } from '../components/ObjectLayerComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { setVisibleComponent } from './VisibleComponent'
 

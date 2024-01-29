@@ -45,9 +45,9 @@ import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFuncti
 import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { NameComponent } from '../../common/NameComponent'
 import { GroupComponent, addObjectToGroup } from '../../scene/components/GroupComponent'
+import { setObjectLayers } from '../../scene/components/ObjectLayerComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CSM } from './CSM'
 

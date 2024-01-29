@@ -46,9 +46,9 @@ import { matches } from '../../common/functions/MatchesUtils'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
+import { setObjectLayers } from '../../scene/components/ObjectLayerComponent'
 import { VisibleComponent, setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent

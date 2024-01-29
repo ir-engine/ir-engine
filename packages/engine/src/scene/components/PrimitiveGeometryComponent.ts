@@ -47,9 +47,9 @@ import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { Geometry } from '@etherealengine/engine/src/assets/constants/Geometry'
 import { NO_PROXY, useState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { setObjectLayers } from '../components/ObjectLayerComponent'
 import { GeometryTypeEnum } from '../constants/GeometryTypeEnum'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const PrimitiveGeometryComponent = defineComponent({
