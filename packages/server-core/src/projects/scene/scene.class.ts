@@ -246,14 +246,18 @@ export class SceneService
       }
     }
 
-    const location = (await this.app.service(locationPath).find({
-      query: { $limit: 1, sceneId: { $like: `${directory}${oldSceneName}.scene.json` as SceneID } }
-    })) as Paginated<LocationType>
+    const locations = (await this.app.service(locationPath).find({
+      query: { sceneId: { $like: `${directory}${oldSceneName}.scene.json` as SceneID } }
+    })) as any as LocationType[]
 
-    if (location.data.length > 0) {
-      await this.app
-        .service(locationPath)
-        .patch(location.data[0].id, { sceneId: `${directory}${newSceneName}.scene.json` as SceneID })
+    if (locations.length > 0) {
+      await Promise.all(
+        locations.map(async (location) => {
+          await this.app
+            .service(locationPath)
+            .patch(location.id, { sceneId: `${directory}${newSceneName}.scene.json` as SceneID })
+        })
+      )
     }
 
     return
