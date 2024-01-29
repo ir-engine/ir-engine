@@ -26,14 +26,15 @@ Ethereal Engine. All Rights Reserved.
 import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { Color, Vector3 } from 'three'
-import { CameraComponent } from '../../../camera/components/CameraComponent'
-import { setCallback } from '../../../scene/components/CallbackComponent'
-import { UpdatableCallback, UpdatableComponent } from '../../../scene/components/UpdatableComponent'
-import { TransformComponent } from '../../../transform/components/TransformComponent'
-import { SDFShader } from './SDFShader'
+import { CameraComponent } from '../../camera/components/CameraComponent'
+import { SDFSettingsState } from '../../renderer/effects/sdf/SDFSettingsState'
+import { SDFShader } from '../../renderer/effects/sdf/SDFShader'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { setCallback } from './CallbackComponent'
+import { UpdatableCallback, UpdatableComponent } from './UpdatableComponent'
 
 export enum SDFMode {
   TORUS,
@@ -78,17 +79,9 @@ export const SDFComponent = defineComponent({
     }
   },
 
-  SDFStateSettingsState: defineState({
-    name: 'SDFSettingsState',
-    initial: {
-      enabled: true
-    }
-  }),
-
   reactor: () => {
     const entity = useEntityContext()
     const sdfComponent = useComponent(entity, SDFComponent)
-    const shader = SDFShader.shader
 
     useEffect(() => {
       const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
@@ -97,25 +90,25 @@ export const SDFComponent = defineComponent({
       const cameraComponent = getComponent(Engine.instance.cameraEntity, CameraComponent)
       const updater = createEntity()
       setCallback(updater, UpdatableCallback, (dt) => {
-        shader.uniforms.uTime.value += dt * 0.1
+        SDFShader.shader.uniforms.uTime.value += dt * 0.1
       })
 
-      shader.uniforms.cameraMatrix.value = cameraTransform.matrix
-      shader.uniforms.fov.value = cameraComponent.fov
-      shader.uniforms.aspectRatio.value = cameraComponent.aspect
-      shader.uniforms.near.value = cameraComponent.near
-      shader.uniforms.far.value = cameraComponent.far
-      shader.uniforms.sdfMatrix.value = transformComponent.matrixWorld
-      shader.uniforms.cameraPos.value = cameraPosition
+      SDFShader.shader.uniforms.cameraMatrix.value = cameraTransform.matrix
+      SDFShader.shader.uniforms.fov.value = cameraComponent.fov
+      SDFShader.shader.uniforms.aspectRatio.value = cameraComponent.aspect
+      SDFShader.shader.uniforms.near.value = cameraComponent.near
+      SDFShader.shader.uniforms.far.value = cameraComponent.far
+      SDFShader.shader.uniforms.sdfMatrix.value = transformComponent.matrixWorld
+      SDFShader.shader.uniforms.cameraPos.value = cameraPosition
       setComponent(updater, UpdatableComponent, true)
     }, [])
 
     useEffect(() => {
-      getMutableState(SDFComponent.SDFStateSettingsState).enabled.set(sdfComponent.enable.value)
+      getMutableState(SDFSettingsState).enabled.set(sdfComponent.enable.value)
     }, [sdfComponent.enable])
 
     useEffect(() => {
-      shader.uniforms.uColor.value = new Vector3(
+      SDFShader.shader.uniforms.uColor.value = new Vector3(
         sdfComponent.color.value.r,
         sdfComponent.color.value.g,
         sdfComponent.color.value.b
@@ -123,11 +116,11 @@ export const SDFComponent = defineComponent({
     }, [sdfComponent.color])
 
     useEffect(() => {
-      shader.uniforms.scale.value = sdfComponent.scale.value
+      SDFShader.shader.uniforms.scale.value = sdfComponent.scale.value
     }, [sdfComponent.scale])
 
     useEffect(() => {
-      shader.uniforms.mode.value = sdfComponent.mode.value
+      SDFShader.shader.uniforms.mode.value = sdfComponent.mode.value
     }, [sdfComponent.mode])
 
     return null

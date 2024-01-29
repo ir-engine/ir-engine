@@ -52,7 +52,7 @@ import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/Pos
 import { HighlightState } from '../HighlightState'
 import { RendererState } from '../RendererState'
 import { EffectComposerWithSchema, EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
-import { SDFComponent } from '../effects/sdf/SDFComponent'
+import { SDFSettingsState } from '../effects/sdf/SDFSettingsState'
 import { SDFShader } from '../effects/sdf/SDFShader'
 import { changeRenderMode } from './changeRenderMode'
 
@@ -113,7 +113,7 @@ export const configureEffectComposer = (
     resolutionScale: 0.5
   })
 
-  const SDFSetting = getState(SDFComponent.SDFStateSettingsState)
+  const SDFSetting = getState(SDFSettingsState)
   if (SDFSetting.enabled) {
     const depthRenderTarget = new WebGLRenderTarget(window.innerWidth, window.innerHeight)
     depthRenderTarget.texture.minFilter = NearestFilter

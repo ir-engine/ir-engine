@@ -31,16 +31,17 @@ import { getMutableState, useState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { configureEffectComposer } from '../../functions/configureEffectComposer'
 import { SDFComponent } from './SDFComponent'
+import { SDFSettingsState } from './SDFSettingsState'
 
 const reactor = () => {
   const sdfQuery = useQuery([SDFComponent])
-  const sdfState = useState(getMutableState(SDFComponent.SDFStateSettingsState))
+  const sdfState = useState(getMutableState(SDFSettingsState))
 
   useEffect(() => {
     if (sdfQuery.length === 0 || !sdfQuery.some((entity) => getComponent(entity, SDFComponent).enable)) {
-      getMutableState(SDFComponent.SDFStateSettingsState).enabled.set(false)
+      getMutableState(SDFSettingsState).enabled.set(false)
     } else {
-      getMutableState(SDFComponent.SDFStateSettingsState).enabled.set(true)
+      getMutableState(SDFSettingsState).enabled.set(true)
     }
   }, [sdfQuery])
 
