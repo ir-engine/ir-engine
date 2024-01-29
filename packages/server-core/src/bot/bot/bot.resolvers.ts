@@ -36,8 +36,8 @@ import {
   botCommandPath
 } from '@etherealengine/common/src/schemas/bot/bot-command.schema'
 import { InstanceID, InstanceType, instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 import { botCommandDataResolver } from '../bot-command/bot-command.resolvers'
 
 export const botResolver = resolve<BotType, HookContext>({})

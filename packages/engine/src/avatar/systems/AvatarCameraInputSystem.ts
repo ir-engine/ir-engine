@@ -33,8 +33,6 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
-import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
-import { AvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
 import { getThumbstickOrThumbpadAxes } from '../../avatar/systems/AvatarInputSystem'
 import { throttle } from '../../common/functions/FunctionHelpers'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
@@ -45,12 +43,13 @@ import { InputState } from '../../input/state/InputState'
 
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { CameraSettings } from '../../camera/CameraState'
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
+import { TargetCameraRotationComponent } from '../../camera/components/TargetCameraRotationComponent'
+import { handleCameraZoom, setTargetCameraRotation } from '../../camera/functions/CameraFunctions'
+import { switchCameraMode } from '../../camera/functions/switchCameraMode'
+import { CameraMode } from '../../camera/types/CameraMode'
 import { isMobile } from '../../common/functions/isMobile'
-import { CameraSettings } from '../CameraState'
-import { FollowCameraComponent } from '../components/FollowCameraComponent'
-import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
-import { handleCameraZoom, setTargetCameraRotation } from '../functions/CameraFunctions'
-import { CameraMode } from '../types/CameraMode'
 
 const avatarControllerQuery = defineQuery([AvatarControllerComponent])
 
@@ -125,7 +124,7 @@ const execute = () => {
     inputSourceEntity = capturedInputSource
   }
 
-  const avatarInputSettings = getState(AvatarInputSettingsState)
+  const inputState = getState(InputState)
 
   const inputSource = getOptionalComponent(inputSourceEntity, InputSourceComponent)
 
@@ -156,7 +155,7 @@ const execute = () => {
       (inputSource.source.gamepad?.mapping === 'standard' || inputSource.source.gamepad?.mapping === '') &&
       inputSource.source.handedness === 'none'
     ) {
-      const [x, z] = getThumbstickOrThumbpadAxes(inputSource.source, avatarInputSettings.preferredHand)
+      const [x, z] = getThumbstickOrThumbpadAxes(inputSource.source, inputState.preferredHand)
       target.theta -= x * 2
       target.phi += z * 2
     }
@@ -192,8 +191,8 @@ const execute = () => {
   lastMouseMoved = !!mouseMoved
 }
 
-export const CameraInputSystem = defineSystem({
-  uuid: 'ee.engine.CameraInputSystem',
+export const AvatarCameraInputSystem = defineSystem({
+  uuid: 'ee.engine.AvatarCameraInputSystem',
   insert: { with: InputSystemGroup },
   execute
 })

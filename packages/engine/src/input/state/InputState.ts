@@ -23,12 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState } from '@etherealengine/hyperflux'
+import { defineQuery, getComponent } from '@etherealengine/ecs'
+import { defineState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 import { Raycaster, Vector2 } from 'three'
+import { XRState } from '../../xr/XRState'
+import { InputSourceComponent } from '../components/InputSourceComponent'
 
 export const InputState = defineState({
   name: 'InputState',
   initial: () => ({
+    preferredHand: 'right' as 'left' | 'right',
     inputSources: [] as XRInputSourceArray,
     /** A screenspace raycaster for the pointer */
     pointerScreenRaycaster: new Raycaster(),
@@ -39,5 +43,28 @@ export const InputState = defineState({
       scroll: new Vector2(),
       lastScroll: new Vector2()
     }
-  })
+  }),
+  onCreate: (store, state) => {
+    syncStateWithLocalStorage(InputState, ['preferredHand'])
+  },
+
+  /**
+   * Gets the preferred controller entity - will return null if the entity is not in an active session or the controller is not available
+   * @param {boolean} offhand specifies to return the non-preferred hand instead
+   * @returns {Entity}
+   */
+  getPreferredInputSource: (offhand = false) => {
+    const xrState = getState(XRState)
+    if (!xrState.sessionActive) return
+    const avatarInputSettings = getState(InputState)
+    for (const inputSourceEntity of inputSourceQuery()) {
+      const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
+      const source = inputSourceComponent.source
+      if (source.handedness === 'none') continue
+      if (!offhand && avatarInputSettings.preferredHand == source.handedness) return source
+      if (offhand && avatarInputSettings.preferredHand !== source.handedness) return source
+    }
+  }
 })
+
+const inputSourceQuery = defineQuery([InputSourceComponent])

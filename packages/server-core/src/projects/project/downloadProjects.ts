@@ -27,10 +27,10 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
+import { deleteFolderRecursive, writeFileSyncRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import logger from '../../ServerLogger'
-import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
 
 /**
  * Downloads a specific project to the local file system from the storage provider cache

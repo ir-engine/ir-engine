@@ -35,13 +35,13 @@ import {
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { PositionalAudioHelper } from '../../debug/PositionalAudioHelper'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { AudioNodeGroups, MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
 import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { PositionalAudioHelper } from './PositionalAudioHelper'
 
 export interface PositionalAudioInterface {
   refDistance: number

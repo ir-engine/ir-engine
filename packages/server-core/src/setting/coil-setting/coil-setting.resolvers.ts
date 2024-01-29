@@ -31,7 +31,7 @@ import { CoilSettingQuery, CoilSettingType } from '@etherealengine/common/src/sc
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const coilSettingResolver = resolve<CoilSettingType, HookContext>({
   createdAt: virtual(async (coilSetting) => fromDateTimeSql(coilSetting.createdAt)),

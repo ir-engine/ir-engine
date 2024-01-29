@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { UserAvatarType, userAvatarPath } from '@etherealengine/common/src/schemas/user/user-avatar.schema'
 import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { Knex } from 'knex'
 import { v4 } from 'uuid'
-import { getDateTimeSql } from '../../../util/datetime-sql'
 
 /**
  * @param { import("knex").Knex } knex

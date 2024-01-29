@@ -58,10 +58,10 @@ import {
   userKickPath,
   UserType
 } from '@etherealengine/common/src/schema.type.module'
+import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { MediasoupTransportState } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
-import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import { InstanceServerState } from './InstanceServerState'
 import { SocketWebRTCServerNetwork, WebRTCTransportExtension } from './SocketWebRTCServerFunctions'
 

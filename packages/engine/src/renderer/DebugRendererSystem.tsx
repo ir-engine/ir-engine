@@ -31,14 +31,14 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { PhysicsState } from '../../physics/state/PhysicsState'
-import { RendererState } from '../../renderer/RendererState'
-import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
-import { createInfiniteGridHelper } from '../../scene/classes/InfiniteGridHelper'
-import { GroupComponent, addObjectToGroup } from '../../scene/components/GroupComponent'
-import { setVisibleComponent } from '../../scene/components/VisibleComponent'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { PhysicsState } from '../physics/state/PhysicsState'
+import { RendererState } from '../renderer/RendererState'
+import { WebGLRendererSystem } from '../renderer/WebGLRendererSystem'
+import { createInfiniteGridHelper } from '../scene/classes/InfiniteGridHelper'
+import { GroupComponent, addObjectToGroup } from '../scene/components/GroupComponent'
+import { setVisibleComponent } from '../scene/components/VisibleComponent'
+import { ObjectLayers } from '../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../scene/functions/setObjectLayers'
 
 const execute = () => {
   const physicsDebugEntity = getState(RendererState).physicsDebugEntity

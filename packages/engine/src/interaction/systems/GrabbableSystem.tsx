@@ -60,10 +60,10 @@ import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDC
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
-import { AvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
 import { matches, matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
+import { InputState } from '../../input/state/InputState'
 import { NetworkState } from '../../networking/NetworkState'
 import { NetworkTopics } from '../../networking/classes/Network'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
@@ -296,7 +296,7 @@ export const grabEntity = (grabberEntity: Entity, grabbedEntity: Entity, attachm
 export const dropEntity = (grabberEntity: Entity): void => {
   const grabberComponent = getComponent(grabberEntity, GrabberComponent)
   if (!grabberComponent) return
-  const handedness = getState(AvatarInputSettingsState).preferredHand
+  const handedness = getState(InputState).preferredHand
   const grabbedEntity = grabberComponent[handedness]!
   if (!grabbedEntity) return
   const networkComponent = getComponent(grabbedEntity, NetworkObjectComponent)
@@ -331,13 +331,13 @@ const grabbableQuery = defineQuery([GrabbableComponent])
 
 const onDrop = () => {
   const grabber = getComponent(Engine.instance.localClientEntity, GrabberComponent)
-  const handedness = getState(AvatarInputSettingsState).preferredHand
+  const handedness = getState(InputState).preferredHand
   const grabbedEntity = grabber[handedness]!
   if (!grabbedEntity) return
   dropEntity(Engine.instance.localClientEntity)
 }
 
-const onGrab = (targetEntity: Entity, handedness = getState(AvatarInputSettingsState).preferredHand) => {
+const onGrab = (targetEntity: Entity, handedness = getState(InputState).preferredHand) => {
   if (!hasComponent(targetEntity, GrabbableComponent)) return
   const grabber = getComponent(Engine.instance.localClientEntity, GrabberComponent)
   const grabbedEntity = grabber[handedness]!

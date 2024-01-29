@@ -29,13 +29,17 @@ import { Camera, Frustum, Matrix4, Mesh, Vector3 } from 'three'
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
-import { getComponent, getOptionalComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  AnimationSystemGroup,
+  Engine,
+  Entity,
+  defineQuery,
+  defineSystem,
+  getComponent,
+  getOptionalComponent,
+  hasComponent
+} from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { Not } from 'bitecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'

@@ -54,11 +54,11 @@ import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
-import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { V_010 } from '../common/constants/MathConstants'
 import { InputComponent } from '../input/components/InputComponent'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
+import { InputState } from '../input/state/InputState'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { VisibleComponent, setVisibleComponent } from '../scene/components/VisibleComponent'
@@ -335,11 +335,11 @@ const reactor = () => {
 
       const inputSourceComponent = getComponent(entity, InputSourceComponent)
 
-      const avatarInputSettings = getState(AvatarInputSettingsState)
+      const inputState = getState(InputState)
       if (
         inputSourceComponent.source.targetRayMode !== 'tracked-pointer' ||
         inputSourceComponent.source.gamepad?.mapping !== 'xr-standard' ||
-        inputSourceComponent.source.handedness !== avatarInputSettings.preferredHand
+        inputSourceComponent.source.handedness !== inputState.preferredHand
       )
         continue
 
@@ -353,9 +353,9 @@ const reactor = () => {
 
   useEffect(() => {
     if (scenePlacementMode.value !== 'placing' || !xrSession.value) return
-    const avatarInputSettings = getState(AvatarInputSettingsState)
-    InputSourceComponent.captureAxes(scenePlacementEntity, [avatarInputSettings.preferredHand])
-    InputSourceComponent.captureButtons(scenePlacementEntity, [avatarInputSettings.preferredHand])
+    const inputState = getState(InputState)
+    InputSourceComponent.captureAxes(scenePlacementEntity, [inputState.preferredHand])
+    InputSourceComponent.captureButtons(scenePlacementEntity, [inputState.preferredHand])
     return () => {
       InputSourceComponent.releaseAxes()
       InputSourceComponent.releaseButtons()
