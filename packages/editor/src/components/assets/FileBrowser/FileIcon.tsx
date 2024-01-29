@@ -117,7 +117,7 @@ const uploadThumbnail = async (file, blob) => {
   }
 
   const thumbnailKey = await Engine.instance.api.service(fileThumbnailPath).patch(file.key, {
-    body: blob,
+    body: await blob.arrayBuffer(),
     isCustom: false,
     contentType: 'image/png'
   })
@@ -151,7 +151,7 @@ const getThumbnailKey = (file: FileBrowserContentType, gen): Promise<string> => 
 export const FileIcon = ({ file, showRibbon }: { file: FileBrowserContentType; showRibbon?: boolean }) => {
   const fallback = { icon: FileIconType[file.type] }
   const [thumbnailKey, setThumbnailKey] = useState<string>()
-  if (file.thumbnailKey == null) {
+  if (file.thumbnailKey == null && !file.key.includes('thumbnail')) {
     const thumbnailGenerator = thumbnailGeneratorsByType.get(file.type)
     if (thumbnailGenerator != null) {
       getThumbnailKey(file, thumbnailGenerator).then((key) => setThumbnailKey(key))
