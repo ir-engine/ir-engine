@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getState, useState } from '@etherealengine/hyperflux'
@@ -37,6 +37,7 @@ import { ProjectState } from '@etherealengine/client-core/src/common/services/Pr
 import config from '@etherealengine/common/src/config'
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
+import { recursiveHipsLookup } from '@etherealengine/engine/src/avatar/AvatarBoneMatching'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
 import BooleanInput from '../inputs/BooleanInput'
@@ -62,6 +63,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const entity = props.entity
   const modelComponent = useComponent(entity, ModelComponent)
   const exporting = useState(false)
+  const bonematchable = useState(false)
   const editorState = getState(EditorState)
   const projectState = getState(ProjectState)
   const loadedProjects = useState(() => projectState.projects.map((project) => project.name))
@@ -106,6 +108,10 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     exportType.set(getExportExtension())
   }, [modelComponent.src])
 
+  useEffect(() => {
+    bonematchable.set(modelComponent.asset.value && recursiveHipsLookup(modelComponent.asset.value?.scene))
+  }, [modelComponent.asset])
+
   return (
     <NodeEditor
       name={t('editor:properties.model.title')}
@@ -113,24 +119,24 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       {...props}
     >
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
-        <ModelInput value={modelComponent.src.value} onChange={commitProperty(ModelComponent, 'src')} />
+        <ModelInput value={modelComponent.src.value} onRelease={commitProperty(ModelComponent, 'src')} />
         {errors?.LOADING_ERROR ||
           (errors?.INVALID_SOURCE && ErrorPopUp({ message: t('editor:properties.model.error-url') }))}
       </InputGroup>
-      <InputGroup name="Generate BVH" label={t('editor:properties.model.lbl-generateBVH')}>
+      <InputGroup name="Camera Occlusion" label={t('editor:properties.model.lbl-cameraOcclusion')}>
         <BooleanInput
-          value={modelComponent.generateBVH.value}
-          onChange={commitProperty(ModelComponent, 'generateBVH')}
-          disabled={modelComponent.hasSkinnedMesh.value}
+          value={modelComponent.cameraOcclusion.value}
+          onChange={commitProperty(ModelComponent, 'cameraOcclusion')}
         />
       </InputGroup>
-      <InputGroup name="Avoid Camera Occlusion" label={t('editor:properties.model.lbl-avoidCameraOcclusion')}>
-        <BooleanInput
-          value={modelComponent.avoidCameraOcclusion.value}
-          onChange={commitProperty(ModelComponent, 'avoidCameraOcclusion')}
-        />
-      </InputGroup>
-
+      {bonematchable.value && (
+        <InputGroup name="Convert to VRM" label={t('editor:properties.model.lbl-convertToVRM')}>
+          <BooleanInput
+            value={modelComponent.convertToVRM.value}
+            onChange={commitProperty(ModelComponent, 'convertToVRM')}
+          />
+        </InputGroup>
+      )}
       {!exporting.value && (
         <Well>
           <div className="property-group-header">{t('editor:properties.model.lbl-export')}</div>
@@ -147,7 +153,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
             />
           </InputGroup>
           <InputGroup name="File Path" label="File Path">
-            <StringInput value={srcPath.value} onChange={(e) => srcPath.set(e.target.value)} />
+            <StringInput value={srcPath.value} onChange={srcPath.set} />
           </InputGroup>
           <InputGroup name="Export Type" label={t('editor:properties.model.lbl-exportType')}>
             <SelectInput<string>

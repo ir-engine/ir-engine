@@ -34,19 +34,12 @@ import { StringInputProps } from './StringInput'
 /**
  * ImageInput used to render component view for image inputs.
  *
- * @param       {Function} onChange
+ * @param       {Function} onRelease
  * @param       {any} rest
  * @constructor
  */
-export function ImageInput({ onChange, ...rest }: StringInputProps) {
-  return (
-    <FileBrowserInput
-      acceptFileTypes={ImageFileTypes}
-      acceptDropItems={ItemTypes.Images}
-      onChange={onChange}
-      {...rest}
-    />
-  )
+export function ImageInput({ ...rest }: StringInputProps) {
+  return <FileBrowserInput acceptFileTypes={ImageFileTypes} acceptDropItems={ItemTypes.Images} {...rest} />
 }
 
 export default ImageInput

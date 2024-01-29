@@ -25,11 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
-import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
+import { fileBrowserPath } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
+import { getCachedURL } from '../storageprovider/getCachedURL'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
 const getRandomizedName = (name: string, suffix = '', prefix = 'test') =>
@@ -106,6 +107,7 @@ describe('file-browser.test', () => {
     assert.ok(foundFile)
     assert.equal(foundFile.name, testFileName)
     assert.equal(foundFile.size, testFileSize)
+    assert.equal(foundFile.url, getCachedURL(foundFile.key, getStorageProvider().cacheDomain))
   })
 
   describe('update service', () => {

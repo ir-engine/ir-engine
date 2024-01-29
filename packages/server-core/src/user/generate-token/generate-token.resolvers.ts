@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve } from '@feathersjs/schema'
 
-import { GenerateTokenQuery, GenerateTokenType } from '@etherealengine/engine/src/schemas/user/generate-token.schema'
+import { GenerateTokenQuery, GenerateTokenType } from '@etherealengine/common/src/schemas/user/generate-token.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const generateTokenResolver = resolve<GenerateTokenType, HookContext>({})

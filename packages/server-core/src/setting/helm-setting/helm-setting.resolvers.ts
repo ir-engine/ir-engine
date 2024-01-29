@@ -27,10 +27,10 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { HelmSettingQuery, HelmSettingType } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
+import { HelmSettingQuery, HelmSettingType } from '@etherealengine/common/src/schemas/setting/helm-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const helmSettingResolver = resolve<HelmSettingType, HookContext>({
   createdAt: virtual(async (helmSetting) => fromDateTimeSql(helmSetting.createdAt)),

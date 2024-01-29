@@ -39,7 +39,7 @@ import {
   Vector4
 } from 'three'
 
-import LogarithmicDepthBufferMaterialChunk from '../functions/LogarithmicDepthBufferMaterialChunk'
+import LogarithmicDepthBufferMaterialChunk from '../../renderer/constants/LogarithmicDepthBufferMaterialChunk'
 
 /**
  * @author Mark Kellogg - http://www.github.com/mkkellogg

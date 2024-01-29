@@ -24,8 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import logger from '@etherealengine/engine/src/common/functions/logger'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import logger from '@etherealengine/common/src/logger'
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
@@ -35,7 +36,6 @@ import {
   MediasoupDataProducersConsumersObjectsState
 } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import { MediasoupTransportState } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { none, useHookstate } from '@hookstate/core'
 import { DataProducer, DataProducerOptions } from 'mediasoup-client/lib/DataProducer'
@@ -137,6 +137,7 @@ export const consumerData = async (action: typeof MediasoupDataConsumerActions.c
 const dataConsumerCreatedActionQueue = defineActionQueue(MediasoupDataConsumerActions.consumerCreated.matches)
 
 const execute = () => {
+  /** @todo replace this with event sourcing */
   for (const action of dataConsumerCreatedActionQueue()) {
     setTimeout(() => {
       consumerData(action)
@@ -179,6 +180,13 @@ export const DataChannels = () => {
   const networkIDs = Object.entries(useHookstate(getMutableState(NetworkState).networks).value)
     .filter(([networkID, network]) => network.topic === NetworkTopics.world)
     .map(([networkID, network]) => networkID)
+
+  const networkConfig = useHookstate(getMutableState(NetworkState).config)
+  const isOnline = networkConfig.world.value || networkConfig.media.value
+
+  /** @todo - instead of checking for network config, we should filter NetworkConnectionReactor by networks with a "real" transport */
+  if (!isOnline) return null
+
   return (
     <>
       {networkIDs.map((id: InstanceID) => (

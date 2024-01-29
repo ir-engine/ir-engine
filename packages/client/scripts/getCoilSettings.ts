@@ -24,8 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import knex from 'knex'
-
-import { coilSettingPath, CoilSettingType } from '../../engine/src/schemas/setting/coil-setting.schema'
+import { coilSettingPath, CoilSettingType } from '../../common/src/schemas/setting/coil-setting.schema'
 
 export const getCoilSetting = async () => {
   const knexClient = knex({

@@ -29,7 +29,18 @@ import {
   makeFlowNodeDefinition,
   makeFunctionNodeDefinition
 } from '@behave-graph/core'
+import {
+  getComponent,
+  getMutableComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { Tween } from '@tweenjs/tween.js'
 import {
   AdditiveAnimationBlendMode,
   AnimationActionLoopStyles,
@@ -37,25 +48,23 @@ import {
   LoopOnce,
   LoopPingPong,
   LoopRepeat,
+  Material,
   MathUtils,
-  NormalAnimationBlendMode
+  Mesh,
+  NormalAnimationBlendMode,
+  Object3D
 } from 'three'
 import { PositionalAudioComponent } from '../../../../../audio/components/PositionalAudioComponent'
 import { AnimationState } from '../../../../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../../../../avatar/components/LoopAnimationComponent'
 import { CameraActions } from '../../../../../camera/CameraState'
 import { FollowCameraComponent } from '../../../../../camera/components/FollowCameraComponent'
-import { Engine } from '../../../../../ecs/classes/Engine'
-import { Entity } from '../../../../../ecs/classes/Entity'
-import {
-  getComponent,
-  getMutableComponent,
-  hasComponent,
-  setComponent
-} from '../../../../../ecs/functions/ComponentFunctions'
+import iterateObject3D from '../../../../../common/functions/iterateObject3D'
+import { GroupComponent } from '../../../../../renderer/components/GroupComponent'
 import { MediaComponent } from '../../../../../scene/components/MediaComponent'
 import { VideoComponent } from '../../../../../scene/components/VideoComponent'
 import { PlayMode } from '../../../../../scene/constants/PlayMode'
+import { TweenComponent } from '../../../../../transform/components/TweenComponent'
 import { endXRSession, requestXRSession } from '../../../../../xr/XRSessionFunctions'
 import { ContentFitType } from '../../../../../xrui/functions/ObjectFitFunctions'
 import { addMediaComponent } from '../helper/assetHelper'
@@ -264,10 +273,8 @@ export const playAnimation = makeFlowNodeDefinition({
     const timeScale = read<number>('timeScale')
     const animationPack = read<string>('animationPack')
     const activeClipIndex = read<number>('activeClipIndex')
-    const isAvatar = read<boolean>('isAvatar')
 
     setComponent(entity, LoopAnimationComponent, {
-      hasAvatarAnimations: isAvatar,
       paused: paused,
       timeScale: timeScale,
       animationPack: animationPack,
@@ -380,16 +387,14 @@ export const fadeCamera = makeFlowNodeDefinition({
   label: 'Camera fade',
   in: {
     flow: 'flow',
-    toBlack: 'boolean',
-    graphicTexture: 'string'
+    toBlack: 'boolean'
   },
   out: { flow: 'flow' },
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
     dispatchAction(
       CameraActions.fadeToBlack({
-        in: read('toBlack'),
-        graphicTexture: read('graphicTexture')
+        in: read('toBlack')
       })
     )
     commit('flow')
@@ -468,6 +473,98 @@ export const switchScene = makeFlowNodeDefinition({
     // const projectName = read<string>('projectName')
     // const sceneName = read<string>('sceneName')
     // SceneServices.setCurrentScene(projectName, sceneName)
+  }
+})
+
+export const redirectToURL = makeFlowNodeDefinition({
+  typeName: 'engine/redirectToURL',
+  category: NodeCategory.Action,
+  label: 'Redirect to URL',
+  in: {
+    flow: 'flow',
+    url: 'string'
+  },
+  out: {},
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    const url = read<string>('url')
+    window.location.assign(url)
+  }
+})
+
+/**
+ * fadeMesh: fade in/out mesh
+ */
+export const fadeMesh = makeFlowNodeDefinition({
+  typeName: 'engine/fadeMesh',
+  category: NodeCategory.Effect,
+  label: 'Fade Mesh',
+  in: {
+    flow: 'flow',
+    entity: 'entity',
+    fadeOut: 'boolean',
+    duration: 'float'
+  },
+  out: { flow: 'flow' },
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    const entity = read<Entity>('entity')
+    const fadeOut = read<boolean>('fadeOut')
+    const duration = read<number>('duration')
+
+    const obj3d: Object3D | null = getOptionalComponent(entity, GroupComponent)?.[0] ?? null
+    const meshMaterials = obj3d
+      ? iterateObject3D(
+          obj3d,
+          (child: Mesh) => {
+            const result = child.material as Material
+            result.transparent = true
+            return result
+          },
+          (child: Mesh) =>
+            child?.isMesh &&
+            !!child.material &&
+            !Array.isArray(child.material) &&
+            typeof child.material.transparent === 'boolean'
+        )
+      : []
+
+    const opacitySlider: { opacity: number; _opacity: number } = { opacity: 1, _opacity: 1 }
+    Object.defineProperty(opacitySlider, 'opacity', {
+      get: () => opacitySlider._opacity,
+      set: (value) => {
+        opacitySlider._opacity = value
+        for (const material of meshMaterials) {
+          material.opacity = value
+        }
+      }
+    })
+    if (fadeOut) {
+      opacitySlider.opacity = 1
+      setComponent(
+        entity,
+        TweenComponent,
+        new Tween<any>(opacitySlider)
+          .to({ opacity: 0 }, duration * 1000)
+          .start()
+          .onComplete(() => {
+            removeComponent(entity, TweenComponent)
+          })
+      )
+    } else {
+      opacitySlider.opacity = 0
+      setComponent(
+        entity,
+        TweenComponent,
+        new Tween<any>(opacitySlider)
+          .to({ opacity: 1 }, duration * 1000)
+          .start()
+          .onComplete(() => {
+            removeComponent(entity, TweenComponent)
+          })
+      )
+    }
+    commit('flow')
   }
 })
 

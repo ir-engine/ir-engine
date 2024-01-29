@@ -42,7 +42,7 @@ import { ServiceTypes } from '@etherealengine/common/declarations'
 import { NO_PROXY, State, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
-import { Engine } from '../../ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 
 export type Methods = 'find' | 'get' | 'create' | 'update' | 'patch' | 'remove'
 
@@ -208,7 +208,7 @@ export const useFind = <S extends keyof ServiceTypes>(serviceName: S, params: Pa
     skip: paginate.query.$skip,
     limit: paginate.query.$limit,
     sort: paginate.query.$sort,
-    data: data as ArrayOrPaginatedType<(typeof response)['data']>
+    data: data as Readonly<ArrayOrPaginatedType<(typeof response)['data']>>
   }
 }
 
@@ -244,17 +244,32 @@ type RemoveMethodParameters<S extends keyof ServiceTypes> = ServiceTypes[S]['rem
  * by the caller. as you create/update/patch/remove
  * entities using this helper, the entities cache gets updated
  */
-export function useMutation<S extends keyof ServiceTypes>(serviceName: S) {
+export function useMutation<S extends keyof ServiceTypes>(serviceName: S, forceRefetch = true) {
   const state = useHookstate({
     status: 'idle',
     data: null as unknown | null,
     error: null as string | null
   })
 
-  const create = useMethod('create', created, serviceName, state) as CreateMethodParameters<S>
-  const update = useMethod('update', updated, serviceName, state) as UpdateMethodParameters<S>
-  const patch = useMethod('patch', updated, serviceName, state) as PatchMethodParameters<S>
-  const remove = useMethod('remove', removed, serviceName, state) as RemoveMethodParameters<S>
+  const create = useMethod(
+    'create',
+    forceRefetch ? created : undefined,
+    serviceName,
+    state
+  ) as CreateMethodParameters<S>
+  const update = useMethod(
+    'update',
+    forceRefetch ? updated : undefined,
+    serviceName,
+    state
+  ) as UpdateMethodParameters<S>
+  const patch = useMethod('patch', forceRefetch ? updated : undefined, serviceName, state) as PatchMethodParameters<S>
+  const remove = useMethod(
+    'remove',
+    forceRefetch ? removed : undefined,
+    serviceName,
+    state
+  ) as RemoveMethodParameters<S>
 
   const mutation = useMemo(
     () => ({
@@ -274,7 +289,7 @@ export function useMutation<S extends keyof ServiceTypes>(serviceName: S) {
 
 function useMethod(
   method: Methods,
-  action: (props: { serviceName: keyof ServiceTypes; item: any }) => void,
+  action: undefined | ((props: { serviceName: keyof ServiceTypes; item: any }) => void),
   serviceName: keyof ServiceTypes,
   state: State<any>
 ) {
@@ -284,7 +299,7 @@ function useMethod(
       state.merge({ status: 'loading', loading: true, data: null, error: null })
       return service[method](...args)
         .then((item) => {
-          action({ serviceName, item })
+          action && action({ serviceName, item })
           state.merge({ status: 'success', loading: false, data: item })
           return item
         })

@@ -26,15 +26,16 @@ Ethereal Engine. All Rights Reserved.
 import i18n from 'i18next'
 import { useEffect } from 'react'
 
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import multiLogger from '@etherealengine/common/src/logger'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import {
-  userRelationshipPath,
-  UserRelationshipType
-} from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
-import { UserID, UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
+  UserID,
+  UserName,
+  UserRelationshipType,
+  userRelationshipPath
+} from '@etherealengine/common/src/schema.type.module'
 import { Paginated } from '@feathersjs/feathers'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'

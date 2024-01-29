@@ -35,14 +35,14 @@ import Text from '@etherealengine/client-core/src/common/components/Text'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import {
   AvatarAxesControlScheme,
   AvatarInputSettingsState
 } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -50,14 +50,15 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { UserSettingPatch } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
+import { UserSettingPatch } from '@etherealengine/common/src/schema.type.module'
+import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { AdminClientSettingsState } from '../../../../admin/services/Setting/ClientSettingService'
 import { UserMenus } from '../../../UserUISystem'
 import { userHasAccess } from '../../../userHasAccess'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
 
-export const ShadowMapResolutionOptions = [
+export const ShadowMapResolutionOptions: InputMenuItem[] = [
   {
     label: '256px',
     value: 256
@@ -94,7 +95,8 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
   const selfUser = useHookstate(getMutableState(AuthState).user)
   const leftAxesControlScheme = avatarInputState.leftAxesControlScheme.value
   const rightAxesControlScheme = avatarInputState.rightAxesControlScheme.value
-  const preferredHand = avatarInputState.preferredHand.value
+  const inputState = useHookstate(getMutableState(InputState))
+  const preferredHand = inputState.preferredHand.value
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
   const firstRender = useRef(true)
   const xrSupportedModes = useHookstate(getMutableState(XRState).supportedSessionModes)
@@ -118,7 +120,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
     admin: userSettings?.themeModes?.admin ?? defaultThemeModes.admin
   }
 
-  const showWorldSettings = Engine.instance.localClientEntity || engineState.value
+  const showWorldSettings = !!Engine.instance.localClientEntity
 
   const handleChangeUserThemeMode = (event) => {
     if (!userSettings) return
@@ -179,13 +181,6 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
     return {
       label: el,
       value: el
-    }
-  })
-
-  const shadowMapResolutionSchemesMenu: InputMenuItem[] = ShadowMapResolutionOptions.map((el) => {
-    return {
-      label: el.label,
-      value: String(el.value)
     }
   })
 
@@ -277,9 +272,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
                       label={t('user:usermenu.setting.lbl-preferred-hand')}
                       value={preferredHand}
                       menu={handOptionsMenu}
-                      onChange={(event) =>
-                        getMutableState(AvatarInputSettingsState).preferredHand.set(event.target.value)
-                      }
+                      onChange={(event) => getMutableState(InputState).preferredHand.set(event.target.value)}
                     />
                   </Grid>
                 </Grid>
@@ -507,10 +500,8 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               <InputSelect
                 label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}
                 value={rendererState.shadowMapResolution.value}
-                menu={shadowMapResolutionSchemesMenu}
-                onChange={(event) => {
-                  ;(resolution: number) => rendererState.shadowMapResolution.set(Number(resolution))
-                }}
+                menu={ShadowMapResolutionOptions}
+                onChange={(event) => rendererState.shadowMapResolution.set(event.target.value)}
               />
             )}
           </>

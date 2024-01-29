@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { SceneID } from '@etherealengine/common/src/schema.type.module'
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { getState } from '@etherealengine/hyperflux'
 import { EditorState } from '../../services/EditorServices'
 
@@ -74,8 +74,12 @@ export function* heirarchyTreeWalker(
 
     const entityTreeComponent = getComponent(entityNode as Entity, EntityTreeComponent)
 
+    // treat entites with all helper children as leaf nodes
+    const allhelperChildren =
+      false || entityTreeComponent.children.every((child) => !hasComponent(child, SceneObjectComponent))
+
     yield {
-      isLeaf: entityTreeComponent.children.length === 0,
+      isLeaf: entityTreeComponent.children.length === 0 || allhelperChildren,
       isCollapsed,
       depth,
       entity: entityNode,

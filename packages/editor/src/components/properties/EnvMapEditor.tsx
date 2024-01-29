@@ -26,12 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent, useComponent, useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { NameComponent } from '@etherealengine/engine/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '@etherealengine/engine/src/scene/constants/EnvMapEnum'
 
 import ColorInput from '../inputs/ColorInput'
@@ -43,7 +43,8 @@ import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, commitProperty, updateProperties, updateProperty } from './Util'
 
-import { SportsBarTwoTone } from '@mui/icons-material'
+import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import SportsBarTwoTone from '@mui/icons-material/SportsBarTwoTone'
 
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap
@@ -132,12 +133,12 @@ export const EnvMapEditor: EditorComponentType = (props) => {
           </InputGroup>
           <InputGroup name="Texture URL" label="Texture URL">
             {envmapComponent.envMapTextureType.value === EnvMapTextureType.Cubemap && (
-              <FolderInput value={envmapComponent.envMapSourceURL.value} onChange={onChangeCubemapURLSource} />
+              <FolderInput value={envmapComponent.envMapSourceURL.value} onRelease={onChangeCubemapURLSource} />
             )}
             {envmapComponent.envMapTextureType.value === EnvMapTextureType.Equirectangular && (
               <ImagePreviewInput
                 value={envmapComponent.envMapSourceURL.value}
-                onChange={commitProperty(EnvmapComponent, 'envMapSourceURL')}
+                onRelease={commitProperty(EnvmapComponent, 'envMapSourceURL')}
               />
             )}
             {errors?.MISSING_FILE && (

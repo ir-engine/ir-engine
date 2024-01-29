@@ -34,14 +34,13 @@ import {
 } from 'three'
 
 import { config } from '@etherealengine/common/src/config'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { isClient } from '../../common/functions/getEnvironment'
-import { SceneState } from '../../ecs/classes/Scene'
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { Sky } from '../classes/Sky'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'
@@ -165,7 +164,6 @@ export const SkyboxComponent = defineComponent({
       sky.turbidity = skyboxState.skyboxProps.value.turbidity
       sky.luminance = skyboxState.skyboxProps.value.luminance
 
-      getState(RendererState).csm?.lightDirection.copy(sky.sunPosition).multiplyScalar(-1)
       const texture = sky.generateSkyboxTextureCube(EngineRenderer.instance.renderer)
       texture.mapping = CubeReflectionMapping
       background.set(texture)

@@ -29,18 +29,19 @@ import { Color } from 'three'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { WebContainer3D } from '@etherealengine/xrui'
 
-import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { getComponent, getMutableComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { InputState } from '../../input/state/InputState'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
 
-import { isClient } from '../../common/functions/getEnvironment'
-import { removeEntity } from '../../ecs/functions/EntityFunctions'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { TransformSystem } from '../../transform/systems/TransformSystem'
 import { XRUIState } from '../XRUIState'
 import { PointerComponent } from '../components/PointerComponent'
@@ -100,6 +101,9 @@ const updateControllerRayInteraction = (entity: Entity, xruiEntities: Entity[]) 
       cursor.visible = true
       cursor.position.copy(hit.intersection.point)
       pointer.worldToLocal(cursor.position)
+      // this is a hack because this system runs after the transform system
+      // @todo turn cursor and pointer into entities
+      cursor.updateMatrixWorld(true)
 
       if (interactable) {
         cursor.material.color = hitColor

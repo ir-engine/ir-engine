@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
-import { getComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 
 import {
   BufferAttribute,
@@ -40,10 +40,13 @@ import {
   Vector3
 } from 'three'
 
-import { Entity } from '../ecs/classes/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 
 import { Mesh, MeshBasicMaterial } from 'three'
 
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getState } from '@etherealengine/hyperflux'
 import {
   NormalizedLandmark,
@@ -55,16 +58,14 @@ import {
   POSE_LANDMARKS_RIGHT
 } from '@mediapipe/pose'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { AvatarComponent } from '../avatar/components/AvatarComponent'
+import { NameComponent } from '../common/NameComponent'
 import { V_010, V_100 } from '../common/constants/MathConstants'
-import { Engine } from '../ecs/classes/Engine'
-import { EngineState } from '../ecs/classes/EngineState'
-import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
 import { RendererState } from '../renderer/RendererState'
-import { GroupComponent, addObjectToGroup } from '../scene/components/GroupComponent'
-import { NameComponent } from '../scene/components/NameComponent'
-import { setVisibleComponent } from '../scene/components/VisibleComponent'
-import { ObjectLayers } from '../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../scene/functions/setObjectLayers'
+import { GroupComponent, addObjectToGroup } from '../renderer/components/GroupComponent'
+import { setObjectLayers } from '../renderer/components/ObjectLayerComponent'
+import { setVisibleComponent } from '../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../renderer/constants/ObjectLayers'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 
@@ -163,12 +164,12 @@ const drawMocapDebug = (label: string) => {
       const color = new Color().set(1 - confidence, confidence, 0)
       if (!debugEntities[key]) {
         const mesh = new Mesh(new SphereGeometry(0.01), new MeshBasicMaterial({ color }))
-        setObjectLayers(mesh, ObjectLayers.AvatarHelper)
         const entity = createEntity()
         debugEntities[key] = entity
         addObjectToGroup(entity, mesh)
         setVisibleComponent(entity, true)
         setComponent(entity, NameComponent, `Mocap Debug ${label} ${LandmarkNames[key]}`)
+        setObjectLayers(mesh, ObjectLayers.AvatarHelper)
       }
       const entity = debugEntities[key]
       const mesh = getComponent(entity, GroupComponent)[0] as any as Mesh<BufferGeometry, MeshBasicMaterial>
@@ -259,7 +260,7 @@ export function solveMotionCapturePose(
         continue
       }
       const visibility = ((newLandmarks[i].visibility ?? 0) + (prevLandmarks[i].visibility ?? 0)) / 2
-      const alpha = getState(EngineState).deltaSeconds * 15
+      const alpha = getState(ECSState).deltaSeconds * 15
       filteredLandmarks[i] = {
         visibility,
         x: MathUtils.lerp(prevLandmarks[i].x, newLandmarks[i].x, alpha),
@@ -433,6 +434,7 @@ export const solveSpine = (
   trackingLowerBody: boolean
 ) => {
   const rig = getComponent(entity, AvatarRigComponent)
+  const avatar = getComponent(entity, AvatarComponent)
 
   const rightHip = landmarks[POSE_LANDMARKS.RIGHT_HIP]
   const leftHip = landmarks[POSE_LANDMARKS.LEFT_HIP]
@@ -446,8 +448,6 @@ export const solveSpine = (
 
   spineRotation.identity()
   shoulderRotation.identity()
-
-  const legLength = rig.upperLegLength + rig.lowerLegLength * 2
 
   const hipleft = new Vector3(rightHip.x, lowestWorldY - rightHip.y, rightHip.z)
   const hipright = new Vector3(leftHip.x, lowestWorldY - leftHip.y, leftHip.z)
@@ -463,7 +463,7 @@ export const solveSpine = (
     }
     hipCenter.copy(hipleft).add(hipright).multiplyScalar(0.5)
   } else {
-    hipCenter.copy(new Vector3(0, legLength, 0))
+    hipCenter.copy(new Vector3(0, avatar.hipsHeight, 0))
   }
 
   const shoulderLeft = new Vector3(-rightShoulder.x, lowestWorldY - rightShoulder.y, -rightShoulder.z)

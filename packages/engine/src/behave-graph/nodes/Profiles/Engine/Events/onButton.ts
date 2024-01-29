@@ -24,9 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Choices, NodeCategory, makeEventNodeDefinition } from '@behave-graph/core'
-import { Query, defineQuery, getComponent, removeQuery } from '../../../../../ecs/functions/ComponentFunctions'
-import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
-import { SystemUUID, defineSystem, destroySystem } from '../../../../../ecs/functions/SystemFunctions'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Query, defineQuery, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { InputSourceComponent } from '../../../../../input/components/InputSourceComponent'
 import {
   ButtonState,

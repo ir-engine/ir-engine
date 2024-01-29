@@ -27,18 +27,16 @@ Ethereal Engine. All Rights Reserved.
  * Adapted from https://github.com/tentone/webxr-occlusion-lighting/tree/main/src/material
  */
 
-import { Not } from 'bitecs'
 import React, { useEffect } from 'react'
 import { Material, Matrix4, Mesh, Shader, ShaderMaterial, ShadowMaterial, Vector2 } from 'three'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { addOBCPlugin, removeOBCPlugin } from '../common/functions/OnBeforeCompilePlugin'
-import { defineQuery } from '../ecs/functions/ComponentFunctions'
-import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { GroupComponent, GroupQueryReactor } from '../scene/components/GroupComponent'
-import { SceneTagComponent } from '../scene/components/SceneTagComponent'
-import { VisibleComponent } from '../scene/components/VisibleComponent'
+import { GroupComponent, GroupQueryReactor } from '../renderer/components/GroupComponent'
+import { VisibleComponent } from '../renderer/components/VisibleComponent'
 import { DepthCanvasTexture } from './DepthCanvasTexture'
 import { DepthDataTexture } from './DepthDataTexture'
 import { ReferenceSpace, XRState } from './XRState'
@@ -265,17 +263,13 @@ function DepthOcclusionReactor({ obj }) {
 
   useEffect(() => {
     const mesh = obj as any as Mesh<any, Material>
-    if (depthDataTexture && depthSupported)
-      mesh.traverse((o: Mesh<any, Material>) => XRDepthOcclusion.addDepthOBCPlugin(o.material, depthDataTexture.value!))
-    else mesh.traverse((o: Mesh<any, Material>) => XRDepthOcclusion.removeDepthOBCPlugin(o.material))
-  }, [depthDataTexture])
+    if (!mesh.isMesh || !depthDataTexture || !depthSupported) return
 
-  useEffect(() => {
+    XRDepthOcclusion.addDepthOBCPlugin(mesh.material, depthDataTexture.value!)
     return () => {
-      const mesh = obj as any as Mesh<any, Material>
-      mesh.traverse((o: Mesh<any, Material>) => XRDepthOcclusion.removeDepthOBCPlugin(o.material))
+      XRDepthOcclusion.removeDepthOBCPlugin(mesh.material)
     }
-  }, [])
+  }, [depthDataTexture])
 
   return null
 }
@@ -301,12 +295,7 @@ const reactor = () => {
     }
   }, [xrState.sessionActive])
 
-  return (
-    <GroupQueryReactor
-      GroupChildReactor={DepthOcclusionReactor}
-      Components={[Not(SceneTagComponent), VisibleComponent]}
-    />
-  )
+  return <GroupQueryReactor GroupChildReactor={DepthOcclusionReactor} Components={[VisibleComponent]} />
 }
 
 export const XRDepthOcclusionSystem = defineSystem({

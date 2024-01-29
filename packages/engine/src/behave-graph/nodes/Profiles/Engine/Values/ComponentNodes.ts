@@ -24,13 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Assert, NodeCategory, makeFlowNodeDefinition } from '@behave-graph/core'
-import { Entity } from '../../../../../ecs/classes/Entity'
 import {
   ComponentMap,
   defineComponent,
   removeComponent,
   setComponent
-} from '../../../../../ecs/functions/ComponentFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 
 export const addComponent = makeFlowNodeDefinition({
   typeName: 'engine/component/addComponent',

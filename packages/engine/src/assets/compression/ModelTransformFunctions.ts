@@ -57,11 +57,11 @@ import { createHash } from 'crypto'
 import { MeshoptEncoder } from 'meshoptimizer'
 import { LoaderUtils, MathUtils } from 'three'
 
+import { fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
 import { baseName, pathJoin } from '@etherealengine/common/src/utils/miscUtils'
-import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
-import { Engine } from '../../ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { EEMaterial, EEMaterialExtension } from './extensions/EE_MaterialTransformer'
-import { EEResourceID } from './extensions/EE_ResourceIDTransformer'
+import { EEResourceID, EEResourceIDExtension } from './extensions/EE_ResourceIDTransformer'
 import ModelTransformLoader from './ModelTransformLoader'
 
 import config from '@etherealengine/common/src/config'
@@ -397,7 +397,7 @@ export async function transformModel(args: ModelTransformParameters) {
 
   const fileUploadPath = (fUploadPath: string) => {
     const relativePath = fUploadPath.replace(config.client.fileServer, '')
-    const pathCheck = /projects\/([^/]+)\/assets\/([\w\d\s\-_./]*)$/
+    const pathCheck = /projects\/([^/]+)\/assets\/([\w\d\s\-|_./]*)$/
     const [_, projectName, fileName] =
       pathCheck.exec(fUploadPath) ?? pathCheck.exec(pathJoin(LoaderUtils.extractUrlBase(args.src), fUploadPath))!
     return [projectName, fileName]
@@ -537,6 +537,14 @@ export async function transformModel(args: ModelTransformParameters) {
     .listExtensionsUsed()
     .find((ext) => ext.extensionName === 'EE_material') as EEMaterialExtension
   if (eeMaterialExtension) {
+    for (let i = 0; i < eeMaterialExtension.textures.length; i++) {
+      const texture = eeMaterialExtension.textures[i]
+      const extensions = eeMaterialExtension.textureExtensions[i]
+      for (const extension of extensions) {
+        texture.setExtension(extension.extensionName, extension)
+      }
+    }
+
     textures.push(...eeMaterialExtension.textures)
   }
 
@@ -544,11 +552,13 @@ export async function transformModel(args: ModelTransformParameters) {
   if (parms.textureFormat !== 'default') {
     let ktx2Encoder: KTX2Encoder | null = null
     for (const texture of textures) {
+      console.log('considering texture ' + texture.getURI())
+      if (texture.getMimeType() === 'image/ktx2') continue
       const oldImg = texture.getImage()
       if (!oldImg) continue
       const oldSize = texture.getSize()
       if (!oldSize) continue
-      const resourceId = texture.getExtension<EEResourceID>('EEResourceID')?.resourceId
+      const resourceId = texture.getExtension<EEResourceID>(EEResourceIDExtension.EXTENSION_NAME)?.resourceId
       const resourceParms = parms.resources.images.find(
         (resource) => resource.enabled && resource.resourceId === resourceId
       )
@@ -574,8 +584,13 @@ export async function transformModel(args: ModelTransformParameters) {
         }
         await imgDoc.transform(textureResize(resizeParms))
         const originalName = texture.getName()
+        const originalURI = texture.getURI()
+        const [_, fileName, extension] = /(.*)\.([^.]+)$/.exec(originalURI) ?? []
+        const quality = mergedParms.textureCompressionType === 'uastc' ? mergedParms.uastcLevel : mergedParms.compLevel
+        const nuURI = `${fileName}-${mergedParms.maxTextureSize}x${quality}.${extension}`
         texture.copy(nuTexture)
         texture.setName(originalName)
+        texture.setURI(nuURI)
       }
 
       if (mergedParms.textureFormat === 'ktx2' && texture.getMimeType() !== 'image/ktx2') {
@@ -599,7 +614,10 @@ export async function transformModel(args: ModelTransformParameters) {
 
         texture.setImage(new Uint8Array(compressedData))
         texture.setMimeType('image/ktx2')
-        console.log('compressed image ' + texture.getName() + ' to ktx2')
+        texture.setURI(texture.getURI().replace(/\.[^.]+$/, '.ktx2'))
+        console.log('compressed image ' + texture.getURI() + ' to ktx2')
+      } else {
+        console.log('skipping texture ' + texture.getURI())
       }
 
       /*
@@ -684,12 +702,17 @@ export async function transformModel(args: ModelTransformParameters) {
       */
     }
   }
+  if (eeMaterialExtension) {
+    for (const texture of eeMaterialExtension.textures) {
+      document.createTexture().copy(texture)
+    }
+  }
   let result
-  if (parms.modelFormat === 'glb') {
+  if (['glb', 'vrm'].includes(parms.modelFormat)) {
     const data = await io.writeBinary(document)
-    let finalPath = args.dst.replace(/\.gltf$/, '.glb')
-    if (!finalPath.endsWith('.glb')) {
-      finalPath += '.glb'
+    let finalPath = args.dst.replace(/\.[^.]*$/, `.${parms.modelFormat}`)
+    if (!finalPath.endsWith(`.${parms.modelFormat}`)) {
+      finalPath += `.${parms.modelFormat}`
     }
     await doUpload(data, finalPath)
 
@@ -713,14 +736,6 @@ export async function transformModel(args: ModelTransformParameters) {
     )*/
     console.log('Handled glb file')
   } else if (parms.modelFormat === 'gltf') {
-    const eeMaterialExtension: EEMaterialExtension | undefined = root
-      .listExtensionsUsed()
-      .find((ext) => ext.extensionName === 'EE_material') as EEMaterialExtension
-    if (eeMaterialExtension) {
-      for (const texture of eeMaterialExtension.textures) {
-        document.createTexture().copy(texture)
-      }
-    }
     await Promise.all(
       [root.listBuffers(), root.listMeshes(), root.listTextures()].map(
         async (elements) =>
@@ -798,7 +813,7 @@ export async function transformModel(args: ModelTransformParameters) {
         await doUpload(blob, uri)
       })
     )
-    let finalPath = args.dst.replace(/\.glb$/, '.gltf')
+    let finalPath = args.dst.replace(/\.[^.]*$/, '.gltf')
     if (!finalPath.endsWith('.gltf')) {
       finalPath += '.gltf'
     }

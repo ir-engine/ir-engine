@@ -32,7 +32,7 @@ import { PassThrough, Readable } from 'stream'
 
 import { MULTIPART_CUTOFF_SIZE } from '@etherealengine/common/src/constants/FileSizeConstants'
 
-import { FileBrowserContentType } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
+import { FileBrowserContentType } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import { getState } from '@etherealengine/hyperflux'
 import { ChildProcess } from 'child_process'
 import logger from '../../ServerLogger'
@@ -81,7 +81,7 @@ export class LocalStorage implements StorageProviderInterface {
     this.PATH_PREFIX += path.sep
     this._store = fsStore(this.PATH_PREFIX)
 
-    if (getState(ServerState).serverMode === ServerMode.API && !config.testEnabled) {
+    if (getState(ServerState).serverMode === ServerMode.API) {
       const child: ChildProcess = require('child_process').spawn(
         'npx',
         [

@@ -27,13 +27,13 @@ import { ArrayCamera, PerspectiveCamera, Vector2, Vector3, Vector4 } from 'three
 
 import { defineActionQueue, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { AnimationSystemGroup } from '@etherealengine/ecs'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { V_111 } from '../common/constants/MathConstants'
-import { Engine } from '../ecs/classes/Engine'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
-import { ReferenceSpaceTransformSystem } from '../transform/TransformModule'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRRendererState } from './WebXRManager'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
@@ -144,11 +144,11 @@ function updateCameraFromXRViewerPose() {
 
     cameraTransform.position.copy(pose.transform.position as any)
     cameraTransform.rotation.copy(pose.transform.orientation as any)
-    cameraTransform.matrix
+    cameraTransform.matrixWorld
       .compose(cameraTransform.position, cameraTransform.rotation, V_111)
-      .premultiply(originTransform.matrix)
+      .premultiply(originTransform.matrixWorld)
       .decompose(cameraTransform.position, cameraTransform.rotation, cameraTransform.scale)
-    cameraTransform.matrixInverse.copy(cameraTransform.matrix).invert()
+    camera.matrixWorldInverse.copy(cameraTransform.matrixWorld).invert()
 
     // check if it's necessary to rebuild camera list
     let cameraListNeedsUpdate = false
@@ -196,7 +196,7 @@ function updateCameraFromXRViewerPose() {
       viewCamera.quaternion.copy(view.transform.orientation as any)
       viewCamera.matrixWorld
         .compose(viewCamera.position, viewCamera.quaternion, V_111)
-        .premultiply(originTransform.matrix)
+        .premultiply(originTransform.matrixWorld)
         .decompose(viewCamera.position, viewCamera.quaternion, viewCamera.scale)
       viewCamera.matrixWorldInverse.copy(viewCamera.matrixWorld).invert()
       viewCamera.projectionMatrix.fromArray(view.projectionMatrix)
@@ -284,6 +284,6 @@ export const XRCameraInputSystem = defineSystem({
  */
 export const XRCameraUpdateSystem = defineSystem({
   uuid: 'ee.engine.XRCameraUpdateSystem',
-  insert: { after: ReferenceSpaceTransformSystem },
+  insert: { before: AnimationSystemGroup },
   execute: updateXRCamera
 })

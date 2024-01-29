@@ -30,8 +30,8 @@ import ConfirmDialog from '@etherealengine/client-core/src/common/components/Con
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 
+import { StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { FeathersOrder } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { AuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'
 import { resourceColumns, ResourceData } from '../../common/variables/resource'

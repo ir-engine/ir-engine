@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import type { Knex } from 'knex'
 
 /**
@@ -39,7 +39,7 @@ export async function up(knex: Knex): Promise<void> {
   if (sceneIdColumnExists === true) {
     await trx
       .from(locationPath)
-      .update({ sceneId: trx.raw(`CONCAT("projects/", ??, ".scene.json")`, ['sceneId']) })
+      .update({ sceneId: trx.raw("CONCAT('projects/', ??, '.scene.json')", ['sceneId']) })
       .where('sceneId', 'not like', '%projects/%')
   }
 

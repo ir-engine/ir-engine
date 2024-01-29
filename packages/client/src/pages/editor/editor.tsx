@@ -26,17 +26,17 @@ Ethereal Engine. All Rights Reserved.
 import { useHookstate } from '@hookstate/core'
 import { t } from 'i18next'
 import React, { Suspense, useEffect, useState } from 'react'
-import { Route, Routes, useNavigate, useParams } from 'react-router-dom'
+import { Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { PopupMenuInline } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuInline'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
+import { scenePath } from '@etherealengine/common/src/schema.type.module'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { EditorPage, useStudioEditor } from '@etherealengine/editor/src/pages/EditorPage'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 const RedirectStudio = () => {
@@ -77,6 +77,7 @@ const EditorRouter = () => {
 }
 
 const EditorProtectedRoutes = () => {
+  const location = useLocation()
   const authState = useHookstate(getMutableState(AuthState))
   const user = authState.user
   const [isAuthorized, setAuthorized] = useState<boolean | null>(null)
@@ -85,7 +86,7 @@ const EditorProtectedRoutes = () => {
     if (user.scopes.value) {
       const hasAccess = userHasAccess('editor:write')
       if (!hasAccess) {
-        RouterState.navigate('/')
+        RouterState.navigate('/', { redirectUrl: location.pathname })
         setAuthorized(false)
       } else setAuthorized(true)
     }

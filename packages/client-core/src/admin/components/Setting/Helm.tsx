@@ -32,8 +32,8 @@ import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import { helmSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
 import InputSelect, { InputMenuItem } from '../../../common/components/InputSelect'
 import styles from '../../styles/settings.module.scss'
 

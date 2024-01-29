@@ -28,11 +28,8 @@ import matches from 'ts-matches'
 
 import { defineAction, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEffect } from 'react'
-import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
-import { Entity } from '../ecs/classes/Entity'
-import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
-import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { DepthDataTexture } from './DepthDataTexture'
 
 export class XRAction {
@@ -78,7 +75,9 @@ export const XRState = defineState({
       is8thWallActive: false,
       viewerInputSourceEntity: 0 as Entity,
       viewerPose: null as XRViewerPose | null | undefined,
-      userAvatarHeightScale: 1,
+      /** @todo replace with proper proportions API */
+      userEyeHeight: 1.75,
+      userHeightRatio: 1,
       xrFrame: null as XRFrame | null
     }
   },
@@ -90,26 +89,26 @@ export const XRState = defineState({
    * @returns {number} the world scale
    */
   get worldScale(): number {
-    const { sceneScale, userAvatarHeightScale } = getState(XRState)
-    return sceneScale * userAvatarHeightScale
+    const { sceneScale, userHeightRatio } = getState(XRState)
+    return sceneScale * userHeightRatio
   },
 
-  /**
-   * Gets the preferred controller entity - will return null if the entity is not in an active session or the controller is not available
-   * @param {boolean} offhand specifies to return the non-preferred hand instead
-   * @returns {Entity}
-   */
-  getPreferredInputSource: (offhand = false) => {
-    const xrState = getState(XRState)
-    if (!xrState.sessionActive) return
-    const avatarInputSettings = getState(AvatarInputSettingsState)
-    for (const inputSourceEntity of inputSourceQuery()) {
-      const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
-      const source = inputSourceComponent.source
-      if (source.handedness === 'none') continue
-      if (!offhand && avatarInputSettings.preferredHand == source.handedness) return source
-      if (offhand && avatarInputSettings.preferredHand !== source.handedness) return source
+  setTrackingSpace: () => {
+    const { xrFrame, userEyeHeight } = getState(XRState)
+
+    if (!xrFrame) {
+      getMutableState(XRState).userHeightRatio.set(1)
+      return
     }
+
+    const viewerPose = xrFrame.getViewerPose(ReferenceSpace.localFloor!)
+
+    if (!viewerPose) {
+      getMutableState(XRState).userHeightRatio.set(1)
+      return
+    }
+
+    getMutableState(XRState).userHeightRatio.set(viewerPose.transform.position.y / userEyeHeight)
   }
 })
 
@@ -141,6 +140,8 @@ export const useXRMovement = () => {
   const sceneScale = useHookstate(xrState.sceneScale)
   const scenePlacementMode = useHookstate(xrState.scenePlacementMode)
   const session = useHookstate(xrState.session)
+  const sessionMode = useHookstate(xrState.sessionMode)
+  const sessionActive = useHookstate(xrState.sessionActive)
 
   const getAvatarCameraMode = () => {
     if (!session.value || scenePlacementMode.value === 'placing') return false
@@ -155,15 +156,14 @@ export const useXRMovement = () => {
   }, [avatarCameraMode, sceneScale, scenePlacementMode, session])
 
   const getMovementControlsEnabled = () => {
-    const { sessionActive, sceneScale, sessionMode } = getState(XRState)
-    if (!sessionActive) return true
-    const isMiniatureScale = sceneScale !== 1
-    return sessionMode === 'immersive-ar' ? isMiniatureScale : true
+    if (!sessionActive.value) return true
+    const isMiniatureScale = sceneScale.value !== 1
+    return sessionMode.value === 'immersive-ar' ? isMiniatureScale : true
   }
 
   useEffect(() => {
     xrMovementState.isMovementControlsEnabled.set(getMovementControlsEnabled())
-  }, [sceneScale, scenePlacementMode])
+  }, [sceneScale, sessionActive, sessionMode])
 }
 
 export const ReferenceSpace = {
@@ -181,8 +181,6 @@ export const ReferenceSpace = {
   viewer: null as XRReferenceSpace | null
 }
 globalThis.ReferenceSpace = ReferenceSpace
-
-const inputSourceQuery = defineQuery([InputSourceComponent])
 
 const userAgent = 'navigator' in globalThis ? navigator.userAgent : ''
 

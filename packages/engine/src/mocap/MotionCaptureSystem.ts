@@ -31,19 +31,20 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { RingBuffer } from '../common/classes/RingBuffer'
 
-import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { Network } from '../networking/classes/Network'
-import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 
 import { NormalizedLandmarkList } from '@mediapipe/pose'
 
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataChannelRegistry'
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
+import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { AnimationSystem } from '../avatar/systems/AnimationSystem'
-import { isClient } from '../common/functions/getEnvironment'
-import { defineQuery, getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { NetworkState } from '../networking/NetworkState'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 import { solveMotionCapturePose } from './solveMotionCapturePose'
@@ -105,8 +106,10 @@ const execute = () => {
   // for now, it is unnecessary to compute anything on the server
   if (!isClient) return
   const network = NetworkState.worldNetwork
+  if (!network) return
+
   for (const [peerID, mocapData] of timeSeriesMocapData) {
-    if (!network?.peers?.[peerID] || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
+    if (!network.peers[peerID] || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
       timeSeriesMocapData.delete(peerID)
       timeSeriesMocapLastSeen.delete(peerID)
     }
@@ -114,7 +117,7 @@ const execute = () => {
   for (const [peerID, mocapData] of timeSeriesMocapData) {
     const data = mocapData.getFirst()
     const userID = network.peers[peerID]!.userId
-    const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
+    const entity = AvatarComponent.getUserAvatarEntity(userID)
     if (!entity) continue
 
     timeSeriesMocapLastSeen.set(peerID, Date.now())
@@ -126,6 +129,7 @@ const execute = () => {
   for (const entity of motionCaptureQuery()) {
     const peers = Object.keys(network.peers).find((peerID: PeerID) => timeSeriesMocapData.has(peerID))
     const rigComponent = getComponent(entity, AvatarRigComponent)
+    if (!rigComponent.normalizedRig) continue
     const worldHipsParent = rigComponent.normalizedRig.hips.node.parent
     if (!peers) {
       removeComponent(entity, MotionCaptureRigComponent)
@@ -183,7 +187,7 @@ const execute = () => {
     //       lerp(
     //         worldHipsParent.position.y,
     //         MotionCaptureRigComponent.footOffset[entity],
-    //         getState(EngineState).deltaSeconds * 5
+    //         getState(ECSState).deltaSeconds * 5
     //       )
     //     )
     //   else worldHipsParent.position.setY(0)

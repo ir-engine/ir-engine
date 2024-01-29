@@ -13,11 +13,11 @@ COPY package.json .
 COPY packages/client/package.json ./packages/client/
 COPY packages/client-core/package.json ./packages/client-core/
 COPY packages/common/package.json ./packages/common/
+COPY packages/ecs/package.json ./packages/ecs/
 COPY packages/editor/package.json ./packages/editor/
 COPY packages/engine/package.json ./packages/engine/
 COPY packages/instanceserver/package.json ./packages/instanceserver/
 COPY packages/hyperflux/package.json ./packages/hyperflux/
-COPY packages/engine/package.json ./packages/engine/
 COPY packages/matchmaking/package.json ./packages/matchmaking/
 COPY packages/server/package.json ./packages/server/
 COPY packages/server-core/package.json ./packages/server-core/
@@ -55,6 +55,7 @@ ARG VITE_8TH_WALL
 ARG VITE_INSTANCESERVER_HOST
 ARG VITE_INSTANCESERVER_PORT
 ARG VITE_LOCAL_BUILD
+ARG VITE_SOURCEMAPS
 ARG VITE_READY_PLAYER_ME_URL
 ARG VITE_DISABLE_LOG
 ARG VITE_AVATURN_URL
@@ -77,6 +78,7 @@ ENV VITE_8TH_WALL=$VITE_8TH_WALL
 ENV VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST
 ENV VITE_INSTANCESERVER_PORT=$VITE_INSTANCESERVER_PORT
 ENV VITE_LOCAL_BUILD=$VITE_LOCAL_BUILD
+ENV VITE_SOURCEMAPS=$VITE_SOURCEMAPS
 ENV VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL
 ENV VITE_DISABLE_LOG=$VITE_DISABLE_LOG
 ENV VITE_AVATURN_URL=$VITE_AVATURN_URL

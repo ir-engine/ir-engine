@@ -39,33 +39,32 @@ import {
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
 import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
-import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
-import { V_010 } from '../common/constants/MathConstants'
-import { Engine } from '../ecs/classes/Engine'
-import { EngineState } from '../ecs/classes/EngineState'
-import { Entity } from '../ecs/classes/Entity'
 import {
   ComponentType,
-  defineQuery,
   getComponent,
   getMutableComponent,
   removeComponent,
   setComponent,
-  useOptionalComponent,
-  useQuery
-} from '../ecs/functions/ComponentFunctions'
-import { createEntity } from '../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../ecs/functions/EntityTree'
-import { defineSystem } from '../ecs/functions/SystemFunctions'
+  useOptionalComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { NameComponent } from '../common/NameComponent'
+import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
+import { V_010 } from '../common/constants/MathConstants'
 import { InputComponent } from '../input/components/InputComponent'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
-import { addObjectToGroup } from '../scene/components/GroupComponent'
-import { NameComponent } from '../scene/components/NameComponent'
-import { VisibleComponent, setVisibleComponent } from '../scene/components/VisibleComponent'
-import { ReferenceSpaceTransformSystem } from '../transform/TransformModule'
-import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
+import { InputState } from '../input/state/InputState'
+import { addObjectToGroup } from '../renderer/components/GroupComponent'
+import { VisibleComponent, setVisibleComponent } from '../renderer/components/VisibleComponent'
+import { TransformComponent } from '../transform/components/TransformComponent'
 import { updateWorldOriginFromScenePlacement } from '../transform/updateWorldOrigin'
+import { XRCameraUpdateSystem } from './XRCameraSystem'
 import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
 
@@ -85,19 +84,19 @@ export const updateHitTest = (entity: Entity) => {
   const parentEntity = Engine.instance.originEntity
   setComponent(entity, EntityTreeComponent, { parentEntity })
 
-  const localTransform = getComponent(entity, LocalTransformComponent)
-  localTransform.position.copy(pose.transform.position as any)
-  localTransform.rotation.copy(pose.transform.orientation as any)
+  const transform = getComponent(entity, TransformComponent)
+  transform.position.copy(pose.transform.position as any)
+  transform.rotation.copy(pose.transform.orientation as any)
 }
 
 export const updateAnchor = (entity: Entity) => {
   const xrFrame = getState(XRState).xrFrame!
   const anchor = getComponent(entity, XRAnchorComponent).anchor
-  const localTransform = getComponent(entity, LocalTransformComponent)
+  const transform = getComponent(entity, TransformComponent)
   const pose = ReferenceSpace.localFloor && xrFrame.getPose(anchor.anchorSpace, ReferenceSpace.localFloor)
   if (pose) {
-    localTransform.position.copy(pose.transform.position as any)
-    localTransform.rotation.copy(pose.transform.orientation as any)
+    transform.position.copy(pose.transform.position as any)
+    transform.rotation.copy(pose.transform.orientation as any)
   }
 }
 
@@ -116,7 +115,7 @@ const maxDollhouseScale = 0.2
 const minDollhouseDist = 0.01
 const maxDollhouseDist = 1
 
-const getTargetWorldSize = (localTransform: ComponentType<typeof LocalTransformComponent>) => {
+const getTargetWorldSize = (transform: ComponentType<typeof TransformComponent>) => {
   const xrState = getState(XRState)
   const placing = xrState.scenePlacementMode === 'placing'
   if (!placing) return xrState.sceneScale
@@ -127,9 +126,9 @@ const getTargetWorldSize = (localTransform: ComponentType<typeof LocalTransformC
   const viewerPose = xrFrame.getViewerPose(ReferenceSpace.localFloor!)
   if (!viewerPose) return 1
 
-  const upDir = _vecPosition.set(0, 1, 0).applyQuaternion(localTransform.rotation)
+  const upDir = _vecPosition.set(0, 1, 0).applyQuaternion(transform.rotation)
   const dist = _plane
-    .setFromNormalAndCoplanarPoint(upDir, localTransform.position)
+    .setFromNormalAndCoplanarPoint(upDir, transform.position)
     .distanceToPoint(viewerPose.transform.position as any)
 
   /**
@@ -152,21 +151,21 @@ const getTargetWorldSize = (localTransform: ComponentType<typeof LocalTransformC
 
 export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   // assumes local transform is relative to origin
-  const localTransform = getComponent(scenePlacementEntity, LocalTransformComponent)
+  const transform = getComponent(scenePlacementEntity, TransformComponent)
 
   const xrState = getState(XRState)
   const xrFrame = xrState.xrFrame
   const xrSession = xrState.session
 
-  if (!localTransform || !xrFrame || !xrSession) return
+  if (!transform || !xrFrame || !xrSession) return
 
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
   const lerpAlpha = smootheLerpAlpha(5, deltaSeconds)
 
   const sceneScaleAutoMode = xrState.sceneScaleAutoMode
 
   if (sceneScaleAutoMode) {
-    const targetScale = getTargetWorldSize(localTransform)
+    const targetScale = getTargetWorldSize(transform)
     getMutableState(XRState).sceneScaleTarget.set(targetScale)
   }
 
@@ -176,9 +175,9 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
     getMutableState(XRState).sceneScale.set(newScale > 0.9 ? 1 : newScale)
   }
 
-  xrState.scenePosition.copy(localTransform.position)
+  xrState.scenePosition.copy(transform.position)
   xrState.sceneRotation.multiplyQuaternions(
-    localTransform.rotation,
+    transform.rotation,
     _quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset)
   )
 }
@@ -193,7 +192,7 @@ export const XRAnchorSystemState = defineState({
   initial: () => {
     const scenePlacementEntity = createEntity()
     setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
-    setComponent(scenePlacementEntity, LocalTransformComponent)
+    setComponent(scenePlacementEntity, TransformComponent)
     setComponent(scenePlacementEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setComponent(scenePlacementEntity, VisibleComponent, true)
     setComponent(scenePlacementEntity, InputComponent, { highlight: false, grow: false })
@@ -336,11 +335,11 @@ const reactor = () => {
 
       const inputSourceComponent = getComponent(entity, InputSourceComponent)
 
-      const avatarInputSettings = getState(AvatarInputSettingsState)
+      const inputState = getState(InputState)
       if (
         inputSourceComponent.source.targetRayMode !== 'tracked-pointer' ||
         inputSourceComponent.source.gamepad?.mapping !== 'xr-standard' ||
-        inputSourceComponent.source.handedness !== avatarInputSettings.preferredHand
+        inputSourceComponent.source.handedness !== inputState.preferredHand
       )
         continue
 
@@ -354,9 +353,9 @@ const reactor = () => {
 
   useEffect(() => {
     if (scenePlacementMode.value !== 'placing' || !xrSession.value) return
-    const avatarInputSettings = getState(AvatarInputSettingsState)
-    InputSourceComponent.captureAxes(scenePlacementEntity, [avatarInputSettings.preferredHand])
-    InputSourceComponent.captureButtons(scenePlacementEntity, [avatarInputSettings.preferredHand])
+    const inputState = getState(InputState)
+    InputSourceComponent.captureAxes(scenePlacementEntity, [inputState.preferredHand])
+    InputSourceComponent.captureButtons(scenePlacementEntity, [inputState.preferredHand])
     return () => {
       InputSourceComponent.releaseAxes()
       InputSourceComponent.releaseButtons()
@@ -368,7 +367,7 @@ const reactor = () => {
 
 export const XRAnchorSystem = defineSystem({
   uuid: 'ee.engine.XRAnchorSystem',
-  insert: { after: ReferenceSpaceTransformSystem },
+  insert: { after: XRCameraUpdateSystem },
   execute,
   reactor
 })

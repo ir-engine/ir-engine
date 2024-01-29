@@ -46,6 +46,7 @@ import { OnAxis } from './Events/onAxis'
 import { OnExecute } from './Events/onExecute'
 import { EntityValue } from './Values/EntityValue'
 import * as SplineNodes from './Values/SplineNodes'
+import * as VolumetricNodes from './Values/VolumetricNodes'
 import { getActionConsumers, getActionDispatchers } from './helper/actionHelper'
 import { getComponentGetters, getComponentSetters } from './helper/componentHelper'
 import { getStateGetters, getStateSetters } from './helper/stateHelper'
@@ -74,7 +75,7 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
     ...getNodeDescriptions(SplineNodes),
     ...getNodeDescriptions(QueryNodes),
     ...getNodeDescriptions(AxisNodes),
-
+    ...getNodeDescriptions(VolumetricNodes),
     // variables
 
     // complex logic

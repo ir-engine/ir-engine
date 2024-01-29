@@ -32,6 +32,7 @@ import {
   DoubleSide,
   Line,
   LineBasicMaterial,
+  Matrix4,
   Mesh,
   MeshBasicMaterial,
   Quaternion,
@@ -41,22 +42,23 @@ import {
 
 import { defineState, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { CameraActions } from '../../camera/CameraState'
+import { NameComponent } from '../../common/NameComponent'
 import { easeOutCubic, normalizeRange } from '../../common/functions/MathFunctions'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { createTransitionState } from '../../common/functions/createTransitionState'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { addObjectToGroup } from '../../scene/components/GroupComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { setVisibleComponent } from '../../scene/components/VisibleComponent'
+import { addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ReferenceSpace, XRAction, XRControlsState, XRState } from '../../xr/XRState'
-import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { teleportAvatar } from '.././functions/moveAvatar'
 import { AvatarAnimationSystem } from './AvatarAnimationSystem'
@@ -137,6 +139,7 @@ const AvatarTeleportSystemState = defineState({
 const lineSegments = 64 // segments to make a whole circle, uses far less
 const lineGeometryVertices = new Float32Array((lineSegments + 1) * 3)
 const lineGeometryColors = new Float32Array((lineSegments + 1) * 3)
+const mat4 = new Matrix4()
 
 let canTeleport = false
 
@@ -155,7 +158,7 @@ const execute = () => {
   if (!guidelineEntity) return
 
   if (fadeBackInAccumulator >= 0) {
-    fadeBackInAccumulator += getState(EngineState).deltaSeconds
+    fadeBackInAccumulator += getState(ECSState).deltaSeconds
     if (fadeBackInAccumulator > 0.25) {
       fadeBackInAccumulator = -1
       teleportAvatar(Engine.instance.localClientEntity, getComponent(guideCursorEntity, TransformComponent).position)
@@ -190,9 +193,11 @@ const execute = () => {
         const pose = getState(XRState).xrFrame!.getPose(inputSourceComponent.source.targetRaySpace, referenceSpace)!
         guidelineTransform.position.copy(pose.transform.position as any as Vector3)
         guidelineTransform.rotation.copy(pose.transform.orientation as any as Quaternion)
-        guidelineTransform.matrixInverse.fromArray(pose.transform.inverse.matrix)
+        guidelineTransform.matrix.fromArray(pose.transform.matrix)
       }
     }
+
+    const guidelineTransformMatrixInverse = mat4.copy(guidelineTransform.matrix).invert()
 
     const { p, v, t } = getParabolaInputParams(
       guidelineTransform.position,
@@ -210,7 +215,7 @@ const execute = () => {
       // set vertex to current position of the virtual ball at time t
       positionAtT(currentVertexWorld, (i * t) / lineSegments, p, v, gravity)
       currentVertexLocal.copy(currentVertexWorld)
-      currentVertexLocal.applyMatrix4(guidelineTransform.matrixInverse) // worldToLocal
+      currentVertexLocal.applyMatrix4(guidelineTransformMatrixInverse) // worldToLocal
       currentVertexLocal.toArray(lineGeometryVertices, i * 3)
       positionAtT(nextVertexWorld, ((i + 1) * t) / lineSegments, p, v, gravity)
       const currentVertexDirection = nextVertexWorld.subVectors(nextVertexWorld, currentVertexWorld)
@@ -224,7 +229,7 @@ const execute = () => {
     lastValidationData.positionValid ? (canTeleport = true) : (canTeleport = false)
     // Line should extend only up to last valid vertex
     currentVertexLocal.copy(currentVertexWorld)
-    currentVertexLocal.applyMatrix4(guidelineTransform.matrixInverse) // worldToLocal
+    currentVertexLocal.applyMatrix4(guidelineTransformMatrixInverse) // worldToLocal
     currentVertexLocal.toArray(lineGeometryVertices, i * 3)
     stopGuidelineAtVertex(currentVertexLocal, lineGeometryVertices, i + 1, lineSegments)
     guideline.geometry.attributes.position.needsUpdate = true
@@ -239,7 +244,7 @@ const execute = () => {
     }
     setVisibleComponent(guideCursorEntity, canTeleport)
   }
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
   transition.update(deltaSeconds, (alpha) => {
     if (alpha === 0 && transition.state === 'OUT') {
       setVisibleComponent(guidelineEntity, false)

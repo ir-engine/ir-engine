@@ -30,10 +30,10 @@ import { v4 } from 'uuid'
 import {
   LocationAuthorizedUserQuery,
   LocationAuthorizedUserType
-} from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
+} from '@etherealengine/common/src/schemas/social/location-authorized-user.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const locationAuthorizedUserResolver = resolve<LocationAuthorizedUserType, HookContext>({
   createdAt: virtual(async (locationAuthorizedUser) => fromDateTimeSql(locationAuthorizedUser.createdAt)),

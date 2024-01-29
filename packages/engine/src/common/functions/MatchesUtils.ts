@@ -29,9 +29,9 @@ import { Validator, matches } from 'ts-matches'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 
 export * from 'ts-matches'
 export {
@@ -42,8 +42,7 @@ export {
   matchesEntityUUID,
   matchesVector3,
   matchesQuaternion,
-  matchesActionFromUser,
-  matchesWithDefault
+  matchesActionFromUser
 }
 
 const matchesVec3Shape = matches.shape({
@@ -77,10 +76,4 @@ const matchesEntityUUID = matches.string as Validator<unknown, EntityUUID>
 
 const matchesActionFromUser = (userId: UserID) => {
   return matches.shape({ $from: matches.literal(userId) })
-}
-
-export type MatchesWithDefault<A> = { matches: Validator<unknown, A>; defaultValue: () => A }
-
-const matchesWithDefault = <A>(matches: Validator<unknown, A>, defaultValue: () => A): MatchesWithDefault<A> => {
-  return { matches, defaultValue }
 }

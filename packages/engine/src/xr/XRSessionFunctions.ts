@@ -28,15 +28,14 @@ import { Quaternion, Vector3 } from 'three'
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { V_000 } from '../common/constants/MathConstants'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
-import { setVisibleComponent } from '../scene/components/VisibleComponent'
+import { setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin } from '../transform/updateWorldOrigin'
-import { Engine } from './../ecs/classes/Engine'
-import { getComponent } from './../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
-import { setTrackingSpace } from './XRScaleAdjustmentFunctions'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
 
 const quat180y = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
@@ -156,7 +155,7 @@ export const getReferenceSpaces = (xrSession: XRSession) => {
     //   if (ReferenceSpace.localFloor && 'addEventListener' in ReferenceSpace.localFloor)
     //     ReferenceSpace.localFloor.addEventListener('reset', onLocalFloorReset, { once: true, passive: true })
     // }
-    setTrackingSpace()
+    XRState.setTrackingSpace()
   }
 
   /** the world origin is an offset to the local floor, so as soon as we have the local floor, define the origin reference space */

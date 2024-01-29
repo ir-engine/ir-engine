@@ -24,26 +24,26 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { MathUtils } from 'three'
-import { Entity } from '../../../../../ecs/classes/Entity'
-import { SceneState } from '../../../../../ecs/classes/Scene'
+import { ComponentJsonType } from '@etherealengine/common/src/schema.type.module'
 import {
   ComponentJSONIDMap,
   getComponent,
   hasComponent,
   setComponent
-} from '../../../../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../../../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../../../../ecs/functions/EntityTree'
-import { UUIDComponent } from '../../../../../scene/components/UUIDComponent'
-import { VisibleComponent } from '../../../../../scene/components/VisibleComponent'
-import { ComponentJsonType } from '../../../../../schemas/projects/scene.schema'
-import { LocalTransformComponent } from '../../../../../transform/components/TransformComponent'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { MathUtils } from 'three'
+import { VisibleComponent } from '../../../../../renderer/components/VisibleComponent'
+import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 
 export const addEntityToScene = (
   componentJson: Array<ComponentJsonType>,
   parentEntity = SceneState.getRootEntity(),
-  beforeEntity = null as Entity | null
+  beforeEntity = UndefinedEntity as Entity
 ) => {
   const newEntity = createEntity()
   let childIndex = undefined as undefined | number
@@ -54,7 +54,7 @@ export const addEntityToScene = (
     }
   }
   setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
-  setComponent(newEntity, LocalTransformComponent)
+  setComponent(newEntity, TransformComponent)
   const uuid = MathUtils.generateUUID() as EntityUUID
   setComponent(newEntity, UUIDComponent, uuid)
   setComponent(newEntity, VisibleComponent)

@@ -23,23 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
+import { removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { VisibleComponent } from '@etherealengine/engine/src/renderer/components/VisibleComponent'
 import { XRUI, createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { FriendService, FriendState } from '../../../social/services/FriendService'
-import { PopupMenuServices } from '../../../user/components/UserMenu/PopupMenuService'
 import { useUserAvatarThumbnail } from '../../../user/functions/useUserAvatarThumbnail'
 import { AuthState } from '../../../user/services/AuthService'
-import { AvatarMenus } from '../../AvatarUISystem'
 import XRTextButton from '../../components/XRTextButton'
-import styles from './index.scss'
+import styles from './index.scss?inline'
 
 export const AvatarUIContextMenuState = defineState({
   name: 'AvatarUISystem',
@@ -60,7 +58,7 @@ export const AvatarUIContextMenuService = {
   }
 }
 
-const AvatarContextMenu = () => {
+function AvatarContextMenu() {
   const detailState = useHookstate(getMutableState(AvatarUIContextMenuState))
   const friendState = useHookstate(getMutableState(FriendState))
   const authState = useHookstate(getMutableState(AuthState))
@@ -92,14 +90,14 @@ const AvatarContextMenu = () => {
     console.log('Mute pressed')
   }
 
-  useEffect(() => {
-    if (detailState.id.value !== '') {
-      const tappedUser = Object.values(NetworkState.worldNetwork.peers).find(
-        (peer) => peer.userId === detailState.id.value
-      )
-      PopupMenuServices.showPopupMenu(AvatarMenus.AvatarContext, { user: tappedUser })
-    }
-  }, [detailState.id])
+  // useEffect(() => {
+  //   if (detailState.id.value !== '') {
+  //     const tappedUser = Object.values(NetworkState.worldNetwork.peers).find(
+  //       (peer) => peer.userId === detailState.id.value
+  //     )
+  //     PopupMenuServices.showPopupMenu(AvatarMenus.AvatarContext, { user: tappedUser })
+  //   }
+  // }, [detailState.id])
 
   const userThumbnail = useUserAvatarThumbnail(user?.userId)
 

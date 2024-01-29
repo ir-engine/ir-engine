@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { WarningSharp } from '@mui/icons-material'
+import WarningSharp from '@mui/icons-material/WarningSharp'
 
 import PopUp from './PopUp'
 

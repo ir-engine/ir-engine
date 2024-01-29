@@ -31,23 +31,18 @@ import {
 } from '@behave-graph/core'
 import { toQuat, toVector3 } from '@behave-graph/scene'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { ComponentMap, getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { getState } from '@etherealengine/hyperflux'
 import { teleportAvatar } from '../../../../../avatar/functions/moveAvatar'
-import { Engine } from '../../../../../ecs/classes/Engine'
-import { Entity } from '../../../../../ecs/classes/Entity'
-import { SceneState } from '../../../../../ecs/classes/Scene'
-import {
-  ComponentMap,
-  defineQuery,
-  getComponent,
-  hasComponent,
-  setComponent
-} from '../../../../../ecs/functions/ComponentFunctions'
-import { removeEntity } from '../../../../../ecs/functions/EntityFunctions'
+import { NameComponent } from '../../../../../common/NameComponent'
 import { RigidBodyComponent } from '../../../../../physics/components/RigidBodyComponent'
-import { NameComponent } from '../../../../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../../../../scene/components/SceneObjectComponent'
-import { UUIDComponent } from '../../../../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 import { copyTransformToRigidBody } from '../../../../../transform/systems/TransformSystem'
 import { addEntityToScene } from '../helper/entityHelper'
@@ -73,7 +68,7 @@ export const getEntity = makeFunctionNodeDefinition({
   out: { entity: 'entity' },
   exec: ({ read, write, graph }) => {
     const entityUUID = read<EntityUUID>('entity')
-    const entity = UUIDComponent.entitiesByUUID[entityUUID]
+    const entity = UUIDComponent.getEntityByUUID(entityUUID)
     write('entity', entity)
   }
 })
@@ -188,8 +183,9 @@ export const addEntity = makeFlowNodeDefinition({
   out: { flow: 'flow', entity: 'entity' },
   initialState: undefined,
   triggered: ({ read, write, commit, graph: { getDependency } }) => {
-    const parentEntityUUID = read<string>('parentEntity')
-    const parentEntity: Entity = parentEntityUUID == '' ? null : UUIDComponent.entitiesByUUID[parentEntityUUID]
+    const parentEntityUUID = read<EntityUUID>('parentEntity')
+    const parentEntity: Entity =
+      parentEntityUUID == '' ? UndefinedEntity : UUIDComponent.getEntityByUUID(parentEntityUUID)
     const componentName = read<string>('componentName')
     const entity = addEntityToScene([{ name: ComponentMap.get(componentName)?.jsonID! }], parentEntity)
     const entityName = read<string>('entityName')

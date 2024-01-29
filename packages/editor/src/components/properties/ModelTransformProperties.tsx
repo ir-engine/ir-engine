@@ -28,28 +28,28 @@ import { DoubleSide, Mesh, MeshStandardMaterial } from 'three'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import {
-  DefaultModelTransformParameters,
-  ModelTransformParameters
-} from '@etherealengine/engine/src/assets/classes/ModelTransform'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import {
   ComponentType,
   getMutableComponent,
   hasComponent,
   useComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { MaterialSource, SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
-import MeshBasicMaterial from '@etherealengine/engine/src/renderer/materials/constants/material-prototypes/MeshBasicMaterial.mat'
-import bakeToVertices from '@etherealengine/engine/src/renderer/materials/functions/bakeToVertices'
-import { materialsFromSource } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import {
+  DefaultModelTransformParameters,
+  ModelTransformParameters
+} from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelResources } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
+import { MaterialSource, SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
+import MeshBasicMaterial from '@etherealengine/engine/src/scene/materials/constants/material-prototypes/MeshBasicMaterial.mat'
+import { materialsFromSource } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
+import bakeToVertices from '@etherealengine/engine/src/scene/materials/functions/bakeToVertices'
 import { useHookstate } from '@etherealengine/hyperflux'
-import { getMutableState, State } from '@etherealengine/hyperflux/functions/StateFunctions'
+import { NO_PROXY, State, getMutableState } from '@etherealengine/hyperflux/functions/StateFunctions'
 
+import { modelTransformPath } from '@etherealengine/common/src/schema.type.module'
 import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
-import { modelTransformPath } from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
 import exportGLTF from '../../functions/exportGLTF'
 import { SelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
@@ -67,10 +67,11 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
   const transforming = useHookstate<boolean>(false)
   const transformHistory = useHookstate<string[]>([])
   const isClientside = useHookstate<boolean>(true)
+  const isBatchCompress = useHookstate<boolean>(false)
   const transformParms = useHookstate<ModelTransformParameters>({
     ...DefaultModelTransformParameters,
     src: modelState.src.value,
-    modelFormat: modelState.src.value.endsWith('.gltf') ? 'gltf' : 'glb'
+    modelFormat: modelState.src.value.endsWith('.gltf') ? 'gltf' : modelState.src.value.endsWith('.vrm') ? 'vrm' : 'glb'
   })
 
   const vertexBakeOptions = useHookstate({
@@ -92,6 +93,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
       await Promise.all(
         materialsFromSource(src)?.map((matComponent) =>
           bakeToVertices<MeshStandardMaterial>(
+            entity,
             matComponent.material as MeshStandardMaterial,
             colors,
             attribs,
@@ -127,16 +129,33 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
     (modelState: State<ComponentType<typeof ModelComponent>>) => async () => {
       transforming.set(true)
       const modelSrc = modelState.src.value
-      if (isClientside.value) {
-        await clientSideTransformModel(transformParms.value)
-      } else {
-        await Engine.instance.api.service(modelTransformPath).create(transformParms.value)
+      const batchCompressed = isBatchCompress.value
+      const clientside = isClientside.value
+      const textureSizes = batchCompressed ? [2048, 1024, 512] : [transformParms.maxTextureSize.value]
+      const [_, directoryToRefresh, __] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
+      let nuPath: string | null = null
+
+      const variants = batchCompressed
+        ? textureSizes.map((maxTextureSize, index) => {
+            const suffix = `-LOD_${index}`
+            const dst = transformParms.dst.value.replace(/\.(glb|gltf|vrm)$/, `${suffix}.$1`)
+            return { ...transformParms.get(NO_PROXY), maxTextureSize, dst }
+          })
+        : [transformParms.get(NO_PROXY)]
+
+      for (const variant of variants) {
+        if (clientside) {
+          await clientSideTransformModel(variant)
+        } else {
+          await Engine.instance.api.service(modelTransformPath).create(variant)
+        }
       }
-      const nuPath = modelSrc.replace(/\.glb$/, '-transformed.glb')
-      transformHistory.set([modelSrc, ...transformHistory.value])
-      const [_, directoryToRefresh, fileName] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(nuPath)!
+
+      if (!batchCompressed) {
+        onChangeModel(nuPath)
+      }
       await FileBrowserService.fetchFiles(directoryToRefresh)
-      onChangeModel(nuPath)
+      transformHistory.set([modelSrc, ...transformHistory.value])
       transforming.set(false)
     },
     [transformParms]
@@ -192,16 +211,18 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
   }, [modelState.src])
 
   useEffect(() => {
-    transformParms.resources.set(getModelResources(entity))
-  }, [modelState.scene])
+    transformParms.resources.set(getModelResources(entity, transformParms.value))
+  }, [modelState.scene, transformParms])
 
   return (
     <CollapsibleBlock label="Model Transform Properties">
       <div className="TransformContainer">
-        <GLTFTransformProperties
-          transformParms={transformParms}
-          onChange={(transformParms: ModelTransformParameters) => {}}
-        />
+        <CollapsibleBlock label="glTF-Transform">
+          <GLTFTransformProperties
+            transformParms={transformParms}
+            onChange={(transformParms: ModelTransformParameters) => {}}
+          />
+        </CollapsibleBlock>
         {!transforming.value && (
           <>
             <InputGroup name="Clientside Transform" label="Clientside Transform">
@@ -209,6 +230,14 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
                 value={isClientside.value}
                 onChange={(val: boolean) => {
                   isClientside.set(val)
+                }}
+              />
+            </InputGroup>
+            <InputGroup name="Batch Compress" label="Batch Compress">
+              <BooleanInput
+                value={isBatchCompress.value}
+                onChange={(val: boolean) => {
+                  isBatchCompress.set(val)
                 }}
               />
             </InputGroup>
@@ -254,7 +283,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
           <InputGroup name="matcap" label="matcap">
             <TexturePreviewInput
               value={vertexBakeOptions.matcapPath.value}
-              onChange={(val: string) => {
+              onRelease={(val: string) => {
                 vertexBakeOptions.matcapPath.set(val)
               }}
             />

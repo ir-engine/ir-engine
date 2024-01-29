@@ -30,15 +30,15 @@ import { v4 } from 'uuid'
 import {
   ProjectPermissionType,
   projectPermissionPath
-} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+} from '@etherealengine/common/src/schemas/projects/project-permission.schema'
 import {
   ProjectDatabaseType,
   ProjectQuery,
   ProjectSettingType,
   ProjectType
-} from '@etherealengine/engine/src/schemas/projects/project.schema'
+} from '@etherealengine/common/src/schemas/projects/project.schema'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const projectDbToSchema = (rawData: ProjectDatabaseType): ProjectType => {
   let settings: ProjectSettingType[]

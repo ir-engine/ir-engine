@@ -23,19 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import {
+  defineComponent,
+  getMutableComponent,
+  setComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, Mesh, MeshBasicMaterial, ShadowMaterial } from 'three'
 import matches from 'ts-matches'
-import { Engine } from '../ecs/classes/Engine'
-import { Entity } from '../ecs/classes/Entity'
-import { defineComponent, getMutableComponent, setComponent, useComponent } from '../ecs/functions/ComponentFunctions'
-import { createEntity, useEntityContext } from '../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../ecs/functions/EntityTree'
-import { addObjectToGroup, removeObjectFromGroup } from '../scene/components/GroupComponent'
-import { NameComponent } from '../scene/components/NameComponent'
-import { setVisibleComponent } from '../scene/components/VisibleComponent'
-import { LocalTransformComponent } from '../transform/components/TransformComponent'
+import { NameComponent } from '../common/NameComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../renderer/components/GroupComponent'
+import { setVisibleComponent } from '../renderer/components/VisibleComponent'
+import { TransformComponent } from '../transform/components/TransformComponent'
 import { ReferenceSpace, XRState } from './XRState'
 
 export const placementHelperMaterial = new MeshBasicMaterial({
@@ -88,13 +93,13 @@ export const XRDetectedPlaneComponent = defineComponent({
       const shadowMesh = new Mesh(geometry, shadowMaterial)
 
       const occlusionMesh = new Mesh(geometry, occlusionMat)
-      occlusionMesh.renderOrder = -1 /** @todo make a global config for AR occlusion mesh renderOrder */
 
       const placementHelper = new Mesh(geometry, placementHelperMaterial)
-      occlusionMesh.add(placementHelper)
 
       addObjectToGroup(entity, shadowMesh)
       addObjectToGroup(entity, occlusionMesh)
+      addObjectToGroup(entity, placementHelper)
+      occlusionMesh.renderOrder = -1 /** @todo make a global config for AR occlusion mesh renderOrder */
 
       component.shadowMesh.set(shadowMesh)
       component.occlusionMesh.set(occlusionMesh)
@@ -103,6 +108,7 @@ export const XRDetectedPlaneComponent = defineComponent({
       return () => {
         removeObjectFromGroup(entity, shadowMesh)
         removeObjectFromGroup(entity, occlusionMesh)
+        removeObjectFromGroup(entity, placementHelper)
 
         component.shadowMesh.set(none)
         component.occlusionMesh.set(none)
@@ -115,12 +121,8 @@ export const XRDetectedPlaneComponent = defineComponent({
       const occlusionMesh = component.occlusionMesh.value
       const geometry = component.geometry.value
 
-      const setGeometry = (mesh: Mesh) => {
-        if (mesh.geometry) mesh.geometry = geometry
-      }
-
-      shadowMesh.traverse(setGeometry)
-      occlusionMesh.traverse(setGeometry)
+      if (shadowMesh.geometry) shadowMesh.geometry = geometry
+      if (occlusionMesh.geometry) occlusionMesh.geometry = geometry
 
       return () => {
         geometry.dispose()
@@ -171,19 +173,19 @@ export const XRDetectedPlaneComponent = defineComponent({
   updatePlanePose: (entity: Entity, plane: XRPlane) => {
     const planePose = getState(XRState).xrFrame!.getPose(plane.planeSpace, ReferenceSpace.localFloor!)!
     if (!planePose) return
-    LocalTransformComponent.position.x[entity] = planePose.transform.position.x
-    LocalTransformComponent.position.y[entity] = planePose.transform.position.y
-    LocalTransformComponent.position.z[entity] = planePose.transform.position.z
-    LocalTransformComponent.rotation.x[entity] = planePose.transform.orientation.x
-    LocalTransformComponent.rotation.y[entity] = planePose.transform.orientation.y
-    LocalTransformComponent.rotation.z[entity] = planePose.transform.orientation.z
-    LocalTransformComponent.rotation.w[entity] = planePose.transform.orientation.w
+    TransformComponent.position.x[entity] = planePose.transform.position.x
+    TransformComponent.position.y[entity] = planePose.transform.position.y
+    TransformComponent.position.z[entity] = planePose.transform.position.z
+    TransformComponent.rotation.x[entity] = planePose.transform.orientation.x
+    TransformComponent.rotation.y[entity] = planePose.transform.orientation.y
+    TransformComponent.rotation.z[entity] = planePose.transform.orientation.z
+    TransformComponent.rotation.w[entity] = planePose.transform.orientation.w
   },
 
   foundPlane: (plane: XRPlane) => {
     const entity = createEntity()
     setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-    setComponent(entity, LocalTransformComponent)
+    setComponent(entity, TransformComponent)
     setVisibleComponent(entity, true)
     setComponent(entity, XRDetectedPlaneComponent)
     setComponent(entity, NameComponent, 'plane-' + planeId++)

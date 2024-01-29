@@ -23,26 +23,60 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Object3D } from 'three'
-
+import { UserID } from '@etherealengine/common/src/schema.type.module'
+import { defineComponent, getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { matches } from '../../common/functions/MatchesUtils'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 
 export const AvatarComponent = defineComponent({
   name: 'AvatarComponent',
 
   onInit: (entity) => {
     return {
-      model: null as Object3D | null,
-      avatarHeight: 0,
-      avatarHalfHeight: 0
+      /** The total height of the avatar in a t-pose, must always be non zero and positive for the capsule collider */
+      avatarHeight: 1.8,
+      /** The length of the torso in a t-pose, from the hip joint to the head joint */
+      torsoLength: 0,
+      /** The length of the upper leg in a t-pose, from the hip joint to the knee joint */
+      upperLegLength: 0,
+      /** The length of the lower leg in a t-pose, from the knee joint to the ankle joint */
+      lowerLegLength: 0,
+      /** The height of the foot in a t-pose, from the ankle joint to the bottom of the avatar's model */
+      footHeight: 0,
+      /** The height of the hips in a t-pose */
+      hipsHeight: 0,
+      /** The length of the arm in a t-pose, from the shoulder joint to the elbow joint */
+      armLength: 0,
+      /** The distance between the left and right foot in a t-pose */
+      footGap: 0,
+      /** The angle of the foot in a t-pose */
+      footAngle: 0,
+      /** The height of the eyes in a t-pose */
+      eyeHeight: 0
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (matches.object.test(json.model)) component.model.set(json.model as Object3D)
     if (matches.number.test(json.avatarHeight)) component.avatarHeight.set(json.avatarHeight)
-    if (matches.number.test(json.avatarHalfHeight)) component.avatarHalfHeight.set(json.avatarHalfHeight)
+    if (matches.number.test(json.torsoLength)) component.torsoLength.set(json.torsoLength)
+    if (matches.number.test(json.upperLegLength)) component.upperLegLength.set(json.upperLegLength)
+    if (matches.number.test(json.lowerLegLength)) component.lowerLegLength.set(json.lowerLegLength)
+    if (matches.number.test(json.footHeight)) component.footHeight.set(json.footHeight)
+    if (matches.number.test(json.hipsHeight)) component.hipsHeight.set(json.hipsHeight)
+    if (matches.number.test(json.footGap)) component.footGap.set(json.footGap)
+    if (matches.number.test(json.eyeHeight)) component.eyeHeight.set(json.eyeHeight)
+  },
+
+  /**
+   * Get the user avatar entity (the network object w/ an Avatar component)
+   * @param userId
+   * @returns
+   */
+  getUserAvatarEntity(userId: UserID) {
+    return avatarNetworkObjectQuery().find((eid) => getComponent(eid, NetworkObjectComponent).ownerId === userId)!
   }
 })
+
+const avatarNetworkObjectQuery = defineQuery([NetworkObjectComponent, AvatarComponent])

@@ -29,14 +29,13 @@ import { Fog, FogExp2, Mesh, MeshStandardMaterial, Shader } from 'three'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { OBCType } from '../../common/constants/OBCTypes'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { addOBCPlugin, PluginType, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { GroupQueryReactor, GroupReactorProps } from '../components/GroupComponent'
+import { GroupQueryReactor, GroupReactorProps } from '../../renderer/components/GroupComponent'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
-import { VisibleComponent } from '../components/VisibleComponent'
 import { FogType } from '../constants/FogType'
 import { FogSettingState } from '../FogState'
 import { initBrownianMotionFogShader, initHeightFogShader, removeFogShader } from '../functions/FogShaders'
@@ -46,7 +45,7 @@ export const FogShaders = [] as Shader[]
 
 const getFogPlugin = (): PluginType => {
   return {
-    id: OBCType.FOG,
+    id: 'ee.engine.FogPlugin',
     priority: 0,
     compile: (shader) => {
       FogShaders.push(shader)
@@ -68,9 +67,7 @@ function removeFogShaderPlugin(obj: Mesh<any, MeshStandardMaterial>) {
   if (!obj.material?.userData?.fogPlugin) return
   removeOBCPlugin(obj.material, obj.material.userData.fogPlugin)
   delete obj.material.userData.fogPlugin
-  // material.needsUpdate is not working. Therefore have to invalidate the cache manually
-  const key = Math.random()
-  obj.material.customProgramCacheKey = () => key.toString()
+  obj.material.needsUpdate = true
   const shader = (obj.material as any).shader // todo add typings somehow
   FogShaders.splice(FogShaders.indexOf(shader), 1)
 }
@@ -81,9 +78,9 @@ function FogGroupReactor({ obj }: GroupReactorProps) {
   useEffect(() => {
     const customShader = fog.type.value === FogType.Brownian || fog.type.value === FogType.Height
     if (customShader) {
-      obj.traverse(addFogShaderPlugin)
+      addFogShaderPlugin(obj as any)
       return () => {
-        obj.traverse(removeFogShaderPlugin)
+        removeFogShaderPlugin(obj as any)
       }
     }
   }, [fog.type])
@@ -156,7 +153,7 @@ const reactor = () => {
     if (scene.fog && fogData.type === FogType.Brownian)
       for (const s of FogShaders) {
         s.uniforms.fogTimeScale.value = fogData.timeScale
-        s.uniforms.fogTime.value = getState(EngineState).elapsedSeconds
+        s.uniforms.fogTime.value = getState(ECSState).elapsedSeconds
       }
   }, [fog.height])
 

@@ -24,15 +24,23 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { defineAction, defineState, getState, none, receiveActions } from '@etherealengine/hyperflux'
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import {
+  defineAction,
+  defineActionQueue,
+  defineState,
+  getMutableState,
+  getState,
+  none
+} from '@etherealengine/hyperflux'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
-import { isClient } from '../../common/functions/getEnvironment'
-import { Engine } from '../../ecs/classes/Engine'
-import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { InstanceID } from '../../schemas/networking/instance.schema'
 import { NetworkState } from '../NetworkState'
 import { Network } from '../classes/Network'
+import { MediasoupDataProducerConsumerState } from './MediasoupDataProducerConsumerState'
+import { MediasoupMediaProducerConsumerState } from './MediasoupMediaProducerConsumerState'
 
 export class MediasoupTransportActions {
   static requestTransport = defineAction({
@@ -127,64 +135,72 @@ export const MediasoupTransportState = defineState({
     return getState(MediasoupTransportObjectsState)[transport.transportID]
   },
 
-  receptors: [
-    [
-      MediasoupTransportActions.transportCreated,
-      (state, action: typeof MediasoupTransportActions.transportCreated.matches._TYPE) => {
-        const networkID = action.$network
-        if (!state.value[networkID]) {
-          state.merge({ [networkID]: {} })
-        }
-        const network = getState(NetworkState).networks[networkID] as Network
-        state[networkID].merge({
-          [action.transportID]: {
-            /** Mediasoup is always client-server, so the peerID is always the host for clients */
-            peerID: isClient ? network.hostPeerID : action.peerID,
-            transportID: action.transportID,
-            direction: action.direction,
-            connected: false
-          }
-        })
-      }
-    ],
-    [
-      MediasoupTransportActions.transportConnected,
-      (state, action: typeof MediasoupTransportActions.transportConnected.matches._TYPE) => {
-        const networkID = action.$network
-        if (!state.value[networkID]) return
-        state[networkID][action.transportID].connected.set(true)
-      }
-    ],
-    [
-      MediasoupTransportActions.transportClosed,
-      (state, action: typeof MediasoupTransportActions.transportClosed.matches._TYPE) => {
-        // removed create/close cached actions for this producer
-        const cachedActions = Engine.instance.store.actions.cached
-        const peerCachedActions = cachedActions.filter(
-          (cachedAction) =>
-            (MediasoupTransportActions.transportCreated.matches.test(cachedAction) ||
-              MediasoupTransportActions.transportClosed.matches.test(cachedAction)) &&
-            cachedAction.transportID === action.transportID
-        )
-        for (const cachedAction of peerCachedActions) {
-          cachedActions.splice(cachedActions.indexOf(cachedAction), 1)
-        }
+  removeTransport: (networkID: InstanceID, transportID: string) => {
+    const state = getMutableState(MediasoupTransportState)[networkID]
+    if (!state) return
 
-        const networkID = action.$network
-        if (!state.value[networkID]) return
+    if (getState(MediasoupDataProducerConsumerState)[networkID]?.[transportID])
+      getMutableState(MediasoupDataProducerConsumerState)[networkID][transportID].set(none)
 
-        state[networkID].transports[action.transportID].set(none)
+    if (getState(MediasoupMediaProducerConsumerState)[networkID]?.[transportID])
+      getMutableState(MediasoupMediaProducerConsumerState)[networkID][transportID].set(none)
 
-        if (!Object.keys(state[networkID].transports).length && !Object.keys(state[networkID].consumers).length) {
-          state[networkID].set(none)
-        }
-      }
-    ]
-  ]
+    const transport = state[transportID]
+    if (!transport) return
+
+    transport.set(none)
+
+    getState(MediasoupTransportObjectsState)[transportID].close()
+    getMutableState(MediasoupTransportObjectsState)[transportID].set(none)
+
+    if (!state.keys.length) {
+      state.set(none)
+    }
+  }
 })
 
+const transportCreatedQueue = defineActionQueue(MediasoupTransportActions.transportCreated.matches)
+const transportConnectedQueue = defineActionQueue(MediasoupTransportActions.transportConnected.matches)
+const transportClosedQueue = defineActionQueue(MediasoupTransportActions.transportClosed.matches)
+
+const onTransportCreated = (action: typeof MediasoupTransportActions.transportCreated.matches._TYPE) => {
+  const state = getMutableState(MediasoupTransportState)
+  const networkID = action.$network
+  if (!state.value[networkID]) {
+    state.merge({ [networkID]: {} })
+  }
+  const network = getState(NetworkState).networks[networkID] as Network
+  state[networkID].merge({
+    [action.transportID]: {
+      /** Mediasoup is always client-server, so the peerID is always the host for clients */
+      peerID: isClient ? network.hostPeerID : action.peerID,
+      transportID: action.transportID,
+      direction: action.direction,
+      connected: false
+    }
+  })
+}
+
+const onTransportConnected = (action: typeof MediasoupTransportActions.transportConnected.matches._TYPE) => {
+  const state = getMutableState(MediasoupTransportState)
+  const networkID = action.$network
+  if (!state.value[networkID]) return
+  state[networkID][action.transportID].connected.set(true)
+}
+
+const onTransportClosed = (action: typeof MediasoupTransportActions.transportClosed.matches._TYPE) => {
+  const network = action.$network
+  const state = getMutableState(MediasoupTransportState)
+  state[network][action.transportID].set(none)
+  if (!state[network].keys.length) {
+    state[network].set(none)
+  }
+}
+
 const execute = () => {
-  receiveActions(MediasoupTransportState)
+  for (const action of transportCreatedQueue()) onTransportCreated(action)
+  for (const action of transportConnectedQueue()) onTransportConnected(action)
+  for (const action of transportClosedQueue()) onTransportClosed(action)
 }
 
 export const MediasoupTransportStateSystem = defineSystem({

@@ -27,10 +27,11 @@ import React from 'react'
 
 import { useHookstate } from '@etherealengine/hyperflux'
 
-import { Pause, PlayArrow } from '@mui/icons-material'
+import Pause from '@mui/icons-material/Pause'
+import PlayArrow from '@mui/icons-material/PlayArrow'
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { MediaComponent, MediaElementComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 

@@ -24,6 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
+import {
+  defineComponent,
+  getMutableComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
+import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { useEffect, useMemo, useRef } from 'react'
 import {
@@ -40,21 +54,8 @@ import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
 import { iOS } from '../../common/functions/isMobile'
-import { EngineState } from '../../ecs/classes/EngineState'
-import {
-  defineComponent,
-  getMutableComponent,
-  hasComponent,
-  removeComponent,
-  setComponent,
-  useComponent,
-  useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { useExecute } from '../../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
 import { MediaElementComponent } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { UVOLDissolveComponent } from './UVOLDissolveComponent'
@@ -169,6 +170,7 @@ function UVOL1Reactor() {
       volumetric.ended.set(true)
       video.removeEventListener('ended', setEnded)
     })
+    volumetric.currentTrackInfo.duration.set(component.data.frameData.length / component.data.frameRate.value)
 
     return () => {
       removeObjectFromGroup(entity, mesh)
@@ -253,6 +255,7 @@ function UVOL1Reactor() {
         mesh.material.needsUpdate = true
         oldMaterial.dispose()
       }
+      volumetric.currentTrackInfo.currentTime.set(frameToPlay / component.data.frameRate.value)
 
       if (meshBuffer.has(frameToPlay)) {
         // @ts-ignore: value cannot be anything else other than BufferGeometry
@@ -269,9 +272,16 @@ function UVOL1Reactor() {
     processFrame(frameToPlay)
   })
 
+  useEffect(() => {
+    video.playbackRate = volumetric.currentTrackInfo.playbackRate.value
+  }, [volumetric.currentTrackInfo.playbackRate])
+
   useExecute(
     () => {
-      const delta = getState(EngineState).deltaSeconds
+      //do not execute if the cortoloader has not been initialized
+      if (getState(AssetLoaderState).cortoLoader === null) return
+
+      const delta = getState(ECSState).deltaSeconds
 
       if (
         component.loadingEffectStarted.value &&

@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { VariantComponent, VariantLevel } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { State } from '@etherealengine/hyperflux'
 
@@ -92,7 +92,7 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
                   <InputGroup name="src" label={t('editor:properties.variant.src')}>
                     <ModelInput
                       value={level.src.value}
-                      onChange={commitProperty(VariantComponent, `levels.${index}.src` as any)}
+                      onRelease={commitProperty(VariantComponent, `levels.${index}.src` as any)}
                     />
                   </InputGroup>
                   {variantComponent.heuristic.value === 'DEVICE' && (

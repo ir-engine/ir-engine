@@ -42,10 +42,8 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
-import { ProjectBranchType } from '@etherealengine/engine/src/schemas/projects/project-branches.schema'
-import { ProjectCommitType } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
-import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
+import { ProjectBranchType, ProjectCommitType, ProjectType } from '@etherealengine/common/src/schema.type.module'
+import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { ProjectService } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
@@ -638,10 +636,6 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
                 label={t('admin:components.project.autoUpdateInterval')}
                 value={projectUpdateStatus.value?.updateSchedule || DefaultUpdateSchedule}
                 menu={[
-                  {
-                    value: '* * * * *',
-                    label: `1 ${t('admin:components.project.minute')}`
-                  },
                   {
                     value: '*/5 * * * *',
                     label: `5 ${t('admin:components.project.minutes')}`

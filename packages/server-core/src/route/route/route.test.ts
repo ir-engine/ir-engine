@@ -29,14 +29,14 @@ import fs from 'fs'
 import path from 'path'
 import { v4 as uuid } from 'uuid'
 
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { RouteType, routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { RouteType, routePath } from '@etherealengine/common/src/schemas/route/route.schema'
+import { deleteFolderRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { Paginated } from '@feathersjs/feathers/lib'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
-import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
 
 const params = { isInternal: true } as any
 

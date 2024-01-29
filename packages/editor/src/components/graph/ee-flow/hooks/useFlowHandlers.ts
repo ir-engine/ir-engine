@@ -63,6 +63,7 @@ export const useFlowHandlers = ({
 }) => {
   const [lastConnectStart, setLastConnectStart] = useState<OnConnectStartParams>()
   const [nodePickerVisibility, setNodePickerVisibility] = useState<XYPosition>()
+  const [nodePickerLastOpened, setNodePickerLastOpened] = useState<number | undefined>()
 
   const onConnect = useCallback(
     (connection: Connection) => {
@@ -87,9 +88,10 @@ export const useFlowHandlers = ({
   )
 
   const closeNodePicker = useCallback(() => {
+    if (nodePickerLastOpened && Date.now() - nodePickerLastOpened < 100) return
     setLastConnectStart(undefined)
     setNodePickerVisibility(undefined)
-  }, [])
+  }, [nodePickerLastOpened])
 
   const handleAddNode = useCallback(
     (nodeType: string, position: XYPosition) => {
@@ -131,7 +133,8 @@ export const useFlowHandlers = ({
     const element = e.target as HTMLElement
     if (element.classList.contains('react-flow__pane')) {
       const targetBounds = element.getBoundingClientRect()
-      setNodePickerVisibility({ x: e.clientX - targetBounds.left, y: e.clientY - targetBounds.left })
+      setNodePickerVisibility({ x: e.clientX - targetBounds.left, y: e.clientY - targetBounds.top })
+      setNodePickerLastOpened(Date.now())
     } else {
       setLastConnectStart(undefined)
     }
@@ -144,6 +147,7 @@ export const useFlowHandlers = ({
     const targetElement = e.target as HTMLElement
     const targetBounds = targetElement.getBoundingClientRect()
     setNodePickerVisibility({ x: e.clientX - targetBounds.left, y: e.clientY - targetBounds.top })
+    setNodePickerLastOpened(Date.now())
   }, [])
 
   const nodePickFilters = useNodePickFilters({

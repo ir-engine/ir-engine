@@ -36,9 +36,8 @@ import {
   toggleScreenshare,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import logger from '@etherealengine/common/src/logger'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import logger from '@etherealengine/engine/src/common/functions/logger'
-import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { endXRSession, requestXRSession } from '@etherealengine/engine/src/xr/XRSessionFunctions'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
@@ -46,6 +45,7 @@ import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/h
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import { CameraActions } from '@etherealengine/engine/src/camera/CameraState'
 import {
   ECSRecordingActions,
   PlaybackState,
@@ -91,7 +91,7 @@ export const MediaIconsBox = () => {
   const isScreenVideoEnabled =
     mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value
 
-  const spectating = useHookstate(getMutableState(EngineState).spectating)
+  const spectating = false /**@todo add back spectator support */
   const xrState = useHookstate(getMutableState(XRState))
   const supportsAR = xrState.supportedSessionModes['immersive-ar'].value
   const xrMode = xrState.sessionMode.value
@@ -132,7 +132,7 @@ export const MediaIconsBox = () => {
   }
 
   const xrSessionActive = xrState.sessionActive.value
-  const handleExitSpectatorClick = () => dispatchAction(EngineActions.exitSpectate({}))
+  const handleExitSpectatorClick = () => dispatchAction(CameraActions.exitSpectate({}))
 
   return (
     <section className={`${styles.drawerBox} ${topShelfStyle}`}>
@@ -231,7 +231,7 @@ export const MediaIconsBox = () => {
           icon={<Icon type="ViewInAr" />}
         />
       )}
-      {spectating.value && (
+      {spectating && (
         <button
           type="button"
           id="ExitSpectator"

@@ -27,10 +27,10 @@ import { Matrix4, Quaternion, Vector2, Vector3 } from 'three'
 
 import type { WebContainer3D } from '@etherealengine/xrui'
 
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { CameraComponent } from '../../camera/components/CameraComponent'
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 
 const _size = new Vector2()
@@ -108,10 +108,11 @@ export const ObjectFitFunctions = {
   attachObjectInFrontOfCamera: (entity: Entity, scale: number, distance: number) => {
     const transform = getComponent(entity, TransformComponent)
     _mat4.makeTranslation(0, 0, -distance).scale(_vec3.set(scale, scale, 1))
-    transform.matrix.multiplyMatrices(getComponent(Engine.instance.cameraEntity, CameraComponent).matrixWorld, _mat4)
-    transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
-    transform.matrixInverse.copy(transform.matrix).invert()
-    TransformComponent.dirtyTransforms[entity] = false
+    transform.matrixWorld.multiplyMatrices(
+      getComponent(Engine.instance.cameraEntity, CameraComponent).matrixWorld,
+      _mat4
+    )
+    transform.matrixWorld.decompose(transform.position, transform.rotation, transform.scale)
   },
 
   lookAtCameraFromPosition: (container: WebContainer3D, position: Vector3) => {

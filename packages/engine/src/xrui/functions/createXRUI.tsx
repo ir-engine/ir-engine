@@ -31,17 +31,16 @@ import { Group } from 'three'
 import { WebContainer3D } from '@etherealengine/xrui/core/three/WebContainer3D'
 import { WebLayerManager } from '@etherealengine/xrui/core/three/WebLayerManager'
 
-import { isClient } from '../../common/functions/getEnvironment'
-import { Entity } from '../../ecs/classes/Entity'
-import { setComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, EntityContext } from '../../ecs/functions/EntityFunctions'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, EntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
-import { addObjectToGroup } from '../../scene/components/GroupComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRUIComponent } from '../components/XRUIComponent'
 import { XRUIStateContext } from '../XRUIStateContext'
 
@@ -76,7 +75,6 @@ export function createXRUI<S extends State<any> | null>(
   const root = new Group()
   root.name = containerElement.id
   root.add(container)
-  setComponent(entity, TransformComponent)
   addObjectToGroup(entity, root)
   setObjectLayers(container, ObjectLayers.UI)
   setComponent(entity, DistanceFromCameraComponent)

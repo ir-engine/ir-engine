@@ -28,20 +28,16 @@ import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { camelCaseToSpacedString } from '@etherealengine/common/src/utils/camelCaseToSpacedString'
-import {
-  defineQuery,
-  getComponent,
-  hasComponent,
-  useComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { NameComponent } from '@etherealengine/engine/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { CallbackComponent } from '@etherealengine/engine/src/scene/components/CallbackComponent'
 import {
   ColliderComponent,
   supportedColliderShapes
 } from '@etherealengine/engine/src/scene/components/ColliderComponent'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { useState } from '@etherealengine/hyperflux'
 
 import PanToolIcon from '@mui/icons-material/PanTool'

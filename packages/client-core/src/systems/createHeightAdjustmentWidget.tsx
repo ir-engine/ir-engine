@@ -23,14 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { setTrackingSpace } from '@etherealengine/engine/src/xr/XRScaleAdjustmentFunctions'
+import { removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { VisibleComponent } from '@etherealengine/engine/src/renderer/components/VisibleComponent'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppActions } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { Widget, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 export function createHeightAdjustmentWidget() {
   const ui = createXRUI(() => null)
@@ -42,9 +41,7 @@ export function createHeightAdjustmentWidget() {
     icon: 'Accessibility',
     onOpen: () => {
       dispatchAction(WidgetAppActions.showWidget({ id, shown: false }))
-      const xrFrame = getState(XRState).xrFrame
-      if (!xrFrame) return
-      setTrackingSpace()
+      XRState.setTrackingSpace()
     }
   }
 

@@ -25,22 +25,22 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
-import { CSM } from '../assets/csm/CSM'
-import CSMHelper from '../assets/csm/CSMHelper'
-import { isMobile } from '../common/functions/isMobile'
-import { Entity } from '../ecs/classes/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { isIPhone } from '../common/functions/isMobile'
 import { RenderModes, RenderModesType } from './constants/RenderModes'
+import { CSM } from './csm/CSM'
+import CSMHelper from './csm/CSMHelper'
 
 export const RendererState = defineState({
   name: 'RendererState',
   initial: () => ({
     csm: null as CSM | null,
     csmHelper: null as CSMHelper | null,
-    qualityLevel: isMobile ? 2 : 5, // range from 0 to 5
-    automatic: true,
+    qualityLevel: isIPhone ? 2 : 5, // range from 0 to 5
+    automatic: isIPhone ? false : true,
     // usePBR: true,
-    usePostProcessing: true,
-    useShadows: true,
+    usePostProcessing: isIPhone ? false : true,
+    useShadows: isIPhone ? false : true,
     physicsDebug: false,
     avatarDebug: false,
     renderMode: RenderModes.SHADOW as RenderModesType,
@@ -48,7 +48,7 @@ export const RendererState = defineState({
     gridVisibility: false,
     gridHeight: 0,
     forceBasicMaterials: false,
-    shadowMapResolution: isMobile ? 256 : 2048,
+    shadowMapResolution: isIPhone ? 256 : 2048,
     infiniteGridHelperEntity: null as Entity | null,
     physicsDebugEntity: null as Entity | null
   }),

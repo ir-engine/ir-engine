@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
+import multiLogger from '@etherealengine/common/src/logger'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { oembedPath, OembedType } from '@etherealengine/engine/src/schemas/media/oembed.schema'
+import { oembedPath, OembedType } from '@etherealengine/common/src/schema.type.module'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { NotificationService } from './NotificationService'
 
 const logger = multiLogger.child({ component: 'client-core:OEmbedService' })

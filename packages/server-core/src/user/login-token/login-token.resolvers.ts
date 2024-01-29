@@ -27,13 +27,13 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { LoginTokenQuery, LoginTokenType } from '@etherealengine/engine/src/schemas/user/login-token.schema'
+import { LoginTokenQuery, LoginTokenType } from '@etherealengine/common/src/schemas/user/login-token.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
+import { fromDateTimeSql, getDateTimeSql, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import crypto from 'crypto'
 import moment from 'moment'
 import config from '../../appconfig'
-import { fromDateTimeSql, getDateTimeSql, toDateTimeSql } from '../../util/datetime-sql'
 
 export const loginTokenResolver = resolve<LoginTokenType, HookContext>({
   expiresAt: virtual(async (loginToken) => fromDateTimeSql(loginToken.expiresAt)),

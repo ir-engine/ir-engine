@@ -28,36 +28,36 @@ import { TypedArray } from 'bitecs'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { createMockNetwork } from '../../../tests/util/createMockNetwork'
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { roundNumberToPlaces } from '../../../tests/util/MathTestUtils'
-import { destroyEngine, Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { createEngine } from '../../initializeEngine'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { LocalTransformComponent } from '../../transform/components/TransformComponent'
 import {
+  TransformSerialization,
   readPosition,
   readRotation,
   readTransform,
-  TransformSerialization,
   writePosition,
   writeRotation,
   writeTransform
 } from '../../transform/TransformSerialization'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Network } from '../classes/Network'
 // import { XRHandBones } from '../../xr/XRHandBones'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { NetworkState } from '../NetworkState'
 import {
   NetworkObjectAuthorityTag,
   NetworkObjectComponent,
   NetworkObjectSendPeriodicUpdatesTag
 } from '../components/NetworkObjectComponent'
-import { NetworkState } from '../NetworkState'
 import {
   checkBitflag,
   readComponent,
@@ -110,49 +110,49 @@ describe('DataReader', () => {
     const entity = createEntity()
 
     const [x, y, z] = [1.5, 2.5, 3.5]
-    LocalTransformComponent.position.x[entity] = x
-    LocalTransformComponent.position.y[entity] = y
-    LocalTransformComponent.position.z[entity] = z
+    TransformComponent.position.x[entity] = x
+    TransformComponent.position.y[entity] = y
+    TransformComponent.position.z[entity] = z
 
     writePosition(view, entity)
 
-    LocalTransformComponent.position.x[entity] = 0
-    LocalTransformComponent.position.y[entity] = 0
-    LocalTransformComponent.position.z[entity] = 0
+    TransformComponent.position.x[entity] = 0
+    TransformComponent.position.y[entity] = 0
+    TransformComponent.position.z[entity] = 0
 
     view.cursor = 0
-    const readPosition = readComponent(LocalTransformComponent.position)
+    const readPosition = readComponent(TransformComponent.position)
 
     readPosition(view, entity)
 
-    strictEqual(LocalTransformComponent.position.x[entity], x)
-    strictEqual(LocalTransformComponent.position.y[entity], y)
-    strictEqual(LocalTransformComponent.position.z[entity], z)
+    strictEqual(TransformComponent.position.x[entity], x)
+    strictEqual(TransformComponent.position.y[entity], y)
+    strictEqual(TransformComponent.position.z[entity], z)
 
-    LocalTransformComponent.position.x[entity] = 10.5
-    LocalTransformComponent.position.z[entity] = 11.5
+    TransformComponent.position.x[entity] = 10.5
+    TransformComponent.position.z[entity] = 11.5
 
     const rewind = view.cursor
 
     writePosition(view, entity)
 
-    LocalTransformComponent.position.x[entity] = 5.5
-    LocalTransformComponent.position.z[entity] = 6.5
+    TransformComponent.position.x[entity] = 5.5
+    TransformComponent.position.z[entity] = 6.5
 
     view.cursor = rewind
 
     readPosition(view, entity)
 
-    strictEqual(LocalTransformComponent.position.x[entity], 10.5)
-    strictEqual(LocalTransformComponent.position.y[entity], y)
-    strictEqual(LocalTransformComponent.position.z[entity], 11.5)
+    strictEqual(TransformComponent.position.x[entity], 10.5)
+    strictEqual(TransformComponent.position.y[entity], y)
+    strictEqual(TransformComponent.position.z[entity], 11.5)
   })
 
   it('should readComponentProp', () => {
     const view = createViewCursor()
     const entity = createEntity()
 
-    const prop = LocalTransformComponent.position.x as unknown as TypedArray
+    const prop = TransformComponent.position.x as unknown as TypedArray
 
     prop[entity] = 1.5
 
@@ -170,7 +170,7 @@ describe('DataReader', () => {
   it('should readVector3', () => {
     const view = createViewCursor()
     const entity = createEntity()
-    const position = LocalTransformComponent.position as unknown as Vector3SoA
+    const position = TransformComponent.position as unknown as Vector3SoA
     const [x, y, z] = [1.5, 2.5, 3.5]
     position.x[entity] = x
     position.y[entity] = y
@@ -188,9 +188,9 @@ describe('DataReader', () => {
 
     readPosition(view, entity)
 
-    strictEqual(LocalTransformComponent.position.x[entity], x)
-    strictEqual(LocalTransformComponent.position.y[entity], y)
-    strictEqual(LocalTransformComponent.position.z[entity], z)
+    strictEqual(TransformComponent.position.x[entity], x)
+    strictEqual(TransformComponent.position.y[entity], y)
+    strictEqual(TransformComponent.position.z[entity], z)
 
     position.y[entity] = 10.5
 
@@ -198,15 +198,15 @@ describe('DataReader', () => {
 
     writePosition(view, entity)
 
-    strictEqual(LocalTransformComponent.position.x[entity], x)
-    strictEqual(LocalTransformComponent.position.y[entity], 10.5)
-    strictEqual(LocalTransformComponent.position.z[entity], z)
+    strictEqual(TransformComponent.position.x[entity], x)
+    strictEqual(TransformComponent.position.y[entity], 10.5)
+    strictEqual(TransformComponent.position.z[entity], z)
   })
 
   it('should readVector4', () => {
     const view = createViewCursor()
     const entity = createEntity()
-    const rotation = LocalTransformComponent.rotation
+    const rotation = TransformComponent.rotation
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
     rotation.x[entity] = x
     rotation.y[entity] = y
@@ -227,10 +227,10 @@ describe('DataReader', () => {
 
     readRotation(view, entity)
 
-    strictEqual(LocalTransformComponent.rotation.x[entity], x)
-    strictEqual(LocalTransformComponent.rotation.y[entity], y)
-    strictEqual(LocalTransformComponent.rotation.z[entity], z)
-    strictEqual(LocalTransformComponent.rotation.w[entity], w)
+    strictEqual(TransformComponent.rotation.x[entity], x)
+    strictEqual(TransformComponent.rotation.y[entity], y)
+    strictEqual(TransformComponent.rotation.z[entity], z)
+    strictEqual(TransformComponent.rotation.w[entity], w)
 
     rotation.y[entity] = 10.5
     rotation.w[entity] = 11.5
@@ -239,16 +239,16 @@ describe('DataReader', () => {
 
     writeRotation(view, entity)
 
-    strictEqual(LocalTransformComponent.rotation.x[entity], x)
-    strictEqual(LocalTransformComponent.rotation.y[entity], 10.5)
-    strictEqual(LocalTransformComponent.rotation.z[entity], z)
-    strictEqual(LocalTransformComponent.rotation.w[entity], 11.5)
+    strictEqual(TransformComponent.rotation.x[entity], x)
+    strictEqual(TransformComponent.rotation.y[entity], 10.5)
+    strictEqual(TransformComponent.rotation.z[entity], z)
+    strictEqual(TransformComponent.rotation.w[entity], 11.5)
   })
 
   it('should readPosition', () => {
     const view = createViewCursor()
     const entity = createEntity()
-    const position = LocalTransformComponent.position
+    const position = TransformComponent.position
     const [x, y, z] = [1.5, 2.5, 3.5]
     position.x[entity] = x
     position.y[entity] = y
@@ -264,9 +264,9 @@ describe('DataReader', () => {
 
     readPosition(view, entity)
 
-    strictEqual(LocalTransformComponent.position.x[entity], x)
-    strictEqual(LocalTransformComponent.position.y[entity], y)
-    strictEqual(LocalTransformComponent.position.z[entity], z)
+    strictEqual(TransformComponent.position.x[entity], x)
+    strictEqual(TransformComponent.position.y[entity], y)
+    strictEqual(TransformComponent.position.z[entity], z)
 
     position.y[entity] = 10.5
 
@@ -274,15 +274,15 @@ describe('DataReader', () => {
 
     writePosition(view, entity)
 
-    strictEqual(LocalTransformComponent.position.x[entity], x)
-    strictEqual(LocalTransformComponent.position.y[entity], 10.5)
-    strictEqual(LocalTransformComponent.position.z[entity], z)
+    strictEqual(TransformComponent.position.x[entity], x)
+    strictEqual(TransformComponent.position.y[entity], 10.5)
+    strictEqual(TransformComponent.position.z[entity], z)
   })
 
   it('should readCompressedRotation', () => {
     const view = createViewCursor()
     const entity = createEntity()
-    const rotation = LocalTransformComponent.rotation
+    const rotation = TransformComponent.rotation
     setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
 
     // construct values for a valid quaternion
@@ -309,10 +309,10 @@ describe('DataReader', () => {
     strictEqual(view.cursor, Uint8Array.BYTES_PER_ELEMENT + Float64Array.BYTES_PER_ELEMENT * 4)
 
     // Round values to 3 decimal places and compare
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.x[entity], 3), roundNumberToPlaces(x, 3))
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.y[entity], 3), roundNumberToPlaces(y, 3))
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.z[entity], 3), roundNumberToPlaces(z, 3))
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.w[entity], 3), roundNumberToPlaces(w, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(x, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(y, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(z, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(w, 3))
   })
 
   it('should readCompressedVector3', () => {
@@ -354,8 +354,8 @@ describe('DataReader', () => {
     const [posX, posY, posZ] = [1.5, 2.5, 3.5]
     const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
 
-    setComponent(entity, LocalTransformComponent)
-    const transform = getComponent(entity, LocalTransformComponent)
+    setComponent(entity, TransformComponent)
+    const transform = getComponent(entity, TransformComponent)
     transform.position.set(posX, posY, posZ)
     transform.rotation.set(rotX, rotY, rotZ, rotW)
 
@@ -373,14 +373,14 @@ describe('DataReader', () => {
 
     readTransform(view, entity)
 
-    strictEqual(LocalTransformComponent.position.x[entity], posX)
-    strictEqual(LocalTransformComponent.position.y[entity], posY)
-    strictEqual(LocalTransformComponent.position.z[entity], posZ)
+    strictEqual(TransformComponent.position.x[entity], posX)
+    strictEqual(TransformComponent.position.y[entity], posY)
+    strictEqual(TransformComponent.position.z[entity], posZ)
     // Round values to 3 decimal places and compare
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
 
     transform.position.x = 0
 
@@ -394,9 +394,9 @@ describe('DataReader', () => {
 
     readTransform(view, entity)
 
-    strictEqual(LocalTransformComponent.position.x[entity], 0)
-    strictEqual(LocalTransformComponent.position.y[entity], posY)
-    strictEqual(LocalTransformComponent.position.z[entity], posZ)
+    strictEqual(TransformComponent.position.x[entity], 0)
+    strictEqual(TransformComponent.position.y[entity], posY)
+    strictEqual(TransformComponent.position.z[entity], posZ)
   })
 
   // it('should readXRHands', () => {
@@ -428,8 +428,8 @@ describe('DataReader', () => {
 
   //     // proxify and copy values
   //     joints.forEach((jointName) => {
-  //       proxifyVector3(LocalTransformComponent.position, entity).set(posX, posY, posZ)
-  //       proxifyQuaternion(LocalTransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW)
+  //       proxifyVector3(TransformComponent.position, entity).set(posX, posY, posZ)
+  //       proxifyQuaternion(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW)
   //     })
   //   })
 
@@ -462,14 +462,14 @@ describe('DataReader', () => {
   //     const handedness = hand.userData.handedness
 
   //     joints.forEach((jointName) => {
-  //       strictEqual(LocalTransformComponent.position.x[entity], posX)
-  //       strictEqual(LocalTransformComponent.position.y[entity], posY)
-  //       strictEqual(LocalTransformComponent.position.z[entity], posZ)
+  //       strictEqual(TransformComponent.position.x[entity], posX)
+  //       strictEqual(TransformComponent.position.y[entity], posY)
+  //       strictEqual(TransformComponent.position.z[entity], posZ)
   //       // Round values to 3 decimal places and compare
-  //       strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
-  //       strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
-  //       strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
-  //       strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
+  //       strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
+  //       strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
+  //       strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
+  //       strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
   //     })
   //   })
   // })
@@ -481,14 +481,15 @@ describe('DataReader', () => {
     const userId = '0' as UserID
     const peerId = '0' as PeerID
     const userIndex = 0
+    const peerIndex = 0
 
     NetworkObjectComponent.networkId[entity] = networkId
 
     const network = NetworkState.worldNetwork as Network
     network.userIndexToUserID[userIndex] = userId
     network.userIDToUserIndex[userId] = userIndex
-    network.peerIndexToPeerID[userIndex] = peerId
-    network.peerIDToPeerIndex[peerId] = userIndex
+    network.peerIndexToPeerID[peerIndex] = peerId
+    network.peerIDToPeerIndex[peerId] = peerIndex
 
     // construct values for a valid quaternion
     const [a, b, c] = [0.167, 0.167, 0.167]
@@ -497,18 +498,19 @@ describe('DataReader', () => {
     const [posX, posY, posZ] = [1.5, 2.5, 3.5]
     const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
 
-    setComponent(entity, LocalTransformComponent)
-    const transform = getComponent(entity, LocalTransformComponent)
+    setComponent(entity, TransformComponent)
+    const transform = getComponent(entity, TransformComponent)
     transform.position.set(posX, posY, posZ)
     transform.rotation.set(rotX, rotY, rotZ, rotW)
 
     setComponent(entity, NetworkObjectComponent, {
       networkId,
       authorityPeerID: peerId,
+      ownerPeer: peerId,
       ownerId: userId
     })
 
-    writeEntity(view, networkId, userIndex, entity, Object.values(getState(NetworkState).networkSchema))
+    writeEntity(view, networkId, peerIndex, entity, Object.values(getState(NetworkState).networkSchema))
 
     transform.position.x = 0
     transform.position.y = 0
@@ -522,20 +524,20 @@ describe('DataReader', () => {
 
     readEntity(view, network, userId, Object.values(getState(NetworkState).networkSchema))
 
-    strictEqual(LocalTransformComponent.position.x[entity], posX)
-    strictEqual(LocalTransformComponent.position.y[entity], posY)
-    strictEqual(LocalTransformComponent.position.z[entity], posZ)
+    strictEqual(TransformComponent.position.x[entity], posX)
+    strictEqual(TransformComponent.position.y[entity], posY)
+    strictEqual(TransformComponent.position.z[entity], posZ)
     // Round values to 3 decimal places and compare
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
-    strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
+    strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
 
     transform.position.x = 0
 
     view.cursor = 0
 
-    writeEntity(view, networkId, userIndex, entity, Object.values(getState(NetworkState).networkSchema))
+    writeEntity(view, networkId, peerIndex, entity, Object.values(getState(NetworkState).networkSchema))
 
     transform.position.x = posX
 
@@ -543,42 +545,46 @@ describe('DataReader', () => {
 
     readEntity(view, network, userId, Object.values(getState(NetworkState).networkSchema))
 
-    strictEqual(LocalTransformComponent.position.x[entity], 0)
-    strictEqual(LocalTransformComponent.position.y[entity], posY)
-    strictEqual(LocalTransformComponent.position.z[entity], posZ)
+    strictEqual(TransformComponent.position.x[entity], 0)
+    strictEqual(TransformComponent.position.y[entity], posY)
+    strictEqual(TransformComponent.position.z[entity], posZ)
   })
 
   it('should not readEntity if reading back own data', () => {
     const view = createViewCursor()
     const entity = createEntity()
     const networkId = 5678 as NetworkId
-    const userId = 'user id' as UserID
+    const userID = 'user id' as UserID
     const peerID = 'peer id' as PeerID
-    Engine.instance.userID = userId
+    Engine.instance.userID = userID
     const userIndex = 0
+    const peerIndex = 0
 
     NetworkObjectComponent.networkId[entity] = networkId
 
     const network = NetworkState.worldNetwork as Network
-    network.userIndexToUserID[userIndex] = userId
-    network.userIDToUserIndex[userId] = userIndex
+    network.userIndexToUserID[userIndex] = userID
+    network.userIDToUserIndex[userID] = userIndex
+    network.peerIndexToPeerID[peerIndex] = peerID
+    network.peerIDToPeerIndex[peerID] = peerIndex
 
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
-    setComponent(entity, LocalTransformComponent)
-    const transform = getComponent(entity, LocalTransformComponent)
+    setComponent(entity, TransformComponent)
+    const transform = getComponent(entity, TransformComponent)
     transform.position.set(x, y, z)
     transform.rotation.set(x, y, z, w)
 
     setComponent(entity, NetworkObjectComponent, {
       networkId,
+      ownerPeer: peerID,
       authorityPeerID: peerID,
-      ownerId: userId
+      ownerId: userID
     })
 
     setComponent(entity, NetworkObjectAuthorityTag)
 
-    writeEntity(view, networkId, userIndex, entity, Object.values(getState(NetworkState).networkSchema))
+    writeEntity(view, networkId, peerIndex, entity, Object.values(getState(NetworkState).networkSchema))
 
     view.cursor = 0
 
@@ -587,16 +593,16 @@ describe('DataReader', () => {
     transform.rotation.set(0, 0, 0, 0)
 
     // read entity will populate data stored in 'view'
-    readEntity(view, network, userId, Object.values(getState(NetworkState).networkSchema))
+    readEntity(view, network, userID, Object.values(getState(NetworkState).networkSchema))
 
     // should no repopulate as we own this entity
-    strictEqual(LocalTransformComponent.position.x[entity], 0)
-    strictEqual(LocalTransformComponent.position.y[entity], 0)
-    strictEqual(LocalTransformComponent.position.z[entity], 0)
-    strictEqual(LocalTransformComponent.rotation.x[entity], 0)
-    strictEqual(LocalTransformComponent.rotation.y[entity], 0)
-    strictEqual(LocalTransformComponent.rotation.z[entity], 0)
-    strictEqual(LocalTransformComponent.rotation.w[entity], 0)
+    strictEqual(TransformComponent.position.x[entity], 0)
+    strictEqual(TransformComponent.position.y[entity], 0)
+    strictEqual(TransformComponent.position.z[entity], 0)
+    strictEqual(TransformComponent.rotation.x[entity], 0)
+    strictEqual(TransformComponent.rotation.y[entity], 0)
+    strictEqual(TransformComponent.rotation.z[entity], 0)
+    strictEqual(TransformComponent.rotation.w[entity], 0)
 
     // should update the view cursor accordingly
     strictEqual(
@@ -627,22 +633,26 @@ describe('DataReader', () => {
     const view = createViewCursor()
     const entity = createEntity()
     const networkId = 5678 as NetworkId
-    const userId = 'user Id' as UserID
-    Engine.instance.userID = userId
+    const userID = 'user Id' as UserID
+    const peerID = 'peer ID' as PeerID
+    Engine.instance.userID = userID
     const userIndex = 0
+    const peerIndex = 0
 
     const network = NetworkState.worldNetwork as Network
-    network.userIndexToUserID[userIndex] = userId
-    network.userIDToUserIndex[userId] = userIndex
+    network.userIndexToUserID[userIndex] = userID
+    network.userIDToUserIndex[userID] = userIndex
+    network.peerIndexToPeerID[peerIndex] = peerID
+    network.peerIDToPeerIndex[peerID] = peerIndex
 
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
-    setComponent(entity, LocalTransformComponent)
-    const transform = getComponent(entity, LocalTransformComponent)
+    setComponent(entity, TransformComponent)
+    const transform = getComponent(entity, TransformComponent)
     transform.position.set(x, y, z)
     transform.rotation.set(x, y, z, w)
 
-    writeEntity(view, networkId, userIndex, entity, Object.values(getState(NetworkState).networkSchema))
+    writeEntity(view, networkId, peerIndex, entity, Object.values(getState(NetworkState).networkSchema))
 
     view.cursor = 0
 
@@ -651,16 +661,16 @@ describe('DataReader', () => {
     transform.rotation.set(0, 0, 0, 0)
 
     // read entity will populate data stored in 'view'
-    readEntity(view, network, userId, Object.values(getState(NetworkState).networkSchema))
+    readEntity(view, network, userID, Object.values(getState(NetworkState).networkSchema))
 
     // should no repopulate as entity is not listed in network entities
-    strictEqual(LocalTransformComponent.position.x[entity], 0)
-    strictEqual(LocalTransformComponent.position.y[entity], 0)
-    strictEqual(LocalTransformComponent.position.z[entity], 0)
-    strictEqual(LocalTransformComponent.rotation.x[entity], 0)
-    strictEqual(LocalTransformComponent.rotation.y[entity], 0)
-    strictEqual(LocalTransformComponent.rotation.z[entity], 0)
-    strictEqual(LocalTransformComponent.rotation.w[entity], 0)
+    strictEqual(TransformComponent.position.x[entity], 0)
+    strictEqual(TransformComponent.position.y[entity], 0)
+    strictEqual(TransformComponent.position.z[entity], 0)
+    strictEqual(TransformComponent.rotation.x[entity], 0)
+    strictEqual(TransformComponent.rotation.y[entity], 0)
+    strictEqual(TransformComponent.rotation.z[entity], 0)
+    strictEqual(TransformComponent.rotation.w[entity], 0)
 
     // should update the view cursor accordingly
     strictEqual(
@@ -708,12 +718,13 @@ describe('DataReader', () => {
       const userIndex = entity
       const peerIndex = entity
 
-      setComponent(entity, LocalTransformComponent)
-      const transform = getComponent(entity, LocalTransformComponent)
+      setComponent(entity, TransformComponent)
+      const transform = getComponent(entity, TransformComponent)
       transform.position.set(posX, posY, posZ)
       transform.rotation.set(rotX, rotY, rotZ, rotW)
       setComponent(entity, NetworkObjectComponent, {
         networkId,
+        ownerPeer: peerID,
         authorityPeerID: peerID,
         ownerId: userId
       })
@@ -728,13 +739,13 @@ describe('DataReader', () => {
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i]
 
-      LocalTransformComponent.position.x[entity] = 0
-      LocalTransformComponent.position.y[entity] = 0
-      LocalTransformComponent.position.z[entity] = 0
-      LocalTransformComponent.rotation.x[entity] = 0
-      LocalTransformComponent.rotation.y[entity] = 0
-      LocalTransformComponent.rotation.z[entity] = 0
-      LocalTransformComponent.rotation.w[entity] = 0
+      TransformComponent.position.x[entity] = 0
+      TransformComponent.position.y[entity] = 0
+      TransformComponent.position.z[entity] = 0
+      TransformComponent.rotation.x[entity] = 0
+      TransformComponent.rotation.y[entity] = 0
+      TransformComponent.rotation.z[entity] = 0
+      TransformComponent.rotation.w[entity] = 0
     }
 
     const packet = sliceViewCursor(writeView)
@@ -745,14 +756,14 @@ describe('DataReader', () => {
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i]
 
-      strictEqual(LocalTransformComponent.position.x[entity], posX)
-      strictEqual(LocalTransformComponent.position.y[entity], posY)
-      strictEqual(LocalTransformComponent.position.z[entity], posZ)
+      strictEqual(TransformComponent.position.x[entity], posX)
+      strictEqual(TransformComponent.position.y[entity], posY)
+      strictEqual(TransformComponent.position.z[entity], posZ)
       // Round values to 3 decimal places and compare
-      strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
-      strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
-      strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
-      strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
     }
   })
 
@@ -765,8 +776,8 @@ describe('DataReader', () => {
     const peerID = Engine.instance.store.peerID
     const userIndex = 0
     const peerIndex = 0
-    network.userIndexToUserID[userIndex] = userId
     network.userIDToUserIndex[userId] = userIndex
+    network.userIndexToUserID[userIndex] = userId
     network.peerIDToPeerIndex[peerID] = peerIndex
     network.peerIndexToPeerID[peerIndex] = peerID
 
@@ -785,12 +796,13 @@ describe('DataReader', () => {
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
 
-      setComponent(entity, LocalTransformComponent)
-      const transform = getComponent(entity, LocalTransformComponent)
+      setComponent(entity, TransformComponent)
+      const transform = getComponent(entity, TransformComponent)
       transform.position.set(posX, posY, posZ)
       transform.rotation.set(rotX, rotY, rotZ, rotW)
       setComponent(entity, NetworkObjectComponent, {
         networkId,
+        ownerPeer: peerID,
         authorityPeerID: peerID,
         ownerId: userId
       })
@@ -814,7 +826,7 @@ describe('DataReader', () => {
       // read owner index
       strictEqual(readUint32(readView), userIndex)
 
-      // read writeEntity changeMask (only reading LocalTransformComponent)
+      // read writeEntity changeMask (only reading TransformComponent)
       strictEqual(readUint8(readView), 0b01)
 
       // read writeTransform changeMask
@@ -844,13 +856,13 @@ describe('DataReader', () => {
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i]
 
-      LocalTransformComponent.position.x[entity] = 0
-      LocalTransformComponent.position.y[entity] = 0
-      LocalTransformComponent.position.z[entity] = 0
-      LocalTransformComponent.rotation.x[entity] = 0
-      LocalTransformComponent.rotation.y[entity] = 0
-      LocalTransformComponent.rotation.z[entity] = 0
-      LocalTransformComponent.rotation.w[entity] = 0
+      TransformComponent.position.x[entity] = 0
+      TransformComponent.position.y[entity] = 0
+      TransformComponent.position.z[entity] = 0
+      TransformComponent.rotation.x[entity] = 0
+      TransformComponent.rotation.y[entity] = 0
+      TransformComponent.rotation.z[entity] = 0
+      TransformComponent.rotation.w[entity] = 0
     }
 
     const view = createViewCursor(packet)
@@ -861,14 +873,14 @@ describe('DataReader', () => {
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i]
 
-      strictEqual(LocalTransformComponent.position.x[entity], posX)
-      strictEqual(LocalTransformComponent.position.y[entity], posY)
-      strictEqual(LocalTransformComponent.position.z[entity], posZ)
+      strictEqual(TransformComponent.position.x[entity], posX)
+      strictEqual(TransformComponent.position.y[entity], posY)
+      strictEqual(TransformComponent.position.z[entity], posZ)
       // Round values to 3 decimal places and compare
-      strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
-      strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
-      strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
-      strictEqual(roundNumberToPlaces(LocalTransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
+      strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
     }
   })
 
@@ -877,7 +889,7 @@ describe('DataReader', () => {
 
     const peerID = 'peerID' as PeerID
     const network = NetworkState.worldNetwork as Network
-    const engineState = getMutableState(EngineState)
+    const engineState = getMutableState(ECSState)
     engineState.simulationTime.set(1)
 
     const n = 10
@@ -888,20 +900,24 @@ describe('DataReader', () => {
     const [x, y, z, w] = [0, 0, 0, 0]
 
     entities.forEach((entity) => {
-      const networkId = entity as unknown as NetworkId
-      const userId = entity as unknown as UserID & PeerID
+      const networkID = entity as unknown as NetworkId
+      const userID = entity as unknown as UserID & PeerID
       const userIndex = entity
-      setComponent(entity, LocalTransformComponent)
-      const transform = getComponent(entity, LocalTransformComponent)
+      const peerIndex = entity
+      setComponent(entity, TransformComponent)
+      const transform = getComponent(entity, TransformComponent)
       transform.position.set(x, y, z)
       transform.rotation.set(x, y, z, w)
       setComponent(entity, NetworkObjectComponent, {
-        networkId,
-        authorityPeerID: userId,
-        ownerId: userId
+        networkId: networkID,
+        ownerPeer: peerID,
+        authorityPeerID: peerID,
+        ownerId: userID
       })
-      network.userIndexToUserID[userIndex] = userId
-      network.userIDToUserIndex[userId] = userIndex
+      network.userIDToUserIndex[userID] = userIndex
+      network.userIndexToUserID[userIndex] = userID
+      network.peerIDToPeerIndex[peerID] = peerIndex
+      network.peerIndexToPeerID[peerIndex] = peerID
     })
 
     const packet = write(network, Engine.instance.userID, peerID, entities)
@@ -935,8 +951,8 @@ describe('DataReader', () => {
   //     const userId = entity as unknown as UserID & PeerID
   //     const userIndex = entity
 
-  //     setLocalTransformComponent(entity)
-  //     const transform = getComponent(entity, LocalTransformComponent)
+  //     setTransformComponent(entity)
+  //     const transform = getComponent(entity, TransformComponent)
   //     transform.position.set(x, y, z)
   //     transform.rotation.set(x, y, z, w)
   //     addComponent(entity, NetworkObjectComponent, {
@@ -957,7 +973,7 @@ describe('DataReader', () => {
     const write = createDataWriter()
 
     const network = NetworkState.worldNetwork as Network
-    const engineState = getMutableState(EngineState)
+    const engineState = getMutableState(ECSState)
     engineState.simulationTime.set(1)
     const peerID = Engine.instance.store.peerID
 
@@ -968,21 +984,26 @@ describe('DataReader', () => {
 
     const [x, y, z, w] = [0, 0, 0, 0]
 
+    const userID = 'userId' as unknown as UserID & PeerID
+    const userIndex = 0
+    const peerIndex = 0
+    network.peerIDToPeerIndex[peerID] = peerIndex
+    network.peerIndexToPeerID[peerIndex] = peerID
+    network.userIDToUserIndex[userID] = userIndex
+    network.userIndexToUserID[userIndex] = userID
+
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
-      const userId = ('userId-' + entity) as unknown as UserID & PeerID
-      const userIndex = entity
-      setComponent(entity, LocalTransformComponent)
-      const transform = getComponent(entity, LocalTransformComponent)
+      setComponent(entity, TransformComponent)
+      const transform = getComponent(entity, TransformComponent)
       transform.position.set(x, y, z)
       transform.rotation.set(x, y, z, w)
       setComponent(entity, NetworkObjectComponent, {
         networkId,
-        authorityPeerID: userId,
-        ownerId: userId
+        ownerPeer: peerID,
+        authorityPeerID: peerID,
+        ownerId: userID
       })
-      network.userIndexToUserID[userIndex] = userId
-      network.userIDToUserIndex[userId] = userIndex
     })
 
     let packet = write(network, Engine.instance.userID, Engine.instance.peerID, entities)
@@ -997,9 +1018,9 @@ describe('DataReader', () => {
 
     const entity = entities[0]
 
-    LocalTransformComponent.position.x[entity] = 1
-    LocalTransformComponent.position.y[entity] = 1
-    LocalTransformComponent.position.z[entity] = 1
+    TransformComponent.position.x[entity] = 1
+    TransformComponent.position.y[entity] = 1
+    TransformComponent.position.z[entity] = 1
 
     packet = write(network, Engine.instance.userID, peerID, entities)
 
@@ -1040,10 +1061,10 @@ describe('DataReader', () => {
       // read networkId
       strictEqual(readUint32(readView), entities[i])
 
-      // read owner index
-      strictEqual(readUint32(readView), entities[i])
+      // read owner peer index
+      strictEqual(readUint32(readView), peerIndex)
 
-      // read writeEntity changeMask (only reading LocalTransformComponent)
+      // read writeEntity changeMask (only reading TransformComponent)
       strictEqual(readUint8(readView), 0b01)
 
       // read writeTransform changeMask

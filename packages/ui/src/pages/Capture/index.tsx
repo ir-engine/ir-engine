@@ -39,7 +39,7 @@ import {
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import {
   ECSRecordingActions,
   PlaybackState,
@@ -49,7 +49,8 @@ import {
 
 import { useWorldNetwork } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
-import { ChannelService } from '@etherealengine/client-core/src/social/services/ChannelService'
+import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
+import { RecordingID, StaticResourceType, recordingPath } from '@etherealengine/common/src/schema.type.module'
 import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
 import {
@@ -59,8 +60,7 @@ import {
 } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
-import { StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import { RecordingID, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
+import { SceneServices, SceneState } from '@etherealengine/engine/src/scene/Scene'
 import {
   defineState,
   dispatchAction,
@@ -413,8 +413,8 @@ const VideoPlayback = (props: {
     videoRef.current.style.transform = `scaleX(-1)`
     videoRef.current.addEventListener('loadedmetadata', () => {
       resizeCanvas()
-      videoRef.current!.play()
-      canvasCtxRef.current = canvasRef.current!.getContext('2d')!
+      if (videoRef.current) videoRef.current.play()
+      if (canvasRef.current) canvasCtxRef.current = canvasRef.current.getContext('2d')!
     })
   }, [videoRef.current])
 
@@ -537,6 +537,7 @@ export const PlaybackControls = (props: { durationSeconds: number }) => {
 
 const PlaybackMode = () => {
   const recordingID = useHookstate(getMutableState(PlaybackState).recordingID)
+  const locationState = useHookstate(getMutableState(LocationState))
 
   const recording = useGet(recordingPath, recordingID.value!)
 
@@ -544,13 +545,28 @@ const PlaybackMode = () => {
     recording.refetch()
   }, [])
 
+  /**
+   * Load scene in, and auto-unload upon recording stop
+   * @todo - wait until scene has loaded to start playback
+   */
+  useEffect(() => {
+    const scenePath = locationState.currentLocation.location.sceneId.value
+    if (!scenePath) return
+    const cleanup = SceneServices.setCurrentScene(scenePath)
+    return () => {
+      cleanup()
+      // hack
+      getMutableState(SceneState).sceneLoaded.set(false)
+    }
+  }, [locationState])
+
+  useLocationSpawnAvatarWithDespawn()
+
   const ActiveRecording = () => {
     const data = recording.data!
     const startTime = new Date(data.createdAt).getTime()
     const endTime = new Date(data.updatedAt).getTime()
     const durationSeconds = (endTime - startTime) / 1000
-
-    useLocationSpawnAvatarWithDespawn()
 
     // get all video resources, paired with motion capture data if it exists
     const videoPlaybackPairs = data.resources.reduce(
@@ -604,7 +620,7 @@ const PlaybackMode = () => {
 const CapturePageState = defineState({
   name: 'CapturePageState',
   initial: {
-    mode: 'playback' as 'playback' | 'capture'
+    mode: 'capture' as 'playback' | 'capture'
   },
   onCreate: () => {
     syncStateWithLocalStorage(CapturePageState, ['mode'])
@@ -613,14 +629,6 @@ const CapturePageState = defineState({
 
 const CaptureDashboard = () => {
   const worldNetwork = useWorldNetwork()
-
-  // media server connecion
-  useEffect(() => {
-    if (worldNetwork?.connected?.value) {
-      ChannelService.getInstanceChannel()
-    }
-  }, [worldNetwork?.connected?.value])
-
   const mode = useHookstate(getMutableState(CapturePageState).mode)
 
   return (

@@ -47,15 +47,16 @@ import matches from 'ts-matches'
 
 import { NO_PROXY, defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
+import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { defineComponent, getComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { NameComponent } from '../../common/NameComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import getFirstMesh from '../util/meshUtils'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
-import { VisibleComponent } from './VisibleComponent'
 
 export const ParticleState = defineState({
   name: 'ParticleState',
@@ -64,6 +65,7 @@ export const ParticleState = defineState({
     const batchRendererEntity = createEntity()
     addObjectToGroup(batchRendererEntity, batchRenderer)
     setComponent(batchRendererEntity, VisibleComponent)
+    setComponent(batchRendererEntity, NameComponent, 'Particle Batched Renderer')
     return {
       batchRenderer,
       batchRendererEntity

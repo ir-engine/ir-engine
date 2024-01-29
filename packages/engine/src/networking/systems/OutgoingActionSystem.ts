@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
-import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { NetworkActions } from '../NetworkState'
 import { Network } from '../classes/Network'
 import { NetworkActionFunctions } from '../functions/NetworkActionFunctions'
@@ -45,13 +45,13 @@ export const updatePeers = (network: Network) => {
       name: userNames[peer.userId]
     }
   }) as Array<PeersUpdateType>
-  dispatchAction(
-    NetworkActions.updatePeers({
-      peers,
-      $topic: network.topic,
-      $network: network.id
-    })
-  )
+  const action = NetworkActions.updatePeers({
+    peers,
+    $topic: network.topic,
+    $network: network.id
+  })
+  dispatchAction(action)
+  return action
 }
 
 const execute = () => {

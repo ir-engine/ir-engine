@@ -28,9 +28,11 @@ import { Mesh } from 'three'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { defineComponent, useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { GroupComponent } from '../../scene/components/GroupComponent'
+import { defineComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
+import { MeshComponent } from '../../scene/components/MeshComponent'
 import { RendererState } from '../RendererState'
 import { EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
 
@@ -42,26 +44,22 @@ export const HighlightComponent = defineComponent({
 
     const postProcessingSettingsState = useHookstate(getMutableState(PostProcessingSettingsState))
     const usePostProcessing = useHookstate(getMutableState(RendererState).usePostProcessing)
-    const group = useOptionalComponent(entity, GroupComponent)
 
     useEffect(() => {
-      if (!group) return
-      const objs = [...group.value]
-      for (const object of objs) {
-        object.traverse((obj) => {
-          if (obj.type !== 'Mesh') return
-          addToSelection(obj as Mesh)
+      iterateEntityNode(entity, (childEntity) => {
+        const obj = getOptionalComponent(childEntity, MeshComponent)
+        const visible = getOptionalComponent(childEntity, VisibleComponent)
+        if (!visible || obj?.type !== 'Mesh') return
+        addToSelection(obj as Mesh)
+      })
+      return () => {
+        iterateEntityNode(entity, (childEntity) => {
+          const obj = getOptionalComponent(childEntity, MeshComponent)
+          if (obj?.type !== 'Mesh') return
+          removeFromSelection(obj as Mesh)
         })
       }
-      return () => {
-        for (const object of objs) {
-          object.traverse((obj) => {
-            if (obj.type !== 'Mesh') return
-            removeFromSelection(obj as Mesh)
-          })
-        }
-      }
-    }, [group, postProcessingSettingsState.effects, postProcessingSettingsState.enabled, usePostProcessing])
+    }, [postProcessingSettingsState.effects, postProcessingSettingsState.enabled, usePostProcessing])
 
     return null
   }

@@ -28,10 +28,9 @@ import { PassThrough } from 'stream'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import multiLogger from '@etherealengine/common/src/logger'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { Network, NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import {
@@ -53,13 +52,23 @@ import {
   dispatchAction,
   getMutableState,
   getState,
-  receiveActions,
   Topic
 } from '@etherealengine/hyperflux'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import {
+  AvatarID,
+  RecordingID,
+  recordingPath,
+  RecordingSchemaType,
+  UserID,
+  userPath
+} from '@etherealengine/common/src/schema.type.module'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
-import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import {
   addDataChannelHandler,
@@ -67,18 +76,10 @@ import {
   removeDataChannelHandler
 } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import {
-  RecordingID,
-  recordingPath,
-  RecordingSchemaType
-} from '@etherealengine/engine/src/schemas/recording/recording.schema'
-import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import matches, { Validator } from 'ts-matches'
+import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { checkScope } from '../common/functions/checkScope'
-import { isClient } from '../common/functions/getEnvironment'
 import { matchesUserId } from '../common/functions/MatchesUtils'
-import { PresentationSystemGroup } from '../ecs/functions/EngineFunctions'
 import { mocapDataChannelType } from '../mocap/MotionCaptureSystem'
 import { PhysicsSerialization } from '../physics/PhysicsSerialization'
 
@@ -141,39 +142,31 @@ export const RecordingState = defineState({
     recordingID: null as RecordingID | null
   },
 
-  receptors: [
-    [
-      ECSRecordingActions.startRecording,
-      (state, action: typeof ECSRecordingActions.startRecording.matches._TYPE) => {
-        state.active.set(true)
-        state.startedAt.set(null)
-        state.recordingID.set(null)
-      }
-    ],
-    [
-      ECSRecordingActions.recordingStarted,
-      (state, action: typeof ECSRecordingActions.recordingStarted.matches._TYPE) => {
-        state.startedAt.set(Date.now())
-        state.recordingID.set(action.recordingID)
-      }
-    ],
-    [
-      ECSRecordingActions.stopRecording,
-      (state, action: typeof ECSRecordingActions.stopRecording.matches._TYPE) => {
-        state.active.set(false)
-        state.startedAt.set(null)
-        state.recordingID.set(null)
-      }
-    ],
-    [
-      ECSRecordingActions.error,
-      (state, action: typeof ECSRecordingActions.error.matches._TYPE) => {
-        state.active.set(false)
-        state.startedAt.set(null)
-        state.recordingID.set(null)
-      }
-    ]
-  ],
+  receptors: {
+    onStartRecording: ECSRecordingActions.startRecording.receive((action) => {
+      const state = getMutableState(RecordingState)
+      state.active.set(true)
+      state.startedAt.set(null)
+      state.recordingID.set(null)
+    }),
+    onRecordingStarted: ECSRecordingActions.recordingStarted.receive((action) => {
+      const state = getMutableState(RecordingState)
+      state.startedAt.set(Date.now())
+      state.recordingID.set(action.recordingID)
+    }),
+    onStopRecording: ECSRecordingActions.stopRecording.receive((action) => {
+      const state = getMutableState(RecordingState)
+      state.active.set(false)
+      state.startedAt.set(null)
+      state.recordingID.set(null)
+    }),
+    onError: ECSRecordingActions.error.receive((action) => {
+      const state = getMutableState(RecordingState)
+      state.active.set(false)
+      state.startedAt.set(null)
+      state.recordingID.set(null)
+    })
+  },
 
   requestRecording: async (peerSchema: RecordingConfigSchema) => {
     try {
@@ -251,16 +244,14 @@ export const PlaybackState = defineState({
     currentTime: null as number | null
   },
 
-  receptors: [
-    [
-      ECSRecordingActions.playbackChanged,
-      (state, action: typeof ECSRecordingActions.playbackChanged.matches._TYPE) => {
-        state.playing.set(action.playing)
-        state.recordingID.set(action.playing ? action.recordingID : null)
-        state.currentTime.set(action.playing ? 0 : null)
-      }
-    ]
-  ],
+  receptors: {
+    onPlaybackChanged: ECSRecordingActions.playbackChanged.receive((action) => {
+      const state = getMutableState(PlaybackState)
+      state.playing.set(action.playing)
+      state.recordingID.set(action.playing ? action.recordingID : null)
+      state.currentTime.set(action.playing ? 0 : null)
+    })
+  },
 
   startPlaybackOnServer(args: { recordingID: RecordingID; targetUser?: UserID }) {
     const { recordingID, targetUser } = args
@@ -394,7 +385,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
 
   const startTime = Date.now()
 
-  const chunkLength = Math.floor((1000 / getState(EngineState).simulationTimestep) * 60) // 1 minute
+  const chunkLength = Math.floor((1000 / getState(ECSState).simulationTimestep) * 60) // 1 minute
 
   const dataChannelRecorder = (network: Network, dataChannel: DataChannelType, fromPeerID: PeerID, message: any) => {
     try {
@@ -424,7 +415,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
 
     activeRecording.serializer = ECSSerialization.createSerializer({
       entities: () => {
-        return [NetworkObjectComponent.getUserAvatarEntity(userID)]
+        return [AvatarComponent.getUserAvatarEntity(userID)]
       },
       schema: serializationSchema,
       chunkLength,
@@ -651,11 +642,12 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
               }
             }
 
-            if (!UUIDComponent.entitiesByUUID[entityID]) {
+            if (!UUIDComponent.getEntityByUUID(entityID) && isClone) {
               dispatchAction(
                 AvatarNetworkAction.spawn({
                   $from: entityID,
-                  entityUUID: entityID
+                  entityUUID: entityID,
+                  avatarID: '' as AvatarID
                 })
               )
               dispatchAction(
@@ -775,9 +767,6 @@ const startPlaybackActionQueue = defineActionQueue(ECSRecordingActions.startPlay
 const stopPlaybackActionQueue = defineActionQueue(ECSRecordingActions.stopPlayback.matches)
 
 const execute = () => {
-  receiveActions(RecordingState)
-  receiveActions(PlaybackState)
-
   const recordingState = getState(RecordingState)
   const playbackState = getState(PlaybackState)
 

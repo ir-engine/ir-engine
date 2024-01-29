@@ -23,16 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '../ecs/classes/Entity'
-import { hasComponent } from '../ecs/functions/ComponentFunctions'
+import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { checkBitflag, readVector3, readVector4 } from '../networking/serialization/DataReader'
 import { writeVector3, writeVector4 } from '../networking/serialization/DataWriter'
 import { ViewCursor, readUint8, rewindViewCursor, spaceUint8 } from '../networking/serialization/ViewCursor'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
-import { LocalTransformComponent, TransformComponent } from './components/TransformComponent'
+import { TransformComponent } from './components/TransformComponent'
 
-export const readPosition = readVector3(LocalTransformComponent.position)
-export const readRotation = readVector4(LocalTransformComponent.rotation) //readCompressedRotation(LocalTransformComponent.rotation) //readVector4(LocalTransformComponent.rotation)
+export const readPosition = readVector3(TransformComponent.position)
+export const readRotation = readVector4(TransformComponent.rotation) //readCompressedRotation(TransformComponent.rotation) //readVector4(TransformComponent.rotation)
 
 export const readTransform = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint8(v)
@@ -42,11 +42,11 @@ export const readTransform = (v: ViewCursor, entity: Entity) => {
   TransformComponent.dirtyTransforms[entity] = true
 }
 
-export const writePosition = writeVector3(LocalTransformComponent.position)
-export const writeRotation = writeVector4(LocalTransformComponent.rotation)
+export const writePosition = writeVector3(TransformComponent.position)
+export const writeRotation = writeVector4(TransformComponent.rotation)
 
 export const writeTransform = (v: ViewCursor, entity: Entity) => {
-  if (!hasComponent(entity, LocalTransformComponent) || hasComponent(entity, RigidBodyComponent)) return
+  if (!hasComponent(entity, TransformComponent) || hasComponent(entity, RigidBodyComponent)) return
 
   const rewind = rewindViewCursor(v)
   const writeChangeMask = spaceUint8(v)

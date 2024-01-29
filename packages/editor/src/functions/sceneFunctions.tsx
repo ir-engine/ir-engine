@@ -27,15 +27,14 @@ import i18n from 'i18next'
 
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import multiLogger from '@etherealengine/common/src/logger'
+import { SceneDataType, SceneID, scenePath, sceneUploadPath } from '@etherealengine/common/src/schema.type.module'
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { GLTFLoadedComponent } from '@etherealengine/engine/src/scene/components/GLTFLoadedComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { sceneUploadPath } from '@etherealengine/engine/src/schemas/projects/scene-upload.schema'
-import { SceneDataType, SceneID, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { EditorState } from '../services/EditorServices'
 
@@ -110,12 +109,7 @@ export const renameScene = async (projectName: string, newSceneName: string, old
  * @param  {any}  signal
  * @return {Promise}
  */
-export const saveScene = async (
-  projectName: string,
-  sceneName: string,
-  thumbnailFile: File | null,
-  signal: AbortSignal
-) => {
+export const saveScene = async (projectName: string, sceneName: string, signal: AbortSignal) => {
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
 
   const sceneData = getState(SceneState).scenes[getState(SceneState).activeScene!].snapshots.at(-1)?.data
@@ -125,7 +119,7 @@ export const saveScene = async (
     //remove gltf data from scene data
     for (const entityUUID of Object.keys(sceneData.entities)) {
       if (!sceneData.entities[entityUUID]) continue //entity has already been removed from save data
-      const entity = UUIDComponent.entitiesByUUID[entityUUID as EntityUUID]
+      const entity = UUIDComponent.getEntityByUUID(entityUUID as EntityUUID)
       if (hasComponent(entity, GLTFLoadedComponent)) {
         //delete anything that is a child of any GLTF-loaded entity
         iterateEntityNode(entity, (entity) => {
@@ -134,7 +128,7 @@ export const saveScene = async (
         })
       }
     }
-    return await uploadToFeathersService(sceneUploadPath, thumbnailFile ? [thumbnailFile] : [], {
+    return await uploadToFeathersService(sceneUploadPath, [], {
       project: projectName,
       name: sceneName,
       sceneData

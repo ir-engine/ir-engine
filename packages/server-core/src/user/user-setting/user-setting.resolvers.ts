@@ -32,10 +32,10 @@ import {
   UserSettingID,
   UserSettingQuery,
   UserSettingType
-} from '@etherealengine/engine/src/schemas/user/user-setting.schema'
+} from '@etherealengine/common/src/schemas/user/user-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const userDbToSchema = (rawData: UserSettingDatabaseType): UserSettingType => {
   let themeModes

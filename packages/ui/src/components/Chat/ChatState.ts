@@ -22,7 +22,7 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { ChannelID } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import { ChannelID } from '@etherealengine/common/src/schema.type.module'
 import { defineState } from '@etherealengine/hyperflux'
 
 export const ChatState = defineState({

@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { Engine } from '../ecs/classes/Engine'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { ReferenceSpace, XRState } from '../xr/XRState'
 import { TransformComponent } from './components/TransformComponent'
 import { computeTransformMatrix } from './systems/TransformSystem'
@@ -41,11 +41,9 @@ export const updateWorldOriginFromScenePlacement = () => {
   originTransform.position.copy(scenePosition)
   originTransform.rotation.copy(sceneRotation)
   originTransform.scale.setScalar(worldScale)
-  originTransform.matrixInverse.compose(originTransform.position, originTransform.rotation, originTransform.scale)
-  originTransform.matrix
-    .copy(originTransform.matrixInverse)
-    .invert()
-    .decompose(originTransform.position, originTransform.rotation, originTransform.scale)
+  originTransform.matrix.compose(originTransform.position, originTransform.rotation, originTransform.scale).invert()
+  originTransform.matrixWorld.copy(originTransform.matrix)
+  originTransform.matrixWorld.decompose(originTransform.position, originTransform.rotation, originTransform.scale)
   if (ReferenceSpace.localFloor) {
     const xrRigidTransform = new XRRigidTransform(scenePosition, sceneRotation)
     ReferenceSpace.origin = ReferenceSpace.localFloor.getOffsetReferenceSpace(xrRigidTransform)

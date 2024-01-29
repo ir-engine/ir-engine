@@ -26,9 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { DistanceModel, DistanceModelOptions } from '@etherealengine/engine/src/audio/constants/AudioConstants'
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
 import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 
