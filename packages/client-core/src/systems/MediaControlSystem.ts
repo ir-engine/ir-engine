@@ -34,6 +34,7 @@ import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { NameComponent } from '@etherealengine/engine/src/common/NameComponent'
+import { createTransitionState } from '@etherealengine/engine/src/common/functions/createTransitionState'
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { addInteractableUI } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
@@ -42,7 +43,6 @@ import { EntityTreeComponent } from '@etherealengine/engine/src/transform/compon
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { XRUIComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
-import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
 import { createMediaControlsView } from './ui/MediaControlsUI'
 
 export const createMediaControlsUI = (entity: Entity) => {

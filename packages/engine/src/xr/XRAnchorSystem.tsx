@@ -62,9 +62,9 @@ import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { InputState } from '../input/state/InputState'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { VisibleComponent, setVisibleComponent } from '../scene/components/VisibleComponent'
-import { ReferenceSpaceTransformSystem } from '../transform/TransformModule'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { updateWorldOriginFromScenePlacement } from '../transform/updateWorldOrigin'
+import { XRCameraUpdateSystem } from './XRCameraSystem'
 import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
 
@@ -367,7 +367,7 @@ const reactor = () => {
 
 export const XRAnchorSystem = defineSystem({
   uuid: 'ee.engine.XRAnchorSystem',
-  insert: { after: ReferenceSpaceTransformSystem },
+  insert: { after: XRCameraUpdateSystem },
   execute,
   reactor
 })

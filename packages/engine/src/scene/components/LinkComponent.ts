@@ -49,7 +49,6 @@ import { matches } from '../../common/functions/MatchesUtils'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
-import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { createInteractUI } from '../../interaction/functions/interactUI'
 import { createNonInteractUI } from '../../interaction/functions/nonInteractUI'
 import {
@@ -58,6 +57,7 @@ import {
   removeInteractiveUI
 } from '../../interaction/systems/InteractiveSystem'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
 import { addError, clearErrors } from '../functions/ErrorFunctions'

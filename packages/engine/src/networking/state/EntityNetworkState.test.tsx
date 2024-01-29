@@ -28,7 +28,7 @@ import assert from 'assert'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState } from '@etherealengine/hyperflux'
 import * as ActionFunctions from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { applyIncomingActions, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
@@ -39,8 +39,6 @@ import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
-import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
-import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../../physics/classes/Physics'
 import { PhysicsState } from '../../physics/state/PhysicsState'
@@ -187,13 +185,12 @@ describe('EntityNetworkState', () => {
       const objNetId = 3 as NetworkId
 
       dispatchAction(
-        AvatarNetworkAction.spawn({
+        WorldNetworkAction.spawnObject({
           $from: userId2, // from other user
           networkId: objNetId,
           $peer: peerID3,
           $topic: NetworkTopics.world,
-          entityUUID: peerID3 as any as EntityUUID,
-          avatarID: '' as AvatarID
+          entityUUID: peerID3 as any as EntityUUID
         })
       )
       applyIncomingActions()
@@ -227,11 +224,10 @@ describe('EntityNetworkState', () => {
       NetworkPeerFunctions.createPeer(network, peerID, 1, userId, 1, 'user name')
 
       dispatchAction(
-        AvatarNetworkAction.spawn({
+        WorldNetworkAction.spawnObject({
           networkId: 42 as NetworkId,
           $peer: peerID,
-          entityUUID: Engine.instance.userID as string as EntityUUID,
-          avatarID: '' as AvatarID
+          entityUUID: Engine.instance.userID as string as EntityUUID
         })
       )
       applyIncomingActions()
@@ -240,8 +236,6 @@ describe('EntityNetworkState', () => {
       await act(() => rerender(tag))
 
       const entity = UUIDComponent.getEntityByUUID(Engine.instance.userID as any as EntityUUID)
-
-      spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
 
       assert.equal(getComponent(entity, NetworkObjectComponent).networkId, 42)
       assert.equal(getComponent(entity, NetworkObjectComponent).authorityPeerID, peerID)

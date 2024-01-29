@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Color, DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'three'
+import { Color, DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 
 import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -35,8 +35,8 @@ import { createEntity, entityExists, removeEntity } from '@etherealengine/ecs/sr
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { useEffect } from 'react'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { NameComponent } from '../../common/NameComponent'
+import { createTransitionState } from '../../common/functions/createTransitionState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -46,7 +46,6 @@ import {
   setComputedTransformComponent
 } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { CameraActions } from '../CameraState'
 import { CameraSystem } from './CameraSystem'
 
@@ -74,17 +73,10 @@ const execute = () => {
         )
       })
     } else removeComponent(entity, ComputedTransformComponent)
-    if (action.graphicTexture) {
-      AssetLoader.load(action.graphicTexture, {}, (texture: Texture) => {
-        mesh.material.color = new Color('white')
-        mesh.material.map = texture
-        mesh.material.needsUpdate = true
-      })
-    } else {
-      mesh.material.color = new Color('black')
-      mesh.material.map = null
-      mesh.material.needsUpdate = true
-    }
+
+    mesh.material.color = new Color('black')
+    mesh.material.map = null
+    mesh.material.needsUpdate = true
   }
 
   const deltaSeconds = getState(ECSState).deltaSeconds

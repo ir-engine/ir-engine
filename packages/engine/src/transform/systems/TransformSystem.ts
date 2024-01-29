@@ -44,7 +44,6 @@ import { EntityTreeComponent } from '@etherealengine/engine/src/transform/compon
 import { Not } from 'bitecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { V_000 } from '../../common/constants/MathConstants'
-import { BoundingBoxComponent, updateBoundingBox } from '../../interaction/components/BoundingBoxComponents'
 import { NetworkState } from '../../networking/NetworkState'
 import {
   RigidBodyComponent,
@@ -56,6 +55,7 @@ import { ScenePreviewCameraComponent } from '../../scene/components/ScenePreview
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
 import { TransformSerialization } from '../TransformSerialization'
+import { BoundingBoxComponent, updateBoundingBox } from '../components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import {
   DistanceFromCameraComponent,
@@ -183,6 +183,13 @@ const updateTransformFromComputedTransform = (entity: Entity) => {
   const computedTransform = getOptionalComponent(entity, ComputedTransformComponent)
   if (!computedTransform) return
   computedTransform.computeFunction(entity, computedTransform.referenceEntity)
+}
+
+//isProxified: used to check if an object is proxified
+declare module 'three/src/core/Object3D' {
+  export interface Object3D {
+    readonly isProxified: true | undefined
+  }
 }
 
 export const updateGroupChildren = (entity: Entity) => {

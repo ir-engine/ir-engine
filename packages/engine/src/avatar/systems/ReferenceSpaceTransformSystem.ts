@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { moveAvatar, updateLocalAvatarRotation } from '../../avatar/functions/moveAvatar'
-import { computeTransformMatrix } from './TransformSystem'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
+import { XRCameraUpdateSystem } from '../../xr/XRCameraSystem'
+import { moveAvatar, updateLocalAvatarRotation } from '../functions/moveAvatar'
 
 const execute = () => {
   const { localClientEntity } = Engine.instance
@@ -47,6 +47,6 @@ const execute = () => {
  */
 export const ReferenceSpaceTransformSystem = defineSystem({
   uuid: 'ee.engine.ReferenceSpaceTransformSystem',
-  insert: { before: AnimationSystemGroup },
+  insert: { before: XRCameraUpdateSystem },
   execute
 })

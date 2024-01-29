@@ -46,7 +46,6 @@ export class CameraActions {
 
   static fadeToBlack = defineAction({
     type: 'xre.engine.CameraActions.FadeToBlack' as const,
-    in: matches.boolean,
-    graphicTexture: matches.string.optional()
+    in: matches.boolean
   })
 }
