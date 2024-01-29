@@ -24,23 +24,17 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, NodeDefinition, makeEventNodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
+import { SystemDefinitions, SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import {
   Action,
   ActionDefinitions,
-  ActionQueueDefinition,
   defineActionQueue,
   dispatchAction,
   removeActionQueue
 } from '@etherealengine/hyperflux'
 import { startCase } from 'lodash'
 import matches from 'ts-matches'
-import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
-import {
-  SystemDefinitions,
-  SystemUUID,
-  defineSystem,
-  destroySystem
-} from '../../../../../ecs/functions/SystemFunctions'
 import { NodetoEnginetype } from './commonHelper'
 
 const skipAction = ['']
@@ -95,7 +89,7 @@ export function getActionDispatchers() {
     const namePath = nameArray.splice(1).join('/')
 
     const node = makeFlowNodeDefinition({
-      typeName: `action/${namePath}/dispatch${dispatchName}`,
+      typeName: `action/${namePath}/${dispatchName}/dispatch`,
       category: NodeCategory.Action,
       label: `dispatch ${namePath} ${dispatchName}`,
       in: {
@@ -120,7 +114,7 @@ export function getActionDispatchers() {
 }
 
 type State = {
-  queue: ActionQueueDefinition
+  queue: ActionQueueHandle
   systemUUID: SystemUUID
 }
 const initialState = (): State => ({
@@ -147,7 +141,7 @@ export function getActionConsumers() {
     const namePath = nameArray.splice(1).join('/')
 
     const node = makeEventNodeDefinition({
-      typeName: `action/${namePath}/on${dispatchName}`,
+      typeName: `action/${namePath}/${dispatchName}/consume`,
       category: NodeCategory.Event,
       label: `on ${namePath} ${dispatchName}`,
       in: {

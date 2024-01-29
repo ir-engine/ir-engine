@@ -30,7 +30,7 @@ import { SystemDefinitions, SystemUUID } from '../../../../../ecs/functions/Syst
 import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 
 export const getQuery = makeFunctionNodeDefinition({
-  typeName: 'engine/getQuery',
+  typeName: 'engine/query/get',
   category: NodeCategory.Query,
   label: 'get Query',
   configuration: {

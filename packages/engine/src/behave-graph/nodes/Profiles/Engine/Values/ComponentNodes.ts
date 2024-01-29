@@ -89,7 +89,7 @@ export const deleteComponent = makeFlowNodeDefinition({
 })
 
 export const setTag = makeFlowNodeDefinition({
-  typeName: 'engine/component/setTag',
+  typeName: 'engine/component/tag/set',
   category: NodeCategory.Action,
   label: 'set Tag',
   in: {
@@ -111,7 +111,7 @@ export const setTag = makeFlowNodeDefinition({
 })
 
 export const removeTag = makeFlowNodeDefinition({
-  typeName: 'engine/component/removeTag',
+  typeName: 'engine/component/tag/remove',
   category: NodeCategory.Action,
   label: 'remove Tag',
   in: {

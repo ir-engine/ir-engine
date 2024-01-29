@@ -43,7 +43,7 @@ const initialState = (): State => ({
 
 // very 3D specific.
 export const OnExecute = makeEventNodeDefinition({
-  typeName: 'engine/OnExecute',
+  typeName: 'flow/lifecycle/OnExecute',
   category: NodeCategory.Event,
   label: 'On Execute',
   in: {

@@ -31,7 +31,7 @@ import { StandardGamepadAxes, XRStandardGamepadAxes } from '../../../../../input
 
 // very 3D specific.
 export const getAxis = makeFunctionNodeDefinition({
-  typeName: 'engine/getAxis',
+  typeName: 'engine/axis/get',
   category: NodeCategory.Query,
   label: 'get Axis',
   in: {
