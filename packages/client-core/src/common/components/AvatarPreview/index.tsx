@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
-import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import {
+  PanelEntities,
   PreviewPanelRendererState,
   useRender3DPanelSystem
 } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
@@ -45,14 +45,14 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { createEntity, removeEntity, setComponent } from '@etherealengine/ecs'
 import { defaultAnimationPath, preloadedAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
+import { NameComponent } from '@etherealengine/engine/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
+import { ObjectLayerMaskComponent } from '@etherealengine/engine/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@etherealengine/engine/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/engine/src/renderer/constants/ObjectLayers'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { ObjectLayerMaskComponent } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { EnvMapSourceType } from '@etherealengine/engine/src/scene/constants/EnvMapEnum'
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { MathUtils } from 'three'
 
@@ -68,9 +68,7 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
   const { t } = useTranslation()
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
 
-  const [avatarLoading, setAvatarLoading] = useState(false)
-
-  const renderPanel = useRender3DPanelSystem(panelRef)
+  useRender3DPanelSystem(panelRef)
 
   useEffect(() => {
     loadAvatarPreview()
@@ -96,11 +94,8 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     })
     setComponent(entity, EnvmapComponent, { type: EnvMapSourceType.Skybox })
 
-    if (renderPanelEntities[1].value) removeEntity(renderPanelEntities[1].value)
-    renderPanelEntities[1].set(entity)
-
-    //if (previewEntity.value) removeEntity(previewEntity.value)
-    //previewEntity.set(entity)
+    if (renderPanelEntities[PanelEntities.model].value) removeEntity(renderPanelEntities[1].value)
+    renderPanelEntities[PanelEntities.model].set(entity)
 
     //camera.position.value.y = 1.8
     //camera.position.value.z = 1
@@ -110,13 +105,13 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     <Box className={`${commonStyles.preview} ${fill ? styles.fill : ''}`} sx={sx}>
       <div ref={panelRef} id="stage" className={`${styles.stage} ${fill ? styles.fill : ''}`} />
 
-      {avatarLoading && (
+      {/* {(
         <LoadingView
           title={t('admin:components.avatar.loading')}
           variant="body2"
           sx={{ position: 'absolute', top: 0 }}
         />
-      )}
+      )} */}
 
       {!avatarUrl && (
         <Text className={commonStyles.previewText} variant="body2">

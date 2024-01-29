@@ -42,7 +42,7 @@ import { V_010 } from '../../common/constants/MathConstants'
 import { throttle } from '../../common/functions/FunctionHelpers'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { InputState } from '../../input/state/InputState'
-import { GroupComponent } from '../../scene/components/GroupComponent'
+import { GroupComponent } from '../../renderer/components/GroupComponent'
 import obj3dFromUuid from '../../scene/util/obj3dFromUuid'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraComponent } from '../components/CameraComponent'
@@ -60,7 +60,6 @@ const delta = new Vector3()
 const normalMatrix = new Matrix3()
 const sphere = new Sphere()
 const spherical = new Spherical()
-const toOrbitCenter = new Vector3()
 
 const doZoom = (zoom) => {
   const zoomDelta = typeof zoom === 'number' ? zoom - lastZoom : 0

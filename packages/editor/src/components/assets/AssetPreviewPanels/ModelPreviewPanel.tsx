@@ -29,6 +29,7 @@ import ResizeObserver from 'resize-observer-polyfill'
 
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import {
+  PanelEntities,
   PreviewPanelRendererState,
   useRender3DPanelSystem
 } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
@@ -90,11 +91,10 @@ export const ModelPreviewPanel = (props) => {
     setComponent(entity, ModelComponent, { src: url })
     setComponent(entity, EnvmapComponent, { type: 'Skybox' })
     setComponent(entity, VisibleComponent, false)
-
     ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.AssetPreview)
 
-    if (renderPanelEntities[1].value) removeEntity(renderPanelEntities[1].value)
-    renderPanelEntities[1].set(entity)
+    if (renderPanelEntities[PanelEntities.model].value) removeEntity(renderPanelEntities[PanelEntities.model].value)
+    renderPanelEntities[PanelEntities.model].set(entity)
     loading.set(false)
   }, [url])
 

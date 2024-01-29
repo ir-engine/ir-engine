@@ -28,21 +28,23 @@ import React, { useEffect, useRef } from 'react'
 import ResizeObserver from 'resize-observer-polyfill'
 
 import {
+  PanelEntities,
   PreviewPanelRendererState,
   useRender3DPanelSystem
 } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { createEntity, removeEntity, setComponent } from '@etherealengine/ecs'
-import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
+import { createEntity, getMutableComponent, removeEntity, setComponent } from '@etherealengine/ecs'
+import { CameraOrbitComponent } from '@etherealengine/engine/src/camera/components/CameraOrbitComponent'
+import { NameComponent } from '@etherealengine/engine/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
+import { addObjectToGroup } from '@etherealengine/engine/src/renderer/components/GroupComponent'
+import { ObjectLayerMaskComponent } from '@etherealengine/engine/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@etherealengine/engine/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/engine/src/renderer/constants/ObjectLayers'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
-import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { ObjectLayerMaskComponent } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
 import { MathUtils, Mesh, SphereGeometry } from 'three'
 import { MaterialSelectionState } from '../../materials/MaterialLibraryState'
 
@@ -88,8 +90,11 @@ export const MaterialPreviewPanel = (props) => {
     setComponent(entity, VisibleComponent, true)
     const material = getState(MaterialLibraryState).materials[selectedMaterial.value].material
     if (!material) return
-    addObjectToGroup(entity, new Mesh(new SphereGeometry(1, 32, 32), material))
+    addObjectToGroup(entity, new Mesh(new SphereGeometry(5, 32, 32), material))
     setComponent(entity, EnvmapComponent, { type: 'Skybox' })
+    const orbitCamera = getMutableComponent(renderPanelEntities[PanelEntities.camera].value, CameraOrbitComponent)
+    orbitCamera.focusedObjects.set([entity])
+    orbitCamera.refocus.set(true)
 
     ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.AssetPreview)
     if (renderPanelEntities[1]) removeEntity(renderPanelEntities[1].value)

@@ -73,6 +73,7 @@ export enum PanelEntities {
   'model'
 }
 
+const InputSourceQuery = defineQuery([InputSourceComponent])
 const initializePreviewPanel = (id: string) => {
   const cameraEntity = createEntity()
   setComponent(cameraEntity, CameraComponent)
@@ -88,6 +89,7 @@ const initializePreviewPanel = (id: string) => {
   const previewEntity = createEntity()
   ObjectLayerMaskComponent.setLayer(previewEntity, ObjectLayers.AssetPreview)
   getMutableState(PreviewPanelRendererState).entities[id].set([cameraEntity, previewEntity])
+  getMutableState(ActiveOrbitCamera).set(cameraEntity)
 }
 
 export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElement>) {
