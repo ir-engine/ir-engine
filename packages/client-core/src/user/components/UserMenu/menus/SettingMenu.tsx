@@ -51,6 +51,7 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { UserSettingPatch } from '@etherealengine/common/src/schema.type.module'
+import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { AdminClientSettingsState } from '../../../../admin/services/Setting/ClientSettingService'
 import { UserMenus } from '../../../UserUISystem'
 import { userHasAccess } from '../../../userHasAccess'
@@ -94,7 +95,8 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
   const selfUser = useHookstate(getMutableState(AuthState).user)
   const leftAxesControlScheme = avatarInputState.leftAxesControlScheme.value
   const rightAxesControlScheme = avatarInputState.rightAxesControlScheme.value
-  const preferredHand = avatarInputState.preferredHand.value
+  const inputState = useHookstate(getMutableState(InputState))
+  const preferredHand = inputState.preferredHand.value
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
   const firstRender = useRef(true)
   const xrSupportedModes = useHookstate(getMutableState(XRState).supportedSessionModes)
@@ -270,9 +272,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
                       label={t('user:usermenu.setting.lbl-preferred-hand')}
                       value={preferredHand}
                       menu={handOptionsMenu}
-                      onChange={(event) =>
-                        getMutableState(AvatarInputSettingsState).preferredHand.set(event.target.value)
-                      }
+                      onChange={(event) => getMutableState(InputState).preferredHand.set(event.target.value)}
                     />
                   </Grid>
                 </Grid>

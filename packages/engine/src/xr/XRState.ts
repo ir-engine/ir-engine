@@ -28,12 +28,8 @@ import matches from 'ts-matches'
 
 import { defineAction, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { useEffect } from 'react'
-import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
-import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { DepthDataTexture } from './DepthDataTexture'
 
 export class XRAction {
@@ -79,7 +75,9 @@ export const XRState = defineState({
       is8thWallActive: false,
       viewerInputSourceEntity: 0 as Entity,
       viewerPose: null as XRViewerPose | null | undefined,
-      userAvatarHeightScale: 1,
+      /** @todo replace with proper proportions API */
+      userEyeHeight: 1.75,
+      userHeightRatio: 1,
       xrFrame: null as XRFrame | null
     }
   },
@@ -91,26 +89,26 @@ export const XRState = defineState({
    * @returns {number} the world scale
    */
   get worldScale(): number {
-    const { sceneScale, userAvatarHeightScale } = getState(XRState)
-    return sceneScale * userAvatarHeightScale
+    const { sceneScale, userHeightRatio } = getState(XRState)
+    return sceneScale * userHeightRatio
   },
 
-  /**
-   * Gets the preferred controller entity - will return null if the entity is not in an active session or the controller is not available
-   * @param {boolean} offhand specifies to return the non-preferred hand instead
-   * @returns {Entity}
-   */
-  getPreferredInputSource: (offhand = false) => {
-    const xrState = getState(XRState)
-    if (!xrState.sessionActive) return
-    const avatarInputSettings = getState(AvatarInputSettingsState)
-    for (const inputSourceEntity of inputSourceQuery()) {
-      const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
-      const source = inputSourceComponent.source
-      if (source.handedness === 'none') continue
-      if (!offhand && avatarInputSettings.preferredHand == source.handedness) return source
-      if (offhand && avatarInputSettings.preferredHand !== source.handedness) return source
+  setTrackingSpace: () => {
+    const { xrFrame, userEyeHeight } = getState(XRState)
+
+    if (!xrFrame) {
+      getMutableState(XRState).userHeightRatio.set(1)
+      return
     }
+
+    const viewerPose = xrFrame.getViewerPose(ReferenceSpace.localFloor!)
+
+    if (!viewerPose) {
+      getMutableState(XRState).userHeightRatio.set(1)
+      return
+    }
+
+    getMutableState(XRState).userHeightRatio.set(viewerPose.transform.position.y / userEyeHeight)
   }
 })
 
@@ -183,8 +181,6 @@ export const ReferenceSpace = {
   viewer: null as XRReferenceSpace | null
 }
 globalThis.ReferenceSpace = ReferenceSpace
-
-const inputSourceQuery = defineQuery([InputSourceComponent])
 
 const userAgent = 'navigator' in globalThis ? navigator.userAgent : ''
 

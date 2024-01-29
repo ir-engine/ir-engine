@@ -54,7 +54,7 @@ import {
 	NoColorSpace
 } from 'three';
 
-import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
+import createReadableTexture from '@etherealengine/engine/src/renderer/functions/createReadableTexture'
 
 /**
  * The KHR_mesh_quantization extension allows these extra attribute component types

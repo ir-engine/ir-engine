@@ -34,7 +34,7 @@
 // import { addComponent, getComponent, setComponent } from '@etherealengine/ecs/srcComponentFunctions'
 // import { createEntity } from '@etherealengine/ecs/srcEntityFunctions'
 // import { createEngine } from '../../initializeEngine'
-// import { GroupComponent } from '../../scene/components/GroupComponent'
+// import { GroupComponent } from '../../renderer/components/GroupComponent'
 // import { setTransformComponent } from '../../transform/components/TransformComponent'
 // import { AnimationManager } from '../AnimationManager'
 // import { AnimationComponent } from '../components/AnimationComponent'

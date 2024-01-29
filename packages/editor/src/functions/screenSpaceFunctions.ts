@@ -29,7 +29,7 @@ import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendere
 import { SnapMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { getState } from '@etherealengine/hyperflux'
 
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { ObjectLayers } from '@etherealengine/engine/src/renderer/constants/ObjectLayers'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
 

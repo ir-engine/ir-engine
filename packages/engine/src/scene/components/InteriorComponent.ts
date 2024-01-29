@@ -28,9 +28,9 @@ import { Vector2 } from 'three'
 import { defineComponent, getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { ComponentUpdateFunction } from '../../common/constants/PrefabFunctionType'
+import { addObjectToGroup } from '../../renderer/components/GroupComponent'
 import { Interior } from '../classes/Interior'
 import { addError, removeError } from '../functions/ErrorFunctions'
-import { addObjectToGroup } from './GroupComponent'
 
 export type InteriorComponentType = {
   cubeMap: string

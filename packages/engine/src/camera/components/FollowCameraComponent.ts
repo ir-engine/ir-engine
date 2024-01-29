@@ -28,7 +28,7 @@ import { ArrowHelper, Clock, Vector3 } from 'three'
 import { getState } from '@etherealengine/hyperflux'
 
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { CameraSettingsState } from '../CameraSceneMetadata'
 import { CameraMode } from '../types/CameraMode'
 
@@ -77,6 +77,7 @@ export const FollowCameraComponent = defineComponent({
     }
 
     return {
+      offset: new Vector3(),
       targetEntity: UndefinedEntity,
       mode: CameraMode.ThirdPerson,
       distance: cameraSettings.startCameraDistance,
@@ -97,6 +98,7 @@ export const FollowCameraComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
 
+    if (typeof json.offset !== 'undefined') component.offset.set(json.offset)
     if (typeof json.targetEntity !== 'undefined') component.targetEntity.set(json.targetEntity)
     if (typeof json.mode !== 'undefined') component.mode.set(json.mode)
     if (typeof json.distance !== 'undefined') component.distance.set(json.distance)
@@ -110,34 +112,5 @@ export const FollowCameraComponent = defineComponent({
     if (typeof json.maxPhi !== 'undefined') component.maxPhi.set(json.maxPhi)
     if (typeof json.shoulderSide !== 'undefined') component.shoulderSide.set(json.shoulderSide)
     if (typeof json.locked !== 'undefined') component.locked.set(json.locked)
-  },
-
-  toJSON: () =>
-    null! as {
-      targetEntity: Entity
-      /** * **Default** value is ```'thirdPerson'```. */
-      mode: CameraMode
-      /** Distance to the target  */
-      distance: number
-      /** Desired zoom level  */
-      zoomLevel: number
-      /** Used internally */
-      zoomVelocity: { value: number }
-      /** Minimum distance to target */
-      minDistance: number
-      /** Maximum distance to target */
-      maxDistance: number
-      /** Rotation around Y axis */
-      theta: number
-      /** Rotation around Z axis */
-      phi: number
-      /** Minimum phi value */
-      minPhi: number
-      /** Maximum phi value */
-      maxPhi: number
-      /** Whether looking over left or right shoulder */
-      shoulderSide: boolean
-      /** Whether the camera auto-rotates toward the target **Default** value is true. */
-      locked: boolean
-    }
+  }
 })

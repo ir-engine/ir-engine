@@ -44,15 +44,17 @@ import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import matches from 'ts-matches'
+import { EngineState } from '../../EngineState'
+import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { InputComponent } from '../../input/components/InputComponent'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
 import { PhysicsState } from '../../physics/state/PhysicsState'
+import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix, updateGroupChildren } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'
-import { GroupComponent } from './GroupComponent'
 import { ModelComponent } from './ModelComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
@@ -184,7 +186,7 @@ export const ColliderComponent = defineComponent({
           updateGroupChildren(entity)
         }
 
-        Physics.createRigidBodyForGroup(
+        const meshesToRemove = Physics.createRigidBodyForGroup(
           entity,
           physicsWorld,
           {
@@ -198,6 +200,11 @@ export const ColliderComponent = defineComponent({
           },
           isMeshCollider
         )
+
+        if (!getState(EngineState).isEditor)
+          for (const mesh of meshesToRemove) {
+            cleanupAllMeshData(mesh, {})
+          }
       } else {
         const rigidbodyTypeChanged =
           !hasComponent(entity, RigidBodyComponent) ||

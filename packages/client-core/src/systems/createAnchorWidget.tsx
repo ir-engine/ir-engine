@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { VisibleComponent } from '@etherealengine/engine/src/renderer/components/VisibleComponent'
 import { XRAction, XRState } from '@etherealengine/engine/src/xr/XRState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppActions } from '@etherealengine/engine/src/xrui/WidgetAppService'
@@ -40,10 +40,10 @@ import {
 } from '@etherealengine/hyperflux'
 
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { AvatarInputSettingsState } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { InputComponent } from '@etherealengine/engine/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import { XRStandardGamepadAxes, XRStandardGamepadButton } from '@etherealengine/engine/src/input/state/ButtonState'
+import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { XRAnchorSystemState } from '@etherealengine/engine/src/xr/XRAnchorSystem'
 import { useEffect } from 'react'
 import { MathUtils } from 'three'
@@ -67,7 +67,7 @@ export function createAnchorWidget() {
     system: () => {
       if (xrState.session.value?.interactionMode !== 'world-space') return
       if (xrState.scenePlacementMode.value !== 'placing') return
-      const preferredHand = getState(AvatarInputSettingsState).preferredHand
+      const preferredHand = getState(InputState).preferredHand
 
       const scenePlacementEntity = getState(XRAnchorSystemState).scenePlacementEntity
       const inputSourceEntities = getComponent(scenePlacementEntity, InputComponent).inputSources

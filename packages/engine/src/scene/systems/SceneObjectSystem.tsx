@@ -39,24 +39,33 @@ import {
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { getComponent, getOptionalComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { EngineState } from '../../EngineState'
+import iterateObject3D from '../../common/functions/iterateObject3D'
+import { InputComponent } from '../../input/components/InputComponent'
 import { RendererState } from '../../renderer/RendererState'
-import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
+import { GroupComponent, GroupQueryReactor } from '../../renderer/components/GroupComponent'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
+import { registerMaterial, unregisterMaterial } from '../../scene/materials/functions/MaterialLibraryFunctions'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
-import { GroupComponent, GroupQueryReactor } from '../components/GroupComponent'
-import { ModelComponent } from '../components/ModelComponent'
+import { ModelComponent, useMeshOrModel } from '../components/ModelComponent'
+import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
-import { VisibleComponent } from '../components/VisibleComponent'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
-import iterateObject3D from '../util/iterateObject3D'
 
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 
@@ -186,8 +195,32 @@ const execute = () => {
   }
 }
 
+const SceneObjectEntityReactor = (props: { entity: Entity }) => {
+  const isMeshOrModel = useMeshOrModel(props.entity)
+
+  useEffect(() => {
+    if (!isMeshOrModel) return
+
+    setComponent(props.entity, InputComponent, { highlight: getState(EngineState).isEditing })
+    return () => {
+      removeComponent(props.entity, InputComponent)
+    }
+  }, [isMeshOrModel])
+
+  return null
+}
+
 const reactor = () => {
-  return <GroupQueryReactor GroupChildReactor={SceneObjectReactor} />
+  const sceneObjectEntities = useQuery([SceneObjectComponent])
+
+  return (
+    <>
+      {sceneObjectEntities.map((entity) => (
+        <SceneObjectEntityReactor key={entity} entity={entity} />
+      ))}
+      <GroupQueryReactor GroupChildReactor={SceneObjectReactor} />
+    </>
+  )
 }
 
 export const SceneObjectSystem = defineSystem({

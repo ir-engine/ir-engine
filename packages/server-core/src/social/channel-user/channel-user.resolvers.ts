@@ -29,8 +29,8 @@ import { v4 } from 'uuid'
 
 import { ChannelUserQuery, ChannelUserType } from '@etherealengine/common/src/schemas/social/channel-user.schema'
 import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const channelUserResolver = resolve<ChannelUserType, HookContext>({
   user: virtual(async (channelUser, context) => {

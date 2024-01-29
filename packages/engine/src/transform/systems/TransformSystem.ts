@@ -29,29 +29,33 @@ import { Camera, Frustum, Matrix4, Mesh, Vector3 } from 'three'
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
-import { getComponent, getOptionalComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  AnimationSystemGroup,
+  Engine,
+  Entity,
+  defineQuery,
+  defineSystem,
+  getComponent,
+  getOptionalComponent,
+  hasComponent
+} from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { Not } from 'bitecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { V_000 } from '../../common/constants/MathConstants'
-import { BoundingBoxComponent, updateBoundingBox } from '../../interaction/components/BoundingBoxComponents'
 import { NetworkState } from '../../networking/NetworkState'
 import {
   RigidBodyComponent,
   RigidBodyDynamicTagComponent,
   RigidBodyFixedTagComponent
 } from '../../physics/components/RigidBodyComponent'
-import { GroupComponent } from '../../scene/components/GroupComponent'
+import { GroupComponent } from '../../renderer/components/GroupComponent'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ScenePreviewCameraComponent } from '../../scene/components/ScenePreviewCamera'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
 import { TransformSerialization } from '../TransformSerialization'
+import { BoundingBoxComponent, updateBoundingBox } from '../components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import {
   DistanceFromCameraComponent,
@@ -179,6 +183,13 @@ const updateTransformFromComputedTransform = (entity: Entity) => {
   const computedTransform = getOptionalComponent(entity, ComputedTransformComponent)
   if (!computedTransform) return
   computedTransform.computeFunction(entity, computedTransform.referenceEntity)
+}
+
+//isProxified: used to check if an object is proxified
+declare module 'three/src/core/Object3D' {
+  export interface Object3D {
+    readonly isProxified: true | undefined
+  }
 }
 
 export const updateGroupChildren = (entity: Entity) => {
