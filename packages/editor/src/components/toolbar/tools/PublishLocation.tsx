@@ -45,6 +45,7 @@ export const PublishLocation = () => {
   const selectedScene = activeScene.value
     ? (activeScene.value!.replace('.scene.json', '').replace(`${activeScene.value!.split('/', 1)[0]}/`, '') as SceneID)
     : null
+
   const drawerMode = useHookstate<LocationDrawerMode>(LocationDrawerMode.Create)
   const user = useHookstate(getMutableState(AuthState).user)
   const hasWriteAccess = user.scopes.get(NO_PROXY)?.find((item) => item?.type === 'location:write')
