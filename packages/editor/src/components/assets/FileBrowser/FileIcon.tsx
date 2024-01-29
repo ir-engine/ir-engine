@@ -111,7 +111,7 @@ for (const entry of generatorTypes) {
 
 const pendingThumbnails = new Map<string, Promise<string>>()
 
-const uploadThumbnail = async (file, blob) => {
+const uploadThumbnail = async (file: FileBrowserContentType, blob: Blob) => {
   if (blob == null) {
     return ''
   }
