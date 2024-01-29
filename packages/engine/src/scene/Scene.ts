@@ -83,7 +83,8 @@ export const SceneState = defineState({
     /** @todo replace activeScene with proper multi-scene support */
     activeScene: null as null | SceneID,
     background: null as null | Color | Texture,
-    environment: null as null | Texture
+    environment: null as null | Texture,
+    sceneModified: false
   }),
 
   getCurrentScene: () => {
@@ -319,7 +320,7 @@ const execute = () => {
     const { data, selectedEntities } = action
     state.snapshots.set([...state.snapshots.get(NO_PROXY).slice(0, state.index.value + 1), { data, selectedEntities }])
     state.index.set(state.index.value + 1)
-    // getMutableState(EditorState).sceneModified.set(true)
+    getMutableState(SceneState).sceneModified.set(true)
     SceneState.applyCurrentSnapshot(action.sceneID)
   }
 }
