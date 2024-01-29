@@ -34,8 +34,8 @@ import { AvatarID, InviteCode, UserName } from '@etherealengine/common/src/schem
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { ikTargets } from '../../avatar/animation/Util'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
-import { WorldState } from '../interfaces/WorldState'
-import { WorldNetworkAction } from './WorldNetworkAction'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { WorldState } from '../../networking/interfaces/WorldState'
 
 export enum AuthError {
   MISSING_ACCESS_TOKEN = 'MISSING_ACCESS_TOKEN',

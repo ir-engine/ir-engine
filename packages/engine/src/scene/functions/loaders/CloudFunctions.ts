@@ -26,9 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { ComponentUpdateFunction } from '../../../common/constants/PrefabFunctionType'
+import { addObjectToGroup } from '../../../renderer/components/GroupComponent'
 import { Clouds } from '../../classes/Clouds'
 import { CloudComponent } from '../../components/CloudComponent'
-import { addObjectToGroup } from '../../components/GroupComponent'
 
 export const updateCloud: ComponentUpdateFunction = (entity: Entity) => {
   const component = getComponent(entity, CloudComponent)

@@ -53,6 +53,7 @@ import {
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { EngineState } from '@etherealengine/engine/src/EngineState'
+import { AuthTask } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
 import {
   MediaStreamAppData,
   NetworkConnectionParams,
@@ -72,7 +73,6 @@ import {
   SCREEN_SHARE_SIMULCAST_ENCODINGS
 } from '@etherealengine/engine/src/networking/constants/VideoConstants'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
-import { AuthTask } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import {
   MediasoupDataProducerActions,
   MediasoupDataProducerConsumerState

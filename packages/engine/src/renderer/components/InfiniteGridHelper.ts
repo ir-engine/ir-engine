@@ -48,13 +48,13 @@ import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ec
 import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { RendererState } from '../../renderer/RendererState'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from '../components/GroupComponent'
-import { NameComponent } from '../components/NameComponent'
-import { setVisibleComponent } from '../components/VisibleComponent'
-import LogarithmicDepthBufferMaterialChunk from '../functions/LogarithmicDepthBufferMaterialChunk'
-import { setObjectLayers } from '../functions/setObjectLayers'
+import { NameComponent } from '../../common/NameComponent'
+import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
+import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
+import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
+import { RendererState } from '../RendererState'
+import LogarithmicDepthBufferMaterialChunk from '../constants/LogarithmicDepthBufferMaterialChunk'
 
 /**
  * Original Author: Fyrestar

@@ -36,11 +36,11 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux/f
 
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
+import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { AudioNodeGroups, MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
 import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { PositionalAudioHelper } from './PositionalAudioHelper'
 
 export interface PositionalAudioInterface {

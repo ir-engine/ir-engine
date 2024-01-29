@@ -39,11 +39,10 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { matchesQuaternion, matchesVector3 } from '../common/functions/MatchesUtils'
-import { addObjectToGroup, GroupComponent } from '../scene/components/GroupComponent'
+import { addObjectToGroup, GroupComponent } from '../renderer/components/GroupComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRState } from './XRState'
 
@@ -183,10 +182,7 @@ function PersistentAnchorReactor() {
     const active = anchor.value && xrState.sessionMode.value === 'immersive-ar'
     if (active) {
       /** remove from scene and add to world origins */
-      const originalParent = getComponent(
-        getComponent(entity, EntityTreeComponent).parentEntity ?? SceneState.getRootEntity(),
-        UUIDComponent
-      )
+      const originalParent = getComponent(getComponent(entity, EntityTreeComponent).parentEntity, UUIDComponent)
       originalParentEntityUUID.set(originalParent)
       setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
       TransformComponent.dirtyTransforms[entity] = true

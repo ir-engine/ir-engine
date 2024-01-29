@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Matrix4, ShaderMaterial, Uniform, Vector3 } from 'three'
-import LogarithmicDepthBufferMaterialChunk from '../../scene/functions/LogarithmicDepthBufferMaterialChunk'
-import { generateNoiseTexture } from '../materials/functions/generateNoiseTexture'
+import LogarithmicDepthBufferMaterialChunk from '../../constants/LogarithmicDepthBufferMaterialChunk'
+import { generateNoiseTexture } from '../../functions/generateNoiseTexture'
 
 const SDFShader = {
   shader: new ShaderMaterial({

@@ -28,9 +28,9 @@ import { getComponent, removeComponent } from '@etherealengine/ecs/src/Component
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { Query, defineQuery, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SystemUUID, defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { NameComponent } from '../../../../../common/NameComponent'
 import { PhysicsSystem } from '../../../../../physics/PhysicsModule'
 import { CollisionComponent } from '../../../../../physics/components/CollisionComponent'
-import { NameComponent } from '../../../../../scene/components/NameComponent'
 
 let systemCounter = 0
 

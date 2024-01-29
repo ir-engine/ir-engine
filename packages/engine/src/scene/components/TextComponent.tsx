@@ -37,7 +37,7 @@ import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { Color, Material, MathUtils, Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector2 } from 'three'
 import { Text as TroikaText } from 'troika-three-text'
 import { matches } from '../../common/functions/MatchesUtils'
-import { addObjectToGroup } from './GroupComponent'
+import { addObjectToGroup } from '../../renderer/components/GroupComponent'
 
 /**
  * @description

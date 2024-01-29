@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { getNearbyUsers } from '@etherealengine/engine/src/networking/functions/getNearbyUsers'
+import { getNearbyUsers } from '@etherealengine/engine/src/avatar/functions/getNearbyUsers'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { ECSState } from '@etherealengine/ecs/src/ECSState'

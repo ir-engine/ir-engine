@@ -27,7 +27,7 @@ import React, { useImperativeHandle } from 'react'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
-import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
+import createReadableTexture from '@etherealengine/engine/src/renderer/functions/createReadableTexture'
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
 import { AudioPreviewPanel } from './AssetPreviewPanels/AudioPreviewPanel'

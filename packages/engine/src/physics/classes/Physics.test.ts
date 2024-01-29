@@ -40,7 +40,7 @@ import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { ObjectDirection } from '../../common/constants/Axis3D'
 import { createEngine } from '../../initializeEngine'
-import { addObjectToGroup } from '../../scene/components/GroupComponent'
+import { addObjectToGroup } from '../../renderer/components/GroupComponent'
 import { MeshComponent } from '../../scene/components/MeshComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
@@ -215,7 +215,8 @@ describe('Physics', () => {
     boxDynamicConfig.collisionLayer = collisionGroup
     boxDynamicConfig.collisionMask = collisionMask
 
-    const rigidBody = Physics.createRigidBodyForGroup(entity, physicsWorld, boxDynamicConfig)
+    Physics.createRigidBodyForGroup(entity, physicsWorld, boxDynamicConfig)
+    const rigidBody = getComponent(entity, RigidBodyComponent).body
     const interactionGroups = getInteractionGroups(collisionGroup, collisionMask)
 
     const collider = rigidBody.collider(0)

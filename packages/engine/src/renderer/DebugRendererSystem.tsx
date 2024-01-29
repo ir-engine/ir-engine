@@ -34,11 +34,11 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PhysicsState } from '../physics/state/PhysicsState'
 import { RendererState } from '../renderer/RendererState'
 import { WebGLRendererSystem } from '../renderer/WebGLRendererSystem'
-import { createInfiniteGridHelper } from '../scene/classes/InfiniteGridHelper'
-import { GroupComponent, addObjectToGroup } from '../scene/components/GroupComponent'
-import { setVisibleComponent } from '../scene/components/VisibleComponent'
-import { ObjectLayers } from '../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../scene/functions/setObjectLayers'
+import { GroupComponent, addObjectToGroup } from '../renderer/components/GroupComponent'
+import { setObjectLayers } from '../renderer/components/ObjectLayerComponent'
+import { setVisibleComponent } from '../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../renderer/constants/ObjectLayers'
+import { createInfiniteGridHelper } from './components/InfiniteGridHelper'
 
 const execute = () => {
   const physicsDebugEntity = getState(RendererState).physicsDebugEntity
