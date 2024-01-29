@@ -27,12 +27,14 @@ import { usePrevious } from '@etherealengine/common/src/utils/usePrevious'
 import {
   defineComponent,
   getMutableComponent,
+  getOptionalComponent,
   removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { ECSState, ECSState as EngineState } from '@etherealengine/ecs/src/ECSState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
@@ -185,6 +187,12 @@ const getDefines = (manifest: PlayerManifest) => {
   return requiredDefines
 }
 
+const MAX_TOLERABLE_GAP = 0.2 // seconds
+type TimeRange = {
+  start: number
+  end: number
+}
+
 export const UVOL2Component = defineComponent({
   name: 'UVOL2Component',
 
@@ -194,17 +202,12 @@ export const UVOL2Component = defineComponent({
       manifestPath: '',
       data: {} as PlayerManifest,
       hasAudio: false,
+      bufferedUntil: 0,
       geometryInfo: {
         targets: [] as string[],
         userTarget: -1, // -1 implies 'auto'
         currentTarget: 0,
-
-        /**
-         * BufferHealth says until how long can we play buffers without fetching new data.
-         * For eg: If it geometryBufferHealth = 25, it implies, we can play upto 00:25 seconds
-         */
-
-        bufferHealth: 0,
+        buffered: [] as TimeRange[],
         pendingRequests: 0
       },
       textureInfo: {
@@ -213,35 +216,35 @@ export const UVOL2Component = defineComponent({
           targets: [] as string[],
           userTarget: -1,
           currentTarget: 0,
-          bufferHealth: 0,
+          buffered: [] as TimeRange[],
           pendingRequests: 0
         },
         normal: {
           targets: [] as string[],
           userTarget: -1,
           currentTarget: 0,
-          bufferHealth: 0,
+          buffered: [] as TimeRange[],
           pendingRequests: 0
         },
         metallicRoughness: {
           targets: [] as string[],
           userTarget: -1,
           currentTarget: 0,
-          bufferHealth: 0,
+          buffered: [] as TimeRange[],
           pendingRequests: 0
         },
         emissive: {
           targets: [] as string[],
           userTarget: -1,
           currentTarget: 0,
-          bufferHealth: 0,
+          buffered: [] as TimeRange[],
           pendingRequests: 0
         },
         occlusion: {
           targets: [] as string[],
           userTarget: -1,
           currentTarget: 0,
-          bufferHealth: 0,
+          buffered: [] as TimeRange[],
           pendingRequests: 0
         }
       },
@@ -265,21 +268,48 @@ export const UVOL2Component = defineComponent({
     }
   },
 
-  setStartAndPlaybackTime: (entity, newMediaStartTime: number, newPlaybackStartDate: number) => {
+  setStartAndPlaybackTime: (entity: Entity, newMediaStartTime: number, newPlaybackStartDate: number) => {
     const volumetric = getMutableComponent(entity, VolumetricComponent)
-    const component = getMutableComponent(entity, UVOL2Component)
 
-    volumetric.currentTrackInfo.playbackStartDate.set(newPlaybackStartDate)
-    component.geometryInfo.bufferHealth.set(
-      component.geometryInfo.bufferHealth.value - (newMediaStartTime - volumetric.currentTrackInfo.mediaStartTime.value)
-    )
-    component.textureInfo.textureTypes.value.forEach((textureType) => {
-      const currentHealth = component.textureInfo[textureType].bufferHealth.value
-      component.textureInfo[textureType].bufferHealth.set(
-        currentHealth - (newMediaStartTime - volumetric.currentTrackInfo.mediaStartTime.value)
-      )
+    volumetric.currentTrackInfo.merge({
+      playbackStartDate: newPlaybackStartDate,
+      mediaStartTime: newMediaStartTime
     })
-    volumetric.currentTrackInfo.mediaStartTime.set(newMediaStartTime)
+  },
+
+  canPlayThrough: (entity: Entity, start: number, end: number) => {
+    const component = getOptionalComponent(entity, UVOL2Component)
+    if (!component) return false
+    end = Math.min(end, component.data.duration)
+
+    const checkBuffered = (buffered: TimeRange[], start: number, end: number) => {
+      let gap = 0,
+        previousEnd = -1
+      if (buffered.length === 0) return false
+      if (buffered[0].start > start) return false
+      if (buffered[buffered.length - 1].end < end) return false
+      for (const el of buffered) {
+        if (el.start <= start) {
+          if (el.end >= end) {
+            return true
+          } else {
+            previousEnd = el.end
+          }
+        } else {
+          gap += el.start - previousEnd
+          if (gap > MAX_TOLERABLE_GAP) return false
+          previousEnd = el.end
+        }
+      }
+      return true
+    }
+
+    if (!checkBuffered(component.geometryInfo.buffered, start, end)) return false
+
+    for (const textureType of component.textureInfo.textureTypes)
+      if (!checkBuffered(component.textureInfo[textureType].buffered, start, end)) return false
+
+    return true
   },
 
   reactor: UVOL2Reactor
@@ -576,10 +606,10 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     return () => {
       removeObjectFromGroup(entity, group)
       clearInterval(intervalId)
-      for (const textureType of component.textureInfo.textureTypes.value) {
+      for (const textureType in textureBuffer) {
         const currentTextureBuffer = textureBuffer.get(textureType)
         if (currentTextureBuffer) {
-          for (const target in component.textureInfo[textureType].targets) {
+          for (const target in currentTextureBuffer) {
             const frameData = currentTextureBuffer.get(target)
             if (frameData) {
               for (const frameNo in frameData) {
@@ -613,6 +643,8 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
   }, [])
 
+  const engineState = getState(EngineState)
+
   useEffect(() => {
     if (!shadow) return
     if (component.data.value.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
@@ -630,9 +662,22 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     const targetData = component.data.value.geometry.targets[target]
     const promises: Promise<Mesh | BufferGeometry>[] = []
 
-    const oldBufferHealth = component.geometryInfo.bufferHealth.value
-    const startTime = ecsState.elapsedSeconds
+    const executionStartTime = engineState.elapsedSeconds
 
+    const currentStartTime = startFrame / targetData.frameRate
+    if (
+      component.geometryInfo.buffered.length === 0 ||
+      currentStartTime - component.geometryInfo.buffered.slice(-1)[0].end.value > MAX_TOLERABLE_GAP
+    ) {
+      component.geometryInfo.buffered.merge([
+        {
+          start: currentStartTime,
+          end: currentStartTime
+        }
+      ])
+    }
+
+    const bufferedIndex = component.geometryInfo.buffered.length - 1
     for (let i = startFrame; i <= endFrame; i++) {
       const frameURL = resolvePath(
         component.data.value.geometry.path,
@@ -641,7 +686,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         target,
         i
       )
-      component.geometryInfo.pendingRequests.set(component.geometryInfo.pendingRequests.value + 1)
+      component.geometryInfo.pendingRequests.set((p) => p + 1)
       promises.push(loadGeometryAsync(frameURL, targetData))
     }
 
@@ -658,24 +703,21 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         const i = j + startFrame
         frameData[i] = model as BufferGeometry | Mesh<BufferGeometry, Material>
 
-        component.geometryInfo.merge({
-          bufferHealth: component.geometryInfo.bufferHealth.value + 1 / targetData.frameRate,
-          pendingRequests: component.geometryInfo.pendingRequests.value - 1
-        })
+        component.geometryInfo.buffered[bufferedIndex].end.set((i + 1) / targetData.frameRate)
+        component.geometryInfo.pendingRequests.set((p) => p - 1)
 
         if (!component.firstGeometryFrameLoaded.value) {
           component.firstGeometryFrameLoaded.set(true)
         }
-        if (
-          component.geometryInfo.bufferHealth.value >= minBufferToStart &&
-          !component.initialGeometryBuffersLoaded.value
-        ) {
+        if (!component.initialGeometryBuffersLoaded.value && (i + 1) / targetData.frameRate >= minBufferToStart) {
           component.initialGeometryBuffersLoaded.set(true)
         }
       })
 
-      const playTime = component.geometryInfo.bufferHealth.value - oldBufferHealth
-      const fetchTime = ecsState.elapsedSeconds - startTime
+      const playTime =
+        component.geometryInfo.buffered[bufferedIndex].end.value -
+        component.geometryInfo.buffered[bufferedIndex].start.value
+      const fetchTime = engineState.elapsedSeconds - executionStartTime
       const metric = fetchTime / playTime
       adjustGeometryTarget(metric)
     })
@@ -685,8 +727,22 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     const targetData = component.data.value.geometry.targets[target] as UniformSolveTarget
     const promises: Promise<Mesh | BufferGeometry>[] = []
 
-    const oldBufferHealth = component.geometryInfo.bufferHealth.value
-    const startTime = ecsState.elapsedSeconds
+    const executionStartTime = engineState.elapsedSeconds
+
+    const currentStartTime = startSegment * targetData.settings.segmentSize
+    if (
+      component.geometryInfo.buffered.length === 0 ||
+      currentStartTime - component.geometryInfo.buffered.slice(-1)[0].end.value > MAX_TOLERABLE_GAP
+    ) {
+      component.geometryInfo.buffered.merge([
+        {
+          start: currentStartTime,
+          end: currentStartTime
+        }
+      ])
+    }
+
+    const bufferedIndex = component.geometryInfo.buffered.length - 1
 
     for (let i = startSegment; i <= endSegment; i++) {
       const segmentURL = resolvePath(
@@ -696,7 +752,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         target,
         i
       )
-      component.geometryInfo.pendingRequests.set(component.geometryInfo.pendingRequests.value + 1)
+      component.geometryInfo.pendingRequests.set((p) => p + 1)
       promises.push(loadGeometryAsync(segmentURL, targetData))
     }
 
@@ -726,6 +782,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
           } else {
             frameData[segmentOffset + index] = { position: attr }
           }
+          component.geometryInfo.buffered[bufferedIndex].end.set((segmentOffset + index + 1) / targetData.frameRate)
         })
 
         if (
@@ -749,26 +806,22 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
           component.firstGeometryFrameLoaded.set(true)
         }
 
-        component.geometryInfo.merge({
-          bufferHealth: component.geometryInfo.bufferHealth.value + segmentDuration,
-          pendingRequests: component.geometryInfo.pendingRequests.value - 1
-        })
+        component.geometryInfo.pendingRequests.set((p) => p - 1)
 
-        if (
-          component.geometryInfo.bufferHealth.value >= minBufferToStart &&
-          !component.initialGeometryBuffersLoaded.value
-        ) {
+        const _currentBufferedDuration =
+          component.geometryInfo.buffered[bufferedIndex].end.value -
+          component.geometryInfo.buffered[bufferedIndex].start.value
+        if (!component.initialGeometryBuffersLoaded.value && _currentBufferedDuration >= minBufferToStart) {
           component.initialGeometryBuffersLoaded.set(true)
         }
       })
 
-      const playTime = component.geometryInfo.bufferHealth.value - oldBufferHealth
-      const fetchTime = ecsState.elapsedSeconds - startTime
+      const playTime =
+        component.geometryInfo.buffered[bufferedIndex].end.value -
+        component.geometryInfo.buffered[bufferedIndex].start.value
+      const fetchTime = engineState.elapsedSeconds - executionStartTime
       const metric = fetchTime / playTime
       adjustGeometryTarget(metric)
-      if (extraTime >= 0) {
-        component.geometryInfo.bufferHealth.set(component.geometryInfo.bufferHealth.value - extraTime)
-      }
     })
   }
 
@@ -813,13 +866,28 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   }
 
   const fetchGeometry = () => {
+    if (component.geometryInfo.pendingRequests.value > 0) return
+    let relevantTimeRangeIndex = component.geometryInfo.buffered.findIndex((tr) => {
+      if (
+        tr.start.value <= volumetric.currentTrackInfo.currentTime.value &&
+        tr.end.value >= volumetric.currentTrackInfo.currentTime.value
+      ) {
+        return true
+      }
+    })
+    if (relevantTimeRangeIndex === -1) {
+      component.geometryInfo.buffered.merge([
+        {
+          start: volumetric.currentTrackInfo.mediaStartTime.value,
+          end: volumetric.currentTrackInfo.mediaStartTime.value
+        }
+      ])
+      relevantTimeRangeIndex = component.geometryInfo.buffered.length - 1
+    }
+
     const currentBufferLength =
-      component.geometryInfo.bufferHealth.value -
-      (volumetric.currentTrackInfo.currentTime.value - volumetric.currentTrackInfo.mediaStartTime.value)
-    if (
-      currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth) ||
-      component.geometryInfo.pendingRequests.value > 0
-    ) {
+      component.geometryInfo.buffered[relevantTimeRangeIndex].end.value - volumetric.currentTrackInfo.currentTime.value
+    if (currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth)) {
       return
     }
 
@@ -829,9 +897,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     const frameRate = targetData.frameRate
     const frameCount = targetData.frameCount
 
-    const startFrame = Math.round(
-      (component.geometryInfo.bufferHealth.value + volumetric.currentTrackInfo.mediaStartTime.value) * frameRate
-    )
+    const startFrame = Math.round(component.geometryInfo.buffered[relevantTimeRangeIndex].end.value * frameRate)
     if (startFrame >= frameCount) {
       // fetched all frames
       return
@@ -860,16 +926,33 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   }
 
   const fetchTextures = (textureType: TextureType) => {
+    if (component.textureInfo[textureType].pendingRequests.value > 0) return
     const textureTypeData = component.data.texture[textureType].value
     if (!textureTypeData) return
+
+    let relevantTimeRangeIndex = component.textureInfo[textureType].buffered.findIndex((tr) => {
+      if (
+        tr.start.value <= volumetric.currentTrackInfo.currentTime.value &&
+        tr.end.value >= volumetric.currentTrackInfo.currentTime.value
+      ) {
+        return true
+      }
+    })
+    if (relevantTimeRangeIndex === -1) {
+      component.textureInfo[textureType].buffered.merge([
+        {
+          start: volumetric.currentTrackInfo.mediaStartTime.value,
+          end: volumetric.currentTrackInfo.mediaStartTime.value
+        }
+      ])
+      relevantTimeRangeIndex = component.textureInfo[textureType].buffered.length - 1
+    }
+
     const currentBufferLength =
-      component.textureInfo[textureType].bufferHealth.value -
-      (volumetric.currentTrackInfo.currentTime.value - volumetric.currentTrackInfo.mediaStartTime.value)
-    if (
-      (currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth) ||
-        component.textureInfo[textureType].pendingRequests.value > 0) &&
-      !component.forceFetchTextures.value
-    ) {
+      component.textureInfo[textureType].buffered[relevantTimeRangeIndex].end.value -
+      volumetric.currentTrackInfo.currentTime.value
+
+    if (currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth) && !component.forceFetchTextures.value) {
       return
     }
     const targetIndex = component.textureInfo[textureType].currentTarget.value
@@ -877,8 +960,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     const targetData = textureTypeData.targets[target]
     const frameRate = targetData.frameRate
     const startFrame = Math.round(
-      (component.textureInfo[textureType].bufferHealth.value + volumetric.currentTrackInfo.mediaStartTime.value) *
-        frameRate
+      component.textureInfo[textureType].buffered[relevantTimeRangeIndex].end.value * frameRate
     )
     if (startFrame >= targetData.frameCount && !component.forceFetchTextures.value) {
       // fetched all frames
@@ -888,8 +970,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     const framesToFetch = Math.round((maxBufferHealth - currentBufferLength) * frameRate)
     const endFrame = Math.max(0, Math.min(startFrame + framesToFetch, targetData.frameCount - 1))
 
-    const oldBufferHealth = component.textureInfo[textureType].bufferHealth.value
-    const startTime = ecsState.elapsedSeconds
+    const startTime = engineState.elapsedSeconds
     const promises: Promise<CompressedTexture>[] = []
 
     for (let i = startFrame; i <= endFrame; i++) {
@@ -901,9 +982,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         i,
         textureType
       )
-      component.textureInfo[textureType].pendingRequests.set(
-        component.textureInfo[textureType].pendingRequests.value + 1
-      )
+      component.textureInfo[textureType].pendingRequests.set((p) => p + 1)
       promises.push(loadTextureAsync(textureURL, repeat, offset))
     }
 
@@ -926,18 +1005,10 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         }
         const i = j + startFrame
         frameData[i] = texture
-        component.textureInfo[textureType].merge({
-          bufferHealth: Math.min(
-            component.textureInfo[textureType].bufferHealth.value + 1 / frameRate,
-            component.data.duration.value - volumetric.currentTrackInfo.mediaStartTime.value
-          ),
-          pendingRequests: component.textureInfo[textureType].pendingRequests.value - 1
-        })
+        component.textureInfo[textureType].buffered[relevantTimeRangeIndex].end.set((i + 1) / frameRate)
+        component.textureInfo[textureType].pendingRequests.set((p) => p - 1)
 
-        if (
-          component.textureInfo[textureType].bufferHealth.value >= minBufferToStart &&
-          !component.initialTextureBuffersLoaded.value
-        ) {
+        if ((i + 1) / targetData.frameRate >= minBufferToStart && !component.initialTextureBuffersLoaded.value) {
           component.initialTextureBuffersLoaded.set(true)
         }
         if (!component.firstTextureFrameLoaded.value) {
@@ -945,8 +1016,10 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         }
       })
 
-      const playTime = component.textureInfo[textureType].bufferHealth.value - oldBufferHealth
-      const fetchTime = ecsState.elapsedSeconds - startTime
+      const playTime =
+        component.textureInfo[textureType].buffered[relevantTimeRangeIndex].end.value -
+        component.textureInfo[textureType].buffered[relevantTimeRangeIndex].start.value
+      const fetchTime = engineState.elapsedSeconds - startTime
       const metric = fetchTime / playTime
       adjustTextureTarget(textureType, metric)
     })
@@ -1237,6 +1310,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   const setTexture = (textureType: TextureType, target: string, index: number, currentTime: number) => {
     const currentTextureBuffer = textureBuffer.get(textureType)
     if (!currentTextureBuffer) {
+      console.error('Texture frames not found for time: ', currentTime)
       return
     }
     const frameData = currentTextureBuffer.get(target)!
@@ -1253,6 +1327,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
           return
         }
       }
+      console.error('Texture frames not found for time: ', currentTime)
     } else {
       const texture = frameData[index] as CompressedTexture
       setMap(textureType, texture)
@@ -1263,6 +1338,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     const keyframeA = getAttribute('keyframeA', currentTime)
     const keyframeB = getAttribute('keyframeB', currentTime)
     if (!keyframeA && !keyframeB) {
+      console.error('Geometry frames not found for time: ', currentTime)
       return
     } else if (!keyframeA && keyframeB) {
       setPositionAndNormal('keyframeB', keyframeB)
@@ -1301,6 +1377,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     newGeometry.boundingSphere = mesh.geometry.boundingSphere
     newGeometry.boundingBox = mesh.geometry.boundingBox
 
+    let relevantBufferIndex = -1
     for (const target in component.data.value.geometry.targets) {
       const frameData = geometryBuffer.get(target)
       const frameRate = component.data.value.geometry.targets[target].frameRate
@@ -1314,6 +1391,23 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
               oldGeometry.setAttribute(attribute.normal.name + '.normal', attribute.normal)
             }
             delete frameData[frameNo]
+
+            const isInIndex =
+              relevantBufferIndex !== -1 &&
+              component.geometryInfo.buffered[relevantBufferIndex].start.value <= frameTime &&
+              component.geometryInfo.buffered[relevantBufferIndex].end.value >= frameTime
+
+            if (!isInIndex) {
+              relevantBufferIndex = component.geometryInfo.buffered.findIndex((tr) => {
+                if (tr.start.value <= frameTime && tr.end.value >= frameTime) {
+                  return true
+                }
+              })
+            }
+
+            if (relevantBufferIndex !== -1) {
+              component.geometryInfo.buffered[relevantBufferIndex].start.set((parseInt(frameNo) + 1) / frameRate)
+            }
           } else {
             break
           }
@@ -1383,8 +1477,11 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     setTexture(textureType, textureTarget, textureFrame, currentTime)
     const currentTextureBuffer = textureBuffer.get(textureType)
     if (!currentTextureBuffer) {
+      console.error('Texture frames not found for time: ', currentTime)
       return
     }
+
+    let relevantBufferIndex = -1
     for (const target in component.data.value.texture[textureType]?.targets) {
       const frameData = currentTextureBuffer.get(target)
       if (!frameData || frameData.length === 0) return
@@ -1396,6 +1493,23 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
             const texture = frameData[frameNo]
             texture.dispose()
             delete frameData[frameNo]
+
+            const isInIndex =
+              relevantBufferIndex !== -1 &&
+              component.textureInfo[textureType].buffered[relevantBufferIndex].start.value <= frameTime &&
+              component.textureInfo[textureType].buffered[relevantBufferIndex].end.value >= frameTime
+            if (!isInIndex) {
+              relevantBufferIndex = component.textureInfo[textureType].buffered.findIndex((tr) => {
+                if (tr.start.value <= frameTime && tr.end.value >= frameTime) {
+                  return true
+                }
+              })
+            }
+            if (relevantBufferIndex !== -1) {
+              component.textureInfo[textureType].buffered[relevantBufferIndex].start.set(
+                (parseInt(frameNo) + 1) / frameRate
+              )
+            }
           } else {
             break
           }
@@ -1428,25 +1542,16 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     if (volumetric.autoPauseWhenBuffering.value) {
       let isWaitingNow = false
 
-      const currentGeometryBufferHealth =
-        component.geometryInfo.bufferHealth.value -
-        (volumetric.currentTrackInfo.currentTime.value - volumetric.currentTrackInfo.mediaStartTime.value)
-      const currentMinBuffer = Math.min(
-        minBufferToPlay,
-        component.data.duration.value - volumetric.currentTrackInfo.currentTime.value
-      )
-      if (currentGeometryBufferHealth < currentMinBuffer) {
+      if (
+        !UVOL2Component.canPlayThrough(
+          entity,
+          volumetric.currentTrackInfo.currentTime.value,
+          volumetric.currentTrackInfo.currentTime.value + minBufferToPlay
+        )
+      ) {
         isWaitingNow = true
       }
-      for (let i = 0; i < component.textureInfo.textureTypes.value.length; i++) {
-        const textureType = component.textureInfo.textureTypes[i].value
-        const currentTextureBufferHealth =
-          component.textureInfo[textureType].bufferHealth.value -
-          (volumetric.currentTrackInfo.currentTime.value - volumetric.currentTrackInfo.mediaStartTime.value)
-        if (currentTextureBufferHealth < currentMinBuffer) {
-          isWaitingNow = true
-        }
-      }
+
       if (!isWaiting.current && !isWaitingNow) {
         // Continue
       } else if (!isWaiting.current && isWaitingNow) {
@@ -1476,6 +1581,31 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
     startTransition(() => {
       volumetric.currentTrackInfo.currentTime.set(_currentTime)
+      let _bufferedUntil = volumetric.currentTrackInfo.duration.value
+      let _relevantBufferIndex = -1
+      _relevantBufferIndex = component.geometryInfo.buffered.findIndex((tr) => {
+        if (tr.start.value <= _currentTime && tr.end.value >= _currentTime) {
+          return true
+        }
+      })
+
+      if (_relevantBufferIndex !== -1) {
+        _bufferedUntil = Math.min(_bufferedUntil, component.geometryInfo.buffered[_relevantBufferIndex].end.value)
+      }
+      for (const textureType of component.textureInfo.textureTypes.value) {
+        _relevantBufferIndex = component.textureInfo[textureType as TextureType].buffered.findIndex((tr) => {
+          if (tr.start.value <= _currentTime && tr.end.value >= _currentTime) {
+            return true
+          }
+        })
+        if (_relevantBufferIndex !== -1) {
+          _bufferedUntil = Math.min(
+            _bufferedUntil,
+            component.textureInfo[textureType].buffered[_relevantBufferIndex].end.value
+          )
+        }
+      }
+      component.bufferedUntil.set(_bufferedUntil)
     })
 
     if (volumetric.currentTrackInfo.currentTime.value > component.data.value.duration || audio.ended) {

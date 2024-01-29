@@ -43,6 +43,8 @@ import { UVOL2Component } from '@etherealengine/engine/src/scene/components/UVOL
 import { TextureType } from '@etherealengine/engine/src/scene/constants/UVOLTypes'
 import { getState } from '@etherealengine/hyperflux/functions/StateFunctions'
 import VideocamIcon from '@mui/icons-material/Videocam'
+import { Scrubber } from 'react-scrubber'
+import 'react-scrubber/lib/scrubber.css'
 import { ItemTypes } from '../../constants/AssetTypes'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
 import BooleanInput from '../inputs/BooleanInput'
@@ -334,21 +336,41 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
 function VolumetricCurrentTimeScrubber(props: { entity: Entity }) {
   const { t } = useTranslation()
   const volumetricComponent = useComponent(props.entity, VolumetricComponent)
+  const uvol2Component = useOptionalComponent(props.entity, UVOL2Component)
+
+  const [isChanging, setIsChanging] = React.useState(false)
 
   return (
     <InputGroup name="CurrentTime" label={t('editor:properties.media.lbl-currentTime')}>
-      <CompoundNumericInput
+      <Scrubber
         min={0}
         max={volumetricComponent.currentTrackInfo.duration.value}
-        step={0.01}
-        onChange={(value) => {
+        value={volumetricComponent.currentTrackInfo.currentTime.value}
+        onScrubStart={() => {
+          setIsChanging(true)
+        }}
+        onScrubEnd={(value) => {
+          if (!isChanging) return
           const uvol2Component = getOptionalMutableComponent(props.entity, UVOL2Component)
-          if (uvol2Component) {
+          if (
+            uvol2Component &&
+            volumetricComponent.currentTrackInfo.currentTime.value < value &&
+            value < uvol2Component.bufferedUntil.value
+          ) {
             const engineState = getState(ECSState)
             UVOL2Component.setStartAndPlaybackTime(props.entity, value, engineState.elapsedSeconds)
           }
+          setIsChanging(false)
         }}
-        value={volumetricComponent.currentTrackInfo.currentTime.value}
+        onScrubChange={() => {}}
+        tooltip={{
+          enabledOnHover: true
+        }}
+        {...(hasComponent(props.entity, UVOL2Component)
+          ? {
+              bufferPosition: uvol2Component?.bufferedUntil.value
+            }
+          : {})}
       />
     </InputGroup>
   )
