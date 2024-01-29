@@ -137,6 +137,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
       const canvas = rendererState.renderers[id].value.domElement
       canvas.id = id
       canvas.tabIndex = 1
+      addClientInputListeners(rendererState.renderers[id].domElement.value)
       rendererState.ids.set([...rendererState.ids.value, id])
     }
 
@@ -157,8 +158,6 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
       rendererState.renderers[id].set(none)
     }
   }, [])
-
-  useEffect(addClientInputListeners(rendererState.renderers[id].domElement.value), [])
 
   useEffect(() => {
     id = panel.current.id

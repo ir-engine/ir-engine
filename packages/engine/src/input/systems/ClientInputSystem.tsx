@@ -95,7 +95,7 @@ export const addClientInputListeners = (canvas = EngineRenderer.instance.rendere
 
   //canvas.addEventListener('keydown', preventDefaultKeyDown, false)
 
-  document.addEventListener('gesturestart', preventDefault)
+  canvas.addEventListener('gesturestart', preventDefault)
   canvas.addEventListener('contextmenu', preventDefault)
 
   const addInputSource = (source: XRInputSource) => {
@@ -185,7 +185,7 @@ export const addClientInputListeners = (canvas = EngineRenderer.instance.rendere
       if (!val?.up && val?.pressed) state[button].up = true
     }
   }
-  canvas.addEventListener('focus', clearKeyState)
+
   canvas.addEventListener('blur', clearKeyState)
   canvas.addEventListener('mouseleave', clearKeyState)
 
@@ -193,7 +193,7 @@ export const addClientInputListeners = (canvas = EngineRenderer.instance.rendere
     if (document.visibilityState === 'hidden') clearKeyState()
   }
 
-  document.addEventListener('visibilitychange', handleVisibilityChange)
+  canvas.addEventListener('visibilitychange', handleVisibilityChange)
 
   /** Mouse events */
   const onWheelEvent = (event: WheelEvent) => {
@@ -264,7 +264,7 @@ export const addClientInputListeners = (canvas = EngineRenderer.instance.rendere
     axes[index] = value.x
     axes[index + 1] = value.y
   }
-  document.addEventListener('touchstickmove', handleTouchDirectionalPad)
+  canvas.addEventListener('touchstickmove', handleTouchDirectionalPad)
 
   /**
    * AR uses the `select` event as taps on the screen for mobile AR sessions
@@ -330,11 +330,12 @@ export const addClientInputListeners = (canvas = EngineRenderer.instance.rendere
   )
 
   return () => {
+    console.log('yep')
     inputSources().map((eid) => removeEntity(eid))
 
     canvas.removeEventListener('DOMMouseScroll', preventDefault, false)
     canvas.removeEventListener('keydown', preventDefaultKeyDown, false)
-    document.removeEventListener('gesturestart', preventDefault)
+    canvas.removeEventListener('gesturestart', preventDefault)
     canvas.removeEventListener('contextmenu', preventDefault)
 
     session?.removeEventListener('inputsourceschange', onInputSourcesChanged)
@@ -349,7 +350,7 @@ export const addClientInputListeners = (canvas = EngineRenderer.instance.rendere
     canvas.removeEventListener('blur', clearKeyState)
     canvas.removeEventListener('mouseleave', clearKeyState)
 
-    document.removeEventListener('visibilitychange', handleVisibilityChange)
+    canvas.removeEventListener('visibilitychange', handleVisibilityChange)
 
     canvas.removeEventListener('wheel', onWheelEvent)
 
@@ -360,7 +361,7 @@ export const addClientInputListeners = (canvas = EngineRenderer.instance.rendere
     canvas.removeEventListener('touchstart', handleMouseClick)
     canvas.removeEventListener('touchend', handleMouseClick)
 
-    document.removeEventListener('touchstickmove', handleTouchDirectionalPad)
+    canvas.removeEventListener('touchstickmove', handleTouchDirectionalPad)
 
     session?.removeEventListener('selectstart', onXRSelectStart)
     session?.removeEventListener('selectend', onXRSelectEnd)
