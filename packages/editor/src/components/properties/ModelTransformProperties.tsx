@@ -28,25 +28,25 @@ import { DoubleSide, Mesh, MeshStandardMaterial } from 'three'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import {
-  DefaultModelTransformParameters,
-  ModelTransformParameters
-} from '@etherealengine/engine/src/assets/classes/ModelTransform'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import {
   ComponentType,
   getMutableComponent,
   hasComponent,
   useComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { MaterialSource, SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
-import MeshBasicMaterial from '@etherealengine/engine/src/renderer/materials/constants/material-prototypes/MeshBasicMaterial.mat'
-import bakeToVertices from '@etherealengine/engine/src/renderer/materials/functions/bakeToVertices'
-import { materialsFromSource } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import {
+  DefaultModelTransformParameters,
+  ModelTransformParameters
+} from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelResources } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
+import { MaterialSource, SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
+import MeshBasicMaterial from '@etherealengine/engine/src/scene/materials/constants/material-prototypes/MeshBasicMaterial.mat'
+import { materialsFromSource } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
+import bakeToVertices from '@etherealengine/engine/src/scene/materials/functions/bakeToVertices'
 import { useHookstate } from '@etherealengine/hyperflux'
-import { getMutableState, NO_PROXY, State } from '@etherealengine/hyperflux/functions/StateFunctions'
+import { NO_PROXY, State, getMutableState } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { modelTransformPath } from '@etherealengine/common/src/schema.type.module'
 import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
@@ -71,7 +71,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
   const transformParms = useHookstate<ModelTransformParameters>({
     ...DefaultModelTransformParameters,
     src: modelState.src.value,
-    modelFormat: modelState.src.value.endsWith('.gltf') ? 'gltf' : 'glb'
+    modelFormat: modelState.src.value.endsWith('.gltf') ? 'gltf' : modelState.src.value.endsWith('.vrm') ? 'vrm' : 'glb'
   })
 
   const vertexBakeOptions = useHookstate({
@@ -93,6 +93,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
       await Promise.all(
         materialsFromSource(src)?.map((matComponent) =>
           bakeToVertices<MeshStandardMaterial>(
+            entity,
             matComponent.material as MeshStandardMaterial,
             colors,
             attribs,
@@ -282,7 +283,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
           <InputGroup name="matcap" label="matcap">
             <TexturePreviewInput
               value={vertexBakeOptions.matcapPath.value}
-              onChange={(val: string) => {
+              onRelease={(val: string) => {
                 vertexBakeOptions.matcapPath.set(val)
               }}
             />

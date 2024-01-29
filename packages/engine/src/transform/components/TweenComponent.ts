@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Tween } from '@tweenjs/tween.js'
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
 export const TweenComponent = defineComponent({
   name: 'TweenComponent',
@@ -36,6 +36,5 @@ export const TweenComponent = defineComponent({
 
   onSet(entity, component, json) {
     component.set(json as Tween<any>)
-    TweenComponent.valueMap[entity] = json as Tween<any>
   }
 })

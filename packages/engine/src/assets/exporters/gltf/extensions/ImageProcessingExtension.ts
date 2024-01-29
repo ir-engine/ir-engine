@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { CompressedTexture, Material, Mesh, Object3D, Texture } from 'three'
 
-import iterateObject3D from '../../../../scene/util/iterateObject3D'
-import createReadableTexture from '../../../functions/createReadableTexture'
+import iterateObject3D from '../../../../common/functions/iterateObject3D'
+import createReadableTexture from '../../../../renderer/functions/createReadableTexture'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 

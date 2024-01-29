@@ -82,6 +82,10 @@ export default (app: Application): void => {
         port: parseInt(appConfig.db.port),
         database: appConfig.db.database,
         charset: 'utf8mb4'
+      },
+      pool: {
+        min: 0,
+        max: appConfig.db.pool.max
       }
     })
 

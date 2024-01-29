@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '../ecs/classes/Entity'
-import { getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
+import { getOptionalComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { checkBitflag, readVector3, readVector4 } from '../networking/serialization/DataReader'
 import { writeVector3, writeVector4 } from '../networking/serialization/DataWriter'
 import { ViewCursor, readUint8, rewindViewCursor, spaceUint8 } from '../networking/serialization/ViewCursor'
@@ -38,7 +38,7 @@ export const readBodyAngularVelocity = readVector3(RigidBodyComponent.angularVel
 export const readRigidBody = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint8(v)
   let b = 0
-  const rigidBody = getComponent(entity, RigidBodyComponent)
+  const rigidBody = getOptionalComponent(entity, RigidBodyComponent)
   const dynamic = hasComponent(entity, RigidBodyDynamicTagComponent)
   if (checkBitflag(changeMask, 1 << b++)) {
     readBodyPosition(v, entity)

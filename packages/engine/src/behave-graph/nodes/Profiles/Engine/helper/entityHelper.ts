@@ -25,19 +25,19 @@ Ethereal Engine. All Rights Reserved.
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJsonType } from '@etherealengine/common/src/schema.type.module'
-import { MathUtils } from 'three'
-import { Entity, UndefinedEntity } from '../../../../../ecs/classes/Entity'
-import { SceneState } from '../../../../../ecs/classes/Scene'
 import {
   ComponentJSONIDMap,
   getComponent,
   hasComponent,
   setComponent
-} from '../../../../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../../../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../../../../ecs/functions/EntityTree'
-import { UUIDComponent } from '../../../../../scene/components/UUIDComponent'
-import { VisibleComponent } from '../../../../../scene/components/VisibleComponent'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { MathUtils } from 'three'
+import { VisibleComponent } from '../../../../../renderer/components/VisibleComponent'
 import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 
 export const addEntityToScene = (

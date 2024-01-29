@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
 import IntegrationInstructionsIcon from '@mui/icons-material/IntegrationInstructions'
 

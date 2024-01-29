@@ -37,19 +37,19 @@ import {
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
+import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { NameComponent } from '../../common/NameComponent'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { matches } from '../../common/functions/MatchesUtils'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
+import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
+import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { isMobileXRHeadset } from '../../xr/XRState'
-import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
-import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
-import { NameComponent } from './NameComponent'
-import { setVisibleComponent } from './VisibleComponent'
+import { useUpdateLight } from '../functions/useUpdateLight'
 
 export const SpotLightComponent = defineComponent({
   name: 'SpotLightComponent',
@@ -57,9 +57,8 @@ export const SpotLightComponent = defineComponent({
 
   onInit: (entity) => {
     const light = new SpotLight()
-    light.target.position.set(0, -1, 0)
+    light.target.position.set(1, 0, 0)
     light.target.name = 'light-target'
-    light.add(light.target)
     return {
       color: new Color(),
       intensity: 10,
@@ -175,10 +174,9 @@ export const SpotLightComponent = defineComponent({
     useEffect(() => {
       if (!debugEnabled.value) return
       const ringGeom = new TorusGeometry(0.1, 0.025, 8, 12)
-      ringGeom.rotateX(Math.PI / 2)
       const coneGeom = new ConeGeometry(0.25, 0.5, 8, 1, true)
       coneGeom.translate(0, -0.25, 0)
-
+      coneGeom.rotateX(-Math.PI / 2)
       const geom = mergeBufferGeometries([ringGeom, coneGeom])!
       const helper = new Mesh(
         geom,
@@ -192,7 +190,7 @@ export const SpotLightComponent = defineComponent({
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
       setVisibleComponent(helperEntity, true)
 
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
+      helper.layers.set(ObjectLayers.NodeHelper)
 
       light.helperEntity.set(helperEntity)
 
@@ -201,6 +199,8 @@ export const SpotLightComponent = defineComponent({
         light.helperEntity.set(none)
       }
     }, [debugEnabled])
+
+    useUpdateLight(light.light.value)
 
     return null
   }

@@ -29,15 +29,16 @@ import { Vector3 } from 'three'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { ComponentType, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { createQueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { ComponentType, defineQuery, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { createQueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
 import { MediaSettingsState } from '../../networking/MediaSettingsState'
 import { NetworkState, webcamAudioDataChannelType } from '../../networking/NetworkState'
 import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
@@ -152,7 +153,7 @@ const execute = () => {
     avatarAudioStreams.set(networkObject, stream)
   }
 
-  const endTime = audioContext.currentTime + getState(EngineState).deltaSeconds
+  const endTime = audioContext.currentTime + getState(ECSState).deltaSeconds
 
   /**
    * Update panner nodes

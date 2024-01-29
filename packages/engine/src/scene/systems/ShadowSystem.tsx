@@ -41,30 +41,34 @@ import {
 import config from '@etherealengine/common/src/config'
 import { defineState, getMutableState, getState, hookstate, useHookstate } from '@etherealengine/hyperflux'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { CSM } from '../../assets/csm/CSM'
-import { CSMHelper } from '../../assets/csm/CSMHelper'
-import { V_001 } from '../../common/constants/MathConstants'
-import { isClient } from '../../common/functions/getEnvironment'
-import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
-  defineQuery,
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent,
-  useComponent,
-  useQuery
-} from '../../ecs/functions/ComponentFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
-import { QueryReactor, defineSystem, useExecute } from '../../ecs/functions/SystemFunctions'
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { QueryReactor, defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem, useExecute } from '@etherealengine/ecs/src/SystemFunctions'
+import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { NameComponent } from '../../common/NameComponent'
+import { V_001 } from '../../common/constants/MathConstants'
+import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../common/functions/PriorityQueue'
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer, RenderSettingsState } from '../../renderer/WebGLRendererSystem'
+import { GroupComponent, GroupQueryReactor, addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { ObjectLayerComponents } from '../../renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
+import { CSM } from '../../renderer/csm/CSM'
+import { CSMHelper } from '../../renderer/csm/CSMHelper'
 import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
 import { compareDistanceToCamera } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -72,14 +76,9 @@ import { XRLightProbeState } from '../../xr/XRLightProbeSystem'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
 import { DropShadowComponent } from '../components/DropShadowComponent'
-import { GroupComponent, GroupQueryReactor, addObjectToGroup } from '../components/GroupComponent'
 import { MeshComponent } from '../components/MeshComponent'
 import { useMeshOrModel } from '../components/ModelComponent'
-import { NameComponent } from '../components/NameComponent'
-import { ObjectLayerComponents } from '../components/ObjectLayerComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
-import { VisibleComponent } from '../components/VisibleComponent'
-import { ObjectLayers } from '../constants/ObjectLayers'
 import { SceneObjectSystem } from './SceneObjectSystem'
 
 export const ShadowSystemState = defineState({
@@ -143,9 +142,9 @@ const EntityCSMReactor = (props: { entity: Entity }) => {
     csm.shadowBias = directionalLight.shadow.bias
 
     for (const light of csm.lights) {
-      light.color = directionalLight.color
-      light.intensity = directionalLight.intensity
-      light.shadow.bias = directionalLight.shadow.bias
+      light.color.copy(directionalLightComponent.color.value)
+      light.intensity = directionalLightComponent.intensity.value
+      light.shadow.bias = directionalLightComponent.shadowBias.value
       light.shadow.mapSize.setScalar(shadowMapResolution.value)
       csm.needsUpdate = true
     }
@@ -309,16 +308,22 @@ function ShadowMeshReactor(props: { entity: Entity; obj: Mesh<any, Material> }) 
   useEffect(() => {
     obj.castShadow = shadowComponent.cast.value
     obj.receiveShadow = shadowComponent.receive.value
+  }, [shadowComponent.cast, shadowComponent.receive])
 
+  useEffect(() => {
     const csm = getState(RendererState).csm
-    if (obj.material && obj.receiveShadow) {
-      csm?.setupMaterial(obj)
+    if (!csm || !obj.receiveShadow) return
+
+    if (obj.material) {
+      csm.setupMaterial(obj)
     }
 
     return () => {
-      if (obj.material) csm?.teardownMaterial(obj.material)
+      if (obj.material) {
+        csm.teardownMaterial(obj.material)
+      }
     }
-  }, [shadowComponent.cast, shadowComponent.receive, csm])
+  }, [shadowComponent.receive, csm])
 
   return null
 }
@@ -331,7 +336,7 @@ const sortedEntityTransforms = [] as Entity[]
 const cameraLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Camera], MeshComponent])
 
 const updateDropShadowTransforms = () => {
-  const { deltaSeconds } = getState(EngineState)
+  const { deltaSeconds } = getState(ECSState)
   const { priorityQueue } = getState(ShadowSystemState)
 
   sortAndApplyPriorityQueue(priorityQueue, sortedEntityTransforms, deltaSeconds)

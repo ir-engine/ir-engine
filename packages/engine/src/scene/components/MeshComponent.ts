@@ -25,19 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 import { Mesh } from 'three'
 
-import { defineComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
 export const MeshComponent = defineComponent({
   name: 'Mesh Component',
-
   jsonID: 'mesh',
 
   onInit: (entity) => null! as Mesh,
 
   onSet: (entity, component, mesh: Mesh) => {
     if (!mesh || !mesh.isMesh) throw new Error('MeshComponent: Invalid mesh')
-
     component.set(mesh)
-    MeshComponent.valueMap[entity] = mesh
   }
 })

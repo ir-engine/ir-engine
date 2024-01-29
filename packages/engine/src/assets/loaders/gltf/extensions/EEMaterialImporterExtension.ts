@@ -33,8 +33,8 @@ import {
   protoIdToFactory,
   prototypeFromId,
   PrototypeNotFoundError
-} from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
-import { MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
+} from '../../../../scene/materials/functions/MaterialLibraryFunctions'
+import { MaterialLibraryState } from '../../../../scene/materials/MaterialLibrary'
 import {
   EEMaterialExtensionType,
   isOldEEMaterial,

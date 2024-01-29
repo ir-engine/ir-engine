@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Object3D } from 'three'
 import {
   getAllComponents,
   getComponent,
   getMutableComponent,
   hasComponent
-} from '../../../../ecs/functions/ComponentFunctions'
-import { NameComponent } from '../../../../scene/components/NameComponent'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Object3D } from 'three'
+import { NameComponent } from '../../../../common/NameComponent'
 import { SceneObjectComponent } from '../../../../scene/components/SceneObjectComponent'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { GLTFExporterPlugin } from '../GLTFExporter'

@@ -28,8 +28,8 @@ import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import { UserAvatarQuery, UserAvatarType } from '@etherealengine/common/src/schemas/user/user-avatar.schema'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
-import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 
 export const userAvatarResolver = resolve<UserAvatarType, HookContext>({
   createdAt: virtual(async (userAvatar) => fromDateTimeSql(userAvatar.createdAt)),

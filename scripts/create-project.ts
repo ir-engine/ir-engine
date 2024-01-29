@@ -29,7 +29,7 @@ import dotenv from 'dotenv-flow'
 
 import { projectPath } from '@etherealengine/common/src/schema.type.module'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
-import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
+import { createFeathersKoaApp, serverJobPipe } from '@etherealengine/server-core/src/createApp'
 
 dotenv.config({
   path: appRootPath.path,
@@ -56,7 +56,7 @@ const options = cli.parse({
 
 cli.main(async () => {
   try {
-    const app = createFeathersKoaApp(ServerMode.API)
+    const app = createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
     const name = options.name.replace(' ', '-')
     await app.service(projectPath).create({ name })

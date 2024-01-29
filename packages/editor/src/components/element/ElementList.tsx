@@ -27,20 +27,21 @@ import { startCase } from 'lodash'
 import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { Component } from '@etherealengine/ecs/src/ComponentFunctions'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
-import { Component } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { GroupComponent } from '@etherealengine/engine/src/renderer/components/GroupComponent'
 import { AmbientLightComponent } from '@etherealengine/engine/src/scene/components/AmbientLightComponent'
 import { ColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'
 import { DirectionalLightComponent } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { GroundPlaneComponent } from '@etherealengine/engine/src/scene/components/GroundPlaneComponent'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { HemisphereLightComponent } from '@etherealengine/engine/src/scene/components/HemisphereLightComponent'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { PointLightComponent } from '@etherealengine/engine/src/scene/components/PointLightComponent'
 import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
+import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
@@ -63,8 +64,10 @@ import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/compon
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
+import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
+import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
@@ -91,7 +94,8 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
     GroupComponent,
     ColliderComponent,
     VariantComponent,
-    SceneDynamicLoadTagComponent
+    SceneDynamicLoadTagComponent,
+    ObjectGridSnapComponent
   ],
   Interaction: [SpawnPointComponent, PortalComponent, LinkComponent, MountPointComponent],
   Lighting: [
@@ -101,9 +105,17 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
     DirectionalLightComponent,
     HemisphereLightComponent
   ],
-  FX: [LoopAnimationComponent, ShadowComponent, ParticleSystemComponent, EnvmapComponent, PostProcessingComponent],
+  FX: [
+    LoopAnimationComponent,
+    ShadowComponent,
+    ParticleSystemComponent,
+    EnvmapComponent,
+    SDFComponent,
+    PostProcessingComponent
+  ],
   Scripting: [SystemComponent, BehaveGraphComponent],
   Misc: [
+    SceneSettingsComponent,
     EnvMapBakeComponent,
     CameraSettingsComponent,
     ScenePreviewCameraComponent,

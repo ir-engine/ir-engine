@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { getOptionalComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { ComponentType } from 'bitecs'
 import { clamp } from 'lodash'
-import { Entity } from '../../ecs/classes/Entity'
-import { getOptionalComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 

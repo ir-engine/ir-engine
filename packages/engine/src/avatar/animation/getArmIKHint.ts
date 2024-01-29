@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 
 export const getArmIKHint = (
@@ -45,7 +45,7 @@ export const getArmIKHint = (
 
   const handLocalQuat = _quat.copy(transform.rotation).invert().multiply(handRotation)
   hint
-    .set(side === 'left' ? 0.25 : -0.25, -0.25, 0)
+    .set(side === 'left' ? -0.25 : 0.25, -0.25, 0)
     .applyQuaternion(handLocalQuat)
     .add(handLocalPosition)
 

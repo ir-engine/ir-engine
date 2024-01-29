@@ -24,12 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  ArrowHelper,
   AxesHelper,
   BufferAttribute,
   BufferGeometry,
   CatmullRomCurve3,
-  Color,
   Line,
   LineBasicMaterial,
   Mesh,
@@ -41,13 +39,18 @@ import {
 
 import { useEffect } from 'react'
 
-import { NO_PROXY } from '@etherealengine/hyperflux'
+import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NameComponent } from '../../common/NameComponent'
 import { V_010 } from '../../common/constants/MathConstants'
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { RendererState } from '../../renderer/RendererState'
+import { addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 
 const ARC_SEGMENTS = 200
 const _point = new Vector3()
@@ -101,6 +104,7 @@ export const SplineComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const component = useComponent(entity, SplineComponent)
+    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const elements = component.elements
 
     useEffect(() => {
@@ -109,42 +113,56 @@ export const SplineComponent = defineComponent({
         return
       }
 
+      let lineEntity: Entity | null = null
+
       const line = new Line(lineGeometry.clone(), new LineBasicMaterial({ color: 0xff0000, opacity: 0.35 }))
-      line.layers.set(ObjectLayers.NodeHelper)
       line.name = `${entity}-line`
-      addObjectToGroup(entity, line)
-      setObjectLayers(line, ObjectLayers.NodeHelper)
+      line.layers.set(ObjectLayers.NodeHelper)
 
       const geometry = new SphereGeometry(0.05, 4, 2)
 
-      if (elements.length > 0) {
-        const first = elements[0].value
-        const sphere = new Mesh(geometry, new MeshBasicMaterial({ color: 'lightgreen', opacity: 0.2 }))
-        setObjectLayers(sphere, ObjectLayers.NodeHelper)
-        sphere.position.copy(first.position)
-        sphere.updateMatrixWorld(true)
-        line.add(sphere)
-      }
+      const gizmoEntities = [] as Entity[]
 
-      if (elements.length > 1) {
-        const last = elements[elements.length - 1].value
-        const sphere = new Mesh(geometry, new MeshBasicMaterial({ color: 'red', opacity: 0.2 }))
-        setObjectLayers(sphere, ObjectLayers.NodeHelper)
-        sphere.position.copy(last.position)
-        sphere.updateMatrixWorld(true)
-        line.add(sphere)
-      }
+      if (debugEnabled.value) {
+        lineEntity = createEntity()
+        addObjectToGroup(lineEntity, line)
+        setComponent(lineEntity, NameComponent, line.name)
+        setComponent(lineEntity, EntityTreeComponent, { parentEntity: entity })
 
-      let id = 0
-      for (const elem of elements.value) {
-        const gizmo = new AxesHelper()
-        gizmo.name = `${entity}-gizmos-${++id}`
-        gizmo.add(new ArrowHelper(undefined, undefined, undefined, new Color('blue')))
-        setObjectLayers(gizmo, ObjectLayers.NodeHelper)
-        gizmo.position.copy(elem.position)
-        gizmo.quaternion.copy(elem.quaternion)
-        gizmo.updateMatrixWorld(true)
-        line.add(gizmo)
+        setVisibleComponent(lineEntity, true)
+
+        if (elements.length > 0) {
+          const first = elements[0].value
+          const sphere = new Mesh(geometry, new MeshBasicMaterial({ color: 'lightgreen', opacity: 0.2 }))
+          sphere.position.copy(first.position)
+          addObjectToGroup(lineEntity, sphere)
+          sphere.layers.set(ObjectLayers.NodeHelper)
+        }
+
+        if (elements.length > 1) {
+          const last = elements[elements.length - 1].value
+          const sphere = new Mesh(geometry, new MeshBasicMaterial({ color: 'red', opacity: 0.2 }))
+          sphere.position.copy(last.position)
+          addObjectToGroup(lineEntity, sphere)
+          sphere.layers.set(ObjectLayers.NodeHelper)
+        }
+
+        let id = 0
+        for (const elem of elements.value) {
+          const gizmo = new AxesHelper()
+          gizmo.name = `${entity}-gizmos-${++id}`
+          const gizmoEntity = createEntity()
+          addObjectToGroup(gizmoEntity, gizmo)
+          setComponent(gizmoEntity, NameComponent, gizmo.name)
+          setComponent(gizmoEntity, EntityTreeComponent, { parentEntity: entity })
+          gizmoEntities.push(gizmoEntity)
+          setVisibleComponent(gizmoEntity, true)
+          setComponent(gizmoEntity, TransformComponent, {
+            position: elem.position,
+            rotation: elem.quaternion
+          })
+          gizmo.layers.set(ObjectLayers.NodeHelper)
+        }
       }
 
       const curve = new CatmullRomCurve3(
@@ -159,15 +177,15 @@ export const SplineComponent = defineComponent({
         positions.setXYZ(i, _point.x, _point.y, _point.z)
       }
       positions.needsUpdate = true
-      line.visible = true
 
       component.curve.set(curve)
 
       return () => {
-        line.children.forEach((child) => line.remove(child))
-        removeObjectFromGroup(entity, line)
+        if (lineEntity) removeEntity(lineEntity)
+        for (const gizmoEntity of gizmoEntities) removeEntity(gizmoEntity)
       }
     }, [
+      debugEnabled,
       elements.length,
       // force a unique dep change upon any position or quaternion change
       elements.value.map((e) => `${JSON.stringify(e.position)}${JSON.stringify(e.quaternion)})`).join('')

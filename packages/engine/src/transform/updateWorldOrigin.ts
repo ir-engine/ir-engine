@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { Engine } from '../ecs/classes/Engine'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { ReferenceSpace, XRState } from '../xr/XRState'
 import { TransformComponent } from './components/TransformComponent'
 import { computeTransformMatrix } from './systems/TransformSystem'

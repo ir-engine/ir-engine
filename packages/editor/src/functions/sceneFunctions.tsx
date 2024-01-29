@@ -27,14 +27,14 @@ import i18n from 'i18next'
 
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import multiLogger from '@etherealengine/common/src/logger'
 import { SceneDataType, SceneID, scenePath, sceneUploadPath } from '@etherealengine/common/src/schema.type.module'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { GLTFLoadedComponent } from '@etherealengine/engine/src/scene/components/GLTFLoadedComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { EditorState } from '../services/EditorServices'
 
@@ -109,12 +109,7 @@ export const renameScene = async (projectName: string, newSceneName: string, old
  * @param  {any}  signal
  * @return {Promise}
  */
-export const saveScene = async (
-  projectName: string,
-  sceneName: string,
-  thumbnailFile: File | null,
-  signal: AbortSignal
-) => {
+export const saveScene = async (projectName: string, sceneName: string, signal: AbortSignal) => {
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
 
   const sceneData = getState(SceneState).scenes[getState(SceneState).activeScene!].snapshots.at(-1)?.data
@@ -133,7 +128,7 @@ export const saveScene = async (
         })
       }
     }
-    return await uploadToFeathersService(sceneUploadPath, thumbnailFile ? [thumbnailFile] : [], {
+    return await uploadToFeathersService(sceneUploadPath, [], {
       project: projectName,
       name: sceneName,
       sceneData

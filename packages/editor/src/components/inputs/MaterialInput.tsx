@@ -26,11 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { ControlledStringInput } from './StringInput'
 
-export function MaterialInput<T extends { value: Entity; onChange: (val: Entity) => any; [key: string]: any }>({
+export function MaterialInput<T extends { value: Entity; onChange: (val: EntityUUID) => any; [key: string]: any }>({
   value,
   onChange,
   ...rest

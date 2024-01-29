@@ -27,11 +27,11 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { XRState } from '@etherealengine/engine/src/xr/XRState'
+import { XRState, isMobileXRHeadset } from '@etherealengine/engine/src/xr/XRState'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { AppState } from '../../common/services/AppService'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
@@ -80,6 +80,7 @@ const AxisComponent = () => {
   return (
     <div
       style={{
+        fontFamily: 'var(--lato)',
         transition: 'all 0.6s ease',
         opacity: fingerDown.value ? 1 : 0,
         transform: fingerDown.value ? 'scale(1)' : 'scale(0.8)',
@@ -91,8 +92,9 @@ const AxisComponent = () => {
         height: '100vh',
         width: '100vw',
         overflow: 'hidden',
-        position: 'relative',
-        zIndex: 100000 // zindex must be higher than engine canvas and anything else
+        position: 'fixed',
+        top: '0px',
+        zIndex: 1 // zindex must be higher than engine canvas and anything else
       }}
     >
       {/* Y-axis on the left */}
@@ -105,7 +107,7 @@ const AxisComponent = () => {
             height: '80%',
             width: '1px',
             backgroundColor: 'lightgray',
-            zIndex: 100000
+            zIndex: 1
           }}
         />
       )}
@@ -119,7 +121,7 @@ const AxisComponent = () => {
           width: '80%',
           height: '1px',
           backgroundColor: 'lightgray',
-          zIndex: 100000
+          zIndex: 1
         }}
       />
     </div>
@@ -130,10 +132,20 @@ export const ARPlacement = () => {
   const { bottomShelfStyle } = useShelfStyles()
   const { t } = useTranslation()
 
-  const engineState = useHookstate(getMutableState(EngineState))
+  const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
   const xrState = useHookstate(getMutableState(XRState))
   const isARSession = xrState.sessionMode.value === 'immersive-ar'
-  if (!isARSession || !engineState.sceneLoaded.value) return <></>
+
+  useEffect(() => {
+    if (isMobileXRHeadset) return
+    /** On mobile, automatically put you in placement mode */
+    if (isARSession) {
+      xrState.scenePlacementMode.set('placing')
+      xrState.sceneScaleAutoMode.set(true)
+    }
+  }, [isARSession])
+
+  if (!isARSession || !sceneLoaded.value) return <></>
 
   const inPlacingMode = xrState.scenePlacementMode.value === 'placing'
   const isAutoScaleMode = xrState.sceneScaleAutoMode.value

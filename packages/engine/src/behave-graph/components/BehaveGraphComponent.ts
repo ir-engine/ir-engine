@@ -27,13 +27,13 @@ import matches, { Validator } from 'ts-matches'
 
 import { GraphJSON } from '@behave-graph/core'
 
+import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { parseStorageProviderURLs } from '../../common/functions/parseSceneJSON'
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { fetchBehaviorGraphJson, useGraphRunner } from '../functions/useGraphRunner'
-import DefaultGraph from '../graph/default.graph.json'
+import DefaultGraph from '../graph/default-graph.json'
 import { BehaveGraphState } from '../state/BehaveGraphState'
 
 export enum BehaveGraphDomain {

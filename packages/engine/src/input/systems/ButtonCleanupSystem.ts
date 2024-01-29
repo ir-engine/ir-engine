@@ -23,9 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import { ButtonStateMap } from '../state/ButtonState'
 

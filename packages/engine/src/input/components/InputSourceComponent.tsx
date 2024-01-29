@@ -28,17 +28,18 @@ import React, { useEffect, useLayoutEffect } from 'react'
 
 import { defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
-  defineQuery,
   getOptionalComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { ButtonStateMap } from '../state/ButtonState'
 import { InputComponent } from './InputComponent'
@@ -192,7 +193,7 @@ const InputSourceAssignmentReactor = React.memo((props: { assignedEntity: Entity
     const idx = input.inputSources.value.indexOf(sourceEntity)
     idx === -1 && input.inputSources.merge([sourceEntity])
     return () => {
-      if (!input.inputSources?.value) return
+      if (!hasComponent(props.assignedEntity, InputComponent) || !input.inputSources?.value) return
       const idx = input.inputSources.value.indexOf(sourceEntity)
       idx > -1 && input.inputSources[idx].set(none)
     }

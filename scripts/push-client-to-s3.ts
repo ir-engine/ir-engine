@@ -30,14 +30,14 @@ import cli from 'cli'
 import fs from 'fs'
 import path from 'path'
 
+import { getFilesRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import logger from '@etherealengine/server-core/src/ServerLogger'
 import {
   createDefaultStorageProvider,
   getStorageProvider
 } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
-import logger from '@etherealengine/server-core/src/ServerLogger'
 import { getContentType } from '@etherealengine/server-core/src/util/fileUtils'
-import { getFilesRecursive } from '@etherealengine/server-core/src/util/fsHelperFunctions'
 
 cli.enable('status')
 
@@ -59,13 +59,19 @@ cli.main(async () => {
             const putData: any = {
               Body: fileResult,
               ContentType: contentType,
-              Key: `client${filePathRelative}`
+              Key: `client${filePathRelative}`,
+              Metadata: {
+                'Cache-Control': 'no-cache'
+              }
             } as any
             if (/.br$/.exec(filePathRelative)) {
               filePathRelative = filePathRelative.replace(/.br$/, '')
               putData.ContentType = getContentType(filePathRelative)
               putData.ContentEncoding = 'br'
               putData.Key = `client${filePathRelative}`
+              putData.Metadata = {
+                'Cache-Control': 'no-cache'
+              }
             }
             await storageProvider.putObject(putData, { isDirectory: false })
             filesToPush.push(`client${filePathRelative}`)
@@ -83,7 +89,10 @@ cli.main(async () => {
     const putData = {
       Body: Buffer.from(JSON.stringify(filesToPrune)),
       ContentType: 'application/json',
-      Key: 'client/S3FilesToRemove.json'
+      Key: 'client/S3FilesToRemove.json',
+      Metadata: {
+        'Cache-Control': 'no-cache'
+      }
     }
     await storageProvider.putObject(putData, { isDirectory: false })
     await storageProvider.createInvalidation(['client/*'])

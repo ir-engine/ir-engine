@@ -29,11 +29,7 @@ import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
 import { NO_PROXY, State, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { AudioState } from '../../audio/AudioState'
-import { removePannerNode } from '../../audio/PositionalAudioFunctions'
-import { isClient } from '../../common/functions/getEnvironment'
-import { Entity } from '../../ecs/classes/Entity'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   defineComponent,
   getComponent,
@@ -44,19 +40,23 @@ import {
   setComponent,
   useComponent,
   useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { AudioState } from '../../audio/AudioState'
+import { removePannerNode } from '../../audio/PositionalAudioFunctions'
+import { NameComponent } from '../../common/NameComponent'
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { ObjectLayers } from '../constants/ObjectLayers'
+import { addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
+import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { PlayMode } from '../constants/PlayMode'
 import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
 import isHLS from '../functions/isHLS'
-import { setObjectLayers } from '../functions/setObjectLayers'
-import { addObjectToGroup } from './GroupComponent'
-import { NameComponent } from './NameComponent'
-import { setVisibleComponent } from './VisibleComponent'
 
 const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png'
 

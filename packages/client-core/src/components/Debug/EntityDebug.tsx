@@ -23,30 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   Component,
   ComponentMap,
-  defineQuery,
   getComponent,
   getOptionalComponent,
-  hasComponent,
-  removeQuery
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { NO_PROXY, defineState, getMutableState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
+  hasComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
+import { NameComponent } from '@etherealengine/engine/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
+import {
+  HyperFlux,
+  NO_PROXY,
+  defineState,
+  getMutableState,
+  getState,
+  syncStateWithLocalStorage
+} from '@etherealengine/hyperflux'
 import { useHookstate } from '@hookstate/core'
 import { getEntityComponents } from 'bitecs'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { JSONTree } from 'react-json-tree'
 
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { defineQuery, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { getAllEntities } from 'bitecs'
 import styles from './styles.module.scss'
 
 const renderEntityTreeRoots = () => {
@@ -57,7 +65,7 @@ const renderEntityTreeRoots = () => {
         const entity = UUIDComponent.getEntityByUUID(root)
         if (!entity || !entityExists(entity)) return []
         return [
-          `${entity} - ${getComponent(entity, NameComponent) ?? getComponent(entity, UUIDComponent)}`,
+          `${entity} - ${getOptionalComponent(entity, NameComponent) ?? getOptionalComponent(entity, UUIDComponent)}`,
           renderEntityTree(entity)
         ]
       })
@@ -74,8 +82,9 @@ const renderEntityTree = (entity: Entity) => {
           ...node.children.reduce(
             (r, child) =>
               Object.assign(r, {
-                [`${child} - ${getComponent(child, NameComponent) ?? getComponent(child, UUIDComponent)}`]:
-                  renderEntityTree(child)
+                [`${child} - ${
+                  getOptionalComponent(child, NameComponent) ?? getOptionalComponent(child, UUIDComponent)
+                }`]: renderEntityTree(child)
               }),
             {}
           )
@@ -87,7 +96,7 @@ const renderEntityTree = (entity: Entity) => {
 const renderEntityComponents = (entity: Entity) => {
   return Object.fromEntries(
     entityExists(entity)
-      ? getEntityComponents(Engine.instance, entity).reduce<[string, any][]>((components, C: Component<any, any>) => {
+      ? getEntityComponents(HyperFlux.store, entity).reduce<[string, any][]>((components, C: Component<any, any>) => {
           if (C !== NameComponent) components.push([C.name, getComponent(entity, C)])
           return components
         }, [])
@@ -107,7 +116,7 @@ const getQueryFromString = (queryString: string) => {
 }
 
 const renderAllEntities = (filter: string, queryString: string) => {
-  const entities = queryString ? getQueryFromString(queryString) : Engine.instance.entityQuery()
+  const entities = queryString ? getQueryFromString(queryString) : (getAllEntities(HyperFlux.store) as Entity[])
   return {
     ...Object.fromEntries(
       [...entities.entries()]
@@ -127,6 +136,7 @@ const renderAllEntities = (filter: string, queryString: string) => {
           return [label, renderEntityComponents(eid)]
         })
         .filter((exists) => !!exists)
+        .sort(([a], [b]) => a.localeCompare(b))
     )
   }
 }
@@ -143,7 +153,6 @@ const EntitySearchState = defineState({
 })
 
 export const EntityDebug = () => {
-  useHookstate(getMutableState(EngineState).frameTime).value
   const { t } = useTranslation()
 
   const namedEntities = useHookstate({})
@@ -166,8 +175,14 @@ export const EntityDebug = () => {
       })
       .flat()
   )
-  namedEntities.set(renderAllEntities(entitySearch.value, entityQuery.value))
-  entityTree.set(renderEntityTreeRoots())
+
+  useExecute(
+    () => {
+      namedEntities.set(renderAllEntities(entitySearch.value, entityQuery.value))
+      entityTree.set(renderEntityTreeRoots())
+    },
+    { after: PresentationSystemGroup }
+  )
 
   return (
     <>

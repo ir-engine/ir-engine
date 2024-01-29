@@ -24,12 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { Euler, MathUtils, Quaternion, Vector3 } from 'three'
-import { V_010, V_100 } from '../../common/constants/MathConstants'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { V_010 } from '../../common/constants/MathConstants'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ikTargets } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -50,10 +50,6 @@ const quat = new Quaternion()
 let currentStep = ikTargets.leftFoot
 const speedMultiplier = 2
 
-const footRotationOffset = new Quaternion()
-  .setFromAxisAngle(V_100, Math.PI / 2)
-  .multiply(new Quaternion().setFromAxisAngle(V_010, Math.PI))
-
 //step threshold should be a function of leg length
 //walk threshold to determine when to move the feet back into standing position, should be
 export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
@@ -66,7 +62,6 @@ export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
 
   const leftFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[leftFootEntity]
   const rightFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[rightFootEntity]
-
   if (!leftFootTargetBlendWeight || !rightFootTargetBlendWeight) return
 
   /** quick fix - set feet to under the avtar and slide around */
@@ -78,14 +73,14 @@ export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
     .set(avatar.footGap, avatar.footHeight, 0)
     .applyQuaternion(avatarTransform.rotation)
     .add(avatarTransform.position)
-  leftFootTransform.rotation.copy(avatarTransform.rotation).multiply(footRotationOffset)
+  leftFootTransform.rotation.copy(avatarTransform.rotation)
 
   const rightFootTransform = getComponent(rightFootEntity, TransformComponent)
   rightFootTransform.position
     .set(-avatar.footGap, avatar.footHeight, 0)
     .applyQuaternion(avatarTransform.rotation)
     .add(avatarTransform.position)
-  rightFootTransform.rotation.copy(avatarTransform.rotation).multiply(footRotationOffset)
+  rightFootTransform.rotation.copy(avatarTransform.rotation)
 
   /** @todo new implementation */
   return

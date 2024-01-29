@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { projectsPath } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { loadConfigForProject } from './loadConfigForProject'
 
 export const loadWebappInjection = async () => {
@@ -37,7 +37,7 @@ export const loadWebappInjection = async () => {
           if (typeof projectConfig.webappInjection !== 'function') return null!
           return (await projectConfig.webappInjection()).default
         } catch (e) {
-          console.log(`Failed to import world load event for project ${project} with reason ${e}`)
+          console.error(`Failed to import webapp load event for project ${project} with reason ${e}`)
           return null!
         }
       })

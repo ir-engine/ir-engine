@@ -26,24 +26,24 @@ Ethereal Engine. All Rights Reserved.
 import { Quaternion, Vector3 } from 'three'
 
 import { isDev } from '@etherealengine/common/src/config'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { CameraComponent } from '../../camera/components/CameraComponent'
-import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
-import { V_000, V_010 } from '../../common/constants/MathConstants'
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
-  defineQuery,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
   removeComponent,
   setComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { CameraComponent } from '../../camera/components/CameraComponent'
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
+import { V_000, V_010 } from '../../common/constants/MathConstants'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { StandardGamepadButton } from '../../input/state/ButtonState'
@@ -56,7 +56,7 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
-import { XRControlsState } from '../../xr/XRState'
+import { XRControlsState, XRState } from '../../xr/XRState'
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { autopilotSetPosition } from '.././functions/autopilotFunctions'
@@ -180,13 +180,13 @@ const getAvatarDoubleClick = (buttons): boolean => {
   }
   if (clickCount < 1) return false
   if (clickCount > 1) {
-    secondClickTimer += getState(EngineState).deltaSeconds
+    secondClickTimer += getState(ECSState).deltaSeconds
     if (secondClickTimer <= secondClickTimeout) return true
     secondClickTimer = 0
     clickCount = 0
     return false
   }
-  douubleClickTimer += getState(EngineState).deltaSeconds
+  douubleClickTimer += getState(ECSState).deltaSeconds
   if (douubleClickTimer <= clickTimeout) return false
   douubleClickTimer = 0
   clickCount = 0
@@ -205,9 +205,10 @@ const execute = () => {
 
   applyInputSourcePoseToIKTargets(localClientEntity)
 
-  const { deltaSeconds } = getState(EngineState)
+  const { deltaSeconds } = getState(ECSState)
   setIkFootTarget(localClientEntity, deltaSeconds)
 
+  const inputState = getState(InputState)
   const avatarInputSettings = getState(AvatarInputSettingsState)
 
   const controller = getComponent(localClientEntity, AvatarControllerComponent)
@@ -215,7 +216,7 @@ const execute = () => {
 
   const { isCameraAttachedToAvatar, isMovementControlsEnabled } = getState(XRControlsState)
 
-  if (!isCameraAttachedToAvatar) {
+  if (!isCameraAttachedToAvatar && !getState(XRState).session) {
     const firstWalkableEntityWithInput = walkableQuery().find(
       (entity) => getComponent(entity, InputComponent)?.inputSources.length
     )
@@ -227,7 +228,7 @@ const execute = () => {
       if (inputSourceEntity) {
         const inputSourceComponent = getOptionalComponent(inputSourceEntity, InputSourceComponent)
         if (inputSourceComponent?.buttons.PrimaryClick?.touched) {
-          const pointerState = getState(InputState).pointerState
+          const pointerState = inputState.pointerState
           const mouseMoved = pointerState.movement.lengthSq() > 0
           if (mouseMoved) mouseMovedDuringPrimaryClick = true
 
@@ -289,14 +290,14 @@ const execute = () => {
     const controlScheme =
       inputSource.source.handedness === 'none' || !isCameraAttachedToAvatar
         ? AvatarAxesControlScheme.Move
-        : inputSource.source.handedness === avatarInputSettings.preferredHand
+        : inputSource.source.handedness === inputState.preferredHand
         ? avatarInputSettings.rightAxesControlScheme
         : avatarInputSettings.leftAxesControlScheme
 
     AvatarAxesControlSchemeBehavior[controlScheme](
       inputSource.source,
       controller,
-      avatarInputSettings.preferredHand === 'left' ? 'right' : 'left'
+      inputState.preferredHand === 'left' ? 'right' : 'left'
     )
   }
 }

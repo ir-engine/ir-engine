@@ -39,7 +39,7 @@ const LocationRoutes = () => {
   return (
     <Suspense fallback={<LoadingCircle message={t('common:loader.loadingLocation')} />}>
       <Routes>
-        <Route path=":locationName" element={<LocationPage />} />
+        <Route path=":locationName" element={<LocationPage online />} />
       </Routes>
     </Suspense>
   )

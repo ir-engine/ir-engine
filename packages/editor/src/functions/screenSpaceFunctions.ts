@@ -29,7 +29,7 @@ import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendere
 import { SnapMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { getState } from '@etherealengine/hyperflux'
 
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { ObjectLayers } from '@etherealengine/engine/src/renderer/constants/ObjectLayers'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
 
@@ -57,7 +57,7 @@ export const getScreenSpacePosition = (() => {
       raycaster.ray.at(20, target)
     }
 
-    if (editorHelperState.snapMode === SnapMode.Grid) {
+    if (editorHelperState.gridSnap === SnapMode.Grid) {
       const translationSnap = editorHelperState.translationSnap
 
       target.set(

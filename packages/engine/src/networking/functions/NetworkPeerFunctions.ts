@@ -23,20 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Validator } from 'ts-matches'
-
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID, UserName } from '@etherealengine/common/src/schema.type.module'
-import { dispatchAction, getMutableState, none } from '@etherealengine/hyperflux'
-import { Action, ResolvedActionType } from '@etherealengine/hyperflux/functions/ActionFunctions'
+import { getMutableState, none } from '@etherealengine/hyperflux'
+import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
-import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
-import { Engine } from '../../ecs/classes/Engine'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { NetworkState } from '../NetworkState'
 import { Network } from '../classes/Network'
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldState } from '../interfaces/WorldState'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
@@ -98,71 +92,18 @@ function destroyPeer(network: Network, peerID: PeerID) {
   const peerIndexInUserPeers = userPeers.indexOf(peerID)
   userPeers.splice(peerIndexInUserPeers, 1)
   if (!userPeers.length) networkState.users[userID].set(none)
-
-  /**
-   * if no other connections exist for this user, and this action is occurring on the world network,
-   * we want to remove them from world.users
-   */
-  if (network.topic === 'world') {
-    // todo - when multiple world servers are running, we may need to do this
-    // const remainingPeersForDisconnectingUser = Object.entries(getState(NetworkState).networks)
-    //   .map(([id, network]) => {
-    //     return network.users.has(userID)
-    //   })
-    //   .filter((peer) => !!peer)
-    // console.log({remainingPeersForDisconnectingUser})
-    if (!network.users[userID] && network.isHosting) {
-      // Engine.instance.store.actions.cached = Engine.instance.store.actions.cached.filter((a) => a.$from !== userID)
-      for (const eid of NetworkObjectComponent.getOwnedNetworkObjects(userID)) {
-        const networkObject = getComponent(eid, NetworkObjectComponent)
-        if (networkObject) {
-          dispatchAction(
-            WorldNetworkAction.destroyObject({ entityUUID: getComponent(eid, UUIDComponent), $from: userID })
-          )
-        }
-      }
-      // clearCachedActionsForUser(userID)
-      // clearActionsHistoryForUser(userID)
-    }
-  }
 }
 
 const destroyAllPeers = (network: Network) => {
   for (const [peerID] of Object.entries(network.peers)) NetworkPeerFunctions.destroyPeer(network, peerID as PeerID)
 }
 
-function clearActionsHistoryForUser(userId: UserID) {
-  for (const action of Engine.instance.store.actions.history) {
-    if (action.$from === userId) {
-      Engine.instance.store.actions.knownUUIDs.delete(action.$uuid)
-    }
-  }
-}
-
-function clearCachedActionsForUser(userId: UserID) {
-  const cached = Engine.instance.store.actions.cached
-  for (const action of [...cached]) {
-    if (action.$from === userId) {
-      const idx = cached.indexOf(action)
-      cached.splice(idx, 1)
-    }
-  }
-}
-
-function clearCachedActionsOfTypeForUser(userId: UserID, actionShape: Validator<unknown, ResolvedActionType>) {
-  const cached = Engine.instance.store.actions.cached
-  for (const action of [...cached]) {
-    if (action.$from === userId && actionShape.test(action)) {
-      const idx = cached.indexOf(action)
-      cached.splice(idx, 1)
-    }
-  }
-}
-
 function getCachedActionsForPeer(toPeerID: PeerID) {
   // send all cached and outgoing actions to joining user
   const cachedActions = [] as Required<Action>[]
-  for (const action of Engine.instance.store.actions.cached as Array<ReturnType<typeof AvatarNetworkAction.spawn>>) {
+  for (const action of Engine.instance.store.actions.cached as Array<
+    ReturnType<typeof WorldNetworkAction.spawnObject>
+  >) {
     if (action.$peer === toPeerID) continue
     if (action.$to === 'all' || action.$to === toPeerID) cachedActions.push({ ...action, $stack: undefined! })
   }
@@ -174,8 +115,5 @@ export const NetworkPeerFunctions = {
   createPeer,
   destroyPeer,
   destroyAllPeers,
-  clearCachedActionsForUser,
-  clearActionsHistoryForUser,
-  clearCachedActionsOfTypeForUser,
   getCachedActionsForPeer
 }

@@ -24,10 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { Object3D } from 'three'
-import { Entity } from '../../../../ecs/classes/Entity'
-import { getComponent, setComponent } from '../../../../ecs/functions/ComponentFunctions'
-import { EntityTreeComponent, iterateEntityNode } from '../../../../ecs/functions/EntityTree'
 import { SourceComponent } from '../../../../scene/components/SourceComponent'
 import { getModelSceneID } from '../../../../scene/functions/loaders/ModelFunctions'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
@@ -44,6 +44,7 @@ export default class SourceHandlerExtension extends ExporterExtension implements
   beforeParse(input: Object3D | Object3D[]) {
     //we allow saving of any object that has a source equal to or parent of the root's source
     const validSrcs: Set<SceneID> = new Set()
+    if (!this.writer.options.srcEntity) return
     validSrcs.add(getModelSceneID(this.writer.options.srcEntity!))
     const root = (Array.isArray(input) ? input[0] : input) as Object3D
     let walker: Entity | null = root.entity
@@ -58,7 +59,7 @@ export default class SourceHandlerExtension extends ExporterExtension implements
         const entityTree = getComponent(entity, EntityTreeComponent)
         if (!entityTree || !entityTree.parentEntity) return
         this.entitySet.push({ entity, parent: entityTree.parentEntity })
-        setComponent(entity, EntityTreeComponent, { parentEntity: null })
+        setComponent(entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
       },
       (entity) => {
         const src = getComponent(entity, SourceComponent)

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { XRSystem } from './XRSystem'
 
 /**

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { SyntheticEvent, useCallback } from 'react'
+import React, { useCallback } from 'react'
 
 import {
   ImageTransformParameters,
@@ -57,8 +57,8 @@ export default function GLTFTransformProperties({
   }, [])
 
   const onChangeTransformStringParm = useCallback((scope: State<any>) => {
-    return (value: SyntheticEvent) => {
-      scope.set((value.target as HTMLInputElement).value)
+    return (value: string) => {
+      scope.set(value)
     }
   }, [])
 
