@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { findIndexOfEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { findIndexOfEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import traverseEarlyOut from './traverseEarlyOut'
 
 // Returns an array of objects that are not ancestors of any other objects in the array.

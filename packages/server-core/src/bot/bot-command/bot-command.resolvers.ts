@@ -30,7 +30,7 @@ import { v4 } from 'uuid'
 import { BotCommandQuery, BotCommandType } from '@etherealengine/common/src/schemas/bot/bot-command.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const botCommandResolver = resolve<BotCommandType, HookContext>({
   createdAt: virtual(async (botCommand) => fromDateTimeSql(botCommand.createdAt)),

@@ -10,6 +10,7 @@ RUN apt install -y build-essential meson python3-testresources python3-venv pyth
 COPY patches/ ./patches/
 COPY package.json .
 COPY packages/common/package.json ./packages/common/
+COPY packages/ecs/package.json ./packages/ecs/
 COPY packages/engine/package.json ./packages/engine/
 COPY packages/hyperflux/package.json ./packages/hyperflux/
 COPY packages/matchmaking/package.json ./packages/matchmaking/

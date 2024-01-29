@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { ComponentUpdateFunction } from '../../../common/constants/PrefabFunctionType'
-import { Entity } from '../../../ecs/classes/Entity'
-import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { OceanComponent } from '../../components/OceanComponent'
 import { addError, removeError } from '../ErrorFunctions'
 

@@ -1,0 +1,28 @@
+{
+  "name": "@etherealengine/ecs",
+  "version": "1.6.0",
+  "main": "index.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "Core execution context for the Ethereal Engine",
+  "scripts": {
+    "check-errors": "tsc --noemit",
+    "test": "mocha --jobs 1"
+  },
+  "repository": "http://github.com/etherealengine/etherealengine",
+  "author": "Ethereal Engine",
+  "license": "CPAL",
+  "dependencies": {
+    "@etherealengine/common": "^1.6.0",
+    "@etherealengine/hyperflux": "^1.6.0",
+    "bitecs": "0.3.40",
+    "three": "0.158.0"
+  },
+  "devDependencies": {
+    "@types/mocha": "10.0.1",
+    "@types/node": "18.15.5",
+    "rimraf": "4.4.0"
+  },
+  "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
+}

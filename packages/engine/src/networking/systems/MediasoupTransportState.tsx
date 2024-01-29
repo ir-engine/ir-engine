@@ -25,6 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import {
   defineAction,
   defineActionQueue,
@@ -34,9 +37,6 @@ import {
   none
 } from '@etherealengine/hyperflux'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
-import { isClient } from '../../common/functions/getEnvironment'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '../../ecs/functions/SystemGroups'
 import { NetworkState } from '../NetworkState'
 import { Network } from '../classes/Network'
 import { MediasoupDataProducerConsumerState } from './MediasoupDataProducerConsumerState'

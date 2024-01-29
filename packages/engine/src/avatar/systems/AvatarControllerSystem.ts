@@ -25,25 +25,24 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineActionQueue, dispatchAction } from '@etherealengine/hyperflux'
 
-import { getState } from '@etherealengine/hyperflux'
-import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
-import { TargetCameraRotationComponent } from '../../camera/components/TargetCameraRotationComponent'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
 import {
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
+import { getState } from '@etherealengine/hyperflux'
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
+import { TargetCameraRotationComponent } from '../../camera/components/TargetCameraRotationComponent'
 import { NetworkState } from '../../networking/NetworkState'
 import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { XRAction, XRControlsState } from '../../xr/XRState'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
@@ -102,15 +101,10 @@ const execute = () => {
     const controller = getComponent(controlledEntity, AvatarControllerComponent)
 
     if (!controller.movementCaptured.length) {
-      /** Support multiple peers controlling the same avatar by detecting movement and overriding network authority.
-       *    @todo we may want to make this an networked action, rather than lazily removing the NetworkObjectAuthorityTag
-       *    if detecting input on the other user #7263
-       */
-      const deltaSeconds = getState(EngineState).deltaSeconds
       if (
         !hasComponent(controlledEntity, NetworkObjectAuthorityTag) &&
         NetworkState.worldNetwork &&
-        controller.gamepadWorldMovement.lengthSq() > 0.1 * deltaSeconds
+        controller.gamepadLocalInput.lengthSq() > 0
       ) {
         dispatchAction(
           WorldNetworkAction.transferAuthorityOfObject({

@@ -42,6 +42,8 @@ import styles from './index.module.scss'
 
 import { setupSceneForPreview } from '@etherealengine/client-core/src/user/components/Panel3D/helperFunctions'
 import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
+import { initializeKTX2Loader } from '@etherealengine/engine/src/assets/functions/createGLTFLoader'
+import { GLTFLoader } from '@etherealengine/engine/src/assets/loaders/gltf/GLTFLoader'
 import { isAvaturn } from '@etherealengine/engine/src/avatar/functions/avatarFunctions'
 interface Props {
   fill?: boolean
@@ -76,6 +78,11 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     resetAnimationLogic(entity.value)
     /** @todo this is a hack */
     const override = !isAvaturn(avatarUrl) ? undefined : AssetType.glB
+
+    const gltfLoader = AssetLoader.getLoader(AssetType.glTF) as GLTFLoader
+    if (!gltfLoader.ktx2Loader) {
+      initializeKTX2Loader(gltfLoader)
+    }
 
     AssetLoader.loadAsync(avatarUrl, {
       forceAssetType: override

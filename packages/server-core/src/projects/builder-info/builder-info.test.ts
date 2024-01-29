@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { builderInfoPath } from '@etherealengine/common/src/schemas/projects/builder-info.schema'
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import assert from 'assert'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'

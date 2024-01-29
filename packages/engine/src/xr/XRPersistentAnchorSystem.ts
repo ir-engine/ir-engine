@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Quaternion, Vector3 } from 'three'
 
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getState } from '@etherealengine/hyperflux'
-import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { ReferenceSpace, XRState } from './XRState'
 import { XRSystem } from './XRSystem'
 

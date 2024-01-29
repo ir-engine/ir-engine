@@ -29,7 +29,7 @@ import { useEffect } from 'react'
 import { LocationService, LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { SceneServices } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { SceneServices } from '@etherealengine/engine/src/scene/Scene'
 import { RouterState } from '../../common/services/RouterService'
 import { WarningUIService } from '../../systems/WarningUISystem'
 import { loadSceneJsonOffline } from '../../world/utils'

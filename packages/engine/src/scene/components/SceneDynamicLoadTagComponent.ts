@@ -23,9 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import {
+  defineComponent,
+  hasComponent,
+  removeComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useEffect } from 'react'
-import { defineComponent, hasComponent, removeComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { CallbackComponent, setCallback } from './CallbackComponent'
 
 export const SceneDynamicLoadTagComponent = defineComponent({

@@ -30,7 +30,7 @@ import { v4 } from 'uuid'
 import { UserApiKeyQuery, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const userApiKeyResolver = resolve<UserApiKeyType, HookContext>({
   createdAt: virtual(async (userApiKey) => fromDateTimeSql(userApiKey.createdAt)),

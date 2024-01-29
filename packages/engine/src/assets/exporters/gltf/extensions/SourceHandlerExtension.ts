@@ -24,10 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { Object3D } from 'three'
-import { Entity, UndefinedEntity } from '../../../../ecs/classes/Entity'
-import { getComponent, setComponent } from '../../../../ecs/functions/ComponentFunctions'
-import { EntityTreeComponent, iterateEntityNode } from '../../../../ecs/functions/EntityTree'
 import { SourceComponent } from '../../../../scene/components/SourceComponent'
 import { getModelSceneID } from '../../../../scene/functions/loaders/ModelFunctions'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'

@@ -42,18 +42,18 @@ import { DepthTexture, NearestFilter, PerspectiveCamera, RGBAFormat, UnsignedInt
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { ShaderPass } from 'postprocessing'
+import { EngineState } from '../../EngineState'
 import { CameraComponent } from '../../camera/components/CameraComponent'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/PostProcessing'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { HighlightState } from '../HighlightState'
 import { RendererState } from '../RendererState'
 import { EffectComposerWithSchema, EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
-import { SDFShader } from '../effects/SDFShader'
+import { EffectMap, EffectPropsSchema, Effects } from '../effects/PostProcessing'
+import { SDFSettingsState } from '../effects/sdf/SDFSettingsState'
+import { SDFShader } from '../effects/sdf/SDFShader'
 import { changeRenderMode } from './changeRenderMode'
 
 export const configureEffectComposer = (
@@ -112,7 +112,8 @@ export const configureEffectComposer = (
     normalBuffer: normalPass.texture,
     resolutionScale: 0.5
   })
-  const SDFSetting = getState(SDFComponent.SDFStateSettingsState)
+
+  const SDFSetting = getState(SDFSettingsState)
   if (SDFSetting.enabled) {
     const depthRenderTarget = new WebGLRenderTarget(window.innerWidth, window.innerHeight)
     depthRenderTarget.texture.minFilter = NearestFilter

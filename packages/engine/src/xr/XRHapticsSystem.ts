@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineActionQueue } from '@etherealengine/hyperflux'
 
-import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { defineQuery } from '../ecs/functions/QueryFunctions'
-import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '../ecs/functions/SystemGroups'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { XRAction } from './XRState'
 

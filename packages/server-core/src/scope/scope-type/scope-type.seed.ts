@@ -30,7 +30,7 @@ import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { clientSettingPath } from '@etherealengine/common/src/schemas/setting/client-setting.schema'
-import { getDateTimeSql } from '../../util/datetime-sql'
+import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const scopeTypeSeed = [
   {

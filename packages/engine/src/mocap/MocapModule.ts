@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { MotionCaptureInputSystem } from './MotionCaptureInputSystem'
 import { MotionCaptureSystem } from './MotionCaptureSystem'
 
-export { MotionCaptureSystem }
+export { MotionCaptureSystem, MotionCaptureInputSystem }

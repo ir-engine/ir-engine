@@ -968,7 +968,7 @@
           "props": {
             "location": "sky-station",
             "linkedPortalId": "6a1cf0d6-ddfe-4058-b5ca-5bb18bc7efae",
-            "redirect": true,
+            "redirect": false,
             "effectType": "Hyperspace",
             "previewType": "Spherical",
             "previewImageURL": "__$project$__/default-project/apartment-Portal.ktx2",

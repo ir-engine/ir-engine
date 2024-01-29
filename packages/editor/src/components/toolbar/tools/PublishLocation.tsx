@@ -31,7 +31,7 @@ import LocationDrawer, {
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { SceneID, locationPath } from '@etherealengine/common/src/schema.type.module'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { Button } from '@mui/material'
 import { useTranslation } from 'react-i18next'
@@ -45,6 +45,7 @@ export const PublishLocation = () => {
   const selectedScene = activeScene.value
     ? (activeScene.value!.replace('.scene.json', '').replace(`${activeScene.value!.split('/', 1)[0]}/`, '') as SceneID)
     : null
+
   const drawerMode = useHookstate<LocationDrawerMode>(LocationDrawerMode.Create)
   const user = useHookstate(getMutableState(AuthState).user)
   const hasWriteAccess = user.scopes.get(NO_PROXY)?.find((item) => item?.type === 'location:write')

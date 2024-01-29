@@ -28,10 +28,9 @@ import { PassThrough } from 'stream'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import multiLogger from '@etherealengine/common/src/logger'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { Network, NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import {
@@ -65,8 +64,11 @@ import {
   UserID,
   userPath
 } from '@etherealengine/common/src/schema.type.module'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
-import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import {
   addDataChannelHandler,
@@ -74,12 +76,10 @@ import {
   removeDataChannelHandler
 } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import matches, { Validator } from 'ts-matches'
+import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { checkScope } from '../common/functions/checkScope'
-import { isClient } from '../common/functions/getEnvironment'
 import { matchesUserId } from '../common/functions/MatchesUtils'
-import { PresentationSystemGroup } from '../ecs/functions/SystemGroups'
 import { mocapDataChannelType } from '../mocap/MotionCaptureSystem'
 import { PhysicsSerialization } from '../physics/PhysicsSerialization'
 
@@ -385,7 +385,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
 
   const startTime = Date.now()
 
-  const chunkLength = Math.floor((1000 / getState(EngineState).simulationTimestep) * 60) // 1 minute
+  const chunkLength = Math.floor((1000 / getState(ECSState).simulationTimestep) * 60) // 1 minute
 
   const dataChannelRecorder = (network: Network, dataChannel: DataChannelType, fromPeerID: PeerID, message: any) => {
     try {
@@ -415,7 +415,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
 
     activeRecording.serializer = ECSSerialization.createSerializer({
       entities: () => {
-        return [NetworkObjectComponent.getUserAvatarEntity(userID)]
+        return [AvatarComponent.getUserAvatarEntity(userID)]
       },
       schema: serializationSchema,
       chunkLength,

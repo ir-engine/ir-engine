@@ -25,15 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import { Assert, NodeCategory, makeAsyncNodeDefinition, makeFunctionNodeDefinition } from '@behave-graph/core'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { Entity } from '../../../../../ecs/classes/Entity'
-import { getComponent, getOptionalComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
-import { defineQuery } from '../../../../../ecs/functions/QueryFunctions'
-import { SystemUUID, defineSystem, destroySystem } from '../../../../../ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '../../../../../ecs/functions/SystemGroups'
-import { NameComponent } from '../../../../../scene/components/NameComponent'
+import { getComponent, getOptionalComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
+import { NameComponent } from '../../../../../common/NameComponent'
 import { SplineComponent } from '../../../../../scene/components/SplineComponent'
 import { SplineTrackComponent } from '../../../../../scene/components/SplineTrackComponent'
-import { UUIDComponent } from '../../../../../scene/components/UUIDComponent'
 
 const splineQuery = defineQuery([SplineComponent])
 

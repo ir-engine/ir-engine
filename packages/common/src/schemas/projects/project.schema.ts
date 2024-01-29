@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, StringEnum, Type } from '@feathersjs/typebox'
+import { UserType } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { projectPermissionSchema } from './project-permission.schema'
 
@@ -143,3 +144,9 @@ export const projectValidator = /* @__PURE__ */ getValidator(projectSchema, data
 export const projectDataValidator = /* @__PURE__ */ getValidator(projectDataSchema, dataValidator)
 export const projectPatchValidator = /* @__PURE__ */ getValidator(projectPatchSchema, dataValidator)
 export const projectQueryValidator = /* @__PURE__ */ getValidator(projectQuerySchema, queryValidator)
+
+export type ProjectUpdateParams = {
+  user?: UserType
+  isJob?: boolean
+  jobId?: string
+}
