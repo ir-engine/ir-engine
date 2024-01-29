@@ -32,12 +32,12 @@ import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { NameComponent } from '../../common/NameComponent'
 import { matches } from '../../common/functions/MatchesUtils'
 import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { useUpdateLight } from '../functions/useUpdateLight'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
-import { NameComponent } from './NameComponent'
 import { setVisibleComponent } from './VisibleComponent'
 
 const material = new LineBasicMaterial()

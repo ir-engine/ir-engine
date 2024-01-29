@@ -52,10 +52,10 @@ import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFu
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import { NameComponent } from '../../common/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import getFirstMesh from '../util/meshUtils'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
-import { NameComponent } from './NameComponent'
 import { VisibleComponent } from './VisibleComponent'
 
 export const ParticleState = defineState({

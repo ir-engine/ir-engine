@@ -34,10 +34,10 @@ import { entityExists, useEntityContext } from '@etherealengine/ecs/src/EntityFu
 import { getState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
+import { UUIDComponent } from '../../common/UUIDComponent'
 import { matches } from '../../common/functions/MatchesUtils'
 import { Physics } from '../../physics/classes/Physics'
 import { PhysicsState } from '../../physics/state/PhysicsState'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { createAvatarCollider } from '../functions/spawnAvatarReceptor'
 import { AvatarComponent } from './AvatarComponent'
 

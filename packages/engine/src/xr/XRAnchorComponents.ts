@@ -39,7 +39,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { matchesQuaternion, matchesVector3 } from '../common/functions/MatchesUtils'
 import { addObjectToGroup, GroupComponent } from '../scene/components/GroupComponent'

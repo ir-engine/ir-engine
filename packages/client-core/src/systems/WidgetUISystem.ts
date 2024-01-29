@@ -32,10 +32,10 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { NameComponent } from '@etherealengine/engine/src/common/NameComponent'
 import { V_001, V_010 } from '@etherealengine/engine/src/common/constants/MathConstants'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '@etherealengine/engine/src/input/state/ButtonState'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { VisibleComponent, setVisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import {
   ComputedTransformComponent,

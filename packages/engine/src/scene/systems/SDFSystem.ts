@@ -29,9 +29,9 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getMutableState, useState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { configureEffectComposer } from '../../functions/configureEffectComposer'
-import { SDFComponent } from './SDFComponent'
-import { SDFSettingsState } from './SDFSettingsState'
+import { SDFSettingsState } from '../../renderer/effects/sdf/SDFSettingsState'
+import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
+import { SDFComponent } from '../components/SDFComponent'
 
 const reactor = () => {
   const sdfQuery = useQuery([SDFComponent])

@@ -43,7 +43,7 @@ import {
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { Engine, defineSystem, getOptionalComponent, removeEntity, setComponent } from '@etherealengine/ecs'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkState, SceneUser } from '../NetworkState'

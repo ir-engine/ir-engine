@@ -36,7 +36,7 @@ import { applyIncomingActions, dispatchAction } from '@etherealengine/hyperflux/
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'

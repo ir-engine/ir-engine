@@ -51,9 +51,9 @@ import { useEffect } from 'react'
 import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from '../components/GroupComponent'
-import { NameComponent } from '../components/NameComponent'
 import { setVisibleComponent } from '../components/VisibleComponent'
 
+import { NameComponent } from '../../common/NameComponent'
 import LogarithmicDepthBufferMaterialChunk from '../../renderer/constants/LogarithmicDepthBufferMaterialChunk'
 import { setObjectLayers } from '../functions/setObjectLayers'
 

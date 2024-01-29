@@ -36,7 +36,7 @@ import {
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { EngineState } from '@etherealengine/engine/src/EngineState'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, useState } from '@etherealengine/hyperflux'
@@ -52,12 +52,12 @@ import {
   Quaternion,
   Vector3
 } from 'three'
+import { NameComponent } from '../../common/NameComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
-import { NameComponent } from './NameComponent'
 import { ObjectLayerMaskComponent } from './ObjectLayerComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { VisibleComponent } from './VisibleComponent'

@@ -40,6 +40,7 @@ import { defineComponent, getComponent, setComponent, useComponent } from '@ethe
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { NameComponent } from '../../common/NameComponent'
 import { matches } from '../../common/functions/MatchesUtils'
 import { RendererState } from '../../renderer/RendererState'
 import {
@@ -53,7 +54,6 @@ import { setObjectLayers } from '../functions/setObjectLayers'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
 import { addObjectToGroup } from './GroupComponent'
-import { NameComponent } from './NameComponent'
 import { setVisibleComponent } from './VisibleComponent'
 
 export const EnvMapBakeComponent = defineComponent({

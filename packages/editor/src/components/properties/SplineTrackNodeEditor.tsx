@@ -32,9 +32,9 @@ import { SplineTrackComponent } from '@etherealengine/engine/src/scene/component
 import CameraswitchIcon from '@mui/icons-material/Cameraswitch'
 
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { NameComponent } from '@etherealengine/engine/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInput from '../inputs/NumericInput'

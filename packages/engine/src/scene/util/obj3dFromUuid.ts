@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { GroupComponent } from '../components/GroupComponent'
 
 export default function obj3dFromUuid(uuid: string) {
