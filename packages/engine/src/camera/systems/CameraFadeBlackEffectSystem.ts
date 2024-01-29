@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Color, DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 
-import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
@@ -33,7 +33,6 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, entityExists, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { useEffect } from 'react'
 import { NameComponent } from '../../common/NameComponent'
 import { createTransitionState } from '../../common/functions/createTransitionState'
@@ -87,11 +86,7 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const activeScene = useHookstate(getMutableState(SceneState).activeScene)
-
   useEffect(() => {
-    if (!activeScene.value) return
-
     const geometry = new SphereGeometry(10)
     const material = new MeshBasicMaterial({
       transparent: true,
@@ -121,7 +116,7 @@ const reactor = () => {
       if (entityExists(entity)) removeEntity(entity)
       getMutableState(CameraFadeBlackEffectSystemState).set({} as any)
     }
-  }, [activeScene])
+  }, [])
 
   return null
 }
