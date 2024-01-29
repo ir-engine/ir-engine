@@ -129,7 +129,6 @@ export const LoopAnimationComponent = defineComponent({
         return
       }
       animComponent.mixer.time.set(0)
-      console.log('Binding animation', entity, clip)
       const assetObject = modelComponent.asset.get(NO_PROXY)
       try {
         const action = animComponent.mixer.value.clipAction(

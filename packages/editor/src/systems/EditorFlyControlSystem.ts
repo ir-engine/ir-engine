@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MathUtils, Matrix3, Vector3 } from 'three'
+import { MathUtils } from 'three'
 
 import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -35,9 +35,6 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { EditorHelperState } from '../services/EditorHelperState'
-
-const tempVec3 = new Vector3()
-const normalMatrix = new Matrix3()
 
 const onSecondaryClick = () => {
   if (!hasComponent(Engine.instance.cameraEntity, FlyControlComponent)) {
