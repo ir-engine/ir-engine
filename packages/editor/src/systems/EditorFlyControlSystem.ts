@@ -28,7 +28,7 @@ import { MathUtils, Matrix3, Vector3 } from 'three'
 import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { FlyControlComponent } from '@etherealengine/engine/src/avatar/components/FlyControlComponent'
+import { FlyControlComponent } from '@etherealengine/engine/src/camera/components/FlyControlComponent'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import { getMutableState } from '@etherealengine/hyperflux'
 

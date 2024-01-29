@@ -27,13 +27,13 @@ import { ArrayCamera, PerspectiveCamera, Vector2, Vector3, Vector4 } from 'three
 
 import { defineActionQueue, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { AnimationSystemGroup } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { V_111 } from '../common/constants/MathConstants'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
-import { ReferenceSpaceTransformSystem } from '../transform/TransformModule'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRRendererState } from './WebXRManager'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
@@ -284,6 +284,6 @@ export const XRCameraInputSystem = defineSystem({
  */
 export const XRCameraUpdateSystem = defineSystem({
   uuid: 'ee.engine.XRCameraUpdateSystem',
-  insert: { after: ReferenceSpaceTransformSystem },
+  insert: { before: AnimationSystemGroup },
   execute: updateXRCamera
 })

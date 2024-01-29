@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { Euler, MathUtils, Quaternion, Vector3 } from 'three'
 import { V_010 } from '../../common/constants/MathConstants'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'

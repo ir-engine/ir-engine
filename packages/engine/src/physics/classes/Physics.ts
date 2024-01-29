@@ -50,8 +50,6 @@ import {
   Vector3
 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
-
 import {
   getComponent,
   getOptionalComponent,
@@ -59,9 +57,7 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
-import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { V_000 } from '../../common/constants/MathConstants'
 import { MeshComponent } from '../../scene/components/MeshComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -297,7 +293,7 @@ function createRigidBodyForGroup(
   world: World,
   colliderDescOptions: ColliderDescOptions,
   overrideShapeType = false
-): RigidBody {
+) {
   const colliderDescs = [] as ColliderDesc[]
   const meshesToRemove = [] as Mesh[]
 
@@ -340,14 +336,9 @@ function createRigidBodyForGroup(
       break
   }
 
-  const body = createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
+  createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
 
-  if (!getState(EngineState).isEditor)
-    for (const mesh of meshesToRemove) {
-      cleanupAllMeshData(mesh, {})
-    }
-
-  return body
+  return meshesToRemove
 }
 
 function createColliderAndAttachToRigidBody(world: World, colliderDesc: ColliderDesc, rigidBody: RigidBody): Collider {

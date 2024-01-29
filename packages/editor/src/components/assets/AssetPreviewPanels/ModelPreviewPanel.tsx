@@ -32,17 +32,17 @@ import {
   PreviewPanelRendererState,
   useRender3DPanelSystem
 } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { createEntity, removeEntity, setComponent } from '@etherealengine/ecs'
+import { NameComponent } from '@etherealengine/engine/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
+import { ObjectLayerMaskComponent } from '@etherealengine/engine/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@etherealengine/engine/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/engine/src/renderer/constants/ObjectLayers'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { ObjectLayerMaskComponent } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { MathUtils } from 'three'
 import styles from '../styles.module.scss'
 

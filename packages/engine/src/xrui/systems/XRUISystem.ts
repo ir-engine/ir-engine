@@ -37,7 +37,7 @@ import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { InputState } from '../../input/state/InputState'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'

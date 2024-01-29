@@ -61,6 +61,7 @@ import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
 import { isIPhone, isMobile } from '../../common/functions/isMobile'
+import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { PlayMode } from '../constants/PlayMode'
 import {
@@ -78,7 +79,6 @@ import {
   UniformSolveTarget
 } from '../constants/UVOLTypes'
 import getFirstMesh from '../util/meshUtils'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MediaElementComponent } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { UVOLDissolveComponent } from './UVOLDissolveComponent'

@@ -44,16 +44,16 @@ import {
   ActiveOrbitCamera,
   CameraOrbitComponent
 } from '@etherealengine/engine/src/camera/components/CameraOrbitComponent'
+import { NameComponent } from '@etherealengine/engine/src/common/NameComponent'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import { addClientInputListeners } from '@etherealengine/engine/src/input/systems/ClientInputSystem'
-import { DirectionalLightComponent } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import {
   ObjectLayerComponents,
   ObjectLayerMaskComponent
-} from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
-import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+} from '@etherealengine/engine/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@etherealengine/engine/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/engine/src/renderer/constants/ObjectLayers'
+import { DirectionalLightComponent } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
 import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { defineState, getMutableState, none } from '@etherealengine/hyperflux'

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRM, VRM1Meta, VRMHumanBone, VRMHumanoid } from '@pixiv/three-vrm'
-import { AnimationClip, AnimationMixer, Scene, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Box3, Scene, Vector3 } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
@@ -38,8 +38,8 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
@@ -135,10 +135,14 @@ const hipsPos = new Vector3(),
   leftLowerLegPos = new Vector3(),
   leftUpperLegPos = new Vector3(),
   footGap = new Vector3(),
-  eyePos = new Vector3()
+  eyePos = new Vector3(),
+  size = new Vector3(),
+  box = new Box3()
 
 export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   iterateEntityNode(entity, computeTransformMatrix)
+
+  box.expandByObject(vrm.scene).getSize(size)
 
   const rig = vrm.humanoid.rawHumanBones
   rig.hips.node.getWorldPosition(hipsPos)
@@ -151,6 +155,7 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   rig.leftEye ? rig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos)
 
   const avatarComponent = getMutableComponent(entity, AvatarComponent)
+  avatarComponent.avatarHeight.set(size.y)
   avatarComponent.torsoLength.set(Math.abs(headPos.y - hipsPos.y))
   avatarComponent.upperLegLength.set(Math.abs(hipsPos.y - leftLowerLegPos.y))
   avatarComponent.lowerLegLength.set(Math.abs(leftLowerLegPos.y - leftFootPos.y))

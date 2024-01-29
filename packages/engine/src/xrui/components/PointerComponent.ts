@@ -45,13 +45,13 @@ import {
   RingGeometry,
   SphereGeometry
 } from 'three'
+import { NameComponent } from '../../common/NameComponent'
 import { matches } from '../../common/functions/MatchesUtils'
+import { useAnimationTransition } from '../../common/functions/createTransitionState'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { useAnimationTransition } from '../functions/createTransitionState'
 
 export const PointerComponent = defineComponent({
   name: 'PointerComponent',

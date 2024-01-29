@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import multiLogger from '@etherealengine/common/src/logger'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
+import createReadableTexture from '@etherealengine/engine/src/renderer/functions/createReadableTexture'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import React, { useEffect, useState } from 'react'
@@ -36,7 +36,7 @@ import MoreVert from '@mui/icons-material/MoreVert'
 import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { SceneDataType } from '@etherealengine/common/src/schema.type.module'
+import { SceneDataType, SceneID } from '@etherealengine/common/src/schema.type.module'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { TabData } from 'rc-dock'
@@ -65,6 +65,7 @@ export default function ScenesPanel() {
   const [isRenaming, setRenaming] = useState(false)
   const [activeScene, setActiveScene] = useState<SceneDataType | null>(null)
   const editorState = useHookstate(getMutableState(EditorState))
+  const sceneState = useHookstate(getMutableState(SceneState))
   const [scenesLoading, setScenesLoading] = useState(true)
 
   const [thumbnails, setThumbnails] = useState<Map<string, string>>(new Map<string, string>())
@@ -136,7 +137,7 @@ export default function ScenesPanel() {
   }
 
   const startRenaming = () => {
-    if (editorState.sceneModified.value) {
+    if (sceneState.sceneModified.value) {
       DialogState.setDialog(
         <ErrorDialog title={t('editor:errors.unsavedChanges')} message={t('editor:errors.unsavedChangesMsg')} />
       )
@@ -151,6 +152,7 @@ export default function ScenesPanel() {
   const finishRenaming = async () => {
     setRenaming(false)
     await renameScene(editorState.projectName.value as string, newName, activeScene!.name)
+    if (activeScene) setSceneInState(activeScene.scenePath.replace(activeScene.name, newName) as SceneID)
     setNewName('')
     fetchItems()
   }

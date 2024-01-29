@@ -27,16 +27,17 @@ import { Collider, KinematicCharacterController } from '@dimforge/rapier3d-compa
 import { Vector3 } from 'three'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineComponent, getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { entityExists, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
+import { UUIDComponent } from '../../common/UUIDComponent'
 import { matches } from '../../common/functions/MatchesUtils'
 import { Physics } from '../../physics/classes/Physics'
 import { PhysicsState } from '../../physics/state/PhysicsState'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { createAvatarCollider } from '../functions/spawnAvatarReceptor'
 import { AvatarComponent } from './AvatarComponent'
 
@@ -95,6 +96,7 @@ export const AvatarControllerComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const avatarComponent = useComponent(entity, AvatarComponent)
+    const avatarControllerComponent = useComponent(entity, AvatarControllerComponent)
     const uuidComponent = useComponent(entity, UUIDComponent)
 
     useEffect(() => {
@@ -109,7 +111,13 @@ export const AvatarControllerComponent = defineComponent({
     useEffect(() => {
       Physics.removeCollidersFromRigidBody(entity, getState(PhysicsState).physicsWorld)
       const collider = createAvatarCollider(entity)
-      setComponent(entity, AvatarControllerComponent, { bodyCollider: collider })
+      avatarControllerComponent.bodyCollider.set(collider)
+
+      const cameraEntity = avatarControllerComponent.cameraEntity.value
+      if (cameraEntity && entityExists(cameraEntity) && hasComponent(cameraEntity, FollowCameraComponent)) {
+        const cameraComponent = getComponent(cameraEntity, FollowCameraComponent)
+        cameraComponent.offset.set(0, avatarComponent.eyeHeight.value, 0)
+      }
     }, [avatarComponent.avatarHeight])
 
     return null

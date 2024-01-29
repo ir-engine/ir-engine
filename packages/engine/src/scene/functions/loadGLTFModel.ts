@@ -37,33 +37,26 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { BoneComponent } from '../../avatar/components/BoneComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
+import { NameComponent } from '../../common/NameComponent'
+import iterateObject3D from '../../common/functions/iterateObject3D'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { GroupComponent, addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { ObjectLayerMaskComponent } from '../../renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
-import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { MeshBVHComponent } from '../components/MeshBVHComponent'
 import { MeshComponent } from '../components/MeshComponent'
 import { ModelComponent } from '../components/ModelComponent'
-import { NameComponent } from '../components/NameComponent'
-import { ObjectLayerMaskComponent } from '../components/ObjectLayerComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
-import { VisibleComponent } from '../components/VisibleComponent'
-import iterateObject3D from '../util/iterateObject3D'
-
-//isProxified: used to check if an object is proxified
-declare module 'three/src/core/Object3D' {
-  export interface Object3D {
-    readonly isProxified: true | undefined
-  }
-}
 
 export const parseECSData = (data: [string, any][]): ComponentJsonType[] => {
   const components: { [key: string]: any } = {}

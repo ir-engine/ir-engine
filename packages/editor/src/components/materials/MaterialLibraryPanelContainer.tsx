@@ -29,14 +29,14 @@ import { areEqual, FixedSizeList } from 'react-window'
 import { MeshBasicMaterial } from 'three'
 
 import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exportMaterialsGLTF'
-import { SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
-import { LibraryEntryType } from '@etherealengine/engine/src/renderer/materials/constants/LibraryEntry'
+import { SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
+import { LibraryEntryType } from '@etherealengine/engine/src/scene/materials/constants/LibraryEntry'
 import {
   entryId,
   materialFromId,
   registerMaterial
-} from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
+} from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
+import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
 import { getMutableState, getState, NO_PROXY, useHookstate, useState } from '@etherealengine/hyperflux'
 
 import { Stack } from '@mui/material'
