@@ -36,7 +36,7 @@ import { NameComponent } from '@etherealengine/engine/src/common/NameComponent'
 import { V_001, V_010 } from '@etherealengine/engine/src/common/constants/MathConstants'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '@etherealengine/engine/src/input/state/ButtonState'
-import { VisibleComponent, setVisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { VisibleComponent, setVisibleComponent } from '@etherealengine/engine/src/renderer/components/VisibleComponent'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent

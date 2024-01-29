@@ -53,14 +53,13 @@ import {
   Vector3
 } from 'three'
 import { NameComponent } from '../../common/NameComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
+import { ObjectLayerMaskComponent, setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
-import { setObjectLayers } from '../components/ObjectLayerComponent'
-import { ObjectLayers } from '../constants/ObjectLayers'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
-import { ObjectLayerMaskComponent } from './ObjectLayerComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { VisibleComponent } from './VisibleComponent'
 
 function createBBoxGridHelper(matrixWorld: Matrix4, bbox: Box3, density: number): LineSegments {
   const lineSegmentList: Vector3[] = []

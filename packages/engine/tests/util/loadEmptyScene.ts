@@ -32,11 +32,11 @@ import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { NameComponent } from '../../src/common/NameComponent'
+import { VisibleComponent } from '../../src/renderer/components/VisibleComponent'
 import { SceneState } from '../../src/scene/Scene'
 import { SceneObjectComponent } from '../../src/scene/components/SceneObjectComponent'
 import { SceneTagComponent } from '../../src/scene/components/SceneTagComponent'
 import { SourceComponent } from '../../src/scene/components/SourceComponent'
-import { VisibleComponent } from '../../src/scene/components/VisibleComponent'
 import { TransformComponent } from '../../src/transform/components/TransformComponent'
 
 export const loadEmptyScene = () => {

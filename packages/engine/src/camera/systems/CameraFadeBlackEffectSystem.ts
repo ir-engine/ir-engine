@@ -37,10 +37,10 @@ import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { useEffect } from 'react'
 import { NameComponent } from '../../common/NameComponent'
 import { createTransitionState } from '../../common/functions/createTransitionState'
-import { addObjectToGroup } from '../../scene/components/GroupComponent'
-import { setObjectLayers } from '../../scene/components/ObjectLayerComponent'
-import { setVisibleComponent } from '../../scene/components/VisibleComponent'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
+import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent

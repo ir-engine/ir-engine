@@ -45,11 +45,11 @@ import { NameComponent } from '../../common/NameComponent'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { matches } from '../../common/functions/MatchesUtils'
 import { RendererState } from '../../renderer/RendererState'
+import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
+import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { isMobileXRHeadset } from '../../xr/XRState'
-import { ObjectLayers } from '../constants/ObjectLayers'
 import { useUpdateLight } from '../functions/useUpdateLight'
-import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
-import { setVisibleComponent } from './VisibleComponent'
 
 export const SpotLightComponent = defineComponent({
   name: 'SpotLightComponent',

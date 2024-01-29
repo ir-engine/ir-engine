@@ -29,7 +29,7 @@ import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/Comp
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { GroupComponent } from '@etherealengine/engine/src/renderer/components/GroupComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 

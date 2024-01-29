@@ -30,9 +30,9 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { GroupQueryReactor } from '../scene/components/GroupComponent'
+import { GroupQueryReactor } from '../renderer/components/GroupComponent'
+import { VisibleComponent } from '../renderer/components/VisibleComponent'
 import { SceneObjectComponent } from '../scene/components/SceneObjectComponent'
-import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { XRState } from './XRState'
 
 type ScenePlacementMaterialType = {

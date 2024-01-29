@@ -57,11 +57,11 @@ import {
   removeInteractiveUI
 } from '../../interaction/systems/InteractiveSystem'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
-import { VisibleComponent } from './VisibleComponent'
 
 const linkLogic = (linkComponent, xrState) => {
   if (!linkComponent.sceneNav) {

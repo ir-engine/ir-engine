@@ -50,9 +50,9 @@ import {
   RigidBodyDynamicTagComponent,
   RigidBodyFixedTagComponent
 } from '../../physics/components/RigidBodyComponent'
-import { GroupComponent } from '../../scene/components/GroupComponent'
+import { GroupComponent } from '../../renderer/components/GroupComponent'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ScenePreviewCameraComponent } from '../../scene/components/ScenePreviewCamera'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
 import { TransformSerialization } from '../TransformSerialization'
 import { BoundingBoxComponent, updateBoundingBox } from '../components/BoundingBoxComponents'

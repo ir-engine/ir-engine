@@ -35,10 +35,10 @@ import { EntityTreeComponent } from '@etherealengine/engine/src/transform/compon
 import { NameComponent } from '../../common/NameComponent'
 import { matches, matchesVector3 } from '../../common/functions/MatchesUtils'
 import { RendererState } from '../../renderer/RendererState'
-import { setObjectLayers } from '../components/ObjectLayerComponent'
-import { ObjectLayers } from '../constants/ObjectLayers'
-import { addObjectToGroup } from './GroupComponent'
-import { setVisibleComponent } from './VisibleComponent'
+import { addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
+import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 
 export const MountPoint = {
   seat: 'seat' as const

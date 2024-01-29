@@ -60,7 +60,7 @@ import { LoopAnimationComponent } from '../../../../../avatar/components/LoopAni
 import { CameraActions } from '../../../../../camera/CameraState'
 import { FollowCameraComponent } from '../../../../../camera/components/FollowCameraComponent'
 import iterateObject3D from '../../../../../common/functions/iterateObject3D'
-import { GroupComponent } from '../../../../../scene/components/GroupComponent'
+import { GroupComponent } from '../../../../../renderer/components/GroupComponent'
 import { MediaComponent } from '../../../../../scene/components/MediaComponent'
 import { VideoComponent } from '../../../../../scene/components/VideoComponent'
 import { PlayMode } from '../../../../../scene/constants/PlayMode'

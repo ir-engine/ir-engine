@@ -33,7 +33,7 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { GroupComponent } from '@etherealengine/engine/src/renderer/components/GroupComponent'
 import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
 import { WebcamInputComponent } from './WebcamInputComponent'
 

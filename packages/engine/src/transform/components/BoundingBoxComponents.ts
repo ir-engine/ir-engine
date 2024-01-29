@@ -41,11 +41,11 @@ import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/engine/s
 import { NameComponent } from '../../common/NameComponent'
 import { matches } from '../../common/functions/MatchesUtils'
 import { RendererState } from '../../renderer/RendererState'
-import { GroupComponent, addObjectToGroup } from '../../scene/components/GroupComponent'
+import { GroupComponent, addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { MeshComponent } from '../../scene/components/MeshComponent'
-import { setObjectLayers } from '../../scene/components/ObjectLayerComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 
 export const BoundingBoxComponent = defineComponent({
   name: 'BoundingBoxComponent',

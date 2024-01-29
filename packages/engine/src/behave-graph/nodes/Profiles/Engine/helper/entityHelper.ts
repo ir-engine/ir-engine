@@ -37,7 +37,7 @@ import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { MathUtils } from 'three'
-import { VisibleComponent } from '../../../../../scene/components/VisibleComponent'
+import { VisibleComponent } from '../../../../../renderer/components/VisibleComponent'
 import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 
 export const addEntityToScene = (

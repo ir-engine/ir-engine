@@ -47,10 +47,10 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '../../common/NameComponent'
 import { V_010 } from '../../common/constants/MathConstants'
 import { RendererState } from '../../renderer/RendererState'
+import { addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { ObjectLayers } from '../constants/ObjectLayers'
-import { addObjectToGroup } from './GroupComponent'
-import { setVisibleComponent } from './VisibleComponent'
 
 const ARC_SEGMENTS = 200
 const _point = new Vector3()

@@ -45,19 +45,19 @@ import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshCompone
 import { NameComponent } from '../../common/NameComponent'
 import iterateObject3D from '../../common/functions/iterateObject3D'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { GroupComponent, addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { enableObjectLayer } from '../../renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
-import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { MeshBVHComponent } from '../components/MeshBVHComponent'
 import { MeshComponent } from '../components/MeshComponent'
 import { ModelComponent } from '../components/ModelComponent'
-import { enableObjectLayer } from '../components/ObjectLayerComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
-import { VisibleComponent } from '../components/VisibleComponent'
-import { ObjectLayers } from '../constants/ObjectLayers'
 
 export const parseECSData = (data: [string, any][]): ComponentJsonType[] => {
   const components: { [key: string]: any } = {}

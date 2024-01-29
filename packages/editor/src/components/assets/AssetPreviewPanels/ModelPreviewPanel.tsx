@@ -31,7 +31,7 @@ import LoadingView from '@etherealengine/client-core/src/common/components/Loadi
 import { setupSceneForPreview } from '@etherealengine/client-core/src/user/components/Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import { InfiniteGridHelper } from '@etherealengine/engine/src/renderer/components/InfiniteGridHelper'
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { ObjectLayers } from '@etherealengine/engine/src/renderer/constants/ObjectLayers'
 import { SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
 import { removeMaterialSource } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
 import { useHookstate } from '@etherealengine/hyperflux'

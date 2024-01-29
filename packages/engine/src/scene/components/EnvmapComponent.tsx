@@ -54,11 +54,11 @@ import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { RendererState } from '../../renderer/RendererState'
+import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { EnvMapBakeComponent, applyBoxProjection } from './EnvMapBakeComponent'
-import { GroupComponent } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
 
 const tempColor = new Color()

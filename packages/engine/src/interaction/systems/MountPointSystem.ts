@@ -47,9 +47,9 @@ import { AvatarControllerComponent } from '../../avatar/components/AvatarControl
 import { teleportAvatar } from '../../avatar/functions/moveAvatar'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
+import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
 import { MountPoint, MountPointComponent } from '../../scene/components/MountPointComponent'
 import { SittingComponent } from '../../scene/components/SittingComponent'
-import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'

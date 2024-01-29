@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
-import { GroupComponent } from '../components/GroupComponent'
+import { GroupComponent } from '../../renderer/components/GroupComponent'
 
 export default function obj3dFromUuid(uuid: string) {
   const entity = UUIDComponent.getEntityByUUID(uuid as any)

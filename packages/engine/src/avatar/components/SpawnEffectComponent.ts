@@ -46,8 +46,8 @@ import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/Collis
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
-import { addObjectToGroup } from '../../scene/components/GroupComponent'
-import { VisibleComponent, setVisibleComponent } from '../../scene/components/VisibleComponent'
+import { addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { VisibleComponent, setVisibleComponent } from '../../renderer/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
 

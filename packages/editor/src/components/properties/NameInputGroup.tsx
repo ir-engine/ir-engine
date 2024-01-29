@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import { getOptionalComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { NameComponent } from '@etherealengine/engine/src/common/NameComponent'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { GroupComponent } from '@etherealengine/engine/src/renderer/components/GroupComponent'
 import { useHookstate } from '@etherealengine/hyperflux'
 
 import { Entity } from '@etherealengine/ecs/src/Entity'

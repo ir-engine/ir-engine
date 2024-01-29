@@ -44,11 +44,11 @@ import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { NameComponent } from '../../common/NameComponent'
 import { matches } from '../../common/functions/MatchesUtils'
 import { RendererState } from '../../renderer/RendererState'
-import { addObjectToGroup } from '../../scene/components/GroupComponent'
+import { addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
+import { VisibleComponent, setVisibleComponent } from '../../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import { setObjectLayers } from '../../scene/components/ObjectLayerComponent'
-import { VisibleComponent, setVisibleComponent } from '../../scene/components/VisibleComponent'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent
