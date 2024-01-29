@@ -54,7 +54,7 @@ import {
 	NoColorSpace
 } from 'three';
 
-import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
+import createReadableTexture from '@etherealengine/engine/src/renderer/functions/createReadableTexture'
 
 /**
  * The KHR_mesh_quantization extension allows these extra attribute component types
@@ -1392,7 +1392,7 @@ export class GLTFWriter {
 			sampler: this.processSampler( map )
 		}
 
-		if ( mimeType === 'image/ktx2' || map.isCompressedTexture ) {
+		if ( this.options.embedImages && ( mimeType === 'image/ktx2' || map.isCompressedTexture ) ) {
 			//textureDef.source = this.processImage( map.mipmaps[0], map.format, map.flipY, mimeType )
 		} else {
 			textureDef.source = this.processImage( map.image, map.format, map.flipY, mimeType )
@@ -1717,7 +1717,8 @@ export class GLTFWriter {
 
 		if ( originalNormal !== undefined ) geometry.setAttribute( 'normal', originalNormal );
 		// Skip if no exportable attributes found
-		if ( Object.keys( attributes ).length === 0 ) return null;
+		//if ( Object.keys( attributes ).length === 0 ) return null;
+		 
 
 		// Morph targets
 		if ( mesh.morphTargetInfluences !== undefined && mesh.morphTargetInfluences.length > 0 ) {

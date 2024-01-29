@@ -29,10 +29,10 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { defineState, getState } from '@etherealengine/hyperflux'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { RingBuffer } from '../../common/classes/RingBuffer'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkState } from '../NetworkState'
 import { JitterBufferEntry, Network } from '../classes/Network'
 import { readDataPacket } from '../serialization/DataReader'
@@ -82,7 +82,7 @@ function oldestFirstComparator(a: JitterBufferEntry, b: JitterBufferEntry) {
 }
 
 const execute = () => {
-  const engineState = getState(EngineState)
+  const ecsState = getState(ECSState)
 
   const { jitterBufferTaskList, jitterBufferDelay, incomingMessageQueueUnreliable, incomingMessageQueueUnreliableIDs } =
     getState(IncomingNetworkState)
@@ -100,7 +100,7 @@ const execute = () => {
 
   jitterBufferTaskList.sort(oldestFirstComparator)
 
-  const targetFixedTime = engineState.simulationTime + jitterBufferDelay
+  const targetFixedTime = ecsState.simulationTime + jitterBufferDelay
 
   for (const [index, { simulationTime, read }] of jitterBufferTaskList.slice().entries()) {
     if (simulationTime <= targetFixedTime) {

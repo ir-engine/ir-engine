@@ -50,19 +50,15 @@ import {
   Vector3
 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
-
-import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
-import { V_000 } from '../../common/constants/MathConstants'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   getComponent,
   getOptionalComponent,
   removeComponent,
   setComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '../../ecs/functions/EntityTree'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { V_000 } from '../../common/constants/MathConstants'
 import { MeshComponent } from '../../scene/components/MeshComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
@@ -297,12 +293,12 @@ function createRigidBodyForGroup(
   world: World,
   colliderDescOptions: ColliderDescOptions,
   overrideShapeType = false
-): RigidBody {
+) {
   const colliderDescs = [] as ColliderDesc[]
   const meshesToRemove = [] as Mesh[]
 
   iterateEntityNode(entity, (child) => {
-    const mesh = getComponent(child, MeshComponent)
+    const mesh = getOptionalComponent(child, MeshComponent)
     if (!mesh) return // || ((mesh?.geometry.attributes['position'] as BufferAttribute).array.length ?? 0 === 0)) return
     if (mesh.userData.type && mesh.userData.type !== ('glb' as any)) mesh.userData.shapeType = mesh.userData.type
 
@@ -340,14 +336,9 @@ function createRigidBodyForGroup(
       break
   }
 
-  const body = createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
+  createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
 
-  if (!getState(EngineState).isEditor)
-    for (const mesh of meshesToRemove) {
-      cleanupAllMeshData(mesh, {})
-    }
-
-  return body
+  return meshesToRemove
 }
 
 function createColliderAndAttachToRigidBody(world: World, colliderDesc: ColliderDesc, rigidBody: RigidBody): Collider {

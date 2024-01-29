@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getContentType } from '@etherealengine/common/src/utils/getContentType'
+import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { PositionalAudioComponent } from '../../../../../audio/components/PositionalAudioComponent'
-import { UndefinedEntity } from '../../../../../ecs/classes/Entity'
 import { ImageComponent } from '../../../../../scene/components/ImageComponent'
 import { MediaComponent } from '../../../../../scene/components/MediaComponent'
 import { ModelComponent } from '../../../../../scene/components/ModelComponent'

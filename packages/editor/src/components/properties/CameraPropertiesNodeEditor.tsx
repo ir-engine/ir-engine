@@ -26,17 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import { t } from 'i18next'
 import React from 'react'
 
+import { getOptionalComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { CameraMode } from '@etherealengine/engine/src/camera/types/CameraMode'
-import {
-  defineQuery,
-  getOptionalComponent,
-  useComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
 
-import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { MeshComponent } from '@etherealengine/engine/src/scene/components/MeshComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { Box3, Vector3 } from 'three'
 import { Button } from '../inputs/Button'
 import { InputGroup } from '../inputs/InputGroup'

@@ -24,12 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, NodeDefinition, makeEventNodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { uniqueId } from 'lodash'
 import { useEffect } from 'react'
-import { Engine } from '../../../../../ecs/classes/Engine'
-import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
-import { SystemUUID, defineSystem, destroySystem } from '../../../../../ecs/functions/SystemFunctions'
 import { EnginetoNodetype, NodetoEnginetype, getSocketType } from './commonHelper'
 
 const skipState = [''] // behave graph state is skipped since its a type of record we do want to skip it anyways
@@ -153,7 +153,7 @@ export function registerStateListeners() {
       continue
     }
     const node = makeEventNodeDefinition({
-      typeName: `engine/state/use${stateName}`,
+      typeName: `engine/state/${stateName}/use`,
       category: NodeCategory.Event,
       label: `Use ${stateName}`,
       in: {},

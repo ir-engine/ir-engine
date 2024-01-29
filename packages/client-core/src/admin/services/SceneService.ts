@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { SceneDataType, SceneID, SceneMetadataType, scenePath } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 export const SCENE_PAGE_LIMIT = 100

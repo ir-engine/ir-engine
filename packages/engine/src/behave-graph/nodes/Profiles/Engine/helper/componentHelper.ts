@@ -24,19 +24,19 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, NodeDefinition, makeEventNodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
-import { uniqueId } from 'lodash'
-import { useEffect } from 'react'
-import { AvatarAnimationComponent } from '../../../../../avatar/components/AvatarAnimationComponent'
-import { Entity, UndefinedEntity } from '../../../../../ecs/classes/Entity'
 import {
   Component,
   ComponentMap,
   getComponent,
   setComponent,
   useComponent
-} from '../../../../../ecs/functions/ComponentFunctions'
-import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
-import { SystemUUID, defineSystem, destroySystem } from '../../../../../ecs/functions/SystemFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { uniqueId } from 'lodash'
+import { useEffect } from 'react'
+import { AvatarAnimationComponent } from '../../../../../avatar/components/AvatarAnimationComponent'
 import { PostProcessingComponent } from '../../../../../scene/components/PostProcessingComponent'
 import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 import { EnginetoNodetype, NodetoEnginetype, getSocketType } from './commonHelper'
@@ -86,7 +86,7 @@ export function registerComponentSetters() {
       continue
     }
     const node = makeFlowNodeDefinition({
-      typeName: `engine/component/set${componentName}`,
+      typeName: `engine/component/${componentName}/set`,
       category: NodeCategory.Action,
       label: `set ${componentName}`,
       in: {
@@ -131,7 +131,7 @@ export function registerComponentGetters() {
       continue
     }
     const node = makeFlowNodeDefinition({
-      typeName: `engine/component/get${componentName}`,
+      typeName: `engine/component/${componentName}/get`,
       category: NodeCategory.Query,
       label: `get ${componentName}`,
       in: {
@@ -189,7 +189,7 @@ export function registerComponentListeners() {
     }
 
     const node = makeEventNodeDefinition({
-      typeName: `engine/component/use${componentName}`,
+      typeName: `engine/component/${componentName}/use`,
       category: NodeCategory.Event,
       label: `use ${componentName}`,
       in: {

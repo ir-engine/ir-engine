@@ -27,7 +27,7 @@ import React, { useCallback } from 'react'
 import { Texture, Vector2, Vector3 } from 'three'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
+import createReadableTexture from '@etherealengine/engine/src/renderer/functions/createReadableTexture'
 import {
   ApplyForceBehaviorJSON,
   ApplySequencesJSON,
@@ -442,7 +442,7 @@ export default function BehaviorInput({
                   <InputGroup name="Texture" label="Texture">
                     <TexturePreviewInput
                       value={sequencer.sequencer.src}
-                      onChange={onChangeSequenceTexture(sequencerScope.sequencer)}
+                      onRelease={onChangeSequenceTexture(sequencerScope.sequencer)}
                     />
                   </InputGroup>
                 </>

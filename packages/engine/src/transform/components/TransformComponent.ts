@@ -26,11 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import { Types } from 'bitecs'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
+import { defineComponent, getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { isZero } from '../../common/functions/MathFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 
 export type TransformComponentType = {
   position: Vector3
@@ -178,7 +178,7 @@ export const TransformComponent = defineComponent({
       transform.matrix.copy(transform.matrixWorld)
     }
     decomposeMatrix(entity)
-    TransformComponent.dirtyTransforms[entity] = false
+    TransformComponent.dirtyTransforms[entity] = true
   },
 
   /**

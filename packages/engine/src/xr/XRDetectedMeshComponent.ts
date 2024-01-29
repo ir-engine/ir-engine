@@ -23,18 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, Mesh } from 'three'
 import matches from 'ts-matches'
-import { Engine } from '../ecs/classes/Engine'
-import { Entity } from '../ecs/classes/Entity'
-import { defineComponent, setComponent, useComponent } from '../ecs/functions/ComponentFunctions'
-import { createEntity, useEntityContext } from '../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../ecs/functions/EntityTree'
-import { addObjectToGroup, removeObjectFromGroup } from '../scene/components/GroupComponent'
-import { NameComponent } from '../scene/components/NameComponent'
-import { setVisibleComponent } from '../scene/components/VisibleComponent'
+import { NameComponent } from '../common/NameComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../renderer/components/GroupComponent'
+import { setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { occlusionMat, placementHelperMaterial, shadowMaterial } from './XRDetectedPlaneComponent'
 import { ReferenceSpace, XRState } from './XRState'
@@ -74,14 +74,12 @@ export const XRDetectedMeshComponent = defineComponent({
       component.geometry.set(geometry)
 
       const shadowMesh = new Mesh(geometry, shadowMaterial)
-
       const occlusionMesh = new Mesh(geometry, occlusionMat)
-
       const placementHelper = new Mesh(geometry, placementHelperMaterial)
-      occlusionMesh.add(placementHelper)
 
       addObjectToGroup(entity, shadowMesh)
       addObjectToGroup(entity, occlusionMesh)
+      addObjectToGroup(entity, placementHelper)
       occlusionMesh.renderOrder = -1 /** @todo make a global config for AR occlusion mesh renderOrder */
 
       component.shadowMesh.set(shadowMesh)
@@ -91,6 +89,7 @@ export const XRDetectedMeshComponent = defineComponent({
       return () => {
         removeObjectFromGroup(entity, shadowMesh)
         removeObjectFromGroup(entity, occlusionMesh)
+        removeObjectFromGroup(entity, placementHelper)
       }
     }, [component.mesh])
 
@@ -99,12 +98,8 @@ export const XRDetectedMeshComponent = defineComponent({
       const occlusionMesh = component.occlusionMesh.value
       const geometry = component.geometry.value
 
-      const setGeometry = (mesh: Mesh) => {
-        if (mesh.geometry) mesh.geometry = geometry
-      }
-
-      shadowMesh.traverse(setGeometry)
-      occlusionMesh.traverse(setGeometry)
+      if (shadowMesh.geometry) shadowMesh.geometry = geometry
+      if (occlusionMesh.geometry) occlusionMesh.geometry = geometry
 
       return () => {
         geometry.dispose()

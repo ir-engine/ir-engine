@@ -33,6 +33,7 @@ export class MockEngineRenderer extends EngineRenderer {
   constructor() {
     super()
     this.renderer = {
+      setAnimationLoop: () => {},
       domElement: new MockEventListener()
     } as unknown as WebGLRenderer
   }

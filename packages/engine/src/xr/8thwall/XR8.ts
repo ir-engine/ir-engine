@@ -28,11 +28,12 @@ import { useEffect } from 'react'
 import config from '@etherealengine/common/src/config'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { isMobile } from '../../common/functions/isMobile'
-import { Engine } from '../../ecs/classes/Engine'
-import { defineQuery, getComponent, useQuery } from '../../ecs/functions/ComponentFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { PersistentAnchorComponent } from '../XRAnchorComponents'
 import { endXRSession, getReferenceSpaces, requestXRSession } from '../XRSessionFunctions'
 import { ReferenceSpace, XRAction, XRState } from '../XRState'
@@ -116,8 +117,7 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null)
   cameraCanvas.style.pointerEvents = 'none'
   cameraCanvas.style.userSelect = 'none'
 
-  const engineContainer = document.getElementById('engine-container')!
-  engineContainer.appendChild(cameraCanvas)
+  document.body.appendChild(cameraCanvas)
 
   const requiredPermissions = XR8.XrPermissions.permissions()
   return new Promise<HTMLCanvasElement>((resolve, reject) => {

@@ -29,7 +29,7 @@ import cli from 'cli'
 import fs from 'fs'
 import path from 'path'
 
-import { copyFolderRecursiveSync, deleteFolderRecursive } from '@etherealengine/server-core/src/util/fsHelperFunctions'
+import { copyFolderRecursiveSync, deleteFolderRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
 
 cli.enable('status')
 

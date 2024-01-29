@@ -29,9 +29,9 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { ActionRecipients, applyIncomingActions, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
-import { destroyEngine, Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
 import { createEngine } from '../../initializeEngine'
 import { NetworkTopics } from '../classes/Network'
 import { WorldNetworkAction } from '../functions/WorldNetworkAction'
@@ -41,7 +41,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
     createEngine()
     // this is hacky but works and preserves the logic
     Engine.instance.store.getDispatchTime = () => {
-      return getState(EngineState).simulationTime
+      return getState(ECSState).simulationTime
     }
     createMockNetwork()
   })
@@ -53,13 +53,12 @@ describe('IncomingActionSystem Unit Tests', async () => {
   describe('applyIncomingActions', () => {
     it('should delay incoming action from the future', () => {
       // fixed tick in past
-      const engineState = getMutableState(EngineState)
-      engineState.simulationTime.set(0)
+      const ecsState = getMutableState(ECSState)
+      ecsState.simulationTime.set(0)
 
       /* mock */
       const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserID,
-        prefab: '',
         // incoming action from future
         $time: 2,
         $to: '0' as ActionRecipients,
@@ -76,7 +75,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
       strictEqual(Engine.instance.store.actions.history.length, 0)
 
       // fixed tick update
-      engineState.simulationTime.set(2)
+      ecsState.simulationTime.set(2)
       applyIncomingActions()
 
       /* assert */
@@ -87,7 +86,6 @@ describe('IncomingActionSystem Unit Tests', async () => {
       /* mock */
       const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserID,
-        prefab: '',
         // incoming action from past
         $time: -1,
         $to: '0' as ActionRecipients,
@@ -110,7 +108,6 @@ describe('IncomingActionSystem Unit Tests', async () => {
       /* mock */
       const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserID,
-        prefab: '',
         // incoming action from past
         $time: 0,
         $to: '0' as ActionRecipients,

@@ -28,35 +28,32 @@ import { TypedArray } from 'bitecs'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import { hasComponent } from '../../ecs/functions/ComponentFunctions'
-// import { XRHandsInputComponent } from '../../xr/XRComponents'
-// import { XRHandBones } from '../../xr/XRHandBones'
+import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { NetworkState } from '../NetworkState'
 import { JitterBufferEntry, Network } from '../classes/Network'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { NetworkState } from '../NetworkState'
 import {
-  expand,
-  flatten,
   QUAT_MAX_RANGE,
   QUAT_PRECISION_MULT,
   SerializationSchema,
   VEC3_MAX_RANGE,
   VEC3_PRECISION_MULT,
   Vector3SoA,
-  Vector4SoA
+  Vector4SoA,
+  expand,
+  flatten
 } from './Utils'
 import {
+  ViewCursor,
   createViewCursor,
   readFloat64,
   readProp,
   readUint16,
   readUint32,
   readUint64,
-  readUint8,
-  ViewCursor
+  readUint8
 } from './ViewCursor'
 
 export const checkBitflag = (mask: number, flag: number) => (mask & flag) === flag
@@ -104,37 +101,35 @@ export const readVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Enti
 
 // Reads a compressed Vector3 from the DataView. This must have been previously written
 // with writeCompressedVector3() in order to be properly decompressed.
-export const readCompressedVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Entity) => {
-  const changeMask = readUint8(v)
-  if (changeMask <= 0) return
+export const readCompressedVector3 =
+  (vector3: Vector3SoA, offset_mult = 1) =>
+  (v: ViewCursor, entity: Entity) => {
+    const changeMask = readUint8(v)
+    if (changeMask <= 0) return
 
-  let compressedBinaryData = readUint32(v)
+    let compressedBinaryData = readUint32(v)
 
-  let z = expand(compressedBinaryData, 10)
-  compressedBinaryData = compressedBinaryData >>> 10
-  let y = expand(compressedBinaryData, 10)
-  compressedBinaryData = compressedBinaryData >>> 10
-  let x = expand(compressedBinaryData, 10)
-  compressedBinaryData = compressedBinaryData >>> 10
+    let z = expand(compressedBinaryData, 10)
+    compressedBinaryData = compressedBinaryData >>> 10
+    let y = expand(compressedBinaryData, 10)
+    compressedBinaryData = compressedBinaryData >>> 10
+    let x = expand(compressedBinaryData, 10)
+    compressedBinaryData = compressedBinaryData >>> 10
 
-  let offset_mult = 1
-  /** @todo this should be passed */
-  if (entity && hasComponent(entity, AvatarComponent)) offset_mult = 100
+    x /= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
+    y /= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
+    z /= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
 
-  x /= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
-  y /= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
-  z /= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
-
-  if (entity) {
-    vector3.x[entity] = x
-    vector3.y[entity] = y
-    vector3.z[entity] = z
-  } else {
-    // readComponentProp(v, vector3.x, entity)
-    // readComponentProp(v, vector3.y, entity)
-    // readComponentProp(v, vector3.z, entity)
+    if (entity) {
+      vector3.x[entity] = x
+      vector3.y[entity] = y
+      vector3.z[entity] = z
+    } else {
+      // readComponentProp(v, vector3.x, entity)
+      // readComponentProp(v, vector3.y, entity)
+      // readComponentProp(v, vector3.z, entity)
+    }
   }
-}
 
 export const readVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint8(v)
@@ -212,12 +207,12 @@ export const readEntity = (
   serializationSchema: SerializationSchema[]
 ) => {
   const netId = readUint32(v) as NetworkId
-  const ownerIndex = readUint32(v) as NetworkId
+  const ownerPeerIndex = readUint32(v) as NetworkId
   const changeMask = readUint8(v)
 
-  const ownerId = network.userIndexToUserID[ownerIndex]!
+  const ownerPeer = network.peerIndexToPeerID[ownerPeerIndex]!
 
-  let entity = NetworkObjectComponent.getNetworkObject(ownerId, netId)
+  let entity = NetworkObjectComponent.getNetworkObject(ownerPeer, netId)
   if (entity && hasComponent(entity, NetworkObjectAuthorityTag)) entity = UndefinedEntity
 
   let b = 0

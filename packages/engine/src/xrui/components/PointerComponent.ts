@@ -23,6 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import {
+  defineComponent,
+  getComponent,
+  getMutableComponent,
+  setComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, entityExists, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { WebContainer3D } from '@etherealengine/xrui'
 import { useEffect } from 'react'
 import {
@@ -35,23 +45,13 @@ import {
   RingGeometry,
   SphereGeometry
 } from 'three'
+import { NameComponent } from '../../common/NameComponent'
 import { matches } from '../../common/functions/MatchesUtils'
-import { Entity } from '../../ecs/classes/Entity'
-import {
-  defineComponent,
-  getComponent,
-  getMutableComponent,
-  setComponent,
-  useComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { createEntity, entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { useAnimationTransition } from '../../common/functions/createTransitionState'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { useAnimationTransition } from '../functions/createTransitionState'
 
 export const PointerComponent = defineComponent({
   name: 'PointerComponent',
@@ -97,11 +97,15 @@ export const PointerComponent = defineComponent({
       const inputSource = pointerComponentState.inputSource.value
       const pointer = createPointer(inputSource)
       const cursor = createUICursor()
-      pointer.add(cursor)
+      const pointerEntity = createEntity()
+      addObjectToGroup(pointerEntity, pointer)
+      setComponent(pointerEntity, EntityTreeComponent, { parentEntity: entity })
+      addObjectToGroup(pointerEntity, cursor)
       getMutableComponent(entity, PointerComponent).merge({ pointer, cursor })
       addObjectToGroup(entity, pointer)
       return () => {
         if (entityExists(entity)) removeObjectFromGroup(entity, pointer)
+        removeEntity(pointerEntity)
       }
     }, [pointerComponentState.inputSource])
 

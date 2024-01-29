@@ -28,29 +28,26 @@ import { Mesh, MeshBasicMaterial, Object3D, Quaternion, Ray, Raycaster, Vector3 
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import React from 'react'
-import { CameraComponent } from '../../camera/components/CameraComponent'
-import { ObjectDirection } from '../../common/constants/Axis3D'
-import { Object3DUtils } from '../../common/functions/Object3DUtils'
-import { isClient } from '../../common/functions/getEnvironment'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
+import { Object3DUtils } from '@etherealengine/common/src/utils/Object3DUtils'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
-  defineQuery,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
-  removeComponent,
-  setComponent,
-  useQuery
-} from '../../ecs/functions/ComponentFunctions'
-import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { CameraComponent } from '../../camera/components/CameraComponent'
+import { NameComponent } from '../../common/NameComponent'
+import { ObjectDirection } from '../../common/constants/Axis3D'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { AllCollisionMask } from '../../physics/enums/CollisionGroups'
@@ -58,11 +55,9 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { GroupComponent } from '../../scene/components/GroupComponent'
-import { useMeshOrModel } from '../../scene/components/ModelComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { GroupComponent } from '../../renderer/components/GroupComponent'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
+import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { XRSpaceComponent } from '../../xr/XRComponents'
@@ -112,7 +107,7 @@ export const addClientInputListeners = () => {
     const entity = createEntity()
     setComponent(entity, InputSourceComponent, { source })
     setComponent(entity, EntityTreeComponent, {
-      parentEntity: session?.interactionMode === 'world-space' ? Engine.instance.originEntity : null
+      parentEntity: session?.interactionMode === 'world-space' ? Engine.instance.originEntity : UndefinedEntity
     })
     setComponent(entity, TransformComponent)
     setComponent(entity, NameComponent, 'InputSource-handed:' + source.handedness + '-mode:' + source.targetRayMode)
@@ -576,37 +571,14 @@ const execute = () => {
   }
 }
 
-const SceneObjectEntityReactor = (props: { entity: Entity }) => {
-  const isMeshOrModel = useMeshOrModel(props.entity)
-
-  useEffect(() => {
-    if (!isMeshOrModel) return
-
-    setComponent(props.entity, InputComponent)
-    return () => {
-      removeComponent(props.entity, InputComponent)
-    }
-  }, [isMeshOrModel])
-
-  return null
-}
-
 const reactor = () => {
   if (!isClient) return null
-
-  const sceneObjectEntities = useQuery([SceneObjectComponent])
 
   const xrState = useHookstate(getMutableState(XRState))
 
   useEffect(addClientInputListeners, [xrState.session])
 
-  return (
-    <>
-      {sceneObjectEntities.map((entity) => (
-        <SceneObjectEntityReactor key={entity} entity={entity} />
-      ))}
-    </>
-  )
+  return null
 }
 
 export const ClientInputSystem = defineSystem({

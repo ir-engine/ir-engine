@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { applyIncomingActions } from '@etherealengine/hyperflux'
 
-import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 
 const execute = () => {
   applyIncomingActions()

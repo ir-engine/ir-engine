@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 
 /**

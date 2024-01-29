@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Downgraded, State } from '@hookstate/core'
-import { merge } from 'lodash'
+import { State } from '@hookstate/core'
+import * as bitecs from 'bitecs'
 import { v4 as uuidv4 } from 'uuid'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { ActionQueueDefinition, addOutgoingTopicIfNecessary, ResolvedActionType, Topic } from './ActionFunctions'
+import { ActionQueueHandle, ActionQueueInstance, ResolvedActionType, Topic } from './ActionFunctions'
 import { ReactorRoot } from './ReactorFunctions'
 
 export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never
@@ -38,10 +38,9 @@ export interface HyperStore {
    */
   defaultTopic: Topic
   /**
-   *  If false, actions are dispatched on the incoming queue.
-   *  If true, actions are dispatched on the incoming queue and then forwarded to the outgoing queue.
+   *  Topics that should forward their incoming actions to the outgoing queue.
    */
-  forwardIncomingActions: (action: Required<ResolvedActionType>) => boolean
+  forwardingTopics: Set<Topic>
   /**
    * A function which returns the dispatch id assigned to actions
    * @deprecated can be derived from agentId via mapping
@@ -66,16 +65,11 @@ export interface HyperStore {
   /**
    * State dictionary
    */
-  stateMap: { [type: string]: State<any> }
-  /**
-   * Underlying non-reactive states
-   */
-  valueMap: { [type: string]: any }
+  stateMap: Record<string, State<any>>
 
   actions: {
-    queueDefinitions: Map<string, Array<ActionQueueDefinition>>
-    /** */
-    queues: Map<ActionQueueDefinition, Array<ResolvedActionType>>
+    /** All queues that have been created */
+    queues: Map<ActionQueueHandle, ActionQueueInstance>
     /** Cached actions */
     cached: Array<Required<ResolvedActionType>>
     /** Incoming actions */
@@ -86,17 +80,19 @@ export interface HyperStore {
     knownUUIDs: Set<string>
     /** Outgoing actions */
     outgoing: Record<
-      string,
+      Topic,
       {
         /** All actions that are waiting to be sent */
         queue: Array<Required<ResolvedActionType>>
         /** All actions that have been sent */
         history: Array<Required<ResolvedActionType>>
         /** All incoming action UUIDs that have been processed */
-        historyUUIDs: Set<string>
+        forwardedUUIDs: Set<string>
       }
     >
   }
+
+  receptors: Record<string, () => void>
 
   /** active reactors */
   activeReactors: Set<ReactorRoot>
@@ -107,26 +103,21 @@ export class HyperFlux {
 }
 
 export function createHyperStore(options: {
-  forwardIncomingActions?: (action: Required<ResolvedActionType>) => boolean
   getDispatchId: () => string
-  getPeerId: () => string
   getDispatchTime: () => number
-  getCurrentReactorRoot?: () => ReactorRoot | undefined
   defaultDispatchDelay?: () => number
+  getCurrentReactorRoot?: () => ReactorRoot | undefined
 }) {
-  const store = {
+  const store: HyperStore = {
     defaultTopic: 'default' as Topic,
-    forwardIncomingActions: options.forwardIncomingActions ?? (() => false),
+    forwardingTopics: new Set<Topic>(),
     getDispatchId: options.getDispatchId,
-    getPeerId: options.getPeerId,
     getDispatchTime: options.getDispatchTime,
-    getCurrentReactorRoot: options.getCurrentReactorRoot ?? (() => null),
     defaultDispatchDelay: options.defaultDispatchDelay ?? (() => 0),
+    getCurrentReactorRoot: options.getCurrentReactorRoot ?? (() => undefined),
     peerID: uuidv4() as PeerID,
     stateMap: {},
-    valueMap: {},
     actions: {
-      queueDefinitions: new Map(),
       queues: new Map(),
       cached: [],
       incoming: [],
@@ -134,19 +125,19 @@ export function createHyperStore(options: {
       knownUUIDs: new Set(),
       outgoing: {}
     },
-    receptors: [],
-    activeReactors: new Set(),
-    toJSON: () => {
-      const state = Object.entries(store.stateMap).reduce((obj, [name, state]) => {
-        return merge(obj, { [name]: state.attach(Downgraded).value })
-      }, {})
-      return {
-        ...store,
-        state
-      }
-    }
-  } as HyperStore
+    receptors: {},
+    activeReactors: new Set()
+    // toJSON: () => {
+    //   const state = Object.entries(store.stateMap).reduce((obj, [name, state]) => {
+    //     return merge(obj, { [name]: state.attach(Downgraded).value })
+    //   }, {})
+    //   return {
+    //     ...store,
+    //     state
+    //   }
+    // },
+  }
   HyperFlux.store = store
-  addOutgoingTopicIfNecessary(store.defaultTopic)
+  bitecs.createWorld(store)
   return store
 }

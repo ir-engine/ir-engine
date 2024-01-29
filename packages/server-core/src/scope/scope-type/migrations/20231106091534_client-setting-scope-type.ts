@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { ScopeTypeType, scopeTypePath } from '@etherealengine/common/src/schemas/scope/scope-type.schema'
 import { ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { clientSettingPath } from '@etherealengine/common/src/schemas/setting/client-setting.schema'
+import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { Knex } from 'knex'
-import { getDateTimeSql } from '../../../util/datetime-sql'
 
 /**
  * @param { import("knex").Knex } knex

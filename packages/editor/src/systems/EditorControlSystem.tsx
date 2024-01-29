@@ -26,29 +26,31 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Intersection, Layers, Object3D, Raycaster } from 'three'
 
-import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
-  defineQuery,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
-import { InfiniteGridComponent } from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
+import { InfiniteGridComponent } from '@etherealengine/engine/src/renderer/components/InfiniteGridHelper'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
+import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { EditorCameraState } from '../classes/EditorCameraState'
 import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
@@ -63,6 +65,7 @@ import {
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
+import { ObjectGridSnapState } from './ObjectGridSnapSystem'
 
 const raycaster = new Raycaster()
 const raycasterResults: Intersection<Object3D>[] = []
@@ -73,6 +76,10 @@ let lastZoom = 0
 let selectedEntities: Entity[]
 let dragging = false
 let primaryClickAccum = 0
+
+const onKeyB = () => {
+  getMutableState(ObjectGridSnapState).enabled.set(!getState(ObjectGridSnapState).enabled)
+}
 
 const onKeyQ = () => {
   /*const nodes = getState(SelectionState).selectedEntities
@@ -225,7 +232,7 @@ const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
 
 const execute = () => {
   if (Engine.instance.localClientEntity) return // we are in live mode
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
 
   const editorHelperState = getState(EditorHelperState)
   const selectionState = getMutableState(SelectionState)
@@ -239,6 +246,7 @@ const execute = () => {
 
   if (editorHelperState.isFlyModeEnabled) return
 
+  if (buttons.KeyB?.down) onKeyB()
   if (buttons.KeyQ?.down) onKeyQ()
   if (buttons.KeyE?.down) onKeyE()
   if (buttons.KeyF?.down) onKeyF()
@@ -282,8 +290,16 @@ const execute = () => {
   }
   if (primaryClickAccum <= 0.2) {
     if (buttons.PrimaryClick?.up && inputSource.assignedButtonEntity) {
-      const clickedEntity = inputSource.assignedButtonEntity
-      SelectionState.updateSelection([clickedEntity])
+      let clickedEntity = inputSource.assignedButtonEntity
+      while (
+        !hasComponent(clickedEntity, SourceComponent) &&
+        getOptionalComponent(clickedEntity, EntityTreeComponent)?.parentEntity
+      ) {
+        clickedEntity = getComponent(clickedEntity, EntityTreeComponent).parentEntity!
+      }
+      if (hasComponent(clickedEntity, SourceComponent)) {
+        SelectionState.updateSelection([clickedEntity])
+      }
     }
   }
   if (buttons.PrimaryClick?.pressed) {

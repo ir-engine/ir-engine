@@ -27,8 +27,8 @@ import { useEffect } from 'react'
 
 import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
-import { InputSystemGroup } from '../ecs/functions/EngineFunctions'
-import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { xrSessionChanged } from './XRSessionFunctions'
 import { XRAction, XRState, useXRMovement } from './XRState'
 

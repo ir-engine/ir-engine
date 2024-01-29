@@ -26,16 +26,18 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { SRGBColorSpace } from 'three'
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { QueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import React from 'react'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { isClient } from '../../common/functions/getEnvironment'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { defineQuery, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { QueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
-import { GroupComponent } from '../../scene/components/GroupComponent'
+import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { AnimationState } from '../AnimationManager'
 import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { SpawnEffectComponent } from '../components/SpawnEffectComponent'
@@ -53,7 +55,7 @@ const growQuery = defineQuery([SpawnEffectComponent])
 const dissolveQuery = defineQuery([AvatarDissolveComponent])
 
 const execute = () => {
-  const delta = getState(EngineState).deltaSeconds
+  const delta = getState(ECSState).deltaSeconds
 
   for (const entity of growQuery()) {
     TransformComponent.dirtyTransforms[entity] = true
@@ -128,7 +130,7 @@ const reactor = () => {
     })
   }, [])
 
-  const loadingEffect = useHookstate(getMutableState(EngineState).avatarLoadingEffect)
+  const loadingEffect = useHookstate(getMutableState(AnimationState).avatarLoadingEffect)
 
   if (!loadingEffect.value || !assetsReady.value) return null
 

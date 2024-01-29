@@ -39,13 +39,13 @@ import helmet from 'koa-helmet'
 import healthcheck from 'koa-simple-healthcheck'
 
 import { pipe } from '@etherealengine/common/src/utils/pipe'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { initializeNode } from '@etherealengine/engine/src/initializeNode'
 import { getMutableState } from '@etherealengine/hyperflux'
 
-import { pipeLogs } from '@etherealengine/engine/src/common/functions/logger'
+import { pipeLogs } from '@etherealengine/common/src/logger'
 import { Application } from '../declarations'
 import { logger } from './ServerLogger'
 import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
@@ -164,6 +164,8 @@ export const configureK8s = () => (app: Application) => {
 export const serverPipe = pipe(configureOpenAPI(), configurePrimus(), configureRedis(), configureK8s()) as (
   app: Application
 ) => Application
+
+export const serverJobPipe = pipe(configurePrimus(), configureK8s()) as (app: Application) => Application
 
 export const createFeathersKoaApp = (
   serverMode: ServerTypeMode = ServerMode.API,

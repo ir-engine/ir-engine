@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { WebLayer3D } from '@etherealengine/xrui'
 
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { NameComponent } from '../../scene/components/NameComponent'
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { NameComponent } from '../../common/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { createNonInteractiveModalView } from '../ui/nonInteractiveModalView'

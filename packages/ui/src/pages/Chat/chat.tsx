@@ -33,14 +33,17 @@ import './index.css'
 
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
 import '@etherealengine/engine/src/EngineModule'
-import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 export const initializeEngineForChat = async () => {
   await loadEngineInjection()
-  dispatchAction(EngineActions.sceneLoaded({}))
+  getMutableState(SceneState).merge({
+    sceneLoading: false,
+    sceneLoaded: true
+  })
 }
 
 export function ChatPage() {

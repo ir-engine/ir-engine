@@ -31,33 +31,33 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { createMockNetwork } from '../../../tests/util/createMockNetwork'
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { roundNumberToPlaces } from '../../../tests/util/MathTestUtils'
-import { destroyEngine, Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { createEngine } from '../../initializeEngine'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import {
+  TransformSerialization,
   readPosition,
   readRotation,
   readTransform,
-  TransformSerialization,
   writePosition,
   writeRotation,
   writeTransform
 } from '../../transform/TransformSerialization'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Network } from '../classes/Network'
 // import { XRHandBones } from '../../xr/XRHandBones'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { NetworkState } from '../NetworkState'
 import {
   NetworkObjectAuthorityTag,
   NetworkObjectComponent,
   NetworkObjectSendPeriodicUpdatesTag
 } from '../components/NetworkObjectComponent'
-import { NetworkState } from '../NetworkState'
 import {
   checkBitflag,
   readComponent,
@@ -481,14 +481,15 @@ describe('DataReader', () => {
     const userId = '0' as UserID
     const peerId = '0' as PeerID
     const userIndex = 0
+    const peerIndex = 0
 
     NetworkObjectComponent.networkId[entity] = networkId
 
     const network = NetworkState.worldNetwork as Network
     network.userIndexToUserID[userIndex] = userId
     network.userIDToUserIndex[userId] = userIndex
-    network.peerIndexToPeerID[userIndex] = peerId
-    network.peerIDToPeerIndex[peerId] = userIndex
+    network.peerIndexToPeerID[peerIndex] = peerId
+    network.peerIDToPeerIndex[peerId] = peerIndex
 
     // construct values for a valid quaternion
     const [a, b, c] = [0.167, 0.167, 0.167]
@@ -505,10 +506,11 @@ describe('DataReader', () => {
     setComponent(entity, NetworkObjectComponent, {
       networkId,
       authorityPeerID: peerId,
+      ownerPeer: peerId,
       ownerId: userId
     })
 
-    writeEntity(view, networkId, userIndex, entity, Object.values(getState(NetworkState).networkSchema))
+    writeEntity(view, networkId, peerIndex, entity, Object.values(getState(NetworkState).networkSchema))
 
     transform.position.x = 0
     transform.position.y = 0
@@ -535,7 +537,7 @@ describe('DataReader', () => {
 
     view.cursor = 0
 
-    writeEntity(view, networkId, userIndex, entity, Object.values(getState(NetworkState).networkSchema))
+    writeEntity(view, networkId, peerIndex, entity, Object.values(getState(NetworkState).networkSchema))
 
     transform.position.x = posX
 
@@ -552,16 +554,19 @@ describe('DataReader', () => {
     const view = createViewCursor()
     const entity = createEntity()
     const networkId = 5678 as NetworkId
-    const userId = 'user id' as UserID
+    const userID = 'user id' as UserID
     const peerID = 'peer id' as PeerID
-    Engine.instance.userID = userId
+    Engine.instance.userID = userID
     const userIndex = 0
+    const peerIndex = 0
 
     NetworkObjectComponent.networkId[entity] = networkId
 
     const network = NetworkState.worldNetwork as Network
-    network.userIndexToUserID[userIndex] = userId
-    network.userIDToUserIndex[userId] = userIndex
+    network.userIndexToUserID[userIndex] = userID
+    network.userIDToUserIndex[userID] = userIndex
+    network.peerIndexToPeerID[peerIndex] = peerID
+    network.peerIDToPeerIndex[peerID] = peerIndex
 
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
@@ -572,13 +577,14 @@ describe('DataReader', () => {
 
     setComponent(entity, NetworkObjectComponent, {
       networkId,
+      ownerPeer: peerID,
       authorityPeerID: peerID,
-      ownerId: userId
+      ownerId: userID
     })
 
     setComponent(entity, NetworkObjectAuthorityTag)
 
-    writeEntity(view, networkId, userIndex, entity, Object.values(getState(NetworkState).networkSchema))
+    writeEntity(view, networkId, peerIndex, entity, Object.values(getState(NetworkState).networkSchema))
 
     view.cursor = 0
 
@@ -587,7 +593,7 @@ describe('DataReader', () => {
     transform.rotation.set(0, 0, 0, 0)
 
     // read entity will populate data stored in 'view'
-    readEntity(view, network, userId, Object.values(getState(NetworkState).networkSchema))
+    readEntity(view, network, userID, Object.values(getState(NetworkState).networkSchema))
 
     // should no repopulate as we own this entity
     strictEqual(TransformComponent.position.x[entity], 0)
@@ -627,13 +633,17 @@ describe('DataReader', () => {
     const view = createViewCursor()
     const entity = createEntity()
     const networkId = 5678 as NetworkId
-    const userId = 'user Id' as UserID
-    Engine.instance.userID = userId
+    const userID = 'user Id' as UserID
+    const peerID = 'peer ID' as PeerID
+    Engine.instance.userID = userID
     const userIndex = 0
+    const peerIndex = 0
 
     const network = NetworkState.worldNetwork as Network
-    network.userIndexToUserID[userIndex] = userId
-    network.userIDToUserIndex[userId] = userIndex
+    network.userIndexToUserID[userIndex] = userID
+    network.userIDToUserIndex[userID] = userIndex
+    network.peerIndexToPeerID[peerIndex] = peerID
+    network.peerIDToPeerIndex[peerID] = peerIndex
 
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
@@ -642,7 +652,7 @@ describe('DataReader', () => {
     transform.position.set(x, y, z)
     transform.rotation.set(x, y, z, w)
 
-    writeEntity(view, networkId, userIndex, entity, Object.values(getState(NetworkState).networkSchema))
+    writeEntity(view, networkId, peerIndex, entity, Object.values(getState(NetworkState).networkSchema))
 
     view.cursor = 0
 
@@ -651,7 +661,7 @@ describe('DataReader', () => {
     transform.rotation.set(0, 0, 0, 0)
 
     // read entity will populate data stored in 'view'
-    readEntity(view, network, userId, Object.values(getState(NetworkState).networkSchema))
+    readEntity(view, network, userID, Object.values(getState(NetworkState).networkSchema))
 
     // should no repopulate as entity is not listed in network entities
     strictEqual(TransformComponent.position.x[entity], 0)
@@ -714,6 +724,7 @@ describe('DataReader', () => {
       transform.rotation.set(rotX, rotY, rotZ, rotW)
       setComponent(entity, NetworkObjectComponent, {
         networkId,
+        ownerPeer: peerID,
         authorityPeerID: peerID,
         ownerId: userId
       })
@@ -765,8 +776,8 @@ describe('DataReader', () => {
     const peerID = Engine.instance.store.peerID
     const userIndex = 0
     const peerIndex = 0
-    network.userIndexToUserID[userIndex] = userId
     network.userIDToUserIndex[userId] = userIndex
+    network.userIndexToUserID[userIndex] = userId
     network.peerIDToPeerIndex[peerID] = peerIndex
     network.peerIndexToPeerID[peerIndex] = peerID
 
@@ -791,6 +802,7 @@ describe('DataReader', () => {
       transform.rotation.set(rotX, rotY, rotZ, rotW)
       setComponent(entity, NetworkObjectComponent, {
         networkId,
+        ownerPeer: peerID,
         authorityPeerID: peerID,
         ownerId: userId
       })
@@ -877,7 +889,7 @@ describe('DataReader', () => {
 
     const peerID = 'peerID' as PeerID
     const network = NetworkState.worldNetwork as Network
-    const engineState = getMutableState(EngineState)
+    const engineState = getMutableState(ECSState)
     engineState.simulationTime.set(1)
 
     const n = 10
@@ -888,20 +900,24 @@ describe('DataReader', () => {
     const [x, y, z, w] = [0, 0, 0, 0]
 
     entities.forEach((entity) => {
-      const networkId = entity as unknown as NetworkId
-      const userId = entity as unknown as UserID & PeerID
+      const networkID = entity as unknown as NetworkId
+      const userID = entity as unknown as UserID & PeerID
       const userIndex = entity
+      const peerIndex = entity
       setComponent(entity, TransformComponent)
       const transform = getComponent(entity, TransformComponent)
       transform.position.set(x, y, z)
       transform.rotation.set(x, y, z, w)
       setComponent(entity, NetworkObjectComponent, {
-        networkId,
-        authorityPeerID: userId,
-        ownerId: userId
+        networkId: networkID,
+        ownerPeer: peerID,
+        authorityPeerID: peerID,
+        ownerId: userID
       })
-      network.userIndexToUserID[userIndex] = userId
-      network.userIDToUserIndex[userId] = userIndex
+      network.userIDToUserIndex[userID] = userIndex
+      network.userIndexToUserID[userIndex] = userID
+      network.peerIDToPeerIndex[peerID] = peerIndex
+      network.peerIndexToPeerID[peerIndex] = peerID
     })
 
     const packet = write(network, Engine.instance.userID, peerID, entities)
@@ -957,7 +973,7 @@ describe('DataReader', () => {
     const write = createDataWriter()
 
     const network = NetworkState.worldNetwork as Network
-    const engineState = getMutableState(EngineState)
+    const engineState = getMutableState(ECSState)
     engineState.simulationTime.set(1)
     const peerID = Engine.instance.store.peerID
 
@@ -968,21 +984,26 @@ describe('DataReader', () => {
 
     const [x, y, z, w] = [0, 0, 0, 0]
 
+    const userID = 'userId' as unknown as UserID & PeerID
+    const userIndex = 0
+    const peerIndex = 0
+    network.peerIDToPeerIndex[peerID] = peerIndex
+    network.peerIndexToPeerID[peerIndex] = peerID
+    network.userIDToUserIndex[userID] = userIndex
+    network.userIndexToUserID[userIndex] = userID
+
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
-      const userId = ('userId-' + entity) as unknown as UserID & PeerID
-      const userIndex = entity
       setComponent(entity, TransformComponent)
       const transform = getComponent(entity, TransformComponent)
       transform.position.set(x, y, z)
       transform.rotation.set(x, y, z, w)
       setComponent(entity, NetworkObjectComponent, {
         networkId,
-        authorityPeerID: userId,
-        ownerId: userId
+        ownerPeer: peerID,
+        authorityPeerID: peerID,
+        ownerId: userID
       })
-      network.userIndexToUserID[userIndex] = userId
-      network.userIDToUserIndex[userId] = userIndex
     })
 
     let packet = write(network, Engine.instance.userID, Engine.instance.peerID, entities)
@@ -1040,8 +1061,8 @@ describe('DataReader', () => {
       // read networkId
       strictEqual(readUint32(readView), entities[i])
 
-      // read owner index
-      strictEqual(readUint32(readView), entities[i])
+      // read owner peer index
+      strictEqual(readUint32(readView), peerIndex)
 
       // read writeEntity changeMask (only reading TransformComponent)
       strictEqual(readUint8(readView), 0b01)
