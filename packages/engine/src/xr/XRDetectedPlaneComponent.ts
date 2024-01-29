@@ -37,9 +37,9 @@ import { getMutableState, getState, none, useHookstate } from '@etherealengine/h
 import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, Mesh, MeshBasicMaterial, ShadowMaterial } from 'three'
 import matches from 'ts-matches'
-import { addObjectToGroup, removeObjectFromGroup } from '../scene/components/GroupComponent'
-import { NameComponent } from '../scene/components/NameComponent'
-import { setVisibleComponent } from '../scene/components/VisibleComponent'
+import { NameComponent } from '../common/NameComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../renderer/components/GroupComponent'
+import { setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { ReferenceSpace, XRState } from './XRState'
 

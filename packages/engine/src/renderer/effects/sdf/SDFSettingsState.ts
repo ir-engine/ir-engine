@@ -23,12 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/** @deprecated @todo remove - put these as just strings whererever they are used */
-export enum OBCType {
-  CSM = 'CSM',
-  FOG = 'FOG',
-  BPCEM = 'BPCEM',
-  AVATAR = 'AVATAR',
-  OCEAN = 'OCEAN',
-  UVCLIP = 'UVCLIP'
-}
+import { defineState } from '@etherealengine/hyperflux'
+
+export const SDFSettingsState = defineState({
+  name: 'SDFSettingsState',
+  initial: {
+    enabled: true
+  }
+})

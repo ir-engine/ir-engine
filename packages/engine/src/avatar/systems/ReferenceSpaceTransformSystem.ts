@@ -23,26 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getMutableState, getState } from '@etherealengine/hyperflux'
-
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { AvatarComponent } from '../avatar/components/AvatarComponent'
-import { ReferenceSpace, XRState } from './XRState'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
+import { XRCameraUpdateSystem } from '../../xr/XRCameraSystem'
+import { moveAvatar, updateLocalAvatarRotation } from '../functions/moveAvatar'
 
-export const getTrackingSpaceOffset = (height: number) => {
-  const avatarComponent = getComponent(Engine.instance.localClientEntity, AvatarComponent)
-  return height / avatarComponent.eyeHeight
+const execute = () => {
+  const { localClientEntity } = Engine.instance
+
+  /**
+   * 1 - Update local client movement
+   */
+  if (localClientEntity) {
+    moveAvatar(localClientEntity)
+    updateLocalAvatarRotation(localClientEntity)
+    computeTransformMatrix(localClientEntity)
+  }
 }
 
-/** @todo add a reactor looking for when the avatar model changes that calls this */
-export const setTrackingSpace = () => {
-  const { xrFrame } = getState(XRState)
-
-  if (!xrFrame) return
-
-  const viewerPose = xrFrame.getViewerPose(ReferenceSpace.localFloor!)
-
-  const scale = viewerPose ? getTrackingSpaceOffset(viewerPose.transform.position.y) : 1
-  getMutableState(XRState).userAvatarHeightScale.set(scale)
-}
+/**
+ * This system is responsible for updating the local client avatar position and rotation, and updating the XR camera position.
+ */
+export const ReferenceSpaceTransformSystem = defineSystem({
+  uuid: 'ee.engine.ReferenceSpaceTransformSystem',
+  insert: { before: XRCameraUpdateSystem },
+  execute
+})

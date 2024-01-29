@@ -29,12 +29,12 @@ import { DataTexture, IUniform, Uniform } from 'three'
 import { getMutableState, getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { PresentationSystemGroup } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { SceneLoadingSystem } from '../../../../scene/systems/SceneLoadingSystem'
+import { generateNoiseTexture } from '../../../../renderer/functions/generateNoiseTexture'
 import { MaterialPluginType } from '../../components/MaterialPluginComponent'
 import { SourceType } from '../../components/MaterialSource'
-import { generateNoiseTexture } from '../../functions/generateNoiseTexture'
 import { MaterialLibraryState } from '../../MaterialLibrary'
 
 export type NoiseOffsetParameters = {
@@ -149,7 +149,7 @@ const reactor = () => {
 
 export const NoiseOffsetSystem = defineSystem({
   uuid: 'ee.engine.material.NoiseOffsetSystem',
-  insert: { with: SceneLoadingSystem },
+  insert: { before: PresentationSystemGroup },
   execute,
   reactor
 })

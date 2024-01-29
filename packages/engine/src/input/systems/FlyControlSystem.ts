@@ -36,9 +36,9 @@ import { getState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { FlyControlComponent } from '../../camera/components/FlyControlComponent'
 import { V_010 } from '../../common/constants/MathConstants'
-import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { InputState } from '../../input/state/InputState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { InputSourceComponent } from '../components/InputSourceComponent'
+import { InputState } from '../state/InputState'
 
 const EPSILON = 10e-5
 const IDENTITY = new Matrix4().identity()

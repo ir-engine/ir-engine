@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Color, DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'three'
+import { Color, DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 
-import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
@@ -33,20 +33,18 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, entityExists, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { useEffect } from 'react'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { addObjectToGroup } from '../../scene/components/GroupComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { setVisibleComponent } from '../../scene/components/VisibleComponent'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { NameComponent } from '../../common/NameComponent'
+import { createTransitionState } from '../../common/functions/createTransitionState'
+import { addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
+import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent
 } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { CameraActions } from '../CameraState'
 import { CameraSystem } from './CameraSystem'
 
@@ -74,17 +72,10 @@ const execute = () => {
         )
       })
     } else removeComponent(entity, ComputedTransformComponent)
-    if (action.graphicTexture) {
-      AssetLoader.load(action.graphicTexture, {}, (texture: Texture) => {
-        mesh.material.color = new Color('white')
-        mesh.material.map = texture
-        mesh.material.needsUpdate = true
-      })
-    } else {
-      mesh.material.color = new Color('black')
-      mesh.material.map = null
-      mesh.material.needsUpdate = true
-    }
+
+    mesh.material.color = new Color('black')
+    mesh.material.map = null
+    mesh.material.needsUpdate = true
   }
 
   const deltaSeconds = getState(ECSState).deltaSeconds
@@ -95,11 +86,7 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const activeScene = useHookstate(getMutableState(SceneState).activeScene)
-
   useEffect(() => {
-    if (!activeScene.value) return
-
     const geometry = new SphereGeometry(10)
     const material = new MeshBasicMaterial({
       transparent: true,
@@ -129,7 +116,7 @@ const reactor = () => {
       if (entityExists(entity)) removeEntity(entity)
       getMutableState(CameraFadeBlackEffectSystemState).set({} as any)
     }
-  }, [activeScene])
+  }, [])
 
   return null
 }

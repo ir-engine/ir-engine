@@ -46,7 +46,6 @@ import {
 
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { insertAfterString, insertBeforeString } from '../../common/functions/string'
 import { OceanComponent } from '../components/OceanComponent'
@@ -214,7 +213,7 @@ export class Ocean extends Mesh<PlaneGeometry, MeshPhongMaterial> {
     material.needsUpdate = true
 
     addOBCPlugin(material, {
-      id: OBCType.OCEAN,
+      id: 'ee.scene.OceanPlugin',
       compile: (shader) => {
         const viewportSize = new Vector2(window.innerWidth, window.innerHeight)
 

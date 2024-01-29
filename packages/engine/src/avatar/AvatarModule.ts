@@ -34,7 +34,7 @@ import { AvatarInputSystem } from './systems/AvatarInputSystem'
 import { AvatarLoadingSystem } from './systems/AvatarLoadingSystem'
 import { AvatarMovementSystem } from './systems/AvatarMovementSystem'
 import { AvatarTeleportSystem } from './systems/AvatarTeleportSystem'
-import { FlyControlSystem } from './systems/FlyControlSystem'
+import { ReferenceSpaceTransformSystem } from './systems/ReferenceSpaceTransformSystem'
 
 export default {
   AvatarNetworkSystem,
@@ -48,5 +48,5 @@ export default {
   AvatarLoadingSystem,
   AvatarMovementSystem,
   AvatarTeleportSystem,
-  FlyControlSystem
+  ReferenceSpaceTransformSystem
 }

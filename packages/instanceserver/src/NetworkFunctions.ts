@@ -36,7 +36,7 @@ import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/func
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { EntityNetworkState } from '@etherealengine/engine/src/networking/state/EntityNetworkState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { GroupComponent } from '@etherealengine/engine/src/renderer/components/GroupComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'

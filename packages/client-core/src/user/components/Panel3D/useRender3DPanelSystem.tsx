@@ -31,8 +31,8 @@ import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { NameComponent } from '@etherealengine/engine/src/common/NameComponent'
+import { ObjectLayers } from '@etherealengine/engine/src/renderer/constants/ObjectLayers'
 
 const initialize3D = () => {
   const camera = new PerspectiveCamera(60, 1, 0.25, 100000)

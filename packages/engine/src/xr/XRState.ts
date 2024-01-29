@@ -75,7 +75,9 @@ export const XRState = defineState({
       is8thWallActive: false,
       viewerInputSourceEntity: 0 as Entity,
       viewerPose: null as XRViewerPose | null | undefined,
-      userAvatarHeightScale: 1,
+      /** @todo replace with proper proportions API */
+      userEyeHeight: 1.75,
+      userHeightRatio: 1,
       xrFrame: null as XRFrame | null
     }
   },
@@ -87,8 +89,26 @@ export const XRState = defineState({
    * @returns {number} the world scale
    */
   get worldScale(): number {
-    const { sceneScale, userAvatarHeightScale } = getState(XRState)
-    return sceneScale * userAvatarHeightScale
+    const { sceneScale, userHeightRatio } = getState(XRState)
+    return sceneScale * userHeightRatio
+  },
+
+  setTrackingSpace: () => {
+    const { xrFrame, userEyeHeight } = getState(XRState)
+
+    if (!xrFrame) {
+      getMutableState(XRState).userHeightRatio.set(1)
+      return
+    }
+
+    const viewerPose = xrFrame.getViewerPose(ReferenceSpace.localFloor!)
+
+    if (!viewerPose) {
+      getMutableState(XRState).userHeightRatio.set(1)
+      return
+    }
+
+    getMutableState(XRState).userHeightRatio.set(viewerPose.transform.position.y / userEyeHeight)
   }
 })
 

@@ -35,7 +35,6 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
-import { setTrackingSpace } from '../../../../../engine/src/xr/XRScaleAdjustmentFunctions'
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../../../transports/MediaStreams'
 import { toggleMicrophonePaused } from '../../../transports/SocketWebRTCClientFunctions'
@@ -143,7 +142,7 @@ const WidgetButtons = () => {
   }
 
   const handleHeightAdjustment = () => {
-    setTrackingSpace()
+    XRState.setTrackingSpace()
   }
 
   const widgets = Object.entries(widgetMutableState.widgets.value).map(([id, widgetMutableState]) => ({

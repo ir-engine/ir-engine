@@ -27,7 +27,6 @@ import { BufferGeometry, DoubleSide, Mesh, MeshStandardMaterial, SRGBColorSpace,
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { MeshComponent } from '../components/MeshComponent'
 import { ScreenshareTargetComponent } from '../components/ScreenshareTargetComponent'
@@ -59,7 +58,7 @@ export const applyVideoToTexture = (
   const screenAspect = getAspectRatioFromBufferGeometry(obj)
 
   addOBCPlugin(obj.material, {
-    id: OBCType.UVCLIP,
+    id: 'ee.engine.UVClipPlugin',
     compile: (shader) => {
       shader.fragmentShader = shader.fragmentShader.replace('void main() {', `uniform vec4 clipColor;\nvoid main() {\n`)
 
