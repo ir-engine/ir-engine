@@ -23,26 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getMutableState, getState } from '@etherealengine/hyperflux'
-
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { AvatarComponent } from '../avatar/components/AvatarComponent'
-import { ReferenceSpace, XRState } from './XRState'
+import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { getMutableState, useState } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
+import { configureEffectComposer } from '../../functions/configureEffectComposer'
+import { SDFComponent } from './SDFComponent'
 
-export const getTrackingSpaceOffset = (height: number) => {
-  const avatarComponent = getComponent(Engine.instance.localClientEntity, AvatarComponent)
-  return height / avatarComponent.eyeHeight
+const reactor = () => {
+  const sdfQuery = useQuery([SDFComponent])
+  const sdfState = useState(getMutableState(SDFComponent.SDFStateSettingsState))
+
+  useEffect(() => {
+    if (sdfQuery.length === 0 || !sdfQuery.some((entity) => getComponent(entity, SDFComponent).enable)) {
+      getMutableState(SDFComponent.SDFStateSettingsState).enabled.set(false)
+    } else {
+      getMutableState(SDFComponent.SDFStateSettingsState).enabled.set(true)
+    }
+  }, [sdfQuery])
+
+  useEffect(() => {
+    configureEffectComposer()
+  }, [sdfState.enabled])
+
+  return null
 }
 
-/** @todo add a reactor looking for when the avatar model changes that calls this */
-export const setTrackingSpace = () => {
-  const { xrFrame } = getState(XRState)
-
-  if (!xrFrame) return
-
-  const viewerPose = xrFrame.getViewerPose(ReferenceSpace.localFloor!)
-
-  const scale = viewerPose ? getTrackingSpaceOffset(viewerPose.transform.position.y) : 1
-  getMutableState(XRState).userAvatarHeightScale.set(scale)
-}
+export const SDFSystem = defineSystem({
+  uuid: 'ee.engine.SDFSystem',
+  insert: { after: PresentationSystemGroup },
+  reactor
+})

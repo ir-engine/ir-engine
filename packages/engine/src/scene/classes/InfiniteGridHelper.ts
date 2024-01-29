@@ -53,7 +53,8 @@ import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from '../components/GroupComponent'
 import { NameComponent } from '../components/NameComponent'
 import { setVisibleComponent } from '../components/VisibleComponent'
-import LogarithmicDepthBufferMaterialChunk from '../functions/LogarithmicDepthBufferMaterialChunk'
+
+import LogarithmicDepthBufferMaterialChunk from '../../renderer/constants/LogarithmicDepthBufferMaterialChunk'
 import { setObjectLayers } from '../functions/setObjectLayers'
 
 /**

@@ -50,7 +50,6 @@ import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { TransformSystem } from '../../transform/TransformModule'
 import { compareDistanceToCamera } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
 import { XRControlsState, XRState } from '../../xr/XRState'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
@@ -325,7 +324,13 @@ const reactor = () => {
   }, [isCameraAttachedToAvatar, session])
 
   useEffect(() => {
-    if (userReady.value) setTrackingSpace()
+    if (!Engine.instance.localClientEntity) {
+      XRState.setTrackingSpace()
+      return
+    }
+    const eyeHeight = getComponent(Engine.instance.localClientEntity, AvatarComponent).eyeHeight
+    getMutableState(XRState).userEyeHeight.set(eyeHeight)
+    XRState.setTrackingSpace()
   }, [userReady])
 
   return null

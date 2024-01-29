@@ -27,8 +27,8 @@ import { PositionalAudioComponent } from '../audio/components/PositionalAudioCom
 import { LoopAnimationComponent } from '../avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '../interaction/components/GrabbableComponent'
 import { MountPointSystem } from '../interaction/systems/MountPointSystem'
-import { NoiseOffsetSystem } from '../renderer/materials/constants/plugins/NoiseOffsetPlugin'
-import { MaterialLibrarySystem } from '../renderer/materials/systems/MaterialLibrarySystem'
+import { NoiseOffsetSystem } from '../scene/materials/constants/plugins/NoiseOffsetPlugin'
+import { MaterialLibrarySystem } from '../scene/materials/systems/MaterialLibrarySystem'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRAnchorComponent } from '../xr/XRComponents'
 import { AmbientLightComponent } from './components/AmbientLightComponent'
@@ -75,7 +75,6 @@ import { EnvironmentSystem } from './systems/EnvironmentSystem'
 import { FogSystem } from './systems/FogSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
 import { PortalSystem } from './systems/PortalSystem'
-import { SDFSystem } from './systems/SDFSystem'
 import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
 import { SceneObjectDynamicLoadSystem } from './systems/SceneObjectDynamicLoadSystem'
 import { SceneObjectSystem } from './systems/SceneObjectSystem'
@@ -144,7 +143,6 @@ export {
   SceneLoadingSystem,
   SceneObjectDynamicLoadSystem,
   SceneObjectSystem,
-  SDFSystem,
   ShadowSystem,
   VariantSystem
 }

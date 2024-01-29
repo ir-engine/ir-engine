@@ -24,18 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { Color, Vector3 } from 'three'
-import { CameraComponent } from '../../camera/components/CameraComponent'
-//import { CameraSystem } from '../../camera/systems/CameraSystem'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { SDFShader } from '../../renderer/effects/SDFShader'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { setCallback } from './CallbackComponent'
-import { UpdatableCallback, UpdatableComponent } from './UpdatableComponent'
+import { CameraComponent } from '../../../camera/components/CameraComponent'
+import { setCallback } from '../../../scene/components/CallbackComponent'
+import { UpdatableCallback, UpdatableComponent } from '../../../scene/components/UpdatableComponent'
+import { TransformComponent } from '../../../transform/components/TransformComponent'
+import { SDFShader } from './SDFShader'
 
 export enum SDFMode {
   TORUS,
@@ -90,14 +88,14 @@ export const SDFComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const sdfComponent = useComponent(entity, SDFComponent)
-    const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    const cameraPosition = cameraTransform.position
     const shader = SDFShader.shader
-    const cameraComponent = getComponent(Engine.instance.cameraEntity, CameraComponent)
-    let updater = UndefinedEntity
-    const sdfTranform = getComponent(entity, TransformComponent)
+
     useEffect(() => {
-      updater = createEntity()
+      const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+      const cameraPosition = cameraTransform.position
+      const transformComponent = getComponent(entity, TransformComponent)
+      const cameraComponent = getComponent(Engine.instance.cameraEntity, CameraComponent)
+      const updater = createEntity()
       setCallback(updater, UpdatableCallback, (dt) => {
         shader.uniforms.uTime.value += dt * 0.1
       })
@@ -107,7 +105,7 @@ export const SDFComponent = defineComponent({
       shader.uniforms.aspectRatio.value = cameraComponent.aspect
       shader.uniforms.near.value = cameraComponent.near
       shader.uniforms.far.value = cameraComponent.far
-      shader.uniforms.sdfMatrix.value = sdfTranform.matrixWorld
+      shader.uniforms.sdfMatrix.value = transformComponent.matrixWorld
       shader.uniforms.cameraPos.value = cameraPosition
       setComponent(updater, UpdatableComponent, true)
     }, [])
