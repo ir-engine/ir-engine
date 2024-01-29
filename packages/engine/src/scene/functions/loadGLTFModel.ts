@@ -54,10 +54,10 @@ import { InstancingComponent } from '../components/InstancingComponent'
 import { MeshBVHComponent } from '../components/MeshBVHComponent'
 import { MeshComponent } from '../components/MeshComponent'
 import { ModelComponent } from '../components/ModelComponent'
+import { enableObjectLayer } from '../components/ObjectLayerComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { enableObjectLayer } from './setObjectLayers'
 
 export const parseECSData = (data: [string, any][]): ComponentJsonType[] => {
   const components: { [key: string]: any } = {}
