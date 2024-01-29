@@ -156,8 +156,9 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
       for (const entity of rendererState.entities[id].value) removeEntity(entity)
       getMutableState(ActiveOrbitCamera).set(UndefinedEntity)
       const thisIdIndex = rendererState.ids.value.findIndex((value) => value === id)
-      rendererState.ids[thisIdIndex].set(none)
+      rendererState.entities[id].set(none)
       rendererState.renderers[id].set(none)
+      rendererState.ids[thisIdIndex].set(none)
     }
   }, [])
 
