@@ -326,7 +326,6 @@ export const addClientInputListeners = (canvas = EngineRenderer.instance.rendere
   )
 
   return () => {
-    console.log('yep')
     inputSources().map((eid) => removeEntity(eid))
 
     canvas.removeEventListener('DOMMouseScroll', preventDefault, false)
