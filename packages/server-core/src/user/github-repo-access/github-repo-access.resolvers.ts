@@ -33,7 +33,7 @@ import {
 } from '@etherealengine/common/src/schemas/user/github-repo-access.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const githubRepoAccessResolver = resolve<GithubRepoAccessType, HookContext>({
   createdAt: virtual(async (githubRepoAccess) => fromDateTimeSql(githubRepoAccess.createdAt)),

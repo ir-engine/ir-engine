@@ -28,17 +28,17 @@ import { BufferGeometry, Color, DirectionalLight, Float32BufferAttribute, LineBa
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
+import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { NameComponent } from '../../common/NameComponent'
 import { matches } from '../../common/functions/MatchesUtils'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
-import { ObjectLayers } from '../constants/ObjectLayers'
+import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
+import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { useUpdateLight } from '../functions/useUpdateLight'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
-import { NameComponent } from './NameComponent'
-import { setVisibleComponent } from './VisibleComponent'
 
 const material = new LineBasicMaterial()
 const size = 1
@@ -169,9 +169,10 @@ export const DirectionalLightComponent = defineComponent({
     const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
 
     useEffect(() => {
-      addObjectToGroup(entity, directionalLightComponent.light.value)
+      const light = directionalLightComponent.light.value
+      addObjectToGroup(entity, light)
       return () => {
-        removeObjectFromGroup(entity, directionalLightComponent.light.value)
+        removeObjectFromGroup(entity, light)
       }
     }, [])
 

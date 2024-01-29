@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 
 import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { inviteCodeLookupPath } from '@etherealengine/common/src/schemas/social/invite-code-lookup.schema'
 import { UserName, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'

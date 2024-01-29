@@ -27,9 +27,9 @@ import { useEffect } from 'react'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { removeEntity } from '../ecs/functions/EntityFunctions'
-import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { XRDetectedMeshComponent } from './XRDetectedMeshComponent'
 import { XRDetectedPlaneComponent } from './XRDetectedPlaneComponent'
 import { ReferenceSpace, XRState } from './XRState'

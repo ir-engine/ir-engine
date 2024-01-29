@@ -27,8 +27,8 @@ import { PositionalAudioComponent } from '../audio/components/PositionalAudioCom
 import { LoopAnimationComponent } from '../avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '../interaction/components/GrabbableComponent'
 import { MountPointSystem } from '../interaction/systems/MountPointSystem'
-import { NoiseOffsetSystem } from '../renderer/materials/constants/plugins/NoiseOffsetPlugin'
-import { MaterialLibrarySystem } from '../renderer/materials/systems/MaterialLibrarySystem'
+import { NoiseOffsetSystem } from '../scene/materials/constants/plugins/NoiseOffsetPlugin'
+import { MaterialLibrarySystem } from '../scene/materials/systems/MaterialLibrarySystem'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRAnchorComponent } from '../xr/XRComponents'
 import { AmbientLightComponent } from './components/AmbientLightComponent'
@@ -40,7 +40,6 @@ import { EnvMapBakeComponent } from './components/EnvMapBakeComponent'
 import { EnvmapComponent } from './components/EnvmapComponent'
 import { FogSettingsComponent } from './components/FogSettingsComponent'
 import { GroundPlaneComponent } from './components/GroundPlaneComponent'
-import { GroupComponent } from './components/GroupComponent'
 import { HemisphereLightComponent } from './components/HemisphereLightComponent'
 import { HyperspaceTagComponent } from './components/HyperspaceTagComponent'
 import { ImageComponent } from './components/ImageComponent'
@@ -68,7 +67,6 @@ import { SystemComponent } from './components/SystemComponent'
 import { TextComponent } from './components/TextComponent'
 import { VariantComponent } from './components/VariantComponent'
 import { VideoComponent } from './components/VideoComponent'
-import { VisibleComponent } from './components/VisibleComponent'
 import { VolumetricComponent } from './components/VolumetricComponent'
 import { WaterComponent } from './components/WaterComponent'
 import { EnvironmentSystem } from './systems/EnvironmentSystem'
@@ -96,7 +94,6 @@ export const SceneComponents = [
   EnvmapComponent,
   FogSettingsComponent,
   GroundPlaneComponent,
-  GroupComponent,
   HemisphereLightComponent,
   HyperspaceTagComponent,
   ImageComponent,
@@ -124,7 +121,6 @@ export const SceneComponents = [
   SystemComponent,
   VariantComponent,
   VideoComponent,
-  VisibleComponent,
   VolumetricComponent,
   WaterComponent,
   TransformComponent,

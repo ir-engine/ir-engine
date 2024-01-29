@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import { defineComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { TransformComponent } from './TransformComponent'
 
 export const ComputedTransformComponent = defineComponent({

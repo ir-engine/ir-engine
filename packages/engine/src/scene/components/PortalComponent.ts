@@ -41,13 +41,7 @@ import { defineState, getMutableState, getState, none, useHookstate } from '@eth
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { portalPath } from '@etherealengine/common/src/schema.type.module'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { V_100 } from '../../common/constants/MathConstants'
-import { matches } from '../../common/functions/MatchesUtils'
-import { isClient } from '../../common/functions/getEnvironment'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   ComponentType,
   SerializedComponentType,
@@ -56,23 +50,29 @@ import {
   hasComponent,
   setComponent,
   useComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { NameComponent } from '../../common/NameComponent'
+import { V_100 } from '../../common/constants/MathConstants'
+import { matches } from '../../common/functions/MatchesUtils'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { RendererState } from '../../renderer/RendererState'
+import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
+import { enableObjectLayer, setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
+import { VisibleComponent, setVisibleComponent } from '../../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { ObjectLayers } from '../constants/ObjectLayers'
-import { enableObjectLayer, setObjectLayers } from '../functions/setObjectLayers'
 import { setCallback } from './CallbackComponent'
 import { ColliderComponent } from './ColliderComponent'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
-import { NameComponent } from './NameComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
-import { UUIDComponent } from './UUIDComponent'
-import { VisibleComponent, setVisibleComponent } from './VisibleComponent'
 
 export const PortalPreviewTypeSimple = 'Simple' as const
 export const PortalPreviewTypeSpherical = 'Spherical' as const
@@ -151,7 +151,7 @@ export const PortalComponent = defineComponent({
     }
 
     if (
-      !getState(EngineState).sceneLoaded &&
+      !getState(SceneState).sceneLoaded &&
       hasComponent(entity, SceneObjectComponent) &&
       !hasComponent(entity, RigidBodyComponent)
     )

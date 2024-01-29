@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { loadDRACODecoderNode } from './assets/loaders/gltf/NodeDracoLoader'
-import { Engine } from './ecs/classes/Engine'
 
 /**
  * initializeNode

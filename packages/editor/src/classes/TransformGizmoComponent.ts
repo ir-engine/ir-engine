@@ -29,19 +29,19 @@ import {
   removeComponent,
   setComponent,
   useComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { TransformControls } from '@etherealengine/engine/src/scene/classes/TransformGizmo'
 
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { NameComponent } from '@etherealengine/engine/src/common/NameComponent'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/engine/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/engine/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@etherealengine/engine/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/engine/src/renderer/constants/ObjectLayers'
 import { SnapMode, TransformPivot } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'

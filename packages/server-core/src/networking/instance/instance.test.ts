@@ -33,7 +33,7 @@ import {
   LocationType,
   RoomCode
 } from '@etherealengine/common/src/schemas/social/location.schema'
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { instanceActivePath } from '@etherealengine/common/src/schemas/networking/instance-active.schema'
 import { InstanceID, instancePath, InstanceType } from '@etherealengine/common/src/schemas/networking/instance.schema'

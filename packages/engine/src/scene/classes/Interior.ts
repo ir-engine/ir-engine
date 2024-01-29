@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 import { Mesh, PlaneGeometry, ShaderMaterial, SRGBColorSpace, Texture, Vector2 } from 'three'
 
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { InteriorComponent } from '../components/InteriorComponent'
 import { loadCubeMapTexture, loadDDSTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'

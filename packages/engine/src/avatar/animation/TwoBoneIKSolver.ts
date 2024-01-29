@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Bone, MathUtils, Mesh, Object3D, Quaternion, Vector3 } from 'three'
 
+import { Object3DUtils } from '@etherealengine/common/src/utils/Object3DUtils'
 import { VRM, VRMHumanBoneName } from '@pixiv/three-vrm'
-import { Object3DUtils } from '../../common/functions/Object3DUtils'
 
 const sqrEpsilon = 1e-8
 

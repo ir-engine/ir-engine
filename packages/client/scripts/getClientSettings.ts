@@ -27,10 +27,7 @@ import knex from 'knex'
 
 import { clientDbToSchema } from '../../server-core/src/setting/client-setting/client-setting.resolvers'
 
-const {
-  clientSettingPath,
-  ClientSettingDatabaseType
-} = require('../../common/src/schemas/setting/client-setting.schema')
+import { ClientSettingDatabaseType, clientSettingPath } from '../../common/src/schemas/setting/client-setting.schema'
 
 export const getClientSetting = async () => {
   const knexClient = knex({
@@ -47,7 +44,7 @@ export const getClientSetting = async () => {
 
   const clientSetting = await knexClient
     .select()
-    .from<typeof ClientSettingDatabaseType>(clientSettingPath)
+    .from<ClientSettingDatabaseType>(clientSettingPath)
     .then(([dbClient]) => {
       const dbClientConfig = clientDbToSchema(dbClient) || {
         logo: './logo.svg',

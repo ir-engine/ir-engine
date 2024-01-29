@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ScopeTypeInterface, UserType, scopePath } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '../../ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 
 export const checkScope = async (user: UserType, currentType: string, scopeToVerify: string) => {
   const scopes = (await Engine.instance.api.service(scopePath).find({

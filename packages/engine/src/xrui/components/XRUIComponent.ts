@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { getState } from '@etherealengine/hyperflux'
 import type { WebContainer3D } from '@etherealengine/xrui'
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { XRUIState } from '../XRUIState'
 
 export const XRUIComponent = defineComponent({

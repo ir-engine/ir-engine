@@ -28,18 +28,19 @@ import * as Comlink from 'comlink'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils/createWorkerFromCrossOriginURL'
+import { getOptionalComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { getComponent, hasComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { WebcamInputComponent } from '@etherealengine/engine/src/input/components/WebcamInputComponent'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
+import { GroupComponent } from '@etherealengine/engine/src/renderer/components/GroupComponent'
 import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
+import { WebcamInputComponent } from './WebcamInputComponent'
 
-import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { SkinnedMeshComponent } from '@etherealengine/engine/src/avatar/components/SkinnedMeshComponent'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
-import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
+import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { MediaStreamState } from '../../transports/MediaStreams'
 
 const FACE_EXPRESSION_THRESHOLD = 0.1
@@ -254,25 +255,25 @@ const setAvatarExpression = (entity: Entity): void => {
   if (morphValue === 0) return
 
   const morphName = morphNameByIndex[WebcamInputComponent.expressionIndex[entity]]
-  const skinnedMeshes = getComponent(entity, AvatarComponent).skinnedMeshes
 
-  for (const obj of skinnedMeshes) {
-    if (!obj.morphTargetDictionary || !obj.morphTargetInfluences) continue
+  iterateEntityNode(entity, (entity) => {
+    const skinnedMesh = getOptionalComponent(entity, SkinnedMeshComponent)
+    if (!skinnedMesh?.morphTargetDictionary || !skinnedMesh?.morphTargetInfluences) return
 
-    const morphIndex = obj.morphTargetDictionary[morphName]
+    const morphIndex = skinnedMesh.morphTargetDictionary[morphName]
 
     if (typeof morphIndex !== 'number') {
-      for (const morphName in obj.morphTargetDictionary)
-        obj.morphTargetInfluences[obj.morphTargetDictionary[morphName]] = 0
+      for (const morphName in skinnedMesh.morphTargetDictionary)
+        skinnedMesh.morphTargetInfluences[skinnedMesh.morphTargetDictionary[morphName]] = 0
       return
     }
 
     if (morphName && morphValue !== null) {
       if (typeof morphValue === 'number') {
-        obj.morphTargetInfluences[morphIndex] = morphValue // 0.0 - 1.0
+        skinnedMesh.morphTargetInfluences[morphIndex] = morphValue // 0.0 - 1.0
       }
     }
-  }
+  })
 }
 const webcamQuery = defineQuery([GroupComponent, AvatarRigComponent, WebcamInputComponent])
 const avatarSpawnQueue = defineActionQueue(AvatarNetworkAction.spawn.matches)

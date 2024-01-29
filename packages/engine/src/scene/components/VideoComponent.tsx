@@ -29,27 +29,27 @@ import { DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, Side, Texture, Vecto
 import { defineState } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { isMobile } from '../../common/functions/isMobile'
-import { createPriorityQueue } from '../../ecs/PriorityQueue'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
   setComponent,
   useComponent,
   useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
+import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { NameComponent } from '../../common/NameComponent'
+import { createPriorityQueue } from '../../common/functions/PriorityQueue'
+import { isMobile } from '../../common/functions/isMobile'
+import { addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { VisibleComponent, setVisibleComponent } from '../../renderer/components/VisibleComponent'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { ContentFitType, ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
 import { clearErrors } from '../functions/ErrorFunctions'
-import { addObjectToGroup } from './GroupComponent'
 import { PLANE_GEO, resizeImageMesh } from './ImageComponent'
 import { MediaElementComponent } from './MediaComponent'
-import { NameComponent } from './NameComponent'
-import { UUIDComponent } from './UUIDComponent'
-import { VisibleComponent, setVisibleComponent } from './VisibleComponent'
 
 export const VideoTexturePriorityQueueState = defineState({
   name: 'VideoTexturePriorityQueueState',

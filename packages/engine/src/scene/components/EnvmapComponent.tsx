@@ -41,25 +41,25 @@ import {
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { isClient } from '../../common/functions/getEnvironment'
-import { Entity } from '../../ecs/classes/Entity'
-import { SceneState } from '../../ecs/classes/Scene'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   defineComponent,
   getMutableComponent,
   useComponent,
   useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { RendererState } from '../../renderer/RendererState'
+import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { EnvMapBakeComponent, applyBoxProjection } from './EnvMapBakeComponent'
-import { GroupComponent } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
-import { UUIDComponent } from './UUIDComponent'
 
 const tempColor = new Color()
 

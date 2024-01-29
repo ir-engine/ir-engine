@@ -26,18 +26,18 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { VolumetricFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import {
   getOptionalMutableComponent,
   hasComponent,
   useComponent,
   useOptionalComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { VolumetricFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { UVOL1Component } from '@etherealengine/engine/src/scene/components/UVOL1Component'
 import { UVOL2Component } from '@etherealengine/engine/src/scene/components/UVOL2Component'
 import { TextureType } from '@etherealengine/engine/src/scene/constants/UVOLTypes'
@@ -357,7 +357,7 @@ function VolumetricCurrentTimeScrubber(props: { entity: Entity }) {
             volumetricComponent.currentTrackInfo.currentTime.value < value &&
             value < uvol2Component.bufferedUntil.value
           ) {
-            const engineState = getState(EngineState)
+            const engineState = getState(ECSState)
             UVOL2Component.setStartAndPlaybackTime(props.entity, value, engineState.elapsedSeconds)
           }
           setIsChanging(false)

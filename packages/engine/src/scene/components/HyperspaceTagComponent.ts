@@ -24,6 +24,21 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import config from '@etherealengine/common/src/config'
+import {
+  defineComponent,
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { EntityTreeComponent, destroyEntityTree } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import {
@@ -45,30 +60,16 @@ import {
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { teleportAvatar } from '../../avatar/functions/moveAvatar'
 import { CameraComponent } from '../../camera/components/CameraComponent'
+import { NameComponent } from '../../common/NameComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import {
-  defineComponent,
-  getComponent,
-  getMutableComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent, destroyEntityTree } from '../../ecs/functions/EntityTree'
-import { useExecute } from '../../ecs/functions/SystemFunctions'
+import { createTransitionState } from '../../common/functions/createTransitionState'
+import { GroupComponent, addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { SceneLoadingSystem } from '../SceneModule'
-import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
-import { GroupComponent, addObjectToGroup } from './GroupComponent'
-import { NameComponent } from './NameComponent'
 import { PortalComponent, PortalEffects, PortalState } from './PortalComponent'
-import { VisibleComponent } from './VisibleComponent'
 
 export const HyperspacePortalEffect = 'Hyperspace'
 
@@ -227,16 +228,16 @@ export const HyperspaceTagComponent = defineComponent({
     useExecute(
       () => {
         if (!hasComponent(entity, HyperspaceTagComponent)) return
-        const engineState = getState(EngineState)
-        const sceneLoaded = engineState.sceneLoaded
+        const ecsState = getState(ECSState)
+        const sceneLoaded = getState(SceneState).sceneLoaded
 
         if (sceneLoaded && transition.alpha >= 1 && transition.state === 'IN') {
           transition.setState('OUT')
           camera.layers.enable(ObjectLayers.Scene)
         }
 
-        transition.update(engineState.deltaSeconds, (opacity) => {
-          hyperspaceEffect.update(engineState.deltaSeconds)
+        transition.update(ecsState.deltaSeconds, (opacity) => {
+          hyperspaceEffect.update(ecsState.deltaSeconds)
           hyperspaceEffect.tubeMaterial.opacity = opacity
         })
 
@@ -266,7 +267,7 @@ export const HyperspaceTagComponent = defineComponent({
         getComponent(hyperspaceEffectEntity, TransformComponent).position.copy(cameraTransform.position)
 
         if (camera.zoom > 0.75) {
-          camera.zoom -= engineState.deltaSeconds
+          camera.zoom -= ecsState.deltaSeconds
           camera.updateProjectionMatrix()
         }
       },

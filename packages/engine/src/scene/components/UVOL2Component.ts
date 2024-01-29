@@ -24,6 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { usePrevious } from '@etherealengine/common/src/utils/usePrevious'
+import {
+  defineComponent,
+  getMutableComponent,
+  getOptionalComponent,
+  removeComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState, ECSState as EngineState } from '@etherealengine/ecs/src/ECSState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
+import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getState } from '@etherealengine/hyperflux'
 import { startTransition, useEffect, useMemo, useRef } from 'react'
 import {
@@ -49,20 +63,7 @@ import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
 import { isIPhone, isMobile } from '../../common/functions/isMobile'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import {
-  defineComponent,
-  getMutableComponent,
-  getOptionalComponent,
-  removeComponent,
-  setComponent,
-  useComponent,
-  useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { useExecute } from '../../ecs/functions/SystemFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
+import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { PlayMode } from '../constants/PlayMode'
 import {
@@ -80,7 +81,6 @@ import {
   UniformSolveTarget
 } from '../constants/UVOLTypes'
 import getFirstMesh from '../util/meshUtils'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MediaElementComponent } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { UVOLDissolveComponent } from './UVOLDissolveComponent'
@@ -422,7 +422,7 @@ function UVOL2Reactor() {
   const component = useComponent(entity, UVOL2Component)
   const shadow = useOptionalComponent(entity, ShadowComponent)
 
-  const engineState = getState(EngineState)
+  const ecsState = getState(ECSState)
 
   const mediaElement = getMutableComponent(entity, MediaElementComponent).value
   const audioContext = getState(AudioState).audioContext
@@ -642,6 +642,8 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       audio.src = ''
     }
   }, [])
+
+  const engineState = getState(EngineState)
 
   useEffect(() => {
     if (!shadow) return
@@ -1101,7 +1103,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     UVOL2Component.setStartAndPlaybackTime(
       entity,
       volumetric.currentTrackInfo.currentTime.value,
-      engineState.elapsedSeconds
+      ecsState.elapsedSeconds
     )
 
     if (mesh.material !== material) {
@@ -1519,7 +1521,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   const isWaiting = useRef(false)
 
   const update = () => {
-    const delta = getState(EngineState).deltaSeconds
+    const delta = getState(ECSState).deltaSeconds
     if (
       component.loadingEffectStarted.value &&
       !component.loadingEffectEnded.value &&
@@ -1559,7 +1561,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         UVOL2Component.setStartAndPlaybackTime(
           entity,
           volumetric.currentTrackInfo.currentTime.value,
-          engineState.elapsedSeconds
+          ecsState.elapsedSeconds
         )
         isWaiting.current = false
       } else if (isWaiting.current && isWaitingNow) {
@@ -1573,7 +1575,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     } else {
       _currentTime =
         volumetric.currentTrackInfo.mediaStartTime.value +
-        (engineState.elapsedSeconds - volumetric.currentTrackInfo.playbackStartDate.value)
+        (ecsState.elapsedSeconds - volumetric.currentTrackInfo.playbackStartDate.value)
     }
     _currentTime *= volumetric.currentTrackInfo.playbackRate.value
 
@@ -1609,7 +1611,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     if (volumetric.currentTrackInfo.currentTime.value > component.data.value.duration || audio.ended) {
       if (component.data.deletePreviousBuffers.value === false && volumetric.playMode.value === PlayMode.loop) {
         volumetric.currentTrackInfo.currentTime.set(0)
-        volumetric.currentTrackInfo.playbackStartDate.set(engineState.elapsedSeconds)
+        volumetric.currentTrackInfo.playbackStartDate.set(ecsState.elapsedSeconds)
       } else {
         volumetric.ended.set(true)
         return

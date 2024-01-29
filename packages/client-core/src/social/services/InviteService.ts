@@ -32,7 +32,7 @@ import {
   PHONE_REGEX,
   USER_ID_REGEX
 } from '@etherealengine/common/src/constants/IdConstants'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import {

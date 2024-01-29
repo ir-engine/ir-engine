@@ -25,13 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { EditorState } from '../../services/EditorServices'
 import { EditorActiveInstanceState } from './EditorActiveInstanceService'
 
@@ -41,7 +41,7 @@ const execute = () => {
   const editorState = getState(EditorState)
   if (!editorState.sceneID) return
 
-  accumulator += getState(EngineState).deltaSeconds
+  accumulator += getState(ECSState).deltaSeconds
 
   if (accumulator > 5) {
     accumulator = 0

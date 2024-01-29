@@ -27,7 +27,7 @@ import { Matrix4 } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import {
   compareDistanceToLocalClient,
   DistanceFromLocalClientComponent

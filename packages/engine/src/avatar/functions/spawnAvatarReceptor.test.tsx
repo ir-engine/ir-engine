@@ -30,22 +30,21 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
 import { act, render } from '@testing-library/react'
 import React from 'react'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
-import { Engine, destroyEngine } from '../../ecs/classes/Engine'
-import { hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { SystemDefinitions } from '../../ecs/functions/SystemFunctions'
+import { NameComponent } from '../../common/NameComponent'
 import { createEngine } from '../../initializeEngine'
 import { EntityNetworkStateSystem } from '../../networking/NetworkModule'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Physics } from '../../physics/classes/Physics'
 import {
   RigidBodyComponent,
   RigidBodyKinematicPositionBasedTagComponent
 } from '../../physics/components/RigidBodyComponent'
 import { PhysicsState } from '../../physics/state/PhysicsState'
-import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -89,7 +88,7 @@ describe('spawnAvatarReceptor', () => {
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
 
-    const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
+    const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
 
     assert(hasComponent(entity, TransformComponent))
     assert(hasComponent(entity, AvatarComponent))

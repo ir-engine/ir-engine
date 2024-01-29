@@ -30,40 +30,40 @@ import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { deleteSearchParams } from '@etherealengine/common/src/utils/deleteSearchParams'
 import { defineActionQueue, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { getState } from '@etherealengine/hyperflux'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { FlyControlComponent } from '../../avatar/components/FlyControlComponent'
-import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
-import { createConeOfVectors } from '../../common/functions/MathFunctions'
-import { smoothDamp } from '../../common/functions/MathLerpFunctions'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
 import {
+  AnimationSystemGroup,
+  Engine,
+  Entity,
+  defineQuery,
+  defineSystem,
   getComponent,
   getOptionalComponent,
-  hasComponent,
   removeComponent,
   setComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
+} from '@etherealengine/ecs'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { EngineState } from '@etherealengine/engine/src/EngineState'
+import { getState } from '@etherealengine/hyperflux'
+import { createConeOfVectors } from '../../common/functions/MathFunctions'
+import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { ObjectLayerComponents } from '../../renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { MeshComponent } from '../../scene/components/MeshComponent'
-import { ObjectLayerComponents } from '../../scene/components/ObjectLayerComponent'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent
 } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraSettingsState } from '../CameraSceneMetadata'
+import { CameraActions } from '../CameraState'
 import { CameraComponent } from '../components/CameraComponent'
+import { FlyControlComponent } from '../components/FlyControlComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { SpectatorComponent } from '../components/SpectatorComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
+import { switchCameraMode } from '../functions/switchCameraMode'
 
 const direction = new Vector3()
 const upVector = new Vector3(0, 1, 0)
@@ -113,7 +113,7 @@ export const updateCameraTargetRotation = (cameraEntity: Entity) => {
     return
   }
 
-  const delta = getState(EngineState).deltaSeconds
+  const delta = getState(ECSState).deltaSeconds
   followCamera.phi = smoothDamp(followCamera.phi, target.phi, target.phiVelocity, target.time, delta)
   followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
 }
@@ -170,21 +170,6 @@ export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
   return camRayCastCache
 }
 
-export const calculateCameraTarget = (entity: Entity, target: Vector3) => {
-  const avatar = getComponent(entity, AvatarComponent)
-  const transform = getComponent(entity, TransformComponent)
-
-  if (!transform) return
-
-  if (avatar) {
-    target.set(0, avatar.avatarHeight - 0.1, 0.1)
-    target.applyQuaternion(transform.rotation)
-    target.add(transform.position)
-  } else {
-    target.copy(transform.position)
-  }
-}
-
 const targetPosition = new Vector3()
 
 const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
@@ -200,10 +185,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   let maxDistance = followCamera.zoomLevel
   let isInsideWall = false
 
-  targetPosition.copy(targetTransform.position)
-  if (hasComponent(referenceEntity, AvatarComponent)) {
-    targetPosition.y += getComponent(referenceEntity, AvatarComponent).avatarHeight * 0.95
-  }
+  targetPosition.copy(targetTransform.position).add(followCamera.offset)
 
   // Run only if not in first person mode
   if (followCamera.raycastProps.enabled && followCamera.zoomLevel >= followCamera.minDistance) {
@@ -216,7 +198,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
 
   // Zoom smoothing
   let smoothingSpeed = isInsideWall ? 0.1 : 0.3
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
 
   followCamera.distance = smoothDamp(
     followCamera.distance,
@@ -257,8 +239,8 @@ const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent
 const ownedNetworkCamera = defineQuery([CameraComponent, NetworkObjectOwnedTag])
 const spectatorQuery = defineQuery([SpectatorComponent])
 const cameraSpawnActions = defineActionQueue(WorldNetworkAction.spawnCamera.matches)
-const spectateUserActions = defineActionQueue(EngineActions.spectateUser.matches)
-const exitSpectateActions = defineActionQueue(EngineActions.exitSpectate.matches)
+const spectateUserActions = defineActionQueue(CameraActions.spectateUser.matches)
+const exitSpectateActions = defineActionQueue(CameraActions.exitSpectate.matches)
 
 function CameraReactor() {
   const cameraSettings = useHookstate(getMutableState(CameraSettingsState))

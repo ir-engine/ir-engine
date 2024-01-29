@@ -25,20 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import { MathUtils, Matrix3, Vector3 } from 'three'
 
-import { FlyControlComponent } from '@etherealengine/engine/src/avatar/components/FlyControlComponent'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import {
-  getComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { FlyControlComponent } from '@etherealengine/engine/src/camera/components/FlyControlComponent'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import { getMutableState } from '@etherealengine/hyperflux'
 
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { editorCameraCenter } from '../classes/EditorCameraState'
 import { EditorHelperState } from '../services/EditorHelperState'
 
