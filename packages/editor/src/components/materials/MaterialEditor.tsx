@@ -28,7 +28,7 @@ import { Texture } from 'three'
 
 import styles from '@etherealengine/editor/src/components/layout/styles.module.scss'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
+import createReadableTexture from '@etherealengine/engine/src/renderer/functions/createReadableTexture'
 import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
 import { LibraryEntryType } from '@etherealengine/engine/src/renderer/materials/constants/LibraryEntry'
 import {

@@ -32,7 +32,6 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin, PluginType, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { GroupQueryReactor, GroupReactorProps } from '../components/GroupComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
@@ -46,7 +45,7 @@ export const FogShaders = [] as Shader[]
 
 const getFogPlugin = (): PluginType => {
   return {
-    id: OBCType.FOG,
+    id: 'ee.engine.FogPlugin',
     priority: 0,
     compile: (shader) => {
       FogShaders.push(shader)

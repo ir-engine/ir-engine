@@ -27,10 +27,10 @@ import { Mesh, Object3D } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import iterateObject3D from '../../../../common/functions/iterateObject3D'
 import { MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
 import { SourceType } from '../../../../renderer/materials/components/MaterialSource'
 import { registerMaterial } from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
-import iterateObject3D from '../../../../scene/util/iterateObject3D'
 import { GLTF, GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
 

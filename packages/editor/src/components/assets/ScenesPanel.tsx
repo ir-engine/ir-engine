@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import multiLogger from '@etherealengine/common/src/logger'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
+import createReadableTexture from '@etherealengine/engine/src/renderer/functions/createReadableTexture'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import React, { useEffect, useState } from 'react'

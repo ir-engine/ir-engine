@@ -215,7 +215,8 @@ describe('Physics', () => {
     boxDynamicConfig.collisionLayer = collisionGroup
     boxDynamicConfig.collisionMask = collisionMask
 
-    const rigidBody = Physics.createRigidBodyForGroup(entity, physicsWorld, boxDynamicConfig)
+    Physics.createRigidBodyForGroup(entity, physicsWorld, boxDynamicConfig)
+    const rigidBody = getComponent(entity, RigidBodyComponent).body
     const interactionGroups = getInteractionGroups(collisionGroup, collisionMask)
 
     const collider = rigidBody.collider(0)

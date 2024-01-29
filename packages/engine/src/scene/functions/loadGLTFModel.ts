@@ -42,6 +42,7 @@ import { EntityTreeComponent } from '@etherealengine/engine/src/transform/compon
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { BoneComponent } from '../../avatar/components/BoneComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
+import iterateObject3D from '../../common/functions/iterateObject3D'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -56,7 +57,6 @@ import { NameComponent } from '../components/NameComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import iterateObject3D from '../util/iterateObject3D'
 import { enableObjectLayer } from './setObjectLayers'
 
 //isProxified: used to check if an object is proxified

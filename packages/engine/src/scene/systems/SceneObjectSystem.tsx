@@ -45,6 +45,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import iterateObject3D from '../../common/functions/iterateObject3D'
 import { RendererState } from '../../renderer/RendererState'
 import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
@@ -56,7 +57,6 @@ import { SourceComponent } from '../components/SourceComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
-import iterateObject3D from '../util/iterateObject3D'
 
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 

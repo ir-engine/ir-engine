@@ -27,7 +27,7 @@ import React, { useCallback } from 'react'
 import { Texture, Vector2, Vector3 } from 'three'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
+import createReadableTexture from '@etherealengine/engine/src/renderer/functions/createReadableTexture'
 import {
   ApplyForceBehaviorJSON,
   ApplySequencesJSON,
