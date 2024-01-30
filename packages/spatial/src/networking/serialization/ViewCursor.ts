@@ -76,12 +76,18 @@ export const writeProp = (v: ViewCursor, prop: TypedArray, entity: Entity) => {
  * @param ignoredChanged - if true, will write prop even if it hasn't changed
  * @returns true if property was written, false otherwise
  */
-export const writePropIfChanged = (v: ViewCursor, prop: TypedArray, entity: Entity, ignoredChanged: boolean) => {
+export const writePropIfChanged = (
+  v: ViewCursor,
+  prop: TypedArray,
+  entity: Entity,
+  ignoredChanged: boolean,
+  epsilon = 0.0001
+) => {
   const { shadowMap } = v
 
   const shadow = shadowMap.get(prop) || (shadowMap.set(prop, prop.slice().fill(0)) && shadowMap.get(prop))!
 
-  const changed = shadow[entity] !== prop[entity] || ignoredChanged
+  const changed = Math.abs(shadow[entity] - prop[entity]) > epsilon || ignoredChanged
 
   shadow[entity] = prop[entity]
 
