@@ -274,7 +274,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
 
       state[networkID].consumers[action.consumerID].set(none)
 
-      if (!Object.keys(state[networkID].consumers).length && !Object.keys(state[networkID].consumers).length) {
+      if (!Object.keys(state[networkID].producers).length && !Object.keys(state[networkID].consumers).length) {
         state[networkID].set(none)
       }
     }),
@@ -369,7 +369,7 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
     return () => {
       producerObject.close()
     }
-  }, [transportState, producerObjectState])
+  }, [transportState.value, producerObjectState.value])
 
   const consumer = Object.values(getState(MediasoupMediaProducerConsumerState)[networkID].consumers).find(
     (p) => p.producerID === producerID
@@ -445,7 +445,7 @@ export const NetworkConsumer = (props: { networkID: InstanceID; consumerID: stri
     return () => {
       consumerObject.close()
     }
-  }, [transportState, consumerObjectState])
+  }, [transportState.value, consumerObjectState.value])
 
   return null
 }
