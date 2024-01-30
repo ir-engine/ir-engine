@@ -89,10 +89,10 @@ export const XRJointAvatarBoneMap = {
   'ring-finger-phalanx-intermediate': 'RingIntermediate',
   'ring-finger-phalanx-distal': 'RingDistal',
   // 'ring-finger-tip': '',
-  'pinky-finger-metacarpal': 'PinkyMetacarpal',
-  'pinky-finger-phalanx-proximal': 'PinkyProximal',
-  'pinky-finger-phalanx-intermediate': 'PinkyIntermediate',
-  'pinky-finger-phalanx-distal': 'PinkyDistal'
+  'pinky-finger-metacarpal': 'LittleMetacarpal',
+  'pinky-finger-phalanx-proximal': 'LittleProximal',
+  'pinky-finger-phalanx-intermediate': 'LittleIntermediate',
+  'pinky-finger-phalanx-distal': 'LittleDistal'
   // 'pinky-finger-tip': ''
 } as Record<XRHandJoint, string> // BoneName without the handedness
 

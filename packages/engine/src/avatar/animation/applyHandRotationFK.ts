@@ -27,9 +27,9 @@ import { XRJointAvatarBoneMap } from '@etherealengine/spatial/src/xr/XRComponent
 import { VRM, VRMHumanBoneName } from '@pixiv/three-vrm'
 
 export const applyHandRotationFK = (vrm: VRM, handedness: 'left' | 'right', rotations: Float32Array) => {
-  const entries = Object.values(XRJointAvatarBoneMap)
-  for (let i = 0; i < entries.length; i++) {
-    const label = entries[i]
+  const bones = Object.values(XRJointAvatarBoneMap)
+  for (let i = 0; i < bones.length; i++) {
+    const label = bones[i]
     const boneName = `${handedness}${label}` as VRMHumanBoneName
     const bone = vrm.humanoid.getNormalizedBone(boneName)
     if (!bone?.node) continue

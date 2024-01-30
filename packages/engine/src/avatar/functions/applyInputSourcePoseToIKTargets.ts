@@ -38,6 +38,7 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import {
   XRJointAvatarBoneMap,
   XRJointBones,
+  XRJointParentMap,
   XRLeftHandComponent,
   XRRightHandComponent
 } from '@etherealengine/spatial/src/xr/XRComponents'
@@ -48,9 +49,11 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
 
 const matrixWorld = new Matrix4()
-const wristMatrixWorld = new Matrix4()
+const parentMatrixWorld = new Matrix4()
 const localMatrix = new Matrix4()
 const quat = new Quaternion()
+
+const helpers = {}
 
 /**
  * Gets world space pose for each joint in the hand and stores the rotation in an XRHandComponent in local space
@@ -58,28 +61,48 @@ const quat = new Quaternion()
  * @param entity
  */
 const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
-  const hand = inputSource.hand as any as XRHand
+  const hand = inputSource.hand!
   const xrFrame = getState(XRState).xrFrame!
-  const poses1 = new Float32Array(16 * 25)
+  const poses = new Float32Array(16 * 25)
 
-  xrFrame.fillPoses!(hand.values(), inputSource.gripSpace!, poses1)
+  xrFrame.fillPoses!(hand.values(), inputSource.gripSpace!, poses)
 
   const Component = inputSource.handedness === 'right' ? XRRightHandComponent : XRLeftHandComponent
   const rotations = getComponent(entity, Component).rotations
 
-  wristMatrixWorld.fromArray(poses1, 0)
+  // const wristMatrix = new Matrix4().fromArray(
+  //   xrFrame.getPose(inputSource.gripSpace!, ReferenceSpace.origin!)!.transform.matrix
+  // )
 
+  // start at 1 as we can skip wrist
   for (let i = 1; i < 25; i++) {
     const joint = XRJointBones[i]
 
     if (joint.includes('tip')) continue
 
-    localMatrix.multiplyMatrices(wristMatrixWorld, matrixWorld.fromArray(poses1, i * 16).invert())
+    const parentJoint = XRJointParentMap[joint]
+
+    if (!parentJoint) continue
+
+    // if (!helpers[inputSource.handedness + joint]) {
+    //   helpers[inputSource.handedness + joint] = new AxesHelper(0.05)
+    //   helpers[inputSource.handedness + joint].name = inputSource.handedness + joint + ' helper'
+    //   Engine.instance.scene.add(helpers[inputSource.handedness + joint])
+    // }
+    // helpers[inputSource.handedness + joint].matrixWorld.copy(matrixWorld).premultiply(wristMatrix)
+
+    const parentIndex = XRJointBones.indexOf(parentJoint)
+
+    // get local space rotation
+    parentMatrixWorld.fromArray(poses, parentIndex * 16).invert()
+    matrixWorld.fromArray(poses, i * 16)
+    localMatrix.multiplyMatrices(matrixWorld, parentMatrixWorld)
+
     quat.setFromRotationMatrix(localMatrix)
 
-    const boneRotationIndex = Object.keys(XRJointAvatarBoneMap).indexOf(joint)
+    const boneIndex = Object.keys(XRJointAvatarBoneMap).indexOf(joint)
 
-    quat.toArray(rotations, boneRotationIndex * 4)
+    quat.toArray(rotations, boneIndex * 4)
   }
 }
 
