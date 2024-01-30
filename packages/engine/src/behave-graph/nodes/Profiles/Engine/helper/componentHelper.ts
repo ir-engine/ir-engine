@@ -36,9 +36,9 @@ import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { uniqueId } from 'lodash'
 import { useEffect } from 'react'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { AvatarAnimationComponent } from '../../../../../avatar/components/AvatarAnimationComponent'
 import { PostProcessingComponent } from '../../../../../scene/components/PostProcessingComponent'
-import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 import { EnginetoNodetype, NodetoEnginetype, getSocketType } from './commonHelper'
 
 const skipComponents = [

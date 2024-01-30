@@ -27,8 +27,8 @@ import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { RenderInfoState } from '@etherealengine/engine/src/renderer/RenderInfoSystem'
 import { getMutableState } from '@etherealengine/hyperflux'
+import { RenderInfoState } from '@etherealengine/spatial/src/renderer/RenderInfoSystem'
 
 import Stats from './stats'
 import styles from './styles.module.scss'

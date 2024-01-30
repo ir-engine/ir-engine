@@ -42,9 +42,9 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { AvatarID, avatarPath } from '@etherealengine/common/src/schema.type.module'
-import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { AvatarState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { LocalAvatarState } from '@etherealengine/engine/src/avatar/state/AvatarState'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { debounce } from 'lodash'
 import { LoadingCircle } from '../../../../components/LoadingCircle'
 import { UserMenus } from '../../../UserUISystem'
@@ -60,7 +60,7 @@ const AvatarMenu = () => {
   const userId = authState.user?.id?.value
   const userAvatarId = useHookstate(getMutableState(AvatarState)[Engine.instance.userID].avatarID as AvatarID)
   const avatarLoading = useHookstate(false)
-  const isUserReady = useHookstate(getMutableState(EngineState).userReady)
+  const isUserReady = useHookstate(getMutableState(LocalAvatarState).avatarReady)
 
   const page = useHookstate(0)
   const selectedAvatarId = useHookstate('' as AvatarID)

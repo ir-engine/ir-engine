@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { defineAction, defineState, getMutableState, none } from '@etherealengine/hyperflux'
+import { matchesEntityUUID } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
 import matches from 'ts-matches'
-import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
-import { NetworkTopics } from '../../networking/classes/Network'
 
 export class MountPointActions {
   static mountInteraction = defineAction({

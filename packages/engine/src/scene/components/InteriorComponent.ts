@@ -27,8 +27,8 @@ import { Vector2 } from 'three'
 
 import { defineComponent, getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { ComponentUpdateFunction } from '../../common/constants/PrefabFunctionType'
-import { addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { ComponentUpdateFunction } from '@etherealengine/spatial/src/common/constants/PrefabFunctionType'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { Interior } from '../classes/Interior'
 import { addError, removeError } from '../functions/ErrorFunctions'
 

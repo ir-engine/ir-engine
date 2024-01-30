@@ -52,8 +52,16 @@ import {
 } from '@etherealengine/common/src/schema.type.module'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { AuthTask } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
+import { State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import {
+  Action,
+  Topic,
+  addOutgoingTopicIfNecessary,
+  defineActionQueue,
+  removeActionQueue
+} from '@etherealengine/hyperflux/functions/ActionFunctions'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import {
   MediaStreamAppData,
   NetworkConnectionParams,
@@ -64,38 +72,30 @@ import {
   screenshareVideoDataChannelType,
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
-} from '@etherealengine/engine/src/networking/NetworkState'
-import { NetworkTopics, createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
-import { PUBLIC_STUN_SERVERS } from '@etherealengine/engine/src/networking/constants/STUNServers'
+} from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkTopics, createNetwork } from '@etherealengine/spatial/src/networking/classes/Network'
+import { PUBLIC_STUN_SERVERS } from '@etherealengine/spatial/src/networking/constants/STUNServers'
 import {
   CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
   CAM_VIDEO_SIMULCAST_ENCODINGS,
   SCREEN_SHARE_SIMULCAST_ENCODINGS
-} from '@etherealengine/engine/src/networking/constants/VideoConstants'
-import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
+} from '@etherealengine/spatial/src/networking/constants/VideoConstants'
+import { NetworkPeerFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkPeerFunctions'
 import {
   MediasoupDataProducerActions,
   MediasoupDataProducerConsumerState
-} from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
+} from '@etherealengine/spatial/src/networking/systems/MediasoupDataProducerConsumerState'
 import {
   MediaProducerActions,
   MediasoupMediaConsumerActions,
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
-} from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
+} from '@etherealengine/spatial/src/networking/systems/MediasoupMediaProducerConsumerState'
 import {
   MediasoupTransportActions,
   MediasoupTransportObjectsState,
   MediasoupTransportState
-} from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
-import { State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
-import {
-  Action,
-  Topic,
-  addOutgoingTopicIfNecessary,
-  defineActionQueue,
-  removeActionQueue
-} from '@etherealengine/hyperflux/functions/ActionFunctions'
+} from '@etherealengine/spatial/src/networking/systems/MediasoupTransportState'
 import { MathUtils } from 'three'
 import { LocationInstanceState } from '../common/services/LocationInstanceConnectionService'
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
@@ -109,13 +109,13 @@ import { AuthState } from '../user/services/AuthService'
 import { MediaStreamState, MediaStreamService as _MediaStreamService } from './MediaStreams'
 import { clearPeerMediaChannels } from './PeerMediaChannelState'
 
-import { NetworkActionFunctions } from '@etherealengine/engine/src/networking/functions/NetworkActionFunctions'
-import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
+import { NetworkActionFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkActionFunctions'
+import { DataChannelRegistryState } from '@etherealengine/spatial/src/networking/systems/DataChannelRegistry'
 import { encode } from 'msgpackr'
 
 import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { CameraActions } from '@etherealengine/engine/src/camera/CameraState'
+import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
 

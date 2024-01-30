@@ -28,7 +28,7 @@ import fs from 'fs'
 import path from 'path/posix'
 
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { createEngine } from '@etherealengine/engine/src/initializeEngine'
+import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { copyRecursiveSync, getIncrementalName } from './FileUtil'
 import { projectsRootFolder } from './file-browser/file-browser.class'
 import LocalStorage from './storageprovider/local.storage'

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { ComponentUpdateFunction } from '../../../common/constants/PrefabFunctionType'
+import { ComponentUpdateFunction } from '@etherealengine/spatial/src/common/constants/PrefabFunctionType'
 import { OceanComponent } from '../../components/OceanComponent'
 import { addError, removeError } from '../ErrorFunctions'
 

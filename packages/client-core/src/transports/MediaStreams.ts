@@ -24,11 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import multiLogger from '@etherealengine/common/src/logger'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 import {
   localAudioConstraints,
   localVideoConstraints
-} from '@etherealengine/engine/src/networking/constants/VideoConstants'
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+} from '@etherealengine/spatial/src/networking/constants/VideoConstants'
 
 import { ProducerExtension } from './SocketWebRTCClientFunctions'
 

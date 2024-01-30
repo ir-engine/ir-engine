@@ -31,7 +31,7 @@ import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { useGet, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import styles from '../../styles/admin.module.scss'
 
 const Benchmarking = () => {
