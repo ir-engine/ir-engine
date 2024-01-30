@@ -30,7 +30,7 @@ import LoadingView from '../../../common/components/LoadingView'
 import Card from './CardNumber'
 
 import { analyticsPath } from '@etherealengine/common/src/schema.type.module'
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
 export type AnalyticsQueryTypes =
   | 'activeParties'

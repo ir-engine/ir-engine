@@ -24,30 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import {
-  defineComponent,
-  getComponent,
-  getOptionalComponent,
-  useComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineComponent, getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
-import { useEffect } from 'react'
-import { Box3, SkinnedMesh, Vector3 } from 'three'
-import { matches } from '../../common/functions/MatchesUtils'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { ModelComponent } from '../../scene/components/ModelComponent'
-import { SkinnedMeshComponent } from './SkinnedMeshComponent'
+import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { NetworkObjectComponent } from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
 
-const size = new Vector3()
 export const AvatarComponent = defineComponent({
   name: 'AvatarComponent',
 
   onInit: (entity) => {
     return {
-      avatarHeight: 0,
-      avatarHalfHeight: 0,
+      /** The total height of the avatar in a t-pose, must always be non zero and positive for the capsule collider */
+      avatarHeight: 1.8,
       /** The length of the torso in a t-pose, from the hip joint to the head joint */
       torsoLength: 0,
       /** The length of the upper leg in a t-pose, from the hip joint to the knee joint */
@@ -65,17 +53,13 @@ export const AvatarComponent = defineComponent({
       /** The angle of the foot in a t-pose */
       footAngle: 0,
       /** The height of the eyes in a t-pose */
-      eyeHeight: 0,
-
-      /** @deprecated */
-      skinnedMeshes: [] as SkinnedMesh[]
+      eyeHeight: 0
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
     if (matches.number.test(json.avatarHeight)) component.avatarHeight.set(json.avatarHeight)
-    if (matches.number.test(json.avatarHalfHeight)) component.avatarHalfHeight.set(json.avatarHalfHeight)
     if (matches.number.test(json.torsoLength)) component.torsoLength.set(json.torsoLength)
     if (matches.number.test(json.upperLegLength)) component.upperLegLength.set(json.upperLegLength)
     if (matches.number.test(json.lowerLegLength)) component.lowerLegLength.set(json.lowerLegLength)
@@ -83,36 +67,6 @@ export const AvatarComponent = defineComponent({
     if (matches.number.test(json.hipsHeight)) component.hipsHeight.set(json.hipsHeight)
     if (matches.number.test(json.footGap)) component.footGap.set(json.footGap)
     if (matches.number.test(json.eyeHeight)) component.eyeHeight.set(json.eyeHeight)
-  },
-
-  reactor: () => {
-    const entity = useEntityContext()
-    const avatarComponent = useComponent(entity, AvatarComponent)
-    const modelComponent = useComponent(entity, ModelComponent)
-    const entityTreeComponent = useComponent(entity, EntityTreeComponent)
-
-    useEffect(() => {
-      if (!modelComponent.asset.value) return
-      const scene = modelComponent.asset.value.scene
-      if (!scene) return
-      const box = new Box3()
-      box.expandByObject(scene).getSize(size)
-      avatarComponent.avatarHeight.set(size.y)
-      avatarComponent.avatarHalfHeight.set(size.y * 0.5)
-    }, [modelComponent.asset])
-
-    useEffect(() => {
-      const children = entityTreeComponent.children.value
-      if (!children.length) return
-      const skinnedMeshes = [] as SkinnedMesh[]
-      for (const child of children) {
-        const skinnedMesh = getOptionalComponent(child, SkinnedMeshComponent)
-        if (skinnedMesh) skinnedMeshes.push(skinnedMesh)
-      }
-      avatarComponent.skinnedMeshes.set(skinnedMeshes)
-    }, [entityTreeComponent.children])
-
-    return null
   },
 
   /**

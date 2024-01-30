@@ -28,8 +28,8 @@ import { Matrix4 } from 'three'
 import { getComponent, getOptionalComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
-import { GroupComponent } from '../components/GroupComponent'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 export const reparentObject3D = (node: Entity, parent: Entity, before?: Entity): void => {
   const _node = getComponent(node, EntityTreeComponent)

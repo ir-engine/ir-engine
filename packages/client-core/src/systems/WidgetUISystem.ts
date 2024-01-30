@@ -32,24 +32,6 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { V_001, V_010 } from '@etherealengine/engine/src/common/constants/MathConstants'
-import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
-import { XRStandardGamepadButton } from '@etherealengine/engine/src/input/state/ButtonState'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { VisibleComponent, setVisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import {
-  ComputedTransformComponent,
-  setComputedTransformComponent
-} from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { ReferenceSpace, XRState, isMobileXRHeadset } from '@etherealengine/engine/src/xr/XRState'
-import {
-  RegisteredWidgets,
-  WidgetAppActions,
-  WidgetAppService,
-  WidgetAppState
-} from '@etherealengine/engine/src/xrui/WidgetAppService'
-import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
 import {
   defineActionQueue,
   defineState,
@@ -58,14 +40,32 @@ import {
   getState,
   useHookstate
 } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { V_001, V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
+import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import {
+  ComputedTransformComponent,
+  setComputedTransformComponent
+} from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { ReferenceSpace, XRState, isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
+import {
+  RegisteredWidgets,
+  WidgetAppActions,
+  WidgetAppService,
+  WidgetAppState
+} from '@etherealengine/spatial/src/xrui/WidgetAppService'
+import { ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
 
 import { createAnchorWidget } from './createAnchorWidget'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
 // import { createMediaWidget } from './createMediaWidget'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
-import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
-import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
 
 const widgetLeftMenuGripOffset = new Vector3(0.08, 0, -0.05)

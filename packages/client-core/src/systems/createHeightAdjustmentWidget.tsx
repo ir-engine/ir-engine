@@ -24,13 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { setTrackingSpace } from '@etherealengine/engine/src/xr/XRScaleAdjustmentFunctions'
-import { XRState } from '@etherealengine/engine/src/xr/XRState'
-import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
-import { WidgetAppActions } from '@etherealengine/engine/src/xrui/WidgetAppService'
-import { Widget, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction } from '@etherealengine/hyperflux'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
+import { WidgetAppActions } from '@etherealengine/spatial/src/xrui/WidgetAppService'
+import { Widget, Widgets } from '@etherealengine/spatial/src/xrui/Widgets'
+import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 
 export function createHeightAdjustmentWidget() {
   const ui = createXRUI(() => null)
@@ -42,9 +41,7 @@ export function createHeightAdjustmentWidget() {
     icon: 'Accessibility',
     onOpen: () => {
       dispatchAction(WidgetAppActions.showWidget({ id, shown: false }))
-      const xrFrame = getState(XRState).xrFrame
-      if (!xrFrame) return
-      setTrackingSpace()
+      XRState.setTrackingSpace()
     }
   }
 

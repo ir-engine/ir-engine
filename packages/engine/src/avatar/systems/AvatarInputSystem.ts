@@ -41,22 +41,22 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { CameraComponent } from '../../camera/components/CameraComponent'
-import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
-import { V_000, V_010 } from '../../common/constants/MathConstants'
-import { InputComponent } from '../../input/components/InputComponent'
-import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { StandardGamepadButton } from '../../input/state/ButtonState'
-import { InputState } from '../../input/state/InputState'
-import { ClientInputSystem } from '../../input/systems/ClientInputSystem'
-import { Physics, RaycastArgs } from '../../physics/classes/Physics'
-import { RigidBodyFixedTagComponent } from '../../physics/components/RigidBodyComponent'
-import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
-import { PhysicsState } from '../../physics/state/PhysicsState'
-import { SceneQueryType } from '../../physics/types/PhysicsTypes'
-import { RendererState } from '../../renderer/RendererState'
-import { XRControlsState, XRState } from '../../xr/XRState'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
+import { V_000, V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { StandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
+import { ClientInputSystem } from '@etherealengine/spatial/src/input/systems/ClientInputSystem'
+import { Physics, RaycastArgs } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { RigidBodyFixedTagComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
+import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
+import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { autopilotSetPosition } from '.././functions/autopilotFunctions'
@@ -208,6 +208,7 @@ const execute = () => {
   const { deltaSeconds } = getState(ECSState)
   setIkFootTarget(localClientEntity, deltaSeconds)
 
+  const inputState = getState(InputState)
   const avatarInputSettings = getState(AvatarInputSettingsState)
 
   const controller = getComponent(localClientEntity, AvatarControllerComponent)
@@ -227,7 +228,7 @@ const execute = () => {
       if (inputSourceEntity) {
         const inputSourceComponent = getOptionalComponent(inputSourceEntity, InputSourceComponent)
         if (inputSourceComponent?.buttons.PrimaryClick?.touched) {
-          const pointerState = getState(InputState).pointerState
+          const pointerState = inputState.pointerState
           const mouseMoved = pointerState.movement.lengthSq() > 0
           if (mouseMoved) mouseMovedDuringPrimaryClick = true
 
@@ -289,14 +290,14 @@ const execute = () => {
     const controlScheme =
       inputSource.source.handedness === 'none' || !isCameraAttachedToAvatar
         ? AvatarAxesControlScheme.Move
-        : inputSource.source.handedness === avatarInputSettings.preferredHand
+        : inputSource.source.handedness === inputState.preferredHand
         ? avatarInputSettings.rightAxesControlScheme
         : avatarInputSettings.leftAxesControlScheme
 
     AvatarAxesControlSchemeBehavior[controlScheme](
       inputSource.source,
       controller,
-      avatarInputSettings.preferredHand === 'left' ? 'right' : 'left'
+      inputState.preferredHand === 'left' ? 'right' : 'left'
     )
   }
 }

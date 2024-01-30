@@ -28,14 +28,13 @@ import React from 'react'
 // import { VrIcon } from '../../../common/components/Icons/VrIcon'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
-import { RegisteredWidgets, WidgetAppActions, WidgetAppState } from '@etherealengine/engine/src/xrui/WidgetAppService'
-import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { createState, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { RegisteredWidgets, WidgetAppActions, WidgetAppState } from '@etherealengine/spatial/src/xrui/WidgetAppService'
+import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { AvatarInputSettingsState } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
-import { XRState } from '@etherealengine/engine/src/xr/XRState'
-import { setTrackingSpace } from '../../../../../engine/src/xr/XRScaleAdjustmentFunctions'
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../../../transports/MediaStreams'
 import { toggleMicrophonePaused } from '../../../transports/SocketWebRTCClientFunctions'
@@ -79,7 +78,7 @@ const WidgetButton = ({ icon, toggle, label, disabled }: WidgetButtonProps) => {
 }
 
 const HandednessWidgetButton = () => {
-  const preferredHand = useHookstate(getMutableState(AvatarInputSettingsState).preferredHand)
+  const preferredHand = useHookstate(getMutableState(InputState).preferredHand)
   const mouseOver = useHookstate(false)
   return (
     <XRIconButton
@@ -143,7 +142,7 @@ const WidgetButtons = () => {
   }
 
   const handleHeightAdjustment = () => {
-    setTrackingSpace()
+    XRState.setTrackingSpace()
   }
 
   const widgets = Object.entries(widgetMutableState.widgets.value).map(([id, widgetMutableState]) => ({

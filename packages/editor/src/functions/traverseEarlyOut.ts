@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 export default function traverseEarlyOut(entity: Entity, cb: (entity: Entity) => boolean): boolean {
   let stopTravel = cb(entity)

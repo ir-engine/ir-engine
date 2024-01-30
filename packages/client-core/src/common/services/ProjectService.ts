@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 
 import multiLogger from '@etherealengine/common/src/logger'
-import { githubRepoAccessRefreshPath } from '@etherealengine/common/src/schema.type.module'
+import { githubRepoAccessRefreshPath, ProjectUpdateParams } from '@etherealengine/common/src/schema.type.module'
 import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import {
@@ -48,7 +48,6 @@ import {
   ProjectType
 } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { ProjectParams } from '@etherealengine/server-core/src/projects/project/project.class'
 import { Paginated } from '@feathersjs/feathers'
 import { API } from '../../API'
 import { NotificationService } from './NotificationService'
@@ -95,7 +94,7 @@ export const ProjectService = {
   },
 
   // restricted to admin scope
-  createProject: async (name: string, params?: ProjectParams) => {
+  createProject: async (name: string, params?: ProjectUpdateParams) => {
     const result = await API.instance.client.service(projectPath).create({ name }, params)
     logger.info({ result }, 'Create project result')
     await ProjectService.fetchProjects()
@@ -119,7 +118,7 @@ export const ProjectService = {
   },
 
   // restricted to admin scope
-  removeProject: async (id: string, params?: ProjectParams) => {
+  removeProject: async (id: string, params?: ProjectUpdateParams) => {
     const result = await API.instance.client.service(projectPath).remove(id, params)
     logger.info({ result }, 'Remove project result')
     await ProjectService.fetchProjects()

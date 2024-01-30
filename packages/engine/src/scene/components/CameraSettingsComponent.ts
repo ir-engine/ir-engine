@@ -29,7 +29,7 @@ import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { CameraSettingsState } from '../../camera/CameraSceneMetadata'
+import { CameraSettingsState } from '@etherealengine/spatial/src/camera/CameraSceneMetadata'
 
 export const CameraSettingsComponent = defineComponent({
   name: 'CameraSettingsComponent',

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { BufferGeometry, Mesh, Scene } from 'three'
 
-import { MaterialComponentType } from '../../renderer/materials/components/MaterialComponent'
+import { MaterialComponentType } from '../../scene/materials/components/MaterialComponent'
 import { GLTFExporterOptions } from '../exporters/gltf/GLTFExporter'
 import createGLTFExporter from './createGLTFExporter'
 

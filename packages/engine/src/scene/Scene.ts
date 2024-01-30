@@ -52,12 +52,12 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { EngineState } from '@etherealengine/engine/src/EngineState'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
 import matches, { Validator } from 'ts-matches'
-import { NameComponent } from './components/NameComponent'
 import { SourceComponent } from './components/SourceComponent'
 import { serializeEntity } from './functions/serializeWorld'
 
@@ -83,7 +83,8 @@ export const SceneState = defineState({
     /** @todo replace activeScene with proper multi-scene support */
     activeScene: null as null | SceneID,
     background: null as null | Color | Texture,
-    environment: null as null | Texture
+    environment: null as null | Texture,
+    sceneModified: false
   }),
 
   getCurrentScene: () => {
@@ -319,7 +320,7 @@ const execute = () => {
     const { data, selectedEntities } = action
     state.snapshots.set([...state.snapshots.get(NO_PROXY).slice(0, state.index.value + 1), { data, selectedEntities }])
     state.index.set(state.index.value + 1)
-    // getMutableState(EditorState).sceneModified.set(true)
+    getMutableState(SceneState).sceneModified.set(true)
     SceneState.applyCurrentSnapshot(action.sceneID)
   }
 }

@@ -31,7 +31,7 @@ import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 
 import { routePath } from '@etherealengine/common/src/schema.type.module'
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import TableComponent from '../../common/Table'
 import { routeColumns } from '../../common/variables/route'
 import styles from '../../styles/admin.module.scss'

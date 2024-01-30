@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { matches } from '../../common/functions/MatchesUtils'
+import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 
 export const ShadowComponent = defineComponent({
   name: 'ShadowComponent',

@@ -27,8 +27,8 @@ import React, { useCallback, useEffect } from 'react'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 
 import { FullscreenContext } from '@etherealengine/client-core/src/components/useFullscreen'
-import { iOS } from '@etherealengine/engine/src/common/functions/isMobile'
 import { useHookstate } from '@etherealengine/hyperflux'
+import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
 
 type Props = { children: JSX.Element | JSX.Element[] }
 

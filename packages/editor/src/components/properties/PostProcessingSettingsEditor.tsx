@@ -30,7 +30,7 @@ import { Color } from 'three'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
-import { Effects } from '@etherealengine/engine/src/scene/constants/PostProcessing'
+import { Effects } from '@etherealengine/spatial/src/renderer/effects/PostProcessing'
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'

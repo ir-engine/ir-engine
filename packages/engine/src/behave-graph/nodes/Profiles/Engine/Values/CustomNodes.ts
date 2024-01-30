@@ -40,6 +40,13 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
+import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
+import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { TweenComponent } from '@etherealengine/spatial/src/transform/components/TweenComponent'
+import { endXRSession, requestXRSession } from '@etherealengine/spatial/src/xr/XRSessionFunctions'
+import { ContentFitType } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
 import { Tween } from '@tweenjs/tween.js'
 import {
   AdditiveAnimationBlendMode,
@@ -57,16 +64,9 @@ import {
 import { PositionalAudioComponent } from '../../../../../audio/components/PositionalAudioComponent'
 import { AnimationState } from '../../../../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../../../../avatar/components/LoopAnimationComponent'
-import { CameraActions } from '../../../../../camera/CameraState'
-import { FollowCameraComponent } from '../../../../../camera/components/FollowCameraComponent'
-import { GroupComponent } from '../../../../../scene/components/GroupComponent'
 import { MediaComponent } from '../../../../../scene/components/MediaComponent'
 import { VideoComponent } from '../../../../../scene/components/VideoComponent'
 import { PlayMode } from '../../../../../scene/constants/PlayMode'
-import iterateObject3D from '../../../../../scene/util/iterateObject3D'
-import { TweenComponent } from '../../../../../transform/components/TweenComponent'
-import { endXRSession, requestXRSession } from '../../../../../xr/XRSessionFunctions'
-import { ContentFitType } from '../../../../../xrui/functions/ObjectFitFunctions'
 import { addMediaComponent } from '../helper/assetHelper'
 
 export const playVideo = makeFlowNodeDefinition({
@@ -387,16 +387,14 @@ export const fadeCamera = makeFlowNodeDefinition({
   label: 'Camera fade',
   in: {
     flow: 'flow',
-    toBlack: 'boolean',
-    graphicTexture: 'string'
+    toBlack: 'boolean'
   },
   out: { flow: 'flow' },
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
     dispatchAction(
       CameraActions.fadeToBlack({
-        in: read('toBlack'),
-        graphicTexture: read('graphicTexture')
+        in: read('toBlack')
       })
     )
     commit('flow')

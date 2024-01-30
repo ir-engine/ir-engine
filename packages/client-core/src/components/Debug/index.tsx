@@ -31,8 +31,8 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AvatarControllerComponent } from '@etherealengine/engine/src/avatar/components/AvatarControllerComponent'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
 
-import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { defineState, getMutableState, syncStateWithLocalStorage, useHookstate } from '@etherealengine/hyperflux'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
