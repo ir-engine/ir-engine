@@ -156,18 +156,14 @@ export const configureEffectComposer = (
       useDepthDownsamplingPass = true
       composer[key] = eff
       effects.push(eff)
-    } else if (key === Effects.SSREffect) {
-      const eff = new EffectClass(scene, camera, velocityDepthNormalPass, effect)
+    } else if (key === Effects.SSREffect || key === Effects.SSGIEffect) {
+      // SSR is just a mode of SSGI, and can't both be run at the same time
+      const eff = new EffectClass(composer, scene, camera, { ...effects, velocityDepthNormalPass })
       useVelocityDepthNormalPass = true
       composer[key] = eff
       effects.push(eff)
     } else if (key === Effects.DepthOfFieldEffect) {
       const eff = new EffectClass(camera, effect)
-      composer[key] = eff
-      effects.push(eff)
-    } else if (key === Effects.SSGIEffect) {
-      const eff = new EffectClass(scene, camera, velocityDepthNormalPass, effect)
-      useVelocityDepthNormalPass = true
       composer[key] = eff
       effects.push(eff)
     } else if (key === Effects.TRAAEffect) {
