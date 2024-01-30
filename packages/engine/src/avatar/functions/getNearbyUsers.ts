@@ -27,9 +27,9 @@ import { UserID } from '@etherealengine/common/src/schema.type.module'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { NetworkObjectComponent } from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 
 type NearbyUser = { id: UserID; distance: number }
 

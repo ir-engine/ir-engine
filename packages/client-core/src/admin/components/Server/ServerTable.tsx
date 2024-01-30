@@ -37,7 +37,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { ServerPodInfoType, podsPath } from '@etherealengine/common/src/schema.type.module'
-import { useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import TableComponent from '../../common/Table'
 import { ServerColumn, ServerPodData } from '../../common/variables/server'
 import { useServerInfoFind } from '../../services/ServerInfoQuery'

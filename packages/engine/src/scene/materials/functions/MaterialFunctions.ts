@@ -28,7 +28,7 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { MeshComponent } from '../../../renderer/components/MeshComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
 
 const meshQuery = defineQuery([MeshComponent])

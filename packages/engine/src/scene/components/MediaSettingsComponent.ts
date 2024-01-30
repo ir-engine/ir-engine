@@ -29,7 +29,7 @@ import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { MediaSettingsState } from '../../networking/MediaSettingsState'
+import { MediaSettingsState } from '@etherealengine/spatial/src/networking/MediaSettingsState'
 
 export const MediaSettingsComponent = defineComponent({
   name: 'MediaSettingsComponent',

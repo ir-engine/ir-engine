@@ -44,7 +44,7 @@ import {
   SceneUpdate,
   scenePath
 } from '@etherealengine/common/src/schemas/projects/scene.schema'
-import { cleanStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
+import { cleanStorageProviderURLs } from '@etherealengine/spatial/src/common/functions/parseSceneJSON'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'

@@ -28,9 +28,9 @@ import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getMutableState, useState } from '@etherealengine/hyperflux'
+import { SDFSettingsState } from '@etherealengine/spatial/src/renderer/effects/sdf/SDFSettingsState'
+import { configureEffectComposer } from '@etherealengine/spatial/src/renderer/functions/configureEffectComposer'
 import { useEffect } from 'react'
-import { SDFSettingsState } from '../../renderer/effects/sdf/SDFSettingsState'
-import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import { SDFComponent } from '../components/SDFComponent'
 
 const reactor = () => {
