@@ -48,7 +48,8 @@ export const CameraOrbitComponent = defineComponent({
       isOrbiting: false,
       refocus: false,
       cameraOrbitCenter: new Vector3(),
-      inputEntity: UndefinedEntity
+      inputEntity: UndefinedEntity,
+      disabled: false
     }
   },
 
@@ -62,5 +63,6 @@ export const CameraOrbitComponent = defineComponent({
     if (matches.boolean.test(json.isOrbiting)) component.isOrbiting.set(json.isOrbiting)
     if (matches.boolean.test(json.refocus)) component.refocus.set(json.refocus)
     if (matchesEntity.test(json.inputEntity)) component.inputEntity.set(json.inputEntity)
+    if (matches.boolean.test(json.disabled)) component.disabled.set(json.disabled)
   }
 })

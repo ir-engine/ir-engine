@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
-  Engine,
   InputSystemGroup,
   defineQuery,
   defineSystem,
@@ -37,7 +36,6 @@ import {
 } from '@etherealengine/ecs'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
-import { SelectionState } from '../../../../editor/src/services/SelectionServices'
 import { V_010 } from '../../common/constants/MathConstants'
 import { throttle } from '../../common/functions/FunctionHelpers'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
@@ -91,6 +89,8 @@ const execute = () => {
   const cameraOrbitComponent = getMutableComponent(entity, CameraOrbitComponent)
   if (!cameraOrbitComponent.inputEntity.value) cameraOrbitComponent.inputEntity.set(InputSourceQuery()[0])
 
+  if (cameraOrbitComponent.disabled.value) return
+
   const pointerState = getState(InputState).pointerState
   const inputSource = getComponent(cameraOrbitComponent.inputEntity.value, InputSourceComponent)
   const buttons = inputSource.buttons
@@ -100,10 +100,8 @@ const execute = () => {
   const panning = buttons.AuxiliaryClick?.pressed
 
   const editorCamera = getMutableComponent(entity, CameraOrbitComponent)
+
   if (buttons.KeyF?.down) {
-    //only use selection state if it's the main camera
-    if (entity === Engine.instance.cameraEntity)
-      editorCamera.focusedEntities.set(getState(SelectionState).selectedEntities)
     editorCamera.refocus.set(true)
   }
   if (selecting) {

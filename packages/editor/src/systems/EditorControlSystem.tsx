@@ -28,7 +28,9 @@ import { Intersection, Layers, Object3D, Raycaster } from 'three'
 
 import {
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
+  getOptionalMutableComponent,
   hasComponent,
   removeComponent,
   setComponent
@@ -43,7 +45,7 @@ import { TransformMode } from '@etherealengine/engine/src/scene/constants/transf
 import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { PresentationSystemGroup } from '@etherealengine/ecs'
+import { Entity, PresentationSystemGroup } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import {
   ActiveOrbitCamera,
@@ -73,6 +75,12 @@ let primaryClickAccum = 0
 
 const onKeyB = () => {
   getMutableState(ObjectGridSnapState).enabled.set(!getState(ObjectGridSnapState).enabled)
+}
+
+const onKeyF = () => {
+  getMutableComponent(Engine.instance.cameraEntity, CameraOrbitComponent).focusedEntities.set(
+    getState(SelectionState).selectedEntities
+  )
 }
 
 const onKeyQ = () => {
@@ -226,6 +234,7 @@ const execute = () => {
   if (editorHelperState.isFlyModeEnabled) return
 
   if (buttons.KeyB?.down) onKeyB()
+
   if (buttons.KeyQ?.down) onKeyQ()
   if (buttons.KeyE?.down) onKeyE()
   if (buttons.KeyT?.down) onKeyT()
@@ -233,6 +242,7 @@ const execute = () => {
   if (buttons.KeyY?.down) onKeyY()
   if (buttons.KeyC?.down) onKeyC()
   if (buttons.KeyX?.down) onKeyX()
+  if (buttons.KeyF?.down) onKeyF()
   if (buttons.KeyZ?.down) onKeyZ(!!buttons.ControlLeft?.pressed, !!buttons.ShiftLeft?.pressed)
   if (buttons.Equal?.down) onEqual()
   if (buttons.Minus?.down) onMinus()
@@ -240,8 +250,12 @@ const execute = () => {
 
   if (selectionState.selectedEntities) {
     const lastSelection = selectionState.selectedEntities[selectionState.selectedEntities.length - 1]
-    //if (hasComponent(lastSelection.value as Entity, TransformGizmoComponent))
-    //  dragging = getComponent(lastSelection.value as Entity, TransformGizmoComponent).dragging
+    if (hasComponent(lastSelection.value as Entity, TransformGizmoComponent)) {
+      // dont let use the editor camera while dragging
+      const mainOrbitCamera = getOptionalMutableComponent(Engine.instance.cameraEntity, CameraOrbitComponent)
+      if (mainOrbitCamera)
+        mainOrbitCamera.disabled.set(getComponent(lastSelection.value as Entity, TransformGizmoComponent).dragging)
+    }
   }
 
   if (buttons.PrimaryClick?.pressed) {
