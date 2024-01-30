@@ -24,16 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { NetworkObjectSendPeriodicUpdatesTag } from '../networking/components/NetworkObjectComponent'
-import { checkBitflag, readComponentProp } from '../networking/serialization/DataReader'
+import { getState } from '@etherealengine/hyperflux'
+import { NetworkObjectSendPeriodicUpdatesTag } from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
+import { checkBitflag, readComponentProp } from '@etherealengine/spatial/src/networking/serialization/DataReader'
 import {
   ViewCursor,
   readUint8,
   rewindViewCursor,
   spaceUint8,
   writePropIfChanged
-} from '../networking/serialization/ViewCursor'
+} from '@etherealengine/spatial/src/networking/serialization/ViewCursor'
 import { AvatarIKTargetComponent } from './components/AvatarIKComponents'
 
 export const readBlendWeight = (v: ViewCursor, entity: Entity) => {
@@ -48,7 +50,9 @@ export const writeBlendWeight = (v: ViewCursor, entity: Entity) => {
   let changeMask = 0
   let b = 0
 
-  const ignoreHasChanged = hasComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
+  const ignoreHasChanged =
+    hasComponent(entity, NetworkObjectSendPeriodicUpdatesTag) &&
+    getState(ECSState).simulationTime % getState(ECSState).periodicUpdateFrequency === 0
 
   changeMask |= writePropIfChanged(v, AvatarIKTargetComponent.blendWeight, entity, ignoreHasChanged)
     ? 1 << b++

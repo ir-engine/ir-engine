@@ -36,9 +36,9 @@ import { ProjectService, ProjectState } from '@etherealengine/client-core/src/co
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 
 import Component from './index'
 

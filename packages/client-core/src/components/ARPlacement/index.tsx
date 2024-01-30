@@ -27,8 +27,8 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { XRState, isMobileXRHeadset } from '@etherealengine/engine/src/xr/XRState'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { XRState, isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'

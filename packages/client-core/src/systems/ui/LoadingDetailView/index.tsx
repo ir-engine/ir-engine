@@ -27,8 +27,8 @@ import { createState, useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { getMutableState } from '@etherealengine/hyperflux'
+import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import ProgressBar from './SimpleProgressBar'
