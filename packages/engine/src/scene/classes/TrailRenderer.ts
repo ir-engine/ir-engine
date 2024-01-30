@@ -39,7 +39,7 @@ import {
   Vector4
 } from 'three'
 
-import LogarithmicDepthBufferMaterialChunk from '../../renderer/constants/LogarithmicDepthBufferMaterialChunk'
+import LogarithmicDepthBufferMaterialChunk from '@etherealengine/spatial/src/renderer/constants/LogarithmicDepthBufferMaterialChunk'
 
 /**
  * @author Mark Kellogg - http://www.github.com/mkkellogg

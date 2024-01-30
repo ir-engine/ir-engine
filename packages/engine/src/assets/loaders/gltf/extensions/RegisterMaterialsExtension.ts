@@ -27,7 +27,7 @@ import { Mesh, Object3D } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
-import iterateObject3D from '../../../../common/functions/iterateObject3D'
+import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
 import { MaterialLibraryState } from '../../../../scene/materials/MaterialLibrary'
 import { SourceType } from '../../../../scene/materials/components/MaterialSource'
 import { registerMaterial } from '../../../../scene/materials/functions/MaterialLibraryFunctions'

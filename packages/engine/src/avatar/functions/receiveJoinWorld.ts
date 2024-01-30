@@ -32,10 +32,10 @@ import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { AvatarID, InviteCode, UserName } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
+import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
 import { ikTargets } from '../../avatar/animation/Util'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { WorldState } from '../../networking/interfaces/WorldState'
 
 export enum AuthError {
   MISSING_ACCESS_TOKEN = 'MISSING_ACCESS_TOKEN',

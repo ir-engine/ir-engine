@@ -31,7 +31,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import {
   compareDistanceToLocalClient,
   DistanceFromLocalClientComponent
-} from '../../transform/components/DistanceComponents'
+} from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { InteractState } from '../systems/InteractiveSystem'
 
 const mat4 = new Matrix4()

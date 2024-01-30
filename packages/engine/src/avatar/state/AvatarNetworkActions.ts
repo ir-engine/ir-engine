@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { AvatarID } from '@etherealengine/common/src/schema.type.module'
 import { defineAction } from '@etherealengine/hyperflux'
+import { matchesEntityUUID } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
+import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
 import matches, { Validator } from 'ts-matches'
-import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
-import { NetworkTopics } from '../../networking/classes/Network'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { matchesIkTarget } from '../animation/Util'
 
 export class AvatarNetworkAction {

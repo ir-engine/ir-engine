@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import { CanvasTexture, Texture } from 'three'
-import createReadableTexture from '../../../../renderer/functions/createReadableTexture'
 import { GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
 

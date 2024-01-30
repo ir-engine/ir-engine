@@ -52,10 +52,10 @@ import {
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
-import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'

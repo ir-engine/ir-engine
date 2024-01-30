@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { RenderInfoState } from '@etherealengine/engine/src/renderer/RenderInfoSystem'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { RenderInfoState } from '@etherealengine/spatial/src/renderer/RenderInfoSystem'
 
 import SsidChartIcon from '@mui/icons-material/SsidChart'
 
