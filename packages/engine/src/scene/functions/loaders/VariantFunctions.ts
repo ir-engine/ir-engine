@@ -5,8 +5,11 @@ import { DistanceFromCameraComponent } from '@etherealengine/engine/src/transfor
 import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { NO_PROXY } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { pathResolver } from '../../../assets/functions/pathResolver'
+import { useBatchGLTF } from '../../../assets/functions/resourceHooks'
 import { addOBCPlugin } from '../../../common/functions/OnBeforeCompilePlugin'
 import { isMobile } from '../../../common/functions/isMobile'
 import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from '../../../renderer/components/GroupComponent'
@@ -89,6 +92,40 @@ export function setMeshVariant(entity: Entity) {
       meshComponent.material = mesh.material
     })
   }
+}
+
+export function useMeshVariant(entities: Entity[]) {
+  const variantUrls = new Array(entities.length).fill('') as string[]
+  const meshComponents = entities.map((entity, index) => {
+    const variantComponent = getComponent(entity, VariantComponent)
+    const meshComponent = getComponent(entity, MeshComponent)
+
+    if (variantComponent.heuristic === 'DEVICE') {
+      const targetDevice = isMobileXRHeadset ? 'XR' : isMobile ? 'MOBILE' : 'DESKTOP'
+      //set model src to mobile variant src
+      const deviceVariant = variantComponent.levels.find((level) => level.metadata['device'] === targetDevice)
+      if (deviceVariant) variantUrls[index] = deviceVariant.src
+    }
+
+    return meshComponent
+  })
+
+  const [models, unload] = useBatchGLTF(variantUrls)
+
+  useEffect(() => {
+    return unload
+  }, [])
+
+  useEffect(() => {
+    const gltfs = models.get(NO_PROXY)
+    gltfs.map((gltf, index) => {
+      if (!gltf) return
+      const mesh = getFirstMesh(gltf.scene)
+      if (!mesh) return
+      meshComponents[index].geometry = mesh.geometry
+      meshComponents[index].material = mesh.material
+    })
+  }, [models])
 }
 
 export function setInstancedMeshVariant(entity: Entity) {

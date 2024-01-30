@@ -107,10 +107,16 @@ function useBatchLoader<T extends AssetType>(
   resourceType: ResourceType,
   entity: Entity = UndefinedEntity,
   params: LoadingArgs = {}
-): [State<T[]>, () => void, State<(ErrorEvent | Error)[]>, State<ProgressEvent<EventTarget>[]>] {
-  const values = useHookstate<T[]>([])
-  const errors = useHookstate<(ErrorEvent | Error)[]>([])
-  const progress = useHookstate<ProgressEvent<EventTarget>[]>([])
+): [
+  State<(T | null)[]>,
+  () => void,
+  State<(ErrorEvent | Error | null)[]>,
+  State<(ProgressEvent<EventTarget> | null)[]>
+] {
+  const urlsState = useHookstate<string[]>(urls)
+  const values = useHookstate<T[]>(new Array(urls.length).fill(null))
+  const errors = useHookstate<(ErrorEvent | Error)[]>(new Array(urls.length).fill(null))
+  const progress = useHookstate<ProgressEvent<EventTarget>[]>(new Array(urls.length).fill(null))
 
   const unload = () => {
     for (const url of urls) ResourceManager.unload(url, entity)
@@ -120,8 +126,14 @@ function useBatchLoader<T extends AssetType>(
     const completedArr = new Array(urls.length).fill(false) as boolean[]
     const controller = createAbortController(urls.toString(), unload)
 
+    for (const url of urlsState.value) {
+      if (!urls.includes(url)) ResourceManager.unload(url, entity)
+    }
+    urlsState.set(urls)
+
     for (let i = 0; i < urls.length; i++) {
       const url = urls[i]
+      if (!url) continue
       ResourceManager.load<T>(
         url,
         resourceType,
@@ -197,7 +209,12 @@ export function useBatchGLTF(
   urls: string[],
   entity?: Entity,
   params?: LoadingArgs
-): [State<GLTF[]>, () => void, State<(ErrorEvent | Error)[]>, State<ProgressEvent<EventTarget>[]>] {
+): [
+  State<(GLTF | null)[]>,
+  () => void,
+  State<(ErrorEvent | Error | null)[]>,
+  State<(ProgressEvent<EventTarget> | null)[]>
+] {
   return useBatchLoader<GLTF>(urls, ResourceType.GLTF, entity, params)
 }
 

@@ -313,17 +313,19 @@ const reactor = () => {
 
     for (let i = 0; i < assets.length; i++) {
       const asset = assets[i]
-      // delete unneeded geometry data to save memory
-      asset.scene.traverse((node) => {
-        delete (node as any).geometry
-        delete (node as any).material
-      })
-      for (let i = 0; i < asset.animations.length; i++) {
-        retargetAnimationClip(asset.animations[i], asset.scene)
+      if (asset) {
+        // delete unneeded geometry data to save memory
+        asset.scene.traverse((node) => {
+          delete (node as any).geometry
+          delete (node as any).material
+        })
+        for (let i = 0; i < asset.animations.length; i++) {
+          retargetAnimationClip(asset.animations[i], asset.scene)
+        }
+        //ensure animations are always placed in the scene
+        asset.scene.animations = asset.animations
+        manager.loadedAnimations[animations[i]].set(asset)
       }
-      //ensure animations are always placed in the scene
-      asset.scene.animations = asset.animations
-      manager.loadedAnimations[animations[i]].set(asset)
     }
 
     return unload
