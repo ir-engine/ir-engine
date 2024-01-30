@@ -28,15 +28,15 @@ import { useTranslation } from 'react-i18next'
 import { Euler, Quaternion, Vector3 } from 'three'
 
 import { API } from '@etherealengine/client-core/src/API'
-import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import {
   PortalComponent,
   PortalEffects,
   PortalPreviewTypes
 } from '@etherealengine/engine/src/scene/components/PortalComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
 

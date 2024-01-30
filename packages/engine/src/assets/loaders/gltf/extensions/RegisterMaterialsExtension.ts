@@ -28,15 +28,15 @@ import { MathUtils, Mesh, Object3D } from 'three'
 import { getState } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
-import { SourceType } from '../../../../renderer/materials/components/MaterialSource'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
+import { MaterialLibraryState } from '../../../../scene/materials/MaterialLibrary'
+import { SourceType } from '../../../../scene/materials/components/MaterialSource'
 import {
   materialIsRegistered,
   registerMaterial,
   registerMaterialInstance
-} from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
-import { UUIDComponent } from '../../../../scene/components/UUIDComponent'
-import iterateObject3D from '../../../../scene/util/iterateObject3D'
+} from '../../../../scene/materials/functions/MaterialLibraryFunctions'
 import { GLTF, GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
 

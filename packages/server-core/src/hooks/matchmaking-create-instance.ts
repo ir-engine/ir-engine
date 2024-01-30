@@ -39,10 +39,10 @@ import {
   instancePath,
   InstanceType
 } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { Application } from '../../declarations'
 import { getFreeInstanceserver } from '../networking/instance-provision/instance-provision.class'
 import logger from '../ServerLogger'
-import { toDateTimeSql } from '../util/datetime-sql'
 
 export default (): Hook => {
   return async (context: HookContext<Application>): Promise<HookContext> => {

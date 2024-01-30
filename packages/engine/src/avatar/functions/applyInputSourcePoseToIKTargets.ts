@@ -23,32 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Bone, Euler, Matrix4, Quaternion, Vector3 } from 'three'
+import { Bone, Euler, Quaternion, Vector3 } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRHand, XRLeftHandComponent, XRRightHandComponent } from '../../xr/XRComponents'
-import { ReferenceSpace, XRControlsState, XRState } from '../../xr/XRState'
+import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { Q_Y_180 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { XRHand, XRLeftHandComponent, XRRightHandComponent } from '@etherealengine/spatial/src/xr/XRComponents'
+import { ReferenceSpace, XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { BoneStructure } from '../AvatarBoneMatching'
 import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
-
-// rotate +90 around rig finger's X axis
-// rotate +90 around rig finger's Z axis
-const webxrJointRotation = new Matrix4().makeRotationFromQuaternion(
-  new Quaternion()
-    .setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2)
-    .multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2))
-)
 
 /**
  * Returns the bone name for a given XRHandJoint
@@ -210,15 +203,6 @@ export const getBoneNameFromXRHand = (side: XRHandedness, joint: XRHandJoint, ri
   }
 }
 
-const emptyVec = new Vector3()
-const mat4 = new Matrix4()
-
-const matrixWorld = new Matrix4()
-const matrix = new Matrix4()
-
-const thumbOffsetRadians = -Math.PI / 2
-const offsetMatrix = new Matrix4()
-
 const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
   const rig = getComponent(entity, AvatarRigComponent)
 
@@ -256,19 +240,9 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
 */
 }
 
-const handOffsetRadians = Math.PI / 2.5
-const rightHandOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI / 2, 0))
-const leftHandOffset = new Quaternion().setFromEuler(new Euler(0, -Math.PI / 2, 0))
-
-const footBlendTransitionMultiplier = 0.5
-
 //set offsets so hands align with controllers. Multiplying two quaternions because gimbal lock in euler angles prevents setting the offset in one quaternion
-export const leftControllerOffset = new Quaternion()
-  .setFromEuler(new Euler(0, -Math.PI / 2, 0))
-  .multiply(new Quaternion().setFromEuler(new Euler(Math.PI / 4, 0, 0)))
-export const rightControllerOffset = new Quaternion()
-  .setFromEuler(new Euler(0, Math.PI / 2, 0))
-  .multiply(new Quaternion().setFromEuler(new Euler(Math.PI / 4, 0, 0)))
+export const leftControllerOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI / 2, 0))
+export const rightControllerOffset = new Quaternion().setFromEuler(new Euler(0, -Math.PI / 2, 0))
 
 /**
  * Pulls pose data from input sources into the ECS
@@ -303,7 +277,7 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
     const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
     const ikTransform = getComponent(ikTargetHead, TransformComponent)
     ikTransform.position.copy(cameraTransform.position)
-    ikTransform.rotation.copy(cameraTransform.rotation)
+    ikTransform.rotation.copy(cameraTransform.rotation).multiply(Q_Y_180)
     AvatarIKTargetComponent.blendWeight[ikTargetHead] = 1
     const rigComponent = getComponent(localClientEntity, AvatarRigComponent)
     const avatar = getComponent(localClientEntity, AvatarComponent)
@@ -347,8 +321,9 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
             // .sub(localClientTransform.position)
             // .multiplyScalar(inverseWorldScale)
             // .add(localClientTransform.position)
-            ikTransform.rotation.copy(jointPose.transform.orientation as unknown as Quaternion)
-            ikTransform.rotation.multiply(handedness === 'right' ? rightHandOffset : leftHandOffset)
+            ikTransform.rotation
+              .copy(jointPose.transform.orientation as unknown as Quaternion)
+              .multiply(handedness === 'right' ? rightControllerOffset : leftControllerOffset)
           }
         }
         applyHandPose(inputSourceComponent.source, localClientEntity)

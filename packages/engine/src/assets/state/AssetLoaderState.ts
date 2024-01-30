@@ -29,8 +29,11 @@ import { CORTOLoader } from '../loaders/corto/CORTOLoader'
 
 export const AssetLoaderState = defineState({
   name: 'AssetLoaderState',
-  initial: () => ({
-    gltfLoader: createGLTFLoader(),
-    cortoLoader: null! as CORTOLoader
-  })
+  initial: () => {
+    const gltfLoader = createGLTFLoader()
+    return {
+      gltfLoader,
+      cortoLoader: null! as CORTOLoader
+    }
+  }
 })

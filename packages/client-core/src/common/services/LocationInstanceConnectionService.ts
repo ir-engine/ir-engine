@@ -27,9 +27,9 @@ import { Paginated } from '@feathersjs/feathers'
 import { none, State } from '@hookstate/core'
 import { useEffect } from 'react'
 
-import logger from '@etherealengine/engine/src/common/functions/logger'
-import { NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
+import logger from '@etherealengine/common/src/logger'
 import { defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
+import { NetworkState, updateNetworkID } from '@etherealengine/spatial/src/networking/NetworkState'
 
 import {
   InstanceID,
@@ -40,7 +40,7 @@ import {
   RoomCode,
   SceneID
 } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
 

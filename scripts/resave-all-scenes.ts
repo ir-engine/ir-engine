@@ -25,23 +25,18 @@ Ethereal Engine. All Rights Reserved.
 
 import appRootPath from 'app-root-path'
 import cli from 'cli'
-import { diff } from 'deep-object-diff'
 import fs from 'fs'
 import path from 'path'
 
 import { createDOM } from '@etherealengine/client-core/tests/createDOM'
-import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { delay } from '@etherealengine/engine/src/common/functions/delay'
-import { destroyEngine, Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { ComponentJSONIDMap, ComponentMap } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEngine } from '@etherealengine/engine/src/initializeEngine'
-import { Physics } from '@etherealengine/engine/src/physics/classes/Physics'
-import { PhysicsState } from '@etherealengine/engine/src/physics/state/PhysicsState'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
+import { ComponentJSONIDMap, ComponentMap } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 
 require('fix-esm').register()
 
@@ -130,20 +125,20 @@ const resaveAllProjects = async () => {
     //   }
     // }
 
-    await delay(1)
+    // await delay(1)
 
-    const newScene = serializeWorld(UUIDComponent.getEntityByUUID(sceneJson.root)) as SceneJson
+    // const newScene = serializeWorld(UUIDComponent.getEntityByUUID(sceneJson.root)) as SceneJson
 
-    // log each component diff
-    const changes = JSON.parse(JSON.stringify(diff(sceneJson, newScene))) as SceneJson
-    console.log('changes to', scene)
-    if (changes.entities)
-      for (const entity of Object.values(changes.entities)) {
-        console.log(...Object.values(entity.components).map((val) => JSON.stringify(val, null, 2)))
-      }
+    // // log each component diff
+    // const changes = JSON.parse(JSON.stringify(diff(sceneJson, newScene))) as SceneJson
+    // console.log('changes to', scene)
+    // if (changes.entities)
+    //   for (const entity of Object.values(changes.entities)) {
+    //     console.log(...Object.values(entity.components).map((val) => JSON.stringify(val, null, 2)))
+    //   }
 
-    // save file
-    if (options.write) fs.writeFileSync(scene, JSON.stringify(newScene, null, 2))
+    // // save file
+    // if (options.write) fs.writeFileSync(scene, JSON.stringify(newScene, null, 2))
   }
 
   cli.ok('Done')

@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 
 const namePattern = new RegExp('(.*) \\d+$')
 

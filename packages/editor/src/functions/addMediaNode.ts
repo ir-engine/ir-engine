@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getContentType } from '@etherealengine/common/src/utils/getContentType'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
@@ -33,12 +33,11 @@ import { VideoComponent } from '@etherealengine/engine/src/scene/components/Vide
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 
 import { ComponentJsonType } from '@etherealengine/common/src/schema.type.module'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
-import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
-import { SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
+import { SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
 import {
   getMaterialSource,
   materialIsRegistered,
@@ -46,12 +45,13 @@ import {
   registerMaterialInstance,
   unregisterMaterial,
   unregisterMaterialInstance
-} from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { ObjectLayerComponents } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import iterateObject3D from '@etherealengine/engine/src/scene/util/iterateObject3D'
+} from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
 import { getState } from '@etherealengine/hyperflux'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { Material, MathUtils, Mesh, Raycaster, Vector2 } from 'three'
 import { EditorControlFunctions } from './EditorControlFunctions'
 

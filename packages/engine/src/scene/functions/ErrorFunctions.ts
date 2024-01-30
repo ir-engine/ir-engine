@@ -27,7 +27,6 @@ import { isEmpty } from 'lodash'
 
 import { none } from '@etherealengine/hyperflux'
 
-import { Entity } from '../../ecs/classes/Entity'
 import {
   Component,
   ComponentErrorsType,
@@ -35,7 +34,8 @@ import {
   hasComponent,
   removeComponent,
   setComponent
-} from '../../ecs/functions/ComponentFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { ErrorComponent } from '../components/ErrorComponent'
 
 export const addError = <C extends Component>(

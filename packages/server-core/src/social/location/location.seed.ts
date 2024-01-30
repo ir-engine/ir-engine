@@ -33,7 +33,7 @@ import {
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
-import { getDateTimeSql } from '../../util/datetime-sql'
+import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const locationSeedData = [
   {

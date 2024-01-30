@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { PropsWithChildren, Suspense } from 'react'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
 import { getState } from '@etherealengine/hyperflux'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'

@@ -40,7 +40,7 @@ import {
 } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
 import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { InviteCode, UserID, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
+import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { HookContext } from '../../../declarations'

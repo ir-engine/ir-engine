@@ -29,8 +29,8 @@ Ethereal Engine. All Rights Reserved.
 import { VRM, VRM1Meta, VRMHumanBone, VRMHumanBones, VRMHumanoid, VRMParameters } from '@pixiv/three-vrm'
 import { Bone, Euler, Group, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
+import { Object3DUtils } from '@etherealengine/common/src/utils/Object3DUtils'
 import { GLTF } from '../assets/loaders/gltf/GLTFLoader'
-import { Object3DUtils } from '../common/functions/Object3DUtils'
 
 export type BoneNames =
   | 'Root'
@@ -685,9 +685,7 @@ export default function avatarBoneMatching(asset: VRM | GLTF): VRM | GLTF {
   })
 
   const humanoid = enforceTPose(new VRMHumanoid(bones))
-
   asset.scene.add(humanoid.normalizedHumanBonesRoot)
-
   const scene = asset.scene as any as Group
 
   const vrm = new VRM({
@@ -698,7 +696,6 @@ export default function avatarBoneMatching(asset: VRM | GLTF): VRM | GLTF {
 
   if (!vrm.userData) vrm.userData = {}
   vrm.userData.retargeted = true
-
   humanoid.humanBones.rightHand.node.getWorldPosition(_rightHandPos)
   humanoid.humanBones.rightUpperArm.node.getWorldPosition(_rightUpperArmPos)
   return vrm

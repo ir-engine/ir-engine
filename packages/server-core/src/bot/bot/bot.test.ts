@@ -27,7 +27,7 @@ import assert from 'assert'
 import { v1 } from 'uuid'
 
 import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { BotType, botPath } from '@etherealengine/common/src/schemas/bot/bot.schema'
 import { InstanceType, instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'

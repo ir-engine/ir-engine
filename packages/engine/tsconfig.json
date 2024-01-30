@@ -40,6 +40,7 @@
   "include": [
     "../../__global.d.ts",
     "../server-core/**/*",
+    "../engine/**/*",
     "./**/*.ts",
     "./**/*.tsx"
   ]

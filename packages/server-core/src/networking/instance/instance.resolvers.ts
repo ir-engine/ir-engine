@@ -31,7 +31,7 @@ import { InstanceID, InstanceQuery, InstanceType } from '@etherealengine/common/
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const instanceResolver = resolve<InstanceType, HookContext>({
   location: virtual(async (instance, context) => {

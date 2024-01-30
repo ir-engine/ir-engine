@@ -38,7 +38,7 @@ import {
 } from '@etherealengine/common/src/schemas/social/location-authorized-user.schema'
 import { LocationBanType, locationBanPath } from '@etherealengine/common/src/schemas/social/location-ban.schema'
 import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const locationResolver = resolve<LocationType, HookContext>({
   locationSetting: virtual(async (location, context) => {

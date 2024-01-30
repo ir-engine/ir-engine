@@ -29,7 +29,7 @@ import { resolve, virtual } from '@feathersjs/schema'
 import { BuildStatusQuery, BuildStatusType } from '@etherealengine/common/src/schemas/cluster/build-status.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const buildStatusResolver = resolve<BuildStatusType, HookContext>({
   createdAt: virtual(async (buildStatus) => fromDateTimeSql(buildStatus.createdAt)),
