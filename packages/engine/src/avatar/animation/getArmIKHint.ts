@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 
 export const getArmIKHint = (
   entity: Entity,

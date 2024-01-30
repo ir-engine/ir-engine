@@ -28,13 +28,13 @@ import { useTranslation } from 'react-i18next'
 import { CircleGeometry, Mesh, MeshBasicMaterial } from 'three'
 
 import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { NameComponent } from '@etherealengine/engine/src/common/NameComponent'
-import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
-import { useXRUIState } from '@etherealengine/engine/src/xrui/functions/useXRUIState'
 import { createState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
+import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
+import { useXRUIState } from '@etherealengine/spatial/src/xrui/functions/useXRUIState'
 
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 import { AvatarUIState } from '../../state/AvatarUIState'
 import styleString from './index.scss?inline'
 

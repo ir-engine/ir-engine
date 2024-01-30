@@ -38,7 +38,7 @@ import {
 } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { projectPermissionPath } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
-import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
+import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'

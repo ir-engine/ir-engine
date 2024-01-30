@@ -27,15 +27,8 @@ import { PositionalAudioComponent } from '../audio/components/PositionalAudioCom
 import { LoopAnimationComponent } from '../avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '../interaction/components/GrabbableComponent'
 import { MountPointSystem } from '../interaction/systems/MountPointSystem'
-import { AmbientLightComponent } from '../renderer/components/AmbientLightComponent'
-import { DirectionalLightComponent } from '../renderer/components/DirectionalLightComponent'
-import { HemisphereLightComponent } from '../renderer/components/HemisphereLightComponent'
-import { PointLightComponent } from '../renderer/components/PointLightComponent'
-import { SpotLightComponent } from '../renderer/components/SpotLightComponent'
 import { NoiseOffsetSystem } from '../scene/materials/constants/plugins/NoiseOffsetPlugin'
 import { MaterialLibrarySystem } from '../scene/materials/systems/MaterialLibrarySystem'
-import { TransformComponent } from '../transform/components/TransformComponent'
-import { XRAnchorComponent } from '../xr/XRComponents'
 import { CameraSettingsComponent } from './components/CameraSettingsComponent'
 import { CloudComponent } from './components/CloudComponent'
 import { ColliderComponent } from './components/ColliderComponent'
@@ -86,16 +79,13 @@ export const SceneComponents = [
   PositionalAudioComponent,
   LoopAnimationComponent,
   GrabbableComponent,
-  AmbientLightComponent,
   CameraSettingsComponent,
   CloudComponent,
   ColliderComponent,
-  DirectionalLightComponent,
   EnvMapBakeComponent,
   EnvmapComponent,
   FogSettingsComponent,
   GroundPlaneComponent,
-  HemisphereLightComponent,
   HyperspaceTagComponent,
   ImageComponent,
   InteriorComponent,
@@ -104,7 +94,6 @@ export const SceneComponents = [
   MountPointComponent,
   OceanComponent,
   ParticleSystemComponent,
-  PointLightComponent,
   PostProcessingComponent,
   PrimitiveGeometryComponent,
   RenderSettingsComponent,
@@ -118,14 +107,11 @@ export const SceneComponents = [
   SplineComponent,
   SplineTrackComponent,
   SystemComponent,
-  SpotLightComponent,
   SystemComponent,
   VariantComponent,
   VideoComponent,
   VolumetricComponent,
   WaterComponent,
-  TransformComponent,
-  XRAnchorComponent,
   LinkComponent,
   TextComponent
 ]

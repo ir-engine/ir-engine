@@ -27,8 +27,8 @@ import React from 'react'
 
 import { TouchGamepad } from '@etherealengine/client-core/src/common/components/TouchGamepad'
 import { UserMenu } from '@etherealengine/client-core/src/user/components/UserMenu'
-import { iOS } from '@etherealengine/engine/src/common/functions/isMobile'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
 
 import { LoadingSystemState } from '../../systems/state/LoadingState'
 import { ARPlacement } from '../ARPlacement'

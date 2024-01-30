@@ -51,15 +51,11 @@ import { useWorldNetwork } from '@etherealengine/client-core/src/common/services
 import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { RecordingID, StaticResourceType, recordingPath } from '@etherealengine/common/src/schema.type.module'
-import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
 import {
   MotionCaptureFunctions,
   MotionCaptureResults,
   mocapDataChannelType
 } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { SceneServices, SceneState } from '@etherealengine/engine/src/scene/Scene'
 import {
   defineState,
@@ -68,6 +64,10 @@ import {
   getState,
   syncStateWithLocalStorage
 } from '@etherealengine/hyperflux'
+import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { throttle } from '@etherealengine/spatial/src/common/functions/FunctionHelpers'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
 import Header from '@etherealengine/ui/src/components/tailwind/Header'
 import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'

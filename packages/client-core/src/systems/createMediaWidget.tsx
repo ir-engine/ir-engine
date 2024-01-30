@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
-import { Widget, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
+import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
+import { Widget, Widgets } from '@etherealengine/spatial/src/xrui/Widgets'
 
 import { UserMediaWindowsWidget } from '../components/UserMediaWindows'
 

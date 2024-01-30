@@ -36,18 +36,21 @@ import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { createQueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
-import { MediaSettingsState } from '../../networking/MediaSettingsState'
-import { NetworkState, webcamAudioDataChannelType } from '../../networking/NetworkState'
-import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
+import { MediaSettingsState } from '@etherealengine/spatial/src/networking/MediaSettingsState'
+import { NetworkState, webcamAudioDataChannelType } from '@etherealengine/spatial/src/networking/NetworkState'
+import {
+  NetworkObjectComponent,
+  NetworkObjectOwnedTag
+} from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
 import {
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
-} from '../../networking/systems/MediasoupMediaProducerConsumerState'
+} from '@etherealengine/spatial/src/networking/systems/MediasoupMediaProducerConsumerState'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup } from '../../scene/components/MediaComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AudioState } from '../AudioState'
 import { addPannerNode, removePannerNode, updateAudioPanner } from '../PositionalAudioFunctions'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'

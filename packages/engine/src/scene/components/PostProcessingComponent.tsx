@@ -29,7 +29,7 @@ import { NO_PROXY, NO_PROXY_STEALTH, getMutableState, useHookstate } from '@ethe
 
 import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { EngineRenderer, PostProcessingSettingsState } from '../../renderer/WebGLRendererSystem'
+import { EngineRenderer, PostProcessingSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 
 export const PostProcessingComponent = defineComponent({
   name: 'PostProcessingComponent',

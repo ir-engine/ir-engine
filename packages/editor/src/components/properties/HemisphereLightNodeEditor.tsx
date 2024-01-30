@@ -27,7 +27,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { HemisphereLightComponent } from '@etherealengine/engine/src/renderer/components/HemisphereLightComponent'
+import { HemisphereLightComponent } from '@etherealengine/spatial/src/renderer/components/HemisphereLightComponent'
 
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser'
 
