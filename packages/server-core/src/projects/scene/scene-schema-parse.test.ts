@@ -29,13 +29,13 @@ import _ from 'lodash'
 import config from '@etherealengine/common/src/config'
 
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import {
   cleanStorageProviderURLs,
   parseStorageProviderURLs,
   sceneCorsPathIdentifier,
   sceneRelativePathIdentifier
-} from '@etherealengine/engine/src/common/functions/parseSceneJSON'
-import { createEngine } from '@etherealengine/engine/src/initializeEngine'
+} from '@etherealengine/spatial/src/common/functions/parseSceneJSON'
 import { createDefaultStorageProvider } from '../../media/storageprovider/storageprovider'
 import { StorageProviderInterface } from '../../media/storageprovider/storageprovider.interface'
 

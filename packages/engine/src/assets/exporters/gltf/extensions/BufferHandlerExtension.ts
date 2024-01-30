@@ -31,10 +31,10 @@ import { NO_PROXY, defineAction, dispatchAction, getMutableState } from '@ethere
 
 import config from '@etherealengine/common/src/config'
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
-import iterateObject3D from '../../../../common/functions/iterateObject3D'
 import { AssetLoader } from '../../../classes/AssetLoader'
 import { modelResourcesPath } from '../../../functions/pathResolver'
 import { UploadRequestState } from '../../../state/UploadRequestState'
+import iterateObject3D from '../../@etherealengine/spatial/src/common/functions/iterateObject3D'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 

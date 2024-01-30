@@ -27,7 +27,7 @@ import { Material } from 'three'
 
 import { getMutableState, NO_PROXY, none } from '@etherealengine/hyperflux'
 
-import { addOBCPlugin, removeOBCPlugin } from '../../../common/functions/OnBeforeCompilePlugin'
+import { addOBCPlugin, removeOBCPlugin } from '../@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { MaterialPluginType } from '../components/MaterialPluginComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
 import { addMaterialSource, getSourceItems, hashMaterialSource } from './MaterialLibraryFunctions'

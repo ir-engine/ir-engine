@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 
 import GridOnIcon from '@mui/icons-material/GridOn'
 

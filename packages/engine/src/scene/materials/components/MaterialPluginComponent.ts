@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PluginObjectType } from '../../../common/functions/OnBeforeCompilePlugin'
+import { PluginObjectType } from '../@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { MaterialSource } from './MaterialSource'
 
 export type MaterialPluginType = {

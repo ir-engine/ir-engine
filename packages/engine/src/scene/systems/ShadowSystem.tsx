@@ -56,26 +56,36 @@ import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ec
 import { QueryReactor, defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem, useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { V_001 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import {
+  createPriorityQueue,
+  createSortAndApplyPriorityQueue
+} from '@etherealengine/spatial/src/common/functions/PriorityQueue'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { EngineRenderer, RenderSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
+import {
+  GroupComponent,
+  GroupQueryReactor,
+  addObjectToGroup
+} from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { CSM } from '@etherealengine/spatial/src/renderer/csm/CSM'
+import { CSMHelper } from '@etherealengine/spatial/src/renderer/csm/CSMHelper'
+import {
+  getShadowsEnabled,
+  useShadowsEnabled
+} from '@etherealengine/spatial/src/renderer/functions/RenderSettingsFunction'
+import { compareDistanceToCamera } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { XRLightProbeState } from '@etherealengine/spatial/src/xr/XRLightProbeSystem'
+import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { NameComponent } from '../../common/NameComponent'
-import { V_001 } from '../../common/constants/MathConstants'
-import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../common/functions/PriorityQueue'
-import { RendererState } from '../../renderer/RendererState'
-import { EngineRenderer, RenderSettingsState } from '../../renderer/WebGLRendererSystem'
-import { DirectionalLightComponent } from '../../renderer/components/DirectionalLightComponent'
-import { GroupComponent, GroupQueryReactor, addObjectToGroup } from '../../renderer/components/GroupComponent'
-import { MeshComponent } from '../../renderer/components/MeshComponent'
-import { ObjectLayerComponents } from '../../renderer/components/ObjectLayerComponent'
-import { VisibleComponent } from '../../renderer/components/VisibleComponent'
-import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
-import { CSM } from '../../renderer/csm/CSM'
-import { CSMHelper } from '../../renderer/csm/CSMHelper'
-import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
-import { compareDistanceToCamera } from '../../transform/components/DistanceComponents'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRLightProbeState } from '../../xr/XRLightProbeSystem'
-import { isMobileXRHeadset } from '../../xr/XRState'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { useMeshOrModel } from '../components/ModelComponent'
 import { ShadowComponent } from '../components/ShadowComponent'

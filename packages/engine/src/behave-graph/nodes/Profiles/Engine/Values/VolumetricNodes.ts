@@ -29,7 +29,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { Tween } from '@tweenjs/tween.js'
 import { VolumetricComponent } from '../../../../../scene/components/VolumetricComponent'
-import { TweenComponent } from '../../../../../transform/components/TweenComponent'
+import { TweenComponent } from '../../../@etherealengine/spatial/src/transform/components/TweenComponent'
 
 /**
  * playVolumetric: Play / pause volumetric video

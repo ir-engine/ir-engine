@@ -28,7 +28,7 @@ import { Component, ComponentMap, getComponent, setComponent } from '@etherealen
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { AvatarAnimationComponent } from '../../../../../avatar/components/AvatarAnimationComponent'
 import { PostProcessingComponent } from '../../../../../scene/components/PostProcessingComponent'
-import { TransformComponent } from '../../../../../transform/components/TransformComponent'
+import { TransformComponent } from '../../../@etherealengine/spatial/src/transform/components/TransformComponent'
 import { EnginetoNodetype, NodetoEnginetype, getSocketType } from './commonHelper'
 
 const skipComponents = [

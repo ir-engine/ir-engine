@@ -30,9 +30,9 @@ import {
   hasComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Object3D } from 'three'
-import { NameComponent } from '../../../../common/NameComponent'
 import { SceneObjectComponent } from '../../../../scene/components/SceneObjectComponent'
-import { TransformComponent } from '../../../../transform/components/TransformComponent'
+import { NameComponent } from '../../@etherealengine/spatial/src/common/NameComponent'
+import { TransformComponent } from '../../@etherealengine/spatial/src/transform/components/TransformComponent'
 import { GLTFExporterPlugin } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 

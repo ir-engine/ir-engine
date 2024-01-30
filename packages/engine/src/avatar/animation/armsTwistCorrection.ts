@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Quaternion } from 'three'
 
-import { Q_IDENTITY } from '../../common/constants/MathConstants'
+import { Q_IDENTITY } from '@etherealengine/spatial/src/common/constants/MathConstants'
 
 const quat = new Quaternion()
 const quat2 = new Quaternion()

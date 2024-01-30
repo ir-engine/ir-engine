@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { VisibleComponent } from '@etherealengine/engine/src/renderer/components/VisibleComponent'
-import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
-import { Widget, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
+import { Widget, Widgets } from '@etherealengine/spatial/src/xrui/Widgets'
 
 import { RecordingsWidgetUI } from './ui/RecordingsWidgetUI'
 

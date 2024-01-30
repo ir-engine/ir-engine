@@ -33,10 +33,10 @@ import { ComponentJSONIDMap, ComponentMap } from '@etherealengine/ecs/src/Compon
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
-import { Physics } from '@etherealengine/engine/src/physics/classes/Physics'
-import { PhysicsState } from '@etherealengine/engine/src/physics/state/PhysicsState'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
+import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 
 require('fix-esm').register()
 

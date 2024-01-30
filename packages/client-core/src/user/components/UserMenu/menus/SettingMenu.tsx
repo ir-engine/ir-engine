@@ -42,16 +42,16 @@ import {
   AvatarAxesControlScheme,
   AvatarInputSettingsState
 } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
-import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
-import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
-import { XRState } from '@etherealengine/engine/src/xr/XRState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { UserSettingPatch } from '@etherealengine/common/src/schema.type.module'
-import { InputState } from '@etherealengine/engine/src/input/state/InputState'
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { AdminClientSettingsState } from '../../../../admin/services/Setting/ClientSettingService'
 import { UserMenus } from '../../../UserUISystem'
 import { userHasAccess } from '../../../userHasAccess'
