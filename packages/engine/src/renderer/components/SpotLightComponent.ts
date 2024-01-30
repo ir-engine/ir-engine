@@ -44,12 +44,12 @@ import { EntityTreeComponent } from '@etherealengine/engine/src/transform/compon
 import { NameComponent } from '../../common/NameComponent'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { matches } from '../../common/functions/MatchesUtils'
-import { RendererState } from '../../renderer/RendererState'
-import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
-import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
-import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
+import { useUpdateLight } from '../../scene/functions/useUpdateLight'
 import { isMobileXRHeadset } from '../../xr/XRState'
-import { useUpdateLight } from '../functions/useUpdateLight'
+import { RendererState } from '../RendererState'
+import { ObjectLayers } from '../constants/ObjectLayers'
+import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { setVisibleComponent } from './VisibleComponent'
 
 export const SpotLightComponent = defineComponent({
   name: 'SpotLightComponent',

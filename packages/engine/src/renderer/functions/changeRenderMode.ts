@@ -31,7 +31,6 @@ import { getState } from '@etherealengine/hyperflux'
 import { RendererState } from '../RendererState'
 import { EngineRenderer } from '../WebGLRendererSystem'
 import { RenderModes } from '../constants/RenderModes'
-import { updateShadowMap } from './RenderSettingsFunction'
 
 /**
  * Change render mode of the renderer
@@ -87,6 +86,4 @@ export function changeRenderMode() {
       renderPass.overrideMaterial = new MeshNormalMaterial()
       break
   }
-
-  updateShadowMap()
 }

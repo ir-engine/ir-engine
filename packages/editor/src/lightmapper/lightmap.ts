@@ -29,7 +29,7 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { MeshComponent } from '@etherealengine/engine/src/scene/components/MeshComponent'
+import { MeshComponent } from '@etherealengine/engine/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { runBakingPasses } from './bake'
 import { withLightScene } from './lightScene'

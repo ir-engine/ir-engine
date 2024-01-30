@@ -38,7 +38,7 @@ import {
   ResourceID,
   ResourceTransforms
 } from '../../../assets/classes/ModelTransform'
-import { MeshComponent } from '../../components/MeshComponent'
+import { MeshComponent } from '../../../renderer/components/MeshComponent'
 import { ModelComponent } from '../../components/ModelComponent'
 
 export function getModelSceneID(entity: Entity): SceneID {

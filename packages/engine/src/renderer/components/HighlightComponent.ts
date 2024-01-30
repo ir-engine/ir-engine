@@ -32,9 +32,9 @@ import { defineComponent, getOptionalComponent } from '@etherealengine/ecs/src/C
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
-import { MeshComponent } from '../../scene/components/MeshComponent'
 import { RendererState } from '../RendererState'
 import { EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
+import { MeshComponent } from './MeshComponent'
 
 export const HighlightComponent = defineComponent({
   name: 'HighlightComponent',

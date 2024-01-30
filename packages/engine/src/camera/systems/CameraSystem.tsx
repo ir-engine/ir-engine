@@ -48,9 +48,9 @@ import { createConeOfVectors } from '../../common/functions/MathFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectLayerComponents } from '../../renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
-import { MeshComponent } from '../../scene/components/MeshComponent'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent
