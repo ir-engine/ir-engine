@@ -449,6 +449,33 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   //   blur: false,
   //   xRay: true
   // },
+  [Effects.SSREffect]: {
+    isActive: false,
+    ...defaultSSROptions
+  },
+  [Effects.SSGIEffect]: {
+    isActive: false,
+    distance: 10,
+    thickness: 10,
+    autoThickness: false,
+    maxRoughness: 1,
+    blend: 0.9,
+    denoiseIterations: 1,
+    denoiseKernel: 2,
+    denoiseDiffuse: 10,
+    denoiseSpecular: 10,
+    depthPhi: 2,
+    normalPhi: 50,
+    roughnessPhi: 1,
+    envBlur: 0.5,
+    importanceSampling: true,
+    directLightMultiplier: 1,
+    steps: 20,
+    refineSteps: 5,
+    spp: 1,
+    resolutionScale: 1,
+    missedRays: false
+  },
   [Effects.SSAOEffect]: {
     isActive: false,
     blendFunction: BlendFunction.MULTIPLY,
@@ -479,10 +506,6 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     height: Resolution.AUTO_SIZE,
     kernelSize: KernelSize.SMALL,
     blur: true
-  },
-  [Effects.SSREffect]: {
-    isActive: false,
-    ...defaultSSROptions
   },
   [Effects.DepthOfFieldEffect]: {
     isActive: false,
@@ -538,29 +561,6 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   },
   [Effects.LinearTosRGBEffect]: {
     isActive: false
-  },
-  [Effects.SSGIEffect]: {
-    isActive: false,
-    distance: 10,
-    thickness: 10,
-    autoThickness: false,
-    maxRoughness: 1,
-    blend: 0.9,
-    denoiseIterations: 1,
-    denoiseKernel: 2,
-    denoiseDiffuse: 10,
-    denoiseSpecular: 10,
-    depthPhi: 2,
-    normalPhi: 50,
-    roughnessPhi: 1,
-    envBlur: 0.5,
-    importanceSampling: true,
-    directLightMultiplier: 1,
-    steps: 20,
-    refineSteps: 5,
-    spp: 1,
-    resolutionScale: 1,
-    missedRays: false
   },
   [Effects.TRAAEffect]: {
     isActive: false,
