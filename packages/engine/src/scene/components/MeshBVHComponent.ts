@@ -36,11 +36,11 @@ import { BufferGeometry, InstancedMesh, LineBasicMaterial, Mesh, Object3D, Skinn
 import { MeshBVHVisualizer, acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
+import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '../../renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
-import { MeshComponent } from './MeshComponent'
 import { ModelComponent } from './ModelComponent'
 
 Mesh.prototype.raycast = acceleratedRaycast

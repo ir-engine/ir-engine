@@ -31,15 +31,8 @@ import { getComponent, hasComponent, removeComponent, setComponent } from '@ethe
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { NameComponent } from '@etherealengine/engine/src/common/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
-import { VisibleComponent } from '@etherealengine/engine/src/renderer/components/VisibleComponent'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { SceneTagComponent } from '@etherealengine/engine/src/scene/components/SceneTagComponent'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { loadEmptyScene } from '@etherealengine/engine/tests/util/loadEmptyScene'
-import { getState } from '@etherealengine/hyperflux'
 import {
   EntityTreeComponent,
   destroyEntityTree,
@@ -53,7 +46,6 @@ import {
 describe('EntityTreeComponent', () => {
   beforeEach(() => {
     createEngine()
-    loadEmptyScene()
   })
 
   afterEach(() => {
@@ -69,16 +61,21 @@ describe('EntityTreeComponent', () => {
   })
 
   it('should set given values', () => {
-    const sceneEntity = SceneState.getRootEntity(getState(SceneState).activeScene!)
+    const rootEntity = createEntity()
+
+    setComponent(rootEntity, EntityTreeComponent, {
+      parentEntity: UndefinedEntity,
+      uuid: 'root' as EntityUUID
+    })
 
     const entity = createEntity()
     const testUUID = 'test-uuid' as EntityUUID
-    setComponent(entity, EntityTreeComponent, { parentEntity: sceneEntity, uuid: testUUID })
+    setComponent(entity, EntityTreeComponent, { parentEntity: rootEntity, uuid: testUUID })
 
     const node = getComponent(entity, EntityTreeComponent)
 
     assert.equal(node.children.length, 0)
-    assert.equal(node.parentEntity, sceneEntity)
+    assert.equal(node.parentEntity, rootEntity)
 
     assert.equal(getComponent(entity, UUIDComponent), testUUID)
     assert.equal(UUIDComponent.getEntityByUUID(testUUID), entity)
@@ -89,37 +86,42 @@ describe('EntityTreeComponent', () => {
   })
 
   it('should set child at a given index', () => {
-    const sceneEntity = SceneState.getRootEntity(getState(SceneState).activeScene!)
+    const rootEntity = createEntity()
+
+    setComponent(rootEntity, EntityTreeComponent, {
+      parentEntity: UndefinedEntity,
+      uuid: 'root' as EntityUUID
+    })
 
     setComponent(createEntity(), EntityTreeComponent, {
-      parentEntity: sceneEntity,
+      parentEntity: rootEntity,
       uuid: 'child-0' as EntityUUID
     })
     setComponent(createEntity(), EntityTreeComponent, {
-      parentEntity: sceneEntity,
+      parentEntity: rootEntity,
       uuid: 'child-1' as EntityUUID
     })
     setComponent(createEntity(), EntityTreeComponent, {
-      parentEntity: sceneEntity,
+      parentEntity: rootEntity,
       uuid: 'child-2' as EntityUUID
     })
     setComponent(createEntity(), EntityTreeComponent, {
-      parentEntity: sceneEntity,
+      parentEntity: rootEntity,
       uuid: 'child-3' as EntityUUID
     })
     setComponent(createEntity(), EntityTreeComponent, {
-      parentEntity: sceneEntity,
+      parentEntity: rootEntity,
       uuid: 'child-4' as EntityUUID
     })
 
     const entity = createEntity()
     setComponent(entity, EntityTreeComponent, {
-      parentEntity: sceneEntity,
+      parentEntity: rootEntity,
       childIndex: 2,
       uuid: 'test-uuid' as EntityUUID
     })
 
-    const sceneNode = getComponent(sceneEntity, EntityTreeComponent)
+    const sceneNode = getComponent(rootEntity, EntityTreeComponent)
     assert.equal(sceneNode.children.length, 6)
     assert.equal(sceneNode.children[0], UUIDComponent.getEntityByUUID('child-0' as EntityUUID))
     assert.equal(sceneNode.children[1], UUIDComponent.getEntityByUUID('child-1' as EntityUUID))
@@ -131,17 +133,22 @@ describe('EntityTreeComponent', () => {
   })
 
   it('should remove entity from maps', () => {
-    const sceneEntity = SceneState.getRootEntity(getState(SceneState).activeScene!)
+    const rootEntity = createEntity()
+
+    setComponent(rootEntity, EntityTreeComponent, {
+      parentEntity: UndefinedEntity,
+      uuid: 'root' as EntityUUID
+    })
 
     const entity = createEntity()
-    setComponent(entity, EntityTreeComponent, { parentEntity: sceneEntity, uuid: 'test-uuid' as EntityUUID })
+    setComponent(entity, EntityTreeComponent, { parentEntity: rootEntity, uuid: 'test-uuid' as EntityUUID })
     removeComponent(entity, EntityTreeComponent)
 
     // UUIDComponent should remain
     assert.equal(getComponent(entity, UUIDComponent), 'test-uuid')
     assert.equal(UUIDComponent.getEntityByUUID('test-uuid' as EntityUUID), entity)
 
-    const parentNode = getComponent(sceneEntity, EntityTreeComponent)
+    const parentNode = getComponent(rootEntity, EntityTreeComponent)
     assert.equal(parentNode.children.length, 0)
   })
 })
@@ -151,26 +158,17 @@ describe('EntityTreeFunctions', () => {
 
   beforeEach(() => {
     createEngine()
-    loadEmptyScene()
 
-    root = SceneState.getRootEntity(getState(SceneState).activeScene!)
+    root = createEntity()
+
+    setComponent(root, EntityTreeComponent, {
+      parentEntity: UndefinedEntity,
+      uuid: 'root' as EntityUUID
+    })
   })
 
   afterEach(() => {
     return destroyEngine()
-  })
-
-  describe('initializeEntityTree function', () => {
-    it('will initialize entity tree', () => {
-      const sceneEntity = SceneState.getRootEntity(getState(SceneState).activeScene!)
-      assert(sceneEntity)
-      assert(getComponent(sceneEntity, NameComponent), 'Root')
-      assert(hasComponent(sceneEntity, VisibleComponent))
-      assert(hasComponent(sceneEntity, SceneTagComponent))
-      assert(hasComponent(sceneEntity, TransformComponent))
-      assert(hasComponent(sceneEntity, EntityTreeComponent))
-      assert.equal(getComponent(sceneEntity, EntityTreeComponent).parentEntity, UndefinedEntity)
-    })
   })
 
   describe('addEntityNodeChild function', () => {

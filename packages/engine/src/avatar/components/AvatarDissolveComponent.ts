@@ -47,7 +47,7 @@ import {
 } from 'three'
 import { matches } from '../../common/functions/MatchesUtils'
 import { RendererState } from '../../renderer/RendererState'
-import { MeshComponent } from '../../scene/components/MeshComponent'
+import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { setupObject } from '../../scene/systems/SceneObjectSystem'
 import { SkinnedMeshComponent } from './SkinnedMeshComponent'
 

@@ -35,12 +35,12 @@ import { EntityTreeComponent } from '@etherealengine/engine/src/transform/compon
 import { NameComponent } from '../../common/NameComponent'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { matches } from '../../common/functions/MatchesUtils'
-import { RendererState } from '../../renderer/RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
-import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
-import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
-import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { isMobileXRHeadset } from '../../xr/XRState'
+import { RendererState } from '../RendererState'
+import { ObjectLayers } from '../constants/ObjectLayers'
+import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { setObjectLayers } from './ObjectLayerComponent'
+import { setVisibleComponent } from './VisibleComponent'
 
 export const PointLightComponent = defineComponent({
   name: 'PointLightComponent',

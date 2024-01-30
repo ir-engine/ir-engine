@@ -37,10 +37,10 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
 import { setInstancedMeshVariant, setMeshVariant, setModelVariant } from '../functions/loaders/VariantFunctions'
 import { InstancingComponent } from './InstancingComponent'
-import { MeshComponent } from './MeshComponent'
 import { ModelComponent } from './ModelComponent'
 
 export type VariantLevel = {

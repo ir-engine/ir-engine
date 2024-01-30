@@ -56,7 +56,6 @@ import { XRState } from '../xr/XRState'
 import { RendererState } from './RendererState'
 import WebGL from './THREE.WebGL'
 import { EffectMapType, defaultPostProcessingSchema } from './effects/PostProcessing'
-import { updateShadowMap } from './functions/RenderSettingsFunction'
 import { changeRenderMode } from './functions/changeRenderMode'
 import { configureEffectComposer } from './functions/configureEffectComposer'
 
@@ -325,7 +324,8 @@ const reactor = () => {
   }, [renderSettings.toneMappingExposure])
 
   useEffect(() => {
-    updateShadowMap()
+    EngineRenderer.instance.renderer.shadowMap.type = renderSettings.shadowMapType.value
+    EngineRenderer.instance.renderer.shadowMap.needsUpdate = true
   }, [xrState.supportedSessionModes, renderSettings.shadowMapType, engineRendererSettings.useShadows])
 
   useEffect(() => {

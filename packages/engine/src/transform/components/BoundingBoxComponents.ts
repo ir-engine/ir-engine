@@ -42,10 +42,10 @@ import { NameComponent } from '../../common/NameComponent'
 import { matches } from '../../common/functions/MatchesUtils'
 import { RendererState } from '../../renderer/RendererState'
 import { GroupComponent, addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
-import { MeshComponent } from '../../scene/components/MeshComponent'
 
 export const BoundingBoxComponent = defineComponent({
   name: 'BoundingBoxComponent',

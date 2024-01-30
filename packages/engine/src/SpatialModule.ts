@@ -23,6 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PhysicsSystem } from './systems/PhysicsSystem'
-
-export { PhysicsSystem }
+import './camera/CameraModule'
+import './input/InputModule'
+import './networking/NetworkModule'
+import './physics/PhysicsModule'
+import './renderer/RendererModule'
+import './transform/TransformModule'
+import './xr/XRModule'
+import './xrui/XRUIModule'

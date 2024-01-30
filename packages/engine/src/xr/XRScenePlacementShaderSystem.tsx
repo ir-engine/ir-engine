@@ -24,15 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
-import { Material, Mesh, Object3D } from 'three'
+import { Material, Mesh } from 'three'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { GroupQueryReactor } from '../renderer/components/GroupComponent'
+import { MeshComponent } from '../renderer/components/MeshComponent'
 import { VisibleComponent } from '../renderer/components/VisibleComponent'
-import { SceneObjectComponent } from '../scene/components/SceneObjectComponent'
 import { XRState } from './XRState'
 
 type ScenePlacementMaterialType = {
@@ -44,8 +44,7 @@ type ScenePlacementMaterialType = {
   }
 }
 
-const addShaderToObject = (object: Object3D) => {
-  const obj = object as any as Mesh<any, Material & ScenePlacementMaterialType>
+const addShaderToObject = (obj: Mesh<any, Material & ScenePlacementMaterialType>) => {
   if (obj.material) {
     if (!obj.material.userData) obj.material.userData = {}
     const userData = obj.material.userData
@@ -61,8 +60,7 @@ const addShaderToObject = (object: Object3D) => {
   }
 }
 
-const removeShaderFromObject = (object: Object3D) => {
-  const obj = object as any as Mesh<any, Material & ScenePlacementMaterialType>
+const removeShaderFromObject = (obj: Mesh<any, Material & ScenePlacementMaterialType>) => {
   if (obj.material) {
     const userData = obj.material.userData
     if (userData?.ScenePlacement) {
@@ -99,10 +97,7 @@ function XRScenePlacementReactor({ obj }) {
 
 const reactor = () => {
   return (
-    <GroupQueryReactor
-      GroupChildReactor={XRScenePlacementReactor}
-      Components={[VisibleComponent, SceneObjectComponent]}
-    />
+    <GroupQueryReactor GroupChildReactor={XRScenePlacementReactor} Components={[VisibleComponent, MeshComponent]} />
   )
 }
 
