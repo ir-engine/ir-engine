@@ -31,7 +31,7 @@ import { CameraMode } from '@etherealengine/engine/src/camera/types/CameraMode'
 import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
 
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { MeshComponent } from '@etherealengine/engine/src/scene/components/MeshComponent'
+import { MeshComponent } from '@etherealengine/engine/src/renderer/components/MeshComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { Box3, Vector3 } from 'three'

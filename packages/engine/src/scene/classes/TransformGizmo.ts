@@ -50,7 +50,7 @@ import {
   TorusGeometry,
   Vector3
 } from 'three'
-import { MeshComponent } from '../components/MeshComponent'
+import { MeshComponent } from '../../renderer/components/MeshComponent'
 
 const _raycaster = new Raycaster()
 

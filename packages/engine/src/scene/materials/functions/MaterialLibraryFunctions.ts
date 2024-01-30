@@ -31,7 +31,7 @@ import { getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { stringHash } from '../../../common/functions/MathFunctions'
-import { MeshComponent } from '../../../scene/components/MeshComponent'
+import { MeshComponent } from '../../../renderer/components/MeshComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
 import { MaterialComponentType } from '../components/MaterialComponent'
 import { MaterialPrototypeComponentType } from '../components/MaterialPrototypeComponent'

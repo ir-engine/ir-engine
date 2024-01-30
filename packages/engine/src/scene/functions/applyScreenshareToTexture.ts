@@ -28,7 +28,7 @@ import { BufferGeometry, DoubleSide, Mesh, MeshStandardMaterial, SRGBColorSpace,
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
-import { MeshComponent } from '../components/MeshComponent'
+import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ScreenshareTargetComponent } from '../components/ScreenshareTargetComponent'
 import { fitTexture } from './fitTexture'
 

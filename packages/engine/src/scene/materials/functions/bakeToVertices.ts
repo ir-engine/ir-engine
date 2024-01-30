@@ -29,8 +29,8 @@ import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFun
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { MeshComponent } from '../../../renderer/components/MeshComponent'
 import createReadableTexture from '../../../renderer/functions/createReadableTexture'
-import { MeshComponent } from '../../../scene/components/MeshComponent'
 import { changeMaterialPrototype } from './MaterialLibraryFunctions'
 
 export default async function bakeToVertices<T extends Material>(

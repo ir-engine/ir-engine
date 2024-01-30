@@ -34,11 +34,11 @@ import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ec
 import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { NameComponent } from '../../common/NameComponent'
 import { matches } from '../../common/functions/MatchesUtils'
-import { RendererState } from '../../renderer/RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
-import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
-import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
-import { useUpdateLight } from '../functions/useUpdateLight'
+import { useUpdateLight } from '../../scene/functions/useUpdateLight'
+import { RendererState } from '../RendererState'
+import { ObjectLayers } from '../constants/ObjectLayers'
+import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { setVisibleComponent } from './VisibleComponent'
 
 const material = new LineBasicMaterial()
 const size = 1

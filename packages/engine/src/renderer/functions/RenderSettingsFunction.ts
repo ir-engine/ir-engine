@@ -25,14 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { iOS } from '../../common/functions/isMobile'
 import { RendererState } from '../../renderer/RendererState'
-import { DirectionalLightComponent } from '../../scene/components/DirectionalLightComponent'
 import { isMobileXRHeadset } from '../../xr/XRState'
-import { EngineRenderer, RenderSettingsState } from '../WebGLRendererSystem'
 import { RenderModes } from '../constants/RenderModes'
 
 export const getShadowsEnabled = () => {
@@ -52,26 +48,4 @@ export const useShadowsEnabled = () => {
   const renderMode = useHookstate(rendererState.renderMode).value
   const isEditor = useHookstate(getMutableState(EngineState).isEditor).value
   return !isMobileXRHeadset && !iOS && useShadows && (isEditor ? renderMode === RenderModes.SHADOW : true)
-}
-
-const directionalLightQuery = defineQuery([DirectionalLightComponent])
-
-export const updateShadowMap = () => {
-  const enabled = getShadowsEnabled()
-
-  if (!enabled) return
-
-  const type = getState(RenderSettingsState).shadowMapType
-  EngineRenderer.instance.renderer.shadowMap.type = type
-  EngineRenderer.instance.renderer.shadowMap.needsUpdate = true
-
-  for (const entity of directionalLightQuery()) {
-    const directionalLight = getComponent(entity, DirectionalLightComponent)
-    if (directionalLight.light.shadow) {
-      directionalLight.light.shadow.map?.dispose()
-      directionalLight.light.shadow.map = null as any
-      directionalLight.light.shadow.camera.updateProjectionMatrix()
-      directionalLight.light.shadow.needsUpdate = true
-    }
-  }
 }

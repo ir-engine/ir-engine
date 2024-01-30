@@ -52,7 +52,6 @@ import {
 } from '../../physics/components/RigidBodyComponent'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
-import { ScenePreviewCameraComponent } from '../../scene/components/ScenePreviewCamera'
 import { XRState } from '../../xr/XRState'
 import { TransformSerialization } from '../TransformSerialization'
 import { BoundingBoxComponent, updateBoundingBox } from '../components/BoundingBoxComponents'
@@ -79,8 +78,6 @@ const boundingBoxQuery = defineQuery([BoundingBoxComponent])
 const distanceFromLocalClientQuery = defineQuery([TransformComponent, DistanceFromLocalClientComponent])
 const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCameraComponent])
 const frustumCulledQuery = defineQuery([TransformComponent, FrustumCullCameraComponent])
-
-const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraComponent])
 
 export const computeTransformMatrix = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
@@ -336,17 +333,8 @@ const execute = () => {
     viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
   }
 
-  const scenePreviewCameraDirty = scenePreviewCameraQuery().filter(isDirty)
-
-  for (const entity of scenePreviewCameraDirty) {
-    const camera = getComponent(entity, ScenePreviewCameraComponent).camera
-    camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
-  }
-
   const dirtyBoundingBoxes = boundingBoxQuery().filter(isDirty)
   for (const entity of dirtyBoundingBoxes) updateBoundingBox(entity)
-
-  for (const entity in TransformComponent.dirtyTransforms) TransformComponent.dirtyTransforms[entity] = false
 
   const cameraPosition = getComponent(Engine.instance.cameraEntity, TransformComponent).position
   const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
@@ -405,4 +393,12 @@ export const TransformSystem = defineSystem({
   insert: { after: AnimationSystemGroup },
   execute,
   reactor
+})
+
+export const TransformDirtyCleanupSystem = defineSystem({
+  uuid: 'ee.engine.TransformDirtyCleanupSystem',
+  insert: { after: TransformSystem },
+  execute: () => {
+    for (const entity in TransformComponent.dirtyTransforms) TransformComponent.dirtyTransforms[entity] = false
+  }
 })

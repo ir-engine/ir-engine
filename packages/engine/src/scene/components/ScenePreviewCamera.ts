@@ -28,6 +28,7 @@ import { CameraHelper, PerspectiveCamera } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
+import { useExecute } from '@etherealengine/ecs'
 import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
@@ -40,6 +41,7 @@ import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformDirtyCleanupSystem } from '../../transform/systems/TransformSystem'
 
 export const ScenePreviewCameraComponent = defineComponent({
   name: 'EE_scenePreviewCamera',
@@ -76,6 +78,15 @@ export const ScenePreviewCameraComponent = defineComponent({
         removeObjectFromGroup(entity, camera)
       }
     }, [])
+
+    useExecute(
+      () => {
+        if (!TransformComponent.dirtyTransforms[entity]) return
+        const camera = getComponent(entity, ScenePreviewCameraComponent).camera
+        camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
+      },
+      { before: TransformDirtyCleanupSystem }
+    )
 
     useEffect(() => {
       engineCameraTransform.position.value.copy(previewCameraTransform.position.value)

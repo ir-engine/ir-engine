@@ -23,16 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+/** World Module */
+
 import './avatar/AvatarModule'
-import './camera/CameraModule'
-import './input/InputModule'
 import './interaction/InteractionModule'
 import './interaction/MediaModule'
 import './mocap/MocapModule'
-import './networking/NetworkModule'
-import './physics/PhysicsModule'
-import './renderer/RendererModule'
 import './scene/SceneModule'
-import './transform/TransformModule'
-import './xr/XRModule'
-import './xrui/XRUIModule'
+
+import './SpatialModule'

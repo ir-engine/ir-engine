@@ -59,7 +59,7 @@ import {
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { V_000 } from '../../common/constants/MathConstants'
-import { MeshComponent } from '../../scene/components/MeshComponent'
+import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
