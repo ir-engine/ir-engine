@@ -45,9 +45,9 @@ import {
 } from 'three'
 
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
+import { insertAfterString, insertBeforeString } from '@etherealengine/spatial/src/common/functions/string'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
-import { insertAfterString, insertBeforeString } from '../../common/functions/string'
 import { OceanComponent } from '../components/OceanComponent'
 import { addError, removeError } from '../functions/ErrorFunctions'
 

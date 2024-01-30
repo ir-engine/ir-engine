@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { ComponentUpdateFunction } from '../../../common/constants/PrefabFunctionType'
-import { addObjectToGroup } from '../../../renderer/components/GroupComponent'
+import { ComponentUpdateFunction } from '@etherealengine/spatial/src/common/constants/PrefabFunctionType'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { Clouds } from '../../classes/Clouds'
 import { CloudComponent } from '../../components/CloudComponent'
 

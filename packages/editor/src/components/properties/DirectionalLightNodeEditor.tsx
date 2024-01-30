@@ -27,7 +27,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { DirectionalLightComponent } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
+import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
 
 import BoltIcon from '@mui/icons-material/Bolt'
 

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Color, Vector2 } from 'three'
 
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { Ocean } from '../classes/Ocean'
 import { setCallback } from './CallbackComponent'
 import { UpdatableCallback } from './UpdatableComponent'

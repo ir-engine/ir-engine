@@ -35,7 +35,7 @@ import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import TableComponent from '../../common/Table'
 import { locationColumns } from '../../common/variables/location'
 import styles from '../../styles/admin.module.scss'

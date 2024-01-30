@@ -29,14 +29,14 @@ import { Euler, Quaternion, Vector3 } from 'three'
 
 import { API } from '@etherealengine/client-core/src/API'
 import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { NameComponent } from '@etherealengine/engine/src/common/NameComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import {
   PortalComponent,
   PortalEffects,
   PortalPreviewTypes
 } from '@etherealengine/engine/src/scene/components/PortalComponent'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
 

@@ -28,7 +28,6 @@ import { Texture } from 'three'
 
 import styles from '@etherealengine/editor/src/components/layout/styles.module.scss'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import createReadableTexture from '@etherealengine/engine/src/renderer/functions/createReadableTexture'
 import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
 import { LibraryEntryType } from '@etherealengine/engine/src/scene/materials/constants/LibraryEntry'
 import {
@@ -38,6 +37,7 @@ import {
 } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
 import { removeMaterialPlugin } from '@etherealengine/engine/src/scene/materials/functions/MaterialPluginFunctions'
 import { State, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import MaterialLibraryIcon from '@mui/icons-material/Yard'
 
 import { Box, Divider, Stack } from '@mui/material'

@@ -50,16 +50,16 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { RendererState } from '../../renderer/RendererState'
-import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { EnvMapBakeComponent, applyBoxProjection } from './EnvMapBakeComponent'
-import { MeshComponent } from './MeshComponent'
 
 const tempColor = new Color()
 
