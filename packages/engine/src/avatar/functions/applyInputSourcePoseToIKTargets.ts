@@ -67,8 +67,8 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
 
   xrFrame.fillPoses!(hand.values(), inputSource.gripSpace!, poses)
 
-  const Component = inputSource.handedness === 'right' ? XRRightHandComponent : XRLeftHandComponent
-  const rotations = getComponent(entity, Component).rotations
+  const component = inputSource.handedness === 'right' ? XRRightHandComponent : XRLeftHandComponent
+  const rotations = getComponent(entity, component).rotations
 
   // const wristMatrix = new Matrix4().fromArray(
   //   xrFrame.getPose(inputSource.gripSpace!, ReferenceSpace.origin!)!.transform.matrix
@@ -99,6 +99,9 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
     localMatrix.multiplyMatrices(matrixWorld, parentMatrixWorld)
 
     quat.setFromRotationMatrix(localMatrix)
+    //if(joint === 'thumb-metacarpal') quat.multiply(inputSource.handedness == 'right' ? rightControllerOffset : leftControllerOffset)
+
+    quat.invert()
 
     const boneIndex = Object.keys(XRJointAvatarBoneMap).indexOf(joint)
 
