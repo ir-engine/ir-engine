@@ -141,49 +141,47 @@ export const configureEffectComposer = (
   let useDepthDownsamplingPass = false
 
   for (const key of effectKeys) {
-    const effect = postProcessingEffects[key]
+    const effectOptions = postProcessingEffects[key]
 
-    if (!effect || !effect.isActive) continue
+    if (!effectOptions || !effectOptions.isActive) continue
     const EffectClass = EffectMap[key]
 
     if (!EffectClass) continue
 
     if (key === Effects.SSAOEffect) {
       const eff = new EffectClass(camera, normalPass.texture, {
-        ...effect,
+        ...effectOptions,
         normalDepthBuffer: depthDownsamplingPass.texture
       })
       useDepthDownsamplingPass = true
       composer[key] = eff
       effects.push(eff)
     } else if (key === Effects.SSREffect) {
-      const eff = new EffectClass(scene, camera, velocityDepthNormalPass, effect)
+      const eff = new EffectClass(scene, camera, velocityDepthNormalPass, effectOptions)
       useVelocityDepthNormalPass = true
       composer[key] = eff
       effects.push(eff)
     } else if (key === Effects.DepthOfFieldEffect) {
-      const eff = new EffectClass(camera, effect)
+      const eff = new EffectClass(camera, effectOptions)
       composer[key] = eff
       effects.push(eff)
     } else if (key === Effects.SSGIEffect) {
-      const eff = new EffectClass(scene, camera, velocityDepthNormalPass, effect)
+      const eff = new EffectClass(scene, camera, velocityDepthNormalPass, effectOptions)
       useVelocityDepthNormalPass = true
-      composer[key] = eff
-      effects.push(eff)
     } else if (key === Effects.TRAAEffect) {
       // todo support more than 1 texture
       const textureCount = 1
-      const eff = new EffectClass(scene, camera, velocityDepthNormalPass, textureCount, effect)
+      const eff = new EffectClass(scene, camera, velocityDepthNormalPass, textureCount, effectOptions)
       useVelocityDepthNormalPass = true
       composer[key] = eff
       effects.push(eff)
     } else if (key === Effects.MotionBlurEffect) {
-      const eff = new EffectClass(velocityDepthNormalPass, effect)
+      const eff = new EffectClass(velocityDepthNormalPass, effectOptions)
       useVelocityDepthNormalPass = true
       composer[key] = eff
       effects.push(eff)
     } else {
-      const eff = new EffectClass(effect)
+      const eff = new EffectClass(effectOptions)
       composer[key] = eff
       effects.push(eff)
     }
