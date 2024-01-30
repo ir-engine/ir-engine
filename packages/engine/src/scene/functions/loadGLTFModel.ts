@@ -43,6 +43,7 @@ import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterat
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
 import { enableObjectLayer } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
@@ -195,15 +196,14 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
       get() {
         if (EngineRenderer.instance?.rendering) return []
         if (hasComponent(objEntity, EntityTreeComponent)) {
-          const childEntities = getComponent(objEntity, EntityTreeComponent).children.filter((child) =>
-            hasComponent(child, SceneObjectComponent)
-          )
+          const childEntities = getComponent(objEntity, EntityTreeComponent).children
           const result: Object3D[] = []
           for (const childEntity of childEntities) {
-            if (!hasComponent(childEntity, GroupComponent)) continue
-            const objs = getComponent(childEntity, GroupComponent)
-            if (objs.length === 0) continue
-            result.push(objs[0])
+            if (hasComponent(childEntity, MeshComponent)) {
+              result.push(getComponent(childEntity, MeshComponent))
+            } else if (hasComponent(childEntity, Object3DComponent)) {
+              result.push(getComponent(childEntity, Object3DComponent))
+            }
           }
           return result
         } else {
