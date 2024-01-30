@@ -30,7 +30,6 @@ import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
 import { NO_PROXY } from '@etherealengine/hyperflux'
 import assert from 'assert'
 import { MockXRInputSource, MockXRSpace } from '../../../tests/util/MockXR'
-import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { createEngine } from '../../initializeEngine'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import { ButtonCleanupSystem } from './ButtonCleanupSystem'
@@ -51,7 +50,6 @@ describe('ButtonCleanupSystem', () => {
 
   beforeEach(() => {
     createEngine()
-    loadEmptyScene()
   })
 
   it('test button cleanup system', () => {

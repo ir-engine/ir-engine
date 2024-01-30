@@ -38,8 +38,6 @@ import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
-import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
-import { createEngine } from '../../initializeEngine'
 import { Physics } from '../../physics/classes/Physics'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { NetworkState } from '../NetworkState'
@@ -49,10 +47,12 @@ import { NetworkPeerFunctions } from '../functions/NetworkPeerFunctions'
 import { WorldNetworkAction } from '../functions/WorldNetworkAction'
 
 import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
+import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { act, render } from '@testing-library/react'
 import React from 'react'
 import { NetworkWorldUserStateSystem } from '../NetworkUserState'
 import { EntityNetworkStateSystem } from './EntityNetworkState'
+
 describe('EntityNetworkState', () => {
   beforeEach(async () => {
     createEngine()
@@ -60,7 +60,6 @@ describe('EntityNetworkState', () => {
     await Physics.load()
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
     Engine.instance.store.defaultDispatchDelay = () => 0
-    loadEmptyScene()
   })
 
   afterEach(() => {

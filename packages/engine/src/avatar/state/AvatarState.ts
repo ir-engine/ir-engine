@@ -25,18 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineState } from '@etherealengine/hyperflux'
 
-// TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
-export const EngineState = defineState({
-  name: 'EngineState',
+export const LocalAvatarState = defineState({
+  name: 'ee.engine.LocalAvatarState',
   initial: {
-    userReady: false,
-    /**
-     * An empty share link will default to the current URL, plus any modifiers (such as spectate mode)
-     */
-    publicPath: '',
-    isBot: false,
-    /** @deprecated use isEditing instead */
-    isEditor: false,
-    isEditing: false
+    avatarReady: false
   }
 })

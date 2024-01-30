@@ -38,6 +38,7 @@
   "include": [
     "../../__global.d.ts",
     "../server-core/**/*",
+    "../ecs/**/*",
     "./**/*.ts",
     "./**/*.tsx"
   ]

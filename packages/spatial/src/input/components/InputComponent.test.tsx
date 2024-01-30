@@ -29,7 +29,6 @@ import React from 'react'
 
 import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { createEngine } from '../../initializeEngine'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { InputComponent } from './InputComponent'
@@ -37,7 +36,6 @@ import { InputComponent } from './InputComponent'
 describe('InputComponent', () => {
   beforeEach(() => {
     createEngine()
-    loadEmptyScene()
   })
 
   it('test input component', async () => {

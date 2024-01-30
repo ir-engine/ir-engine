@@ -42,7 +42,6 @@ import { mockEvent } from '../../../tests/util/MockEvent'
 import { MockEventListener } from '../../../tests/util/MockEventListener'
 import { MockNavigator } from '../../../tests/util/MockNavigator'
 import { MockXRFrame, MockXRInputSource, MockXRReferenceSpace, MockXRSpace } from '../../../tests/util/MockXR'
-import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { NameComponent } from '../../common/NameComponent'
 import { createEngine } from '../../initializeEngine'
 import { PhysicsState } from '../../physics/state/PhysicsState'
@@ -94,7 +93,6 @@ describe('addClientInputListeners', () => {
 
   beforeEach(() => {
     createEngine()
-    loadEmptyScene()
     EngineRenderer.instance = new MockEngineRenderer()
   })
 

@@ -41,7 +41,6 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import {
   createPriorityQueue,
@@ -66,6 +65,7 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
 import { loadBundledAnimations } from '../functions/avatarFunctions'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
+import { LocalAvatarState } from '../state/AvatarState'
 import { AnimationSystem } from './AnimationSystem'
 
 export const AvatarAnimationState = defineState({
@@ -311,7 +311,7 @@ const reactor = () => {
   const xrState = getMutableState(XRState)
   const session = useHookstate(xrState.session)
   const isCameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar)
-  const userReady = useHookstate(getMutableState(EngineState).userReady)
+  const userReady = useHookstate(getMutableState(LocalAvatarState).avatarReady)
 
   useEffect(() => {
     if (!session.value) return

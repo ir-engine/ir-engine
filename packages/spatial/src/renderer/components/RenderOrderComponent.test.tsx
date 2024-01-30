@@ -29,7 +29,6 @@ import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { createEngine } from '../../initializeEngine'
 import { addObjectToGroup } from './GroupComponent'
 import { RenderOrderComponent } from './RenderOrderComponent'
@@ -37,7 +36,6 @@ import { RenderOrderComponent } from './RenderOrderComponent'
 describe('RenderOrderComponent', () => {
   beforeEach(async () => {
     createEngine()
-    loadEmptyScene()
   })
 
   afterEach(() => {

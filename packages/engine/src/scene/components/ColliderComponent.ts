@@ -42,6 +42,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
@@ -55,7 +56,6 @@ import {
   updateGroupChildren
 } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import matches from 'ts-matches'
-import { EngineState } from '../../EngineState'
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'
 import { ModelComponent } from './ModelComponent'

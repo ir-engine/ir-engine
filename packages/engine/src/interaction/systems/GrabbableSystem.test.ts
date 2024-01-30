@@ -42,6 +42,7 @@ import {
 import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 import { Network } from '@etherealengine/spatial/src/networking/classes/Network'
 import { NetworkObjectComponent } from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
@@ -52,7 +53,6 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
-import { createEngine } from '../../initializeEngine'
 import { GrabbedComponent, GrabberComponent } from '../components/GrabbableComponent'
 import { dropEntity, grabEntity } from './GrabbableSystem'
 

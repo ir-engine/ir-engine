@@ -52,7 +52,6 @@ import {
 } from '@etherealengine/common/src/schema.type.module'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { AuthTask } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
 import { State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import {
@@ -62,6 +61,7 @@ import {
   defineActionQueue,
   removeActionQueue
 } from '@etherealengine/hyperflux/functions/ActionFunctions'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import {
   MediaStreamAppData,
   NetworkConnectionParams,

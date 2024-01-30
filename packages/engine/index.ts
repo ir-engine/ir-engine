@@ -22,30 +22,4 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
-import { AmbientLightComponent } from '../renderer/components/AmbientLightComponent'
-import { DirectionalLightComponent } from '../renderer/components/DirectionalLightComponent'
-import { HemisphereLightComponent } from '../renderer/components/HemisphereLightComponent'
-import { PointLightComponent } from '../renderer/components/PointLightComponent'
-import { SpotLightComponent } from '../renderer/components/SpotLightComponent'
-import { TransformComponent } from '../transform/components/TransformComponent'
-import { XRAnchorComponent } from '../xr/XRComponents'
-
-import { DebugRendererSystem } from './DebugRendererSystem'
-import { RenderInfoSystem } from './RenderInfoSystem'
-import { WebGLRendererSystem } from './WebGLRendererSystem'
-
-/** Components */
-export {
-  DirectionalLightComponent,
-  HemisphereLightComponent,
-  PointLightComponent,
-  SpotLightComponent,
-  TransformComponent,
-  XRAnchorComponent,
-  /** Systems */
-  DebugRendererSystem,
-  RenderInfoSystem,
-  WebGLRendererSystem,
-  AmbientLightComponent
-}
+export * from './src/EngineModule'

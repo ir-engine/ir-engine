@@ -23,29 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AmbientLightComponent } from '../renderer/components/AmbientLightComponent'
-import { DirectionalLightComponent } from '../renderer/components/DirectionalLightComponent'
-import { HemisphereLightComponent } from '../renderer/components/HemisphereLightComponent'
-import { PointLightComponent } from '../renderer/components/PointLightComponent'
-import { SpotLightComponent } from '../renderer/components/SpotLightComponent'
-import { TransformComponent } from '../transform/components/TransformComponent'
-import { XRAnchorComponent } from '../xr/XRComponents'
+import { defineState } from '@etherealengine/hyperflux'
 
-import { DebugRendererSystem } from './DebugRendererSystem'
-import { RenderInfoSystem } from './RenderInfoSystem'
-import { WebGLRendererSystem } from './WebGLRendererSystem'
-
-/** Components */
-export {
-  DirectionalLightComponent,
-  HemisphereLightComponent,
-  PointLightComponent,
-  SpotLightComponent,
-  TransformComponent,
-  XRAnchorComponent,
-  /** Systems */
-  DebugRendererSystem,
-  RenderInfoSystem,
-  WebGLRendererSystem,
-  AmbientLightComponent
-}
+// TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
+export const EngineState = defineState({
+  name: 'EngineState',
+  initial: {
+    /**
+     * An empty share link will default to the current URL, plus any modifiers (such as spectate mode)
+     */
+    publicPath: '',
+    isBot: false,
+    /** @deprecated use isEditing instead */
+    isEditor: false,
+    isEditing: false
+  }
+})

@@ -32,7 +32,6 @@ import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { MockXRInputSource, MockXRSpace } from '../../../tests/util/MockXR'
-import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { createEngine } from '../../initializeEngine'
 import { InputComponent } from './InputComponent'
 import {
@@ -45,7 +44,6 @@ import {
 describe('InputSourceComponent', () => {
   beforeEach(() => {
     createEngine()
-    loadEmptyScene()
   })
 
   it('should able to be set as a component', () => {

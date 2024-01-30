@@ -68,6 +68,8 @@ import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
+import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
+import { matchesUserId } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { NetworkPeerFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkPeerFunctions'
 import {
@@ -76,12 +78,10 @@ import {
   removeDataChannelHandler
 } from '@etherealengine/spatial/src/networking/systems/DataChannelRegistry'
 import { updatePeers } from '@etherealengine/spatial/src/networking/systems/OutgoingActionSystem'
+import { PhysicsSerialization } from '@etherealengine/spatial/src/physics/PhysicsSerialization'
 import matches, { Validator } from 'ts-matches'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
-import { checkScope } from '../common/functions/checkScope'
-import { matchesUserId } from '../common/functions/MatchesUtils'
 import { mocapDataChannelType } from '../mocap/MotionCaptureSystem'
-import { PhysicsSerialization } from '../physics/PhysicsSerialization'
 
 const logger = multiLogger.child({ component: 'engine:recording' })
 

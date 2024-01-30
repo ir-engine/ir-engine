@@ -29,10 +29,10 @@ import {
   getMutableComponent,
   hasComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { Object3D } from 'three'
 import { SceneObjectComponent } from '../../../../scene/components/SceneObjectComponent'
-import { NameComponent } from '../../@etherealengine/spatial/src/common/NameComponent'
-import { TransformComponent } from '../../@etherealengine/spatial/src/transform/components/TransformComponent'
 import { GLTFExporterPlugin } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 

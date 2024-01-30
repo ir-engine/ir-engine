@@ -29,15 +29,15 @@ import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { NameComponent } from '../../src/common/NameComponent'
-import { VisibleComponent } from '../../src/renderer/components/VisibleComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { SceneState } from '../../src/scene/Scene'
 import { SceneObjectComponent } from '../../src/scene/components/SceneObjectComponent'
 import { SceneTagComponent } from '../../src/scene/components/SceneTagComponent'
 import { SourceComponent } from '../../src/scene/components/SourceComponent'
-import { TransformComponent } from '../../src/transform/components/TransformComponent'
 
 export const loadEmptyScene = () => {
   SceneState.loadScene('test' as SceneID, {

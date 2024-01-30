@@ -25,10 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 /** World Module */
 
-import './avatar/AvatarModule'
-import './interaction/InteractionModule'
-import './interaction/MediaModule'
-import './mocap/MocapModule'
-import './scene/SceneModule'
+export * from './avatar/AvatarModule'
+export * from './interaction/InteractionModule'
+export * from './interaction/MediaModule'
+export * from './mocap/MocapModule'
+export * from './recording/RecordingModule'
+export * from './scene/SceneModule'
 
-import './SpatialModule'
+import '@etherealengine/spatial'

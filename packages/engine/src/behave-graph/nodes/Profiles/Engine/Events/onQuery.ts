@@ -28,7 +28,7 @@ import { Component, ComponentMap } from '@etherealengine/ecs/src/ComponentFuncti
 import { Query, defineQuery, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SystemDefinitions, SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { TransformComponent } from '../../../@etherealengine/spatial/src/transform/components/TransformComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 let systemCounter = 0
 

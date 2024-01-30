@@ -46,7 +46,6 @@ import { AnimationState } from '../AnimationManager'
 import config from '@etherealengine/common/src/config'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
@@ -62,6 +61,7 @@ import { AvatarControllerComponent } from '../components/AvatarControllerCompone
 import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
+import { LocalAvatarState } from '../state/AvatarState'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from './retargetMixamoRig'
 
 declare module '@pixiv/three-vrm/types/VRM' {
@@ -192,7 +192,7 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
     })
   }
 
-  if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)
+  if (entity === Engine.instance.localClientEntity) getMutableState(LocalAvatarState).avatarReady.set(true)
 }
 
 export const retargetAvatarAnimations = (entity: Entity) => {

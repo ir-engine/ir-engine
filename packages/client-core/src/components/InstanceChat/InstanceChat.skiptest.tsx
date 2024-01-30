@@ -29,8 +29,8 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { getMutableState } from '@etherealengine/hyperflux'
+import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 
 import { ChannelID, MessageID } from '@etherealengine/common/src/schema.type.module'
 import { InstanceChat } from '.'

@@ -33,11 +33,10 @@ import { applyIncomingActions, dispatchAction, getMutableState } from '@ethereal
 
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
+import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { act, render } from '@testing-library/react'
 import React from 'react'
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
-import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
-import { createEngine } from '../../initializeEngine'
 import { EntityNetworkStateSystem } from '../NetworkModule'
 import { NetworkState } from '../NetworkState'
 import { Network } from '../classes/Network'
@@ -51,7 +50,6 @@ describe('NetworkPeerFunctions', () => {
     createEngine()
     createMockNetwork()
     Engine.instance.store.defaultDispatchDelay = () => 0
-    loadEmptyScene()
   })
 
   afterEach(() => {

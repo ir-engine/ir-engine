@@ -35,9 +35,6 @@ import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFun
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { roundNumberToPlaces } from '../../../tests/util/MathTestUtils'
-import { createMockNetwork } from '../../../tests/util/createMockNetwork'
-import { createEngine } from '../../initializeEngine'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import {
   TransformSerialization,
@@ -52,6 +49,9 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { Network } from '../classes/Network'
 // import { XRHandBones } from '../../xr/XRHandBones'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { roundNumberToPlaces } from '../../../tests/util/MathTestUtils'
+import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { NetworkState } from '../NetworkState'
 import {
   NetworkObjectAuthorityTag,

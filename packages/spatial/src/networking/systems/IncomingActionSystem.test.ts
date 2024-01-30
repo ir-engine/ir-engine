@@ -31,8 +31,8 @@ import { ActionRecipients, applyIncomingActions, getMutableState, getState } fro
 
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
+import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
-import { createEngine } from '../../initializeEngine'
 import { NetworkTopics } from '../classes/Network'
 import { WorldNetworkAction } from '../functions/WorldNetworkAction'
 

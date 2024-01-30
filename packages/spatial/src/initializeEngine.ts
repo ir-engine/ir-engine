@@ -24,22 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { BoxGeometry, Mesh, MeshNormalMaterial, Vector3 } from 'three'
-import { CameraComponent } from './camera/components/CameraComponent'
-import { EngineRenderer } from './renderer/WebGLRendererSystem'
-
-// core module
 import { createEntity, executeSystems, getComponent, setComponent } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { Timer } from '@etherealengine/ecs/src/Timer'
 import { getMutableState } from '@etherealengine/hyperflux'
+import { BoxGeometry, Mesh, MeshNormalMaterial, Vector3 } from 'three'
+import { CameraComponent } from './camera/components/CameraComponent'
 import { NameComponent } from './common/NameComponent'
+import { EngineRenderer } from './renderer/WebGLRendererSystem'
 import { addObjectToGroup } from './renderer/components/GroupComponent'
 import { setObjectLayers } from './renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from './renderer/components/VisibleComponent'
 import { ObjectLayers } from './renderer/constants/ObjectLayers'
+import { EntityTreeComponent } from './transform/components/EntityTree'
 import { TransformComponent } from './transform/components/TransformComponent'
 import { XRState } from './xr/XRState'
 

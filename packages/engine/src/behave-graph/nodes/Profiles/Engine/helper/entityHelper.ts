@@ -35,10 +35,10 @@ import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { MathUtils } from 'three'
-import { VisibleComponent } from '../../../@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { TransformComponent } from '../../../@etherealengine/spatial/src/transform/components/TransformComponent'
 
 export const addEntityToScene = (
   componentJson: Array<ComponentJsonType>,

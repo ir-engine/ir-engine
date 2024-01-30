@@ -43,7 +43,7 @@ import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFuncti
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { EngineState } from '@etherealengine/engine/src/EngineState'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { NameComponent } from '../../common/NameComponent'

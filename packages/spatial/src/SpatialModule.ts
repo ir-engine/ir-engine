@@ -23,11 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import './camera/CameraModule'
-import './input/InputModule'
-import './networking/NetworkModule'
-import './physics/PhysicsModule'
-import './renderer/RendererModule'
-import './transform/TransformModule'
-import './xr/XRModule'
-import './xrui/XRUIModule'
+export * from './camera/CameraModule'
+export * from './input/InputModule'
+export * from './networking/NetworkModule'
+export * from './physics/PhysicsModule'
+export * from './renderer/RendererModule'
+export * from './threejsPatches'
+export * from './transform/TransformModule'
+export * from './xr/XRModule'
+export * from './xrui/XRUIModule'

@@ -26,9 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { NodeCategory, NodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
 import { Component, ComponentMap, getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { AvatarAnimationComponent } from '../../../../../avatar/components/AvatarAnimationComponent'
 import { PostProcessingComponent } from '../../../../../scene/components/PostProcessingComponent'
-import { TransformComponent } from '../../../@etherealengine/spatial/src/transform/components/TransformComponent'
 import { EnginetoNodetype, NodetoEnginetype, getSocketType } from './commonHelper'
 
 const skipComponents = [

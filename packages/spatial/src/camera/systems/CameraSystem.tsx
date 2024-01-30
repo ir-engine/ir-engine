@@ -42,7 +42,6 @@ import {
   setComponent
 } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { getState } from '@etherealengine/hyperflux'
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
@@ -263,7 +262,6 @@ const execute = () => {
   for (const action of cameraSpawnActions()) cameraSpawnReceptor(action)
 
   for (const action of spectateUserActions()) {
-    getMutableState(EngineState).userReady.set(true)
     const cameraEntity = Engine.instance.cameraEntity
     if (action.user) setComponent(cameraEntity, SpectatorComponent, { userId: action.user as UserID })
     else
