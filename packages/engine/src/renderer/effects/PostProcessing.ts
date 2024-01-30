@@ -178,24 +178,24 @@ export type SSAOEffectProps = EffectProps & {
 }
 
 const defaultSSROptions = {
-  mode: 'ssr',
   distance: 10,
   thickness: 10,
+  autoThickness: false,
+  maxRoughness: 1,
+  blend: 0.9,
   denoiseIterations: 1,
   denoiseKernel: 2,
   denoiseDiffuse: 10,
   denoiseSpecular: 10,
-  radius: 3,
-  phi: 0.5,
-  lumaPhi: 5,
   depthPhi: 2,
   normalPhi: 50,
-  roughnessPhi: 50,
-  specularPhi: 50,
+  roughnessPhi: 1,
   envBlur: 0.5,
   importanceSampling: true,
+  directLightMultiplier: 1,
   steps: 20,
   refineSteps: 5,
+  spp: 1,
   resolutionScale: 1,
   missedRays: false
 }
@@ -248,24 +248,24 @@ export type ColorDepthEffectProps = EffectProps & {
 export type LinearTosRGBEffectProps = EffectProps & { blendFunction?: BlendFunction }
 
 export type SSGIEffectProps = EffectProps & {
-  mode: 'ssgi'
   distance: number
   thickness: number
+  autoThickness: boolean
+  maxRoughness: number
+  blend: number
   denoiseIterations: number
   denoiseKernel: number
   denoiseDiffuse: number
   denoiseSpecular: number
-  radius: number
-  phi: number
-  lumaPhi: number
   depthPhi: number
   normalPhi: number
   roughnessPhi: number
-  specularPhi: number
   envBlur: number
   importanceSampling: boolean
+  directLightMultiplier: number
   steps: number
   refineSteps: number
+  spp: number
   resolutionScale: number
   missedRays: boolean
 }
@@ -455,24 +455,24 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   },
   [Effects.SSGIEffect]: {
     isActive: false,
-    mode: 'ssgi',
     distance: 10,
     thickness: 10,
+    autoThickness: false,
+    maxRoughness: 1,
+    blend: 0.9,
     denoiseIterations: 1,
     denoiseKernel: 2,
     denoiseDiffuse: 10,
     denoiseSpecular: 10,
-    radius: 3,
-    phi: 0.5,
-    lumaPhi: 5,
     depthPhi: 2,
     normalPhi: 50,
-    roughnessPhi: 50,
-    specularPhi: 50,
+    roughnessPhi: 1,
     envBlur: 0.5,
     importanceSampling: true,
+    directLightMultiplier: 1,
     steps: 20,
     refineSteps: 5,
+    spp: 1,
     resolutionScale: 1,
     missedRays: false
   },

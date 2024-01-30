@@ -158,7 +158,7 @@ export const configureEffectComposer = (
       effects.push(eff)
     } else if (key === Effects.SSREffect || key === Effects.SSGIEffect) {
       // SSR is just a mode of SSGI, and can't both be run at the same time
-      const eff = new EffectClass(composer, scene, camera, { ...effectOptions, velocityDepthNormalPass })
+      const eff = new EffectClass(scene, camera, velocityDepthNormalPass, effectOptions)
       useVelocityDepthNormalPass = true
       composer[key] = eff
       effects.push(eff)
