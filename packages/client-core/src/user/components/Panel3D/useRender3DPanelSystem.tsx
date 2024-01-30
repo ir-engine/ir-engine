@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 import { DirectionalLight, HemisphereLight, PerspectiveCamera, Scene, SRGBColorSpace, WebGLRenderer } from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 import { useHookstateFromFactory } from '@etherealengine/common/src/utils/useHookstateFromFactory'
 import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -62,7 +63,7 @@ const initialize3D = () => {
   renderer.outputColorSpace = SRGBColorSpace
 
   // @ts-ignore /** @todo this is a hack fix until #9626 is in */
-  const controls = new THREE.OrbitControls(camera, renderer.domElement) as Record<any, any>
+  const controls = new OrbitControls(camera, renderer.domElement) as Record<any, any>
 
   controls.minDistance = 0.1
   controls.maxDistance = 10000
