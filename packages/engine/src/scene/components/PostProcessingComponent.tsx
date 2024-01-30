@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { ReactElement, useEffect } from 'react'
 
-import { NO_PROXY, NO_PROXY_STEALTH, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY_STEALTH, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
@@ -49,7 +49,10 @@ export const PostProcessingComponent = defineComponent({
   },
 
   toJSON: (entity, component) => {
-    return component.get(NO_PROXY)
+    return {
+      enabled: component.enabled.value,
+      effects: component.effects.value
+    }
   },
 
   reactor: PostProcessingComponentReactor
