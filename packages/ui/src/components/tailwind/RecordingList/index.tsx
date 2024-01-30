@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { RecordingID, RecordingType, recordingPath } from '@etherealengine/common/src/schema.type.module'
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { PlaybackState } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { PlayIcon, PlusCircleIcon, StopIcon } from '@heroicons/react/24/solid'
 import React from 'react'
 import Icon from '../../../primitives/mui/Icon'

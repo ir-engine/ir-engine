@@ -30,9 +30,9 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { XRLightProbeState } from '@etherealengine/spatial/src/xr/XRLightProbeSystem'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { Texture } from 'three'
-import { XRLightProbeState } from '../../xr/XRLightProbeSystem'
-import { XRState } from '../../xr/XRState'
 import { SceneLoadingSystem } from './SceneLoadingSystem'
 
 const reactor = () => {

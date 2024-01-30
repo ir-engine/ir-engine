@@ -33,7 +33,7 @@ import PlayArrow from '@mui/icons-material/PlayArrow'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { MediaComponent, MediaElementComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
-import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 
 export function createMediaControlsView(entity: Entity) {
   const MediaControls = () => <MediaControlsView entity={entity} />

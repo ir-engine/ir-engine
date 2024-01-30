@@ -27,9 +27,9 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { getOptionalComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { NameComponent } from '@etherealengine/engine/src/common/NameComponent'
-import { GroupComponent } from '@etherealengine/engine/src/renderer/components/GroupComponent'
 import { useHookstate } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'

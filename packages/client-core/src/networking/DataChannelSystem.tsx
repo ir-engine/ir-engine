@@ -27,16 +27,16 @@ import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChann
 import logger from '@etherealengine/common/src/logger'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
-import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
+import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
+import { DataChannelRegistryState } from '@etherealengine/spatial/src/networking/systems/DataChannelRegistry'
 import {
   MediasoupDataConsumerActions,
   MediasoupDataProducerConsumerState,
   MediasoupDataProducersConsumersObjectsState
-} from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
-import { MediasoupTransportState } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
-import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+} from '@etherealengine/spatial/src/networking/systems/MediasoupDataProducerConsumerState'
+import { MediasoupTransportState } from '@etherealengine/spatial/src/networking/systems/MediasoupTransportState'
 import { none, useHookstate } from '@hookstate/core'
 import { DataProducer, DataProducerOptions } from 'mediasoup-client/lib/DataProducer'
 import { decode } from 'msgpackr'

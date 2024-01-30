@@ -29,8 +29,8 @@ import { useTranslation } from 'react-i18next'
 
 import { useAllComponents, useComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { getMutableState } from '@etherealengine/hyperflux'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 
 import { Popover } from '@mui/material'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
