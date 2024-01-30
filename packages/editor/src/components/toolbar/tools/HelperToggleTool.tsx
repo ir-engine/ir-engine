@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 
 import SelectAllIcon from '@mui/icons-material/SelectAll'
 import SquareFootIcon from '@mui/icons-material/SquareFoot'

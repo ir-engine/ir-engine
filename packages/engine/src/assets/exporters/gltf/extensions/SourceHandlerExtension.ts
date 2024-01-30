@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { Object3D } from 'three'
 import { SourceComponent } from '../../../../scene/components/SourceComponent'
 import { getModelSceneID } from '../../../../scene/functions/loaders/ModelFunctions'

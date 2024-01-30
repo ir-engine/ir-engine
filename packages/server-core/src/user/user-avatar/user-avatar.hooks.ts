@@ -31,7 +31,7 @@ import {
   userAvatarPatchValidator,
   userAvatarQueryValidator
 } from '@etherealengine/common/src/schemas/user/user-avatar.schema'
-import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
+import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 import setLoggedinUserInQuery from '../../hooks/set-loggedin-user-in-query'
 import {
   userAvatarDataResolver,

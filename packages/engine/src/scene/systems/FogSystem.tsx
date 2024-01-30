@@ -32,9 +32,13 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { addOBCPlugin, PluginType, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
-import { GroupQueryReactor, GroupReactorProps } from '../../renderer/components/GroupComponent'
-import { VisibleComponent } from '../../renderer/components/VisibleComponent'
+import {
+  addOBCPlugin,
+  PluginType,
+  removeOBCPlugin
+} from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
+import { GroupQueryReactor, GroupReactorProps } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
 import { FogType } from '../constants/FogType'
 import { FogSettingState } from '../FogState'

@@ -32,8 +32,11 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { getState } from '@etherealengine/hyperflux'
+import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
 import {
   Material,
@@ -45,9 +48,6 @@ import {
   UniformsLib,
   UniformsUtils
 } from 'three'
-import { matches } from '../../common/functions/MatchesUtils'
-import { RendererState } from '../../renderer/RendererState'
-import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { setupObject } from '../../scene/systems/SceneObjectSystem'
 import { SkinnedMeshComponent } from './SkinnedMeshComponent'
 

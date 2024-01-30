@@ -29,8 +29,9 @@ import { Material, Texture } from 'three'
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { getComponent, getOptionalComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
-import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import {
   GeometryTransformParameters,
   ImageTransformParameters,
@@ -38,7 +39,6 @@ import {
   ResourceID,
   ResourceTransforms
 } from '../../../assets/classes/ModelTransform'
-import { MeshComponent } from '../../../renderer/components/MeshComponent'
 import { ModelComponent } from '../../components/ModelComponent'
 
 export function getModelSceneID(entity: Entity): SceneID {
