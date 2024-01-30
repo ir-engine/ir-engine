@@ -42,9 +42,10 @@ import { SxProps, Theme } from '@mui/material/styles'
 import styles from './index.module.scss'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { createEntity, removeEntity, setComponent } from '@etherealengine/ecs'
+import { setComponent } from '@etherealengine/ecs'
 import { defaultAnimationPath, preloadedAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
+import { AssetPreviewCameraComponent } from '@etherealengine/engine/src/camera/components/AssetPreviewCameraComponent'
 import { NameComponent } from '@etherealengine/engine/src/common/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/engine/src/renderer/components/ObjectLayerComponent'
@@ -80,7 +81,7 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     if (!avatarUrl) return
 
     const renderPanelEntities = renderPanelState.entities[panelRef.current.id]
-    const entity = createEntity()
+    const entity = renderPanelEntities[PanelEntities.model].value
     const uuid = MathUtils.generateUUID() as EntityUUID
     setComponent(entity, UUIDComponent, uuid)
     setComponent(entity, NameComponent, '3D Preview Entity')
@@ -93,12 +94,8 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
       activeClipIndex: 5
     })
     setComponent(entity, EnvmapComponent, { type: EnvMapSourceType.Skybox })
-
-    if (renderPanelEntities[PanelEntities.model].value) removeEntity(renderPanelEntities[1].value)
-    renderPanelEntities[PanelEntities.model].set(entity)
-
-    //camera.position.value.y = 1.8
-    //camera.position.value.z = 1
+    const cameraEntity = renderPanelEntities[PanelEntities.camera].value
+    setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: entity })
   }
 
   return (

@@ -41,7 +41,7 @@ export const CameraOrbitComponent = defineComponent({
   onInit: (entity) => {
     return {
       zoomDelta: 0,
-      focusedObjects: [] as Entity[],
+      focusedEntities: [] as Entity[],
       isPanning: false,
       cursorDeltaX: 0,
       cursorDeltaY: 0,
@@ -55,7 +55,7 @@ export const CameraOrbitComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     if (matches.number.test(json.zoomDelta)) component.zoomDelta.set(json.zoomDelta)
-    if (json.focusedObjects) component.focusedObjects.set(json.focusedObjects)
+    if (json.focusedEntities) component.focusedEntities.set(json.focusedEntities)
     if (matches.boolean.test(json.isPanning)) component.isPanning.set(json.isPanning)
     if (matches.number.test(json.cursorDeltaX)) component.cursorDeltaX.set(json.cursorDeltaX)
     if (matches.number.test(json.cursorDeltaY)) component.cursorDeltaY.set(json.cursorDeltaY)

@@ -77,7 +77,7 @@ const InputSourceQuery = defineQuery([InputSourceComponent])
 const initializePreviewPanel = (id: string) => {
   const cameraEntity = createEntity()
   setComponent(cameraEntity, CameraComponent)
-  setComponent(cameraEntity, TransformComponent, { position: new Vector3(0, 0, -1) })
+  setComponent(cameraEntity, TransformComponent, { position: new Vector3(0, 0, 0) })
   setComponent(cameraEntity, VisibleComponent, true)
   setComponent(cameraEntity, NameComponent, '3D Preview Camera for ' + id)
   setComponent(cameraEntity, CameraOrbitComponent, {

@@ -36,7 +36,8 @@ import {
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { createEntity, removeEntity, setComponent } from '@etherealengine/ecs'
+import { setComponent } from '@etherealengine/ecs'
+import { AssetPreviewCameraComponent } from '@etherealengine/engine/src/camera/components/AssetPreviewCameraComponent'
 import { NameComponent } from '@etherealengine/engine/src/common/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/engine/src/renderer/components/ObjectLayerComponent'
@@ -84,17 +85,18 @@ export const ModelPreviewPanel = (props) => {
 
   useEffect(() => {
     const renderPanelEntities = renderPanelState.entities[panelRef.current.id]
-    const entity = createEntity()
+    const entity = renderPanelEntities[PanelEntities.model].value
     setComponent(entity, NameComponent, '3D Preview Entity')
     const uuid = MathUtils.generateUUID() as EntityUUID
     setComponent(entity, UUIDComponent, uuid)
-    setComponent(entity, ModelComponent, { src: url })
+    setComponent(entity, ModelComponent, { src: url, cameraOcclusion: false })
     setComponent(entity, EnvmapComponent, { type: 'Skybox' })
     setComponent(entity, VisibleComponent, false)
+    const cameraEntity = renderPanelEntities[PanelEntities.camera].value
+    setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: entity })
+
     ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.AssetPreview)
 
-    if (renderPanelEntities[PanelEntities.model].value) removeEntity(renderPanelEntities[PanelEntities.model].value)
-    renderPanelEntities[PanelEntities.model].set(entity)
     loading.set(false)
   }, [url])
 

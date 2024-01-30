@@ -93,12 +93,12 @@ export const MaterialPreviewPanel = (props) => {
     addObjectToGroup(entity, new Mesh(new SphereGeometry(5, 32, 32), material))
     setComponent(entity, EnvmapComponent, { type: 'Skybox' })
     const orbitCamera = getMutableComponent(renderPanelEntities[PanelEntities.camera].value, CameraOrbitComponent)
-    orbitCamera.focusedObjects.set([entity])
+    orbitCamera.focusedEntities.set([entity])
     orbitCamera.refocus.set(true)
 
     ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.AssetPreview)
-    if (renderPanelEntities[1]) removeEntity(renderPanelEntities[1].value)
-    renderPanelEntities[1].set(entity)
+    if (renderPanelEntities[PanelEntities.model]) removeEntity(renderPanelEntities[PanelEntities.model].value)
+    renderPanelEntities[PanelEntities.model].set(entity)
   }, [selectedMaterial])
 
   return (

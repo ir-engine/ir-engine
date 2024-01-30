@@ -103,7 +103,7 @@ const execute = () => {
   if (buttons.KeyF?.down) {
     //only use selection state if it's the main camera
     if (entity === Engine.instance.cameraEntity)
-      editorCamera.focusedObjects.set(getState(SelectionState).selectedEntities)
+      editorCamera.focusedEntities.set(getState(SelectionState).selectedEntities)
     editorCamera.refocus.set(true)
   }
   if (selecting) {
@@ -140,12 +140,12 @@ const execute = () => {
 
   if (editorCamera.refocus.value) {
     let distance = 0
-    if (editorCamera.focusedObjects.length === 0) {
+    if (editorCamera.focusedEntities.length === 0) {
       editorCameraCenter.set(0, 0, 0)
       distance = 10
     } else {
       box.makeEmpty()
-      for (const object of editorCamera.focusedObjects.value) {
+      for (const object of editorCamera.focusedEntities.value) {
         const group =
           typeof object === 'string' ? [obj3dFromUuid(object)] : getOptionalComponent(object, GroupComponent) || []
         for (const obj of group) {
@@ -154,7 +154,7 @@ const execute = () => {
       }
       if (box.isEmpty()) {
         // Focusing on an Group, AmbientLight, etc
-        const object = editorCamera.focusedObjects[0].value
+        const object = editorCamera.focusedEntities[0].value
 
         if (typeof object === 'string') {
           editorCameraCenter.setFromMatrixPosition(obj3dFromUuid(object).matrixWorld)
@@ -172,10 +172,10 @@ const execute = () => {
     delta
       .set(0, 0, 1)
       .applyQuaternion(transform.rotation)
-      .multiplyScalar(Math.min(distance, MAX_FOCUS_DISTANCE) * 4)
+      .multiplyScalar(Math.min(distance, MAX_FOCUS_DISTANCE) * 2)
     transform.position.copy(editorCameraCenter).add(delta)
 
-    setComponent(entity, CameraOrbitComponent, { focusedObjects: null!, refocus: false })
+    setComponent(entity, CameraOrbitComponent, { focusedEntities: null!, refocus: false })
   }
 
   if (editorCamera.isPanning.value) {
