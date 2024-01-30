@@ -30,10 +30,10 @@ import {
   useComponent,
   useEntityContext
 } from '@etherealengine/ecs'
-import { matchesEntity } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
+import { matchesEntity } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { useEffect } from 'react'
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import { CameraOrbitComponent } from './CameraOrbitComponent'
 
 export const AssetPreviewCameraComponent = defineComponent({
   name: 'AssetPreviewCameraComponent',

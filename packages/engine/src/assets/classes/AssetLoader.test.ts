@@ -29,7 +29,7 @@ import { Mesh } from 'three'
 // hack to make tests happy
 import '../../EngineModule'
 
-import { createEngine } from '@etherealengine/engine/src/initializeEngine'
+import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { AssetClass } from '../enum/AssetClass'

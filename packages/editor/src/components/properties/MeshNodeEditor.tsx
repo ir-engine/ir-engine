@@ -29,7 +29,7 @@ import { Material } from 'three'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { MeshComponent } from '@etherealengine/engine/src/scene/components/MeshComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 
 import GeometryEditor from '../geometry/GeometryEditor'
 import CollapsibleBlock from '../layout/CollapsibleBlock'

@@ -42,19 +42,19 @@ import { SxProps, Theme } from '@mui/material/styles'
 import styles from './index.module.scss'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { setComponent } from '@etherealengine/ecs'
+import { hasComponent, removeComponent, setComponent } from '@etherealengine/ecs'
 import { defaultAnimationPath, preloadedAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { AssetPreviewCameraComponent } from '@etherealengine/engine/src/camera/components/AssetPreviewCameraComponent'
-import { NameComponent } from '@etherealengine/engine/src/common/NameComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
-import { ObjectLayerMaskComponent } from '@etherealengine/engine/src/renderer/components/ObjectLayerComponent'
-import { VisibleComponent } from '@etherealengine/engine/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/engine/src/renderer/constants/ObjectLayers'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { EnvMapSourceType } from '@etherealengine/engine/src/scene/constants/EnvMapEnum'
 import { getMutableState } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { MathUtils } from 'three'
 
 interface Props {
@@ -85,6 +85,9 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     const uuid = MathUtils.generateUUID() as EntityUUID
     setComponent(entity, UUIDComponent, uuid)
     setComponent(entity, NameComponent, '3D Preview Entity')
+
+    if (hasComponent(entity, LoopAnimationComponent)) removeComponent(entity, LoopAnimationComponent)
+    if (hasComponent(entity, ModelComponent)) removeComponent(entity, ModelComponent)
 
     setComponent(entity, VisibleComponent, true)
     ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.AssetPreview)

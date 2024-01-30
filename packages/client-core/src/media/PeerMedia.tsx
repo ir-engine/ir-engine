@@ -27,20 +27,20 @@ import React, { useEffect } from 'react'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import {
   NetworkState,
   screenshareAudioDataChannelType,
   screenshareVideoDataChannelType,
   webcamAudioDataChannelType
-} from '@etherealengine/engine/src/networking/NetworkState'
-import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+} from '@etherealengine/spatial/src/networking/NetworkState'
 
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import {
   MediasoupMediaConsumerActions,
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
-} from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
+} from '@etherealengine/spatial/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../transports/MediaStreams'
 import {

@@ -39,24 +39,23 @@ import {
   removeEntity,
   setComponent
 } from '@etherealengine/ecs'
-import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
+import { DirectionalLightComponent, TransformComponent } from '@etherealengine/spatial'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import {
   ActiveOrbitCamera,
   CameraOrbitComponent
-} from '@etherealengine/engine/src/camera/components/CameraOrbitComponent'
-import { NameComponent } from '@etherealengine/engine/src/common/NameComponent'
-import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
-import { addClientInputListeners } from '@etherealengine/engine/src/input/systems/ClientInputSystem'
+} from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { addClientInputListeners } from '@etherealengine/spatial/src/input/systems/ClientInputSystem'
 import {
   ObjectLayerComponents,
   ObjectLayerMaskComponent
-} from '@etherealengine/engine/src/renderer/components/ObjectLayerComponent'
-import { VisibleComponent } from '@etherealengine/engine/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/engine/src/renderer/constants/ObjectLayers'
-import { DirectionalLightComponent } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
-import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
+} from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 export const PreviewPanelRendererState = defineState({
   name: 'previewPanelRendererState',
