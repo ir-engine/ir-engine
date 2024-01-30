@@ -208,6 +208,7 @@ const execute = () => {
   const { deltaSeconds } = getState(ECSState)
   setIkFootTarget(localClientEntity, deltaSeconds)
 
+  const inputState = getState(InputState)
   const avatarInputSettings = getState(AvatarInputSettingsState)
 
   const controller = getComponent(localClientEntity, AvatarControllerComponent)
@@ -227,7 +228,7 @@ const execute = () => {
       if (inputSourceEntity) {
         const inputSourceComponent = getOptionalComponent(inputSourceEntity, InputSourceComponent)
         if (inputSourceComponent?.buttons.PrimaryClick?.touched) {
-          const pointerState = getState(InputState).pointerState
+          const pointerState = inputState.pointerState
           const mouseMoved = pointerState.movement.lengthSq() > 0
           if (mouseMoved) mouseMovedDuringPrimaryClick = true
 
@@ -289,14 +290,14 @@ const execute = () => {
     const controlScheme =
       inputSource.source.handedness === 'none' || !isCameraAttachedToAvatar
         ? AvatarAxesControlScheme.Move
-        : inputSource.source.handedness === avatarInputSettings.preferredHand
+        : inputSource.source.handedness === inputState.preferredHand
         ? avatarInputSettings.rightAxesControlScheme
         : avatarInputSettings.leftAxesControlScheme
 
     AvatarAxesControlSchemeBehavior[controlScheme](
       inputSource.source,
       controller,
-      avatarInputSettings.preferredHand === 'left' ? 'right' : 'left'
+      inputState.preferredHand === 'left' ? 'right' : 'left'
     )
   }
 }

@@ -39,12 +39,12 @@ import {
   DefaultModelTransformParameters,
   ModelTransformParameters
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
-import { MaterialSource, SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
-import MeshBasicMaterial from '@etherealengine/engine/src/renderer/materials/constants/material-prototypes/MeshBasicMaterial.mat'
-import { materialsFromSource } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import bakeToVertices from '@etherealengine/engine/src/renderer/materials/functions/bakeToVertices'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelResources } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
+import { MaterialSource, SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
+import MeshBasicMaterial from '@etherealengine/engine/src/scene/materials/constants/material-prototypes/MeshBasicMaterial.mat'
+import { materialsFromSource } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
+import bakeToVertices from '@etherealengine/engine/src/scene/materials/functions/bakeToVertices'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { NO_PROXY, State, getMutableState } from '@etherealengine/hyperflux/functions/StateFunctions'
 

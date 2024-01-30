@@ -34,7 +34,7 @@ import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
 import { AssetLoaderState } from './assets/state/AssetLoaderState'
 import { CameraComponent } from './camera/components/CameraComponent'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
-import { ObjectLayers } from './scene/constants/ObjectLayers'
+import { ObjectLayers } from './renderer/constants/ObjectLayers'
 
 /**
  * initializeBrowser

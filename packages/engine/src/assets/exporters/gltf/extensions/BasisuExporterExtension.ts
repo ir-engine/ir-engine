@@ -28,7 +28,7 @@ import { CompressedTexture, NoColorSpace, Texture } from 'three'
 import { dispatchAction } from '@etherealengine/hyperflux'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
-import createReadableTexture from '../../../functions/createReadableTexture'
+import createReadableTexture from '../../../../renderer/functions/createReadableTexture'
 import { LSHIndex } from '../../../functions/lshIndex'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import BufferHandlerExtension from './BufferHandlerExtension'

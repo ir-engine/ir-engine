@@ -27,7 +27,7 @@ import { WebLayer3D } from '@etherealengine/xrui'
 
 import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { NameComponent } from '../../scene/components/NameComponent'
+import { NameComponent } from '../../common/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { createInteractiveModalView } from '../ui/InteractiveModalView'

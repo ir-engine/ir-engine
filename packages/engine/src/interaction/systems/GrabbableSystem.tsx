@@ -56,14 +56,14 @@ import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { EngineState } from '@etherealengine/engine/src/EngineState'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
-import { AvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
 import { matches, matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
+import { InputState } from '../../input/state/InputState'
 import { NetworkState } from '../../networking/NetworkState'
 import { NetworkTopics } from '../../networking/classes/Network'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
@@ -71,9 +71,9 @@ import { WorldNetworkAction } from '../../networking/functions/WorldNetworkActio
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
+import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { GrabbableComponent, GrabbedComponent, GrabberComponent } from '../components/GrabbableComponent'
 import { createInteractUI } from '../functions/interactUI'
 import { InteractState, InteractableTransitions, addInteractableUI, removeInteractiveUI } from './InteractiveSystem'
@@ -296,7 +296,7 @@ export const grabEntity = (grabberEntity: Entity, grabbedEntity: Entity, attachm
 export const dropEntity = (grabberEntity: Entity): void => {
   const grabberComponent = getComponent(grabberEntity, GrabberComponent)
   if (!grabberComponent) return
-  const handedness = getState(AvatarInputSettingsState).preferredHand
+  const handedness = getState(InputState).preferredHand
   const grabbedEntity = grabberComponent[handedness]!
   if (!grabbedEntity) return
   const networkComponent = getComponent(grabbedEntity, NetworkObjectComponent)
@@ -331,13 +331,13 @@ const grabbableQuery = defineQuery([GrabbableComponent])
 
 const onDrop = () => {
   const grabber = getComponent(Engine.instance.localClientEntity, GrabberComponent)
-  const handedness = getState(AvatarInputSettingsState).preferredHand
+  const handedness = getState(InputState).preferredHand
   const grabbedEntity = grabber[handedness]!
   if (!grabbedEntity) return
   dropEntity(Engine.instance.localClientEntity)
 }
 
-const onGrab = (targetEntity: Entity, handedness = getState(AvatarInputSettingsState).preferredHand) => {
+const onGrab = (targetEntity: Entity, handedness = getState(InputState).preferredHand) => {
   if (!hasComponent(targetEntity, GrabbableComponent)) return
   const grabber = getComponent(Engine.instance.localClientEntity, GrabberComponent)
   const grabbedEntity = grabber[handedness]!

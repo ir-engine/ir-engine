@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { VisibleComponent } from '@etherealengine/engine/src/renderer/components/VisibleComponent'
 import { XRUI, createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 

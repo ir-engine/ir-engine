@@ -54,9 +54,9 @@ import {
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
+import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
-import { addObjectToGroup, removeObjectFromGroup } from '../components/GroupComponent'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 

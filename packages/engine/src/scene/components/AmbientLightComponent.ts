@@ -29,7 +29,7 @@ import { AmbientLight, Color } from 'three'
 import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { matches } from '../../common/functions/MatchesUtils'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
 
 export const AmbientLightComponent = defineComponent({
   name: 'AmbientLightComponent',

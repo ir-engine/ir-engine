@@ -68,6 +68,7 @@ import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
+import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import {
   addDataChannelHandler,
@@ -75,7 +76,6 @@ import {
   removeDataChannelHandler
 } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import matches, { Validator } from 'ts-matches'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { checkScope } from '../common/functions/checkScope'

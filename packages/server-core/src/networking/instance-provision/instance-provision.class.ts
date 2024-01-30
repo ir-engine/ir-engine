@@ -45,13 +45,13 @@ import {
 } from '@etherealengine/common/src/schemas/social/location.schema'
 import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
+import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { getState } from '@etherealengine/hyperflux'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
-import { toDateTimeSql } from '../../util/datetime-sql'
 import getLocalServerIp from '../../util/get-local-server-ip'
 
 const releaseRegex = /^([a-zA-Z0-9]+)-/

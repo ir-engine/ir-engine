@@ -31,6 +31,7 @@ import path from 'path'
 import { isDev } from '@etherealengine/common/src/config'
 import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
 
+import { LocationType, locationPath } from '@etherealengine/common/src/schema.type.module'
 import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import {
   SceneCreateData,
@@ -243,6 +244,20 @@ export class SceneService
           fs.renameSync(oldSceneJsonPath, newSceneJsonPath)
         }
       }
+    }
+
+    const locations = (await this.app.service(locationPath).find({
+      query: { sceneId: { $like: `${directory}${oldSceneName}.scene.json` as SceneID } }
+    })) as any as LocationType[]
+
+    if (locations.length > 0) {
+      await Promise.all(
+        locations.map(async (location) => {
+          await this.app
+            .service(locationPath)
+            .patch(location.id, { sceneId: `${directory}${newSceneName}.scene.json` as SceneID })
+        })
+      )
     }
 
     return

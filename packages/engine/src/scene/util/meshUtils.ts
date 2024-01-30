@@ -24,8 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Mesh, Object3D } from 'three'
-
-import iterateObject3D from './iterateObject3D'
+import iterateObject3D from '../../common/functions/iterateObject3D'
 
 export default function getFirstMesh(obj3d: Object3D): Mesh | null {
   const meshes = iterateObject3D(
