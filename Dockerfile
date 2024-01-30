@@ -21,6 +21,7 @@ COPY packages/hyperflux/package.json ./packages/hyperflux/
 COPY packages/matchmaking/package.json ./packages/matchmaking/
 COPY packages/server/package.json ./packages/server/
 COPY packages/server-core/package.json ./packages/server-core/
+COPY packages/spatial/package.json ./packages/spatial/
 COPY packages/taskserver/package.json ./packages/taskserver/
 COPY packages/xrui/package.json ./packages/xrui/
 COPY packages/ui/package.json ./packages/ui/
