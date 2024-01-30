@@ -599,8 +599,8 @@ export async function transformModel(args: ModelTransformParameters) {
         }
         const texturePixels = await getPixels(texture.getImage()!, texture.getMimeType())
         const clampedData = new Uint8ClampedArray(texturePixels.data as Uint8Array)
-        const imgSize = texture.getSize()!
-        const imgData = new ImageData(clampedData, ...imgSize)
+        const imgSize = texturePixels.shape.slice(0, 2)
+        const imgData = new ImageData(clampedData, imgSize[0], imgSize[1])
 
         const compressedData = await ktx2Encoder.encode(imgData, {
           uastc: mergedParms.textureCompressionType === 'uastc',
