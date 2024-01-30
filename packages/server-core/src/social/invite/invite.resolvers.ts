@@ -39,10 +39,10 @@ import {
   identityProviderPath
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { Paginated } from '@feathersjs/feathers'
 import crypto from 'crypto'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const inviteDbToSchema = (rawData: InviteDatabaseType): InviteType => {
   let spawnDetails = JSON.parse(rawData.spawnDetails) as SpawnDetailsType

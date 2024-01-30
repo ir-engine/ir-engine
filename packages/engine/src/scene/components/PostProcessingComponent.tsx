@@ -27,9 +27,9 @@ import React, { ReactElement, useEffect } from 'react'
 
 import { NO_PROXY, NO_PROXY_STEALTH, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EngineRenderer, PostProcessingSettingsState } from '../../renderer/WebGLRendererSystem'
+import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { EngineRenderer, PostProcessingSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 
 export const PostProcessingComponent = defineComponent({
   name: 'PostProcessingComponent',

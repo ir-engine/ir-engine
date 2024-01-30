@@ -30,7 +30,7 @@ import { v4 } from 'uuid'
 import { UserKickID, UserKickQuery, UserKickType } from '@etherealengine/common/src/schemas/user/user-kick.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const userKickResolver = resolve<UserKickType, HookContext>({
   duration: virtual(async (userKick) => fromDateTimeSql(userKick.duration)),

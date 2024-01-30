@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { SkinnedMesh } from 'three'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const SkinnedMeshComponent = defineComponent({
   name: 'SkinnedMeshComponent',

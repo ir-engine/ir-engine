@@ -31,7 +31,7 @@ import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 
 import { ChannelID, ChannelType, channelPath } from '@etherealengine/common/src/schema.type.module'
-import { useFind, useMutation, useSearch } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import TableComponent from '../../common/Table'
 import { ChannelData, ChannelPropsTable, channelColumns } from '../../common/variables/channel'
 import styles from '../../styles/admin.module.scss'

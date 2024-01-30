@@ -32,7 +32,7 @@ import {
 } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
 import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
-import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
+import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 import { Application } from '../../declarations'
 
 export default () => {

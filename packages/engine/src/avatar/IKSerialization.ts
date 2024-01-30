@@ -23,17 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '../ecs/classes/Entity'
-import { hasComponent } from '../ecs/functions/ComponentFunctions'
-import { NetworkObjectSendPeriodicUpdatesTag } from '../networking/components/NetworkObjectComponent'
-import { checkBitflag, readComponentProp } from '../networking/serialization/DataReader'
+import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { NetworkObjectSendPeriodicUpdatesTag } from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
+import { checkBitflag, readComponentProp } from '@etherealengine/spatial/src/networking/serialization/DataReader'
 import {
   ViewCursor,
   readUint8,
   rewindViewCursor,
   spaceUint8,
   writePropIfChanged
-} from '../networking/serialization/ViewCursor'
+} from '@etherealengine/spatial/src/networking/serialization/ViewCursor'
 import { AvatarIKTargetComponent } from './components/AvatarIKComponents'
 
 export const readBlendWeight = (v: ViewCursor, entity: Entity) => {

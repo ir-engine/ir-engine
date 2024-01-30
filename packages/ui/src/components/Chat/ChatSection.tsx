@@ -27,7 +27,7 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { Resizable } from 're-resizable'
 import { ChannelsList } from './ChannelsList'

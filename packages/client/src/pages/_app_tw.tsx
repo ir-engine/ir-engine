@@ -33,7 +33,7 @@ import { defaultAction } from '@etherealengine/client-core/src/common/components
 import { NotificationState } from '@etherealengine/client-core/src/common/services/NotificationService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 
@@ -84,8 +84,6 @@ const AppPage = () => {
 const TailwindPage = () => {
   const notistackRef = useRef<SnackbarProvider>()
   const notificationstate = useHookstate(getMutableState(NotificationState))
-
-  NotificationState.useNotifications()
 
   useEffect(() => {
     notificationstate.snackbar.set(notistackRef.current)
