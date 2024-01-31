@@ -19,6 +19,12 @@ set -e
 # - Clones EE's main repository (@important does NOT use --depth=1)
 # - Installs all npm dependencies for the engine
 
+# Crash on non-Ubuntu distributions
+if [[ $(lsb_release -si) -ne "Ubuntu" ]] ; then
+  echo "[ERROR] This script only works for Ubuntu Linux distributions."
+  exit 1
+fi
+
 # Add universe to the repositories list and update the package list
 sudo add-apt-repository universe
 sudo apt-get update
