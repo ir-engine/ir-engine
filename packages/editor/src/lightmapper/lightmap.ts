@@ -25,12 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { MeshStandardMaterial, Object3D, WebGLRenderer } from 'three'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 
-import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
-import { MeshComponent } from '@etherealengine/engine/src/scene/components/MeshComponent'
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { runBakingPasses } from './bake'
 import { withLightScene } from './lightScene'
 import { LIGHTMAP_READONLY_FLAG, WorkbenchSettings, initializeWorkbench } from './workbench'

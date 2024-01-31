@@ -23,24 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getMutableState, useState } from '@etherealengine/hyperflux'
+import { SDFSettingsState } from '@etherealengine/spatial/src/renderer/effects/sdf/SDFSettingsState'
+import { configureEffectComposer } from '@etherealengine/spatial/src/renderer/functions/configureEffectComposer'
 import { useEffect } from 'react'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { useQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '../../ecs/functions/SystemGroups'
-import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import { SDFComponent } from '../components/SDFComponent'
 
 const reactor = () => {
   const sdfQuery = useQuery([SDFComponent])
-  const sdfState = useState(getMutableState(SDFComponent.SDFStateSettingsState))
+  const sdfState = useState(getMutableState(SDFSettingsState))
 
   useEffect(() => {
     if (sdfQuery.length === 0 || !sdfQuery.some((entity) => getComponent(entity, SDFComponent).enable)) {
-      getMutableState(SDFComponent.SDFStateSettingsState).enabled.set(false)
+      getMutableState(SDFSettingsState).enabled.set(false)
     } else {
-      getMutableState(SDFComponent.SDFStateSettingsState).enabled.set(true)
+      getMutableState(SDFSettingsState).enabled.set(true)
     }
   }, [sdfQuery])
 

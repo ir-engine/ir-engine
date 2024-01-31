@@ -46,18 +46,17 @@ import {
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { isClient } from '../../common/functions/getEnvironment'
-import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
-import { iOS } from '../../common/functions/isMobile'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { SourceType } from '../../renderer/materials/components/MaterialSource'
-import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTexture'
-import iterateObject3D from '../../scene/util/iterateObject3D'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { isAbsolutePath } from '@etherealengine/spatial/src/common/functions/isAbsolutePath'
+import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
+import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
+import { SourceType } from '../../scene/materials/components/MaterialSource'
+import loadVideoTexture from '../../scene/materials/functions/LoadVideoTexture'
 import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
-import { initializeKTX2Loader } from '../functions/createGLTFLoader'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
@@ -282,7 +281,6 @@ const videoLoader = () => ({ load: loadVideoTexture })
 const ktx2Loader = () => ({
   load: (src, onLoad, onProgress, onError) => {
     const gltfLoader = getState(AssetLoaderState).gltfLoader
-    if (!gltfLoader.ktx2Loader) initializeKTX2Loader(gltfLoader)
     gltfLoader.ktx2Loader!.load(
       src,
       (texture) => {

@@ -24,12 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRM, VRM1Meta, VRMHumanBone, VRMHumanoid } from '@pixiv/three-vrm'
-import { AnimationClip, AnimationMixer, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Box3, Vector3 } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { Entity } from '../../ecs/classes/Entity'
 import {
   getComponent,
   getMutableComponent,
@@ -37,21 +35,22 @@ import {
   hasComponent,
   removeComponent,
   setComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
+import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { isClient } from '../../common/functions/getEnvironment'
-import { iOS } from '../../common/functions/isMobile'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import { XRState } from '../../xr/XRState'
 import avatarBoneMatching from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { preloadedAnimations } from '../animation/Util'
@@ -62,6 +61,7 @@ import { AvatarControllerComponent } from '../components/AvatarControllerCompone
 import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
+import { LocalAvatarState } from '../state/AvatarState'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from './retargetMixamoRig'
 
 declare module '@pixiv/three-vrm/types/VRM' {
@@ -135,10 +135,14 @@ const hipsPos = new Vector3(),
   leftLowerLegPos = new Vector3(),
   leftUpperLegPos = new Vector3(),
   footGap = new Vector3(),
-  eyePos = new Vector3()
+  eyePos = new Vector3(),
+  size = new Vector3(),
+  box = new Box3()
 
 export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   iterateEntityNode(entity, computeTransformMatrix)
+
+  box.expandByObject(vrm.scene).getSize(size)
 
   const rig = vrm.humanoid.rawHumanBones
   rig.hips.node.getWorldPosition(hipsPos)
@@ -151,6 +155,7 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   rig.leftEye ? rig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos)
 
   const avatarComponent = getMutableComponent(entity, AvatarComponent)
+  avatarComponent.avatarHeight.set(size.y)
   avatarComponent.torsoLength.set(Math.abs(headPos.y - hipsPos.y))
   avatarComponent.upperLegLength.set(Math.abs(hipsPos.y - leftLowerLegPos.y))
   avatarComponent.lowerLegLength.set(Math.abs(leftLowerLegPos.y - leftFootPos.y))
@@ -174,7 +179,7 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
 
   setObjectLayers(model.scene, ObjectLayers.Avatar)
 
-  const loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
+  const loadingEffect = getState(AnimationState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
 
   removeComponent(entity, AvatarPendingComponent)
 
@@ -187,7 +192,7 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
     })
   }
 
-  if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)
+  if (entity === Engine.instance.localClientEntity) getMutableState(LocalAvatarState).avatarReady.set(true)
 }
 
 export const retargetAvatarAnimations = (entity: Entity) => {

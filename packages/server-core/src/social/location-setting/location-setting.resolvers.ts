@@ -33,7 +33,7 @@ import {
 } from '@etherealengine/common/src/schemas/social/location-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const locationSettingResolver = resolve<LocationSettingType, HookContext>({
   createdAt: virtual(async (locationSetting) => fromDateTimeSql(locationSetting.createdAt)),

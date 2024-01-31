@@ -22,8 +22,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { JSONTree } from 'react-json-tree'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import {
   NO_PROXY,
   StateDefinitions,
@@ -33,7 +32,8 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 import styles from './styles.module.scss'
 
 const labelRenderer = (data: Record<string | number, any>) => {
@@ -61,7 +61,7 @@ const StateSearchState = defineState({
 })
 
 export function StateDebug() {
-  useHookstate(getMutableState(EngineState).frameTime).value
+  useHookstate(getMutableState(ECSState).frameTime).value
   const { t } = useTranslation()
 
   const stateSearch = useHookstate(getMutableState(StateSearchState).search)

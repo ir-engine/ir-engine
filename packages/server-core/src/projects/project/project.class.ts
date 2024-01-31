@@ -35,14 +35,14 @@ import {
   ProjectData,
   ProjectPatch,
   ProjectQuery,
-  ProjectType
+  ProjectType,
+  ProjectUpdateParams
 } from '@etherealengine/common/src/schemas/projects/project.schema'
-import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
+import { getDateTimeSql, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { KnexAdapterOptions, KnexAdapterParams, KnexService } from '@feathersjs/knex'
 import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { getDateTimeSql, toDateTimeSql } from '../../util/datetime-sql'
 import {
   deleteProjectFilesInStorageProvider,
   getCommitSHADate,
@@ -55,12 +55,6 @@ import {
 const UPDATE_JOB_TIMEOUT = 60 * 5 //5 minute timeout on project update jobs completing or failing
 
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
-
-export type ProjectUpdateParams = {
-  user?: UserType
-  isJob?: boolean
-  jobId?: string
-}
 
 export interface ProjectParams extends KnexAdapterParams<ProjectQuery>, ProjectUpdateParams {}
 

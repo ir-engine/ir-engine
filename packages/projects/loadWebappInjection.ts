@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { projectsPath } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { loadConfigForProject } from './loadConfigForProject'
 
 export const loadWebappInjection = async () => {

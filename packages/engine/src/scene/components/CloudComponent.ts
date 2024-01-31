@@ -27,7 +27,7 @@ import { Color, Vector2, Vector3 } from 'three'
 
 import { config } from '@etherealengine/common/src/config'
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Clouds } from '../classes/Clouds'
 
 export type CloudComponentType = {

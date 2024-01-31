@@ -25,12 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { Vector2 } from 'three'
 
-import { ComponentUpdateFunction } from '../../common/constants/PrefabFunctionType'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { ComponentUpdateFunction } from '@etherealengine/spatial/src/common/constants/PrefabFunctionType'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { Interior } from '../classes/Interior'
 import { addError, removeError } from '../functions/ErrorFunctions'
-import { addObjectToGroup } from './GroupComponent'
 
 export type InteriorComponentType = {
   cubeMap: string

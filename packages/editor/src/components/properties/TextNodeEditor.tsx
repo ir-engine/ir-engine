@@ -33,13 +33,13 @@ import { useTranslation } from 'react-i18next'
 
 import TextFieldsIcon from '@mui/icons-material/TextFields'
 
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import {
   EditorComponentType,
   commitProperty,
   updateProperty
 } from '@etherealengine/editor/src/components/properties//Util'
 import NodeEditor from '@etherealengine/editor/src/components/properties/NodeEditor'
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   FontMaterialKind,
   TextComponent,

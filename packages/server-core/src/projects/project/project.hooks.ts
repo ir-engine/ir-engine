@@ -57,8 +57,10 @@ import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
+import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import { copyFolderRecursiveSync } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
+import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
@@ -69,8 +71,6 @@ import config from '../../appconfig'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import { cleanString } from '../../util/cleanString'
-import { getDateTimeSql } from '../../util/datetime-sql'
-import { copyFolderRecursiveSync } from '../../util/fsHelperFunctions'
 import { useGit } from '../../util/gitHelperFunctions'
 import { checkAppOrgStatus, checkUserOrgWriteStatus, checkUserRepoWriteStatus } from './github-helper'
 import {

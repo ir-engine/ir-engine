@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
 /** Used to identity an entity that has been loaded as part of a scene */
 export const SceneObjectComponent = defineComponent({ name: 'SceneObjectComponent' })

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { BufferGeometry, Mesh, MeshBasicMaterial, MeshStandardMaterial, Object3D, SkinnedMesh, Texture } from 'three'
 
-import { mergeBufferGeometries } from '@etherealengine/engine/src/common/classes/BufferGeometryUtils'
+import { mergeBufferGeometries } from '@etherealengine/spatial/src/common/classes/BufferGeometryUtils'
 
 import asyncTraverse from '../functions/asyncTraverse'
 import hashImage from '../functions/hashImage'

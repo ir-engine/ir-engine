@@ -59,7 +59,7 @@ import { LoaderUtils, MathUtils } from 'three'
 
 import { fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
 import { baseName, pathJoin } from '@etherealengine/common/src/utils/miscUtils'
-import { Engine } from '../../ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { EEMaterial, EEMaterialExtension } from './extensions/EE_MaterialTransformer'
 import { EEResourceID, EEResourceIDExtension } from './extensions/EE_ResourceIDTransformer'
 import ModelTransformLoader from './ModelTransformLoader'
