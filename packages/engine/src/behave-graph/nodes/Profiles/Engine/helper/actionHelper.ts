@@ -29,6 +29,7 @@ import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import {
   Action,
   ActionDefinitions,
+  ActionQueueHandle,
   defineActionQueue,
   dispatchAction,
   removeActionQueue
@@ -84,7 +85,9 @@ export function getActionDispatchers() {
       skipped.push(actionType)
       continue
     }
-    const nameArray = type.split('.')
+
+    const primaryType = Array.isArray(type) ? type[0] : type
+    const nameArray = primaryType.split('.')
     const dispatchName = startCase(nameArray.pop().toLowerCase())
     const namePath = nameArray.splice(1).join('/')
 
@@ -136,7 +139,9 @@ export function getActionConsumers() {
       skipped.push(actionType)
       continue
     }
-    const nameArray = type.split('.')
+
+    const primaryType = Array.isArray(type) ? type[0] : type
+    const nameArray = primaryType.split('.')
     const dispatchName = startCase(nameArray.pop().toLowerCase())
     const namePath = nameArray.splice(1).join('/')
 
