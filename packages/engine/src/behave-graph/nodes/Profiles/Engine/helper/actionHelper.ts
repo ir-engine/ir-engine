@@ -76,7 +76,8 @@ export function registerActionDispatchers() {
       skipped.push(actionType)
       continue
     }
-    const nameArray = type.split('.')
+    const primaryType = Array.isArray(type) ? type[0] : type
+    const nameArray = primaryType.split('.')
     const dispatchName = startCase(nameArray.pop().toLowerCase())
     const namePath = nameArray.splice(1).join('/')
 
