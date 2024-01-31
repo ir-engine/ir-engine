@@ -895,6 +895,19 @@ export const ParticleSystemComponent = defineComponent({
       Promise.all(loadDependencies).then(() => {
         currentIndex === componentState._loadIndex.value && initParticleSystem(processedParms, metadata)
       })
+      return () => {
+        if (component.system) {
+          const index = batchRenderer.value.systemToBatchIndex.get(component.system)
+          batchRenderer.value.deleteSystem(component.system)
+          if (typeof index === 'undefined') return
+          batchRenderer.value.children.splice(index, 1)
+          const [batch] = batchRenderer.value.batches.splice(index, 1)
+          for (const value of Object.values(batch)) {
+            if (typeof value?.dispose === 'function') value.dispose()
+          }
+          batch.dispose()
+        }
+      }
     }, [componentState._refresh])
     return null
   }
