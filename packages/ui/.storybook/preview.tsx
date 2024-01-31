@@ -28,7 +28,7 @@ import { Preview } from '@storybook/react'
 import React, { lazy } from 'react'
 import { withRouter } from 'storybook-addon-react-router-v6'
 
-import { ThemeContextProvider } from '@etherealengine/client/src/pages/themeContext'
+import { ThemeProvider } from '@etherealengine/client-core/src/common/services/ThemeService'
 const Engine = lazy(() => import('@etherealengine/client/src/engine'))
 
 export const decorators = [
@@ -36,9 +36,9 @@ export const decorators = [
   (Story) => {
     return (
       <Engine>
-        <ThemeContextProvider>
+        <ThemeProvider>
           <Story />
-        </ThemeContextProvider>
+        </ThemeProvider>
       </Engine>
     )
   }

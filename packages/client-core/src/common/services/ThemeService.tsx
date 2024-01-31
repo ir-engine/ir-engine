@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
@@ -63,7 +63,7 @@ export const ThemeState = defineState({
   }
 })
 
-export const ThemeProvider = () => {
+export const ThemeProvider = ({ children }) => {
   const themeState = useHookstate(getMutableState(ThemeState))
 
   useEffect(() => {
@@ -89,5 +89,5 @@ export const ThemeProvider = () => {
     }
   }
 
-  return null
+  return <>{children}</>
 }
