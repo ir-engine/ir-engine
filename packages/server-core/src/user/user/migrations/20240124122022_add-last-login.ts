@@ -56,7 +56,7 @@ export async function down(knex: Knex): Promise<void> {
 
   const lastLoginColumnExists = await trx.schema.hasColumn(userPath, 'lastLogin')
 
-  if (!!lastLoginColumnExists) {
+  if (lastLoginColumnExists) {
     await trx.schema.alterTable(userPath, async (table) => {
       table.dropColumn('lastLogin')
     })
