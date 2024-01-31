@@ -103,7 +103,7 @@ export const AvatarAxesControlSchemeBehavior = {
 
     if (x === 0 && z === 0) {
       InputSourceAxesDidReset.set(inputSource, true)
-      if (inputSource.handedness === getComponent(localClientEntity, AvatarTeleportComponent)?.side)
+      if (inputSource.handedness === getOptionalComponent(localClientEntity, AvatarTeleportComponent)?.side)
         removeComponent(localClientEntity, AvatarTeleportComponent)
     }
 
