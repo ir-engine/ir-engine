@@ -41,6 +41,7 @@ import {
 import { t } from 'i18next'
 import React, { useEffect, useState } from 'react'
 import { LODList, LODVariantDescriptor, defaultLODs } from '../../constants/GLTFPresets'
+import { DialogState } from '../dialogs/DialogState'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
@@ -193,7 +194,7 @@ const ImageCompressionBox = (compressProperties) => {
   )
 }
 
-export default function ImportSettingsPanel({ openImportSettings }: { openImportSettings: boolean }) {
+export default function ImportSettingsPanel() {
   const importSettingsState = useHookstate(getMutableState(ImportSettingsState))
   const compressProperties = useHookstate(getMutableState(ImportSettingsState).imageSettings.get(NO_PROXY))
 
@@ -226,8 +227,12 @@ export default function ImportSettingsPanel({ openImportSettings }: { openImport
     importSettingsState.imageSettings.set(compressProperties.value)
   }
 
+  const handleCancel = () => {
+    DialogState.setDialog(null)
+  }
+
   return (
-    <Menu open={openImportSettings} maxWidth={'lg'} header={'Import Settings'}>
+    <Menu open maxWidth={'lg'} header={'Import Settings'}>
       <Box>
         <Typography>Default Import Folder</Typography>
         <TextField
@@ -288,7 +293,7 @@ export default function ImportSettingsPanel({ openImportSettings }: { openImport
       </Box>
       <Box>
         <Button onClick={() => handleSaveChanges()}>Save Changes</Button>
-        <Button>Cancel</Button>
+        <Button onClick={() => handleCancel()}>Cancel</Button>
       </Box>
     </Menu>
   )

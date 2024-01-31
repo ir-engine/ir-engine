@@ -51,6 +51,7 @@ import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
 import './EditorContainer.css'
 import AssetDropZone from './assets/AssetDropZone'
+import ImportSettingsPanel from './assets/ImportSettingsPanel'
 import { ProjectBrowserPanelTab } from './assets/ProjectBrowserPanel'
 import { SceneAssetsPanelTab } from './assets/SceneAssetsPanel'
 import { ScenePanelTab } from './assets/ScenesPanel'
@@ -197,7 +198,9 @@ const onSaveAs = async () => {
   }
 }
 
-const onImportSettings = () => {}
+const onImportSettings = () => {
+  DialogState.setDialog(<ImportSettingsPanel />)
+}
 
 const onImportAsset = async () => {
   const { projectName } = getState(EditorState)
