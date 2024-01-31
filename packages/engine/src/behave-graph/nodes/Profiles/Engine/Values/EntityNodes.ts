@@ -41,10 +41,10 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { getState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -311,29 +311,6 @@ export const useEntityTransform = makeEventNodeDefinition({
   dispose: ({ state: { systemUUID }, graph: { getDependency } }) => {
     destroySystem(systemUUID)
     return initialState()
-  }
-})
-
-export const getSelfEntity = makeFunctionNodeDefinition({
-  typeName: 'engine/entity/getSelfEntity',
-  category: NodeCategory.Query,
-  label: 'Get self entity',
-  in: {},
-  out: { entity: 'entity' },
-  exec: ({ read, write, graph: { getDependency } }) => {
-    const useEntityReactor: any = defineSystem({
-      uuid: 'behave-graph-getEntityReactor-' + uniqueId(),
-      insert: { after: PresentationSystemGroup },
-      execute: () => {},
-      reactor: function () {
-        const entity = useEntityContext()
-        useEffect(() => {
-          console.log('entity', entity)
-          write('entity', entity)
-        }, [entity])
-        return null
-      }
-    })
   }
 })
 
