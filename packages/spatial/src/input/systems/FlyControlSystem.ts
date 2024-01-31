@@ -33,7 +33,7 @@ import { InputSystemGroup } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getState } from '@etherealengine/hyperflux'
-import { CameraComponent } from '../../camera/components/CameraComponent'
+import { CameraOrbitComponent } from '../../camera/components/CameraOrbitComponent'
 import { FlyControlComponent } from '../../camera/components/FlyControlComponent'
 import { V_010 } from '../../common/constants/MathConstants'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -48,9 +48,6 @@ const direction = new Vector3()
 const parentInverse = new Matrix4()
 const tempVec3 = new Vector3()
 const quat = new Quaternion()
-const worldPos = new Vector3()
-const worldQuat = new Quaternion()
-const worldScale = new Vector3(1, 1, 1)
 const candidateWorldQuat = new Quaternion()
 
 const execute = () => {
@@ -63,26 +60,24 @@ const execute = () => {
 
   for (const entity of flyControlQuery()) {
     const flyControlComponent = getComponent(entity, FlyControlComponent)
-    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    const transform = getComponent(Engine.instance.cameraEntity, TransformComponent)
 
     const inputState = inputSource.buttons
 
     const pointerState = getState(InputState).pointerState
     const mouseMovement = pointerState.movement
 
-    camera.matrixWorld.decompose(worldPos, worldQuat, worldScale)
-
     // rotate about the camera's local x axis
     candidateWorldQuat.multiplyQuaternions(
       quat.setFromAxisAngle(
-        tempVec3.set(1, 0, 0).applyQuaternion(worldQuat),
+        tempVec3.set(1, 0, 0).applyQuaternion(transform.rotation),
         mouseMovement.y * flyControlComponent.lookSensitivity
       ),
-      worldQuat
+      transform.rotation
     )
 
     // check change of local "forward" and "up" to disallow flipping
-    const camUpY = tempVec3.set(0, 1, 0).applyQuaternion(worldQuat).y
+    const camUpY = tempVec3.set(0, 1, 0).applyQuaternion(transform.rotation).y
     const newCamUpY = tempVec3.set(0, 1, 0).applyQuaternion(candidateWorldQuat).y
     const newCamForwardY = tempVec3.set(0, 0, -1).applyQuaternion(candidateWorldQuat).y
     const extrema = Math.sin(flyControlComponent.maxXRotation)
@@ -90,23 +85,16 @@ const execute = () => {
       newCamUpY > 0 && ((newCamForwardY < extrema && newCamForwardY > -extrema) || newCamUpY > camUpY)
 
     if (allowRotationInX) {
-      camera.matrixWorld.compose(worldPos, candidateWorldQuat, worldScale)
-      // assume that if camera.parent exists, its matrixWorld is up to date
-      parentInverse.copy(camera.parent ? camera.parent.matrixWorld : IDENTITY).invert()
-      camera.matrix.multiplyMatrices(parentInverse, camera.matrixWorld)
-      camera.matrixWorld.decompose(camera.position, camera.quaternion, camera.scale)
+      transform.rotation.copy(candidateWorldQuat)
     }
 
-    camera.matrixWorld.decompose(worldPos, worldQuat, worldScale)
     // rotate about the world y axis
     candidateWorldQuat.multiplyQuaternions(
       quat.setFromAxisAngle(V_010, -mouseMovement.x * flyControlComponent.lookSensitivity),
-      worldQuat
+      transform.rotation
     )
 
-    camera.matrixWorld.compose(worldPos, candidateWorldQuat, worldScale)
-    camera.matrix.multiplyMatrices(parentInverse, camera.matrixWorld)
-    camera.matrix.decompose(camera.position, camera.quaternion, camera.scale)
+    transform.rotation.copy(candidateWorldQuat)
 
     const lateralMovement = (inputState.KeyD?.pressed ? 1 : 0) + (inputState.KeyA?.pressed ? -1 : 0)
     const forwardMovement = (inputState.KeyS?.pressed ? 1 : 0) + (inputState.KeyW?.pressed ? -1 : 0)
@@ -114,17 +102,16 @@ const execute = () => {
 
     // translate
     direction.set(lateralMovement, 0, forwardMovement)
+    direction.applyQuaternion(transform.rotation)
     const boostSpeed = inputState.ShiftLeft?.pressed ? flyControlComponent.boostSpeed : 1
     const deltaSeconds = getState(ECSState).deltaSeconds
     const speed = deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
 
-    if (direction.lengthSq() > EPSILON) camera.translateOnAxis(direction, speed)
+    if (direction.lengthSq() > EPSILON) transform.position.add(direction.multiplyScalar(speed))
 
-    camera.position.y += upwardMovement * deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
+    transform.position.y += upwardMovement * deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
 
-    const transform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    transform.position.copy(camera.position)
-    transform.rotation.copy(camera.quaternion)
+    getComponent(entity, CameraOrbitComponent).cameraOrbitCenter.add(direction)
   }
 }
 
