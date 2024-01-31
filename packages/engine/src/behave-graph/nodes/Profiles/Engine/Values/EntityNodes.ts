@@ -54,6 +54,7 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { copyTransformToRigidBody } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { uniqueId } from 'lodash'
 import { useEffect } from 'react'
+import { write } from '../../../../../assets/loaders/gltf/ktx-parse.module'
 import { teleportAvatar } from '../../../../../avatar/functions/moveAvatar'
 import { SceneObjectComponent } from '../../../../../scene/components/SceneObjectComponent'
 import { addEntityToScene } from '../helper/entityHelper'
@@ -157,7 +158,7 @@ export const getEntityTransform = makeFunctionNodeDefinition({
   in: {
     entity: 'entity'
   },
-  out: { position: 'vec3', rotation: 'quat', scale: 'vec3', matrix: 'mat4' },
+  out: { entity: 'entity', position: 'vec3', rotation: 'quat', scale: 'vec3', matrix: 'mat4' },
   exec: ({ read, write, graph }) => {
     const entity = Number(read('entity')) as Entity
     const transform = getComponent(entity, TransformComponent)
@@ -165,6 +166,7 @@ export const getEntityTransform = makeFunctionNodeDefinition({
     write('rotation', transform.rotation)
     write('scale', transform.scale)
     write('matrix', transform.matrix)
+    write('entity', entity)
   }
 })
 
@@ -251,7 +253,7 @@ export const setEntityTransform = makeFlowNodeDefinition({
     rotation: 'quat',
     scale: 'vec3'
   },
-  out: { flow: 'flow' },
+  out: { flow: 'flow', entity: 'entity' },
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
     const position = toVector3(read('position'))
@@ -264,6 +266,7 @@ export const setEntityTransform = makeFlowNodeDefinition({
       setComponent(entity, TransformComponent, { position: position!, rotation: rotation!, scale: scale! })
       if (hasComponent(entity, RigidBodyComponent)) copyTransformToRigidBody(entity)
     }
+    write('entity', entity)
     commit('flow')
   }
 })
