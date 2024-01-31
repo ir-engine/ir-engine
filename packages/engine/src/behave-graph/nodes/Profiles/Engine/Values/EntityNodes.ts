@@ -279,6 +279,7 @@ export const useEntityTransform = makeEventNodeDefinition({
     entity: 'entity'
   },
   out: {
+    entity: 'entity',
     positionChange: 'flow',
     position: 'vec3',
     rotationChange: 'flow',
@@ -289,7 +290,6 @@ export const useEntityTransform = makeEventNodeDefinition({
   initialState: initialState(),
   init: ({ read, commit, write, graph: { getDependency } }) => {
     const entity = Number(read('entity')) as Entity
-    const prevTransform = {}
     const systemUUID = defineSystem({
       uuid: 'behave-graph-useTransform-' + uniqueId(),
       insert: { with: InputSystemGroup },
@@ -306,6 +306,8 @@ export const useEntityTransform = makeEventNodeDefinition({
         return null
       }
     })
+    write('entity', entity)
+
     const state: State = {
       systemUUID
     }
