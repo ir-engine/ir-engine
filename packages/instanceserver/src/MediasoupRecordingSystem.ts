@@ -29,15 +29,15 @@ import { useEffect } from 'react'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { localConfig } from '@etherealengine/server-core/src/config'
+import serverLogger from '@etherealengine/server-core/src/ServerLogger'
 import {
   NetworkState,
   PeerMediaType,
   screenshareAudioDataChannelType,
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
-} from '@etherealengine/engine/src/networking/NetworkState'
-import { localConfig } from '@etherealengine/server-core/src/config'
-import serverLogger from '@etherealengine/server-core/src/ServerLogger'
+} from '@etherealengine/spatial/src/networking/NetworkState'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import {

@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Entity } from '@etherealengine/ecs'
 import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { Cache, CompressedTexture, DefaultLoadingManager, LoadingManager, Material, Texture } from 'three'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { SourceType } from '../../scene/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../scene/materials/functions/MaterialLibraryFunctions'
 import { AssetLoader, LoadingArgs } from '../classes/AssetLoader'

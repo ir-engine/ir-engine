@@ -28,20 +28,20 @@ import React, { useEffect } from 'react'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
-import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
+import { DataChannelRegistryState } from '@etherealengine/spatial/src/networking/systems/DataChannelRegistry'
 import {
   MediasoupDataConsumerActions,
   MediasoupDataProducerActions
-} from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
+} from '@etherealengine/spatial/src/networking/systems/MediasoupDataProducerConsumerState'
 import {
   MediaProducerActions,
   MediasoupMediaConsumerActions
-} from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
-import { MediasoupTransportActions } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+} from '@etherealengine/spatial/src/networking/systems/MediasoupMediaProducerConsumerState'
+import { MediasoupTransportActions } from '@etherealengine/spatial/src/networking/systems/MediasoupTransportState'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import {
   createOutgoingDataProducer,

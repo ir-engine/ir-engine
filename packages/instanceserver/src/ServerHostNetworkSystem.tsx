@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
-import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
+import { NetworkPeerFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkPeerFunctions'
+import { updatePeers } from '@etherealengine/spatial/src/networking/systems/OutgoingActionSystem'
 import { useEffect } from 'react'
 
 import { RecordingID } from '@etherealengine/common/src/schema.type.module'
@@ -35,7 +35,7 @@ import { getMutableState, none } from '@etherealengine/hyperflux'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { recordingResourceUploadPath } from '@etherealengine/common/src/schema.type.module'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
 export async function checkPeerHeartbeat(network: SocketWebRTCServerNetwork): Promise<void> {

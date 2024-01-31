@@ -38,20 +38,20 @@ import {
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import logger from '@etherealengine/common/src/logger'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { endXRSession, requestXRSession } from '@etherealengine/engine/src/xr/XRSessionFunctions'
-import { XRState } from '@etherealengine/engine/src/xr/XRState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { endXRSession, requestXRSession } from '@etherealengine/spatial/src/xr/XRSessionFunctions'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { CameraActions } from '@etherealengine/engine/src/camera/CameraState'
 import {
   ECSRecordingActions,
   PlaybackState,
   RecordingState
 } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
-import { RegisteredWidgets, WidgetAppActions } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
+import { RegisteredWidgets, WidgetAppActions } from '@etherealengine/spatial/src/xrui/WidgetAppService'
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 import { useTranslation } from 'react-i18next'
 import { VrIcon } from '../../common/components/Icons/VrIcon'

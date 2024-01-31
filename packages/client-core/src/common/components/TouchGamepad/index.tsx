@@ -28,16 +28,16 @@ import React, { useEffect } from 'react'
 import { Joystick } from 'react-joystick-component'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { isTouchAvailable } from '@etherealengine/engine/src/common/functions/DetectFeatures'
-import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
+import { InteractState } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
+import { getMutableState } from '@etherealengine/hyperflux'
+import { isTouchAvailable } from '@etherealengine/spatial/src/common/functions/DetectFeatures'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import {
   AnyButton,
   createInitialButtonState,
   XRStandardGamepadButton
-} from '@etherealengine/engine/src/input/state/ButtonState'
-import { InteractState } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
-import { isMobileXRHeadset, XRControlsState } from '@etherealengine/engine/src/xr/XRState'
-import { getMutableState } from '@etherealengine/hyperflux'
+} from '@etherealengine/spatial/src/input/state/ButtonState'
+import { isMobileXRHeadset, XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { AppState } from '../../services/AppService'

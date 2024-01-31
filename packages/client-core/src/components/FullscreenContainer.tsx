@@ -27,7 +27,7 @@ import React, { useEffect } from 'react'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 
 import { FullscreenContext } from '@etherealengine/client-core/src/components/useFullscreen'
-import { iOS } from '@etherealengine/engine/src/common/functions/isMobile'
+import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
 
 type Props = { children: JSX.Element | JSX.Element[] }
 

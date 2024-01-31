@@ -49,13 +49,13 @@ import { NO_PROXY, defineState, getMutableState, none, useHookstate } from '@eth
 
 import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
 import { useGLTF, useTexture } from '../../assets/functions/resourceHooks'
-import { NameComponent } from '../../common/NameComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
-import { VisibleComponent } from '../../renderer/components/VisibleComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import getFirstMesh from '../util/meshUtils'
 
 export const ParticleState = defineState({
@@ -907,6 +907,20 @@ export const ParticleSystemComponent = defineComponent({
         componentState._loadIndex.set(componentState._loadIndex.value + 1)
         const currentIndex = componentState._loadIndex.value
         currentIndex === componentState._loadIndex.value && initParticleSystem(processedParms, metadata.value)
+      }
+
+      return () => {
+        if (component.system) {
+          const index = batchRenderer.value.systemToBatchIndex.get(component.system)
+          batchRenderer.value.deleteSystem(component.system)
+          if (typeof index === 'undefined') return
+          batchRenderer.value.children.splice(index, 1)
+          const [batch] = batchRenderer.value.batches.splice(index, 1)
+          for (const value of Object.values(batch)) {
+            if (typeof value?.dispose === 'function') value.dispose()
+          }
+          batch.dispose()
+        }
       }
     }, [geoDependency, shapeMesh, textureState, componentState._refresh])
 
