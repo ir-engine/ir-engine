@@ -54,11 +54,6 @@ const localMatrix = new Matrix4()
 const quat = new Quaternion()
 
 const helpers = {}
-
-//set offsets so hands align with controllers. Multiplying two quaternions because gimbal lock in euler angles prevents setting the offset in one quaternion
-export const leftHandOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
-export const rightHandOffset = new Quaternion().setFromEuler(new Euler(0, -Math.PI, 0))
-
 /**
  * Gets world space pose for each joint in the hand and stores the rotation in an XRHandComponent in local space
  * @param inputSource
@@ -104,7 +99,7 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
 
     quat.setFromRotationMatrix(localMatrix)
     if (joint === 'thumb-metacarpal')
-      quat.multiply(inputSource.handedness == 'right' ? rightHandOffset : leftHandOffset)
+      quat.multiply(inputSource.handedness == 'right' ? rightControllerOffset : leftControllerOffset)
 
     quat.invert()
 
@@ -114,7 +109,7 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
   }
 }
 
-//set offsets so hands align with controllers. Multiplying two quaternions because gimbal lock in euler angles prevents setting the offset in one quaternion
+//set offsets so hands align with controllers.
 export const leftControllerOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI / 2, 0))
 export const rightControllerOffset = new Quaternion().setFromEuler(new Euler(0, -Math.PI / 2, 0))
 
