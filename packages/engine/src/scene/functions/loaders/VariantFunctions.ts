@@ -2,7 +2,7 @@ import { InstancedMesh, Material, Object3D, Vector3 } from 'three'
 
 import { DistanceFromCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 
-import { getComponent, getMutableComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, getMutableComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
@@ -81,13 +81,13 @@ function getMeshVariant(entity: Entity, variantComponent): string | null {
   return null
 }
 
-export function useVariant(entity?: Entity): string | null {
+export function getVariant(entity?: Entity): string | null {
   if (!entity) return null
-  const variantComponent = useOptionalComponent(entity, VariantComponent)
-  if (!variantComponent || !variantComponent.value) return null
+  const variantComponent = getOptionalComponent(entity, VariantComponent)
+  if (!variantComponent) return null
 
-  const modelComponent = useOptionalComponent(entity, ModelComponent)
-  const meshComponent = useOptionalComponent(entity, MeshComponent)
+  const modelComponent = getOptionalComponent(entity, ModelComponent)
+  const meshComponent = getOptionalComponent(entity, MeshComponent)
 
   if (modelComponent) return getModelVariant(entity, variantComponent, modelComponent)
   else if (meshComponent) return getMeshVariant(entity, variantComponent)

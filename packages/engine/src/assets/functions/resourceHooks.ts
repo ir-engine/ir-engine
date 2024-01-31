@@ -27,7 +27,7 @@ import { Entity, UndefinedEntity } from '@etherealengine/ecs'
 import { State, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { Texture } from 'three'
-import { useVariant } from '../../scene/functions/loaders/VariantFunctions'
+import { getVariant } from '../../scene/functions/loaders/VariantFunctions'
 import { LoadingArgs } from '../classes/AssetLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { AssetType, ResourceManager, ResourceType } from '../state/ResourceState'
@@ -197,7 +197,7 @@ export function useGLTF(
   params?: LoadingArgs,
   onUnload?: (url: string) => void
 ): [State<GLTF | null>, () => void, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>] {
-  const variantUrl = useVariant(entity)
+  const variantUrl = getVariant(entity)
   if (variantUrl) {
     url = variantUrl
   }
