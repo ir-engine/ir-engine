@@ -82,7 +82,6 @@ export const ThemeProvider = ({ children }) => {
     const theme = themes[themeState.theme.value]
     if (theme) {
       const root = document.querySelector(':root') as any
-      console.log(root)
       for (const variable of Object.keys(theme)) {
         root.style.setProperty('--' + variable, theme[variable])
       }
