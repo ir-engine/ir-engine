@@ -49,6 +49,7 @@ import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { EditorCameraState } from '../classes/EditorCameraState'
@@ -82,7 +83,7 @@ const onKeyB = () => {
 }
 
 const onKeyQ = () => {
-  /*const nodes = getState(SelectionState).selectedEntities
+  /*const nodes = SelectionState.getSelectedEntities()
   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
   const editorHelperState = getState(EditorHelperState)
   EditorControlFunctions.rotateAround(
@@ -94,7 +95,7 @@ const onKeyQ = () => {
 }
 
 const onKeyE = () => {
-  /*const nodes = getState(SelectionState).selectedEntities
+  /*const nodes = SelectionState.getSelectedEntities()
   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
   const editorHelperState = getState(EditorHelperState)
   EditorControlFunctions.rotateAround(
@@ -109,7 +110,7 @@ const onEscape = () => {
 }
 const onKeyF = () => {
   const editorCameraState = getMutableState(EditorCameraState)
-  editorCameraState.focusedObjects.set(getState(SelectionState).selectedEntities)
+  editorCameraState.focusedObjects.set(SelectionState.getSelectedEntities())
   editorCameraState.refocus.set(true)
 }
 
@@ -159,7 +160,7 @@ const onMinus = () => {
 }
 
 const onDelete = () => {
-  EditorControlFunctions.removeObject(getState(SelectionState).selectedEntities)
+  EditorControlFunctions.removeObject(SelectionState.getSelectedEntities())
 }
 
 function copy(event) {
@@ -235,7 +236,7 @@ const execute = () => {
   const deltaSeconds = getState(ECSState).deltaSeconds
 
   const editorHelperState = getState(EditorHelperState)
-  const selectionState = getMutableState(SelectionState)
+  const selectedEntities = SelectionState.getSelectedEntities()
   const pointerState = getState(InputState).pointerState
 
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
@@ -260,10 +261,10 @@ const execute = () => {
   if (buttons.Minus?.down) onMinus()
   if (buttons.Delete?.down) onDelete()
 
-  if (selectionState.selectedEntities) {
-    const lastSelection = selectionState.selectedEntities[selectionState.selectedEntities.length - 1]
-    if (hasComponent(lastSelection.value as Entity, TransformGizmoComponent))
-      dragging = getComponent(lastSelection.value as Entity, TransformGizmoComponent).dragging
+  if (selectedEntities) {
+    const lastSelection = selectedEntities[selectedEntities.length - 1]
+    if (hasComponent(lastSelection, TransformGizmoComponent))
+      dragging = getComponent(lastSelection, TransformGizmoComponent).dragging
   }
   const selecting = buttons.PrimaryClick?.pressed && !dragging
   const zoom = pointerState.scroll.y
@@ -298,7 +299,7 @@ const execute = () => {
         clickedEntity = getComponent(clickedEntity, EntityTreeComponent).parentEntity!
       }
       if (hasComponent(clickedEntity, SourceComponent)) {
-        SelectionState.updateSelection([clickedEntity])
+        SelectionState.updateSelection([getComponent(clickedEntity, UUIDComponent)])
       }
     }
   }
@@ -341,7 +342,7 @@ const reactor = () => {
     if (typeof lastSelection === 'string') return // TODO : gizmo for 3d objects without Ids
 
     setComponent(lastSelection, TransformGizmoComponent)
-  }, [selectionState.selectedParentEntities])
+  }, [selectionState.selectedEntities])
 
   useEffect(() => {
     const infiniteGridHelperEntity = rendererState.infiniteGridHelperEntity.value

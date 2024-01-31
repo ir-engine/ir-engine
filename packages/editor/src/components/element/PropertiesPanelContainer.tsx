@@ -27,11 +27,12 @@ import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useAllComponents, useComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, useAllComponents, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { Popover } from '@mui/material'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorState } from '../../services/EditorServices'
@@ -54,12 +55,12 @@ const EntityComponentEditor = (props: { entity; component; multiEdit }) => {
   return <Editor key={`${entity}-${Editor.name}`} multiEdit={multiEdit} entity={entity} component={component} />
 }
 
-const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
-  const { entity, multiEdit } = props
+const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => {
+  const { entityUUID, multiEdit } = props
   const anchorEl = useHookstate<HTMLButtonElement | null>(null)
   const { t } = useTranslation()
 
-  const uuid = useComponent(entity, UUIDComponent)
+  const entity = UUIDComponent.getEntityByUUID(entityUUID)
 
   const components = useAllComponents(entity).filter((c) => EntityNodeEditor.has(c))
 
@@ -94,9 +95,14 @@ const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
       >
         <ElementList />
       </Popover>
-      <CoreNodeEditor entity={entity} key={uuid.value} />
+      <CoreNodeEditor entity={entity} key={entityUUID + entity} />
       {components.map((c, i) => (
-        <EntityComponentEditor key={`${uuid.value}-${c.name}`} multiEdit={multiEdit} entity={entity} component={c} />
+        <EntityComponentEditor
+          key={`${entityUUID + entity}-${c.name}`}
+          multiEdit={multiEdit}
+          entity={entity}
+          component={c}
+        />
       ))}
     </PopoverContext.Provider>
   )
@@ -106,25 +112,26 @@ const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
  * PropertiesPanelContainer used to render editor view to customize property of selected element.
  */
 export const PropertiesPanelContainer = () => {
-  const selectionState = useHookstate(getMutableState(SelectionState))
-  const editorState = useHookstate(getMutableState(EditorState))
+  const selectedEntities = SelectionState.useSelectedEntities()
   const entity = useHookstate<Entity>(UndefinedEntity)
   const multiEdit = useHookstate<boolean>(false)
+  const uuid = getComponent(entity.value, UUIDComponent)
 
   const { t } = useTranslation()
 
   useEffect(() => {
-    const selectedEntities = selectionState.selectedEntities.value
-    const lockedNode = editorState.lockPropertiesPanel.value
+    const lockedNode = getState(EditorState).lockPropertiesPanel
     multiEdit.set(selectedEntities.length > 1)
     entity.set(
       lockedNode
         ? UUIDComponent.getEntityByUUID(lockedNode) ?? lockedNode
         : selectedEntities[selectedEntities.length - 1]
     )
-  }, [selectionState.selectedEntities])
+  }, [selectedEntities])
 
-  const materialID = useHookstate(getMutableState(MaterialSelectionState)).selectedMaterial.value
+  const materialID = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial).value
+
+  if (!entity.value && !materialID) return null
 
   return (
     <div
@@ -135,8 +142,8 @@ export const PropertiesPanelContainer = () => {
     >
       {materialID ? (
         <MaterialEditor materialID={materialID} />
-      ) : entity.value ? (
-        <EntityEditor entity={entity.value} key={entity.value} multiEdit={multiEdit.value} />
+      ) : uuid ? (
+        <EntityEditor entityUUID={uuid} key={uuid + entity.value} multiEdit={multiEdit.value} />
       ) : (
         <div
           style={{
