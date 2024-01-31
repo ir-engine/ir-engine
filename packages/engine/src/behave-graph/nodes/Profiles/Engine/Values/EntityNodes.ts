@@ -43,17 +43,17 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { getState } from '@etherealengine/hyperflux'
-import { uniqueId } from 'lodash'
-import { useEffect } from 'react'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { copyTransformToRigidBody } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+import { uniqueId } from 'lodash'
+import { useEffect } from 'react'
 import { teleportAvatar } from '../../../../../avatar/functions/moveAvatar'
 import { SceneObjectComponent } from '../../../../../scene/components/SceneObjectComponent'
 import { addEntityToScene } from '../helper/entityHelper'
@@ -241,7 +241,7 @@ export const deleteEntity = makeFlowNodeDefinition({
 })
 
 export const setEntityTransform = makeFlowNodeDefinition({
-  typeName: 'engine/entity/setEntityTransform',
+  typeName: 'engine/entity/TransformComponent/set',
   category: NodeCategory.Action,
   label: 'Set entity transform',
   in: {
@@ -269,7 +269,7 @@ export const setEntityTransform = makeFlowNodeDefinition({
 })
 
 export const useEntityTransform = makeEventNodeDefinition({
-  typeName: 'engine/entity/useEntityTransform',
+  typeName: 'engine/entity/TransformComponent/use',
   category: NodeCategory.Event,
   label: 'Use entity transform',
   in: {
