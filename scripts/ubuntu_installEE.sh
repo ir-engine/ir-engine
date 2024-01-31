@@ -21,8 +21,12 @@ set -e
 
 # Crash on non-Ubuntu distributions
 if [[ $(lsb_release -si) -ne "Ubuntu" ]] ; then
-  echo "[ERROR] This script only works for Ubuntu Linux distributions."
-  exit 1
+  echo "[WARNING] This script only works for Ubuntu Linux distributions."
+  read -r -n1 -p 'Are you sure you want to continue? [y/n] ' choice
+  case "$choice" in
+    y|Y) echo "[WARNING] Running Ethereal Engine Ubuntu installer script on:"; echo "  $(lsb_release -sa)";;
+    n|N|*) exit 1;;
+  esac
 fi
 
 # Add universe to the repositories list and update the package list
