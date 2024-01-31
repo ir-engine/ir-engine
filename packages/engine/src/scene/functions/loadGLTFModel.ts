@@ -43,6 +43,7 @@ import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterat
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
 import { enableObjectLayer } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
@@ -194,11 +195,20 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
     children: {
       get() {
         if (EngineRenderer.instance?.rendering) return []
-        return hasComponent(objEntity, EntityTreeComponent)
-          ? getComponent(objEntity, EntityTreeComponent)
-              .children.filter((child) => getOptionalComponent(child, GroupComponent)?.length)
-              .flatMap((child) => getComponent(child, GroupComponent))
-          : []
+        if (hasComponent(objEntity, EntityTreeComponent)) {
+          const childEntities = getComponent(objEntity, EntityTreeComponent).children
+          const result: Object3D[] = []
+          for (const childEntity of childEntities) {
+            if (hasComponent(childEntity, MeshComponent)) {
+              result.push(getComponent(childEntity, MeshComponent))
+            } else if (hasComponent(childEntity, Object3DComponent)) {
+              result.push(getComponent(childEntity, Object3DComponent))
+            }
+          }
+          return result
+        } else {
+          return []
+        }
       },
       set(value) {
         throw new Error('Cannot set children of proxified object')

@@ -23,21 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material } from 'three'
+import { defineComponent } from '@etherealengine/ecs'
+import { Object3D } from 'three'
 
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { MaterialSource } from './MaterialSource'
+export const Object3DComponent = defineComponent({
+  name: 'Object3D Component',
+  jsonID: 'object3d',
 
-export type MaterialWithEntity = Material & { entity: Entity }
-
-export type MaterialStatus = 'LOADED' | 'MISSING' | 'UNLOADED'
-
-export type MaterialComponentType = {
-  prototype: string
-  material: Material
-  parameters: { [field: string]: any }
-  plugins: string[]
-  src: MaterialSource
-  status: MaterialStatus
-  instances: Entity[]
-}
+  onInit: (entity) => null! as Object3D,
+  onSet: (entity, component, object3d: Object3D) => {
+    if (!object3d || !object3d.isObject3D) throw new Error('Object3DComponent: Invalid object3d')
+    component.set(object3d)
+  }
+})
