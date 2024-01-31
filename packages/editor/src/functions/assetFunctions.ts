@@ -36,6 +36,9 @@ import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
+import { getState } from '@etherealengine/hyperflux'
+import { ImportSettingsState } from '../components/assets/ImportSettingsPanel'
+import { createLODVariants } from '../components/assets/ModelCompressionPanel'
 
 const logger = multiLogger.child({ component: 'editor:assetFunctions' })
 
@@ -65,6 +68,16 @@ export const inputFileWithAddToScene = async ({
         const files = Array.from(el.files)
         if (projectName) {
           uploadedURLs = (await Promise.all(uploadProjectFiles(projectName, files, true).promises)).map((url) => url[0])
+          for (const url of uploadedURLs) {
+            if (url.endsWith('.gltf') || url.endsWith('.glb') || url.endsWith('.wrm')) {
+              // Build createLODVariants function call with correct args
+              const importSettings = getState(ImportSettingsState)
+              if (importSettings.LODsEnabled) {
+                const LODSettings = { ...importSettings.selectedLODS }
+                await createLODVariants(url, LODSettings, true, 'DEVICE', true)
+              }
+            }
+          }
         } else if (directoryPath) {
           uploadedURLs = await Promise.all(
             files.map(

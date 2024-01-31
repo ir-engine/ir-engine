@@ -24,11 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
-import {
-  KTX2EncodeArguments,
-  KTX2EncodeDefaultArguments
-} from '@etherealengine/engine/src/assets/constants/CompressionParms'
+import { KTX2EncodeDefaultArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
+import { NO_PROXY, defineState, getMutableState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 import { useHookstate } from '@hookstate/core'
 import {
   Box,
@@ -43,18 +40,34 @@ import {
 } from '@mui/material'
 import { t } from 'i18next'
 import React, { useEffect, useState } from 'react'
-import { LODList } from '../../constants/GLTFPresets'
+import { LODList, LODVariantDescriptor, defaultLODs } from '../../constants/GLTFPresets'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import { List } from '../layout/List'
 
-type LODVariantDescriptor = {
-  params: ModelTransformParameters
-  suffix: string
-  variantMetadata: Record<string, any>[]
-}
+export const ImportSettingsState = defineState({
+  name: 'ImportSettingsState',
+  initial: () => ({
+    LODsEnabled: false,
+    selectedLODS: defaultLODs,
+    imageCompression: false,
+    imageSettings: KTX2EncodeDefaultArguments,
+    importFolder: '/assets/',
+    LODFolder: '/assets/LODs/'
+  }),
+  onCreate: () => {
+    syncStateWithLocalStorage(ImportSettingsState, [
+      'LODsEnabled',
+      'selectedLODS',
+      'imageCompression',
+      'imageSettings',
+      'importFolder',
+      'LODFolder'
+    ])
+  }
+})
 
 const UASTCFlagOptions = [
   { label: 'Fastest', value: 0 },
@@ -70,9 +83,7 @@ const UASTCFlagOptions = [
   { label: 'Disable Flip and Individual', value: 256 }
 ]
 
-const ImageCompressionBox = () => {
-  const compressProperties = useHookstate<KTX2EncodeArguments>(KTX2EncodeDefaultArguments)
-
+const ImageCompressionBox = (compressProperties) => {
   return (
     <>
       <InputGroup name="fileType" label={'File'}>
@@ -183,26 +194,22 @@ const ImageCompressionBox = () => {
 }
 
 export default function ImportSettingsPanel({ openImportSettings }: { openImportSettings: boolean }) {
-  const [defaultImportFolder, setDefaultImportFolder] = useState<string>('/assets/')
-  const [LODImportFolder, setLODImportFolder] = useState<string>('/assets/LODS/')
-  const [LODGenEnabled, setLODGenEnabled] = useState<boolean>(false)
-  const [selectedLODS, setSelectedLods] = useState<ModelTransformParameters[]>(LODList.slice(0, 3))
-  const [currentLOD, setCurrentLOD] = useState<ModelTransformParameters>(LODList[0])
+  const importSettingsState = useHookstate(getMutableState(ImportSettingsState))
+  const compressProperties = useHookstate(getMutableState(ImportSettingsState).imageSettings.get(NO_PROXY))
+
+  const [defaultImportFolder, setDefaultImportFolder] = useState<string>(importSettingsState.importFolder.value)
+  const [LODImportFolder, setLODImportFolder] = useState<string>(importSettingsState.LODFolder.value)
+  const [LODGenEnabled, setLODGenEnabled] = useState<boolean>(importSettingsState.LODsEnabled.value)
+  const [selectedLODS, setSelectedLods] = useState<LODVariantDescriptor[]>(importSettingsState.selectedLODS.value)
+  const [currentLOD, setCurrentLOD] = useState<LODVariantDescriptor>(importSettingsState.selectedLODS.value[0])
   const [currentIndex, setCurrentIndex] = useState<number>(0)
-  const [KTXEnabled, setKTXEnabled] = useState<boolean>(false)
+  const [KTXEnabled, setKTXEnabled] = useState<boolean>(importSettingsState.imageCompression.value)
+
   const presetLabels = ['Desktop', 'Mobile', 'XR']
 
   useEffect(() => {
     handleLODChange()
   }, [currentLOD, currentIndex])
-
-  useEffect(() => {
-    if (LODGenEnabled) {
-      // Import to LOD folder and default folder
-    } else {
-      // Import to default folder only
-    }
-  }, [LODGenEnabled])
 
   const handleLODChange = () => {
     const newLODS = [...selectedLODS]
@@ -211,7 +218,12 @@ export default function ImportSettingsPanel({ openImportSettings }: { openImport
   }
 
   const handleSaveChanges = () => {
-    // Save import settings into global state
+    importSettingsState.importFolder.set(defaultImportFolder)
+    importSettingsState.LODFolder.set(LODImportFolder)
+    importSettingsState.LODsEnabled.set(LODGenEnabled)
+    importSettingsState.selectedLODS.set(selectedLODS)
+    importSettingsState.imageCompression.set(KTXEnabled)
+    importSettingsState.imageSettings.set(compressProperties.value)
   }
 
   return (
@@ -244,7 +256,7 @@ export default function ImportSettingsPanel({ openImportSettings }: { openImport
             <List>
               {selectedLODS.slice(0, 3).map((LOD, idx) => (
                 <FormControl>
-                  <TextField select label={LOD.dst} value={LOD.dst}>
+                  <TextField select label={LOD.params.dst} value={LOD.params.dst}>
                     {LODList.map((sLOD) => (
                       <MenuItem
                         onClick={() => {
@@ -252,7 +264,7 @@ export default function ImportSettingsPanel({ openImportSettings }: { openImport
                           setCurrentIndex(idx)
                         }}
                       >
-                        {sLOD.dst}
+                        {sLOD.params.dst}
                       </MenuItem>
                     ))}
                   </TextField>
@@ -271,7 +283,7 @@ export default function ImportSettingsPanel({ openImportSettings }: { openImport
             control={<Checkbox onChange={() => setKTXEnabled(!KTXEnabled)} />}
             label={'Compress to KTX2'}
           />
-          {KTXEnabled && <ImageCompressionBox />}
+          {KTXEnabled && <ImageCompressionBox compressProperties={compressProperties} />}
         </Box>
       </Box>
       <Box>

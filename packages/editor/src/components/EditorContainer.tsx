@@ -197,6 +197,8 @@ const onSaveAs = async () => {
   }
 }
 
+const onImportSettings = () => {}
+
 const onImportAsset = async () => {
   const { projectName } = getState(EditorState)
 
@@ -277,6 +279,10 @@ const generateToolbarMenu = () => {
     {
       name: t('editor:menubar.saveAs'),
       action: onSaveAs
+    },
+    {
+      name: t('editor:menubar.importSettings'),
+      action: onImportSettings
     },
     {
       name: t('editor:menubar.importAsset'),
