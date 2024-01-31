@@ -1,7 +1,7 @@
 #!/bin/bash -i
 # @important Development Warning:
 # - The primary target user of this script is a non-technical user that is running EE for their first time.
-# - The script will fail at the first error to not confuse its user.
+# - The script will fail at the first error to not confuse its user  `set -e`.
 # - This script must be run from an interactive shell with `bash -i`
 # - Activating `set -u` will break because sourcing the default ubuntu `~/.bashrc` file will stop the script.
 set -e
@@ -15,7 +15,7 @@ set -e
 # - Automatically adds `universe` and `docker's APT` repositories to the system (required by docker-desktop)
 # - Automatically installs git, curl, nvm, node18, ca-certificates
 # - Guides the user on how to download the latest docker-desktop .deb file.
-#   Continues installing docker-desktop after the user has downloaded the file presses enter.
+#   Continues installing docker-desktop after the user has downloaded the file and presses enter.
 # - Clones EE's main repository (@important does NOT use --depth=1)
 # - Installs all npm dependencies for the engine
 
