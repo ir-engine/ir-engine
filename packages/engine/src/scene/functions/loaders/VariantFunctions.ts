@@ -2,14 +2,11 @@ import { InstancedMesh, Material, Object3D, Vector3 } from 'three'
 
 import { DistanceFromCameraComponent } from '@etherealengine/engine/src/transform/components/DistanceComponents'
 
-import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, getMutableComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { NO_PROXY } from '@etherealengine/hyperflux'
-import { useEffect } from 'react'
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { pathResolver } from '../../../assets/functions/pathResolver'
-import { useBatchGLTF } from '../../../assets/functions/resourceHooks'
 import { addOBCPlugin } from '../../../common/functions/OnBeforeCompilePlugin'
 import { isMobile } from '../../../common/functions/isMobile'
 import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from '../../../renderer/components/GroupComponent'
@@ -46,21 +43,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * Handles setting model src for model component based on variant component
- * @param entity
- */
-export function setModelVariant(entity: Entity) {
-  const variantComponent = getMutableComponent(entity, VariantComponent)
-  const modelComponent = getMutableComponent(entity, ModelComponent)
-
+function getModelVariant(entity: Entity, variantComponent, modelComponent): string | null {
   if (variantComponent.heuristic.value === 'DEVICE') {
     const targetDevice = isMobile || isMobileXRHeadset ? 'MOBILE' : 'DESKTOP'
-    //set model src to mobile variant src
+    //get model src to mobile variant src
     const deviceVariant = variantComponent.levels.find((level) => level.value.metadata['device'] === targetDevice)
     const modelRelativePath = pathResolver().exec(modelComponent.src.value)?.[2]
     const deviceRelativePath = deviceVariant ? pathResolver().exec(deviceVariant.src.value)?.[2] : ''
-    deviceVariant && modelRelativePath !== deviceRelativePath && modelComponent.src.set(deviceVariant.src.value)
+    if (deviceVariant && modelRelativePath !== deviceRelativePath) return deviceVariant.src.value
   } else if (variantComponent.heuristic.value === 'DISTANCE') {
     const distance = DistanceFromCameraComponent.squaredDistance[entity]
     for (let i = 0; i < variantComponent.levels.length; i++) {
@@ -69,10 +59,48 @@ export function setModelVariant(entity: Entity) {
       const minDistance = Math.pow(level.metadata['minDistance'], 2)
       const maxDistance = Math.pow(level.metadata['maxDistance'], 2)
       const useLevel = minDistance <= distance && distance <= maxDistance
-      useLevel && modelComponent.src.value !== level.src && modelComponent.src.set(level.src)
-      if (useLevel) break
+      if (useLevel && level.src) return level.src
     }
   }
+
+  return null
+}
+
+function getMeshVariant(entity: Entity, variantComponent): string | null {
+  if (variantComponent.heuristic === 'DEVICE') {
+    const targetDevice = isMobileXRHeadset ? 'XR' : isMobile ? 'MOBILE' : 'DESKTOP'
+    //get model src to mobile variant src
+    const deviceVariant = variantComponent.levels.find((level) => level.metadata['device'] === targetDevice)
+    if (deviceVariant) return deviceVariant.src
+  }
+
+  return null
+}
+
+export function useVariant(entity?: Entity): string | null {
+  if (!entity) return null
+  const variantComponent = useOptionalComponent(entity, VariantComponent)
+  if (!variantComponent || !variantComponent.value) return null
+
+  const modelComponent = useOptionalComponent(entity, ModelComponent)
+  const meshComponent = useOptionalComponent(entity, MeshComponent)
+
+  if (modelComponent) return getModelVariant(entity, variantComponent, modelComponent)
+  else if (meshComponent) return getMeshVariant(entity, variantComponent)
+  else return null
+}
+
+/**
+ * Handles setting model src for model component based on variant component
+ * @param entity
+ */
+export function setModelVariant(entity: Entity) {
+  const variantComponent = getMutableComponent(entity, VariantComponent)
+  const modelComponent = getMutableComponent(entity, ModelComponent)
+
+  const src = getModelVariant(entity, variantComponent, modelComponent)
+  if (src && modelComponent.src.value !== src) modelComponent.src.set(src)
+
   variantComponent.calculated.set(true)
 }
 
@@ -80,52 +108,15 @@ export function setMeshVariant(entity: Entity) {
   const variantComponent = getComponent(entity, VariantComponent)
   const meshComponent = getComponent(entity, MeshComponent)
 
-  if (variantComponent.heuristic === 'DEVICE') {
-    const targetDevice = isMobileXRHeadset ? 'XR' : isMobile ? 'MOBILE' : 'DESKTOP'
-    //set model src to mobile variant src
-    const deviceVariant = variantComponent.levels.find((level) => level.metadata['device'] === targetDevice)
-    if (!deviceVariant) return
-    AssetLoader.load(deviceVariant.src, {}, (gltf) => {
+  const src = getMeshVariant(entity, variantComponent)
+  if (src) {
+    AssetLoader.load(src, {}, (gltf) => {
       const mesh = getFirstMesh(gltf.scene)
       if (!mesh) return
       meshComponent.geometry = mesh.geometry
       meshComponent.material = mesh.material
     })
   }
-}
-
-export function useMeshVariant(entities: Entity[]) {
-  const variantUrls = new Array(entities.length).fill('') as string[]
-  const meshComponents = entities.map((entity, index) => {
-    const variantComponent = getComponent(entity, VariantComponent)
-    const meshComponent = getComponent(entity, MeshComponent)
-
-    if (variantComponent.heuristic === 'DEVICE') {
-      const targetDevice = isMobileXRHeadset ? 'XR' : isMobile ? 'MOBILE' : 'DESKTOP'
-      //set model src to mobile variant src
-      const deviceVariant = variantComponent.levels.find((level) => level.metadata['device'] === targetDevice)
-      if (deviceVariant) variantUrls[index] = deviceVariant.src
-    }
-
-    return meshComponent
-  })
-
-  const [models, unload] = useBatchGLTF(variantUrls)
-
-  useEffect(() => {
-    return unload
-  }, [])
-
-  useEffect(() => {
-    const gltfs = models.get(NO_PROXY)
-    gltfs.map((gltf, index) => {
-      if (!gltf) return
-      const mesh = getFirstMesh(gltf.scene)
-      if (!mesh) return
-      meshComponents[index].geometry = mesh.geometry
-      meshComponents[index].material = mesh.material
-    })
-  }, [models])
 }
 
 export function setInstancedMeshVariant(entity: Entity) {

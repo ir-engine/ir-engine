@@ -59,13 +59,15 @@ type BaseMetadata = {
   size?: number
 }
 
-type GLTFMetadata = BaseMetadata
+type GLTFMetadata = {
+  verts: number
+} & BaseMetadata
 
 type TexutreMetadata = {
   onGPU: boolean
 } & BaseMetadata
 
-type Metadata = GLTFMetadata | TexutreMetadata
+type Metadata = GLTFMetadata | TexutreMetadata | BaseMetadata
 
 type Resource = {
   id: string
@@ -123,7 +125,9 @@ const onItemStart = (url: string) => {
 const onStart = (url: string, loaded: number, total: number) => {}
 const onLoad = () => {
   const totalSize = getCurrentSizeOfResources()
+  const totalVerts = getCurrentVertCountOfResources()
   console.log('Loaded: ' + totalSize + ' bytes of resources')
+  console.log(totalVerts + ' Vertices')
 }
 
 const onItemLoadedFor = <T extends AssetType>(url: string, resourceType: ResourceType, id: string, asset: T) => {
@@ -175,6 +179,17 @@ const getCurrentSizeOfResources = () => {
   }
 
   return size
+}
+
+const getCurrentVertCountOfResources = () => {
+  let verts = 0
+  const resources = getState(ResourceState).resources
+  for (const key in resources) {
+    const resource = resources[key]
+    if ((resource.metadata as GLTFMetadata).verts) verts += (resource.metadata as GLTFMetadata).verts
+  }
+
+  return verts
 }
 
 const getRendererInfo = () => {
@@ -238,7 +253,10 @@ const Callbacks = {
       }
 
       const indices = response.getIndex()
-      size += indices ? indices.count * indices.itemSize * indices.array.BYTES_PER_ELEMENT : 0
+      if (indices) {
+        resource.metadata.merge({ verts: indices.count })
+        size += indices.count * indices.itemSize * indices.array.BYTES_PER_ELEMENT
+      }
       resource.metadata.size.set(size)
     },
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},

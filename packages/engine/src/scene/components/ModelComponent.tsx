@@ -68,7 +68,6 @@ import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { SourceComponent } from './SourceComponent'
-import { VariantComponent } from './VariantComponent'
 
 function clearMaterials(src: string) {
   try {
@@ -140,8 +139,6 @@ export const ModelComponent = defineComponent({
 function ModelReactor(): JSX.Element {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
-  const uuidComponent = useComponent(entity, UUIDComponent)
-  const variantComponent = useOptionalComponent(entity, VariantComponent)
 
   /** @todo this is a hack */
   const override = !isAvaturn(modelComponent.value.src) ? undefined : AssetType.glB
@@ -189,7 +186,6 @@ function ModelReactor(): JSX.Element {
     const loadedAsset = gltf.get(NO_PROXY)
     if (!loadedAsset) return
 
-    if (variantComponent && !variantComponent.calculated.value) return
     if (typeof loadedAsset !== 'object') {
       addError(entity, ModelComponent, 'INVALID_SOURCE', 'Invalid URL')
       return

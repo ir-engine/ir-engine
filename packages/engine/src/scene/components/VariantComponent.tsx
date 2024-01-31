@@ -38,7 +38,7 @@ import {
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
-import { setInstancedMeshVariant, setMeshVariant, setModelVariant } from '../functions/loaders/VariantFunctions'
+import { setInstancedMeshVariant } from '../functions/loaders/VariantFunctions'
 import { InstancingComponent } from './InstancingComponent'
 import { MeshComponent } from './MeshComponent'
 import { ModelComponent } from './ModelComponent'
@@ -131,15 +131,11 @@ const VariantLevelReactor = React.memo(({ entity, level }: { level: number; enti
     }
   }, [variantComponent.heuristic])
 
-  useEffect(() => {
-    modelComponent && setModelVariant(entity)
-  }, [variantLevel.src, variantLevel.metadata, modelComponent])
-
   const meshComponent = useOptionalComponent(entity, MeshComponent)
   const instancingComponent = getOptionalComponent(entity, InstancingComponent)
 
   useEffect(() => {
-    meshComponent && !instancingComponent && setMeshVariant(entity)
+    // meshComponent && !instancingComponent && setMeshVariant(entity)
     meshComponent && instancingComponent && setInstancedMeshVariant(entity)
   }, [variantLevel.src, variantLevel.metadata, meshComponent])
 

@@ -27,6 +27,7 @@ import { Entity, UndefinedEntity } from '@etherealengine/ecs'
 import { State, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { Texture } from 'three'
+import { useVariant } from '../../scene/functions/loaders/VariantFunctions'
 import { LoadingArgs } from '../classes/AssetLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { AssetType, ResourceManager, ResourceType } from '../state/ResourceState'
@@ -113,7 +114,6 @@ function useBatchLoader<T extends AssetType>(
   State<(ErrorEvent | Error | null)[]>,
   State<(ProgressEvent<EventTarget> | null)[]>
 ] {
-  const urlsState = useHookstate<string[]>(urls)
   const values = useHookstate<T[]>(new Array(urls.length).fill(null))
   const errors = useHookstate<(ErrorEvent | Error)[]>(new Array(urls.length).fill(null))
   const progress = useHookstate<ProgressEvent<EventTarget>[]>(new Array(urls.length).fill(null))
@@ -125,11 +125,6 @@ function useBatchLoader<T extends AssetType>(
   useEffect(() => {
     const completedArr = new Array(urls.length).fill(false) as boolean[]
     const controller = createAbortController(urls.toString(), unload)
-
-    for (const url of urlsState.value) {
-      if (!urls.includes(url)) ResourceManager.unload(url, entity)
-    }
-    urlsState.set(urls)
 
     for (let i = 0; i < urls.length; i++) {
       const url = urls[i]
@@ -202,6 +197,10 @@ export function useGLTF(
   params?: LoadingArgs,
   onUnload?: (url: string) => void
 ): [State<GLTF | null>, () => void, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>] {
+  const variantUrl = useVariant(entity)
+  if (variantUrl) {
+    url = variantUrl
+  }
   return useLoader<GLTF>(url, ResourceType.GLTF, entity, params, onUnload)
 }
 
