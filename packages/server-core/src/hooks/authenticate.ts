@@ -28,10 +28,10 @@ import { HookContext, NextFunction, Paginated } from '@feathersjs/feathers'
 
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import { UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { AsyncLocalStorage } from 'async_hooks'
 import { isProvider } from 'feathers-hooks-common'
 import config from '../appconfig'
-import { toDateTimeSql } from '../util/datetime-sql'
 import { Application } from './../../declarations'
 
 const { authenticate } = authentication.hooks
@@ -104,7 +104,7 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
     const user = await context.app.service(userPath).get(context.params[config.authentication.entity].userId)
     context.params.user = user
     asyncLocalStorage.enterWith({ user })
-    addLastLogin(context)
+    await addLastLogin(context)
   }
 
   return next()
@@ -126,6 +126,6 @@ const checkWhitelist = (context: HookContext<Application>): boolean => {
   return false
 }
 
-const addLastLogin = (context: HookContext<Application>) => {
-  context.app.service('user')._patch(context.params.user.id, { lastLogin: toDateTimeSql(new Date()) })
+const addLastLogin = async (context: HookContext<Application>) => {
+  await context.app.service('user')._patch(context.params.user.id, { lastLogin: toDateTimeSql(new Date()) })
 }
