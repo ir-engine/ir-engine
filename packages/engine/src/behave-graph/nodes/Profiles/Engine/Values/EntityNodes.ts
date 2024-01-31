@@ -151,7 +151,7 @@ export const onEntity = makeFlowNodeDefinition({
 })
 
 export const getEntityTransform = makeFunctionNodeDefinition({
-  typeName: 'engine/entity/getEntityTransform',
+  typeName: 'engine/entity/TransformComponent/get',
   category: NodeCategory.Query,
   label: 'Get entity transform',
   in: {
