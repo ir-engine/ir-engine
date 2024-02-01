@@ -23,16 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState } from '@etherealengine/hyperflux'
+import { defineComponent } from '@etherealengine/ecs'
+import { Object3D } from 'three'
 
-export const ECSState = defineState({
-  name: 'ECSState',
-  initial: {
-    periodicUpdateFrequency: 5 * 1000, // every 5 seconds
-    simulationTimestep: 1000 / 60,
-    frameTime: Date.now(),
-    simulationTime: Date.now(),
-    deltaSeconds: 0,
-    elapsedSeconds: 0
+export const Object3DComponent = defineComponent({
+  name: 'Object3D Component',
+  jsonID: 'object3d',
+
+  onInit: (entity) => null! as Object3D,
+  onSet: (entity, component, object3d: Object3D) => {
+    if (!object3d || !object3d.isObject3D) throw new Error('Object3DComponent: Invalid object3d')
+    component.set(object3d)
   }
 })

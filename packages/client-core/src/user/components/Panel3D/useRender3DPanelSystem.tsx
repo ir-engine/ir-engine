@@ -62,17 +62,17 @@ const initialize3D = () => {
   renderer.outputColorSpace = SRGBColorSpace
 
   // @ts-ignore /** @todo this is a hack fix until #9626 is in */
-  const controls = new THREE.OrbitControls(camera, renderer.domElement) as Record<any, any>
+  // const controls = new OrbitControls(camera, renderer.domElement) as Record<any, any>
 
-  controls.minDistance = 0.1
-  controls.maxDistance = 10000
-  controls.target.set(0, 1.65, 0)
-  controls.update()
+  // controls.minDistance = 0.1
+  // controls.maxDistance = 10000
+  // controls.target.set(0, 1.65, 0)
+  // controls.update()
   const entity = createEntity()
   setComponent(entity, NameComponent, '3D Preview Entity')
 
   return {
-    controls,
+    // controls,
     scene,
     camera,
     renderer,
@@ -103,7 +103,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
       execute: () => {
         // only render if this menu is open
         if (!!panel.current && state.renderer.value) {
-          state.controls.value.update()
+          // state.controls.value.update()
           state.renderer.value.render(state.scene.value, state.camera.value)
         }
       }

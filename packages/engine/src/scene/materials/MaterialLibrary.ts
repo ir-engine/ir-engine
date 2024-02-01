@@ -51,6 +51,7 @@ export const MaterialLibraryState = defineState({
     initialized: false
   }
 })
+
 export function initializeMaterialLibrary() {
   const materialLibrary = getState(MaterialLibraryState)
   //load default prototypes from source

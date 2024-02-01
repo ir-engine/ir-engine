@@ -23,16 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState } from '@etherealengine/hyperflux'
+import { XRJointAvatarBoneMap } from '@etherealengine/spatial/src/xr/XRComponents'
+import { VRM, VRMHumanBoneName } from '@pixiv/three-vrm'
 
-export const ECSState = defineState({
-  name: 'ECSState',
-  initial: {
-    periodicUpdateFrequency: 5 * 1000, // every 5 seconds
-    simulationTimestep: 1000 / 60,
-    frameTime: Date.now(),
-    simulationTime: Date.now(),
-    deltaSeconds: 0,
-    elapsedSeconds: 0
+export const applyHandRotationFK = (vrm: VRM, handedness: 'left' | 'right', rotations: Float32Array) => {
+  const bones = Object.values(XRJointAvatarBoneMap)
+  for (let i = 0; i < bones.length; i++) {
+    const label = bones[i]
+    const boneName = `${handedness}${label}` as VRMHumanBoneName
+    const bone = vrm.humanoid.getNormalizedBone(boneName)
+    if (!bone?.node) continue
+    bone.node.quaternion.fromArray(rotations, i * 4)
   }
-})
+}
