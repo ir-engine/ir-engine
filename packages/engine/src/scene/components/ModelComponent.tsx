@@ -94,7 +94,6 @@ export const ModelComponent = defineComponent({
       cameraOcclusion: true,
       /** optional, only for bone matchable avatars */
       convertToVRM: false as boolean,
-      /** optional, used for placing model in another scene */
       // internal
       scene: null as Scene | null,
       asset: null as VRM | GLTF | null
