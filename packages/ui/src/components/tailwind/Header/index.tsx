@@ -41,19 +41,17 @@ const Header = (props: { mode: State<'playback' | 'capture'> }) => {
       <div className="flex-1">
         <a className="btn btn-ghost normal-case text-xl">Ethereal Capture</a>
         <Button
-          icon={null}
           className={'btn pointer-events-auto'}
-          disabled={props.mode.value === 'capture'}
+          // disabled={props.mode.value === 'capture'}
           title={'Capture'}
-          labelPosition="below"
+          // labelPosition="below"
           onClick={() => props.mode.set('capture')}
         />
         <Button
-          icon={null}
           className={'btn pointer-events-auto'}
-          disabled={props.mode.value === 'playback'}
+          // disabled={props.mode.value === 'playback'}
           title={'Playback'}
-          labelPosition="below"
+          // labelPosition="below"
           onClick={() => props.mode.set('playback')}
         />
       </div>

@@ -55,7 +55,7 @@ const RouteTable = ({ className }: Props) => {
     }) !== -1
 
   const activateCallback = (project: string, route: string, checked: boolean) => {
-    routeActivateCreate({ project, route, activate: checked })
+    routeActivateCreate({ project, route, activate: checked }).then(() => routesQuery.refetch())
   }
 
   const installedRoutes = installedRouteData
