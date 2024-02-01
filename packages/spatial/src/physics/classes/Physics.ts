@@ -306,7 +306,7 @@ function createRigidBodyForGroup(
     const colliderDesc = createColliderDesc(child, args, entity, overrideShapeType)
 
     if (colliderDesc) {
-      ;(typeof args.removeMesh === 'undefined' || args.removeMesh === true) && meshesToRemove.push(mesh)
+      meshesToRemove.push(mesh)
       colliderDescs.push(colliderDesc)
     }
   })

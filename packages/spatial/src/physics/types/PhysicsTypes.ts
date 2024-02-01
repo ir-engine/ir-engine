@@ -79,7 +79,6 @@ export type ColliderDescOptions = {
   shapeType?: ShapeType
   bodyType?: RigidBodyType // TODO: This is only required at the root node, should be removed from here?
   isTrigger?: boolean
-  removeMesh?: boolean
   friction?: number
   restitution?: number
   collisionLayer?: number

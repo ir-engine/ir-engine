@@ -62,6 +62,7 @@ import { ModelComponent } from './ModelComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 
+/** @deprecated */
 export const ColliderComponent = defineComponent({
   name: 'Collider Component',
   jsonID: 'collider',
@@ -71,11 +72,6 @@ export const ColliderComponent = defineComponent({
       bodyType: RigidBodyType.Fixed,
       shapeType: ShapeType.Cuboid,
       isTrigger: false,
-      /**
-       * removeMesh will clean up any objects in the scene hierarchy after the collider bodies have been processed.
-       *   This can be used to reduce CPU load by only persisting colliders in the physics simulation.
-       */
-      removeMesh: false,
       collisionLayer: CollisionGroups.Default,
       collisionMask: DefaultCollisionMask,
       restitution: 0.5,
@@ -109,8 +105,6 @@ export const ColliderComponent = defineComponent({
     if (typeof json.shapeType === 'number') component.shapeType.set(json.shapeType)
     if (typeof json.isTrigger === 'boolean' || typeof json.isTrigger === 'number')
       component.isTrigger.set(Boolean(json.isTrigger))
-    if (typeof json.removeMesh === 'boolean' || typeof json.removeMesh === 'number')
-      component.removeMesh.set(Boolean(json.removeMesh))
     if (typeof json.collisionLayer === 'number') component.collisionLayer.set(json.collisionLayer)
     if (typeof json.collisionMask === 'number') component.collisionMask.set(json.collisionMask)
     if (typeof json.restitution === 'number') component.restitution.set(json.restitution)
@@ -153,7 +147,6 @@ export const ColliderComponent = defineComponent({
       bodyType: component.bodyType.value,
       shapeType: component.shapeType.value,
       isTrigger: component.isTrigger.value,
-      removeMesh: component.removeMesh.value,
       collisionLayer: component.collisionLayer.value,
       collisionMask: component.collisionMask.value,
       restitution: component.restitution.value,
@@ -196,7 +189,6 @@ export const ColliderComponent = defineComponent({
             bodyType: colliderComponent.bodyType,
             shapeType: colliderComponent.shapeType,
             isTrigger: colliderComponent.isTrigger,
-            removeMesh: colliderComponent.removeMesh,
             collisionLayer: colliderComponent.collisionLayer,
             collisionMask: colliderComponent.collisionMask,
             restitution: colliderComponent.restitution
@@ -264,8 +256,7 @@ export const ColliderComponent = defineComponent({
               ? CollisionGroups.Trigger
               : colliderComponent.collisionLayer.value,
             collisionMask: colliderComponent.collisionMask.value,
-            restitution: colliderComponent.restitution.value,
-            removeMesh: colliderComponent.removeMesh.value
+            restitution: colliderComponent.restitution.value
           },
           new Vector3(),
           new Quaternion()

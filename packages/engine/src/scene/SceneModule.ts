@@ -31,7 +31,6 @@ import { NoiseOffsetSystem } from '../scene/materials/constants/plugins/NoiseOff
 import { MaterialLibrarySystem } from '../scene/materials/systems/MaterialLibrarySystem'
 import { CameraSettingsComponent } from './components/CameraSettingsComponent'
 import { CloudComponent } from './components/CloudComponent'
-import { ColliderComponent } from './components/ColliderComponent'
 import { EnvMapBakeComponent } from './components/EnvMapBakeComponent'
 import { EnvmapComponent } from './components/EnvmapComponent'
 import { FogSettingsComponent } from './components/FogSettingsComponent'
@@ -81,7 +80,6 @@ export const SceneComponents = [
   GrabbableComponent,
   CameraSettingsComponent,
   CloudComponent,
-  ColliderComponent,
   EnvMapBakeComponent,
   EnvmapComponent,
   FogSettingsComponent,

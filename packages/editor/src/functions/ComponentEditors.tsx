@@ -27,7 +27,7 @@ import { Component } from '@etherealengine/ecs/src/ComponentFunctions'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
-import { ColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'
+// import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { FogSettingsComponent } from '@etherealengine/engine/src/scene/components/FogSettingsComponent'
@@ -64,7 +64,6 @@ import { PersistentAnchorComponent } from '@etherealengine/spatial/src/xr/XRAnch
 
 import AmbientLightNodeEditor from '../components/properties/AmbientLightNodeEditor'
 import { CameraPropertiesNodeEditor } from '../components/properties/CameraPropertiesNodeEditor'
-import ColliderNodeEditor from '../components/properties/ColliderNodeEditor'
 import DirectionalLightNodeEditor from '../components/properties/DirectionalLightNodeEditor'
 import EnvMapBakeNodeEditor from '../components/properties/EnvMapBakeNodeEditor'
 import EnvMapEditor from '../components/properties/EnvMapEditor'
@@ -140,7 +139,7 @@ EntityNodeEditor.set(ParticleSystemComponent, ParticleSystemNodeEditor)
 EntityNodeEditor.set(PrimitiveGeometryComponent, PrimitiveGeometryNodeEditor)
 EntityNodeEditor.set(PortalComponent, PortalNodeEditor)
 EntityNodeEditor.set(MountPointComponent, MountPointNodeEditor)
-EntityNodeEditor.set(ColliderComponent, ColliderNodeEditor)
+// EntityNodeEditor.set(ColliderComponent, ColliderNodeEditor)
 EntityNodeEditor.set(SceneTagComponent, SceneNodeEditor)
 EntityNodeEditor.set(ScenePreviewCameraComponent, ScenePreviewCameraNodeEditor)
 EntityNodeEditor.set(SkyboxComponent, SkyboxNodeEditor)

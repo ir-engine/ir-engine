@@ -91,7 +91,6 @@ export const portalColliderValues: SerializedComponentType<typeof ColliderCompon
   bodyType: RigidBodyType.Fixed,
   shapeType: ShapeType.Cuboid,
   isTrigger: true,
-  removeMesh: true,
   collisionLayer: CollisionGroups.Trigger,
   collisionMask: CollisionGroups.Avatars,
   restitution: 0,
