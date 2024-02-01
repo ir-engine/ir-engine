@@ -23,14 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NodeCategory, NodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
+import { NodeCategory, NodeDefinition, makeEventNodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { NO_PROXY } from '@etherealengine/hyperflux'
+import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { uniqueId } from 'lodash'
+import { useEffect } from 'react'
 import { EnginetoNodetype, NodetoEnginetype, getSocketType } from './commonHelper'
 
 const skipState = [''] // behave graph state is skipped since its a type of record we do want to skip it anyways
 
-export function generateStateNodeSchema(state) {
+export function generateStateNodeSchema(state, withFlow = false) {
   const nodeschema = {}
   const schema = state.get(NO_PROXY)
   if (schema === null) {
@@ -41,12 +45,13 @@ export function generateStateNodeSchema(state) {
   }
   for (const [name, value] of Object.entries(schema)) {
     const socketValue = getSocketType(name, value)
+    if (withFlow) nodeschema[`${name}Change`] = 'flow'
     if (socketValue) nodeschema[name] = socketValue
   }
   return nodeschema
 }
 
-export function getStateSetters() {
+export function registerStateSetters() {
   const setters: NodeDefinition[] = []
   const skipped: string[] = []
   for (const [stateName, state] of Object.entries(Engine.instance.store.stateMap)) {
@@ -83,7 +88,7 @@ export function getStateSetters() {
   return setters
 }
 
-export function getStateGetters() {
+export function registerStateGetters() {
   const getters: NodeDefinition[] = []
   const skipped: string[] = []
   for (const [stateName, state] of Object.entries(Engine.instance.store.stateMap)) {
@@ -119,6 +124,85 @@ export function getStateGetters() {
           }
         }
         commit('flow')
+      }
+    })
+    getters.push(node)
+  }
+  return getters
+}
+
+type State = {
+  systemUUID: SystemUUID
+}
+
+const initialState = (): State => ({
+  systemUUID: '' as SystemUUID
+})
+
+export function registerStateListeners() {
+  const getters: NodeDefinition[] = []
+  const skipped: string[] = []
+  for (const [stateName, state] of Object.entries(Engine.instance.store.stateMap)) {
+    if (skipState.includes(stateName)) {
+      skipped.push(stateName)
+      continue
+    }
+    const outputsockets: any = generateStateNodeSchema(state, true)
+    if (Object.keys(outputsockets).length === 0) {
+      skipped.push(stateName)
+      continue
+    }
+    const node = makeEventNodeDefinition({
+      typeName: `engine/state/${stateName}/use`,
+      category: NodeCategory.Event,
+      label: `Use ${stateName}`,
+      in: {},
+      out: {
+        ...outputsockets
+      },
+      initialState: initialState(),
+      init: ({ read, write, commit, graph }) => {
+        const valueOutputs = Object.entries(node.out)
+          .splice(1)
+          .filter(([output, type]) => type !== 'flow') as any
+        const flowOutputs = Object.entries(node.out)
+          .splice(1)
+          .filter(([output, type]) => type === 'flow') as any
+        const systemUUID = defineSystem({
+          uuid: `behave-graph-use-${stateName}` + uniqueId(),
+          insert: { with: InputSystemGroup },
+          execute: () => {},
+          reactor: () => {
+            const stateValue = useHookstate(state)
+            if (typeof stateValue.value !== 'object') {
+              useEffect(() => {
+                const value = EnginetoNodetype(stateValue.value)
+                write(valueOutputs[valueOutputs.length - 1][0] as any, value)
+                commit(flowOutputs[flowOutputs.length - 1][0] as any)
+              }, [stateValue])
+            } else {
+              valueOutputs.forEach(([output, type], index) => {
+                useEffect(() => {
+                  const value = EnginetoNodetype(stateValue[output].value)
+                  const flowSocket = flowOutputs.find(([flowOutput, flowType]) => flowOutput === `${output}Change`)
+                  write(output as any, value)
+                  commit(flowSocket[0] as any)
+                }, [stateValue[output]])
+              })
+            }
+            return null
+          }
+        })
+
+        const outputState: State = {
+          systemUUID
+        }
+
+        return outputState
+      },
+      dispose: ({ state: { systemUUID }, graph: { getDependency } }) => {
+        destroySystem(systemUUID)
+        return initialState()
       }
     })
     getters.push(node)

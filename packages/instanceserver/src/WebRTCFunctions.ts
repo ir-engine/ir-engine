@@ -267,7 +267,8 @@ export async function closeDataProducer(
     MediasoupDataProducerActions.producerClosed({
       producerID: dataProducer.id,
       $topic: network.topic,
-      $network: network.id
+      $network: network.id,
+      $to: peerID
     })
   )
   dataProducer.close()
