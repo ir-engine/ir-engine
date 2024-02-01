@@ -105,14 +105,6 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     <Box className={`${commonStyles.preview} ${fill ? styles.fill : ''}`} sx={sx}>
       <div ref={panelRef} id="stage" className={`${styles.stage} ${fill ? styles.fill : ''}`} />
 
-      {/* {(
-        <LoadingView
-          title={t('admin:components.avatar.loading')}
-          variant="body2"
-          sx={{ position: 'absolute', top: 0 }}
-        />
-      )} */}
-
       {!avatarUrl && (
         <Text className={commonStyles.previewText} variant="body2">
           {t('admin:components.avatar.avatarPreview')}
