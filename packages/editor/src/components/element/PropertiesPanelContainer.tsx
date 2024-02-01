@@ -24,12 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent, useAllComponents, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { useAllComponents, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
@@ -113,25 +112,13 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
  */
 export const PropertiesPanelContainer = () => {
   const selectedEntities = SelectionState.useSelectedEntities()
-  const entity = useHookstate<Entity>(UndefinedEntity)
-  const multiEdit = useHookstate<boolean>(false)
-  const uuid = getComponent(entity.value, UUIDComponent)
+  const lockedNode = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
+  const multiEdit = selectedEntities.length > 1
+  const uuid = lockedNode.value ?? selectedEntities[selectedEntities.length - 1]
 
   const { t } = useTranslation()
 
-  useEffect(() => {
-    const lockedNode = getState(EditorState).lockPropertiesPanel
-    multiEdit.set(selectedEntities.length > 1)
-    entity.set(
-      lockedNode
-        ? UUIDComponent.getEntityByUUID(lockedNode) ?? lockedNode
-        : selectedEntities[selectedEntities.length - 1]
-    )
-  }, [selectedEntities])
-
   const materialID = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial).value
-
-  if (!entity.value && !materialID) return null
 
   return (
     <div
@@ -143,7 +130,7 @@ export const PropertiesPanelContainer = () => {
       {materialID ? (
         <MaterialEditor materialID={materialID} />
       ) : uuid ? (
-        <EntityEditor entityUUID={uuid} key={uuid + entity.value} multiEdit={multiEdit.value} />
+        <EntityEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
       ) : (
         <div
           style={{
