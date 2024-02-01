@@ -23,21 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material } from 'three'
+import { XRJointAvatarBoneMap } from '@etherealengine/spatial/src/xr/XRComponents'
+import { VRM, VRMHumanBoneName } from '@pixiv/three-vrm'
 
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { MaterialSource } from './MaterialSource'
-
-export type MaterialWithEntity = Material & { entity: Entity }
-
-export type MaterialStatus = 'LOADED' | 'MISSING' | 'UNLOADED'
-
-export type MaterialComponentType = {
-  prototype: string
-  material: Material
-  parameters: { [field: string]: any }
-  plugins: string[]
-  src: MaterialSource
-  status: MaterialStatus
-  instances: Entity[]
+export const applyHandRotationFK = (vrm: VRM, handedness: 'left' | 'right', rotations: Float32Array) => {
+  const bones = Object.values(XRJointAvatarBoneMap)
+  for (let i = 0; i < bones.length; i++) {
+    const label = bones[i]
+    const boneName = `${handedness}${label}` as VRMHumanBoneName
+    const bone = vrm.humanoid.getNormalizedBone(boneName)
+    if (!bone?.node) continue
+    bone.node.quaternion.fromArray(rotations, i * 4)
+  }
 }

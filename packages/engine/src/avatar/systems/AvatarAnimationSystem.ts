@@ -41,6 +41,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import {
   getComponent,
   getOptionalComponent,
+  hasComponent,
   removeComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -59,6 +60,7 @@ import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/componen
 import { TransformSystem } from '@etherealengine/spatial/src/transform/TransformModule'
 import { compareDistanceToCamera } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { XRLeftHandComponent, XRRightHandComponent } from '@etherealengine/spatial/src/xr/XRComponents'
 import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { useBatchGLTF } from '../../assets/functions/resourceHooks'
@@ -70,6 +72,7 @@ import { IKSerialization } from '../IKSerialization'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets, preloadedAnimations } from '../animation/Util'
+import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { getArmIKHint } from '../animation/getArmIKHint'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
@@ -296,6 +299,15 @@ const execute = () => {
         leftFootTargetBlendWeight
       )
     }
+
+    if (hasComponent(entity, XRRightHandComponent)) {
+      applyHandRotationFK(rigComponent.vrm, 'right', getComponent(entity, XRRightHandComponent).rotations)
+    }
+
+    if (hasComponent(entity, XRLeftHandComponent)) {
+      applyHandRotationFK(rigComponent.vrm, 'left', getComponent(entity, XRLeftHandComponent).rotations)
+    }
+
     updateVRMRetargeting(rigComponent.vrm, entity)
   }
 }
