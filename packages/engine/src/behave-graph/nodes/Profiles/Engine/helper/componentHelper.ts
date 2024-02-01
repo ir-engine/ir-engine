@@ -34,9 +34,10 @@ import {
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { uniqueId } from 'lodash'
 import { useEffect } from 'react'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { AvatarAnimationComponent } from '../../../../../avatar/components/AvatarAnimationComponent'
 import { PostProcessingComponent } from '../../../../../scene/components/PostProcessingComponent'
 import { EnginetoNodetype, NodetoEnginetype, getSocketType } from './commonHelper'
@@ -45,6 +46,11 @@ const skipComponents = [
   TransformComponent.name, // already implemented
   PostProcessingComponent.name, //needs special attention
   AvatarAnimationComponent.name // needs special attention
+]
+
+const listenerSkipComponents = [
+  ...skipComponents, // needs special attention
+  NameComponent.name // use component is broken
 ]
 
 export function generateComponentNodeSchema(component: Component, withFlow = false) {
@@ -178,7 +184,7 @@ export function registerComponentListeners() {
   const getters: NodeDefinition[] = []
   const skipped: string[] = []
   for (const [componentName, component] of ComponentMap) {
-    if (skipComponents.includes(componentName)) {
+    if (listenerSkipComponents.includes(componentName)) {
       skipped.push(componentName)
       continue
     }

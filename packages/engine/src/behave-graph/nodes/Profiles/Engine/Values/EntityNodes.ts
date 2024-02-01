@@ -32,13 +32,7 @@ import {
 } from '@behave-graph/core'
 import { toQuat, toVector3 } from '@behave-graph/scene'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import {
-  ComponentMap,
-  getComponent,
-  hasComponent,
-  setComponent,
-  useComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
+import { ComponentMap, getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
@@ -52,9 +46,7 @@ import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { copyTransformToRigidBody } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { uniqueId } from 'lodash'
-import { useEffect } from 'react'
-import { write } from '../../../../../assets/loaders/gltf/ktx-parse.module'
+import { cloneDeep, isEqual, uniqueId } from 'lodash'
 import { teleportAvatar } from '../../../../../avatar/functions/moveAvatar'
 import { SceneObjectComponent } from '../../../../../scene/components/SceneObjectComponent'
 import { addEntityToScene } from '../helper/entityHelper'
@@ -151,25 +143,6 @@ export const onEntity = makeFlowNodeDefinition({
   }
 })
 
-export const getEntityTransform = makeFunctionNodeDefinition({
-  typeName: 'engine/entity/TransformComponent/get',
-  category: NodeCategory.Query,
-  label: 'Get entity transform',
-  in: {
-    entity: 'entity'
-  },
-  out: { entity: 'entity', position: 'vec3', rotation: 'quat', scale: 'vec3', matrix: 'mat4' },
-  exec: ({ read, write, graph }) => {
-    const entity = Number(read('entity')) as Entity
-    const transform = getComponent(entity, TransformComponent)
-    write('position', transform.position)
-    write('rotation', transform.rotation)
-    write('scale', transform.scale)
-    write('matrix', transform.matrix)
-    write('entity', entity)
-  }
-})
-
 export const addEntity = makeFlowNodeDefinition({
   typeName: 'engine/entity/addEntity',
   category: NodeCategory.Action,
@@ -242,6 +215,25 @@ export const deleteEntity = makeFlowNodeDefinition({
   }
 })
 
+export const getEntityTransform = makeFunctionNodeDefinition({
+  typeName: 'engine/entity/TransformComponent/get',
+  category: NodeCategory.Query,
+  label: 'Get entity transform',
+  in: {
+    entity: 'entity'
+  },
+  out: { entity: 'entity', position: 'vec3', rotation: 'quat', scale: 'vec3', matrix: 'mat4' },
+  exec: ({ read, write, graph }) => {
+    const entity = Number(read('entity')) as Entity
+    const transform = getComponent(entity, TransformComponent)
+    write('position', transform.position)
+    write('rotation', transform.rotation)
+    write('scale', transform.scale)
+    write('matrix', transform.matrix)
+    write('entity', entity)
+  }
+})
+
 export const setEntityTransform = makeFlowNodeDefinition({
   typeName: 'engine/entity/TransformComponent/set',
   category: NodeCategory.Action,
@@ -255,7 +247,7 @@ export const setEntityTransform = makeFlowNodeDefinition({
   },
   out: { flow: 'flow', entity: 'entity' },
   initialState: undefined,
-  triggered: ({ read, commit, graph: { getDependency } }) => {
+  triggered: ({ read, write, commit, graph: { getDependency } }) => {
     const position = toVector3(read('position'))
     const rotation = toQuat(read('rotation'))
     const scale = toVector3(read('scale'))
@@ -290,27 +282,39 @@ export const useEntityTransform = makeEventNodeDefinition({
   initialState: initialState(),
   init: ({ read, commit, write, graph: { getDependency } }) => {
     const entity = Number(read('entity')) as Entity
+    const prevTransform = {}
     const systemUUID = defineSystem({
       uuid: 'behave-graph-useTransform-' + uniqueId(),
       insert: { with: InputSystemGroup },
-      execute: () => {},
+      execute: () => {
+        const transform = getComponent(entity, TransformComponent)
+        Object.entries(transform).forEach(([key, value]) => {
+          if (!Object.keys(useEntityTransform.out).includes(key)) return
+          if (Object.hasOwn(prevTransform, key)) {
+            if (isEqual(prevTransform[key], transform[key])) return
+          }
+          write(key as any, value)
+          commit(`${key}Change` as any)
+          prevTransform[key] = cloneDeep(transform[key])
+        })
+      },
       reactor: () => {
-        const transformState = useComponent(entity, TransformComponent)
+        /*const transformState = useComponent(entity, TransformComponent)
         Object.entries(transformState.value).forEach(([key, value]) => {
           if (!Object.keys(useEntityTransform.out).includes(key)) return
           useEffect(() => {
             write(key as any, value)
             commit(`${key}Change` as any)
           }, [transformState[key]])
-        })
+        })*/
         return null
       }
     })
-    write('entity', entity)
-
     const state: State = {
       systemUUID
     }
+    write('entity', entity)
+
     return state
   },
   dispose: ({ state: { systemUUID }, graph: { getDependency } }) => {
