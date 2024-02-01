@@ -46,6 +46,8 @@ const direction = new Vector3()
 const tempVec3 = new Vector3()
 const quat = new Quaternion()
 const candidateWorldQuat = new Quaternion()
+const center = new Vector3()
+const directionToCenter = new Vector3()
 
 const execute = () => {
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
@@ -94,10 +96,10 @@ const execute = () => {
 
     transform.rotation.copy(candidateWorldQuat)
 
-    const center = new Vector3().subVectors(transform.position, orbitCenter)
+    center.subVectors(transform.position, orbitCenter)
     const centerLength = center.length()
     orbitCenter.copy(transform.position)
-    orbitCenter.add(new Vector3(0, 0, -centerLength).applyQuaternion(candidateWorldQuat))
+    orbitCenter.add(directionToCenter.set(0, 0, -centerLength).applyQuaternion(candidateWorldQuat))
 
     const lateralMovement = (inputState.KeyD?.pressed ? 1 : 0) + (inputState.KeyA?.pressed ? -1 : 0)
     const forwardMovement = (inputState.KeyS?.pressed ? 1 : 0) + (inputState.KeyW?.pressed ? -1 : 0)
