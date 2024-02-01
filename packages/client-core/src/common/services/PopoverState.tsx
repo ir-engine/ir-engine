@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,25 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { defineState } from '@etherealengine/hyperflux'
 
-module.exports = {
-  primary: "#31d6c2",
-
-  secondary: "#7623b2",
-
-  accent: "#bc2a27",
-
-  neutral: "#191623",
-
-  "base-100": "#232348",
-  "base-200": "#1D1D3B",
-  "base-300": "#16162E",
-
-  info: "#84B7E7",
-
-  success: "#13A496",
-
-  warning: "#95610E",
-
-  error: "#E43F4D",
-};
+/**
+ * Popover state for tailwind routes
+ */
+export const PopoverState = defineState({
+  name: 'ee.client.PopoverState',
+  initial: {
+    element: null as JSX.Element | null
+  }
+})
