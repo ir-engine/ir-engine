@@ -58,7 +58,6 @@ export const ModelPreviewPanel = (props) => {
   const renderPanelState = getMutableState(PreviewPanelRendererState)
 
   useEffect(() => {
-    //scene.value.add(gridHelper)
     const handleSizeChange = () => {
       renderPanel.resize()
     }
@@ -79,7 +78,6 @@ export const ModelPreviewPanel = (props) => {
     return () => {
       resizeObserver.disconnect()
       handleSizeChangeDebounced.cancel()
-      //scene.value.remove(gridHelper)
     }
   }, [])
 
