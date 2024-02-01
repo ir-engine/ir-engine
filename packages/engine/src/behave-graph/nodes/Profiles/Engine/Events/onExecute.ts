@@ -24,13 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, makeEventNodeDefinition } from '@behave-graph/core'
-import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
-import {
-  SystemDefinitions,
-  SystemUUID,
-  defineSystem,
-  destroySystem
-} from '../../../../../ecs/functions/SystemFunctions'
+import { InputSystemGroup, SystemDefinitions, SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs'
 
 let systemCounter = 0
 

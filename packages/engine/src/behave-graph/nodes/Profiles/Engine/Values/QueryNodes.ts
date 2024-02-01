@@ -24,10 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, SocketsList, makeFunctionNodeDefinition, sequence } from '@behave-graph/core'
-import { Component, ComponentMap, defineQuery, removeQuery } from '../../../../../ecs/functions/ComponentFunctions'
-import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
-import { SystemDefinitions, SystemUUID } from '../../../../../ecs/functions/SystemFunctions'
-import { TransformComponent } from '../../../../../transform/components/TransformComponent'
+import {
+  Component,
+  ComponentMap,
+  InputSystemGroup,
+  SystemDefinitions,
+  SystemUUID,
+  defineQuery,
+  removeQuery
+} from '@etherealengine/ecs'
+import { TransformComponent } from '@etherealengine/spatial'
 
 export const getQuery = makeFunctionNodeDefinition({
   typeName: 'engine/query/get',

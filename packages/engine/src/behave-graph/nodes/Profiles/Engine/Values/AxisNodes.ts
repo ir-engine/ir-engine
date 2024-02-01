@@ -24,10 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Assert, Choices, NodeCategory, makeFunctionNodeDefinition } from '@behave-graph/core'
-import { Entity } from '../../../../../ecs/classes/Entity'
-import { getComponent, hasComponent } from '../../../../../ecs/functions/ComponentFunctions'
-import { InputSourceComponent } from '../../../../../input/components/InputSourceComponent'
-import { StandardGamepadAxes, XRStandardGamepadAxes } from '../../../../../input/state/ButtonState'
+import { Entity, getComponent, hasComponent } from '@etherealengine/ecs'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { StandardGamepadAxes, XRStandardGamepadAxes } from '@etherealengine/spatial/src/input/state/ButtonState'
 
 // very 3D specific.
 export const getAxis = makeFunctionNodeDefinition({

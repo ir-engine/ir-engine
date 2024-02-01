@@ -24,9 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Engine, GraphJSON, GraphNodes, ILifecycleEventEmitter, IRegistry, readGraphFromJSON } from '@behave-graph/core'
+import { PresentationSystemGroup, SystemUUID, defineSystem, destroySystem, executeSystem } from '@etherealengine/ecs'
 import { useCallback, useEffect, useState } from 'react'
-import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { SystemUUID, defineSystem, disableSystem, startSystem } from '../../ecs/functions/SystemFunctions'
 
 /** Runs the behavior graph by building the execution
  * engine and triggering start on the lifecycle event emitter.
@@ -84,17 +83,18 @@ export const useGraphRunner = ({
 
     const eventEmitter = registry.dependencies?.ILifecycleEventEmitter as ILifecycleEventEmitter
 
-    if (!system) {
+    if (system === undefined) {
       const systemUUID = defineSystem({
         uuid: 'behave-graph-asyncExecute' + systemCounter++,
         execute: async () => {
           eventEmitter.tickEvent.emit()
           await engine.executeAllAsync(500)
-        }
+        },
+        insert: { after: PresentationSystemGroup }
       })
       setSystem(systemUUID)
     } else {
-      startSystem(system, { after: PresentationSystemGroup })
+      executeSystem(system)
     }
 
     ;(async () => {
@@ -109,7 +109,10 @@ export const useGraphRunner = ({
     })() // start up
 
     return () => {
-      if (system) disableSystem(system)
+      if (system !== undefined) {
+        destroySystem(system)
+        setSystem(undefined)
+      }
     }
   }, [engine, registry.dependencies?.ILifecycleEventEmitter, run])
 

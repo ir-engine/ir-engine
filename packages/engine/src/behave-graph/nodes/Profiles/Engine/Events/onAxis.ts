@@ -24,11 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Choices, NodeCategory, makeEventNodeDefinition } from '@behave-graph/core'
-import { Query, defineQuery, getComponent, removeQuery } from '../../../../../ecs/functions/ComponentFunctions'
-import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
-import { SystemUUID, defineSystem, destroySystem } from '../../../../../ecs/functions/SystemFunctions'
-import { InputSourceComponent } from '../../../../../input/components/InputSourceComponent'
-import { StandardGamepadAxes, XRStandardGamepadAxes } from '../../../../../input/state/ButtonState'
+import {
+  InputSystemGroup,
+  Query,
+  SystemUUID,
+  defineQuery,
+  defineSystem,
+  destroySystem,
+  getComponent,
+  removeQuery
+} from '@etherealengine/ecs'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { StandardGamepadAxes, XRStandardGamepadAxes } from '@etherealengine/spatial/src/input/state/ButtonState'
 
 let systemCounter = 0
 
