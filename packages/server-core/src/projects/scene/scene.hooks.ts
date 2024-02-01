@@ -31,7 +31,8 @@ import {
   SceneJsonType,
   SceneMetadataCreate,
   ScenePatch,
-  SceneQuery
+  SceneQuery,
+  SceneUpdate
 } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
 import { BadRequest } from '@feathersjs/errors'
@@ -466,7 +467,7 @@ const setSceneSaveResult = async (context: HookContext<SceneService>) => {
   const { name, directory } = context.data as SceneCreateData
 
   // return scene id for update hooks
-  context.result = { id: `${directory!.split('/')[1]}/${name}` }
+  context.result = { id: `${directory!.split('/')[1]}/${name}` } as SceneUpdate
 }
 
 /**

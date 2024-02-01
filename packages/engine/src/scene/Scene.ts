@@ -232,9 +232,9 @@ export const SceneServices = {
   setCurrentScene: (sceneID: SceneID) => {
     Engine.instance.api
       .service(scenePath)
-      .get(null, { query: { sceneKey: sceneID } })
+      .get('' as SceneID, { query: { sceneKey: sceneID } })
       .then((sceneData) => {
-        SceneState.loadScene(sceneID, sceneData)
+        SceneState.loadScene(sceneID, sceneData as SceneDataType)
         getMutableState(SceneState).activeScene.set(sceneID)
       })
 
