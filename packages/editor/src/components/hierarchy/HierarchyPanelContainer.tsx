@@ -30,7 +30,7 @@ import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 
-import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, getMutableComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { NO_PROXY, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
@@ -46,6 +46,10 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
+import {
+  ActiveOrbitCamera,
+  CameraOrbitComponent
+} from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { CopyPasteFunctions } from '../../functions/CopyPasteFunctions'
@@ -223,9 +227,9 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 
   const onClick = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {
     if (e.detail === 2) {
-      //const editorCameraState = getMutableState(EditorCameraState)
-      //editorCameraState.focusedObjects.set([node.entity])
-      //editorCameraState.refocus.set(true)
+      const editorCameraState = getMutableComponent(getState(ActiveOrbitCamera), CameraOrbitComponent)
+      editorCameraState.focusedEntities.set([node.entity])
+      editorCameraState.refocus.set(true)
     }
   }, [])
 
