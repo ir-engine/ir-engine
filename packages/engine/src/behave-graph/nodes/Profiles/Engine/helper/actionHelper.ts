@@ -125,7 +125,8 @@ const initialState = (): State => ({
   systemUUID: '' as SystemUUID
 })
 let systemCounter = 0
-export function getActionConsumers() {
+
+export function registerActionConsumers() {
   const consumers: NodeDefinition[] = []
   const skipped: string[] = []
   for (const [actionType, action] of Object.entries(ActionDefinitions)) {
