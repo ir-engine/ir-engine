@@ -31,7 +31,7 @@ import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { NO_PROXY, getMutableState } from '@etherealengine/hyperflux'
 
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 import { FilteredUsersState } from '../../transports/FilteredUsersSystem'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'

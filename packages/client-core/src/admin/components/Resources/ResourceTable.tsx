@@ -31,7 +31,7 @@ import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperfl
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 
 import { StaticResourceType } from '@etherealengine/common/src/schema.type.module'
-import { FeathersOrder } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { FeathersOrder } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { AuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'
 import { resourceColumns, ResourceData } from '../../common/variables/resource'

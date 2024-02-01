@@ -28,7 +28,7 @@ import React, { useEffect } from 'react'
 import UserIcon from './assets/user.svg'
 
 import { ChannelID, channelPath, messagePath } from '@etherealengine/common/src/schema.type.module'
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { Resizable } from 're-resizable'
 import { ChatState } from './ChatState'
 import { DrawerCreateChannel } from './DrawerCreateChannel'

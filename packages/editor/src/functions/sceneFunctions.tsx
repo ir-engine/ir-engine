@@ -31,11 +31,11 @@ import multiLogger from '@etherealengine/common/src/logger'
 import { SceneDataType, SceneID, scenePath, sceneUploadPath } from '@etherealengine/common/src/schema.type.module'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { GLTFLoadedComponent } from '@etherealengine/engine/src/scene/components/GLTFLoadedComponent'
-import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { EditorState } from '../services/EditorServices'
 
 const logger = multiLogger.child({ component: 'editor:sceneFunctions' })

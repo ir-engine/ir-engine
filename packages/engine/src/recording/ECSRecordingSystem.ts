@@ -31,14 +31,6 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { Network, NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
-import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
-import {
-  NetworkState,
-  webcamAudioDataChannelType,
-  webcamVideoDataChannelType
-} from '@etherealengine/engine/src/networking/NetworkState'
-import { SerializationSchema } from '@etherealengine/engine/src/networking/serialization/Utils'
 import {
   ECSDeserializer,
   ECSSerialization,
@@ -54,6 +46,14 @@ import {
   getState,
   Topic
 } from '@etherealengine/hyperflux'
+import { Network, NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
+import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
+import {
+  NetworkState,
+  webcamAudioDataChannelType,
+  webcamVideoDataChannelType
+} from '@etherealengine/spatial/src/networking/NetworkState'
+import { SerializationSchema } from '@etherealengine/spatial/src/networking/serialization/Utils'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import {
@@ -68,20 +68,20 @@ import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
-import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
-import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
+import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
+import { matchesUserId } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { NetworkPeerFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkPeerFunctions'
 import {
   addDataChannelHandler,
   DataChannelRegistryState,
   removeDataChannelHandler
-} from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
-import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
+} from '@etherealengine/spatial/src/networking/systems/DataChannelRegistry'
+import { updatePeers } from '@etherealengine/spatial/src/networking/systems/OutgoingActionSystem'
+import { PhysicsSerialization } from '@etherealengine/spatial/src/physics/PhysicsSerialization'
 import matches, { Validator } from 'ts-matches'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
-import { checkScope } from '../common/functions/checkScope'
-import { matchesUserId } from '../common/functions/MatchesUtils'
 import { mocapDataChannelType } from '../mocap/MotionCaptureSystem'
-import { PhysicsSerialization } from '../physics/PhysicsSerialization'
 
 const logger = multiLogger.child({ component: 'engine:recording' })
 

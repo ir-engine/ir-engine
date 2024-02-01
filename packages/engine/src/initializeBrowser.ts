@@ -29,12 +29,12 @@ import { WebLayerManager } from '@etherealengine/xrui'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/engine/src/EngineState'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
 import { AssetLoaderState } from './assets/state/AssetLoaderState'
-import { CameraComponent } from './camera/components/CameraComponent'
-import { EngineRenderer } from './renderer/WebGLRendererSystem'
-import { ObjectLayers } from './renderer/constants/ObjectLayers'
 
 /**
  * initializeBrowser

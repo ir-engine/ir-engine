@@ -34,7 +34,7 @@ import { UserID, UserName } from '@etherealengine/common/src/schema.type.module'
 
 import { InviteType, invitePath } from '@etherealengine/common/src/schema.type.module'
 import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import { useFind, useMutation, useSearch } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import TableComponent from '../../common/Table'
 import { InviteColumn, inviteColumns } from '../../common/variables/invite'
 import styles from '../../styles/admin.module.scss'

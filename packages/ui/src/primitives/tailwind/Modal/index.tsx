@@ -24,12 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { ReactNode } from 'react'
-import { twMerge } from 'tailwind-merge'
 
 /**
  * Interface for Modal props
  */
-interface ModalProps {
+export interface ModalProps {
   /**
    * The ID for the modal component, which can be used for referencing.
    */
@@ -42,6 +41,10 @@ interface ModalProps {
    * The CSS class name to apply to the modal dialog.
    */
   className?: string
+
+  title?: string
+
+  open: boolean
 }
 
 /**
@@ -52,22 +55,36 @@ interface ModalProps {
  * @returns {JSX.Element} The rendered Modal component.
  */
 const Modal = (props: ModalProps): JSX.Element => {
-  const { id, children, className } = props
+  const { id, children, className, title, open } = props
 
-  return (
-    <dialog id={id} className={twMerge('modal w-full h-full', className)}>
-      <form method="dialog" className="modal-box w-full h-full">
-        <div className="w-full h-full grid columns-1">
-          <div className="grow w-full">{children}</div>
-          <div className="fixed w-full bottom-10">
-            <button className="btn float-right">Close</button>
+  return open ? (
+    <>
+      <div className="fixed top-0 left-0 w-screen h-screen z-10 bg-gray-500 bg-opacity-75 transition-opacity px-16 py-24 lg:py-48 lg:px-96">
+        <div
+          className="rounded-xl drop-shadow-2xl"
+          style={{
+            // TODO: replace with bg-primary
+            backgroundColor: 'white'
+          }}
+        >
+          <div className="flex p-5 border-b-2 border-slate-200">
+            {title && <h3 className="text-center flex-1">{title}</h3>}
+            <button className="ml-auto">
+              <svg width="24px" height="24px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <g>
+                  <path fill="none" d="M0 0h24v24H0z" />
+                  <path d="M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z" />
+                </g>
+              </svg>
+            </button>
           </div>
+
+          <div className="px-6 py-2 border-b-2 border-slate-200 rounded-xl">{children}</div>
         </div>
-      </form>
-      <form method="dialog" className="modal-backdrop">
-        <button>close</button>
-      </form>
-    </dialog>
+      </div>
+    </>
+  ) : (
+    <></>
   )
 }
 
@@ -91,7 +108,9 @@ Modal.defaultProps = {
   /**
    * Default value for the className is an empty string.
    */
-  className: ''
+  className: '',
+
+  title: 'Test title'
 }
 
 export default Modal

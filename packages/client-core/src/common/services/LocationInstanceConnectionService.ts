@@ -28,8 +28,8 @@ import { none, State } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import logger from '@etherealengine/common/src/logger'
-import { NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
 import { defineState, getMutableState, getState, NO_PROXY, useState } from '@etherealengine/hyperflux'
+import { NetworkState, updateNetworkID } from '@etherealengine/spatial/src/networking/NetworkState'
 
 import {
   InstanceID,

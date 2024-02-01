@@ -44,7 +44,7 @@ import {
   userPath
 } from '@etherealengine/common/src/schema.type.module'
 import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '../../../common/components/ConfirmDialog'
 import { NotificationService } from '../../../common/services/NotificationService'
 import DrawerView from '../../common/DrawerView'

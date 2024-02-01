@@ -32,8 +32,8 @@ import commonStyles from '@etherealengine/client-core/src/common/components/comm
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 

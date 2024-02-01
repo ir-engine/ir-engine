@@ -52,7 +52,7 @@ import {
   userPath
 } from '@etherealengine/common/src/schema.type.module'
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'
