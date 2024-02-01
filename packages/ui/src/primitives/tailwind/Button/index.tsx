@@ -46,34 +46,27 @@ interface ButtonProps {
   labelPosition?: 'left' | 'right' | 'above' | 'below'
 }
 
-const Button = ({ icon, title, showLabel, labelPosition, className, ...props }: ButtonProps & any): JSX.Element => (
-  <button className={twMerge('m-0 btn h-auto tooltip', className)} {...props} data-tip={title}>
-    {labelPosition === 'above' ? (
-      <span className="flex flex-col items-center">
-        {showLabel === true ? <span className="mb-1">{title}</span> : null}
-        {icon !== undefined ? icon : null}
+const Button = ({ icon, title, showLabel, labelPosition, className, ...props }: ButtonProps & any): JSX.Element => {
+  const labelContainerClass = twMerge(
+    'flex items-center',
+    labelPosition === 'above' || labelPosition === 'below' ? 'flex-col' : 'flex-row'
+  )
+  const labelClass = {
+    above: 'mb-1',
+    below: 'mt-1',
+    left: 'mr-1',
+    right: 'ml-1'
+  }
+
+  return (
+    <button className={twMerge('m-0 btn h-auto tooltip', className)} {...props} data-tip={title}>
+      <span className={labelContainerClass}>
+        {showLabel === true ? <span className={labelClass[labelPosition]}>{title}</span> : null}
+        {icon !== undefined && icon}
       </span>
-    ) : null}
-    {labelPosition === 'below' ? (
-      <span className="flex flex-col items-center">
-        {icon !== undefined ? icon : null}
-        {showLabel === true ? <span className="mt-1">{title}</span> : null}
-      </span>
-    ) : null}
-    {labelPosition === 'right' ? (
-      <span className="flex flex-row items-center">
-        {icon !== undefined ? icon : null}
-        {showLabel === true ? <span className="ml-1">{title}</span> : null}
-      </span>
-    ) : null}
-    {labelPosition === 'left' ? (
-      <span className="flex items-center">
-        {showLabel === true ? <span className="mr-1">{title}</span> : null}
-        {icon !== undefined ? icon : null}
-      </span>
-    ) : null}
-  </button>
-)
+    </button>
+  )
+}
 
 Button.displayName = 'Button'
 
