@@ -203,7 +203,7 @@ export const ColliderComponent = defineComponent({
       } else {
         const rigidbodyTypeChanged =
           !hasComponent(entity, RigidBodyComponent) ||
-          colliderComponent.bodyType.value !== getComponent(entity, RigidBodyComponent).body.bodyType()
+          colliderComponent.bodyType.value !== getComponent(entity, RigidBodyComponent).body!.bodyType()
 
         if (rigidbodyTypeChanged) {
           const rigidbody = getOptionalComponent(entity, RigidBodyComponent)?.body
@@ -261,11 +261,10 @@ export const ColliderComponent = defineComponent({
           new Vector3(),
           new Quaternion()
         )
-        physicsWorld.createCollider(colliderDesc, rigidbody.body)
+        physicsWorld.createCollider(colliderDesc, rigidbody.body!)
 
-        rigidbody.body.setTranslation(transformComponent.position.value, true)
-        rigidbody.body.setRotation(transformComponent.rotation.value, true)
-        rigidbody.scale.copy(transformComponent.scale.value)
+        rigidbody.body!.setTranslation(transformComponent.position.value, true)
+        rigidbody.body!.setRotation(transformComponent.rotation.value, true)
       }
     }, [isLoadedFromGLTF, colliderComponent, transformComponent, groupComponent?.length, modelHierarchy])
 

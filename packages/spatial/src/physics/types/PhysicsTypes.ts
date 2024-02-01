@@ -26,6 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import RAPIER, { ActiveCollisionTypes, RigidBodyType, ShapeType, Vector } from '@dimforge/rapier3d-compat'
 
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { Vector3 } from 'three'
+import { CollisionGroups } from '../enums/CollisionGroups'
 
 export interface Vec3 {
   x: number
@@ -75,6 +77,7 @@ export type ColliderHitEvent = {
   totalForce: null | Vector
 }
 
+/** @deprecated */
 export type ColliderDescOptions = {
   shapeType?: ShapeType
   bodyType?: RigidBodyType // TODO: This is only required at the root node, should be removed from here?
@@ -84,4 +87,35 @@ export type ColliderDescOptions = {
   collisionLayer?: number
   collisionMask?: number
   activeCollisionTypes?: ActiveCollisionTypes
+}
+
+export const BodyTypes = {
+  Fixed: 'fixed',
+  Dynamic: 'dynamic',
+  Kinematic: 'kinematic'
+}
+
+export type Body = (typeof BodyTypes)[keyof typeof BodyTypes]
+
+export const Shapes = {
+  Sphere: 'sphere',
+  Capsule: 'capsule',
+  Cylinder: 'cylinder',
+  Box: 'box',
+  ConvexHull: 'convex_hull',
+  Container: 'container',
+  Mesh: 'mesh',
+  Heightfield: 'heightfield'
+}
+
+export type Shape = (typeof Shapes)[keyof typeof Shapes]
+
+export type ColliderOptions = {
+  shape: Shape
+  mass: number
+  massCenter: Vector3
+  friction: number
+  restitution: number
+  collisionLayer: CollisionGroups
+  collisionMask: CollisionGroups
 }

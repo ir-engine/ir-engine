@@ -61,6 +61,7 @@ import { iterateEntityNode } from '@etherealengine/spatial/src/transform/compone
 import { V_000 } from '../../common/constants/MathConstants'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
   RigidBodyComponent,
@@ -70,7 +71,13 @@ import {
 } from '../components/RigidBodyComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
-import { ColliderDescOptions, CollisionEvents, RaycastHit, SceneQueryType } from '../types/PhysicsTypes'
+import {
+  ColliderDescOptions,
+  ColliderOptions,
+  CollisionEvents,
+  RaycastHit,
+  SceneQueryType
+} from '../types/PhysicsTypes'
 
 export type PhysicsWorld = World
 
@@ -92,7 +99,13 @@ const position = new Vector3()
 const rotation = new Quaternion()
 const scale = new Vector3()
 
-function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyDesc, colliderDesc: ColliderDesc[]) {
+function createRigidBody(
+  entity: Entity,
+  world: World,
+  rigidBodyDesc: RigidBodyDesc,
+  colliderDesc: ColliderDesc[] = []
+) {
+  computeTransformMatrix(entity)
   getComponent(entity, TransformComponent).matrixWorld.decompose(position, rotation, scale)
 
   rigidBodyDesc.translation = position
@@ -103,13 +116,13 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
 
   setComponent(entity, RigidBodyComponent, { body })
   const rigidBody = getComponent(entity, RigidBodyComponent)
-  const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.body.bodyType())
+  const RigidBodyTypeTagComponent = getTagComponentForRigidBody(body.bodyType())
   setComponent(entity, RigidBodyTypeTagComponent, true)
 
-  rigidBody.body.setTranslation(position, true)
-  rigidBody.body.setRotation(rotation, true)
-  rigidBody.body.setLinvel(V_000, true)
-  rigidBody.body.setAngvel(V_000, true)
+  body.setTranslation(position, true)
+  body.setRotation(rotation, true)
+  body.setLinvel(V_000, true)
+  body.setAngvel(V_000, true)
   rigidBody.previousPosition.copy(position)
   rigidBody.previousRotation.copy(rotation)
   if (
@@ -123,7 +136,6 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   rigidBody.rotation.copy(rotation)
   rigidBody.linearVelocity.copy(V_000)
   rigidBody.angularVelocity.copy(V_000)
-  rigidBody.scale.copy(scale)
 
   // set entity in userdata for fast look up when required.
   const rigidBodyUserdata = { entity: entity }
@@ -160,23 +172,14 @@ function applyDescToCollider(
   return colliderDesc
 }
 
-function createColliderDesc(
+/** @deprecated */
+function createColliderDescFromMesh(
   entity: Entity,
   colliderDescOptions: ColliderDescOptions,
   rootEntity: Entity,
   overrideShapeType = false
 ): ColliderDesc | undefined {
   const mesh = getComponent(entity, MeshComponent)
-  // @todo - check this works in all scenes
-  // if (!colliderDescOptions.shapeType && mesh.geometry.type === 'BoxGeometry')
-  //   colliderDescOptions.shapeType = ShapeType.Cuboid
-
-  // if (!colliderDescOptions.shapeType && mesh.geometry.type === 'SphereGeometry')
-  //   colliderDescOptions.shapeType = ShapeType.Ball
-
-  // if (!colliderDescOptions.shapeType && mesh.geometry.type === 'CylinderGeometry')
-  //   colliderDescOptions.shapeType = ShapeType.Cylinder
-
   if (!overrideShapeType && typeof colliderDescOptions.shapeType === 'undefined') return
 
   let shapeType =
@@ -278,7 +281,118 @@ function createColliderDesc(
 
   const worldScale = TransformComponent.getWorldScale(rootEntity, new Vector3())
 
-  applyDescToCollider(
+  Physics.applyDescToCollider(
+    colliderDesc,
+    colliderDescOptions,
+    positionRelativeToRoot.multiply(worldScale),
+    quaternionRelativeToRoot
+  )
+
+  return colliderDesc
+}
+
+function createColliderDesc(entity: Entity, rootEntity: Entity, colliderDescOptions: ColliderOptions) {
+  const mesh = getOptionalComponent(entity, MeshComponent)
+
+  let shape =
+    typeof colliderDescOptions.shape === 'string' ? ShapeType[colliderDescOptions.shape] : colliderDescOptions.shape
+
+  //check for old collider types to allow backwards compatibility
+  if (typeof shape === 'undefined') {
+    switch (colliderDescOptions.shape as unknown as string) {
+      case 'box':
+        shape = ShapeType.Cuboid
+        break
+      case 'trimesh':
+        shape = ShapeType.TriMesh
+        break
+      case 'capsule':
+        shape = ShapeType.Capsule
+        break
+      case 'cylinder':
+        shape = ShapeType.Cylinder
+        break
+      default:
+        console.error('unrecognized collider shape type: ' + colliderDescOptions.shape)
+    }
+  }
+
+  const scale = TransformComponent.getWorldScale(entity, new Vector3())
+
+  if (mesh?.geometry?.type === 'BoxGeometry') {
+    scale.multiplyScalar(0.5)
+  }
+
+  let colliderDesc: ColliderDesc
+
+  switch (shape as ShapeType) {
+    case ShapeType.Cuboid:
+      colliderDesc = ColliderDesc.cuboid(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
+      break
+
+    case ShapeType.Ball:
+      colliderDesc = ColliderDesc.ball(Math.abs(scale.x))
+      break
+
+    case ShapeType.Capsule:
+      colliderDesc = ColliderDesc.capsule(Math.abs(scale.y), Math.abs(scale.x))
+      break
+
+    case ShapeType.Cylinder:
+      colliderDesc = ColliderDesc.cylinder(Math.abs(scale.y), Math.abs(scale.x))
+      break
+
+    case ShapeType.ConvexPolyhedron: {
+      if (!mesh?.geometry)
+        return console.warn('[Physics]: Tried to load convex mesh but did not find a geometry', mesh) as any
+      try {
+        const _buff = mesh.geometry.clone().scale(scale.x, scale.y, scale.z)
+        const vertices = new Float32Array((_buff.attributes.position as BufferAttribute).array)
+        const indices = new Uint32Array(_buff.index!.array)
+        colliderDesc = ColliderDesc.convexMesh(vertices, indices) as ColliderDesc
+      } catch (e) {
+        console.log('Failed to construct collider from trimesh geometry', mesh.geometry, e)
+        return
+      }
+      break
+    }
+
+    case ShapeType.TriMesh: {
+      if (!mesh?.geometry)
+        return console.warn('[Physics]: Tried to load tri mesh but did not find a geometry', mesh) as any
+      try {
+        const _buff = mesh.geometry.clone().scale(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
+        const vertices = new Float32Array((_buff.attributes.position as BufferAttribute).array)
+        const indices = new Uint32Array(_buff.index!.array)
+        colliderDesc = ColliderDesc.trimesh(vertices, indices)
+      } catch (e) {
+        console.log('Failed to construct collider from trimesh geometry', mesh.geometry, e)
+        return
+      }
+      break
+    }
+
+    default:
+      console.error('unknown shape', colliderDescOptions)
+      return
+  }
+
+  const positionRelativeToRoot = new Vector3()
+  const quaternionRelativeToRoot = new Quaternion()
+
+  const transform = getComponent(entity, TransformComponent)
+  const rootTransform = getComponent(rootEntity, TransformComponent)
+
+  // get matrix relative to root
+  if (rootEntity !== entity) {
+    const matrixRelativeToRoot = new Matrix4()
+    matrixRelativeToRoot.copy(rootTransform.matrixWorld).invert().multiply(transform.matrixWorld)
+    matrixRelativeToRoot.decompose(positionRelativeToRoot, quaternionRelativeToRoot, new Vector3())
+  }
+
+  const worldScale = TransformComponent.getWorldScale(rootEntity, new Vector3())
+
+  Physics.applyDescToCollider(
     colliderDesc,
     colliderDescOptions,
     positionRelativeToRoot.multiply(worldScale),
@@ -303,7 +417,7 @@ function createRigidBodyForGroup(
     if (mesh.userData.type && mesh.userData.type !== ('glb' as any)) mesh.userData.shapeType = mesh.userData.type
 
     const args = { ...colliderDescOptions, ...mesh.userData } as ColliderDescOptions
-    const colliderDesc = createColliderDesc(child, args, entity, overrideShapeType)
+    const colliderDesc = Physics.createColliderDescFromMesh(child, args, entity, overrideShapeType)
 
     if (colliderDesc) {
       meshesToRemove.push(mesh)
@@ -336,7 +450,7 @@ function createRigidBodyForGroup(
       break
   }
 
-  createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
+  Physics.createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
 
   return meshesToRemove
 }
@@ -365,7 +479,7 @@ function createCharacterController(
 }
 
 function removeCollidersFromRigidBody(entity: Entity, world: World) {
-  const rigidBody = getComponent(entity, RigidBodyComponent).body
+  const rigidBody = getComponent(entity, RigidBodyComponent).body!
   const numColliders = rigidBody.numColliders()
   for (let index = 0; index < numColliders; index++) {
     const collider = rigidBody.collider(0)
@@ -378,7 +492,7 @@ function removeRigidBody(entity: Entity, world: World) {
 }
 
 function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {
-  const rigidBody = getComponent(entity, RigidBodyComponent).body
+  const rigidBody = getComponent(entity, RigidBodyComponent).body!
   if (newType === rigidBody.bodyType()) return
   const currentRigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())
 
@@ -566,6 +680,7 @@ export const Physics = {
   load,
   createWorld,
   createRigidBody,
+  createColliderDescFromMesh,
   createColliderDesc,
   applyDescToCollider,
   createRigidBodyForGroup,

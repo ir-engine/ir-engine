@@ -142,7 +142,7 @@ describe('Physics', () => {
   //   boxDynamicConfig.collisionMask = collisionMask
   //   boxDynamicConfig.isTrigger = true
 
-  //   const boxColliderDesc = Physics.createColliderDesc(mesh, boxDynamicConfig)!
+  //   const boxColliderDesc = Physics.createColliderDescFromMesh(mesh, boxDynamicConfig)!
   //   const interactionGroups = getInteractionGroups(collisionGroup, collisionMask)
 
   //   assert.deepEqual(boxColliderDesc.shape.type, boxDynamicConfig.shapeType)
@@ -177,7 +177,7 @@ describe('Physics', () => {
   //   boxDynamicConfig.collisionMask = collisionMask
   //   boxDynamicConfig.isTrigger = true
 
-  //   const boxColliderDesc = Physics.createColliderDesc(mesh, boxDynamicConfig, root)!
+  //   const boxColliderDesc = Physics.createColliderDescFromMesh(mesh, boxDynamicConfig, root)!
   //   const interactionGroups = getInteractionGroups(collisionGroup, collisionMask)
 
   //   assert.deepEqual(boxColliderDesc.shape.type, boxDynamicConfig.shapeType)

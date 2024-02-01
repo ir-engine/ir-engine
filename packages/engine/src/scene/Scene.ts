@@ -55,6 +55,7 @@ import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { ColliderComponent as NewColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
 import matches, { Validator } from 'ts-matches'
@@ -135,6 +136,12 @@ export const SceneState = defineState({
   loadScene: (sceneID: SceneID, sceneData: SceneDataType) => {
     const metadata: SceneMetadataType = sceneData
     const data: SceneJsonType = sceneData.scene
+
+    /** migrate collider components */
+    for (const [uuid, entityJson] of Object.entries(data.entities)) {
+      NewColliderComponent.migrateFromOldComponent(entityJson)
+    }
+
     getMutableState(SceneState).scenes[sceneID].set({
       metadata,
       snapshots: [{ data, selectedEntities: [] }],

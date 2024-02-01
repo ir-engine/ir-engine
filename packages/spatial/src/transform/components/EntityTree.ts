@@ -261,10 +261,10 @@ export function iterateEntityNode<R>(
  * @param tree Entity Tree
  */
 export function traverseEntityNodeParent(entity: Entity, cb: (parent: Entity) => void): void {
+  cb(entity)
   const entityTreeNode = getComponent(entity, EntityTreeComponent)
   if (entityTreeNode.parentEntity) {
     const parent = entityTreeNode.parentEntity
-    cb(parent)
     traverseEntityNodeParent(parent, cb)
   }
 }
