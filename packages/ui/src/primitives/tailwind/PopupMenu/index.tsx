@@ -23,35 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import basicTheme from './basic'
-import cupcakeTheme from './themes/cupcake'
-import darkTheme from './themes/darkTheme'
-import defaultTheme from './themes/defaultTheme'
-import luxuryTheme from './themes/luxury'
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import React from 'react'
+import ClickawayListener from '../ClickawayListener'
 
-const combineConfigs = (config1, config2) => ({
-  ...config1,
-  ...config2,
-  theme: {
-    ...config1.theme,
-    ...config2.theme,
-    extend: {
-      ...config1.theme.extend,
-      ...config2.theme.extend
-    },
-    colors: {
-      ...config1.theme.colors,
-      ...config2.theme.colors
-    }
-  }
-})
-
-const themeNames = ['default', 'dark', 'luxury', 'cupcake']
-const themes = {
-  default: combineConfigs(basicTheme, defaultTheme),
-  dark: combineConfigs(basicTheme, darkTheme),
-  luxury: combineConfigs(basicTheme, luxuryTheme),
-  cupcake: combineConfigs(basicTheme, cupcakeTheme)
+const PopupMenu = () => {
+  const popoverElement = useHookstate(getMutableState(PopoverState).element)
+  const PopoverComponent = popoverElement.get(NO_PROXY) as any // types are broken for some reason...
+  return <>{popoverElement.value && <ClickawayListener>{PopoverComponent}</ClickawayListener>}</>
 }
+PopupMenu.displayName = 'PopupMenu'
 
-export { themes, themeNames }
+PopupMenu.defaultProps = {}
+
+export default PopupMenu
