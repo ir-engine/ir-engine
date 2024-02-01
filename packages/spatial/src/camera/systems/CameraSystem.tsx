@@ -184,7 +184,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   let maxDistance = followCamera.zoomLevel
   let isInsideWall = false
 
-  targetPosition.copy(targetTransform.position).add(followCamera.offset)
+  targetPosition.copy(followCamera.offset).applyQuaternion(targetTransform.rotation).add(targetTransform.position)
 
   // Run only if not in first person mode
   if (followCamera.raycastProps.enabled && followCamera.zoomLevel >= followCamera.minDistance) {

@@ -60,7 +60,9 @@ import { NetworkState, SceneUser } from '@etherealengine/spatial/src/networking/
 import { NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
 import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
-import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
@@ -323,11 +325,12 @@ const EntityChildLoadReactor = (props: {
       childIndex: entityJSONState.index.value
     })
 
-    if (!hasComponent(entity, GroupComponent)) {
+    if (!hasComponent(entity, Object3DComponent) && !hasComponent(entity, MeshComponent)) {
       const obj3d = new Group()
       obj3d.entity = entity
       addObjectToGroup(entity, obj3d)
       proxifyParentChildRelationships(obj3d)
+      setComponent(entity, Object3DComponent, obj3d)
     }
 
     setComponent(entity, SourceComponent, props.sceneID)

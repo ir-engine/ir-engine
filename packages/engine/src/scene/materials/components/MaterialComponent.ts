@@ -39,4 +39,5 @@ export type MaterialComponentType = {
   plugins: string[]
   src: MaterialSource
   status: MaterialStatus
+  instances: Entity[]
 }

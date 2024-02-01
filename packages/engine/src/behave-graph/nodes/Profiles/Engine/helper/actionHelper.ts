@@ -61,7 +61,7 @@ export function generateActionNodeSchema(action) {
   return nodeschema
 }
 
-export function getActionDispatchers() {
+export function registerActionDispatchers() {
   const dispatchers: NodeDefinition[] = []
   const skipped: string[] = []
   for (const [actionType, action] of Object.entries(ActionDefinitions)) {
@@ -76,7 +76,9 @@ export function getActionDispatchers() {
       skipped.push(actionType)
       continue
     }
-    const nameArray = type.split('.')
+
+    const primaryType = Array.isArray(type) ? type[0] : type
+    const nameArray = primaryType.split('.')
     const dispatchName = startCase(nameArray.pop().toLowerCase())
     const namePath = nameArray.splice(1).join('/')
 
@@ -96,7 +98,6 @@ export function getActionDispatchers() {
         for (const [input, type] of inputs) {
           actionInput[input] = NodetoEnginetype(read(input as any), type)
         }
-        console.log('DEBUG action is ', actionInput)
         dispatchAction(ActionDefinitions[type](actionInput as Action))
         commit('flow')
       }

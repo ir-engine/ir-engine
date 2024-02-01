@@ -23,35 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import basicTheme from './basic'
-import cupcakeTheme from './themes/cupcake'
-import darkTheme from './themes/darkTheme'
-import defaultTheme from './themes/defaultTheme'
-import luxuryTheme from './themes/luxury'
+import { XRJointAvatarBoneMap } from '@etherealengine/spatial/src/xr/XRComponents'
+import { VRM, VRMHumanBoneName } from '@pixiv/three-vrm'
 
-const combineConfigs = (config1, config2) => ({
-  ...config1,
-  ...config2,
-  theme: {
-    ...config1.theme,
-    ...config2.theme,
-    extend: {
-      ...config1.theme.extend,
-      ...config2.theme.extend
-    },
-    colors: {
-      ...config1.theme.colors,
-      ...config2.theme.colors
-    }
+export const applyHandRotationFK = (vrm: VRM, handedness: 'left' | 'right', rotations: Float32Array) => {
+  const bones = Object.values(XRJointAvatarBoneMap)
+  for (let i = 0; i < bones.length; i++) {
+    const label = bones[i]
+    const boneName = `${handedness}${label}` as VRMHumanBoneName
+    const bone = vrm.humanoid.getNormalizedBone(boneName)
+    if (!bone?.node) continue
+    bone.node.quaternion.fromArray(rotations, i * 4)
   }
-})
-
-const themeNames = ['default', 'dark', 'luxury', 'cupcake']
-const themes = {
-  default: combineConfigs(basicTheme, defaultTheme),
-  dark: combineConfigs(basicTheme, darkTheme),
-  luxury: combineConfigs(basicTheme, luxuryTheme),
-  cupcake: combineConfigs(basicTheme, cupcakeTheme)
 }
-
-export { themes, themeNames }

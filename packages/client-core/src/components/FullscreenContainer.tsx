@@ -35,7 +35,8 @@ export const FullscreenContainer = React.forwardRef((props: Props, ref: any) => 
   const handle = useFullScreenHandle()
 
   const renderEngineCanvas = () => {
-    const canvas = document.getElementById('engine-renderer-canvas')!
+    const canvas = document.getElementById('engine-renderer-canvas')
+    if (!canvas) return
     canvas.parentElement?.removeChild(canvas)
     ref.current.appendChild(canvas)
   }

@@ -23,22 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import React from 'react'
+import ClickawayListener from '../ClickawayListener'
 
-const argTypes = {}
-
-export default {
-  title: 'Components/Tailwind/ThemeSwitcher',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'ThemeSwitcher',
-    jest: 'ThemeSwitcher.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
+const PopupMenu = () => {
+  const popoverElement = useHookstate(getMutableState(PopoverState).element)
+  const PopoverComponent = popoverElement.get(NO_PROXY) as any // types are broken for some reason...
+  return <>{popoverElement.value && <ClickawayListener>{PopoverComponent}</ClickawayListener>}</>
 }
+PopupMenu.displayName = 'PopupMenu'
 
-export const Default = { args: Component.defaultProps }
+PopupMenu.defaultProps = {}
+
+export default PopupMenu
