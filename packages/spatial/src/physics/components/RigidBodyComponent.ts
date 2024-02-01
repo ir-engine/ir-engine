@@ -114,6 +114,8 @@ export const RigidBodyComponent = defineComponent({
     const component = useComponent(entity, RigidBodyComponent)
 
     useEffect(() => {
+      if (component.body.value) return
+
       let rigidBodyDesc: RigidBodyDesc = undefined!
       switch (component.type.value) {
         case 'dynamic':

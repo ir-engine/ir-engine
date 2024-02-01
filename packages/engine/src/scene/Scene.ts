@@ -55,11 +55,11 @@ import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
-import { ColliderComponent as NewColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
 import matches, { Validator } from 'ts-matches'
 import { SourceComponent } from './components/SourceComponent'
+import { migrateFromOldComponent } from './functions/migrateOldColliders'
 import { serializeEntity } from './functions/serializeWorld'
 
 export interface SceneSnapshotInterface {
@@ -139,7 +139,7 @@ export const SceneState = defineState({
 
     /** migrate collider components */
     for (const [uuid, entityJson] of Object.entries(data.entities)) {
-      NewColliderComponent.migrateFromOldComponent(entityJson)
+      migrateFromOldComponent(entityJson)
     }
 
     getMutableState(SceneState).scenes[sceneID].set({

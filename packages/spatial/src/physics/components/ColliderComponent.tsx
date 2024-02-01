@@ -23,9 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RigidBodyType } from '@dimforge/rapier3d-compat'
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { ComponentJsonType, EntityJsonType } from '@etherealengine/common/src/schema.type.module'
 import {
   Entity,
   UndefinedEntity,
@@ -44,36 +41,6 @@ import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { PhysicsState } from '../state/PhysicsState'
 import { Shape } from '../types/PhysicsTypes'
 import { RigidBodyComponent } from './RigidBodyComponent'
-import { TriggerComponent } from './TriggerComponent'
-
-type OldColliderComponent = {
-  bodyType: number
-  shapeType: number
-  isTrigger: boolean
-  collisionLayer: number
-  collisionMask: number
-  restitution: number
-  triggers: [
-    {
-      /**
-       * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
-       */
-      onEnter: null | string
-      /**
-       * The function to call on the CallbackComponent of the targetEntity when the trigger volume is exited.
-       */
-      onExit: null | string
-      /**
-       * uuid (null as null | string)
-       *
-       * empty string represents self
-       *
-       * TODO: how do we handle non-scene entities?
-       */
-      target: null | EntityUUID
-    }
-  ]
-}
 
 export const ColliderComponent = defineComponent({
   name: 'ColliderComponent',
@@ -114,49 +81,6 @@ export const ColliderComponent = defineComponent({
       collisionLayer: component.collisionLayer.value,
       collisionMask: component.collisionMask.value
     }
-  },
-
-  /**
-   * Converts old ColliderComponent to RigidbodyComponent, new ColliderComponent and TriggerComponent
-   * - this will only convert single collider entities, not GLTF metadata
-   */
-  migrateFromOldComponent: (oldJSON: EntityJsonType) => {
-    const newComponents = [] as ComponentJsonType[]
-    for (const component of oldJSON.components) {
-      if (component.name === 'collider') {
-        const data = component.props as OldColliderComponent
-        /** shapeType is undefined for GLTF metadata */
-        if (typeof data.shapeType === 'undefined') continue
-        newComponents.push({
-          name: RigidBodyComponent.jsonID,
-          props: {
-            type:
-              data.bodyType === RigidBodyType.Fixed
-                ? 'fixed'
-                : data.bodyType === RigidBodyType.Dynamic
-                ? 'dynamic'
-                : 'kinematic'
-          }
-        })
-        newComponents.push({
-          name: ColliderComponent.jsonID,
-          props: {
-            shape: data.shapeType,
-            collisionLayer: data.collisionLayer,
-            collisionMask: data.collisionMask,
-            restitution: data.restitution
-          }
-        })
-        if (data.isTrigger) {
-          newComponents.push({
-            name: TriggerComponent.jsonID,
-            props: data.triggers
-          })
-        }
-      }
-    }
-    oldJSON.components.push(...newComponents)
-    oldJSON.components = oldJSON.components.filter((component) => component.name !== 'collider')
   },
 
   reactor: ColliderComponentReactor

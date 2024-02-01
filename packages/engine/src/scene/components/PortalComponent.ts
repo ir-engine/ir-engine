@@ -47,19 +47,16 @@ import {
   SerializedComponentType,
   defineComponent,
   getComponent,
-  hasComponent,
   setComponent,
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { V_100 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -74,8 +71,6 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { setCallback } from './CallbackComponent'
 import { ColliderComponent } from './ColliderComponent'
-import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { SceneObjectComponent } from './SceneObjectComponent'
 
 export const PortalPreviewTypeSimple = 'Simple' as const
 export const PortalPreviewTypeSpherical = 'Spherical' as const
@@ -152,12 +147,12 @@ export const PortalComponent = defineComponent({
         )
     }
 
-    if (
-      !getState(SceneState).sceneLoaded &&
-      hasComponent(entity, SceneObjectComponent) &&
-      !hasComponent(entity, RigidBodyComponent)
-    )
-      setComponent(entity, SceneAssetPendingTagComponent)
+    // if (
+    //   !getState(SceneState).sceneLoaded &&
+    //   hasComponent(entity, SceneObjectComponent) &&
+    //   !hasComponent(entity, RigidBodyComponent)
+    // )
+    //   setComponent(entity, SceneAssetPendingTagComponent)
   },
 
   toJSON: (entity, component) => {
