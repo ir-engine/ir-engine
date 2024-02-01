@@ -23,47 +23,92 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { HandThumbUpIcon } from '@heroicons/react/24/solid'
 import React, { ReactNode } from 'react'
+import { IconType } from 'react-icons'
 import { twMerge } from 'tailwind-merge'
 
 /**
- * Button component with customizable label position.
+ * Button component
  *
- * @component
- * @param {Object} props - The component props.
- * @param {ReactNode} props.icon - The icon to display in the button.
- * @param {string} props.title - The title of the button.
- * @param {'left' | 'right' | 'above' | 'below'} [props.labelPosition='left'] - The position of the label relative to the button.
- * @param {string} [props.className] - Additional CSS classes for the button.
+ * @param {ReactNode} startIcon - SVG Icon placed before the children.
+ * @param {ReactNode} children - The content of the button.
+ * @param {ReactNode} endIcon - SVG Icon placed after the children.
+ * @param {'small' | 'medium' | 'large'} [size] - The size of the component. small is equivalent to the dense button styling.
+ * @param {boolean} [fullWidth] - If true, the button will take up the full width of its container
+ * @param {string} [backgroundColor] - The background color of the button. Default is #375DAF.
+ * @param {boolean} [round] - If true, a capsule button is rendered.
  * @returns {JSX.Element} - The Button component.
  */
 
-interface ButtonProps {
-  icon: ReactNode
-  title: string
-  showLabel?: boolean
-  labelPosition?: 'left' | 'right' | 'above' | 'below'
+export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
+  startIcon?: IconType | React.ReactElement // SVGElement
+  children?: ReactNode
+  endIcon?: IconType | React.ReactElement // SVGElement
+  size?: 'small' | 'medium' | 'large'
+  fullWidth?: boolean
+  backgroundColor?: string
+  round?: boolean
 }
 
-const Button = ({ icon, title, showLabel, labelPosition, className, ...props }: ButtonProps & any): JSX.Element => {
-  const labelContainerClass = twMerge(
-    'flex items-center',
-    labelPosition === 'above' || labelPosition === 'below' ? 'flex-col' : 'flex-row'
+const Button = ({
+  startIcon: StartIcon,
+  children,
+  endIcon: EndIcon,
+  size,
+  fullWidth,
+  backgroundColor,
+  round,
+  ...props
+}: ButtonProps): JSX.Element => {
+  const color = '#FFFFFF' // no matter the theme
+
+  const sizes = {
+    small: {
+      fontSize: 'text-sm',
+      padding: 'px-3 py-2',
+      svgSize: '1.5rem'
+    },
+    medium: {
+      fontSize: 'text-base',
+      padding: 'px-4 py-2',
+      svgSize: '2rem'
+    },
+    large: {
+      fontSize: 'text-lg',
+      padding: 'px-7 py-3',
+      svgSize: '2.4rem'
+    }
+  }
+
+  const className = twMerge(
+    sizes[size!].fontSize,
+    sizes[size!].padding,
+    fullWidth ? 'w-full' : 'w-fit',
+    round ? 'rounded-full' : 'rounded-lg',
+    'flex justify-between items-center font-semibold',
+    'transition ease-in-out delay-150 hover:drop-shadow-xl hover:-translate-y-0.5 hover:scale-110 duration-100'
   )
-  const labelClass = {
-    above: 'mb-1',
-    below: 'mt-1',
-    left: 'mr-1',
-    right: 'ml-1'
+
+  const buttonStyles = {
+    color: color
+  }
+  if (backgroundColor) {
+    buttonStyles['backgroundColor'] = backgroundColor
   }
 
   return (
-    <button className={twMerge('m-0 btn h-auto tooltip', className)} {...props} data-tip={title}>
-      <span className={labelContainerClass}>
-        {showLabel === true ? <span className={labelClass[labelPosition]}>{title}</span> : null}
-        {icon !== undefined && icon}
-      </span>
+    <button className={className} style={buttonStyles} {...props}>
+      {StartIcon && (
+        <span className="mx-1">
+          {typeof StartIcon === 'function' ? <StartIcon color={color} size={sizes[size!].svgSize} /> : StartIcon}
+        </span>
+      )}
+      {children && <span className={twMerge('mx-1', fullWidth ? 'mx-auto' : '')}> {children}</span>}
+      {EndIcon && (
+        <span className="mx-1">
+          {typeof EndIcon === 'function' ? <EndIcon color={color} size={sizes[size!].svgSize} /> : EndIcon}
+        </span>
+      )}
     </button>
   )
 }
@@ -71,10 +116,7 @@ const Button = ({ icon, title, showLabel, labelPosition, className, ...props }: 
 Button.displayName = 'Button'
 
 Button.defaultProps = {
-  title: '',
-  showLabel: true,
-  labelPosition: 'right',
-  icon: <HandThumbUpIcon className="block w-4 h-4" />
+  size: 'medium'
 }
 
 export default Button
