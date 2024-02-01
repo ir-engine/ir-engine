@@ -28,20 +28,24 @@ import {
   getOptionalComponent,
   useComponent,
   useOptionalComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { useEffect } from 'react'
-import { InstancedMesh, LineBasicMaterial, Mesh, Object3D, SkinnedMesh } from 'three'
-import { MeshBVHVisualizer } from 'three-mesh-bvh'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { RendererState } from '../../renderer/RendererState'
-import { ObjectLayers } from '../constants/ObjectLayers'
+import { BufferGeometry, InstancedMesh, LineBasicMaterial, Mesh, Object3D, SkinnedMesh } from 'three'
+import { MeshBVHVisualizer, acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
-import { MeshComponent } from './MeshComponent'
 import { ModelComponent } from './ModelComponent'
-import { ObjectLayerMaskComponent } from './ObjectLayerComponent'
-import { VisibleComponent } from './VisibleComponent'
+
+Mesh.prototype.raycast = acceleratedRaycast
+BufferGeometry.prototype['disposeBoundsTree'] = disposeBoundsTree
+BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
 
 const edgeMaterial = new LineBasicMaterial({
   color: 0x00ff88,

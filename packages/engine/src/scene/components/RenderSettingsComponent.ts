@@ -27,9 +27,9 @@ import { useEffect } from 'react'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { RenderSettingsState } from '../../renderer/WebGLRendererSystem'
+import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { RenderSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 
 export const RenderSettingsComponent = defineComponent({
   name: 'RenderSettingsComponent',

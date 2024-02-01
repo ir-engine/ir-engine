@@ -26,32 +26,32 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Intersection, Layers, MathUtils, Object3D, Raycaster } from 'three'
 
-import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   getComponent,
   getOptionalComponent,
   hasComponent,
   setComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
-import { InfiniteGridComponent } from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { throttle } from '@etherealengine/spatial/src/common/functions/FunctionHelpers'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { InfiniteGridComponent } from '@etherealengine/spatial/src/renderer/components/InfiniteGridHelper'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
-import { V_010 } from '@etherealengine/engine/src/common/constants/MathConstants'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
-import { InputState } from '@etherealengine/engine/src/input/state/InputState'
-import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@etherealengine/spatial'
+import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { EditorCameraState } from '../classes/EditorCameraState'
 import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
@@ -240,7 +240,7 @@ const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
 
 const execute = () => {
   if (Engine.instance.localClientEntity) return // we are in live mode
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
 
   const editorHelperState = getState(EditorHelperState)
   const selectionState = getMutableState(SelectionState)

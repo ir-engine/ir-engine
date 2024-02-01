@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { State, getState } from '@etherealengine/hyperflux'
-import { AudioState } from '../../audio/AudioState'
 import {
   ComponentType,
   defineComponent,
@@ -35,9 +33,11 @@ import {
   removeComponent,
   setComponent,
   useComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { State, getState } from '@etherealengine/hyperflux'
+import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { AudioState } from '../../audio/AudioState'
 import { PlayMode } from '../constants/PlayMode'
 import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup, getNextTrack } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'

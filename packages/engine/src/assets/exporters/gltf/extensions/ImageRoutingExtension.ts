@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { pathJoin, relativePathTo } from '@etherealengine/common/src/utils/miscUtils'
 import { Material, Object3D, Object3DEventMap, Texture } from 'three'
-import { materialFromId } from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
+import { materialFromId } from '../../../../scene/materials/functions/MaterialLibraryFunctions'
 import { pathResolver } from '../../../functions/pathResolver'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
@@ -53,6 +53,7 @@ export default class ImageRoutingExtension extends ExporterExtension implements 
       if (field === 'envMap') continue
       if (value instanceof Texture) {
         const texture = value as Texture
+        if (texture.image instanceof ImageBitmap) continue
         let oldURI = texture.userData.src
         if (!oldURI) {
           const resolved = pathResolver().exec(texture.image.src)!

@@ -32,10 +32,10 @@ import {
   hasComponent,
   useComponent,
   useOptionalComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorHelperState } from '../../services/EditorHelperState'

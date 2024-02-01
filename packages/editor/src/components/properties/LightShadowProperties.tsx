@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { Component, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { Component, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'

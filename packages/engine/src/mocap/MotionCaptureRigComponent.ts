@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { QuaternionSchema, Vector3Schema } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { NormalizedLandmarkList } from '@mediapipe/pose'
 import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import { defineComponent } from '../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../ecs/functions/EntityFunctions'
-import { QuaternionSchema, Vector3Schema } from '../transform/components/TransformComponent'
 
 export const MotionCaptureRigComponent = defineComponent({
   name: 'MotionCaptureRigComponent',

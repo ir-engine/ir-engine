@@ -28,9 +28,9 @@ import { matches, Parser, Validator } from 'ts-matches'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import multiLogger from '@etherealengine/common/src/logger'
 import { InstanceID, UserID } from '@etherealengine/common/src/schema.type.module'
-import { deepEqual } from '@etherealengine/engine/src/common/functions/deepEqual'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
+import { deepEqual } from '@etherealengine/common/src/utils/deepEqual'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
@@ -480,7 +480,6 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
     //actions had circular references. Just try/catching the logger.info call was not catching them properly,
     //So the solution was to attempt to JSON.stringify them manually first to see if that would error.
     try {
-      const jsonStringified = JSON.stringify(action)
       logger.info(`[Action]: ${action.type} %o`, action)
     } catch (err) {
       console.log('error in logging action', action)
@@ -633,4 +632,8 @@ export type ActionCreator<A extends ActionShape<Action>> = {
   resolvedActionShape: ResolvedActionShape<A>
   type: A['type']
   matches: Validator<unknown, ResolvedActionType<A>>
+}
+
+export const matchesWithDefault = <A>(matches: Validator<unknown, A>, defaultValue: () => A): MatchesWithDefault<A> => {
+  return { matches, defaultValue }
 }

@@ -23,24 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  defineComponent,
-  getComponent,
-  setComponent,
-  useComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { TransformControls } from '@etherealengine/engine/src/scene/classes/TransformGizmo'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
-import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
-import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { SnapMode, TransformPivot } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { useEffect } from 'react'
 import { Box3, Euler, Vector3 } from 'three'
 import { degToRad } from 'three/src/math/MathUtils'

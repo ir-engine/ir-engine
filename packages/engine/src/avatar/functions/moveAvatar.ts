@@ -29,25 +29,30 @@ import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
-import { CameraComponent } from '../../camera/components/CameraComponent'
-import { ObjectDirection } from '../../common/constants/Axis3D'
-import { V_000, V_010 } from '../../common/constants/MathConstants'
-import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { ComponentType, getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectComponent'
-import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
-import { Physics } from '../../physics/classes/Physics'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { PhysicsState } from '../../physics/state/PhysicsState'
-import { SceneQueryType } from '../../physics/types/PhysicsTypes'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '../../transform/updateWorldOrigin'
-import { XRControlsState, XRState } from '../../xr/XRState'
+import {
+  ComponentType,
+  getComponent,
+  getOptionalComponent,
+  hasComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { ObjectDirection } from '@etherealengine/spatial/src/common/constants/Axis3D'
+import { V_000, V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import checkPositionIsValid from '@etherealengine/spatial/src/common/functions/checkPositionIsValid'
+import { NetworkObjectAuthorityTag } from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
+import { EntityNetworkState } from '@etherealengine/spatial/src/networking/state/EntityNetworkState'
+import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
+import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '@etherealengine/spatial/src/transform/updateWorldOrigin'
+import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { preloadedAnimations } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -210,7 +215,7 @@ const walkPoint = new Vector3()
 
 const currentDirection = new Vector3()
 export const applyAutopilotInput = (entity: Entity) => {
-  const deltaSeconds = getState(EngineState).simulationTimestep / 1000
+  const deltaSeconds = getState(ECSState).simulationTimestep / 1000
 
   const markerState = getState(AutopilotMarker)
 
@@ -256,7 +261,7 @@ export const applyGamepadInput = (entity: Entity) => {
   if (!entity) return
 
   const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-  const deltaSeconds = getState(EngineState).simulationTimestep / 1000
+  const deltaSeconds = getState(ECSState).simulationTimestep / 1000
   const controller = getComponent(entity, AvatarControllerComponent)
 
   const avatarMovementSettings = getState(AvatarMovementSettingsState)
@@ -413,14 +418,14 @@ const _updateLocalAvatarRotationAttachedMode = (entity: Entity) => {
   }
   // for immersive and attached avatars, we don't want to interpolate the rigidbody in the transform system, so set
   // previous and current rotation to the target rotation
-  transform.rotation.slerp(avatarRotation, 5 * getState(EngineState).deltaSeconds)
+  transform.rotation.slerp(avatarRotation, 5 * getState(ECSState).deltaSeconds)
 }
 
 export const updateLocalAvatarRotation = (entity: Entity) => {
   if (getState(XRControlsState).isCameraAttachedToAvatar) {
     _updateLocalAvatarRotationAttachedMode(entity)
   } else {
-    const deltaSeconds = getState(EngineState).deltaSeconds
+    const deltaSeconds = getState(ECSState).deltaSeconds
     const alpha = smootheLerpAlpha(3, deltaSeconds)
     if (hasComponent(entity, AvatarHeadDecapComponent)) {
       _slerpBodyTowardsCameraDirection(entity, alpha)

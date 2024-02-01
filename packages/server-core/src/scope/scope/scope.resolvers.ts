@@ -30,7 +30,7 @@ import { v4 } from 'uuid'
 import { ScopeID, ScopeQuery, ScopeTypeInterface } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const scopeResolver = resolve<ScopeTypeInterface, HookContext>({})
 

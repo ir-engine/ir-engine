@@ -23,7 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import {
+  defineComponent,
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  removeComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getState } from '@etherealengine/hyperflux'
+import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
 import {
   Material,
@@ -35,19 +48,6 @@ import {
   UniformsLib,
   UniformsUtils
 } from 'three'
-import { matches } from '../../common/functions/MatchesUtils'
-import { Entity } from '../../ecs/classes/Entity'
-import {
-  defineComponent,
-  getComponent,
-  getMutableComponent,
-  hasComponent,
-  removeComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { iterateEntityNode } from '../../ecs/functions/EntityTree'
-import { RendererState } from '../../renderer/RendererState'
-import { MeshComponent } from '../../scene/components/MeshComponent'
 import { setupObject } from '../../scene/systems/SceneObjectSystem'
 import { SkinnedMeshComponent } from './SkinnedMeshComponent'
 

@@ -36,7 +36,7 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { serverSettingPath } from '@etherealengine/common/src/schema.type.module'
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import styles from '../../styles/settings.module.scss'
 
 const Server = () => {

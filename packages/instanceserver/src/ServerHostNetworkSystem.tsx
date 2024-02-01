@@ -22,10 +22,10 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
-import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { NetworkPeerFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkPeerFunctions'
+import { updatePeers } from '@etherealengine/spatial/src/networking/systems/OutgoingActionSystem'
 import { useEffect } from 'react'
 
 import { RecordingID } from '@etherealengine/common/src/schema.type.module'
@@ -34,8 +34,8 @@ import { getMutableState, none } from '@etherealengine/hyperflux'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { recordingResourceUploadPath } from '@etherealengine/common/src/schema.type.module'
-import { SimulationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
 export async function checkPeerHeartbeat(network: SocketWebRTCServerNetwork): Promise<void> {

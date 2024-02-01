@@ -34,7 +34,7 @@ import TablePagination from '@etherealengine/ui/src/primitives/mui/TablePaginati
 import TableRow from '@etherealengine/ui/src/primitives/mui/TableRow'
 import TableSortLabel from '@etherealengine/ui/src/primitives/mui/TableSortLabel'
 
-import { FeathersOrder, useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { FeathersOrder, useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import styles from '../styles/table.module.scss'
 
 const SortDirection = {

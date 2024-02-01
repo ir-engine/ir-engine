@@ -25,7 +25,17 @@ Ethereal Engine. All Rights Reserved.
 */
 
 /* eslint-disable @typescript-eslint/ban-types */
+import { Engine, UndefinedEntity } from '@etherealengine/ecs'
+import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getState } from '@etherealengine/hyperflux'
+import { TransformComponent } from '@etherealengine/spatial'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { Q_IDENTITY, V_000, V_001, V_010, V_100 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import {
   BoxGeometry,
   BufferGeometry,
@@ -49,19 +59,8 @@ import {
   TorusGeometry,
   Vector3
 } from 'three'
-import { CameraComponent } from '../../camera/components/CameraComponent'
-import { Q_IDENTITY, V_000, V_001, V_010, V_100 } from '../../common/constants/MathConstants'
-import { Engine } from '../../ecs/classes/Engine'
-import { UndefinedEntity } from '../../ecs/classes/Entity'
-import { SceneState } from '../../ecs/classes/Scene'
-import { getComponent, hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { MeshComponent } from '../components/MeshComponent'
-import { ObjectLayers } from '../constants/ObjectLayers'
+import { SceneState } from '../Scene'
 import { TransformAxis, TransformMode, TransformSpace } from '../constants/transformConstants'
-import { setObjectLayers } from '../functions/setObjectLayers'
 
 const _raycaster = new Raycaster()
 _raycaster.layers.set(ObjectLayers.TransformGizmo)
