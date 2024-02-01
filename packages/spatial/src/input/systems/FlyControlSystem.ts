@@ -33,7 +33,6 @@ import { InputSystemGroup } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getState } from '@etherealengine/hyperflux'
-import { CameraOrbitComponent } from '../../camera/components/CameraOrbitComponent'
 import { FlyControlComponent } from '../../camera/components/FlyControlComponent'
 import { V_010 } from '../../common/constants/MathConstants'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -46,8 +45,6 @@ const direction = new Vector3()
 const tempVec3 = new Vector3()
 const quat = new Quaternion()
 const candidateWorldQuat = new Quaternion()
-const center = new Vector3()
-const directionToCenter = new Vector3()
 
 const execute = () => {
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
@@ -83,7 +80,6 @@ const execute = () => {
     const allowRotationInX =
       newCamUpY > 0 && ((newCamForwardY < extrema && newCamForwardY > -extrema) || newCamUpY > camUpY)
 
-    const orbitCenter = getComponent(entity, CameraOrbitComponent).cameraOrbitCenter
     if (allowRotationInX) {
       transform.rotation.copy(candidateWorldQuat)
     }
@@ -95,11 +91,6 @@ const execute = () => {
     )
 
     transform.rotation.copy(candidateWorldQuat)
-
-    center.subVectors(transform.position, orbitCenter)
-    const centerLength = center.length()
-    orbitCenter.copy(transform.position)
-    orbitCenter.add(directionToCenter.set(0, 0, -centerLength).applyQuaternion(candidateWorldQuat))
 
     const lateralMovement = (inputState.KeyD?.pressed ? 1 : 0) + (inputState.KeyA?.pressed ? -1 : 0)
     const forwardMovement = (inputState.KeyS?.pressed ? 1 : 0) + (inputState.KeyW?.pressed ? -1 : 0)
@@ -115,8 +106,6 @@ const execute = () => {
     if (direction.lengthSq() > EPSILON) transform.position.add(direction.multiplyScalar(speed))
 
     transform.position.y += upwardMovement * deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
-
-    getComponent(entity, CameraOrbitComponent).cameraOrbitCenter.add(direction)
   }
 }
 
