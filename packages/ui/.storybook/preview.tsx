@@ -25,18 +25,21 @@ Ethereal Engine. All Rights Reserved.
 
 import { ArgsTable, Description, Primary, PRIMARY_STORY, Stories, Subtitle, Title } from '@storybook/addon-docs'
 import { Preview } from '@storybook/react'
-import React from 'react'
+import React, { lazy } from 'react'
 import { withRouter } from 'storybook-addon-react-router-v6'
 
-import { ThemeContextProvider } from '@etherealengine/client/src/themes/themeContext'
+import { ThemeContextProvider } from '@etherealengine/client/src/pages/themeContext'
+const Engine = lazy(() => import('@etherealengine/client/src/engine'))
 
 export const decorators = [
   withRouter,
   (Story) => {
     return (
-      <ThemeContextProvider>
-        <Story />
-      </ThemeContextProvider>
+      <Engine>
+        <ThemeContextProvider>
+          <Story />
+        </ThemeContextProvider>
+      </Engine>
     )
   }
 ]
