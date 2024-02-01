@@ -89,7 +89,7 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
       const user = await context.app.service(userPath).get(key.data[0].userId)
       context.params.user = user
       asyncLocalStorage.enterWith({ user })
-      addLastLogin(context)
+      await addLastLogin(context)
       return next()
     }
   }
