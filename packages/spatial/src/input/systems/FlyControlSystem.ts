@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Matrix4, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -41,11 +41,8 @@ import { InputSourceComponent } from '../components/InputSourceComponent'
 import { InputState } from '../state/InputState'
 
 const EPSILON = 10e-5
-const IDENTITY = new Matrix4().identity()
-
 const flyControlQuery = defineQuery([FlyControlComponent])
 const direction = new Vector3()
-const parentInverse = new Matrix4()
 const tempVec3 = new Vector3()
 const quat = new Quaternion()
 const candidateWorldQuat = new Quaternion()
@@ -84,6 +81,7 @@ const execute = () => {
     const allowRotationInX =
       newCamUpY > 0 && ((newCamForwardY < extrema && newCamForwardY > -extrema) || newCamUpY > camUpY)
 
+    const orbitCenter = getComponent(entity, CameraOrbitComponent).cameraOrbitCenter
     if (allowRotationInX) {
       transform.rotation.copy(candidateWorldQuat)
     }
@@ -95,6 +93,11 @@ const execute = () => {
     )
 
     transform.rotation.copy(candidateWorldQuat)
+
+    const center = new Vector3().subVectors(transform.position, orbitCenter)
+    const centerLength = center.length()
+    orbitCenter.copy(transform.position)
+    orbitCenter.add(new Vector3(0, 0, -centerLength).applyQuaternion(candidateWorldQuat))
 
     const lateralMovement = (inputState.KeyD?.pressed ? 1 : 0) + (inputState.KeyA?.pressed ? -1 : 0)
     const forwardMovement = (inputState.KeyS?.pressed ? 1 : 0) + (inputState.KeyW?.pressed ? -1 : 0)
