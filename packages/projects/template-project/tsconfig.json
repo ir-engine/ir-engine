@@ -29,13 +29,12 @@
     "outDir": "./lib"
   },
   "exclude": [
-    "../projects/projects/**",
     "**/node_modules/**"
   ],
   "include": [
     "../../../../__global.d.ts",
     "../../../server-core/src/*",
-    "./**/*.ts",
-    "./**/*.tsx"
+    "../**/*.ts",
+    "../**/*.tsx"
   ]
 }
