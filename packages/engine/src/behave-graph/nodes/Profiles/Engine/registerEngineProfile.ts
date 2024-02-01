@@ -47,9 +47,13 @@ import { OnExecute } from './Events/onExecute'
 import { EntityValue } from './Values/EntityValue'
 import * as SplineNodes from './Values/SplineNodes'
 import * as VolumetricNodes from './Values/VolumetricNodes'
-import { getActionConsumers, getActionDispatchers } from './helper/actionHelper'
-import { getComponentGetters, getComponentSetters } from './helper/componentHelper'
-import { getStateGetters, getStateSetters } from './helper/stateHelper'
+import { registerActionConsumers, registerActionDispatchers } from './helper/actionHelper'
+import {
+  registerComponentGetters,
+  registerComponentListeners,
+  registerComponentSetters
+} from './helper/componentHelper'
+import { registerStateGetters, registerStateListeners, registerStateSetters } from './helper/stateHelper'
 
 export const makeEngineDependencies = () => ({})
 
@@ -95,12 +99,15 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
     // flow control
 
     ...getEngineStringConversions(getEngineValuesMap()),
-    ...getComponentSetters(),
-    ...getComponentGetters(),
-    ...getStateSetters(),
-    ...getStateGetters(),
-    ...getActionDispatchers(),
-    ...getActionConsumers()
+
+    ...registerComponentSetters(),
+    ...registerComponentGetters(),
+    ...registerComponentListeners(),
+    ...registerStateSetters(),
+    ...registerStateGetters(),
+    ...registerStateListeners(),
+    ...registerActionConsumers(),
+    ...registerActionDispatchers()
   ]
   return Object.fromEntries(nodeDefinitions.map((nodeDefinition) => [nodeDefinition.typeName, nodeDefinition]))
 })

@@ -37,25 +37,26 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
-import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
+import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
+import { enableObjectLayer } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { FrustumCullCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { BoneComponent } from '../../avatar/components/BoneComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
-import { NameComponent } from '../../common/NameComponent'
-import iterateObject3D from '../../common/functions/iterateObject3D'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { GroupComponent, addObjectToGroup } from '../../renderer/components/GroupComponent'
-import { enableObjectLayer } from '../../renderer/components/ObjectLayerComponent'
-import { VisibleComponent } from '../../renderer/components/VisibleComponent'
-import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
-import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { MeshBVHComponent } from '../components/MeshBVHComponent'
-import { MeshComponent } from '../components/MeshComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
 
@@ -194,11 +195,20 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
     children: {
       get() {
         if (EngineRenderer.instance?.rendering) return []
-        return hasComponent(objEntity, EntityTreeComponent)
-          ? getComponent(objEntity, EntityTreeComponent)
-              .children.filter((child) => getOptionalComponent(child, GroupComponent)?.length)
-              .flatMap((child) => getComponent(child, GroupComponent))
-          : []
+        if (hasComponent(objEntity, EntityTreeComponent)) {
+          const childEntities = getComponent(objEntity, EntityTreeComponent).children
+          const result: Object3D[] = []
+          for (const childEntity of childEntities) {
+            if (hasComponent(childEntity, MeshComponent)) {
+              result.push(getComponent(childEntity, MeshComponent))
+            } else if (hasComponent(childEntity, Object3DComponent)) {
+              result.push(getComponent(childEntity, Object3DComponent))
+            }
+          }
+          return result
+        } else {
+          return []
+        }
       },
       set(value) {
         throw new Error('Cannot set children of proxified object')

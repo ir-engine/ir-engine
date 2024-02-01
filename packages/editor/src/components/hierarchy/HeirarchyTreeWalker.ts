@@ -28,8 +28,8 @@ import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFun
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
-import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { getState } from '@etherealengine/hyperflux'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { EditorState } from '../../services/EditorServices'
 
 export type HeirarchyTreeNodeType = {

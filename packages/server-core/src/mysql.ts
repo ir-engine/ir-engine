@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import knex, { Knex } from 'knex'
 
 import { isDev } from '@etherealengine/common/src/config'
-import { delay } from '@etherealengine/engine/src/common/functions/delay'
 import appConfig from '@etherealengine/server-core/src/appconfig'
+import { delay } from '@etherealengine/spatial/src/common/functions/delay'
 import { Application } from '../declarations'
 import multiLogger from './ServerLogger'
 import { seeder } from './seeder'

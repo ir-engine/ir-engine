@@ -32,12 +32,12 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { entityExists, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getState } from '@etherealengine/hyperflux'
+import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { useEffect } from 'react'
-import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
-import { UUIDComponent } from '../../common/UUIDComponent'
-import { matches } from '../../common/functions/MatchesUtils'
-import { Physics } from '../../physics/classes/Physics'
-import { PhysicsState } from '../../physics/state/PhysicsState'
 import { createAvatarCollider } from '../functions/spawnAvatarReceptor'
 import { AvatarComponent } from './AvatarComponent'
 
@@ -116,7 +116,7 @@ export const AvatarControllerComponent = defineComponent({
       const cameraEntity = avatarControllerComponent.cameraEntity.value
       if (cameraEntity && entityExists(cameraEntity) && hasComponent(cameraEntity, FollowCameraComponent)) {
         const cameraComponent = getComponent(cameraEntity, FollowCameraComponent)
-        cameraComponent.offset.set(0, avatarComponent.eyeHeight.value, 0)
+        cameraComponent.offset.set(0, avatarComponent.eyeHeight.value, 0.2)
       }
     }, [avatarComponent.avatarHeight])
 

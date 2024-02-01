@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 

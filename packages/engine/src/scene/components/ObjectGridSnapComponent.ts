@@ -35,11 +35,21 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { EngineState } from '@etherealengine/engine/src/EngineState'
-import { UUIDComponent } from '@etherealengine/engine/src/common/UUIDComponent'
-import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, useState } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import {
+  ObjectLayerMaskComponent,
+  setObjectLayers
+} from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { useEffect } from 'react'
 import {
   Box3,
@@ -52,13 +62,6 @@ import {
   Quaternion,
   Vector3
 } from 'three'
-import { NameComponent } from '../../common/NameComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
-import { ObjectLayerMaskComponent, setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
-import { VisibleComponent } from '../../renderer/components/VisibleComponent'
-import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
-import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
-import { MeshComponent } from './MeshComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 
 function createBBoxGridHelper(matrixWorld: Matrix4, bbox: Box3, density: number): LineSegments {

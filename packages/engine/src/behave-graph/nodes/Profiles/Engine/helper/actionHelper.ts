@@ -70,7 +70,7 @@ export function generateActionNodeSchema(action) {
   return nodeschema
 }
 
-export function getActionDispatchers() {
+export function registerActionDispatchers() {
   const dispatchers: NodeDefinition[] = []
   const skipped: string[] = []
   for (const [actionType, action] of Object.entries(ActionDefinitions)) {

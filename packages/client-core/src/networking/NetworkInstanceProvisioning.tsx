@@ -38,8 +38,8 @@ import {
 } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 
 import Groups from '@mui/icons-material/Groups'
 

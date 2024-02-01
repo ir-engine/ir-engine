@@ -28,11 +28,11 @@ import { Camera, Intersection, Object3D, Raycaster, Vector2 } from 'three'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { GroupComponent } from '@etherealengine/engine/src/renderer/components/GroupComponent'
-import { ObjectLayers } from '@etherealengine/engine/src/renderer/constants/ObjectLayers'
 import { getState } from '@etherealengine/hyperflux'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 
-import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { SelectionState } from '../services/SelectionServices'
 
 type RaycastIntersectionNode = Intersection<Object3D> & {

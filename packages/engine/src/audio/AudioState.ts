@@ -30,9 +30,9 @@ import {
   syncStateWithLocalStorage,
   useHookstate
 } from '@etherealengine/hyperflux'
+import { MediaSettingsState } from '@etherealengine/spatial/src/networking/MediaSettingsState'
 
 import { useEffect } from 'react'
-import { MediaSettingsState } from '../networking/MediaSettingsState'
 
 /**
  * All values ranged from 0 to 1

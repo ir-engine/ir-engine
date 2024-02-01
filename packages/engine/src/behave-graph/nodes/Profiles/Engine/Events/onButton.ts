@@ -28,14 +28,14 @@ import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Query, defineQuery, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { InputSourceComponent } from '../../../../../input/components/InputSourceComponent'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import {
   ButtonState,
   KeyboardButton,
   MouseButton,
   StandardGamepadButton,
   XRStandardGamepadButton
-} from '../../../../../input/state/ButtonState'
+} from '@etherealengine/spatial/src/input/state/ButtonState'
 
 let systemCounter = 0
 

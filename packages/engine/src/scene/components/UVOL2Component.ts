@@ -39,6 +39,9 @@ import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getState } from '@etherealengine/hyperflux'
+import { isIPhone, isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import { startTransition, useEffect, useMemo, useRef } from 'react'
 import {
   BufferGeometry,
@@ -62,9 +65,6 @@ import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
-import { isIPhone, isMobile } from '../../common/functions/isMobile'
-import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
-import { isMobileXRHeadset } from '../../xr/XRState'
 import { PlayMode } from '../constants/PlayMode'
 import {
   ASTCTextureTarget,

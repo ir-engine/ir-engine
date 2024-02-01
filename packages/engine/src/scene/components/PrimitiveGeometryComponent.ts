@@ -46,10 +46,10 @@ import { defineComponent, useComponent } from '@etherealengine/ecs/src/Component
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { Geometry } from '@etherealengine/engine/src/assets/constants/Geometry'
 import { NO_PROXY, useState } from '@etherealengine/hyperflux'
-import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
-import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { GeometryTypeEnum } from '../constants/GeometryTypeEnum'
 
 export const PrimitiveGeometryComponent = defineComponent({

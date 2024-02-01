@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { InstancedMesh, Mesh } from 'three'
 
-import { GenerateMeshBVHWorker } from '../../common/classes/GenerateMeshBVHWorker'
+import { GenerateMeshBVHWorker } from '@etherealengine/spatial/src/common/classes/GenerateMeshBVHWorker'
 
 const poolSize = 1
 

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { ReactNode, useEffect, useRef } from 'react'
 
-import { clamp } from '@etherealengine/engine/src/common/functions/MathLerpFunctions'
+import { clamp } from '@etherealengine/spatial/src/common/functions/MathLerpFunctions'
 
 import MultipleStopIcon from '@mui/icons-material/MultipleStop'
 
