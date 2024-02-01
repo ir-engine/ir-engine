@@ -43,13 +43,11 @@ import { PopoverPosition } from '@mui/material/Popover'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { Engine } from '@etherealengine/ecs'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
-import {
-  ActiveOrbitCamera,
-  CameraOrbitComponent
-} from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
+import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { CopyPasteFunctions } from '../../functions/CopyPasteFunctions'
@@ -227,7 +225,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 
   const onClick = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {
     if (e.detail === 2) {
-      const editorCameraState = getMutableComponent(getState(ActiveOrbitCamera), CameraOrbitComponent)
+      const editorCameraState = getMutableComponent(Engine.instance.cameraEntity, CameraOrbitComponent)
       editorCameraState.focusedEntities.set([node.entity])
       editorCameraState.refocus.set(true)
     }
