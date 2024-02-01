@@ -19,39 +19,57 @@ set -e
 # - Clones EE's main repository (@important does NOT use --depth=1)
 # - Installs all npm dependencies for the engine
 
+Prefix="EE"
+# @description Shorthand that echoes the given info message with a prefix added before it
+info () {
+  echo "$Prefix: $1"
+}
+# @description Shorthand that echoes the given warning message with a prefix added before it
+warn () {
+  echo "[$Prefix : WARNING] $1"
+}
+
 # Crash on non-Ubuntu distributions
 if [[ $(lsb_release -si) -ne "Ubuntu" ]] ; then
-  echo "[WARNING] This script only works for Ubuntu Linux distributions."
+  warn "This script only works for Ubuntu Linux distributions."
   read -r -n1 -p 'Are you sure you want to continue? [y/n] ' choice
   case "$choice" in
-    y|Y) echo "[WARNING] Running Ethereal Engine Ubuntu installer script on:"; echo "  $(lsb_release -sa)";;
+    y|Y) warn "Running Ethereal Engine Ubuntu installer script on:"; echo "  $(lsb_release -sa)";;
     n|N|*) exit 1;;
   esac
 fi
 
-# Add universe to the repositories list and update the package list
-sudo add-apt-repository universe
-sudo apt-get update
 
-# Install git:
-sudo apt install git
+# Install requirements automatically without user prompt
+info "Installing requirements..."
+sudo add-apt-repository universe -y # Add universe to the repositories list
+sudo apt-get update -y # Update the package list
+sudo apt-get install -y ca-certificates curl git
+# Check installed requirements:
+info "Checking git version"
 git --version
+info "Checking curl version"
+curl --version
 
 # Install nvm:  https://github.com/nvm-sh/nvm#installing-and-updating
+info "Installing nvm..."
 wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 source $HOME/.bashrc  # This line is what requires this script to be run from an interactive shell
 nvm --version         # This line will crash if the script is not run with `bash -i`
 
 # Install Node18
+info "Installing node..."
 nvm install 18
+info "Checking npm version"
 npm --version
+info "Checking node version"
 node --version
 
 # Install Docker (https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository)
 ## Clean conflicting packages  @todo: Make it not crash on missing packages
 #for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done
 ## Add Docker's official GPG key:
-sudo apt-get install ca-certificates curl
+info "Installing Docker's Official APT repository..."
 sudo install -m 0755 -d /etc/apt/keyrings
 sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
 sudo chmod a+r /etc/apt/keyrings/docker.asc
@@ -60,8 +78,9 @@ echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update
+sudo apt-get update -y
 ## Install docker-desktop
+info "Installing Docker Desktop..."
 echo ""
 echo "::: IMPORTANT :::"
 echo "Open https://docs.docker.com/desktop/install/ubuntu/#install-docker-desktop and click on 'Download latest DEB package'."  
@@ -81,7 +100,9 @@ sudo apt install $(find -type f -path "./docker-desktop-*.deb")
 systemctl --user start docker-desktop
 
 # Install the engine
+info "Installing Ethereal Engine into folder $(pwd)/etherealengine ..."
 git clone https://github.com/EtherealEngine/etherealengine
 cd etherealengine
 cp .env.local.default .env.local
 npm install
+
