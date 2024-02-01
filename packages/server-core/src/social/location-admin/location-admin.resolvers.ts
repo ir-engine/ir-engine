@@ -30,7 +30,7 @@ import { v4 } from 'uuid'
 import { LocationAdminQuery, LocationAdminType } from '@etherealengine/common/src/schemas/social/location-admin.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const locationAdminResolver = resolve<LocationAdminType, HookContext>({
   createdAt: virtual(async (locationAdmin) => fromDateTimeSql(locationAdmin.createdAt)),

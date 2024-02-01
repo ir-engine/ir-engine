@@ -30,14 +30,14 @@ import cli from 'cli'
 import fs from 'fs'
 import path from 'path'
 
+import { getFilesRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import logger from '@etherealengine/server-core/src/ServerLogger'
 import {
   createDefaultStorageProvider,
   getStorageProvider
 } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
-import logger from '@etherealengine/server-core/src/ServerLogger'
 import { getContentType } from '@etherealengine/server-core/src/util/fileUtils'
-import { getFilesRecursive } from '@etherealengine/server-core/src/util/fsHelperFunctions'
 
 cli.enable('status')
 

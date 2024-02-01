@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, makeFlowNodeDefinition } from '@behave-graph/core'
-import { Entity } from '../../../../../ecs/classes/Entity'
-import { ComponentMap, removeComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
+import { ComponentMap, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 
 export const addComponent = makeFlowNodeDefinition({
   typeName: 'engine/component/addComponent',

@@ -29,28 +29,32 @@ import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { isClient } from '../../common/functions/getEnvironment'
-import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   getComponent,
   getOptionalComponent,
+  hasComponent,
   removeComponent,
   setComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { NetworkState } from '../../networking/NetworkState'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { TransformSystem } from '../../transform/TransformModule'
-import { compareDistanceToCamera } from '../../transform/components/DistanceComponents'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
-import { XRControlsState, XRState } from '../../xr/XRState'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import {
+  createPriorityQueue,
+  createSortAndApplyPriorityQueue
+} from '@etherealengine/spatial/src/common/functions/PriorityQueue'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { TransformSystem } from '@etherealengine/spatial/src/transform/TransformModule'
+import { compareDistanceToCamera } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { XRLeftHandComponent, XRRightHandComponent } from '@etherealengine/spatial/src/xr/XRComponents'
+import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
 import { AvatarHeadDecapComponent, AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
@@ -58,11 +62,13 @@ import { IKSerialization } from '../IKSerialization'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets, preloadedAnimations } from '../animation/Util'
+import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { getArmIKHint } from '../animation/getArmIKHint'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
 import { loadBundledAnimations } from '../functions/avatarFunctions'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
+import { LocalAvatarState } from '../state/AvatarState'
 import { AnimationSystem } from './AnimationSystem'
 
 export const AvatarAnimationState = defineState({
@@ -96,7 +102,7 @@ const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(avatarComponen
 
 const execute = () => {
   const { priorityQueue, sortedTransformEntities, visualizers } = getState(AvatarAnimationState)
-  const { elapsedSeconds, deltaSeconds } = getState(EngineState)
+  const { elapsedSeconds, deltaSeconds } = getState(ECSState)
 
   /** Calculate avatar locomotion animations outside of priority queue */
 
@@ -111,7 +117,7 @@ const execute = () => {
       avatarAnimationComponent.locomotion.z = MathUtils.lerp(
         avatarAnimationComponent.locomotion.z || 0,
         _vector3.copy(rigidbodyComponent.linearVelocity).setComponent(1, 0).length(),
-        10 * getState(EngineState).deltaSeconds
+        10 * deltaSeconds
       )
     } else {
       avatarAnimationComponent.locomotion.setScalar(0)
@@ -283,6 +289,15 @@ const execute = () => {
         leftFootTargetBlendWeight
       )
     }
+
+    if (hasComponent(entity, XRRightHandComponent)) {
+      applyHandRotationFK(rigComponent.vrm, 'right', getComponent(entity, XRRightHandComponent).rotations)
+    }
+
+    if (hasComponent(entity, XRLeftHandComponent)) {
+      applyHandRotationFK(rigComponent.vrm, 'left', getComponent(entity, XRLeftHandComponent).rotations)
+    }
+
     updateVRMRetargeting(rigComponent.vrm, entity)
   }
 }
@@ -308,7 +323,7 @@ const reactor = () => {
   const xrState = getMutableState(XRState)
   const session = useHookstate(xrState.session)
   const isCameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar)
-  const userReady = useHookstate(getMutableState(EngineState).userReady)
+  const userReady = useHookstate(getMutableState(LocalAvatarState).avatarReady)
 
   useEffect(() => {
     if (!session.value) return
@@ -324,7 +339,13 @@ const reactor = () => {
   }, [isCameraAttachedToAvatar, session])
 
   useEffect(() => {
-    if (userReady.value) setTrackingSpace()
+    if (!Engine.instance.localClientEntity) {
+      XRState.setTrackingSpace()
+      return
+    }
+    const eyeHeight = getComponent(Engine.instance.localClientEntity, AvatarComponent).eyeHeight
+    getMutableState(XRState).userEyeHeight.set(eyeHeight)
+    XRState.setTrackingSpace()
   }, [userReady])
 
   return null

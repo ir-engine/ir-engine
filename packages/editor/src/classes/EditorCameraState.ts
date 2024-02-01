@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Vector3 } from 'three'
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineState } from '@etherealengine/hyperflux'
 
 export const EditorCameraState = defineState({

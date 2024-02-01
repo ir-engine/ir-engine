@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { projectResourcesPath } from '@etherealengine/common/src/schemas/media/project-resource.schema'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { Application } from '@feathersjs/koa'
 
@@ -32,8 +33,6 @@ import { getStorageProvider } from '../storageprovider/storageprovider'
 import fs from 'fs'
 import path from 'path'
 import { projectsRootFolder } from '../file-browser/file-browser.class'
-
-export const projectResourcesPath = 'project-resources'
 
 export type CreateProjectResourceParams = {
   project: string

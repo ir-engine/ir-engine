@@ -35,9 +35,9 @@ import {
   channelPath,
   channelUserPath
 } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 import { NotificationService } from '../../common/services/NotificationService'
 import { SocketWebRTCClientNetwork, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
 

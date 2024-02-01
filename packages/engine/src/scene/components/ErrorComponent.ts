@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '../../ecs/classes/Entity'
 import {
   Component,
   ComponentErrorsType,
   defineComponent,
   getOptionalMutableComponent
-} from '../../ecs/functions/ComponentFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 
 export type ErrorComponentType = {
   [componentName: string]: {

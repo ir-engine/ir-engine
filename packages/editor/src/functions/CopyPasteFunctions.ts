@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ComponentJsonType } from '@etherealengine/common/src/schema.type.module'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { getAllComponents, serializeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getAllComponents, serializeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 
 type ComponentCopyDataType = { name: string; json: Record<string, unknown> }
 

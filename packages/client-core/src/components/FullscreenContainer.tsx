@@ -27,7 +27,7 @@ import React, { useEffect } from 'react'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 
 import { FullscreenContext } from '@etherealengine/client-core/src/components/useFullscreen'
-import { iOS } from '@etherealengine/engine/src/common/functions/isMobile'
+import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
 
 type Props = { children: JSX.Element | JSX.Element[] }
 
@@ -35,7 +35,8 @@ export const FullscreenContainer = React.forwardRef((props: Props, ref: any) => 
   const handle = useFullScreenHandle()
 
   const renderEngineCanvas = () => {
-    const canvas = document.getElementById('engine-renderer-canvas')!
+    const canvas = document.getElementById('engine-renderer-canvas')
+    if (!canvas) return
     canvas.parentElement?.removeChild(canvas)
     ref.current.appendChild(canvas)
   }

@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 
 export const getArmIKHint = (
   entity: Entity,

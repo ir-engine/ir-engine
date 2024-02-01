@@ -61,7 +61,7 @@ export function generateActionNodeSchema(action) {
   return nodeschema
 }
 
-export function getActionDispatchers() {
+export function registerActionDispatchers() {
   const dispatchers: NodeDefinition[] = []
   const skipped: string[] = []
   for (const [actionType, action] of Object.entries(ActionDefinitions)) {
@@ -97,7 +97,6 @@ export function getActionDispatchers() {
         for (const [input, type] of inputs) {
           actionInput[input] = NodetoEnginetype(read(input as any), type)
         }
-        console.log('DEBUG action is ', actionInput)
         dispatchAction(ActionDefinitions[type](actionInput as Action))
         commit('flow')
       }

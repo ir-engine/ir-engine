@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getState, useState } from '@etherealengine/hyperflux'
@@ -98,7 +98,8 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     exporting.set(true)
     const fileName = `${srcPath.value}.${exportType.value}`
     exportRelativeGLTF(entity, srcProject.value, fileName).then(() => {
-      modelComponent.src.set(pathJoin(config.client.fileServer, 'projects', srcProject.value, fileName))
+      const nuPath = pathJoin(config.client.fileServer, 'projects', srcProject.value, fileName)
+      commitProperty(ModelComponent, 'src')(nuPath)
       exporting.set(false)
     })
   }
