@@ -42,8 +42,8 @@ import {
 import { createGLTFLoader } from '@etherealengine/engine/src/assets/functions/createGLTFLoader'
 import { loadDRACODecoderNode } from '@etherealengine/engine/src/assets/loaders/gltf/NodeDracoLoader'
 
-import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import logger from '../../ServerLogger'
 
 /**

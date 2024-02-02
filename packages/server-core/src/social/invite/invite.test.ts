@@ -29,7 +29,7 @@ import { InviteType, invitePath } from '@etherealengine/common/src/schemas/socia
 import { LocationID, LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { UserName, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import assert from 'assert'
 import { v1 } from 'uuid'
 import { Application } from '../../../declarations'

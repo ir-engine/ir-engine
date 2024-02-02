@@ -44,7 +44,6 @@ export const AvatarInputSettingsState = defineState({
       AvatarAxesControlScheme.Move as (typeof AvatarAxesControlScheme)[keyof typeof AvatarAxesControlScheme],
     rightAxesControlScheme:
       AvatarAxesControlScheme.Teleport as (typeof AvatarAxesControlScheme)[keyof typeof AvatarAxesControlScheme],
-    preferredHand: 'right' as 'left' | 'right',
     invertRotationAndMoveSticks: true,
     showAvatar: true
   }),
@@ -53,7 +52,6 @@ export const AvatarInputSettingsState = defineState({
       'controlType',
       'leftAxesControlScheme',
       'rightAxesControlScheme',
-      'preferredHand',
       'invertRotationAndMoveSticks',
       'showAvatar'
     ])

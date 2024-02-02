@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { XRState } from '@etherealengine/engine/src/xr/XRState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 
 import { LoadingCircle } from '../LoadingCircle'
 

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ComponentJsonType } from '@etherealengine/common/src/schema.type.module'
-import { ComponentJSONIDMap, componentJsonDefaults } from '../../../../ecs/functions/ComponentFunctions'
+import { ComponentJSONIDMap, componentJsonDefaults } from '@etherealengine/ecs/src/ComponentFunctions'
 import { GLTFJson } from '../../../constants/GLTF'
 import { GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'

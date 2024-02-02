@@ -28,11 +28,11 @@ import { AnimationClip, AnimationMixer, LoopOnce, LoopRepeat, Object3D, Vector3 
 
 import { defineActionQueue, getState } from '@etherealengine/hyperflux'
 
-import { lerp } from '../../common/functions/MathLerpFunctions'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
+import { getComponent, getMutableComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { lerp } from '@etherealengine/spatial/src/common/functions/MathLerpFunctions'
 import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
@@ -91,7 +91,7 @@ export const updateAnimationGraph = (avatarEntities: Entity[]) => {
     const currentAction = animationGraph.blendAnimation
 
     if (currentAction.value) {
-      const deltaSeconds = getState(EngineState).deltaSeconds
+      const deltaSeconds = getState(ECSState).deltaSeconds
       const locomotionBlend = animationGraph.blendStrength
       currentAction.value.setEffectiveWeight(locomotionBlend.value)
       if (
@@ -183,7 +183,7 @@ export const setAvatarLocomotionAnimation = (entity: Entity) => {
   walkWeight = lerp(
     walk.getEffectiveWeight(),
     clamp(1 / (magnitude - 1.65) - locomoteBlendStrength, 0, 1),
-    getState(EngineState).deltaSeconds * 4
+    getState(ECSState).deltaSeconds * 4
   )
   runWeight = clamp(magnitude * 0.1 - walkWeight, 0, 1) - locomoteBlendStrength // - fallWeight
   idleWeight = clamp(1 - runWeight - walkWeight, 0, 1) // - fallWeight

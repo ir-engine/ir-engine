@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { NO_PROXY, defineAction, getMutableState, useState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { UploadRequestState } from '@etherealengine/engine/src/assets/state/UploadRequestState'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
 import { uploadProjectFiles } from '../functions/assetFunctions'
 
 const clearUploadQueueAction = defineAction({

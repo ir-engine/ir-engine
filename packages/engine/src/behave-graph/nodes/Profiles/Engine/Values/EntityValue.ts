@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ValueType } from '@behave-graph/core'
-import { Entity } from '../../../../../ecs/classes/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 
 export const EntityValue: ValueType = {
   name: 'entity',

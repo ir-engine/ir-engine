@@ -33,8 +33,8 @@ import {
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import config from '../../appconfig'
-import { getDateTimeSql } from '../../util/datetime-sql'
 
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig

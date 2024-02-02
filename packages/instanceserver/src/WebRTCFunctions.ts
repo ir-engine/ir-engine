@@ -38,32 +38,32 @@ import {
 import os from 'os'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { MediaStreamAppData, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { dispatchAction, getMutableState, getState, none, State } from '@etherealengine/hyperflux'
-import config from '@etherealengine/server-core/src/appconfig'
-import { localConfig, sctpParameters } from '@etherealengine/server-core/src/config'
+import { State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
+import config from '@etherealengine/server-core/src/appconfig'
+import { localConfig, sctpParameters } from '@etherealengine/server-core/src/config'
 import { WebRtcTransportParams } from '@etherealengine/server-core/src/types/WebRtcTransportParams'
+import { MediaStreamAppData, NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
+import { DataChannelRegistryState } from '@etherealengine/spatial/src/networking/systems/DataChannelRegistry'
 import {
   MediasoupDataConsumerActions,
   MediasoupDataProducerActions,
   MediasoupDataProducersConsumersObjectsState
-} from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
+} from '@etherealengine/spatial/src/networking/systems/MediasoupDataProducerConsumerState'
 import {
   MediaProducerActions,
   MediasoupMediaConsumerActions,
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
-} from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
+} from '@etherealengine/spatial/src/networking/systems/MediasoupMediaProducerConsumerState'
 import {
   MediasoupTransportActions,
   MediasoupTransportObjectsState,
   MediasoupTransportState
-} from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
+} from '@etherealengine/spatial/src/networking/systems/MediasoupTransportState'
 import { decode } from 'msgpackr'
 import { InstanceServerState } from './InstanceServerState'
 import { MediasoupInternalWebRTCDataChannelState } from './MediasoupInternalWebRTCDataChannelState'
@@ -267,20 +267,11 @@ export async function closeDataProducer(
     MediasoupDataProducerActions.producerClosed({
       producerID: dataProducer.id,
       $topic: network.topic,
-      $network: network.id
+      $network: network.id,
+      $to: peerID
     })
   )
   dataProducer.close()
-}
-
-export function producerClosed(network: SocketWebRTCServerNetwork, producerID: string) {
-  dispatchAction(
-    MediaProducerActions.producerClosed({
-      producerID: producerID,
-      $topic: network.topic,
-      $network: network.id
-    })
-  )
 }
 
 export async function createWebRtcTransport(
@@ -742,7 +733,15 @@ export async function handleRequestProducer(action: typeof MediaProducerActions.
       getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[producer.id].set(none)
     })
 
-    producer.on('transportclose', () => producerClosed(network, producer.id))
+    producer.on('transportclose', () => {
+      dispatchAction(
+        MediaProducerActions.producerClosed({
+          producerID: producer.id,
+          $topic: network.topic,
+          $network: network.id
+        })
+      )
+    })
 
     logger.info(`New Producer: peerID "${peerID}", Media stream "${appData.mediaTag}"`)
 

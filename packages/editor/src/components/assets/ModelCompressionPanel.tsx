@@ -38,21 +38,21 @@ import styles from './styles.module.scss'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import { modelTransformPath } from '@etherealengine/common/src/schema.type.module'
+import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import {
   DefaultModelTransformParameters as defaultParams,
   ModelTransformParameters
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createSceneEntity } from '@etherealengine/engine/src/ecs/functions/createSceneEntity'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
+import { createSceneEntity } from '@etherealengine/engine/src/scene/functions/createSceneEntity'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import exportGLTF from '../../functions/exportGLTF'
 
-import { removeEntityNodeRecursively } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { removeEntityNodeRecursively } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { Box, ListItemButton, ListItemText, MenuItem, Modal, PopoverPosition } from '@mui/material'
 import { LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
 import { ContextMenu } from '../layout/ContextMenu'

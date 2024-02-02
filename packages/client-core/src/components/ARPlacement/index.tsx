@@ -27,11 +27,11 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { XRState, isMobileXRHeadset } from '@etherealengine/engine/src/xr/XRState'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { XRState, isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { AppState } from '../../common/services/AppService'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
@@ -132,7 +132,7 @@ export const ARPlacement = () => {
   const { bottomShelfStyle } = useShelfStyles()
   const { t } = useTranslation()
 
-  const engineState = useHookstate(getMutableState(EngineState))
+  const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
   const xrState = useHookstate(getMutableState(XRState))
   const isARSession = xrState.sessionMode.value === 'immersive-ar'
 
@@ -145,7 +145,7 @@ export const ARPlacement = () => {
     }
   }, [isARSession])
 
-  if (!isARSession || !engineState.sceneLoaded.value) return <></>
+  if (!isARSession || !sceneLoaded.value) return <></>
 
   const inPlacingMode = xrState.scenePlacementMode.value === 'placing'
   const isAutoScaleMode = xrState.sceneScaleAutoMode.value
