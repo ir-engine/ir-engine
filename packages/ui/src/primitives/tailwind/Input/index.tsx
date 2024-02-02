@@ -45,7 +45,7 @@ const Label = ({ className, children }: LabelProps) => {
 
 export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   value: string | number
-  label: string
+  label?: string
   inputClassName?: string
   description?: string
   type?: InputHTMLAttributes<HTMLInputElement>['type']
