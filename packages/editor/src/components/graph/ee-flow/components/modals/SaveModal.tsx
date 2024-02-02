@@ -27,8 +27,8 @@ import React, { useMemo, useRef, useState } from 'react'
 import { useEdges, useNodes } from 'reactflow'
 
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+
+import { Entity, useComponent } from '@etherealengine/ecs'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { useHookstate } from '@hookstate/core'
 import { SelectionState } from '../../../../../services/SelectionServices'

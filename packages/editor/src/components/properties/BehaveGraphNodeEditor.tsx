@@ -36,9 +36,10 @@ import { uploadToFeathersService } from '@etherealengine/client-core/src/util/up
 import config from '@etherealengine/common/src/config'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { getFileDirectory, getFileName } from '@etherealengine/engine/src/assets/functions/pathResolver'
-import { cleanStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
-import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
+
+import { fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { cleanStorageProviderURLs } from '@etherealengine/spatial/src/common/functions/parseSceneJSON'
 import { uniqueId } from 'lodash'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EditorState } from '../../services/EditorServices'
