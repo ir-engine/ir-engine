@@ -100,7 +100,13 @@ export const uploadProjectFiles = (projectName: string, files: File[], isAsset =
   for (const file of files) {
     const path = `projects/${projectName}${isAsset ? '/assets' : ''}`
     promises.push(
-      uploadToFeathersService(fileBrowserUploadPath, [file], { fileName: file.name, path, contentType: '' }, onProgress)
+      uploadToFeathersService(
+        fileBrowserUploadPath,
+        [file],
+        { fileName: file.name, path, contentType: '' },
+        'post',
+        onProgress
+      )
     )
   }
 
@@ -161,7 +167,13 @@ export const processEntry = async (
     const name = processFileName(file.name)
 
     promises.push(
-      uploadToFeathersService(fileBrowserUploadPath, [file], { fileName: name, path, contentType: '' }, onProgress)
+      uploadToFeathersService(
+        fileBrowserUploadPath,
+        [file],
+        { fileName: name, path, contentType: '' },
+        'post',
+        onProgress
+      )
     )
   }
 }

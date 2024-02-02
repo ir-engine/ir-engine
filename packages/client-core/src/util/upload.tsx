@@ -38,6 +38,7 @@ export const uploadToFeathersService = (
   service = 'upload-asset',
   files: Array<File>,
   params: any = {},
+  method: 'post' | 'patch' | 'put' = 'post',
   onUploadProgress?: (progress: number) => any
 ): CancelableUploadPromiseReturnType => {
   const token = getMutableState(AuthState).authUser.accessToken.value
@@ -88,7 +89,7 @@ export const uploadToFeathersService = (
         formData.set('media', files)
       }
 
-      request.open('post', `${config.client.serverUrl}/${service}`, true)
+      request.open(method, `${config.client.serverUrl}/${service}`, true)
       request.setRequestHeader('Authorization', `Bearer ${token}`)
       request.send(formData)
     })

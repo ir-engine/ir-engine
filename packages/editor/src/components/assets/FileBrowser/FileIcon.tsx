@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import { FileBrowserContentType, fileThumbnailPath } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew'
 import DescriptionIcon from '@mui/icons-material/Description'
 import FolderIcon from '@mui/icons-material/Folder'
@@ -116,11 +116,31 @@ const uploadThumbnail = async (file: FileBrowserContentType, blob: Blob) => {
     return ''
   }
 
-  const thumbnailKey = await Engine.instance.api.service(fileThumbnailPath).patch(file.key, {
-    body: await blob.arrayBuffer(),
-    isCustom: false,
-    contentType: 'image/png'
-  })
+  const maybe = uploadToFeathersService(
+    fileThumbnailPath,
+    [new File([blob], file.key)],
+    {
+      assetKey: file.key,
+      isCustom: false,
+      contentType: 'image/png'
+    },
+    'patch'
+  )
+
+  /*
+  Maybe adopt preexisting API:
+  fileName: name,
+  path,
+  contentType: file.type
+  */
+
+  const thumbnailKey = await maybe.promise
+
+  // const thumbnailKey = await Engine.instance.api.service(fileThumbnailPath).patch(file.key, {
+  //   body: await blob.arrayBuffer(),
+  //   isCustom: false,
+  //   contentType: 'image/png'
+  // })
 
   return thumbnailKey ?? ''
 }
@@ -137,6 +157,10 @@ const getThumbnailKey = (file: FileBrowserContentType, gen): Promise<string> => 
       .then((result) => {
         finished = true
         return result
+      })
+      .catch((error) => {
+        console.error(error)
+        return ''
       })
     if (finished) {
       return promise
