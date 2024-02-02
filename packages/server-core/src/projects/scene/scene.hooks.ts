@@ -73,7 +73,7 @@ export const getSceneFiles = async (directory: string, storageProviderName?: str
  * @returns
  */
 const findScene = async (context: HookContext<SceneService>) => {
-  if (!context.data || context.method !== 'find') {
+  if (context.method !== 'find') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
@@ -94,7 +94,7 @@ const findScene = async (context: HookContext<SceneService>) => {
   for (const project of projects) {
     const sceneJsonPath = `projects/${project.name}/`
 
-    const files = await context.getSceneFiles(sceneJsonPath, storageProviderName)
+    const files = await getSceneFiles(sceneJsonPath, storageProviderName)
     const sceneData = (await Promise.all(
       files.map(async (sceneID) =>
         context.service.get('', {
@@ -476,7 +476,7 @@ const setSceneSaveResult = async (context: HookContext<SceneService>) => {
  * @returns
  */
 const removeSceneLocally = async (context: HookContext<SceneService>) => {
-  if (!context.data || context.method !== 'remove') {
+  if (context.method !== 'remove') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
@@ -497,7 +497,7 @@ const removeSceneLocally = async (context: HookContext<SceneService>) => {
  * @returns
  */
 const removeSceneInStorageProvider = async (context: HookContext<SceneService>) => {
-  if (!context.data || context.method !== 'remove') {
+  if (context.method !== 'remove') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
