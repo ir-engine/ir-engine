@@ -92,7 +92,7 @@ const useDrawMocapLandmarks = (
     if (fromPeerID !== peerID || videoElement.paused || videoElement.ended || !videoElement.currentTime) return
 
     const results = MotionCaptureFunctions.receiveResults(message as ArrayBuffer)
-    if (fromPeerID === peerID) drawPoseToCanvas(canvasCtxRef, canvasRef, results.results.poseLandmarks)
+    drawPoseToCanvas(canvasCtxRef, canvasRef, results.results.poseLandmarks)
   }
 
   useEffect(() => {
