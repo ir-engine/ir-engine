@@ -28,19 +28,19 @@ import { getValidator, Type } from '@feathersjs/typebox'
 import { dataValidator } from '../validators'
 
 export const fileThumbnailPath = 'file-thumbnail'
-export const fileThumbnailMethods = ['get', 'patch'] as const
+export const fileThumbnailMethods = ['get', 'create'] as const
 
-export const fileThumbnailPatchSchema = Type.Object(
+export const fileThumbnailDataSchema = Type.Object(
   {
-    body: Type.Any(),
-    isCustom: Type.Boolean(),
+    assetKey: Type.String(),
+    isCustom: Type.Union([Type.Boolean(), Type.String()]),
     contentType: Type.String(),
     storageProviderName: Type.Optional(Type.String())
   },
   {
-    $id: 'FileThumbnailPatch'
+    $id: 'FileThumbnailData'
   }
 )
-export interface FileThumbnailPatch extends Static<typeof fileThumbnailPatchSchema> {}
+export interface FileThumbnailData extends Static<typeof fileThumbnailDataSchema> {}
 
-export const fileThumbnailPatchValidator = /* @__PURE__ */ getValidator(fileThumbnailPatchSchema, dataValidator)
+export const FileThumbnailDataValidator = /* @__PURE__ */ getValidator(fileThumbnailDataSchema, dataValidator)

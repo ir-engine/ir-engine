@@ -24,10 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import { SYNC } from 'feathers-sync'
 
-import { fileThumbnailPatchValidator } from '@etherealengine/common/src/schemas/media/file-thumbnail.schema'
+import { FileThumbnailDataValidator } from '@etherealengine/common/src/schemas/media/file-thumbnail.schema'
 import verifyScope from '../../hooks/verify-scope'
 
 export default {
@@ -39,17 +39,12 @@ export default {
       (context) => {
         context[SYNC] = false
         return context
-      }
-    ],
-    update: [],
-    patch: [
-      (context) => {
-        context[SYNC] = false
-        return context
       },
-      () => schemaHooks.validateData(fileThumbnailPatchValidator)
+      () => schemaHooks.validateData(FileThumbnailDataValidator)
     ],
-    remove: []
+    update: [disallow()],
+    patch: [disallow()],
+    remove: [disallow()]
   },
 
   after: {

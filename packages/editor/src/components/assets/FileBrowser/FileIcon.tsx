@@ -123,8 +123,7 @@ const uploadThumbnail = async (file: FileBrowserContentType, blob: Blob) => {
       assetKey: file.key,
       isCustom: false,
       contentType: 'image/png'
-    },
-    'patch'
+    }
   )
 
   /*

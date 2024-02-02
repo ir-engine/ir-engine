@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { fileThumbnailPatchSchema } from '@etherealengine/common/src/schemas/media/file-thumbnail.schema'
+import { fileThumbnailDataSchema } from '@etherealengine/common/src/schemas/media/file-thumbnail.schema'
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
 export default createSwaggerServiceOptions({
-  schemas: { fileThumbnailPatchSchema },
+  schemas: { fileThumbnailDataSchema },
   docs: {
     description: 'File Thumbnail service description',
     securities: ['all']

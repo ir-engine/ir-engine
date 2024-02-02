@@ -104,7 +104,6 @@ export const uploadProjectFiles = (projectName: string, files: File[], isAsset =
         fileBrowserUploadPath,
         [file],
         { fileName: file.name, path, contentType: '' },
-        'post',
         onProgress
       )
     )
@@ -171,7 +170,6 @@ export const processEntry = async (
         fileBrowserUploadPath,
         [file],
         { fileName: name, path, contentType: '' },
-        'post',
         onProgress
       )
     )

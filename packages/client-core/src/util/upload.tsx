@@ -38,7 +38,6 @@ export const uploadToFeathersService = (
   service = 'upload-asset',
   files: Array<File>,
   params: any = {},
-  method: 'post' | 'patch' | 'put' = 'post',
   onUploadProgress?: (progress: number) => any
 ): CancelableUploadPromiseReturnType => {
   const token = getMutableState(AuthState).authUser.accessToken.value
@@ -51,7 +50,7 @@ export const uploadToFeathersService = (
       aborted = true
       request.abort()
     },
-    promise: new Promise<string[]>((resolve, reject) => {
+    promise: new Promise<string[] | string>((resolve, reject) => {
       request.upload.addEventListener('progress', (e) => {
         if (aborted) return
         if (onUploadProgress) onUploadProgress(e.loaded / e.total)
@@ -67,7 +66,11 @@ export const uploadToFeathersService = (
           const status = request.status
 
           if (status === 0 || (status >= 200 && status < 400)) {
-            resolve(JSON.parse(request.responseText))
+             try {
+               resolve(JSON.parse(request.responseText))
+             } catch {
+               resolve(request.responseText)
+            }
           } else {
             if (aborted) return
             console.error('Oh no! There has been an error with the request!', request, e)
@@ -89,7 +92,7 @@ export const uploadToFeathersService = (
         formData.set('media', files)
       }
 
-      request.open(method, `${config.client.serverUrl}/${service}`, true)
+      request.open('post', `${config.client.serverUrl}/${service}`, true)
       request.setRequestHeader('Authorization', `Bearer ${token}`)
       request.send(formData)
     })

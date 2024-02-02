@@ -29,7 +29,7 @@ import fs from 'fs'
 import path from 'path/posix'
 
 import { isDev } from '@etherealengine/common/src/config'
-import { FileThumbnailPatch } from '@etherealengine/common/src/schemas/media/file-thumbnail.schema'
+import { FileThumbnailData } from '@etherealengine/common/src/schemas/media/file-thumbnail.schema'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { v4 } from 'uuid'
@@ -40,7 +40,9 @@ import { getStorageProvider } from '../storageprovider/storageprovider'
 
 export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects')
 
-export interface FileThumbnailParams extends KnexAdapterParams {}
+export interface FileThumbnailParams extends KnexAdapterParams {
+  files: { buffer: Buffer }[]
+}
 
 const PROJECT_FILE_REGEX = /^projects/
 
@@ -48,7 +50,7 @@ const PROJECT_FILE_REGEX = /^projects/
  * A class for File Thumbnail service
  */
 export class FileThumbnailService
-  implements ServiceInterface<string | null, FileThumbnailPatch, FileThumbnailParams, FileThumbnailPatch>
+  implements ServiceInterface<string | null, FileThumbnailData, FileThumbnailParams, FileThumbnailData>
 {
   app: Application
 
@@ -79,9 +81,10 @@ export class FileThumbnailService
   /**
    * Upload file
    */
-  async patch(assetKey: string, data: FileThumbnailPatch, params?: FileThumbnailParams) {
+  async create(data: FileThumbnailData, params: FileThumbnailParams) {
+    data.isCustom = data.isCustom === 'true'
     const findResults = (await this.app.service(staticResourcePath).find({
-      query: { key: assetKey },
+      query: { key: data.assetKey },
       paginate: false
     })) as StaticResourceType[]
     const asset = findResults?.[0]
@@ -100,7 +103,7 @@ export class FileThumbnailService
     await storageProvider.putObject(
       {
         Key: thumbnailKey,
-        Body: data.body,
+        Body: params.files[0].buffer,
         ContentType: data.contentType
       },
       {
@@ -112,7 +115,7 @@ export class FileThumbnailService
       const filePath = path.resolve(projectsRootFolder, thumbnailKey)
       const dirname = path.dirname(filePath)
       fs.mkdirSync(dirname, { recursive: true })
-      fs.writeFileSync(filePath, data.body)
+      fs.writeFileSync(filePath, params.files[0].buffer)
     }
 
     await storageProvider.createInvalidation([thumbnailKey])

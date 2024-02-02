@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import Multer from '@koa/multer'
+
 import { fileThumbnailMethods, fileThumbnailPath } from '@etherealengine/common/src/schemas/media/file-thumbnail.schema'
 import { Application } from '../../../declarations'
 import { FileThumbnailService } from './file-thumbnail.class'
@@ -35,13 +37,29 @@ declare module '@etherealengine/common/declarations' {
   }
 }
 
+const multipartMiddleware = Multer({ limits: { fieldSize: Infinity, files: 1 } })
+
 export default (app: Application): void => {
   app.use(fileThumbnailPath, new FileThumbnailService(app), {
     // A list of all methods this service exposes externally
     methods: fileThumbnailMethods,
     // You can add additional custom events to be sent to clients here
     events: [],
-    docs: fileThumbnailDocs
+    docs: fileThumbnailDocs,
+    koa: {
+      before: [
+        multipartMiddleware.any(),
+        async (ctx, next) => {
+          if (ctx?.feathers && ctx.method !== 'GET') {
+            ;(ctx as any).feathers.files = (ctx as any).request.files.media
+                ? (ctx as any).request.files.media
+                : ctx.request.files
+          }
+          await next()
+          return ctx.body
+        }
+      ]
+    }
   })
 
   const service = app.service(fileThumbnailPath)
