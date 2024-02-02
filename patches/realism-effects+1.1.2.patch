@@ -1,5 +1,5 @@
 diff --git a/node_modules/realism-effects/dist/index.cjs b/node_modules/realism-effects/dist/index.cjs
-index 0b2b336..35e7be4 100644
+index 0b2b336..af8dbf8 100644
 --- a/node_modules/realism-effects/dist/index.cjs
 +++ b/node_modules/realism-effects/dist/index.cjs
 @@ -1,48 +1,45 @@
@@ -1106,7 +1106,7 @@ index 0b2b336..35e7be4 100644
 +      set value(v) {
 +        blueNoiseIndex = v;
 +      }
- 
+                 
 -                #include <common>
 -                #include <uv_pars_vertex>
 -                #include <displacementmap_pars_vertex>
@@ -1150,7 +1150,7 @@ index 0b2b336..35e7be4 100644
 +    shader.uniforms.cameraNotMovedFrames = {
 +      value: 0
 +    }; // delete all includes that have the pattern "#include <lights_something>"
- 
+                     
 -                    #include <skinbase_vertex>
 -                    #include <beginnormal_vertex>
 -                    #include <skinnormal_vertex>
@@ -1179,7 +1179,7 @@ index 0b2b336..35e7be4 100644
 -                    #include <color_vertex>
 +    shader.vertexShader = shader.vertexShader.replace(/#include <alphahash.*>/g, "");
 +    shader.fragmentShader = shader.fragmentShader.replace(/#include <alphahash.*>/g, ""); // delete all includes that have the pattern "#include <alphatest...>"
- 
+                     
 -                    #if defined( FLAT_SHADED ) || defined( USE_BUMPMAP ) || defined( TANGENTSPACE_NORMALMAP )
 -                        vViewPosition = - mvPosition.xyz;
 -                    #endif
@@ -1386,7 +1386,7 @@ index 0b2b336..35e7be4 100644
 +  get texture() {
 +    return this.renderTarget.texture;
 +  }
- 
+                     
 -                    if(isDeselected){
 -                        roughnessFactor = 1.;
 -                        gNormal = vec4(0.);
@@ -1421,7 +1421,7 @@ index 0b2b336..35e7be4 100644
 +  setSize(width, height) {
 +    this.renderTarget.setSize(width, height);
 +  }
- 
+                     
 +  dispose() {
 +    super.dispose();
 +    this.renderTarget.dispose();
@@ -1485,7 +1485,7 @@ index 0b2b336..35e7be4 100644
 +    renderer.setRenderTarget(this.renderTarget);
 +    renderer.render(this._scene, this._camera);
 +    this.unsetGBufferMaterialInScene(); // reset state
- 
+                     
 -                    gEmissive = vec4(totalEmissiveRadiance, 0.);
 -                }
 -            `,
@@ -2011,7 +2011,7 @@ index 0b2b336..35e7be4 100644
 +/* glsl */
 +`
 +#define MAX_BONES 64
-                     
+ 
 -/**
 -* Options of the SSGI effect
 -* @typedef {Object} SSGIOptions
@@ -2272,7 +2272,7 @@ index 0b2b336..35e7be4 100644
 -    this.makeOptionsReactive(options);
 -  }
 +					varying vec3 vViewPosition;
- 					
+ 
 -  updateUsingRenderPass() {
 -    if (this.isUsingRenderPass) {
 -      this.ssgiPass.fullscreenMaterial.defines.useDirectLight = "";
@@ -2282,7 +2282,7 @@ index 0b2b336..35e7be4 100644
 -      delete this.svgf.denoisePass.fullscreenMaterial.defines.useDirectLight;
 -    }
 +                    ${velocity_vertex_pars}
-         
+ 
 -    this.ssgiPass.fullscreenMaterial.needsUpdate = true;
 -    this.svgf.denoisePass.fullscreenMaterial.needsUpdate = true;
 -  }
@@ -3011,7 +3011,7 @@ index 0b2b336..35e7be4 100644
 +    renderer.setRenderTarget(this.renderTarget);
 +    renderer.render(this.scene, this.camera);
 +  }
- 
+                     
 -${three.ShaderChunk.skinning_pars_vertex}
 -${prev_skinning_pars_vertex}
 +}
@@ -3237,12 +3237,12 @@ index 0b2b336..35e7be4 100644
 +  setnNormalTexture(texture) {
 +    this.fullscreenMaterial.uniforms.normalTexture.value = texture;
 +  }
- 
+ 					
 -                    ${velocity_vertex_pars}
 +  setDepthTexture(texture) {
 +    this.fullscreenMaterial.uniforms.depthTexture.value = texture;
 +  }
- 
+         
 -                    void main() {
 -						vec3 transformed;
 +  dispose() {
@@ -4928,7 +4928,7 @@ index 0b2b336..35e7be4 100644
  exports.TemporalReprojectPass = TemporalReprojectPass;
  exports.VelocityDepthNormalPass = VelocityDepthNormalPass;
 diff --git a/node_modules/realism-effects/dist/index.js b/node_modules/realism-effects/dist/index.js
-index 72e1b70..584a200 100644
+index 72e1b70..322b12d 100644
 --- a/node_modules/realism-effects/dist/index.js
 +++ b/node_modules/realism-effects/dist/index.js
 @@ -1,46 +1,41 @@
@@ -6033,7 +6033,7 @@ index 72e1b70..584a200 100644
 +      set value(v) {
 +        blueNoiseIndex = v;
 +      }
- 
+                 
 -                #include <common>
 -                #include <uv_pars_vertex>
 -                #include <displacementmap_pars_vertex>
@@ -6077,7 +6077,7 @@ index 72e1b70..584a200 100644
 +    shader.uniforms.cameraNotMovedFrames = {
 +      value: 0
 +    }; // delete all includes that have the pattern "#include <lights_something>"
- 
+                     
 -                    #include <skinbase_vertex>
 -                    #include <beginnormal_vertex>
 -                    #include <skinnormal_vertex>
@@ -6106,7 +6106,7 @@ index 72e1b70..584a200 100644
 -                    #include <color_vertex>
 +    shader.vertexShader = shader.vertexShader.replace(/#include <alphahash.*>/g, "");
 +    shader.fragmentShader = shader.fragmentShader.replace(/#include <alphahash.*>/g, ""); // delete all includes that have the pattern "#include <alphatest...>"
- 
+                     
 -                    #if defined( FLAT_SHADED ) || defined( USE_BUMPMAP ) || defined( TANGENTSPACE_NORMALMAP )
 -                        vViewPosition = - mvPosition.xyz;
 -                    #endif
@@ -6313,7 +6313,7 @@ index 72e1b70..584a200 100644
 +  get texture() {
 +    return this.renderTarget.texture;
 +  }
- 
+                     
 -                    if(isDeselected){
 -                        roughnessFactor = 1.;
 -                        gNormal = vec4(0.);
@@ -6348,7 +6348,7 @@ index 72e1b70..584a200 100644
 +  setSize(width, height) {
 +    this.renderTarget.setSize(width, height);
 +  }
- 
+                     
 +  dispose() {
 +    super.dispose();
 +    this.renderTarget.dispose();
@@ -6412,7 +6412,7 @@ index 72e1b70..584a200 100644
 +    renderer.setRenderTarget(this.renderTarget);
 +    renderer.render(this._scene, this._camera);
 +    this.unsetGBufferMaterialInScene(); // reset state
- 
+                     
 -                    gEmissive = vec4(totalEmissiveRadiance, 0.);
 -                }
 -            `,
@@ -6938,7 +6938,7 @@ index 72e1b70..584a200 100644
 +/* glsl */
 +`
 +#define MAX_BONES 64
-                     
+ 
 -/**
 -* Options of the SSGI effect
 -* @typedef {Object} SSGIOptions
@@ -7199,7 +7199,7 @@ index 72e1b70..584a200 100644
 -    this.makeOptionsReactive(options);
 -  }
 +					varying vec3 vViewPosition;
- 					
+ 
 -  updateUsingRenderPass() {
 -    if (this.isUsingRenderPass) {
 -      this.ssgiPass.fullscreenMaterial.defines.useDirectLight = "";
@@ -7209,7 +7209,7 @@ index 72e1b70..584a200 100644
 -      delete this.svgf.denoisePass.fullscreenMaterial.defines.useDirectLight;
 -    }
 +                    ${velocity_vertex_pars}
-         
+ 
 -    this.ssgiPass.fullscreenMaterial.needsUpdate = true;
 -    this.svgf.denoisePass.fullscreenMaterial.needsUpdate = true;
 -  }
@@ -7938,7 +7938,7 @@ index 72e1b70..584a200 100644
 +    renderer.setRenderTarget(this.renderTarget);
 +    renderer.render(this.scene, this.camera);
 +  }
- 
+                     
 -${ShaderChunk.skinning_pars_vertex}
 -${prev_skinning_pars_vertex}
 +}
@@ -8164,12 +8164,12 @@ index 72e1b70..584a200 100644
 +  setnNormalTexture(texture) {
 +    this.fullscreenMaterial.uniforms.normalTexture.value = texture;
 +  }
- 
+ 					
 -                    ${velocity_vertex_pars}
 +  setDepthTexture(texture) {
 +    this.fullscreenMaterial.uniforms.depthTexture.value = texture;
 +  }
- 
+         
 -                    void main() {
 -						vec3 transformed;
 +  dispose() {
