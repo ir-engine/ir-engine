@@ -177,6 +177,9 @@ const ensureUniqueName = async (context: HookContext<SceneService>) => {
 
   const data: SceneCreateData[] = Array.isArray(context.data) ? context.data : [context.data]
 
+  context.newSceneName = []
+  context.storageProvider = []
+
   for (const [index, item] of data.entries()) {
     logger.info('[scene.create]: ' + item.project)
     context.newSceneName.push(NEW_SCENE_NAME)
