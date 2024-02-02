@@ -44,7 +44,7 @@ import { RigidBodyComponent } from './RigidBodyComponent'
 
 export const ColliderComponent = defineComponent({
   name: 'ColliderComponent',
-  jsonID: 'ee_collider',
+  jsonID: 'EE_collider',
 
   onInit(entity) {
     return {

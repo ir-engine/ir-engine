@@ -36,7 +36,6 @@ import { ColliderComponent as OldColliderComponent } from '../components/Collide
  * - ModelComponent handles making children components
  */
 export const migrateFromOldComponent = (oldJSON: EntityJsonType) => {
-  /** Model handles migration */
   const newComponents = [] as ComponentJsonType[]
   for (const component of oldJSON.components) {
     if (component.name !== OldColliderComponent.jsonID) continue
@@ -55,15 +54,16 @@ export const migrateFromOldComponent = (oldJSON: EntityJsonType) => {
             : 'kinematic'
       }
     })
-    newComponents.push({
-      name: ColliderComponent.jsonID,
-      props: {
-        shape: data.shapeType,
-        collisionLayer: data.collisionLayer,
-        collisionMask: data.collisionMask,
-        restitution: data.restitution
-      }
-    })
+    if (data.shapeType)
+      newComponents.push({
+        name: ColliderComponent.jsonID,
+        props: {
+          shape: data.shapeType,
+          collisionLayer: data.collisionLayer,
+          collisionMask: data.collisionMask,
+          restitution: data.restitution
+        }
+      })
     if (data.isTrigger) {
       newComponents.push({
         name: TriggerComponent.jsonID,

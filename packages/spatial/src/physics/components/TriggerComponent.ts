@@ -28,7 +28,7 @@ import { defineComponent } from '@etherealengine/ecs'
 
 export const TriggerComponent = defineComponent({
   name: 'TriggerComponent',
-  jsonID: 'ee_trigger',
+  jsonID: 'EE_trigger',
 
   onInit(entity) {
     return {

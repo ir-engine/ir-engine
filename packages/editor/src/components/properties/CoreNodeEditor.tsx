@@ -41,6 +41,7 @@ import { SelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import { PanelIcon } from '../layout/Panel'
+import { ConvertOldCollider } from './ConvertOldCollider'
 import NameInputGroup from './NameInputGroup'
 import TransformPropertyGroup from './TransformPropertyGroup'
 
@@ -112,6 +113,7 @@ export const CoreNodeEditor = (props) => {
       </div>
       <div style={nameInputGroupContainerStyle}>
         <NameInputGroup entity={props.entity} />
+        <ConvertOldCollider entity={props.entity} />
         {!hasComponent(props.entity, SceneTagComponent) && (
           <>
             <InputGroup

@@ -103,7 +103,6 @@ export const Shapes = {
   Cylinder: 'cylinder',
   Box: 'box',
   ConvexHull: 'convex_hull',
-  Container: 'container',
   Mesh: 'mesh',
   Heightfield: 'heightfield'
 }
