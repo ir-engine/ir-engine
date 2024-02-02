@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import classNames from 'classnames'
 import hark from 'hark'
 import { t } from 'i18next'
-import React, { useEffect, useRef } from 'react'
+import React, { RefObject, useEffect, useRef } from 'react'
 
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import {
@@ -54,8 +54,17 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
+import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { UserName } from '@etherealengine/common/src/schema.type.module'
+import { MotionCaptureFunctions, mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { Network } from '@etherealengine/spatial/src/networking/classes/Network'
+import {
+  addDataChannelHandler,
+  removeDataChannelHandler
+} from '@etherealengine/spatial/src/networking/systems/DataChannelRegistry'
+import { drawPoseToCanvas } from '@etherealengine/ui/src/pages/Capture'
+import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
@@ -66,6 +75,32 @@ import styles from './index.module.scss'
 interface Props {
   peerID: PeerID
   type: 'screen' | 'cam'
+}
+
+const useDrawMocapLandmarks = (
+  videoElement: HTMLVideoElement,
+  canvasCtxRef: React.MutableRefObject<CanvasRenderingContext2D | undefined>,
+  canvasRef: RefObject<HTMLCanvasElement>,
+  peerID: PeerID
+) => {
+  const drawMocapData = (
+    network: Network,
+    dataChannel: DataChannelType,
+    fromPeerID: PeerID,
+    message: ArrayBufferLike
+  ) => {
+    if (fromPeerID !== peerID || videoElement.paused || videoElement.ended || !videoElement.currentTime) return
+
+    const results = MotionCaptureFunctions.receiveResults(message as ArrayBuffer)
+    if (fromPeerID === peerID) drawPoseToCanvas(canvasCtxRef, canvasRef, results.results.poseLandmarks)
+  }
+
+  useEffect(() => {
+    addDataChannelHandler(mocapDataChannelType, drawMocapData)
+    return () => {
+      removeDataChannelHandler(mocapDataChannelType, drawMocapData)
+    }
+  }, [])
 }
 
 export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
@@ -430,11 +465,26 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
 
   const { videoElement, audioElement } = peerMediaChannelState.value
 
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const canvasCtxRef = useRef<CanvasRenderingContext2D>()
+
+  useDrawMocapLandmarks(videoElement, canvasCtxRef, canvasRef, peerID)
+
   useEffect(() => {
     videoElement.draggable = false
     document.getElementById(peerID + '-' + type + '-video-container')!.append(videoElement)
     document.getElementById(peerID + '-' + type + '-audio-container')!.append(audioElement)
   }, [])
+
+  useEffect(() => {
+    if (canvasRef.current && canvasRef.current.width !== videoElement.clientWidth) {
+      canvasRef.current.width = videoElement.clientWidth
+    }
+
+    if (canvasRef.current && canvasRef.current.height !== videoElement.clientHeight) {
+      canvasRef.current.height = videoElement.clientHeight
+    }
+  })
 
   useEffect(() => {
     if (!videoStream) return
@@ -501,6 +551,9 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
             videoProducerGlobalMute ||
             !videoDisplayReady) && <img src={avatarThumbnail} alt="" crossOrigin="anonymous" draggable={false} />}
           <span key={peerID + '-' + type + '-video-container'} id={peerID + '-' + type + '-video-container'} />
+          <div className={styles['canvas-container']}>
+            <Canvas ref={canvasRef} />
+          </div>
         </div>
         <span key={peerID + '-' + type + '-audio-container'} id={peerID + '-' + type + '-audio-container'} />
         <div className={styles['user-controls']}>

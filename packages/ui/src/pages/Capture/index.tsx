@@ -328,7 +328,7 @@ const CaptureMode = () => {
   )
 }
 
-const drawPoseToCanvas = (
+export const drawPoseToCanvas = (
   canvasCtxRef: React.MutableRefObject<CanvasRenderingContext2D | undefined>,
   canvasRef: RefObject<HTMLCanvasElement>,
   poseLandmarks: NormalizedLandmarkList
