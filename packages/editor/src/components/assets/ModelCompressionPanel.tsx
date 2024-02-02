@@ -61,16 +61,13 @@ import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 import { FileType } from './FileBrowser/FileBrowserContentPanel'
 
 export const createLODVariants = async (
-  modelSrc: string,
   lods: LODVariantDescriptor[],
   clientside: boolean,
   heuristic: 'DISTANCE' | 'SCENE_SCALE' | 'MANUAL' | 'DEVICE',
   exportCombined = false
 ) => {
   const lodVariantParams: ModelTransformParameters[] = lods.map((lod) => ({
-    ...lod.params,
-    src: modelSrc,
-    dst: `${lod.params.dst}.${lod.params.modelFormat}`
+    ...lod.params
   }))
 
   for (const variant of lodVariantParams) {
@@ -90,7 +87,7 @@ export const createLODVariants = async (
       levels: lods
         .map((lod, lodIndex) =>
           lod.variantMetadata.map((metadata) => ({
-            src: modelSrc.replace(/[^\/]+$/, lodVariantParams[lodIndex].dst),
+            src: lod.params.dst,
             metadata
           }))
         )
@@ -98,7 +95,7 @@ export const createLODVariants = async (
       heuristic
     })
 
-    await exportGLTF(result, modelSrc.replace(/\.[^.]*$/, `-integrated.gltf`))
+    await exportGLTF(result, lods[0].params.src.replace(/\.[^.]*$/, `-integrated.gltf`))
     removeEntityNodeRecursively(result)
   }
 }
@@ -173,7 +170,7 @@ export default function ModelCompressionPanel({
     const exportCombined = isIntegratedPrefab
 
     const heuristic = 'DEVICE'
-    await createLODVariants(modelSrc, lods.value, clientside, heuristic, exportCombined)
+    await createLODVariants(lods.value, clientside, heuristic, exportCombined)
 
     const [_, directoryToRefresh, __] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
     await FileBrowserService.fetchFiles(directoryToRefresh)
