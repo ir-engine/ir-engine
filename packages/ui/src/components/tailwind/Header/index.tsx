@@ -39,21 +39,7 @@ const Header = (props: { mode: State<'playback' | 'capture'> }) => {
   return (
     <nav className="w-full navbar">
       <div className="flex-1">
-        <a className="btn btn-ghost normal-case text-xl">Ethereal Capture</a>
-        <Button
-          className={'btn pointer-events-auto'}
-          // disabled={props.mode.value === 'capture'}
-          title={'Capture'}
-          // labelPosition="below"
-          onClick={() => props.mode.set('capture')}
-        />
-        <Button
-          className={'btn pointer-events-auto'}
-          // disabled={props.mode.value === 'playback'}
-          title={'Playback'}
-          // labelPosition="below"
-          onClick={() => props.mode.set('playback')}
-        />
+        <a className="normal-case text-xl">Ethereal Capture</a>
       </div>
       <div className="navbar-end">
         {/* <label htmlFor="capture-drawer" className="btn btn-square btn-ghost drawer-button">
@@ -84,6 +70,13 @@ const Header = (props: { mode: State<'playback' | 'capture'> }) => {
               </a>
             </li>
           </ul>
+          <Button
+            className="pointer-events-auto w-[133px] h-[60px] bg-[#292D3E] rounded-full shadow-md text-center font=[lato] font-bold text-sm padding-[10px] m-2"
+            title={'CAPTURE / PLAYBACK'}
+            onClick={() => props.mode.set(props.mode.value === 'playback' ? 'capture' : 'playback')}
+          >
+            <a className="normal-case text-l">{props.mode.value === 'playback' ? 'CAPTURE MODE' : 'PLAYBACK MODE'}</a>
+          </Button>
         </div>
       </div>
     </nav>
