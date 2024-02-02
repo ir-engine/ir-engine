@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VariableJSON } from '@behave-graph/core'
+import { UndefinedEntity } from '@etherealengine/ecs'
 import { BehaveGraphDomain } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { BehaveGraphState } from '@etherealengine/engine/src/behave-graph/state/BehaveGraphState'
-import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { AddOutlined, CancelOutlined } from '@mui/icons-material'
 import React, { useEffect } from 'react'

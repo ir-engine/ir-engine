@@ -33,10 +33,9 @@ import {
   makeFlowNodeDefinition,
   makeFunctionNodeDefinition
 } from '@behave-graph/core'
+import { InputSystemGroup, SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs'
 import { uniqueId } from 'lodash'
 import { useEffect } from 'react'
-import { SystemUUID, defineSystem, destroySystem } from '../../../../../ecs/functions/SystemFunctions'
-import { InputSystemGroup } from '../../../../../ecs/functions/SystemGroups'
 
 export const EngineVariableGet = makeFunctionNodeDefinition({
   typeName: 'engine/variable/get',

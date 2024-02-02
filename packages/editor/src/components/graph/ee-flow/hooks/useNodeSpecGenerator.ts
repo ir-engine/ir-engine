@@ -33,13 +33,13 @@ import {
   writeDefaultNodeSpecsToJSON,
   writeNodeSpecToJSON
 } from '@behave-graph/core'
+import { getComponent } from '@etherealengine/ecs'
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import {
   EngineVariableGet,
   EngineVariableSet,
   EngineVariableUse
 } from '@etherealengine/engine/src/behave-graph/nodes/Profiles/Engine/Values/VariableNodes'
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { useEffect, useState } from 'react'
 import { SelectionState } from '../../../../services/SelectionServices'
 
@@ -63,7 +63,7 @@ export class NodeSpecGenerator {
       const variableNames = graphComponent.graph.variables?.map((variable) => {
         return { name: variable.name, type: variable.valueTypeName }
       })
-      if (variableNames.length === 0) return cacheKey
+      if (variableNames!.length === 0) return cacheKey
       cacheKey = nodeTypeName + '\x01' + JSON.stringify(configuration) + '\x01' + JSON.stringify(variableNames)
       return cacheKey
     }
@@ -112,7 +112,7 @@ export class NodeSpecGenerator {
       // variableNodeAdjustSpec could be potentially be moved into writeNodeSpecToJSON, by passing in the variables into writeNodeSpecToJSON
       // but writeNodeSpecToJSON is used in other places too,
       //unsure what unforeseen effects adding variables as an arguement and moving variableNodeAdjustSpec into writeNodeSpecToJSON will have
-      const specJson = writeNodeSpecToJSON(this.registry, nodeTypeName, configuration, graphComponent.graph.variables)
+      const specJson = writeNodeSpecToJSON(this.registry, nodeTypeName, configuration)
       variableNodeAdjustSpec()
       this.specsCache[cacheKey] = specJson
     }
