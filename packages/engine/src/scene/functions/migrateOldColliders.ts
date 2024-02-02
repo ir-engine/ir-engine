@@ -35,7 +35,7 @@ import { ColliderComponent as OldColliderComponent } from '../components/Collide
  * Converts old ColliderComponent to RigidbodyComponent, new ColliderComponent and TriggerComponent
  * - ModelComponent handles making children components
  */
-export const migrateFromOldComponent = (oldJSON: EntityJsonType) => {
+export const migrateOldColliders = (oldJSON: EntityJsonType) => {
   const newComponents = [] as ComponentJsonType[]
   for (const component of oldJSON.components) {
     if (component.name !== OldColliderComponent.jsonID) continue
@@ -47,9 +47,9 @@ export const migrateFromOldComponent = (oldJSON: EntityJsonType) => {
       name: RigidBodyComponent.jsonID,
       props: {
         type:
-          data.bodyType === RigidBodyType.Fixed
+          data.bodyType === RigidBodyType.Fixed || (data.bodyType as any) === 'Fixed'
             ? 'fixed'
-            : data.bodyType === RigidBodyType.Dynamic
+            : data.bodyType === RigidBodyType.Dynamic || (data.bodyType as any) === 'Dynamic'
             ? 'dynamic'
             : 'kinematic'
       }

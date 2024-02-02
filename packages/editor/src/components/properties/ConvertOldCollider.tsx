@@ -27,6 +27,7 @@ import { Entity, getComponent, setComponent, useOptionalComponent } from '@ether
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import {
   findAncestorWithComponent,
@@ -50,16 +51,43 @@ const convert = (entity: Entity) => {
   )!
 
   const modelEntity = findAncestorWithComponent(entity, ModelComponent)!
-
   setComponent(modelEntity, RigidBodyComponent, {
-    type: objWithMetadata.userData['xrengine.collider.bodyType'] ?? 'static'
+    type: objWithMetadata?.userData?.['xrengine.collider.bodyType'] ?? 'static'
   })
 
+  console.log(objWithMetadata, groupComponent)
+
+  if (objWithMetadata) {
+    delete objWithMetadata.userData['xrengine.collider.bodyType']
+    delete objWithMetadata.userData['xrengine.entity']
+  }
+
   iterateEntityNode(entity, (child) => {
-    const childWithMetadata = getComponent(child, GroupComponent)?.find((obj) => !!obj.userData['type'])
+    const childWithMetadata = getComponent(child, GroupComponent)?.find(
+      (obj) =>
+        !!obj.userData['type'] ||
+        !!obj.userData['xrengine.collider.type'] ||
+        !!obj.userData['xrengine.collider.shapeType'] ||
+        !!obj.userData['shapeType'] ||
+        !!obj.userData['isTrigger']
+    )
+    console.log(childWithMetadata, getComponent(child, GroupComponent))
     if (!childWithMetadata) return
-    const shape = OldShapeTypes[childWithMetadata.userData['type']] ?? 'box'
+
+    const shape =
+      OldShapeTypes[
+        childWithMetadata.userData['type'] ??
+          childWithMetadata.userData['xrengine.collider.type'] ??
+          childWithMetadata.userData['xrengine.collider.shapeType'] ??
+          childWithMetadata.userData['shapeType']
+      ] ?? 'box'
+    delete childWithMetadata.userData['type']
+    delete childWithMetadata.userData['shapeType']
     setComponent(child, ColliderComponent, { shape })
+
+    const isTrigger = childWithMetadata.userData['isTrigger'] ?? false
+    if (isTrigger === true || isTrigger === 'true') setComponent(child, TriggerComponent)
+    delete childWithMetadata.userData['isTrigger']
   })
 }
 

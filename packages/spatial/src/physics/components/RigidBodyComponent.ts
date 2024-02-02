@@ -82,11 +82,11 @@ export const RigidBodyComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) throw new Error('no RigidBodyComponent supplied ' + entity)
 
-    if (component.body.value !== null) throw new Error('RigidBodyComponent already initialized ' + entity)
-
     /** backwards compatibility for manually creating rigidbodies */
-    if (typeof json.body === 'object') component.body.set(json.body)
-    else {
+    if (typeof json.body === 'object') {
+      if (component.body.value !== null) throw new Error('RigidBodyComponent already initialized ' + entity)
+      component.body.set(json.body)
+    } else {
       if (typeof json.type === 'string') component.type.set(json.type)
     }
   },

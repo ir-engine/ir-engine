@@ -39,7 +39,7 @@ import { EntityTreeComponent, traverseEntityNodeParent } from '../../transform/c
 import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { PhysicsState } from '../state/PhysicsState'
-import { Shape } from '../types/PhysicsTypes'
+import { Shape, Shapes } from '../types/PhysicsTypes'
 import { RigidBodyComponent } from './RigidBodyComponent'
 
 export const ColliderComponent = defineComponent({
@@ -85,6 +85,16 @@ export const ColliderComponent = defineComponent({
 
   reactor: ColliderComponentReactor
 })
+
+export const supportedColliderShapes = [
+  Shapes.Sphere,
+  Shapes.Capsule,
+  Shapes.Cylinder,
+  Shapes.Box,
+  // Shapes.ConvexHull,
+  Shapes.Mesh
+  // Shapes.Heightfield
+]
 
 function ColliderComponentReactor() {
   const entity = useEntityContext()

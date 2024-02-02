@@ -72,6 +72,8 @@ import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/c
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { PrimitiveGeometryComponent } from '../../../../engine/src/scene/components/PrimitiveGeometryComponent'
@@ -94,11 +96,11 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
     PrimitiveGeometryComponent,
     GroundPlaneComponent,
     GroupComponent,
-    ColliderComponent,
     VariantComponent,
     SceneDynamicLoadTagComponent,
     ObjectGridSnapComponent
   ],
+  Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
   Interaction: [SpawnPointComponent, PortalComponent, LinkComponent, MountPointComponent],
   Lighting: [
     AmbientLightComponent,

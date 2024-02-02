@@ -59,7 +59,7 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { useEffect } from 'react'
 import matches, { Validator } from 'ts-matches'
 import { SourceComponent } from './components/SourceComponent'
-import { migrateFromOldComponent } from './functions/migrateOldColliders'
+import { migrateOldColliders } from './functions/migrateOldColliders'
 import { serializeEntity } from './functions/serializeWorld'
 
 export interface SceneSnapshotInterface {
@@ -139,7 +139,7 @@ export const SceneState = defineState({
 
     /** migrate collider components */
     for (const [uuid, entityJson] of Object.entries(data.entities)) {
-      migrateFromOldComponent(entityJson)
+      migrateOldColliders(entityJson)
     }
 
     getMutableState(SceneState).scenes[sceneID].set({
