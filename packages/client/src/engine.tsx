@@ -54,7 +54,7 @@ initializeBrowser()
 API.createAPI()
 initializeLogs()
 
-export default function ({ children, tailwind = false }) {
+export default function ({ children, tailwind = false }): JSX.Element {
   const ref = createRef()
   const { t } = useTranslation()
   return !tailwind ? (

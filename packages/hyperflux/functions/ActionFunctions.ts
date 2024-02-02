@@ -480,9 +480,9 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
     //actions had circular references. Just try/catching the logger.info call was not catching them properly,
     //So the solution was to attempt to JSON.stringify them manually first to see if that would error.
     try {
-      logger.info(`[Action]: ${action.type} %o`, action, new Date())
+      logger.info(`[Action]: ${action.type} %o`, action)
     } catch (err) {
-      console.log('error in logging action', action, new Date())
+      console.log('error in logging action', action)
     }
   } catch (e) {
     const message = (e as Error).message

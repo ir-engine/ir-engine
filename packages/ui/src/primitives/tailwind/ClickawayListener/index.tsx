@@ -23,37 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SwatchIcon } from '@heroicons/react/20/solid'
-import React, { useContext } from 'react'
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import React from 'react'
 
-import { themeNames } from '@etherealengine/client/src/themes/index'
-import { ThemeContext } from '@etherealengine/client/src/themes/themeContext'
-
-const ThemeSwitcher = () => {
-  const { setTheme } = useContext(ThemeContext)
+// todo move this to core engine
+const ClickawayListener = (props: { children: JSX.Element }) => {
+  const childOver = useHookstate(false)
   return (
-    <div className="dropdown dropdown-end">
-      <label tabIndex={0} className="btn btn-ghost btn-square">
-        <SwatchIcon className="h-6 w-6" />
-      </label>
-      <ul
-        tabIndex={1}
-        className="list-none menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
+    <div
+      className="fixed inset-0 bg-gray-800 bg-opacity-50"
+      onClick={() => {
+        if (childOver.value) return
+        getMutableState(PopoverState).element.set(null)
+      }}
+    >
+      <div
+        className="z-1 absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2"
+        onMouseEnter={() => childOver.set(true)}
+        onMouseLeave={() => childOver.set(false)}
       >
-        {themeNames.map((key) => {
-          return (
-            <li key={key} onClick={() => setTheme(key)}>
-              <a className="capitalize justify-between">{key}</a>
-            </li>
-          )
-        })}
-      </ul>
+        {props.children}
+      </div>
     </div>
   )
 }
 
-ThemeSwitcher.displayName = 'ThemeSwitcher'
+ClickawayListener.displayName = 'ClickawayListener'
 
-ThemeSwitcher.defaultProps = {}
+ClickawayListener.defaultProps = {
+  children: null
+}
 
-export default ThemeSwitcher
+export default ClickawayListener
