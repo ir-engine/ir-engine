@@ -1,0 +1,82 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { InputHTMLAttributes } from 'react'
+import { twMerge } from 'tailwind-merge'
+
+export interface LabelProps extends React.HtmlHTMLAttributes<HTMLLabelElement> {
+  className?: string
+}
+
+const Label = ({ className, children }: LabelProps) => {
+  return (
+    <label
+      className={twMerge(
+        'text-sm text-theme-secondary font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+        className
+      )}
+    >
+      {children}
+    </label>
+  )
+}
+
+export interface TextInputProps extends React.HTMLAttributes<HTMLInputElement> {
+  value: string | number
+  label: string
+  inputClassName?: string
+  description?: string
+  type?: InputHTMLAttributes<HTMLInputElement>['type']
+  onChange: InputHTMLAttributes<HTMLInputElement>['onChange']
+}
+
+const TextInput = ({
+  inputClassName,
+  label,
+  type = 'text',
+  description,
+  value,
+  itemType,
+  onChange,
+  ...props
+}: TextInputProps) => {
+  const twInputClassname = twMerge(
+    'tracking-tight text-base font-normal',
+    'flex h-9 w-full rounded-lg border bg-transparent px-3.5 py-5 textshadow-sm transition-colors',
+    'file:border-0 file:bg-transparent file:text-sm file:font-medium',
+    'placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50',
+    inputClassName
+  )
+
+  return (
+    <div className="w-full flex items-center flex-col gap-2">
+      {label && <Label className="self-stretch">{label}</Label>}
+      <input type={type} className={twInputClassname} value={value} {...props} />
+      {description && <p className="self-stretch text-xs text-theme-secondary text-muted-foreground">{description}</p>}
+    </div>
+  )
+}
+
+export default TextInput

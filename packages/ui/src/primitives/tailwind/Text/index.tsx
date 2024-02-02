@@ -23,18 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { ReactNode } from 'react'
+import React from 'react'
 import { twMerge } from 'tailwind-merge'
-
-/**
- * Button component
- *
- * @param {ReactNode} startIcon - SVG Icon placed before the children.
- * @param {ReactNode} endIcon - SVG Icon placed after the children.
- * @param {ReactNode} children
- * @param {'small' | 'medium' | 'large'} [size] - The size of the component. small is equivalent to the dense button styling.
- * @param {boolean} [fullWidth] - If true, the button will take up the full width of its container
- */
 
 const componentTypes = {
   h1: (props: React.HTMLAttributes<any>) => <h1 {...props} />,
