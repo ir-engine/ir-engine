@@ -89,7 +89,7 @@ const useDrawMocapLandmarks = (
     fromPeerID: PeerID,
     message: ArrayBufferLike
   ) => {
-    if (fromPeerID !== peerID || videoElement.paused || videoElement.ended || !videoElement.currentTime) return
+    // if (fromPeerID !== peerID || videoElement.paused || videoElement.ended || !videoElement.currentTime) return
 
     const results = MotionCaptureFunctions.receiveResults(message as ArrayBuffer)
     drawPoseToCanvas(canvasCtxRef, canvasRef, results.results.poseLandmarks)
@@ -484,6 +484,8 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
     if (canvasRef.current && canvasRef.current.height !== videoElement.clientHeight) {
       canvasRef.current.height = videoElement.clientHeight
     }
+
+    if (canvasRef.current) canvasCtxRef.current = canvasRef.current.getContext('2d')!
   })
 
   useEffect(() => {
