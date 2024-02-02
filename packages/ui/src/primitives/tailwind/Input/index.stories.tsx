@@ -23,16 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { describe, expect, it } from '@jest/globals'
-import { shallow } from 'enzyme'
-import React from 'react'
+import Text from './index'
 
-import TextInput from './index'
-import { Default as story } from './index.stories'
+export default {
+  title: 'Primitives/Tailwind/Input',
+  component: Text,
+  parameters: {
+    componentSubtitle: 'Input',
+    jest: 'Input.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  }
+}
 
-describe('TextInput', () => {
-  it('- should render', () => {
-    const wrapper = shallow(<TextInput onChange={() => {}} {...story?.args} />)
-    expect(wrapper).toMatchSnapshot()
-  })
-})
+export const Default = {
+  args: {
+    value: 'My Text Input',
+    label: 'Input Label'
+  }
+}
+
+export const WithDescription = {
+  args: {
+    value: 'Text Input',
+    label: 'Label',
+    description: 'A simple description for the Input'
+  }
+}

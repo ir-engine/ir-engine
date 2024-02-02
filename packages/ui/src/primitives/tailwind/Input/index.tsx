@@ -43,7 +43,7 @@ const Label = ({ className, children }: LabelProps) => {
   )
 }
 
-export interface TextInputProps extends React.HTMLAttributes<HTMLInputElement> {
+export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   value: string | number
   label: string
   inputClassName?: string
@@ -52,7 +52,7 @@ export interface TextInputProps extends React.HTMLAttributes<HTMLInputElement> {
   onChange: InputHTMLAttributes<HTMLInputElement>['onChange']
 }
 
-const TextInput = ({
+const Input = ({
   inputClassName,
   label,
   type = 'text',
@@ -61,7 +61,7 @@ const TextInput = ({
   itemType,
   onChange,
   ...props
-}: TextInputProps) => {
+}: InputProps) => {
   const twInputClassname = twMerge(
     'tracking-tight text-base font-normal',
     'flex h-9 w-full rounded-lg border bg-transparent px-3.5 py-5 textshadow-sm transition-colors',
@@ -79,4 +79,4 @@ const TextInput = ({
   )
 }
 
-export default TextInput
+export default Input
