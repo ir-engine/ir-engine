@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { Engine, UndefinedEntity, getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { TransformControlsPlane } from '@etherealengine/engine/src/scene/classes/TransformGizmo'
 import {
   TransformAxis,
   TransformMode,
@@ -213,8 +212,7 @@ export function gizmoUpdate(gizmoEntity) {
     }
   }
 
-  for (let i = 0; i < handles.length; i++) {
-    const handle: any = handles[i]
+  for (const handle of handles) {
     // hide aligned to camera
 
     handle.visible = true
@@ -304,7 +302,7 @@ export function gizmoUpdate(gizmoEntity) {
     } else if (gizmoControl.mode === TransformMode.rotate) {
       // Align handles to current local or world rotation
 
-      _tempQuaternion2.copy(quaternion)
+      //_tempQuaternion2.copy(quaternion)
       _alignVector.copy(gizmoControl.eye).applyQuaternion(_tempQuaternion.copy(quaternion).invert())
 
       if (handle.name.search(TransformAxis.E) !== -1) {
@@ -313,19 +311,19 @@ export function gizmoUpdate(gizmoEntity) {
 
       if (handle.name === TransformAxis.X) {
         _tempQuaternion.setFromAxisAngle(_unit[TransformAxis.X], Math.atan2(-_alignVector.y, _alignVector.z))
-        _tempQuaternion.multiplyQuaternions(_tempQuaternion2, _tempQuaternion)
+        _tempQuaternion.multiplyQuaternions(quaternion.clone(), _tempQuaternion)
         handle.quaternion.copy(_tempQuaternion)
       }
 
       if (handle.name === TransformAxis.Y) {
         _tempQuaternion.setFromAxisAngle(_unit[TransformAxis.Y], Math.atan2(_alignVector.x, _alignVector.z))
-        _tempQuaternion.multiplyQuaternions(_tempQuaternion2, _tempQuaternion)
+        _tempQuaternion.multiplyQuaternions(quaternion.clone(), _tempQuaternion)
         handle.quaternion.copy(_tempQuaternion)
       }
 
       if (handle.name === TransformAxis.Z) {
         _tempQuaternion.setFromAxisAngle(_unit[TransformAxis.Z], Math.atan2(_alignVector.y, _alignVector.x))
-        _tempQuaternion.multiplyQuaternions(_tempQuaternion2, _tempQuaternion)
+        _tempQuaternion.multiplyQuaternions(quaternion.clone(), _tempQuaternion)
         handle.quaternion.copy(_tempQuaternion)
       }
     }
@@ -485,7 +483,7 @@ function pointerHover(pointer, gizmoEntity) {
 
 function pointerDown(pointer, gizmoEntity) {
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
-  const plane = getComponent(gizmoControlComponent.planeEntity.value, GroupComponent)[0] as TransformControlsPlane
+  const plane = getComponent(gizmoControlComponent.planeEntity.value, GroupComponent)[0]
   if (
     gizmoControlComponent.controlledEntity.value === UndefinedEntity ||
     gizmoControlComponent.dragging.value === true ||
@@ -518,7 +516,7 @@ function pointerMove(pointer, gizmoEntity) {
   const axis = gizmoControlComponent.axis.value
   const mode = gizmoControlComponent.mode.value
   const entity = gizmoControlComponent.controlledEntity.value
-  const plane = getComponent(gizmoControlComponent.planeEntity.value, GroupComponent)[0] as TransformControlsPlane
+  const plane = getComponent(gizmoControlComponent.planeEntity.value, GroupComponent)[0]
 
   let space = gizmoControlComponent.space.value
 
@@ -656,7 +654,6 @@ function pointerMove(pointer, gizmoEntity) {
     }
     setComponent(entity, TransformComponent, { scale: newScale })
   } else if (mode === TransformMode.rotate) {
-    console.log('rotate')
     _offset.copy(gizmoControlComponent.pointEnd.value).sub(gizmoControlComponent.pointStart.value)
 
     const ROTATION_SPEED =
@@ -737,7 +734,6 @@ function pointerMove(pointer, gizmoEntity) {
       )
       newRotation.multiply(gizmoControlComponent.worldQuaternionStart.value).normalize()
     }
-    const euler = new Euler().setFromQuaternion(newRotation)
 
     setComponent(entity, TransformComponent, { rotation: newRotation })
   }
