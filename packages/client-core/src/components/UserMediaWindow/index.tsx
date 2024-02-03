@@ -54,15 +54,10 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
-import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { UserName } from '@etherealengine/common/src/schema.type.module'
-import { MotionCaptureFunctions, mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+import { useExecute } from '@etherealengine/ecs'
+import { MotionCaptureSystem, timeSeriesMocapData } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
-import { Network } from '@etherealengine/spatial/src/networking/classes/Network'
-import {
-  addDataChannelHandler,
-  removeDataChannelHandler
-} from '@etherealengine/spatial/src/networking/systems/DataChannelRegistry'
 import { drawPoseToCanvas } from '@etherealengine/ui/src/pages/Capture'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
 import { MediaStreamState } from '../../transports/MediaStreams'
@@ -83,24 +78,22 @@ const useDrawMocapLandmarks = (
   canvasRef: RefObject<HTMLCanvasElement>,
   peerID: PeerID
 ) => {
-  const drawMocapData = (
-    network: Network,
-    dataChannel: DataChannelType,
-    fromPeerID: PeerID,
-    message: ArrayBufferLike
-  ) => {
-    // if (fromPeerID !== peerID || videoElement.paused || videoElement.ended || !videoElement.currentTime) return
+  let lastTimestamp = 0
 
-    const results = MotionCaptureFunctions.receiveResults(message as ArrayBuffer)
-    drawPoseToCanvas(canvasCtxRef, canvasRef, results.results.poseLandmarks)
-  }
-
-  useEffect(() => {
-    addDataChannelHandler(mocapDataChannelType, drawMocapData)
-    return () => {
-      removeDataChannelHandler(mocapDataChannelType, drawMocapData)
-    }
-  }, [])
+  useExecute(
+    () => {
+      if (videoElement.paused || videoElement.ended || !videoElement.currentTime) return
+      const mocapBuffer = timeSeriesMocapData.get(peerID)
+      if (mocapBuffer) {
+        const lastMocapResult = mocapBuffer.getLast()
+        if (lastMocapResult && lastMocapResult.timestamp !== lastTimestamp) {
+          lastTimestamp = lastMocapResult.timestamp
+          drawPoseToCanvas(canvasCtxRef, canvasRef, lastMocapResult.results.poseLandmarks)
+        }
+      }
+    },
+    { after: MotionCaptureSystem }
+  )
 }
 
 export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
