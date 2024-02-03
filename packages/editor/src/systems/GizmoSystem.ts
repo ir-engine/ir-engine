@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { UndefinedEntity, createEntity, removeEntity } from '@etherealengine/ecs'
-import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
@@ -40,15 +40,6 @@ import { useEffect } from 'react'
 import { Object3D } from 'three'
 import { TransformGizmoControlledComponent } from '../classes/TransformGizmoComponent'
 import { SelectionState } from '../services/SelectionServices'
-
-const gizmoQuery = defineQuery([TransformGizmoControlledComponent])
-
-const execute = () => {
-  for (const entity of gizmoQuery()) {
-    const gizmo = getComponent(entity, TransformGizmoControlledComponent)
-    //gizmo.updateMatrixWorld()
-  }
-}
 
 const reactor = () => {
   const selectionState = useHookstate(getMutableState(SelectionState))
@@ -103,6 +94,6 @@ const reactor = () => {
 export const GizmoSystem = defineSystem({
   uuid: 'ee.editor.GizmoSystem',
   insert: { before: PresentationSystemGroup },
-  execute,
+  execute: () => {},
   reactor
 })
