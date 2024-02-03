@@ -92,8 +92,6 @@ export const TransformGizmoControlComponent = defineComponent({
       worldPositionStart: new Vector3(),
       worldQuaternion: new Quaternion(),
       worldQuaternionStart: new Quaternion(),
-      cameraPosition: new Vector3(),
-      cameraQuaternion: new Quaternion(),
       pointStart: new Vector3(),
       pointEnd: new Vector3(),
       rotationAxis: new Vector3(),

@@ -77,10 +77,6 @@ const _positionStart = new Vector3()
 const _quaternionStart = new Quaternion()
 const _scaleStart = new Vector3()
 
-const _cameraPos = new Vector3()
-const _cameraQuat = new Quaternion()
-const _cameraScale = new Vector3()
-
 const _worldQuaternionInv = new Quaternion()
 
 const _worldPosition = new Vector3()
@@ -158,15 +154,15 @@ export function gizmoUpdate(gizmoEntity) {
   handles = handles.concat(getComponent(gizmo.picker[gizmoControl.mode], GroupComponent)[0].children)
   handles = handles.concat(getComponent(gizmo.gizmo[gizmoControl.mode], GroupComponent)[0].children)
 
-  for (let i = 0; i < helperObject.children.length; i++) {
-    const handle: any = handles[i]
-
+  for (const handle of helperObject.children) {
     handle.visible = false
     handle.rotation.set(0, 0, 0)
     handle.scale.set(1, 1, 1).multiplyScalar((factor * gizmoControl.size) / 4)
+    handle.position.set(0, 0, 0)
 
     if (handle.name === 'AXIS') {
       handle.visible = !!gizmoControl.axis
+      handle.position.copy(gizmoControl.worldPosition)
 
       if (gizmoControl.axis === TransformAxis.X) {
         _tempQuaternion.setFromEuler(_tempEuler.set(0, 0, 0))
@@ -457,7 +453,7 @@ export function planeUpdate(gizmoEntity) {
   }
   if (_dirVector.length() === 0) {
     // If in rotate mode, make the plane parallel to camera
-    setComponent(gizmoControl.planeEntity, TransformComponent, { rotation: gizmoControl.cameraQuaternion })
+    setComponent(gizmoControl.planeEntity, TransformComponent, { rotation: camera.quaternion })
   } else {
     _tempMatrix.lookAt(_tempVector.set(0, 0, 0), _dirVector, _alignVector)
     setComponent(gizmoControl.planeEntity, TransformComponent, {
@@ -489,12 +485,10 @@ export function controlUpdate(gizmoEntity) {
     _worldQuaternionInv.copy(getComponent(gizmoControl.controlledEntity.value, TransformComponent).rotation).invert()
   }
 
-  camera.matrixWorld.decompose(_cameraPos, _cameraQuat, _cameraScale)
-  gizmoControl.cameraQuaternion.set(_cameraQuat)
   if ((camera as any).isOrthographicCamera) {
     camera.getWorldDirection(gizmoControl.eye.value).negate()
   } else {
-    gizmoControl.eye.set(_cameraPos.sub(gizmoControl.worldPosition.value).normalize())
+    gizmoControl.eye.set(camera.position.clone().sub(gizmoControl.worldPosition.value).normalize())
   }
 }
 
@@ -507,7 +501,6 @@ function pointerHover(pointer, gizmoEntity) {
     return
 
   _raycaster.setFromCamera(pointer, camera)
-  console.log(picker)
   const intersect = intersectObjectWithRay(picker, _raycaster, true)
 
   if (intersect) {
@@ -533,9 +526,6 @@ function pointerDown(pointer, gizmoEntity) {
     const planeIntersect = intersectObjectWithRay(plane, _raycaster, true)
     if (planeIntersect) {
       const currenttransform = getComponent(gizmoControlComponent.controlledEntity.value, TransformComponent)
-      /*_positionStart.copy(currenttransform.position)
-      _quaternionStart.copy(currenttransform.rotation)
-      _scaleStart.copy(currenttransform.scale)*/
       currenttransform.matrix.decompose(_positionStart, _quaternionStart, _scaleStart)
       gizmoControlComponent.worldPositionStart.set(_positionStart)
       gizmoControlComponent.worldQuaternionStart.set(_quaternionStart)
@@ -693,6 +683,7 @@ function pointerMove(pointer, gizmoEntity) {
     }
     setComponent(entity, TransformComponent, { scale: newScale })
   } else if (mode === TransformMode.rotate) {
+    console.log('rotate')
     _offset.copy(gizmoControlComponent.pointEnd.value).sub(gizmoControlComponent.pointStart.value)
 
     const ROTATION_SPEED =
@@ -751,7 +742,8 @@ function pointerMove(pointer, gizmoEntity) {
     const newRotation = getComponent(entity, TransformComponent).rotation
     // Apply rotate
     if (space === TransformSpace.local && axis !== TransformAxis.E && axis !== TransformAxis.XYZE) {
-      newRotation.copy(_quaternionStart)
+      console.log(gizmoControlComponent.rotationAxis.value, gizmoControlComponent.rotationAngle.value)
+      newRotation.copy(gizmoControlComponent.worldQuaternionStart.value)
       newRotation
         .multiply(
           _tempQuaternion.setFromAxisAngle(
@@ -770,8 +762,9 @@ function pointerMove(pointer, gizmoEntity) {
           gizmoControlComponent.rotationAngle.value
         )
       )
-      newRotation.multiply(_quaternionStart).normalize()
+      newRotation.multiply(gizmoControlComponent.worldQuaternionStart.value).normalize()
     }
+    const euler = new Euler().setFromQuaternion(newRotation)
 
     setComponent(entity, TransformComponent, { rotation: newRotation })
   }
@@ -788,16 +781,6 @@ function pointerUp(pointer, gizmoEntity) {
   if (gizmoControlComponent.dragging && gizmoControlComponent.axis !== null) {
     //_mouseUpEvent.mode = gizmoControlComponent.mode
     //this.dispatchEvent(_mouseUpEvent as any)
-
-    EditorControlFunctions.positionObject(
-      [gizmoControlComponent.controlledEntity.value],
-      [gizmoControlComponent.worldPosition.value]
-    )
-    EditorControlFunctions.rotateObject(
-      [gizmoControlComponent.controlledEntity.value],
-      [new Euler().setFromQuaternion(gizmoControlComponent.worldQuaternion.value)]
-    )
-    EditorControlFunctions.scaleObject([gizmoControlComponent.controlledEntity.value], [_worldScale], true)
     //check for snap modes
     if (!getState(ObjectGridSnapState).enabled) {
       EditorControlFunctions.commitTransformSave([gizmoControlComponent.controlledEntity.value])
