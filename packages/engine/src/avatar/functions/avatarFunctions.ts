@@ -151,7 +151,7 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   rig.leftToes && rig.leftToes.node.getWorldPosition(leftToesPos)
   rig.leftLowerLeg.node.getWorldPosition(leftLowerLegPos)
   rig.leftUpperLeg.node.getWorldPosition(leftUpperLegPos)
-  rig.leftEye ? rig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos)
+  rig.leftEye ? rig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos).setY(headPos.y + 0.1) // fallback to rough estimation if no eye bone is present
 
   const avatarComponent = getMutableComponent(entity, AvatarComponent)
   avatarComponent.avatarHeight.set(size.y)
