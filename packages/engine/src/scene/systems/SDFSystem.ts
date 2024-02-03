@@ -27,15 +27,13 @@ import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { getMutableState, useState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { SDFSettingsState } from '@etherealengine/spatial/src/renderer/effects/sdf/SDFSettingsState'
-import { configureEffectComposer } from '@etherealengine/spatial/src/renderer/functions/configureEffectComposer'
 import { useEffect } from 'react'
 import { SDFComponent } from '../components/SDFComponent'
 
 const reactor = () => {
   const sdfQuery = useQuery([SDFComponent])
-  const sdfState = useState(getMutableState(SDFSettingsState))
 
   useEffect(() => {
     if (sdfQuery.length === 0 || !sdfQuery.some((entity) => getComponent(entity, SDFComponent).enable)) {
@@ -44,10 +42,6 @@ const reactor = () => {
       getMutableState(SDFSettingsState).enabled.set(true)
     }
   }, [sdfQuery])
-
-  useEffect(() => {
-    configureEffectComposer()
-  }, [sdfState.enabled])
 
   return null
 }
