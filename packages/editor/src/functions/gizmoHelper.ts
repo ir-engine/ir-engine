@@ -23,14 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  Engine,
-  UndefinedEntity,
-  getComponent,
-  getMutableComponent,
-  removeEntity,
-  setComponent
-} from '@etherealengine/ecs'
+import { Engine, UndefinedEntity, getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { TransformControlsPlane } from '@etherealengine/engine/src/scene/classes/TransformGizmo'
 import {
@@ -43,12 +36,7 @@ import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { Q_IDENTITY, V_000, V_001, V_010, V_100 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import {
-  GroupComponent,
-  addObjectToGroup,
-  removeObjectFromGroup
-} from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
@@ -99,19 +87,6 @@ const _v1 = new Vector3()
 const _v2 = new Vector3()
 const _v3 = new Vector3()
 
-export function initGizmo(gizmoEntity, plane) {
-  const gizmoComponent = getComponent(gizmoEntity, TransformGizmoControlComponent)
-  addObjectToGroup(gizmoComponent.planeEntity, plane) // adding object calls attach internally on the gizmo, so attch entity last
-  setObjectLayers(plane, ObjectLayers.TransformGizmo)
-}
-
-export function destroyGizmo(gizmoEntity, plane) {
-  const gizmoComponent = getComponent(gizmoEntity, TransformGizmoControlComponent)
-  removeObjectFromGroup(gizmoComponent.planeEntity, plane) // adding object calls attach internally on the gizmo, so attch entity last
-  removeEntity(gizmoComponent.visualEntity)
-  removeEntity(gizmoComponent.planeEntity)
-}
-
 export function gizmoUpdate(gizmoEntity) {
   // break this up into multiple entities
   const gizmoControl = getComponent(gizmoEntity, TransformGizmoControlComponent)
@@ -122,9 +97,7 @@ export function gizmoUpdate(gizmoEntity) {
 
   const quaternion = space === TransformSpace.local ? gizmoControl.worldQuaternion : Q_IDENTITY
 
-  // Show only gizmos for current transform mode
   const gizmo = getComponent(gizmoControl.visualEntity, TransformGizmoVisualComponent)
-  //setComponent(gizmoControl.visualEntity, TransformComponent, { position: gizmoControl.worldPosition })
   const factor = (camera as any).isOrthographicCamera
     ? ((camera as any).top - (camera as any).bottom) / camera.zoom
     : gizmoControl.worldPosition.distanceTo(camera.position) *

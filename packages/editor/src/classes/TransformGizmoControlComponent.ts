@@ -35,7 +35,6 @@ import {
   useEntityContext,
   useExecute
 } from '@etherealengine/ecs'
-import { TransformControlsGizmo, TransformControlsPlane } from '@etherealengine/engine/src/scene/classes/TransformGizmo'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import {
   SnapMode,
@@ -50,14 +49,15 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { useEffect } from 'react'
-import { Box3, Quaternion, Vector3 } from 'three'
+import { Box3, DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry, Quaternion, Vector3 } from 'three'
 import { degToRad } from 'three/src/math/MathUtils'
 import {
   controlUpdate,
-  destroyGizmo,
   gizmoUpdate,
-  initGizmo,
   onPointerDown,
   onPointerHover,
   onPointerMove,
@@ -143,19 +143,25 @@ export const TransformGizmoControlComponent = defineComponent({
         if (gizmoControlComponent === undefined) return
         if (!gizmoControlComponent.enabled.value) return
 
-        //_gizmo.updateMatrixWorld(true)
         gizmoUpdate(gizmoEntity)
-        //_plane.updateMatrixWorld(true)
         planeUpdate(gizmoEntity)
-
         controlUpdate(gizmoEntity)
       },
       { with: PresentationSystemGroup }
     )
 
     useEffect(() => {
-      const gizmo = new TransformControlsGizmo()
-      const plane = new TransformControlsPlane()
+      const plane = new Mesh(
+        new PlaneGeometry(100000, 100000, 2, 2),
+        new MeshBasicMaterial({
+          visible: false,
+          wireframe: true,
+          side: DoubleSide,
+          transparent: true,
+          opacity: 0.1,
+          toneMapped: false
+        })
+      )
       // create dummy object to attach gizmo to, we can only attach to three js objects
       domElement.addEventListener('pointerdown', (event) => {
         onPointerDown(event, gizmoEntity)
@@ -166,7 +172,8 @@ export const TransformGizmoControlComponent = defineComponent({
       domElement.addEventListener('pointerup', (event) => {
         onPointerUp(event, gizmoEntity)
       })
-      initGizmo(gizmoEntity, plane)
+      addObjectToGroup(gizmoControlComponent.planeEntity.value, plane)
+      setObjectLayers(plane, ObjectLayers.TransformGizmo)
 
       return () => {
         domElement.removeEventListener('pointerdown', (event) => {
@@ -181,7 +188,7 @@ export const TransformGizmoControlComponent = defineComponent({
         domElement.removeEventListener('pointerup', (event) => {
           onPointerUp(event, gizmoEntity)
         })
-        destroyGizmo(gizmoEntity, plane)
+        removeObjectFromGroup(gizmoControlComponent.planeEntity.value, plane)
       }
     }, [])
 
