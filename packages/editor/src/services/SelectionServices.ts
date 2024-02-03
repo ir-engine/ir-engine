@@ -31,8 +31,8 @@ import { defineState, getMutableState, useHookstate } from '@etherealengine/hype
 
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { useEffect } from 'react'
-import { MaterialSelectionState } from '../components/materials/MaterialLibraryState'
 import { filterParentEntities } from '../functions/filterParentEntities'
 
 export const SelectionState = defineState({
