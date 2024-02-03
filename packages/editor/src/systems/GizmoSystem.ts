@@ -38,15 +38,15 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { useHookstate, useState } from '@hookstate/core'
 import { useEffect } from 'react'
 import { Object3D } from 'three'
-import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
+import { TransformGizmoControlledComponent } from '../classes/TransformGizmoComponent'
 import { SelectionState } from '../services/SelectionServices'
 
-const gizmoQuery = defineQuery([TransformGizmoComponent])
+const gizmoQuery = defineQuery([TransformGizmoControlledComponent])
 
 const execute = () => {
   for (const entity of gizmoQuery()) {
-    const gizmo = getComponent(entity, TransformGizmoComponent)
-    gizmo.updateMatrixWorld()
+    const gizmo = getComponent(entity, TransformGizmoControlledComponent)
+    //gizmo.updateMatrixWorld()
   }
 }
 
@@ -60,8 +60,8 @@ const reactor = () => {
     if (!selectedEntities.value) return
     const pivotEntityName = 'pivotEntity'
     for (const entity of sceneQuery()) {
-      if (!hasComponent(entity, TransformGizmoComponent)) continue
-      removeComponent(entity, TransformGizmoComponent)
+      if (!hasComponent(entity, TransformGizmoControlledComponent)) continue
+      removeComponent(entity, TransformGizmoControlledComponent)
     }
 
     if (selectedEntities.length > 1 && pivotEntity.value === UndefinedEntity) {
@@ -73,12 +73,12 @@ const reactor = () => {
         parentEntity: SceneState.getRootEntity(getState(SceneState).activeScene!)
       })
       addObjectToGroup(pivotEntity.value, pivotProxy)
-      setComponent(pivotEntity.value, TransformGizmoComponent)
+      setComponent(pivotEntity.value, TransformGizmoControlledComponent)
     } else {
       const lastSelection = selectedEntities[selectedEntities.length - 1].value
       if (!lastSelection) return
       if (!sceneQuery().includes(lastSelection)) return
-      setComponent(lastSelection, TransformGizmoComponent)
+      setComponent(lastSelection, TransformGizmoControlledComponent)
       if (pivotEntity.value !== UndefinedEntity) {
         removeEntity(pivotEntity.value)
 

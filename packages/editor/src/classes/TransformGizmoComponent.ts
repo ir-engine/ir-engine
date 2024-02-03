@@ -23,81 +23,51 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { TransformControls } from '@etherealengine/engine/src/scene/classes/TransformGizmo'
 
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { SnapMode, TransformPivot } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { useEffect } from 'react'
-import { Box3, Euler, Vector3 } from 'three'
-import { degToRad } from 'three/src/math/MathUtils'
-import { EditorControlFunctions } from '../functions/EditorControlFunctions'
-import { EditorHelperState } from '../services/EditorHelperState'
-import { SelectionState } from '../services/SelectionServices'
-import { ObjectGridSnapState } from '../systems/ObjectGridSnapSystem'
+import { TransformGizmoControlComponent } from './TransformGizmoControlComponent'
+import { TransformGizmoVisualComponent } from './TransformGizmoVisualComponent'
 
-export const TransformGizmoComponent = defineComponent({
-  name: 'TransformGizmo',
+export const TransformGizmoControlledComponent = defineComponent({
+  name: 'TransformGizmoControlled',
 
   onInit(entity) {
-    const control = new TransformControls()
-    return control
+    return null
   },
-  onRemove: (entity, component) => {
-    component.value.detach()
-    component.value.dispose()
-  },
+  onRemove: (entity, component) => {},
   reactor: function (props) {
     const entity = useEntityContext()
-    const gizmoComponent = useComponent(entity, TransformGizmoComponent)
-    const editorHelperState = useHookstate(getMutableState(EditorHelperState))
-    const query = defineQuery([SceneObjectComponent]) // hardcoded for now until we can make it dynamic
-    const selectionState = useHookstate(getMutableState(SelectionState))
-    const gizmoEntity = createEntity()
-    const box = new Box3()
-    const transformComponent = useComponent(entity, TransformComponent)
-
+    const gizmoControlEntity = createEntity()
+    const gizmoVisualEntity = createEntity()
+    const gizmoPlaneEntity = createEntity()
     useEffect(() => {
-      // create dummy object to attach gizmo to, we can only attach to three js objects
-
-      gizmoComponent.value.addEventListener('mouseUp', (event) => {
-        EditorControlFunctions.positionObject([entity], [transformComponent.value.position])
-        EditorControlFunctions.rotateObject(
-          [entity],
-          [new Euler().setFromQuaternion(transformComponent.value.rotation)]
-        )
-        EditorControlFunctions.scaleObject([entity], [transformComponent.value.scale], true)
-        //check for snap modes
-        if (!getState(ObjectGridSnapState).enabled) {
-          EditorControlFunctions.commitTransformSave([entity])
-        } else {
-          getMutableState(ObjectGridSnapState).apply.set(true)
-        }
+      setComponent(gizmoControlEntity, NameComponent, 'gizmoEntity')
+      setComponent(gizmoControlEntity, VisibleComponent)
+      setComponent(gizmoControlEntity, TransformGizmoControlComponent, {
+        controlledEntity: entity,
+        visualEntity: gizmoVisualEntity,
+        planeEntity: gizmoPlaneEntity
       })
 
-      // create dummy Entity for gizmo helper
-      setComponent(gizmoEntity, NameComponent, 'gizmoEntity')
-      setComponent(gizmoEntity, VisibleComponent)
-      addObjectToGroup(gizmoEntity, gizmoComponent.value) // adding object calls attach internally on the gizmo, so attch entity last
+      setComponent(gizmoVisualEntity, NameComponent, 'gizmoVisualEntity')
+      setComponent(gizmoVisualEntity, TransformGizmoVisualComponent)
+      setComponent(gizmoVisualEntity, VisibleComponent)
 
-      gizmoComponent.value.attach(entity)
+      setComponent(gizmoPlaneEntity, NameComponent, 'gizmoPlaneEntity')
+      setComponent(gizmoPlaneEntity, VisibleComponent)
 
       return () => {
-        removeEntity(gizmoEntity)
+        removeComponent(gizmoVisualEntity, TransformGizmoVisualComponent)
+        removeEntity(gizmoControlEntity)
+        removeEntity(gizmoVisualEntity)
+        removeEntity(gizmoPlaneEntity)
       }
     }, [])
-
-    useEffect(() => {
-      const mode = editorHelperState.transformMode.value
-      gizmoComponent.value.setMode(mode)
-    }, [editorHelperState.transformMode])
-
+    /*
     useEffect(() => {
       const mode = editorHelperState.transformMode.value
       gizmoComponent.value.setMode(mode)
@@ -175,7 +145,7 @@ export const TransformGizmoComponent = defineComponent({
         editorHelperState.gridSnap.value === SnapMode.Grid ? editorHelperState.scaleSnap.value : null
       )
     }, [editorHelperState.scaleSnap])
-
+    */
     return null
   }
 })
