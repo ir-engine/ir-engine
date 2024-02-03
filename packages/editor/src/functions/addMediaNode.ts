@@ -40,6 +40,7 @@ import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetL
 import { SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
 import {
   getMaterialSource,
+  materialFromId,
   materialIsRegistered,
   registerMaterial,
   registerMaterialInstance,
@@ -94,13 +95,13 @@ export async function addMediaNode(
       const intersected = pointerScreenRaycaster.intersectObjects(sceneObjects)[0]
       const gltfLoader = getState(AssetLoaderState).gltfLoader
       gltfLoader.load(url, (gltf) => {
-        const material = iterateObject3D(
+        let material = iterateObject3D(
           gltf.scene,
           (mesh: Mesh) => mesh.material as Material,
           (mesh: Mesh) => mesh?.isMesh
         )[0]
         if (!material) return
-        unregisterMaterial(material)
+        if (materialIsRegistered(material)) material = materialFromId(material.uuid).material
         const cacheKey = MathUtils.generateUUID()
         material.customProgramCacheKey = () => cacheKey
         iterateObject3D(intersected.object, (mesh: Mesh) => {

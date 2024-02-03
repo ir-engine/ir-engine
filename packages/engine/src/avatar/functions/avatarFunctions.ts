@@ -94,7 +94,6 @@ export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
       scene: model.scene,
       meta: { name: model.scene.children[0].name } as VRM1Meta
     })
-    scene.add(vrm.humanoid.normalizedHumanBonesRoot)
     if (!vrm.userData) vrm.userData = {}
     return vrm
   }
@@ -205,7 +204,7 @@ export const retargetAvatarAnimations = (entity: Entity) => {
   }
   setComponent(entity, AnimationComponent, {
     animations: animations,
-    mixer: new AnimationMixer(rigComponent.normalizedRig.hips.node)
+    mixer: new AnimationMixer(rigComponent.vrm.humanoid.normalizedHumanBonesRoot)
   })
 }
 
