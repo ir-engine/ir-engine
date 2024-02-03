@@ -340,15 +340,18 @@ export const drawPoseToCanvas = (
   canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
   canvasCtxRef.current.globalCompositeOperation = 'source-over'
 
+  const lineWidth = canvasRef.current.width * 0.004
+  const radius = canvasRef.current.width * 0.002
+
   // Pose Connections
   drawConnectors(canvasCtxRef.current, poseLandmarks, POSE_CONNECTIONS, {
     color: '#fff',
-    lineWidth: 4
+    lineWidth: lineWidth
   })
   // Pose Landmarks
   drawLandmarks(canvasCtxRef.current, poseLandmarks, {
     color: '#fff',
-    radius: 2
+    radius: radius
   })
 
   // // Left Hand Connections
