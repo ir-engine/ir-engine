@@ -23,12 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, getComponent, setComponent, useOptionalComponent } from '@etherealengine/ecs'
+import { Entity, getComponent, getOptionalComponent, hasComponent, setComponent } from '@etherealengine/ecs'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import {
   findAncestorWithComponent,
   iterateEntityNode
@@ -44,22 +45,21 @@ const OldShapeTypes = {
   TriMesh: 'mesh'
 }
 
-const convert = (entity: Entity) => {
+const convert = (entity: Entity, hierarchy: boolean) => {
   const groupComponent = getComponent(entity, GroupComponent)
   const objWithMetadata = groupComponent.find(
     (obj) => !!obj.userData['xrengine.collider'] || !!obj.userData['xrengine.collider.bodyType']
   )!
 
+  const rigidbodyType = objWithMetadata?.userData?.['xrengine.collider.bodyType'] ?? 'static'
   const modelEntity = findAncestorWithComponent(entity, ModelComponent)!
   setComponent(modelEntity, RigidBodyComponent, {
-    type: objWithMetadata?.userData?.['xrengine.collider.bodyType'] ?? 'static'
+    type: rigidbodyType
   })
-
-  console.log(objWithMetadata, groupComponent)
 
   if (objWithMetadata) {
     delete objWithMetadata.userData['xrengine.collider.bodyType']
-    delete objWithMetadata.userData['xrengine.entity']
+    objWithMetadata.userData[`xrengine.${RigidBodyComponent.jsonID}.shape`] = rigidbodyType
   }
 
   iterateEntityNode(entity, (child) => {
@@ -71,40 +71,57 @@ const convert = (entity: Entity) => {
         !!obj.userData['shapeType'] ||
         !!obj.userData['isTrigger']
     )
-    console.log(childWithMetadata, getComponent(child, GroupComponent))
-    if (!childWithMetadata) return
+    if (!childWithMetadata && !hierarchy) return
+
+    const mesh = getOptionalComponent(child, MeshComponent)
+    if (!mesh) return
 
     const shape =
       OldShapeTypes[
-        childWithMetadata.userData['type'] ??
-          childWithMetadata.userData['xrengine.collider.type'] ??
-          childWithMetadata.userData['xrengine.collider.shapeType'] ??
-          childWithMetadata.userData['shapeType']
+        mesh.userData['xrengine.collider.type'] ??
+          mesh.userData['xrengine.collider.shapeType'] ??
+          mesh.userData['shapeType'] ??
+          mesh.userData['type']
       ] ?? 'box'
-    delete childWithMetadata.userData['type']
-    delete childWithMetadata.userData['shapeType']
+    delete mesh.userData['type']
+    delete mesh.userData['shapeType']
+
+    mesh.userData[`xrengine.${ColliderComponent.jsonID}.shape`] = shape
     setComponent(child, ColliderComponent, { shape })
 
-    const isTrigger = childWithMetadata.userData['isTrigger'] ?? false
+    const isTrigger = mesh.userData['isTrigger'] ?? false
     if (isTrigger === true || isTrigger === 'true') setComponent(child, TriggerComponent)
-    delete childWithMetadata.userData['isTrigger']
+    delete mesh.userData['isTrigger']
+    mesh.userData[`xrengine.${TriggerComponent.jsonID}`] = true
   })
 }
 
-export const ConvertOldCollider = (props: { entity: Entity }) => {
-  const groupComponent = useOptionalComponent(props.entity, GroupComponent)
-  const hasMetadata = groupComponent?.some(
-    (obj) => !!obj.userData['xrengine.collider'] || !!obj.userData['xrengine.collider.bodyType']
-  )
-  if (!hasMetadata) return <></>
+const detectOldColliders = (entity: Entity) => {
+  let hasOldCollider = false
+  let hasNewCollider = false
+  iterateEntityNode(entity, (child) => {
+    const groupComponent = getComponent(child, GroupComponent)
+    const hasMetadata = groupComponent.some(
+      (obj) => !!obj.userData['xrengine.collider'] || !!obj.userData['xrengine.collider.bodyType']
+    )
+    if (hasMetadata) hasOldCollider = true
+    if (hasComponent(child, ColliderComponent)) hasNewCollider = true
+  })
+  return hasOldCollider && !hasNewCollider
+}
 
+export const ConvertOldCollider = (props: { entity: Entity }) => {
   const modelEntity = findAncestorWithComponent(props.entity, ModelComponent)
   if (!modelEntity) return <></>
+
+  const needsConversion = detectOldColliders(props.entity)
+  if (!needsConversion) return <></>
 
   return (
     <div>
       Old Collider Format Detected
-      <Button onClick={() => convert(props.entity)}>Convert Now</Button>
+      <Button onClick={() => convert(props.entity, false)}>Convert</Button>
+      <Button onClick={() => convert(props.entity, true)}>Convert Hierarchy</Button>
     </div>
   )
 }
