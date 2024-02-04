@@ -68,7 +68,6 @@ import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHoo
 import { throttle } from '@etherealengine/spatial/src/common/functions/FunctionHelpers'
 import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
 import Header from '@etherealengine/ui/src/components/tailwind/Header'
 import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
@@ -281,7 +280,7 @@ const CaptureMode = () => {
   const recordingStatus = getRecordingStatus()
 
   return (
-    <div className="w-full container mx-auto pointer-events-auto max-w-[1024px]">
+    <div className="w-full container mx-auto pointer-events-auto max-w-[1024px] m-4">
       <div className="w-full h-auto px-2">
         <div className="w-full h-auto relative aspect-video overflow-hidden">
           <div className="absolute w-full h-full top-0 left-0 flex items-center bg-black">
@@ -646,10 +645,8 @@ const CaptureDashboard = () => {
 
   return (
     <div className="max-w-[1024px] w-full container mx-auto overflow-hidden">
-      <Drawer settings={<div></div>}>
-        <Header mode={mode} />
-        {mode.value === 'playback' ? <PlaybackMode /> : <CaptureMode />}
-      </Drawer>
+      <Header mode={mode} />
+      {mode.value === 'playback' ? <PlaybackMode /> : <CaptureMode />}
     </div>
   )
 }
