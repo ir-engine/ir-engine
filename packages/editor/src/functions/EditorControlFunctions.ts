@@ -58,7 +58,7 @@ import { SceneObjectComponent } from '@etherealengine/engine/src/scene/component
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/functions/TransformFunctions'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
 import { filterParentEntities } from './filterParentEntities'

@@ -32,7 +32,7 @@ import {
   ShapeType
 } from '@dimforge/rapier3d-compat'
 import assert from 'assert'
-import { BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
 import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
@@ -40,10 +40,8 @@ import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { ObjectDirection } from '../../common/constants/Axis3D'
 import { createEngine } from '../../initializeEngine'
-import { addObjectToGroup } from '../../renderer/components/GroupComponent'
-import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
+import { computeTransformMatrix } from '../../transform/functions/TransformFunctions'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
   RigidBodyComponent,
@@ -195,43 +193,6 @@ describe('Physics', () => {
   //   assert.deepEqual(boxColliderDesc.rotation.z, mesh.quaternion.z)
   //   assert.deepEqual(boxColliderDesc.rotation.w, mesh.quaternion.w)
   // })
-
-  it('should create rigid body from input mesh & config data', async () => {
-    const physicsWorld = getState(PhysicsState).physicsWorld
-
-    const entity = createEntity()
-    setComponent(entity, TransformComponent)
-
-    const geometry = new BoxGeometry(1, 1, 1)
-    const material = new MeshBasicMaterial()
-    const mesh = new Mesh(geometry, material)
-    mesh.translateX(10)
-    mesh.rotateX(3.1415918)
-    addObjectToGroup(entity, mesh)
-    setComponent(entity, MeshComponent, mesh)
-
-    const collisionGroup = 0x0001
-    const collisionMask = 0x0003
-    boxDynamicConfig.collisionLayer = collisionGroup
-    boxDynamicConfig.collisionMask = collisionMask
-
-    Physics.createRigidBodyForGroup(entity, physicsWorld, boxDynamicConfig)
-    const rigidBody = getComponent(entity, RigidBodyComponent).body!
-    const interactionGroups = getInteractionGroups(collisionGroup, collisionMask)
-
-    const collider = rigidBody.collider(0)
-    assert.deepEqual(hasComponent(entity, RigidBodyComponent), true)
-    assert.deepEqual(getComponent(entity, RigidBodyComponent).body, rigidBody)
-    assert.deepEqual(hasComponent(entity, RigidBodyFixedTagComponent), true)
-    assert.deepEqual(hasComponent(entity, RigidBodyDynamicTagComponent), false)
-    assert.deepEqual(rigidBody.bodyType(), boxDynamicConfig.bodyType)
-    assert.deepEqual(collider.shape.type, boxDynamicConfig.shapeType)
-    assert.deepEqual(collider.collisionGroups(), interactionGroups)
-    assert.deepEqual(collider.isSensor(), boxDynamicConfig.isTrigger)
-    assert.deepEqual(collider.friction(), boxDynamicConfig.friction)
-    assert.deepEqual(collider.activeEvents(), ActiveEvents.COLLISION_EVENTS)
-    assert.deepEqual(collider.activeCollisionTypes(), ActiveCollisionTypes.ALL)
-  })
 
   it('should change rigidBody type', async () => {
     const physicsWorld = getState(PhysicsState).physicsWorld

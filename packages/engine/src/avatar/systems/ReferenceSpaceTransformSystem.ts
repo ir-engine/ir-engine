@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/functions/TransformFunctions'
 import { XRCameraUpdateSystem } from '@etherealengine/spatial/src/xr/XRCameraSystem'
 import { moveAvatar, updateLocalAvatarRotation } from '../functions/moveAvatar'
 

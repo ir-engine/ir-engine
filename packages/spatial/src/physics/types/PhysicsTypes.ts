@@ -118,3 +118,11 @@ export type ColliderOptions = {
   collisionLayer: CollisionGroups
   collisionMask: CollisionGroups
 }
+
+export const OldShapeTypes = {
+  Cuboid: 'box',
+  Ball: 'sphere',
+  Cylinder: 'cylinder',
+  Capsule: 'capsule',
+  TriMesh: 'mesh'
+}

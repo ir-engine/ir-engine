@@ -28,6 +28,7 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
+import { OldShapeTypes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import {
@@ -36,14 +37,6 @@ import {
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import React from 'react'
 import { Button } from '../inputs/Button'
-
-const OldShapeTypes = {
-  Cuboid: 'box',
-  Ball: 'sphere',
-  Cylinder: 'cylinder',
-  Capsule: 'capsule',
-  TriMesh: 'mesh'
-}
 
 const convert = (entity: Entity, hierarchy: boolean) => {
   const groupComponent = getComponent(entity, GroupComponent)

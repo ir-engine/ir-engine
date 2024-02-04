@@ -39,7 +39,7 @@ import {
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/functions/TransformFunctions'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'

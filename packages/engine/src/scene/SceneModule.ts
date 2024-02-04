@@ -70,7 +70,6 @@ import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
 import { SceneObjectDynamicLoadSystem } from './systems/SceneObjectDynamicLoadSystem'
 import { SceneObjectSystem } from './systems/SceneObjectSystem'
 import { ShadowSystem } from './systems/ShadowSystem'
-import { TriggerSystem } from './systems/TriggerSystem'
 import { VariantSystem } from './systems/VariantSystem'
 
 /** This const MUST be kept here, to ensure all components definitions are loaded by the time the scene loading occurs */
@@ -127,6 +126,5 @@ export {
   SceneObjectSystem,
   SDFSystem,
   ShadowSystem,
-  TriggerSystem,
   VariantSystem
 }

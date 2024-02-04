@@ -39,7 +39,16 @@ import {
   TempContactForceEvent,
   World
 } from '@dimforge/rapier3d-compat'
-import { BufferAttribute, Matrix4, OrthographicCamera, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
+import {
+  BufferAttribute,
+  Matrix4,
+  Mesh,
+  OrthographicCamera,
+  PerspectiveCamera,
+  Quaternion,
+  Vector2,
+  Vector3
+} from 'three'
 
 import {
   getComponent,
@@ -50,8 +59,9 @@ import {
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { V_000 } from '../../common/constants/MathConstants'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
+import { iterateEntityNode } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
+import { computeTransformMatrix } from '../../transform/functions/TransformFunctions'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
   RigidBodyComponent,
@@ -59,12 +69,14 @@ import {
   RigidBodyKinematicVelocityBasedTagComponent,
   getTagComponentForRigidBody
 } from '../components/RigidBodyComponent'
+import { TriggerComponent } from '../components/TriggerComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 import {
   ColliderDescOptions,
   ColliderOptions,
   CollisionEvents,
+  OldShapeTypes,
   RaycastHit,
   SceneQueryType
 } from '../types/PhysicsTypes'
@@ -271,6 +283,60 @@ function createColliderDesc(entity: Entity, rootEntity: Entity, colliderDescOpti
   )
 
   return colliderDesc
+}
+
+/** @deprecated */
+function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptions: ColliderDescOptions) {
+  const colliderDescs = [] as ColliderDesc[]
+  const meshesToRemove = [] as Mesh[]
+
+  iterateEntityNode(entity, (child) => {
+    const mesh = getOptionalComponent(child, MeshComponent)
+    if (!mesh) return // || ((mesh?.geometry.attributes['position'] as BufferAttribute).array.length ?? 0 === 0)) return
+    if (mesh.userData.type && mesh.userData.type !== ('glb' as any)) mesh.userData.shapeType = mesh.userData.type
+
+    const args = {
+      ...colliderDescOptions,
+      shape: colliderDescOptions.shapeType ? OldShapeTypes[colliderDescOptions.shapeType] : undefined,
+      ...mesh.userData
+    } as ColliderOptions & ColliderDescOptions
+    if (args.isTrigger) setComponent(child, TriggerComponent)
+    const colliderDesc = createColliderDesc(child, entity, args)
+
+    if (colliderDesc) {
+      meshesToRemove.push(mesh)
+      colliderDescs.push(colliderDesc)
+    }
+  })
+
+  const rigidBodyType =
+    typeof colliderDescOptions.bodyType === 'string'
+      ? RigidBodyType[colliderDescOptions.bodyType]
+      : colliderDescOptions.bodyType
+
+  let rigidBodyDesc: RigidBodyDesc = undefined!
+  switch (rigidBodyType) {
+    case RigidBodyType.Dynamic:
+    default:
+      rigidBodyDesc = RigidBodyDesc.dynamic()
+      break
+
+    case RigidBodyType.Fixed:
+      rigidBodyDesc = RigidBodyDesc.fixed()
+      break
+
+    case RigidBodyType.KinematicPositionBased:
+      rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
+      break
+
+    case RigidBodyType.KinematicVelocityBased:
+      rigidBodyDesc = RigidBodyDesc.kinematicVelocityBased()
+      break
+  }
+
+  Physics.createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
+
+  return meshesToRemove
 }
 
 function createColliderAndAttachToRigidBody(world: World, colliderDesc: ColliderDesc, rigidBody: RigidBody): Collider {
@@ -500,6 +566,7 @@ export const Physics = {
   createRigidBody,
   createColliderDesc,
   applyDescToCollider,
+  createRigidBodyForGroup,
   createCharacterController,
   createColliderAndAttachToRigidBody,
   removeCollidersFromRigidBody,

@@ -49,7 +49,7 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/functions/TransformFunctions'
 import { useEffect } from 'react'
 import {
   Box3,
