@@ -34,7 +34,7 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
-import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/functions/TransformFunctions'
+import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { previewScreenshot } from '../../functions/takeScreenshot'
 import { PropertiesPanelButton } from '../inputs/Button'

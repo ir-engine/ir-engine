@@ -53,8 +53,7 @@ import {
   DistanceFromLocalClientComponent,
   FrustumCullCameraComponent
 } from '../components/DistanceComponents'
-import { TransformComponent } from '../components/TransformComponent'
-import { computeTransformMatrix } from '../functions/TransformFunctions'
+import { TransformComponent, composeMatrix } from '../components/TransformComponent'
 
 const transformQuery = defineQuery([TransformComponent])
 const groupQuery = defineQuery([GroupComponent, VisibleComponent])
@@ -70,6 +69,26 @@ declare module 'three/src/core/Object3D' {
   export interface Object3D {
     readonly isProxified: true | undefined
   }
+}
+
+export const computeTransformMatrix = (entity: Entity) => {
+  const transform = getComponent(entity, TransformComponent)
+  updateTransformFromComputedTransform(entity)
+  composeMatrix(entity)
+  const entityTree = getOptionalComponent(entity, EntityTreeComponent)
+  const parentEntity = entityTree?.parentEntity
+  if (parentEntity) {
+    const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
+    if (parentTransform) transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
+  } else {
+    transform.matrixWorld.copy(transform.matrix)
+  }
+}
+
+const updateTransformFromComputedTransform = (entity: Entity) => {
+  const computedTransform = getOptionalComponent(entity, ComputedTransformComponent)
+  if (!computedTransform) return
+  computedTransform.computeFunction(entity, computedTransform.referenceEntity)
 }
 
 export const updateGroupChildren = (entity: Entity) => {

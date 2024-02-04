@@ -51,8 +51,10 @@ import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsS
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/functions/TransformFunctions'
-import { updateGroupChildren } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+import {
+  computeTransformMatrix,
+  updateGroupChildren
+} from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import matches from 'ts-matches'
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'

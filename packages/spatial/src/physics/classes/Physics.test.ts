@@ -41,7 +41,7 @@ import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { ObjectDirection } from '../../common/constants/Axis3D'
 import { createEngine } from '../../initializeEngine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { computeTransformMatrix } from '../../transform/functions/TransformFunctions'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
   RigidBodyComponent,

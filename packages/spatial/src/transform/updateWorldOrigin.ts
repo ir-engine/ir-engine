@@ -29,7 +29,7 @@ import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { ReferenceSpace, XRState } from '../xr/XRState'
 import { TransformComponent } from './components/TransformComponent'
-import { computeTransformMatrix } from './functions/TransformFunctions'
+import { computeTransformMatrix } from './systems/TransformSystem'
 
 // TODO: only update the world origin in one place; move logic for moving based on viewer hit into the function above
 export const updateWorldOriginFromScenePlacement = () => {
