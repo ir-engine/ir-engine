@@ -295,11 +295,8 @@ function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptio
     if (!mesh) return // || ((mesh?.geometry.attributes['position'] as BufferAttribute).array.length ?? 0 === 0)) return
     if (mesh.userData.type && mesh.userData.type !== ('glb' as any)) mesh.userData.shapeType = mesh.userData.type
 
-    const args = {
-      ...colliderDescOptions,
-      shape: colliderDescOptions.shapeType ? OldShapeTypes[colliderDescOptions.shapeType] : undefined,
-      ...mesh.userData
-    } as ColliderOptions & ColliderDescOptions
+    const args = { ...colliderDescOptions, ...mesh.userData } as ColliderOptions & ColliderDescOptions
+    if (args.shapeType) args.shape = OldShapeTypes[args.shapeType]
     if (args.isTrigger) setComponent(child, TriggerComponent)
     const colliderDesc = createColliderDesc(child, entity, args)
 

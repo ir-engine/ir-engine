@@ -33,7 +33,6 @@ import { ColliderComponent as OldColliderComponent } from '../components/Collide
 
 /**
  * Converts old ColliderComponent to RigidbodyComponent, new ColliderComponent and TriggerComponent
- * - ModelComponent handles making children components
  */
 export const migrateOldColliders = (oldJSON: EntityJsonType) => {
   const newComponents = [] as ComponentJsonType[]

@@ -124,5 +124,10 @@ export const OldShapeTypes = {
   Ball: 'sphere',
   Cylinder: 'cylinder',
   Capsule: 'capsule',
-  TriMesh: 'mesh'
+  TriMesh: 'mesh',
+  [1]: 'box',
+  [0]: 'sphere',
+  [10]: 'cylinder',
+  [2]: 'capsule',
+  [6]: 'mesh'
 }

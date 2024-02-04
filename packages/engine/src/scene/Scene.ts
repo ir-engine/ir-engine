@@ -137,10 +137,11 @@ export const SceneState = defineState({
     const metadata: SceneMetadataType = sceneData
     const data: SceneJsonType = sceneData.scene
 
-    /** migrate collider components */
-    for (const [uuid, entityJson] of Object.entries(data.entities)) {
-      migrateOldColliders(entityJson)
-    }
+    /** migrate collider components only for the 'active scene' */
+    if (getState(SceneState).activeScene === sceneID)
+      for (const [uuid, entityJson] of Object.entries(data.entities)) {
+        migrateOldColliders(entityJson)
+      }
 
     getMutableState(SceneState).scenes[sceneID].set({
       metadata,
@@ -241,8 +242,8 @@ export const SceneServices = {
       .service(scenePath)
       .get(null, { query: { sceneKey: sceneID } })
       .then((sceneData) => {
-        SceneState.loadScene(sceneID, sceneData)
         getMutableState(SceneState).activeScene.set(sceneID)
+        SceneState.loadScene(sceneID, sceneData)
       })
 
     return () => {
