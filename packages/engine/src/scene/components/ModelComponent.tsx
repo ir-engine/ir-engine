@@ -186,7 +186,7 @@ function ModelReactor(): JSX.Element {
         if (boneMatchedAsset instanceof VRM)
           setComponent(entity, AnimationComponent, {
             animations: loadedAsset.animations,
-            mixer: new AnimationMixer(boneMatchedAsset.humanoid.normalizedHumanBones.hips.node)
+            mixer: new AnimationMixer(boneMatchedAsset.humanoid.normalizedHumanBonesRoot)
           })
         modelComponent.asset.set(boneMatchedAsset)
       },
