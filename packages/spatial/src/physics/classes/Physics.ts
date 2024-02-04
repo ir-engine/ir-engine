@@ -182,11 +182,11 @@ function createColliderDesc(entity: Entity, rootEntity: Entity, colliderDescOpti
 
   //check for old collider types to allow backwards compatibility
   if (typeof shape === 'undefined') {
-    switch (colliderDescOptions.shape as unknown as string) {
+    switch (colliderDescOptions.shape) {
       case 'box':
         shape = ShapeType.Cuboid
         break
-      case 'trimesh':
+      case 'mesh':
         shape = ShapeType.TriMesh
         break
       case 'capsule':

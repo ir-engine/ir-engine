@@ -30,11 +30,16 @@ import { ColliderComponent } from '@etherealengine/spatial/src/physics/component
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { ColliderComponent as OldColliderComponent } from '../components/ColliderComponent'
+import { ModelComponent } from '../components/ModelComponent'
 
 /**
  * Converts old ColliderComponent to RigidbodyComponent, new ColliderComponent and TriggerComponent
  */
 export const migrateOldColliders = (oldJSON: EntityJsonType) => {
+  /** models need to be manually converted in the studio */
+  const hasModel = Object.values(oldJSON.components).some((comp) => comp.name === ModelComponent.jsonID)
+  if (hasModel) return
+
   const newComponents = [] as ComponentJsonType[]
   for (const component of oldJSON.components) {
     if (component.name !== OldColliderComponent.jsonID) continue
