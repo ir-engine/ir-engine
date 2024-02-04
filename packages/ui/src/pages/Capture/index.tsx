@@ -298,7 +298,7 @@ const CaptureMode = () => {
               if (mediaNetworkState?.connected?.value) toggleWebcamPaused()
             }}
           >
-            <a>{!videoStream.value ? 'ENABLE VIDEO' : ''}</a>
+            <a>{!videoStream.value ? 'CLICK TO ENABLE VIDEO' : ''}</a>
           </Button>
         </div>
       </div>
