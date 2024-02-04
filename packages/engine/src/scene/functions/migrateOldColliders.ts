@@ -58,7 +58,7 @@ export const migrateOldColliders = (oldJSON: EntityJsonType) => {
             : 'kinematic'
       }
     })
-    if (data.shapeType)
+    if (typeof data.shapeType === 'number')
       newComponents.push({
         name: ColliderComponent.jsonID,
         props: {

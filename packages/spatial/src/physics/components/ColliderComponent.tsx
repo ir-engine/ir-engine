@@ -104,6 +104,9 @@ function ColliderComponentReactor() {
 
   useEffect(() => {
     let parentRigidbodyEntity = UndefinedEntity
+    if (hasComponent(entity, RigidBodyComponent)) {
+      parentRigidbodyEntity = entity
+    }
     traverseEntityNodeParent(entity, (parentEntity) => {
       if (hasComponent(parentEntity, RigidBodyComponent)) {
         parentRigidbodyEntity = parentEntity
@@ -140,7 +143,7 @@ function ColliderComponentRigidbodyReactor(props: { entity: Entity; rigidbodyEnt
     return () => {
       physicsWorld.removeCollider(colliderDesc, false)
     }
-  }, [rigidbodyComponent])
+  }, [rigidbodyComponent.body])
 
   return null
 }

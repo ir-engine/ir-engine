@@ -46,6 +46,7 @@ import {
   ComponentType,
   defineComponent,
   getComponent,
+  hasComponent,
   setComponent,
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -133,13 +134,6 @@ export const PortalComponent = defineComponent({
           new Quaternion().setFromEuler(new Euler().setFromVector3(json.spawnRotation as any))
         )
     }
-
-    // if (
-    //   !getState(SceneState).sceneLoaded &&
-    //   hasComponent(entity, SceneObjectComponent) &&
-    //   !hasComponent(entity, RigidBodyComponent)
-    // )
-    //   setComponent(entity, SceneAssetPendingTagComponent)
   },
 
   toJSON: (entity, component) => {
@@ -176,6 +170,9 @@ export const PortalComponent = defineComponent({
         if (activePortalEntity || lastPortalTimeout + portalTimeoutDuration > now) return
         getMutableState(PortalState).activePortalEntity.set(entity)
       })
+
+      /** Allow scene data populating rigidbody component too */
+      if (hasComponent(entity, RigidBodyComponent)) return
       setComponent(entity, RigidBodyComponent, {
         type: 'fixed',
         body: Physics.createRigidBody(entity, getState(PhysicsState).physicsWorld, RigidBodyDesc.fixed())
