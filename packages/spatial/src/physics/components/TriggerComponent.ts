@@ -25,6 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { defineComponent } from '@etherealengine/ecs'
+import { NO_PROXY } from '@etherealengine/hyperflux'
+import matches from 'ts-matches'
 
 export const TriggerComponent = defineComponent({
   name: 'TriggerComponent',
@@ -46,6 +48,38 @@ export const TriggerComponent = defineComponent({
          */
         target: null | EntityUUID
       }>
+    }
+  },
+
+  onSet(entity, component, json) {
+    if (!json) return
+
+    // backwards compatibility
+    const onEnter = (json as any).onEnter ?? null
+    const onExit = (json as any).onExit ?? null
+    const target = (json as any).target ?? null
+    if (!!onEnter || !!onExit || !!target) {
+      component.triggers.set([{ onEnter, onExit, target }])
+    } else if (typeof json.triggers === 'object') {
+      if (
+        matches
+          .arrayOf(
+            matches.shape({
+              onEnter: matches.nill.orParser(matches.string),
+              onExit: matches.nill.orParser(matches.string),
+              target: matches.nill.orParser(matches.string)
+            })
+          )
+          .test(json.triggers)
+      ) {
+        component.triggers.set(json.triggers)
+      }
+    }
+  },
+
+  toJSON(entity, component) {
+    return {
+      triggers: component.triggers.get(NO_PROXY)
     }
   }
 })

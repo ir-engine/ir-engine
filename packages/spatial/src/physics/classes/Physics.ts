@@ -53,6 +53,7 @@ import {
 import {
   getComponent,
   getOptionalComponent,
+  hasComponent,
   removeComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -277,7 +278,10 @@ function createColliderDesc(entity: Entity, rootEntity: Entity, colliderDescOpti
 
   Physics.applyDescToCollider(
     colliderDesc,
-    colliderDescOptions,
+    {
+      ...colliderDescOptions,
+      isTrigger: hasComponent(entity, TriggerComponent)
+    },
     positionRelativeToRoot.multiply(worldScale),
     quaternionRelativeToRoot
   )

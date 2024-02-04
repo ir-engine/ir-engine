@@ -71,7 +71,7 @@ export const migrateOldColliders = (oldJSON: EntityJsonType) => {
     if (data.isTrigger) {
       newComponents.push({
         name: TriggerComponent.jsonID,
-        props: data.triggers
+        props: { triggers: data.triggers }
       })
     }
   }
