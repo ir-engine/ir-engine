@@ -40,8 +40,8 @@ import { XRSystem } from './XRSystem'
 declare global {
   interface XRFrame {
     /** WebXR implements detectedPlanes on the XRFrame, but the current typescript implementation has it on worldInformation */
-    detectedPlanes?: XRPlaneSet
-    detectedMeshes?: XRMeshSet
+    detectedPlanes: XRPlaneSet
+    detectedMeshes: XRMeshSet
   }
 
   interface XRPlane {
