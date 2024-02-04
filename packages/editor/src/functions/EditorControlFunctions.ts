@@ -355,7 +355,7 @@ const positionObject = (
 
     if (hasComponent(entity, RigidBodyComponent)) {
       getComponent(entity, RigidBodyComponent).position.copy(transform.position)
-      getComponent(entity, RigidBodyComponent).body.setTranslation(transform.position, true)
+      getComponent(entity, RigidBodyComponent).body?.setTranslation(transform.position, true)
     }
   }
 }
@@ -392,7 +392,7 @@ const rotateObject = (nodes: Entity[], rotations: Euler[], space = getState(Edit
 
     if (hasComponent(entity, RigidBodyComponent)) {
       getComponent(entity, RigidBodyComponent).rotation.copy(transform.rotation)
-      getComponent(entity, RigidBodyComponent).body.setRotation(transform.rotation, true)
+      getComponent(entity, RigidBodyComponent).body?.setRotation(transform.rotation, true)
     }
   }
 }
@@ -423,7 +423,7 @@ const rotateAround = (entities: Entity[], axis: Vector3, angle: number, pivot: V
 
     if (hasComponent(entity, RigidBodyComponent)) {
       getComponent(entity, RigidBodyComponent).rotation.copy(transform.rotation)
-      getComponent(entity, RigidBodyComponent).body.setRotation(transform.rotation, true)
+      getComponent(entity, RigidBodyComponent).body?.setRotation(transform.rotation, true)
     }
   }
 }

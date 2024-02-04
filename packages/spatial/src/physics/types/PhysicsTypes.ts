@@ -90,21 +90,21 @@ export type ColliderDescOptions = {
 }
 
 export const BodyTypes = {
-  Fixed: 'fixed',
-  Dynamic: 'dynamic',
-  Kinematic: 'kinematic'
+  Fixed: 'fixed' as const,
+  Dynamic: 'dynamic' as const,
+  Kinematic: 'kinematic' as const
 }
 
 export type Body = (typeof BodyTypes)[keyof typeof BodyTypes]
 
 export const Shapes = {
-  Sphere: 'sphere',
-  Capsule: 'capsule',
-  Cylinder: 'cylinder',
-  Box: 'box',
-  ConvexHull: 'convex_hull',
-  Mesh: 'mesh',
-  Heightfield: 'heightfield'
+  Sphere: 'sphere' as const,
+  Capsule: 'capsule' as const,
+  Cylinder: 'cylinder' as const,
+  Box: 'box' as const,
+  ConvexHull: 'convex_hull' as const,
+  Mesh: 'mesh' as const,
+  Heightfield: 'heightfield' as const
 }
 
 export type Shape = (typeof Shapes)[keyof typeof Shapes]

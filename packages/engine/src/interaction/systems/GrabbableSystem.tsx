@@ -213,8 +213,8 @@ export function grabbableQueryAll(grabbableEntity: Entity) {
   if (rigidbodyComponent) {
     rigidbodyComponent.targetKinematicPosition.copy(target.position)
     rigidbodyComponent.targetKinematicRotation.copy(target.rotation)
-    rigidbodyComponent.body.setTranslation(target.position, true)
-    rigidbodyComponent.body.setRotation(target.rotation, true)
+    rigidbodyComponent.body?.setTranslation(target.position, true)
+    rigidbodyComponent.body?.setRotation(target.rotation, true)
   }
 
   const grabbableTransform = getComponent(grabbableEntity, TransformComponent)

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
+import { RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { useEffect } from 'react'
 import {
   ArrowHelper,
@@ -44,7 +44,6 @@ import { portalPath } from '@etherealengine/common/src/schema.type.module'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   ComponentType,
-  SerializedComponentType,
   defineComponent,
   getComponent,
   setComponent,
@@ -53,11 +52,17 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { V_100 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
+import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import {
@@ -69,8 +74,6 @@ import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/Obj
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { setCallback } from './CallbackComponent'
-import { ColliderComponent } from './ColliderComponent'
 
 export const PortalPreviewTypeSimple = 'Simple' as const
 export const PortalPreviewTypeSpherical = 'Spherical' as const
@@ -81,22 +84,6 @@ PortalPreviewTypes.add(PortalPreviewTypeSpherical)
 
 export const PortalEffects = new Map<string, ComponentType<any>>()
 PortalEffects.set('None', null!)
-
-export const portalColliderValues: SerializedComponentType<typeof ColliderComponent> = {
-  bodyType: RigidBodyType.Fixed,
-  shapeType: ShapeType.Cuboid,
-  isTrigger: true,
-  collisionLayer: CollisionGroups.Trigger,
-  collisionMask: CollisionGroups.Avatars,
-  restitution: 0,
-  triggers: [
-    {
-      onEnter: 'teleport',
-      onExit: null,
-      target: '' as EntityUUID
-    }
-  ]
-}
 
 export const PortalState = defineState({
   name: 'PortalState',
@@ -189,7 +176,24 @@ export const PortalComponent = defineComponent({
         if (activePortalEntity || lastPortalTimeout + portalTimeoutDuration > now) return
         getMutableState(PortalState).activePortalEntity.set(entity)
       })
-      setComponent(entity, ColliderComponent, JSON.parse(JSON.stringify(portalColliderValues)))
+      setComponent(entity, RigidBodyComponent, {
+        type: 'fixed',
+        body: Physics.createRigidBody(entity, getState(PhysicsState).physicsWorld, RigidBodyDesc.fixed())
+      })
+      setComponent(entity, ColliderComponent, {
+        shape: 'box',
+        collisionLayer: CollisionGroups.Trigger,
+        collisionMask: CollisionGroups.Avatars
+      })
+      setComponent(entity, TriggerComponent, {
+        triggers: [
+          {
+            onEnter: 'teleport',
+            onExit: null,
+            target: '' as EntityUUID
+          }
+        ]
+      })
     }, [])
 
     useEffect(() => {

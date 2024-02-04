@@ -384,7 +384,7 @@ export const updateLocalAvatarPosition = (entity: Entity) => {
   rigidbody.previousPosition.copy(rigidbody.targetKinematicPosition)
   rigidbody.position.copy(rigidbody.targetKinematicPosition)
   transform.position.copy(rigidbody.targetKinematicPosition)
-  rigidbody.body.setTranslation(rigidbody.targetKinematicPosition, true)
+  rigidbody.body?.setTranslation(rigidbody.targetKinematicPosition, true)
 }
 
 const viewerQuat = new Quaternion()

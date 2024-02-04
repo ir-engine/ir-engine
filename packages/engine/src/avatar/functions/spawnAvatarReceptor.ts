@@ -137,7 +137,7 @@ export const createAvatarCollider = (entity: Entity): Collider => {
   return Physics.createColliderAndAttachToRigidBody(
     getState(PhysicsState).physicsWorld,
     bodyColliderDesc,
-    rigidBody.body
+    rigidBody.body!
   )
 }
 
