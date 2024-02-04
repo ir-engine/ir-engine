@@ -48,14 +48,17 @@ import {
   CompressedTexture,
   Group,
   InterleavedBufferAttribute,
+  LinearFilter,
   Material,
   Matrix3,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
+  SRGBColorSpace,
   ShaderLib,
   ShaderMaterial,
   SphereGeometry,
+  Texture,
   UniformsLib,
   UniformsUtils,
   Vector2
@@ -306,8 +309,8 @@ export const UVOL2Component = defineComponent({
 
     if (!checkBuffered(component.geometryInfo.buffered, start, end)) return false
 
-    for (const textureType of component.textureInfo.textureTypes)
-      if (!checkBuffered(component.textureInfo[textureType].buffered, start, end)) return false
+    // for (const textureType of component.textureInfo.textureTypes)
+    //   if (!checkBuffered(component.textureInfo[textureType].buffered, start, end)) return false
 
     return true
   },
@@ -428,6 +431,19 @@ function UVOL2Reactor() {
   const audioContext = getState(AudioState).audioContext
   const audio = mediaElement.element
 
+  const video = mediaElement.element as HTMLVideoElement
+  const videoTexture = useMemo(() => {
+    const element = video
+    const texture = new Texture(element)
+    texture.generateMipmaps = false
+    texture.minFilter = LinearFilter
+    texture.magFilter = LinearFilter
+    ;(texture as any).isVideoTexture = true
+    ;(texture as any).update = () => {}
+    // texture.colorSpace = SRGBColorSpace
+    return texture
+  }, [])
+
   const geometryBuffer = useMemo(
     () => new Map<string, (Mesh<BufferGeometry, Material> | BufferGeometry | KeyframeAttribute)[]>(),
     []
@@ -528,6 +544,11 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
     return _material
   }, [])
+  ;(material as ShaderMaterial).uniforms.map.value = videoTexture
+
+  // @ts-ignore
+  ;(material as ShaderMaterial).map = videoTexture
+  ;(material as ShaderMaterial).needsUpdate = true
 
   const defaultGeometry = useMemo(() => new SphereGeometry(3, 32, 32) as BufferGeometry, [])
   const mesh = useMemo(() => new Mesh(defaultGeometry, material), [])
@@ -597,6 +618,12 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       audio.src = resolvePath(sortedManifest.audio.path, component.manifestPath.value, sortedManifest.audio.formats[0])
       audio.playbackRate = sortedManifest.audio.playbackRate
     }
+    video.src = 'https://localhost:8642/projects/default-project/ubx_kimberly_bird_t2_2k_std_30fps.mp4'
+    video.preload = 'auto'
+    video.addEventListener('canplaythrough', () => {
+      component.firstTextureFrameLoaded.set(true)
+      component.initialTextureBuffersLoaded.set(true)
+    })
 
     volumetric.currentTrackInfo.currentTime.set(volumetric.currentTrackInfo.mediaStartTime.value)
     volumetric.currentTrackInfo.duration.set(sortedManifest.duration)
@@ -644,6 +671,10 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   }, [])
 
   const engineState = getState(EngineState)
+
+  useEffect(() => {
+    video.playbackRate = volumetric.currentTrackInfo.playbackRate.value
+  }, [volumetric.currentTrackInfo.playbackRate])
 
   useEffect(() => {
     if (!shadow) return
@@ -1027,9 +1058,9 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
   const bufferLoop = () => {
     fetchGeometry()
-    for (let i = 0; i < component.textureInfo.textureTypes.value.length; i++) {
-      fetchTextures(component.textureInfo.textureTypes[i].value)
-    }
+    // for (let i = 0; i < component.textureInfo.textureTypes.value.length; i++) {
+    //   fetchTextures(component.textureInfo.textureTypes[i].value)
+    // }
   }
 
   useEffect(() => {
@@ -1078,6 +1109,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       // Reset the loading effect's material
       mesh.material = material
       mesh.material.needsUpdate = true
+      video.play()
 
       if (component.hasAudio.value) {
         handleAutoplay(audioContext, audio, volumetric)
@@ -1095,6 +1127,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   useEffect(() => {
     if (volumetric.paused.value) {
       component.canPlay.set(false)
+      video.pause()
       if (component.hasAudio.value) {
         audio.pause()
       }
@@ -1113,6 +1146,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     if (component.hasAudio.value) {
       handleAutoplay(audioContext, audio, volumetric)
     }
+    video.play()
     component.canPlay.set(true)
   }, [volumetric.paused])
 
@@ -1539,35 +1573,35 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       return
     }
 
-    if (volumetric.autoPauseWhenBuffering.value) {
-      let isWaitingNow = false
+    // if (volumetric.autoPauseWhenBuffering.value) {
+    //   let isWaitingNow = false
 
-      if (
-        !UVOL2Component.canPlayThrough(
-          entity,
-          volumetric.currentTrackInfo.currentTime.value,
-          volumetric.currentTrackInfo.currentTime.value + minBufferToPlay
-        )
-      ) {
-        isWaitingNow = true
-      }
+    //   if (
+    //     !UVOL2Component.canPlayThrough(
+    //       entity,
+    //       volumetric.currentTrackInfo.currentTime.value,
+    //       volumetric.currentTrackInfo.currentTime.value + minBufferToPlay
+    //     )
+    //   ) {
+    //     isWaitingNow = true
+    //   }
 
-      if (!isWaiting.current && !isWaitingNow) {
-        // Continue
-      } else if (!isWaiting.current && isWaitingNow) {
-        isWaiting.current = true
-        return
-      } else if (isWaiting.current && !isWaitingNow) {
-        UVOL2Component.setStartAndPlaybackTime(
-          entity,
-          volumetric.currentTrackInfo.currentTime.value,
-          ecsState.elapsedSeconds
-        )
-        isWaiting.current = false
-      } else if (isWaiting.current && isWaitingNow) {
-        return
-      }
-    }
+    //   if (!isWaiting.current && !isWaitingNow) {
+    //     // Continue
+    //   } else if (!isWaiting.current && isWaitingNow) {
+    //     isWaiting.current = true
+    //     return
+    //   } else if (isWaiting.current && !isWaitingNow) {
+    //     UVOL2Component.setStartAndPlaybackTime(
+    //       entity,
+    //       volumetric.currentTrackInfo.currentTime.value,
+    //       ecsState.elapsedSeconds
+    //     )
+    //     isWaiting.current = false
+    //   } else if (isWaiting.current && isWaitingNow) {
+    //     return
+    //   }
+    // }
 
     let _currentTime = -1
     if (component.data.value.audio) {
@@ -1619,7 +1653,33 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
 
     updateGeometry(volumetric.currentTrackInfo.currentTime.value)
-    updateAllTextures(volumetric.currentTrackInfo.currentTime.value)
+    // if (video.currentTime !== volumetric.currentTrackInfo.currentTime.value) {
+    //   video.currentTime = volumetric.currentTrackInfo.currentTime.value
+    //   video.play()
+    // }
+
+    videoTexture.repeat.copy(repeat)
+    videoTexture.offset.copy(offset)
+    videoTexture.updateMatrix()
+    videoTexture.colorSpace = SRGBColorSpace
+    videoTexture.flipY = false
+    // mesh.material.needsUpdate = true
+    videoTexture.needsUpdate = true
+    mesh.material.toneMapped = false
+    ;(mesh.material as ShaderMaterial).uniforms.mapTransform.value.copy(videoTexture.matrix)
+
+    // https://stackoverflow.com/a/6877530/12347371
+    const isPlaying =
+      video.currentTime > 0 && !video.paused && !video.ended && video.readyState > video.HAVE_CURRENT_DATA
+
+    // console.log('LOG: ', {
+    //   volumetricTime: volumetric.currentTrackInfo.currentTime.value,
+    //   videoTime: video.currentTime,
+    //   videoSrc: video.src,
+    //   videoIsPlaying: isPlaying,
+    //   mesh: mesh
+    // })
+    // updateAllTextures(volumetric.currentTrackInfo.currentTime.value)
   }
 
   useExecute(update, {
