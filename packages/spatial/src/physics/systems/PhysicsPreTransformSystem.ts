@@ -39,7 +39,6 @@ import {
 export const teleportRigidbody = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
   const rigidBody = getComponent(entity, RigidBodyComponent)
-  if (!rigidBody.body) return
   const isAwake = !rigidBody.body.isSleeping()
   rigidBody.body.setTranslation(transform.position, isAwake)
   rigidBody.body.setRotation(transform.rotation, isAwake)
@@ -114,7 +113,6 @@ export const copyTransformToRigidBody = (entity: Entity) => {
     RigidBodyComponent.targetKinematicRotation.w[entity] =
       TransformComponent.rotation.w[entity]
   const rigidbody = getComponent(entity, RigidBodyComponent)
-  if (!rigidbody.body) return
   rigidbody.body.setTranslation(rigidbody.position, true)
   rigidbody.body.setRotation(rigidbody.rotation, true)
   rigidbody.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
@@ -130,7 +128,7 @@ const kinematicRigidbodyQuery = defineQuery([
 ])
 
 const filterAwakeCleanRigidbodies = (entity: Entity) =>
-  !getComponent(entity, RigidBodyComponent).body?.isSleeping() && !isDirty(entity)
+  !getComponent(entity, RigidBodyComponent).body.isSleeping() && !isDirty(entity)
 
 export const execute = () => {
   const ecsState = getState(ECSState)

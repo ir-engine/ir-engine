@@ -364,7 +364,7 @@ function createCharacterController(
 }
 
 function removeCollidersFromRigidBody(entity: Entity, world: World) {
-  const rigidBody = getComponent(entity, RigidBodyComponent).body!
+  const rigidBody = getComponent(entity, RigidBodyComponent).body
   const numColliders = rigidBody.numColliders()
   for (let index = 0; index < numColliders; index++) {
     const collider = rigidBody.collider(0)
@@ -377,7 +377,7 @@ function removeRigidBody(entity: Entity, world: World) {
 }
 
 function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {
-  const rigidBody = getComponent(entity, RigidBodyComponent).body!
+  const rigidBody = getComponent(entity, RigidBodyComponent).body
   if (newType === rigidBody.bodyType()) return
   const currentRigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())
 

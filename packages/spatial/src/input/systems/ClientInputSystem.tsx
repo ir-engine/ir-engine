@@ -499,7 +499,7 @@ const execute = () => {
       const sourceRotation = TransformComponent.getWorldRotation(sourceEid, quat)
       inputRaycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceRotation)
       TransformComponent.getWorldPosition(sourceEid, inputRaycast.origin).addScaledVector(inputRaycast.direction, -0.01)
-      inputRaycast.excludeRigidBody = getOptionalComponent(Engine.instance.localClientEntity, RigidBodyComponent)?.body!
+      inputRaycast.excludeRigidBody = getOptionalComponent(Engine.instance.localClientEntity, RigidBodyComponent)?.body
       inputRay.set(inputRaycast.origin, inputRaycast.direction)
 
       // only heuristic is scene objects when in the editor

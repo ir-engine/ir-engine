@@ -44,7 +44,7 @@ import NodeEditor from './NodeEditor'
 import { EditorComponentType, commitProperty } from './Util'
 
 const shapeTypeOptions = Object.entries(Shapes)
-  .filter(([label, value]) => supportedColliderShapes.includes(value))
+  .filter(([label, value]) => supportedColliderShapes.includes(value as any))
   .map(([label, value]) => {
     return { label: camelCaseToSpacedString(label), value }
   })

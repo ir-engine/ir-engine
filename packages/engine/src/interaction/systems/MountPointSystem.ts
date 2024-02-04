@@ -104,7 +104,7 @@ const execute = () => {
     //we use teleport avatar only when rigidbody is not enabled, otherwise translation is called on rigidbody
     const dismountPoint = new Vector3().copy(mountComponent.dismountOffset).applyMatrix4(mountTransform.matrixWorld)
     teleportAvatar(entity, dismountPoint)
-    rigidBody.body?.setEnabled(true)
+    rigidBody.body.setEnabled(true)
     removeComponent(entity, SittingComponent)
   }
 
