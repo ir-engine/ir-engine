@@ -102,6 +102,7 @@ export const updateAnimationGraph = (avatarEntities: Entity[]) => {
         currentAction.value.timeScale = 0
         locomotionBlend.set(Math.max(locomotionBlend.value - deltaSeconds * currentActionBlendSpeed, 0))
         if (locomotionBlend.value <= 0) {
+          currentAction.value.setEffectiveWeight(0)
           animationGraph.fadingOut.set(false)
           currentAction.set(undefined)
         }
