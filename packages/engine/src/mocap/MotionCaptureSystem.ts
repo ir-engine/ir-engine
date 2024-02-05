@@ -176,7 +176,7 @@ const execute = () => {
       //   normalizedBone.position.fromArray(rigComponent.vrm.humanoid.normalizedRestPose[boneName]!.position as number[])
     }
 
-    const hipBone = rigComponent.normalizedRig.hips.node
+    const hipBone = rigComponent.rawRig.hips.node
     hipBone.position.set(
       MotionCaptureRigComponent.hipPosition.x[entity],
       MotionCaptureRigComponent.hipPosition.y[entity],
