@@ -126,7 +126,7 @@ export const ObjectLayerMaskComponent = defineComponent({
 
 export class Layer {
   constructor(public entity: Entity) {
-    setComponent(entity, ObjectLayerMaskComponent)
+    if (!hasComponent(entity, ObjectLayerMaskComponent)) setComponent(entity, ObjectLayerMaskComponent)
   }
 
   get mask() {
