@@ -40,8 +40,7 @@ import { XRSystem } from './XRSystem'
 declare global {
   interface XRFrame {
     /** WebXR implements detectedPlanes on the XRFrame, but the current typescript implementation has it on worldInformation */
-    detectedPlanes: XRPlaneSet
-    detectedMeshes: XRMeshSet
+    detectedPlanes?: XRPlaneSet
   }
 
   interface XRPlane {
@@ -50,17 +49,18 @@ declare global {
 }
 
 const handleDetectedPlanes = (frame: XRFrame) => {
-  if (!frame.detectedPlanes) return
+  const detectedPlanes = frame.worldInformation?.detectedPlanes ?? frame.detectedPlanes
+  if (!detectedPlanes) return
 
   for (const [plane, entity] of XRDetectedPlaneComponent.detectedPlanesMap) {
-    if (!frame.detectedPlanes.has(plane)) {
+    if (!detectedPlanes.has(plane)) {
       removeEntity(entity)
       XRDetectedPlaneComponent.detectedPlanesMap.delete(plane)
       XRDetectedPlaneComponent.planesLastChangedTimes.delete(plane)
     }
   }
 
-  for (const plane of frame.detectedPlanes) {
+  for (const plane of detectedPlanes) {
     if (!XRDetectedPlaneComponent.detectedPlanesMap.has(plane)) {
       XRDetectedPlaneComponent.foundPlane(plane)
     }
