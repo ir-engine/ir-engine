@@ -451,7 +451,7 @@ const scaleObject = (entities: Entity[], scales: Vector3[], overrideScale = fals
   }
 }
 
-const reparentObject = (entities: Entity[], before?: Entity | null, parent?: Entity | null, updateSelection = true) => {
+const reparentObject = (entities: Entity[], before?: Entity | null, parent?: Entity | null) => {
   parent = parent ?? SceneState.getRootEntity(getState(SceneState).activeScene!)
   //cancelGrabOrPlacement()
 
@@ -491,10 +491,6 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent?: Ent
         }
       }
     }
-  }
-
-  if (updateSelection) {
-    EditorControlFunctions.replaceSelection(entities)
   }
 
   dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
@@ -589,7 +585,7 @@ const removeObject = (entities: Entity[]) => {
   dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
 }
 
-const replaceSelection = (entities: Entity[]) => {
+const replaceSelection = (entities: EntityUUID[]) => {
   const current = getMutableState(SelectionState).selectedEntities.value
 
   if (entities.length === current.length) {
@@ -604,15 +600,13 @@ const replaceSelection = (entities: Entity[]) => {
   }
 
   const newSnapshot = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
-  newSnapshot.selectedEntities = entities
-    .map((node) => getComponent(node, UUIDComponent))
-    .filter(Boolean) as EntityUUID[]
+  newSnapshot.selectedEntities = entities.filter(Boolean) as EntityUUID[]
 
   SelectionState.updateSelection(entities)
   // dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
 }
 
-const toggleSelection = (entities: Entity[]) => {
+const toggleSelection = (entities: EntityUUID[]) => {
   const selectedEntities = getMutableState(SelectionState).selectedEntities.value.slice(0)
 
   for (let i = 0; i < entities.length; i++) {
@@ -627,15 +621,13 @@ const toggleSelection = (entities: Entity[]) => {
   }
 
   const newSnapshot = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
-  newSnapshot.selectedEntities = selectedEntities
-    .map((node) => getComponent(node, UUIDComponent))
-    .filter(Boolean) as EntityUUID[]
+  newSnapshot.selectedEntities = selectedEntities.filter(Boolean) as EntityUUID[]
 
   SelectionState.updateSelection(entities)
   // dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
 }
 
-const addToSelection = (entities: Entity[]) => {
+const addToSelection = (entities: EntityUUID[]) => {
   const selectedEntities = getMutableState(SelectionState).selectedEntities.value.slice(0)
 
   for (let i = 0; i < entities.length; i++) {
@@ -645,9 +637,7 @@ const addToSelection = (entities: Entity[]) => {
   }
 
   const newSnapshot = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
-  newSnapshot.selectedEntities = selectedEntities
-    .map((node) => getComponent(node, UUIDComponent))
-    .filter(Boolean) as EntityUUID[]
+  newSnapshot.selectedEntities = selectedEntities.filter(Boolean) as EntityUUID[]
 
   SelectionState.updateSelection(entities)
   // dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
