@@ -38,6 +38,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { createEntity, getMutableComponent, removeEntity, setComponent } from '@etherealengine/ecs'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
+import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
@@ -46,7 +47,6 @@ import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/c
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { MathUtils, Mesh, SphereGeometry } from 'three'
-import { MaterialSelectionState } from '../../materials/MaterialLibraryState'
 
 export const MaterialPreviewPanel = (props) => {
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
