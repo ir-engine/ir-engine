@@ -221,6 +221,7 @@ export class EngineRenderer {
       for (const c of xrCamera.cameras) c.layers.mask = camera.layers.mask
 
       this.rendering = true
+      this.renderer.clear()
       this.renderer.render(Engine.instance.scene, camera)
       this.rendering = false
     } else {
