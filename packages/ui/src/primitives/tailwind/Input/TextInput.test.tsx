@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,25 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { describe, expect, it } from '@jest/globals'
+import { shallow } from 'enzyme'
+import React from 'react'
 
-module.exports = {
-  primary: "#31d6c2",
+import Input from './index'
+import { Default as story } from './index.stories'
 
-  secondary: "#7623b2",
-
-  accent: "#bc2a27",
-
-  neutral: "#191623",
-
-  "base-100": "#232348",
-  "base-200": "#1D1D3B",
-  "base-300": "#16162E",
-
-  info: "#84B7E7",
-
-  success: "#13A496",
-
-  warning: "#95610E",
-
-  error: "#E43F4D",
-};
+describe('Input', () => {
+  it('- should render', () => {
+    const wrapper = shallow(<Input onChange={() => {}} {...story?.args} />)
+    expect(wrapper).toMatchSnapshot()
+  })
+})

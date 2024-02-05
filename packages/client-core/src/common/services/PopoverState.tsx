@@ -23,35 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import basicTheme from './basic'
-import cupcakeTheme from './themes/cupcake'
-import darkTheme from './themes/darkTheme'
-import defaultTheme from './themes/defaultTheme'
-import luxuryTheme from './themes/luxury'
+import { defineState } from '@etherealengine/hyperflux'
 
-const combineConfigs = (config1, config2) => ({
-  ...config1,
-  ...config2,
-  theme: {
-    ...config1.theme,
-    ...config2.theme,
-    extend: {
-      ...config1.theme.extend,
-      ...config2.theme.extend
-    },
-    colors: {
-      ...config1.theme.colors,
-      ...config2.theme.colors
-    }
+/**
+ * Popover state for tailwind routes
+ */
+export const PopoverState = defineState({
+  name: 'ee.client.PopoverState',
+  initial: {
+    element: null as JSX.Element | null
   }
 })
-
-const themeNames = ['default', 'dark', 'luxury', 'cupcake']
-const themes = {
-  default: combineConfigs(basicTheme, defaultTheme),
-  dark: combineConfigs(basicTheme, darkTheme),
-  luxury: combineConfigs(basicTheme, luxuryTheme),
-  cupcake: combineConfigs(basicTheme, cupcakeTheme)
-}
-
-export { themes, themeNames }

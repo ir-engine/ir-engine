@@ -22,38 +22,23 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import Text from './index'
 
-import { SwatchIcon } from '@heroicons/react/20/solid'
-import React, { useContext } from 'react'
-
-import { themeNames } from '@etherealengine/client/src/themes/index'
-import { ThemeContext } from '@etherealengine/client/src/themes/themeContext'
-
-const ThemeSwitcher = () => {
-  const { setTheme } = useContext(ThemeContext)
-  return (
-    <div className="dropdown dropdown-end">
-      <label tabIndex={0} className="btn btn-ghost btn-square">
-        <SwatchIcon className="h-6 w-6" />
-      </label>
-      <ul
-        tabIndex={1}
-        className="list-none menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
-      >
-        {themeNames.map((key) => {
-          return (
-            <li key={key} onClick={() => setTheme(key)}>
-              <a className="capitalize justify-between">{key}</a>
-            </li>
-          )
-        })}
-      </ul>
-    </div>
-  )
+export default {
+  title: 'Primitives/Tailwind/Text',
+  component: Text,
+  parameters: {
+    componentSubtitle: 'Text',
+    jest: 'Text.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  }
 }
 
-ThemeSwitcher.displayName = 'ThemeSwitcher'
-
-ThemeSwitcher.defaultProps = {}
-
-export default ThemeSwitcher
+export const Default = {
+  args: {
+    children: 'This is what Text will look like'
+  }
+}

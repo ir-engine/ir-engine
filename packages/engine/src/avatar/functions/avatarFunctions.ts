@@ -93,7 +93,6 @@ export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
       scene: model.scene,
       meta: { name: model.scene.children[0].name } as VRM1Meta
     })
-    scene.add(vrm.humanoid.normalizedHumanBonesRoot)
     if (!vrm.userData) vrm.userData = {}
     return vrm
   }
@@ -151,7 +150,7 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   rig.leftToes && rig.leftToes.node.getWorldPosition(leftToesPos)
   rig.leftLowerLeg.node.getWorldPosition(leftLowerLegPos)
   rig.leftUpperLeg.node.getWorldPosition(leftUpperLegPos)
-  rig.leftEye ? rig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos)
+  rig.leftEye ? rig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos).setY(headPos.y + 0.1) // fallback to rough estimation if no eye bone is present
 
   const avatarComponent = getMutableComponent(entity, AvatarComponent)
   avatarComponent.avatarHeight.set(size.y)
@@ -204,7 +203,7 @@ export const retargetAvatarAnimations = (entity: Entity) => {
   }
   setComponent(entity, AnimationComponent, {
     animations: animations,
-    mixer: new AnimationMixer(rigComponent.normalizedRig.hips.node)
+    mixer: new AnimationMixer(rigComponent.vrm.humanoid.normalizedHumanBonesRoot)
   })
 }
 

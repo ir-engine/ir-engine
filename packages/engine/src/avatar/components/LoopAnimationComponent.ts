@@ -141,7 +141,7 @@ export const LoopAnimationComponent = defineComponent({
       } catch (e) {
         console.warn('Failed to bind animation in LoopAnimationComponent', entity, e)
       }
-    }, [animComponent?.animations, loopAnimationComponent.activeClipIndex])
+    }, [animComponent?.animations, loopAnimationComponent.activeClipIndex, modelComponent?.asset])
 
     useEffect(() => {
       if (loopAnimationComponent._action.value?.isRunning()) {
@@ -209,8 +209,7 @@ export const LoopAnimationComponent = defineComponent({
 
       if (!hasComponent(entity, AnimationComponent)) {
         setComponent(entity, AnimationComponent, {
-          mixer: new AnimationMixer(model.asset!.scene),
-          animations: model.scene?.animations ?? []
+          mixer: new AnimationMixer(model.asset!.scene)
         })
       }
     }, [modelComponent?.asset])

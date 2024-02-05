@@ -23,16 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { describe, expect, it } from '@jest/globals'
-import { shallow } from 'enzyme'
-import React from 'react'
+import Text from './index'
 
-import ThemeSwitcher from './index'
-import { Default as story } from './index.stories'
+export default {
+  title: 'Primitives/Tailwind/Input',
+  component: Text,
+  parameters: {
+    componentSubtitle: 'Input',
+    jest: 'Input.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  }
+}
 
-describe('ThemeSwitcher', () => {
-  it('- should render', () => {
-    const wrapper = shallow(<ThemeSwitcher {...story?.args} />)
-    expect(wrapper).toMatchSnapshot()
-  })
-})
+export const Default = {
+  args: {
+    value: 'My Text Input',
+    label: 'Input Label'
+  }
+}
+
+export const WithDescription = {
+  args: {
+    value: 'Text Input',
+    label: 'Label',
+    description: 'A simple description for the Input'
+  }
+}

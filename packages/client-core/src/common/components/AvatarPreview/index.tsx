@@ -23,14 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
-import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import Text from '@etherealengine/client-core/src/common/components/Text'
-import { resetAnimationLogic } from '@etherealengine/client-core/src/user/components/Panel3D/helperFunctions'
-import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
+import {
+  PanelEntities,
+  PreviewPanelRendererState,
+  useRender3DPanelSystem
+} from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
@@ -39,11 +41,22 @@ import { SxProps, Theme } from '@mui/material/styles'
 
 import styles from './index.module.scss'
 
-import { setupSceneForPreview } from '@etherealengine/client-core/src/user/components/Panel3D/helperFunctions'
-import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
-import { useGLTF } from '@etherealengine/engine/src/assets/functions/resourceHooks'
-import { isAvaturn } from '@etherealengine/engine/src/avatar/functions/avatarFunctions'
-import { NO_PROXY } from '@etherealengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { hasComponent, removeComponent, setComponent } from '@etherealengine/ecs'
+import { defaultAnimationPath, preloadedAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
+import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
+import { AssetPreviewCameraComponent } from '@etherealengine/engine/src/camera/components/AssetPreviewCameraComponent'
+import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { EnvMapSourceType } from '@etherealengine/engine/src/scene/constants/EnvMapEnum'
+import { getMutableState } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { MathUtils } from 'three'
+
 interface Props {
   fill?: boolean
   avatarUrl?: string
@@ -56,70 +69,41 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
   const { t } = useTranslation()
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
 
-  const [avatarLoading, setAvatarLoading] = useState(false)
-
-  const renderPanel = useRender3DPanelSystem(panelRef)
-  const { entity, camera, scene, renderer } = renderPanel.state
-
-  const override = !isAvaturn(avatarUrl || '') ? undefined : AssetType.glB
-  const [model, unload, error] = useGLTF(
-    avatarUrl || '',
-    entity.value,
-    {
-      forceAssetType: override
-    },
-    () => {
-      const oldAvatar = scene.value.children.find((item) => item.name === 'avatar')
-      if (oldAvatar) {
-        scene.value.remove(oldAvatar)
-      }
-    }
-  )
+  useRender3DPanelSystem(panelRef)
 
   useEffect(() => {
-    if (!avatarUrl) return
-
-    setAvatarLoading(true)
-    resetAnimationLogic(entity.value)
+    loadAvatarPreview()
   }, [avatarUrl])
 
-  useEffect(() => {
-    return unload
-  }, [])
+  const renderPanelState = getMutableState(PreviewPanelRendererState)
 
-  useEffect(() => {
-    if (!error.value) return
-    onAvatarError && onAvatarError(error.value.message)
-  }, [error])
+  const loadAvatarPreview = () => {
+    if (!avatarUrl) return
 
-  useEffect(() => {
-    const avatar = model.get(NO_PROXY)
-    if (!avatar) return
+    const renderPanelEntities = renderPanelState.entities[panelRef.current.id]
+    const entity = renderPanelEntities[PanelEntities.model].value
+    const uuid = MathUtils.generateUUID() as EntityUUID
+    setComponent(entity, UUIDComponent, uuid)
+    setComponent(entity, NameComponent, '3D Preview Entity')
 
-    const loadedAvatar = setupSceneForPreview(avatar)
-    loadedAvatar.name = 'avatar'
-    loadedAvatar.rotateY(Math.PI)
-    setAvatarLoading(false)
-    onAvatarLoaded && onAvatarLoaded()
+    if (hasComponent(entity, LoopAnimationComponent)) removeComponent(entity, LoopAnimationComponent)
+    if (hasComponent(entity, ModelComponent)) removeComponent(entity, ModelComponent)
 
-    loadedAvatar.getWorldPosition(camera.value.position)
-    camera.value.position.y += 1.8
-    camera.value.position.z = 1
-
-    scene.value.add(loadedAvatar)
-  }, [model])
+    setComponent(entity, VisibleComponent, true)
+    ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.AssetPreview)
+    setComponent(entity, ModelComponent, { src: avatarUrl, convertToVRM: true })
+    setComponent(entity, LoopAnimationComponent, {
+      animationPack: defaultAnimationPath + preloadedAnimations.locomotion + '.glb',
+      activeClipIndex: 5
+    })
+    setComponent(entity, EnvmapComponent, { type: EnvMapSourceType.Skybox })
+    const cameraEntity = renderPanelEntities[PanelEntities.camera].value
+    setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: entity })
+  }
 
   return (
     <Box className={`${commonStyles.preview} ${fill ? styles.fill : ''}`} sx={sx}>
       <div ref={panelRef} id="stage" className={`${styles.stage} ${fill ? styles.fill : ''}`} />
-
-      {avatarLoading && (
-        <LoadingView
-          title={t('admin:components.avatar.loading')}
-          variant="body2"
-          sx={{ position: 'absolute', top: 0 }}
-        />
-      )}
 
       {!avatarUrl && (
         <Text className={commonStyles.previewText} variant="body2">

@@ -57,8 +57,6 @@ import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { autoconvertMixamoAvatar, isAvaturn } from '../../avatar/functions/avatarFunctions'
-import { SourceType } from '../../scene/materials/components/MaterialSource'
-import { removeMaterialSource } from '../../scene/materials/functions/MaterialLibraryFunctions'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
@@ -68,18 +66,6 @@ import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { SourceComponent } from './SourceComponent'
-
-function clearMaterials(src: string) {
-  try {
-    removeMaterialSource({ type: SourceType.MODEL, path: src ?? '' })
-  } catch (e) {
-    if (e?.name === 'MaterialNotFound') {
-      console.warn('could not find material in source ' + src)
-    } else {
-      throw e
-    }
-  }
-}
 
 const entitiesInModelHierarchy = {} as Record<Entity, Entity[]>
 
@@ -91,7 +77,7 @@ export const ModelComponent = defineComponent({
     return {
       src: '',
       cameraOcclusion: true,
-      //optional, only for bone matchable avatars
+      /** optional, only for bone matchable avatars */
       convertToVRM: false as boolean,
       // internal
       scene: null as Scene | null,
@@ -199,7 +185,7 @@ function ModelReactor(): JSX.Element {
     if (boneMatchedAsset instanceof VRM)
       setComponent(entity, AnimationComponent, {
         animations: loadedAsset.animations,
-        mixer: new AnimationMixer(boneMatchedAsset.humanoid.normalizedHumanBones.hips.node)
+        mixer: new AnimationMixer(boneMatchedAsset.humanoid.normalizedHumanBonesRoot)
       })
 
     if (!hasComponent(entity, GroupComponent)) {
