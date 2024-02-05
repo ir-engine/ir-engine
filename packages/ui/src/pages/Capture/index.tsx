@@ -166,7 +166,7 @@ const CaptureMode = () => {
     } else {
       RecordingState.requestRecording({
         user: { Avatar: true },
-        peers: { [Engine.instance.peerID]: { Audio: true, Video: true, Mocap: true } }
+        peers: { [Engine.instance.store.peerID]: { Audio: true, Video: true, Mocap: true } }
       })
     }
   }
