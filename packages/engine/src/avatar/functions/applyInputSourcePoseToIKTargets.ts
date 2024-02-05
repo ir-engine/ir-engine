@@ -53,6 +53,13 @@ const parentMatrixWorld = new Matrix4()
 const localMatrix = new Matrix4()
 const quat = new Quaternion()
 
+declare global {
+  interface XRFrame {
+    fillPoses?: (poses: Iterable<XRJointSpace>, baseSpace: XRSpace, output: Float32Array) => void
+    fillJointRadii?: (joints: Iterable<XRJointSpace>, output: Float32Array) => void
+  }
+}
+
 const helpers = {}
 /**
  * Gets world space pose for each joint in the hand and stores the rotation in an XRHandComponent in local space
