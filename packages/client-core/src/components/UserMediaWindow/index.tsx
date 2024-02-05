@@ -45,7 +45,7 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import { applyScreenshareToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
-import { NO_PROXY, State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { MediaSettingsState } from '@etherealengine/spatial/src/networking/MediaSettingsState'
 import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
@@ -55,8 +55,8 @@ import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
 import { UserName } from '@etherealengine/common/src/schema.type.module'
-import { useExecute } from '@etherealengine/ecs'
-import { MotionCaptureSystem, timeSeriesMocapData } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+import { PresentationSystemGroup, useExecute } from '@etherealengine/ecs'
+import { timeSeriesMocapData } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 import { drawPoseToCanvas } from '@etherealengine/ui/src/pages/Capture'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
@@ -83,16 +83,26 @@ const useDrawMocapLandmarks = (
   useExecute(
     () => {
       if (videoElement.paused || videoElement.ended || !videoElement.currentTime) return
-      const mocapBuffer = timeSeriesMocapData.get(peerID)
-      if (mocapBuffer) {
-        const lastMocapResult = mocapBuffer.getLast()
-        if (lastMocapResult && lastMocapResult.timestamp !== lastTimestamp) {
-          lastTimestamp = lastMocapResult.timestamp
-          drawPoseToCanvas(canvasCtxRef, canvasRef, lastMocapResult.results.poseLandmarks)
+      const networkState = getState(NetworkState).networks
+      for (const [key, network] of Object.entries(networkState)) {
+        if (network.peers[peerID]) {
+          const userID = network.peers[peerID].userId
+          const peers = network.users[userID]
+          for (const peer of peers) {
+            const mocapBuffer = timeSeriesMocapData.get(peer)
+            if (mocapBuffer) {
+              const lastMocapResult = mocapBuffer.getLast()
+              if (lastMocapResult && lastMocapResult.timestamp !== lastTimestamp) {
+                lastTimestamp = lastMocapResult.timestamp
+                drawPoseToCanvas(canvasCtxRef, canvasRef, lastMocapResult.results.poseLandmarks)
+                break
+              }
+            }
+          }
         }
       }
     },
-    { after: MotionCaptureSystem }
+    { after: PresentationSystemGroup }
   )
 }
 
