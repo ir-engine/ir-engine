@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 
@@ -37,7 +37,7 @@ import InputGroup from '../inputs/InputGroup'
 import ImageSourceProperties from './ImageSourceProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
-import { EditorComponentType, commitProperty, updateProperty } from './Util'
+import { EditorComponentType, commitProperty } from './Util'
 
 export const ImageNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -52,11 +52,7 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.image.description')}
     >
       <InputGroup name="Image Url" label={t('editor:properties.image.lbl-imgURL')}>
-        <ImageInput
-          value={imageComponent.source.value ?? ''}
-          onChange={updateProperty(ImageComponent, 'source')}
-          onRelease={commitProperty(ImageComponent, 'source')}
-        />
+        <ImageInput value={imageComponent.source.value ?? ''} onRelease={commitProperty(ImageComponent, 'source')} />
       </InputGroup>
       {errors ? (
         Object.entries(errors).map(([err, message]) => (

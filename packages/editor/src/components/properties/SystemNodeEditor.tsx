@@ -27,7 +27,7 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { validatePath } from '@etherealengine/common/src/utils/validatePath'
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
 
 import ExtensionIcon from '@mui/icons-material/Extension'
@@ -59,7 +59,7 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.systemnode.description')}
     >
       <InputGroup name="Script" label={t('editor:properties.systemnode.lbl-filePath')}>
-        <ScriptInput value={systemComponent.filePath} onChange={onChangePath} />
+        <ScriptInput value={systemComponent.filePath} onRelease={onChangePath} />
         {!isPathValid && <div>{t('editor:properties.systemnode.error-url')}</div>}
       </InputGroup>
     </NodeEditor>

@@ -33,13 +33,13 @@ import { useScrubbableVideo } from '@etherealengine/client-core/src/hooks/useScr
 
 import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { useLocationSpawnAvatarWithDespawn } from '@etherealengine/client-core/src/components/World/EngineHooks'
-import { MediaStreamService, MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
+import { MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
 import {
   SocketWebRTCClientNetwork,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import {
   ECSRecordingActions,
   PlaybackState,
@@ -49,20 +49,14 @@ import {
 
 import { useWorldNetwork } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
-import { ChannelService } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { RecordingID, StaticResourceType, recordingPath } from '@etherealengine/common/src/schema.type.module'
-import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SceneServices } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   MotionCaptureFunctions,
   MotionCaptureResults,
   mocapDataChannelType
 } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
+import { SceneServices, SceneState } from '@etherealengine/engine/src/scene/Scene'
 import {
   defineState,
   dispatchAction,
@@ -70,7 +64,10 @@ import {
   getState,
   syncStateWithLocalStorage
 } from '@etherealengine/hyperflux'
-import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
+import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { throttle } from '@etherealengine/spatial/src/common/functions/FunctionHelpers'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import Header from '@etherealengine/ui/src/components/tailwind/Header'
 import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
@@ -78,7 +75,7 @@ import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
 import { NormalizedLandmarkList, Options, POSE_CONNECTIONS, Pose } from '@mediapipe/pose'
 import ReactSlider from 'react-slider'
-import Toolbar from '../../components/tailwind/mocap/Toolbar'
+import Button from '../../primitives/tailwind/Button'
 /**
  * Start playback of a recording
  * - If we are streaming data, close the data producer
@@ -283,7 +280,7 @@ const CaptureMode = () => {
   const recordingStatus = getRecordingStatus()
 
   return (
-    <div className="w-full container mx-auto pointer-events-auto max-w-[1024px]">
+    <div className="w-full container mx-auto pointer-events-auto max-w-[1024px] m-4">
       <div className="w-full h-auto px-2">
         <div className="w-full h-auto relative aspect-video overflow-hidden">
           <div className="absolute w-full h-full top-0 left-0 flex items-center bg-black">
@@ -292,26 +289,41 @@ const CaptureMode = () => {
               className={twMerge('w-full h-auto opacity-100', !displaySettings?.showVideo && 'opacity-0')}
             />
           </div>
-          <div
-            className="object-contain absolute top-0 left-0 z-1 min-w-full h-auto"
-            style={{ objectFit: 'contain', top: '0px' }}
-          >
+          <div className="object-contain absolute top-0 left-0 z-1 min-w-full h-auto">
             <Canvas ref={canvasRef} />
           </div>
-          <button
+          <Button
+            className="absolute bg-none h-full w-full container mx-auto m-0 p-0 top-0 left-0 z-2"
             onClick={() => {
               if (mediaNetworkState?.connected?.value) toggleWebcamPaused()
             }}
-            className="absolute btn btn-ghost bg-none h-full w-full container mx-auto m-0 p-0 top-0 left-0 z-2"
           >
-            {videoStatus === 'ready' && <h1>Enable Camera</h1>}
-            {videoStatus === 'loading' && <h1>Loading...</h1>}
-          </button>
+            <a>{!videoStream.value ? 'CLICK TO ENABLE VIDEO' : ''}</a>
+          </Button>
         </div>
       </div>
       <div className="w-full h-auto relative aspect-video overflow-hidden">
         <div className="w-full container mx-auto">
-          <Toolbar
+          <Button
+            className="w-[220px] h-[60px] bg-[#292D3E] rounded-full shadow-md text-center font=[lato] font-bold text-sm padding-[10px] m-2"
+            title="Toggle Detection"
+            onClick={() => {
+              detectingStatus.set(detectingStatus.value === 'active' ? 'inactive' : 'active')
+            }}
+          >
+            <a className="normal-case text-xl">
+              {detectingStatus.value === 'active' ? 'STOP DETECTING' : 'START DETECTING'}
+            </a>
+          </Button>
+          <Button
+            aria-disabled={recordingStatus === 'starting'}
+            className="w-[220px] h-[60px] bg-[#292D3E] rounded-full shadow-md text-center font=[lato] font-bold text-sm padding-[10px] m-2"
+            title="Toggle Recording"
+            onClick={onToggleRecording}
+          >
+            <a className="normal-case text-xl">{recordingStatus === 'active' ? 'STOP RECORDING' : 'START RECORDING'}</a>
+          </Button>
+          {/* <Toolbar
             className="w-full"
             videoStatus={videoStatus}
             detectingStatus={detectingStatus.value}
@@ -323,7 +335,7 @@ const CaptureMode = () => {
             isRecording={!!recordingID.value}
             recordingStatus={recordingStatus}
             cycleCamera={MediaStreamService.cycleCamera}
-          />
+          /> */}
         </div>
       </div>
     </div>
@@ -476,8 +488,6 @@ const EngineCanvas = () => {
     const canvas = EngineRenderer.instance.renderer.domElement
     ref.current.appendChild(canvas)
 
-    const parent = canvas.parentElement!
-
     EngineRenderer.instance.needsResize = true
 
     // return () => {
@@ -506,14 +516,14 @@ export const PlaybackControls = (props: { durationSeconds: number }) => {
   return (
     <div className="w-full h-full flex flex-row">
       <div className="relative aspect-video overflow-hidden">
-        <button
-          className="w-auto h-4 btn btn-ghost container z-2"
+        <Button
+          className="w-auto h-[40px] container z-2"
           onClick={() => {
             playing.set(!playing.value)
           }}
         >
           {playing.value ? 'Pause' : 'Play'}
-        </button>
+        </Button>
       </div>
       <ReactSlider
         className="w-full h-4 my-2 bg-gray-300 rounded-lg cursor-pointer"
@@ -558,7 +568,7 @@ const PlaybackMode = () => {
     return () => {
       cleanup()
       // hack
-      getMutableState(EngineState).sceneLoaded.set(false)
+      getMutableState(SceneState).sceneLoaded.set(false)
     }
   }, [locationState])
 
@@ -631,22 +641,12 @@ const CapturePageState = defineState({
 
 const CaptureDashboard = () => {
   const worldNetwork = useWorldNetwork()
-
-  // media server connecion
-  useEffect(() => {
-    if (worldNetwork?.connected?.value) {
-      ChannelService.getInstanceChannel()
-    }
-  }, [worldNetwork?.connected?.value])
-
   const mode = useHookstate(getMutableState(CapturePageState).mode)
 
   return (
     <div className="max-w-[1024px] w-full container mx-auto overflow-hidden">
-      <Drawer settings={<div></div>}>
-        <Header mode={mode} />
-        {mode.value === 'playback' ? <PlaybackMode /> : <CaptureMode />}
-      </Drawer>
+      <Header mode={mode} />
+      {mode.value === 'playback' ? <PlaybackMode /> : <CaptureMode />}
     </div>
   )
 }

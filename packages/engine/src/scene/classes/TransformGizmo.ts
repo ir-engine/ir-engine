@@ -25,6 +25,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 /* eslint-disable @typescript-eslint/ban-types */
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import {
   BoxGeometry,
   BufferGeometry,
@@ -530,10 +533,15 @@ class TransformControls extends Object3D<TransformControlsEventMap> {
     this.domElement.removeEventListener('pointermove', this._onPointerMove)
     this.domElement.removeEventListener('pointerup', this._onPointerUp)
 
-    this.traverse(function (child: Mesh) {
-      if (child.geometry) child.geometry.dispose()
-      if (child.material) (child.material as Material).dispose()
-    })
+    iterateEntityNode(
+      this.entity,
+      (entity) => {
+        const child = getComponent(entity, MeshComponent)
+        if (child.geometry) child.geometry.dispose()
+        if (child.material) (child.material as Material).dispose()
+      },
+      (entity) => hasComponent(entity, MeshComponent)
+    )
   }
 
   // Set current object

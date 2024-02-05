@@ -31,17 +31,17 @@ import {
   setComponent,
   useComponent,
   useOptionalComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
-import { PositionalAudioHelper } from '../../debug/PositionalAudioHelper'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { RendererState } from '../../renderer/RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { AudioNodeGroups, MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
 import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { PositionalAudioHelper } from './PositionalAudioHelper'
 
 export interface PositionalAudioInterface {
   refDistance: number
@@ -116,28 +116,42 @@ export const PositionalAudioComponent = defineComponent({
     const mediaElement = useOptionalComponent(entity, MediaElementComponent)
 
     useEffect(() => {
-      if (
-        debugEnabled.value &&
-        !audio.helper.value &&
-        mediaElement &&
-        mediaElement.element.value &&
-        AudioNodeGroups.has(mediaElement.element.value)
-      ) {
-        const audioNodes = AudioNodeGroups.get(mediaElement.element.value)
-        if (audioNodes) {
-          const helper = new PositionalAudioHelper(audioNodes)
-          helper.name = `positional-audio-helper-${entity}`
-          addObjectToGroup(entity, helper)
-          setObjectLayers(helper, ObjectLayers.NodeHelper)
-          audio.helper.set(helper)
-        }
-      }
+      if (!debugEnabled.value || !mediaElement || !mediaElement.element.value) return
 
-      if (!debugEnabled.value && audio.helper.value) {
-        removeObjectFromGroup(entity, audio.helper.value)
+      const audioNodes = AudioNodeGroups.get(mediaElement.element.value)
+      if (!audioNodes) return
+      const helper = new PositionalAudioHelper(audioNodes)
+      helper.name = `positional-audio-helper-${entity}`
+      addObjectToGroup(entity, helper)
+      setObjectLayers(helper, ObjectLayers.NodeHelper)
+      audio.helper.set(helper)
+
+      return () => {
+        removeObjectFromGroup(entity, helper)
         audio.helper.set(none)
       }
-    }, [debugEnabled])
+    }, [debugEnabled, mediaElement?.element])
+
+    useEffect(() => {
+      if (!mediaElement?.element.value) return
+      const audioNodes = AudioNodeGroups.get(mediaElement.element.value)
+      if (!audioNodes?.panner) return
+      audioNodes.panner.refDistance = audio.refDistance.value
+      audioNodes.panner.rolloffFactor = audio.rolloffFactor.value
+      audioNodes.panner.maxDistance = audio.maxDistance.value
+      audioNodes.panner.distanceModel = audio.distanceModel.value
+      audioNodes.panner.coneInnerAngle = audio.coneInnerAngle.value
+      audioNodes.panner.coneOuterAngle = audio.coneOuterAngle.value
+      audioNodes.panner.coneOuterGain = audio.coneOuterGain.value
+    }, [
+      audio.refDistance,
+      audio.rolloffFactor,
+      audio.maxDistance,
+      audio.distanceModel,
+      audio.coneInnerAngle,
+      audio.coneOuterAngle,
+      audio.coneOuterGain
+    ])
 
     return null
   }

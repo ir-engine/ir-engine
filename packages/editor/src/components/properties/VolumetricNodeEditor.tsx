@@ -26,23 +26,25 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { VolumetricFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import {
   getOptionalMutableComponent,
   hasComponent,
   useComponent,
   useOptionalComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { VolumetricFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { UVOL1Component } from '@etherealengine/engine/src/scene/components/UVOL1Component'
 import { UVOL2Component } from '@etherealengine/engine/src/scene/components/UVOL2Component'
 import { TextureType } from '@etherealengine/engine/src/scene/constants/UVOLTypes'
 import { getState } from '@etherealengine/hyperflux/functions/StateFunctions'
 import VideocamIcon from '@mui/icons-material/Videocam'
+import { Scrubber } from 'react-scrubber'
+import 'react-scrubber/lib/scrubber.css'
 import { ItemTypes } from '../../constants/AssetTypes'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
 import BooleanInput from '../inputs/BooleanInput'
@@ -246,7 +248,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         name="Source Paths"
         prefix="Content"
         values={volumetricComponent.paths.value}
-        onChange={commitProperty(VolumetricComponent, 'paths')}
+        onRelease={commitProperty(VolumetricComponent, 'paths')}
         label={t('editor:properties.media.paths')}
         acceptFileTypes={VolumetricFileTypes}
         acceptDropItems={ItemTypes.Volumetrics}
@@ -334,21 +336,41 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
 function VolumetricCurrentTimeScrubber(props: { entity: Entity }) {
   const { t } = useTranslation()
   const volumetricComponent = useComponent(props.entity, VolumetricComponent)
+  const uvol2Component = useOptionalComponent(props.entity, UVOL2Component)
+
+  const [isChanging, setIsChanging] = React.useState(false)
 
   return (
     <InputGroup name="CurrentTime" label={t('editor:properties.media.lbl-currentTime')}>
-      <CompoundNumericInput
+      <Scrubber
         min={0}
         max={volumetricComponent.currentTrackInfo.duration.value}
-        step={0.01}
-        onChange={(value) => {
+        value={volumetricComponent.currentTrackInfo.currentTime.value}
+        onScrubStart={() => {
+          setIsChanging(true)
+        }}
+        onScrubEnd={(value) => {
+          if (!isChanging) return
           const uvol2Component = getOptionalMutableComponent(props.entity, UVOL2Component)
-          if (uvol2Component) {
-            const engineState = getState(EngineState)
+          if (
+            uvol2Component &&
+            volumetricComponent.currentTrackInfo.currentTime.value < value &&
+            value < uvol2Component.bufferedUntil.value
+          ) {
+            const engineState = getState(ECSState)
             UVOL2Component.setStartAndPlaybackTime(props.entity, value, engineState.elapsedSeconds)
           }
+          setIsChanging(false)
         }}
-        value={volumetricComponent.currentTrackInfo.currentTime.value}
+        onScrubChange={() => {}}
+        tooltip={{
+          enabledOnHover: true
+        }}
+        {...(hasComponent(props.entity, UVOL2Component)
+          ? {
+              bufferPosition: uvol2Component?.bufferedUntil.value
+            }
+          : {})}
       />
     </InputGroup>
   )

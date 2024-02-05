@@ -24,23 +24,24 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { useExecute } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { getState } from '@etherealengine/hyperflux'
-import { useEffect } from 'react'
-import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
-import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
   getComponent,
   getOptionalComponent,
   useComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
+import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { getState } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { useEffect } from 'react'
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { SplineComponent } from './SplineComponent'
-import { UUIDComponent } from './UUIDComponent'
 
 const _euler = new Euler()
 const _quat = new Quaternion()
@@ -87,7 +88,8 @@ export const SplineTrackComponent = defineComponent({
 
     useExecute(
       () => {
-        const { isEditor, deltaSeconds } = getState(EngineState)
+        const { isEditor } = getState(EngineState)
+        const { deltaSeconds } = getState(ECSState)
         if (isEditor) return
         if (!component.splineEntityUUID.value) return
         const splineTargetEntity = UUIDComponent.getEntityByUUID(component.splineEntityUUID.value)

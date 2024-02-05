@@ -27,16 +27,17 @@ import React, { KeyboardEvent, StyleHTMLAttributes, useCallback, useEffect } fro
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   getAllComponents,
   getComponent,
+  getOptionalComponent,
   useOptionalComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
@@ -143,7 +144,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     },
     canDrag() {
       return !selectionState.selectedEntities.value.some(
-        (entity) => !(typeof entity === 'string' || getComponent(entity, EntityTreeComponent)?.parentEntity)
+        (entity) => !(typeof entity === 'string' || getOptionalComponent(entity, EntityTreeComponent)?.parentEntity)
       )
     },
     collect: (monitor) => ({
@@ -152,18 +153,23 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   })
 
   const dropItem = (node: HeirarchyTreeNodeType, place: 'On' | 'Before' | 'After') => {
-    let parentNode: Entity
+    let parentNode: Entity | undefined
     let beforeNode: Entity
 
     if (place === 'Before') {
-      const entityTreeComponent = getComponent(node.entity, EntityTreeComponent)
-      parentNode = entityTreeComponent?.parentEntity!
+      const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
+      parentNode = entityTreeComponent?.parentEntity
       beforeNode = node.entity
     } else if (place === 'After') {
-      const entityTreeComponent = getComponent(node.entity, EntityTreeComponent)
-      parentNode = entityTreeComponent?.parentEntity!
-      const parentTreeComponent = getComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
-      if (!node.lastChild && parentNode && parentTreeComponent?.children.length > node.childIndex + 1) {
+      const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
+      parentNode = entityTreeComponent?.parentEntity
+      const parentTreeComponent = getOptionalComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
+      if (
+        parentTreeComponent &&
+        !node.lastChild &&
+        parentNode &&
+        parentTreeComponent?.children.length > node.childIndex + 1
+      ) {
         beforeNode = parentTreeComponent.children[node.childIndex + 1]
       }
     } else {

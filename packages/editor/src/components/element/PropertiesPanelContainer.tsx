@@ -27,18 +27,18 @@ import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { useAllComponents, useOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { useAllComponents, useComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { getMutableState } from '@etherealengine/hyperflux'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 
+import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { Popover } from '@mui/material'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import { PropertiesPanelButton } from '../inputs/Button'
 import MaterialEditor from '../materials/MaterialEditor'
-import { MaterialSelectionState } from '../materials/MaterialLibraryState'
 import { CoreNodeEditor } from '../properties/CoreNodeEditor'
 import ElementList from './ElementList'
 import { PopoverContext } from './PopoverContext'
@@ -59,13 +59,11 @@ const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
   const anchorEl = useHookstate<HTMLButtonElement | null>(null)
   const { t } = useTranslation()
 
-  const uuid = useOptionalComponent(entity, UUIDComponent)
+  const uuid = useComponent(entity, UUIDComponent)
 
   const components = useAllComponents(entity).filter((c) => EntityNodeEditor.has(c))
 
   const open = !!anchorEl.value
-
-  if (!uuid) return null
 
   return (
     <PopoverContext.Provider

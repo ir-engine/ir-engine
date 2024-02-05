@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { AnimationAction } from 'three'
 
-import { lerp } from '../../common/functions/MathLerpFunctions'
+import { lerp } from '@etherealengine/spatial/src/common/functions/MathLerpFunctions'
 
 /**
  * Updates animation action time

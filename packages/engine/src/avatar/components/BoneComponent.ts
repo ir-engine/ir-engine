@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Bone } from 'three'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const BoneComponent = defineComponent({
   name: 'BoneComponent',
@@ -33,8 +33,6 @@ export const BoneComponent = defineComponent({
 
   onSet: (entity, component, mesh: Bone) => {
     if (!mesh || !mesh.isBone) throw new Error('BoneComponent: Invalid bone')
-
     component.set(mesh)
-    BoneComponent.valueMap[entity] = mesh
   }
 })

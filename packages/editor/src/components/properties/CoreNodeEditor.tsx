@@ -26,17 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import {
-  getComponent,
-  hasComponent,
-  useOptionalComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { SceneTagComponent } from '@etherealengine/engine/src/scene/components/SceneTagComponent'
-import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import LockIcon from '@mui/icons-material/Lock'
 import UnlockIcon from '@mui/icons-material/LockOpen'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'

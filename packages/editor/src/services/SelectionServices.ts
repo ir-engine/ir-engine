@@ -23,16 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { removeComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SelectTagComponent } from '@etherealengine/engine/src/scene/components/SelectTagComponent'
 import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { useEffect } from 'react'
-import { MaterialSelectionState } from '../components/materials/MaterialLibraryState'
 import { filterParentEntities } from '../functions/filterParentEntities'
 
 export const SelectionState = defineState({

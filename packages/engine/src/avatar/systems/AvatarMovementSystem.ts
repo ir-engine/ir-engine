@@ -23,13 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineQuery } from '../../ecs/functions/ComponentFunctions'
-import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { NetworkObjectAuthorityTag } from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
 import { applyGamepadInput } from '.././functions/moveAvatar'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 
-const controlledAvatarEntity = defineQuery([AvatarControllerComponent])
+const controlledAvatarEntity = defineQuery([AvatarControllerComponent, NetworkObjectAuthorityTag])
 
 const execute = () => {
   for (const entity of controlledAvatarEntity()) applyGamepadInput(entity)

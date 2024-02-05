@@ -25,18 +25,18 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect, useState } from 'react'
 
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
-import { emoteAnimationPath, emoteAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { emoteAnimations, preloadedAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { dispatchAction } from '@etherealengine/hyperflux'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from './EmoteMenu.module.scss'
 
@@ -236,7 +236,8 @@ export const useEmoteMenuHooks = () => {
     const entity = Engine.instance.localClientEntity
     dispatchAction(
       AvatarNetworkAction.setAnimationState({
-        filePath: emoteAnimationPath + stateName + '.fbx',
+        animationAsset: preloadedAnimations.emotes,
+        clipName: stateName,
         loop: false,
         layer: 0,
         entityUUID: getComponent(entity, UUIDComponent)

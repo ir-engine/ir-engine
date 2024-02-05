@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { BooleanValue, EventEmitter, FloatValue, IntegerValue, StringValue, ValueType } from '@behave-graph/core'
 
 import { ColorValue, EulerValue, IScene, QuatValue, Vec2Value, Vec3Value, Vec4Value } from '@behave-graph/scene'
-import { Engine } from '../../../../../../ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 
 export class EEScene implements IScene {
   public onSceneChanged = new EventEmitter<void>()
@@ -49,7 +49,7 @@ export class EEScene implements IScene {
         QuatValue
       ].map((valueType) => [valueType.name, valueType])
     )
-    Object.entries(Engine.instance.store.valueMap).forEach((stateType) => {
+    Object.entries(Engine.instance.store.stateMap).forEach((stateType) => {
       const properties = {}
       Object.keys(stateType[1]).forEach((property) => {
         properties[property] = property

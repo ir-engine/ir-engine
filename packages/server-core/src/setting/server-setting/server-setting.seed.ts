@@ -35,7 +35,7 @@ import {
 } from '@etherealengine/common/src/schemas/setting/server-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
-import { getDateTimeSql } from '../../util/datetime-sql'
+import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 

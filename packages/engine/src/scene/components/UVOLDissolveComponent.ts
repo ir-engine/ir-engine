@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { defineComponent, getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import {
   BufferGeometry,
   Mesh,
@@ -33,8 +35,6 @@ import {
   UniformsLib,
   UniformsUtils
 } from 'three'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const UVOLDissolveComponent = defineComponent({
   name: 'UVOLDissolveComponent',

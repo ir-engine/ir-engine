@@ -29,9 +29,6 @@ import { AnimationAction, SkeletonHelper, Vector3 } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { matches } from '../../common/functions/MatchesUtils'
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
@@ -39,23 +36,31 @@ import {
   setComponent,
   useComponent,
   useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { createEntity, entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { RendererState } from '../../renderer/RendererState'
-import { addObjectToGroup } from '../../scene/components/GroupComponent'
-import { ModelComponent } from '../../scene/components/ModelComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { VisibleComponent, setVisibleComponent } from '../../scene/components/VisibleComponent'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, entityExists, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent
-} from '../../transform/components/ComputedTransformComponent'
+} from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
+import { ModelComponent } from '../../scene/components/ModelComponent'
 import { AnimationState } from '../AnimationManager'
-import { locomotionAnimation } from '../animation/Util'
-import { retargetAvatarAnimations, setupAvatarForUser, setupAvatarProportions } from '../functions/avatarFunctions'
+import { preloadedAnimations } from '../animation/Util'
+import {
+  retargetAvatarAnimations,
+  setAvatarSpeedFromRootMotion,
+  setupAvatarForUser,
+  setupAvatarProportions
+} from '../functions/avatarFunctions'
 import { AvatarState } from '../state/AvatarNetworkState'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
@@ -95,12 +100,13 @@ export const AvatarRigComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      /** Holds all the bones */
+      /** rig bones with quaternions relative to the raw bones in their bind pose */
       normalizedRig: null! as VRMHumanBones,
+      /** contains the raw bone quaternions */
       rawRig: null! as VRMHumanBones,
-
+      /** clone of the normalized rig that is used for the ik pass */
+      ikRig: null! as VRMHumanBones,
       helperEntity: null as Entity | null,
-
       /** The VRM model */
       vrm: null! as VRM,
       avatarURL: null as string | null
@@ -111,6 +117,7 @@ export const AvatarRigComponent = defineComponent({
     if (!json) return
     if (matches.object.test(json.normalizedRig)) component.normalizedRig.set(json.normalizedRig)
     if (matches.object.test(json.rawRig)) component.rawRig.set(json.rawRig)
+    if (matches.object.test(json.ikRig)) component.ikRig.set(json.ikRig)
     if (matches.object.test(json.vrm)) component.vrm.set(json.vrm as VRM)
     if (matches.string.test(json.avatarURL)) component.avatarURL.set(json.avatarURL)
   },
@@ -127,7 +134,9 @@ export const AvatarRigComponent = defineComponent({
     const pending = useOptionalComponent(entity, AvatarPendingComponent)
     const visible = useOptionalComponent(entity, VisibleComponent)
     const modelComponent = useOptionalComponent(entity, ModelComponent)
-    const locomotionAnimationState = useHookstate(getMutableState(AnimationState).loadedAnimations[locomotionAnimation])
+    const locomotionAnimationState = useHookstate(
+      getMutableState(AnimationState).loadedAnimations[preloadedAnimations.locomotion]
+    )
 
     useEffect(() => {
       if (!visible?.value || !debugEnabled.value || pending?.value || !rigComponent.value.normalizedRig?.hips?.node)
@@ -189,6 +198,11 @@ export const AvatarRigComponent = defineComponent({
         if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
       }
     }, [rigComponent.vrm])
+
+    useEffect(() => {
+      if (!locomotionAnimationState?.value) return
+      setAvatarSpeedFromRootMotion()
+    }, [locomotionAnimationState])
 
     return null
   }

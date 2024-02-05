@@ -27,13 +27,12 @@ import { useEffect } from 'react'
 import { DirectionalLight, HemisphereLight, PerspectiveCamera, Scene, SRGBColorSpace, WebGLRenderer } from 'three'
 
 import { useHookstateFromFactory } from '@etherealengine/common/src/utils/useHookstateFromFactory'
-import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { defineSystem, destroySystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { getOrbitControls } from '@etherealengine/engine/src/input/functions/loadOrbitControl'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 
 const initialize3D = () => {
   const camera = new PerspectiveCamera(60, 1, 0.25, 100000)
@@ -62,17 +61,18 @@ const initialize3D = () => {
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.outputColorSpace = SRGBColorSpace
 
-  const controls = getOrbitControls(camera, renderer.domElement)
+  // @ts-ignore /** @todo this is a hack fix until #9626 is in */
+  // const controls = new OrbitControls(camera, renderer.domElement) as Record<any, any>
 
-  controls.minDistance = 0.1
-  controls.maxDistance = 10000
-  controls.target.set(0, 1.65, 0)
-  controls.update()
+  // controls.minDistance = 0.1
+  // controls.maxDistance = 10000
+  // controls.target.set(0, 1.65, 0)
+  // controls.update()
   const entity = createEntity()
   setComponent(entity, NameComponent, '3D Preview Entity')
 
   return {
-    controls,
+    // controls,
     scene,
     camera,
     renderer,
@@ -103,7 +103,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
       execute: () => {
         // only render if this menu is open
         if (!!panel.current && state.renderer.value) {
-          state.controls.value.update()
+          // state.controls.value.update()
           state.renderer.value.render(state.scene.value, state.camera.value)
         }
       }

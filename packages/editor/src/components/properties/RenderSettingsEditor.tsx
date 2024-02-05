@@ -37,7 +37,7 @@ import {
   VSMShadowMap
 } from 'three'
 
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 
 import BooleanInput from '../inputs/BooleanInput'
