@@ -23,38 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export const ObjectLayers = {
-  // anything loaded as a scene entity
-  Scene: 0 as const,
+import { describe, expect, it } from '@jest/globals'
+import { shallow } from 'enzyme'
+import React from 'react'
 
-  // intersect with camera raycast
-  Camera: 1 as const,
+import Text from './index'
+import { Default as story } from './index.stories'
 
-  // for portal effect rendering & hiding the scene
-  Portal: 2 as const,
-
-  // avatars
-  Avatar: 3 as const,
-
-  // other gizmos (ik targets, infinite grid, origin)
-  Gizmos: 4 as const,
-
-  // XRUI, loading screen envmap mesh
-  UI: 5 as const,
-
-  // used to hide objects from studio screenshot/texture baking
-  PhysicsHelper: 6 as const,
-  AvatarHelper: 7 as const,
-  NodeHelper: 8 as const,
-
-  // custom threejs scene in a UI panel
-  Panel: 9 as const,
-
-  // transform gizmo
-  TransformGizmo: 10 as const,
-
-  // transform gizmo
-  HighlightEffect: 11 as const,
-
-  AssetPreview: 31 as const
-} as Record<string, number>
+describe('Text', () => {
+  it('- should render', () => {
+    const wrapper = shallow(<Text {...story?.args} />)
+    expect(wrapper).toMatchSnapshot()
+  })
+})

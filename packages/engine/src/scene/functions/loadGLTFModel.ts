@@ -37,6 +37,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
@@ -44,12 +45,10 @@ import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRender
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
-import { enableObjectLayer } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { FrustumCullCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { BoneComponent } from '../../avatar/components/BoneComponent'
@@ -162,8 +161,6 @@ export const parseGLTFModel = (entity: Entity, scene: Scene) => {
     })
   }
 
-  enableObjectLayer(scene, ObjectLayers.Scene, true)
-
   // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
   if (scene.animations?.length) {
     setComponent(entity, AnimationComponent, {
@@ -256,6 +253,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
 
   addObjectToGroup(objEntity, obj)
   setComponent(objEntity, GLTFLoadedComponent, ['entity'])
+  ObjectLayerMaskComponent.setMask(objEntity, ObjectLayerMaskComponent.mask[rootEntity])
 
   /** Proxy children with EntityTreeComponent if it exists */
   proxifyParentChildRelationships(obj)

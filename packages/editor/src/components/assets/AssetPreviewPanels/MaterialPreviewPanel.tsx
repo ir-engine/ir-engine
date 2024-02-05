@@ -27,34 +27,31 @@ import debounce from 'lodash.debounce'
 import React, { useEffect, useRef } from 'react'
 import ResizeObserver from 'resize-observer-polyfill'
 
-import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import {
   PanelEntities,
   PreviewPanelRendererState,
   useRender3DPanelSystem
 } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { setComponent } from '@etherealengine/ecs'
-import { AssetPreviewCameraComponent } from '@etherealengine/engine/src/camera/components/AssetPreviewCameraComponent'
+import { createEntity, getMutableComponent, removeEntity, setComponent } from '@etherealengine/ecs'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
-import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
+import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
+import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { MathUtils } from 'three'
-import styles from '../styles.module.scss'
+import { MathUtils, Mesh, SphereGeometry } from 'three'
 
-export const ModelPreviewPanel = (props) => {
-  const url = props.resourceProps.resourceUrl
-  const loading = useHookstate(true)
-
-  const error = useHookstate('')
+export const MaterialPreviewPanel = (props) => {
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
   const renderPanel = useRender3DPanelSystem(panelRef)
+  const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
   const renderPanelState = getMutableState(PreviewPanelRendererState)
 
   useEffect(() => {
@@ -82,31 +79,29 @@ export const ModelPreviewPanel = (props) => {
   }, [])
 
   useEffect(() => {
+    if (!selectedMaterial.value) return
     const renderPanelEntities = renderPanelState.entities[panelRef.current.id]
-    const entity = renderPanelEntities[PanelEntities.model].value
-    setComponent(entity, NameComponent, '3D Preview Entity')
+    const entity = createEntity()
+    setComponent(entity, NameComponent, 'Material Preview Entity')
     const uuid = MathUtils.generateUUID() as EntityUUID
     setComponent(entity, UUIDComponent, uuid)
-    setComponent(entity, ModelComponent, { src: url, cameraOcclusion: false })
+    setComponent(entity, VisibleComponent, true)
+    const material = getState(MaterialLibraryState).materials[selectedMaterial.value].material
+    if (!material) return
+    addObjectToGroup(entity, new Mesh(new SphereGeometry(5, 32, 32), material))
     setComponent(entity, EnvmapComponent, { type: 'Skybox' })
-    setComponent(entity, VisibleComponent, false)
-    const cameraEntity = renderPanelEntities[PanelEntities.camera].value
-    setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: entity })
+    const orbitCamera = getMutableComponent(renderPanelEntities[PanelEntities.camera].value, CameraOrbitComponent)
+    orbitCamera.focusedEntities.set([entity])
+    orbitCamera.refocus.set(true)
 
     ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.AssetPreview)
-
-    loading.set(false)
-  }, [url])
+    if (renderPanelEntities[PanelEntities.model]) removeEntity(renderPanelEntities[PanelEntities.model].value)
+    renderPanelEntities[PanelEntities.model].set(entity)
+  }, [selectedMaterial])
 
   return (
     <>
-      {loading.value && <LoadingView />}
-      {error.value && (
-        <div className={styles.container}>
-          <h1 className={styles.error}>{error.value}</h1>
-        </div>
-      )}
-      <div id="modelPreview" ref={panelRef} style={{ minHeight: '250px', width: '100%', height: '100%' }}></div>
+      <div id="materialPreview" ref={panelRef} style={{ minHeight: '250px', width: '100%', height: '100%' }}></div>
     </>
   )
 }
