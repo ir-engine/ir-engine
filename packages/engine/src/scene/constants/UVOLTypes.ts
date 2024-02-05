@@ -426,5 +426,5 @@ export const FORMAT_TO_EXTENSION: Record<AudioFileFormat | GeometryFormat | Text
   'uniform-solve': '.glb',
   ktx2: '.ktx2',
   'astc/ktx2': '.ktx2',
-  vp9: 'mp4'
+  vp9: '.mp4'
 }

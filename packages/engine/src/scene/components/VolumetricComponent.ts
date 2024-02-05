@@ -86,12 +86,12 @@ export const VolumetricComponent = defineComponent({
   onInit: (entity) => {
     return {
       paths: [] as string[],
-      useLoadingEffect: false,
+      useLoadingEffect: true,
       autoPauseWhenBuffering: true, // TODO: Implement this for UVOL1
       autoplay: true,
       paused: true,
       initialBuffersLoaded: false,
-      hasAudio: true,
+      hasAudio: false,
       ended: true,
       volume: 1,
       playMode: PlayMode.loop as PlayMode,
