@@ -35,7 +35,6 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
@@ -93,7 +92,6 @@ export type HierarchyTreeNodeProps = {
 export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const node = props.data.nodes[props.index]
   const data = props.data
-  const selectionState = useHookstate(getMutableState(SelectionState))
 
   const nodeName = useOptionalComponent(node.entity, NameComponent)?.value
 
@@ -130,10 +128,10 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
 
   const onChangeNodeName = useCallback((e) => data.onChangeName(node, e.target.value), [node, data.onChangeName])
 
-  const [_dragProps, drag, preview] = useDrag({
+  const [, drag, preview] = useDrag({
     type: ItemTypes.Node,
     item() {
-      const selectedEntities = selectionState.selectedEntities.value
+      const selectedEntities = SelectionState.getSelectedEntities()
       const multiple = selectedEntities.length > 1
 
       return {
@@ -143,8 +141,8 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
       }
     },
     canDrag() {
-      return !selectionState.selectedEntities.value.some(
-        (entity) => !(typeof entity === 'string' || getOptionalComponent(entity, EntityTreeComponent)?.parentEntity)
+      return !SelectionState.getSelectedEntities().some(
+        (entity) => !getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
       )
     },
     collect: (monitor) => ({
