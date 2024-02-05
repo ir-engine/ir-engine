@@ -111,10 +111,10 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
  * PropertiesPanelContainer used to render editor view to customize property of selected element.
  */
 export const PropertiesPanelContainer = () => {
-  const selectedEntities = SelectionState.useSelectedEntities()
+  const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities).value
   const lockedNode = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
   const multiEdit = selectedEntities.length > 1
-  const uuid = lockedNode.value ?? selectedEntities[selectedEntities.length - 1]
+  const uuid = lockedNode.value ? lockedNode.value : selectedEntities[selectedEntities.length - 1]
 
   const { t } = useTranslation()
 
