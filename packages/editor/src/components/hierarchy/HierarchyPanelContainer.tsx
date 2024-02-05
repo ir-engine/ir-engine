@@ -30,7 +30,7 @@ import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 
-import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, getMutableComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { NO_PROXY, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
@@ -43,11 +43,12 @@ import { PopoverPosition } from '@mui/material/Popover'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { Engine } from '@etherealengine/ecs'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
+import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
-import { EditorCameraState } from '../../classes/EditorCameraState'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { CopyPasteFunctions } from '../../functions/CopyPasteFunctions'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -224,8 +225,8 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 
   const onClick = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {
     if (e.detail === 2) {
-      const editorCameraState = getMutableState(EditorCameraState)
-      editorCameraState.focusedObjects.set([node.entity])
+      const editorCameraState = getMutableComponent(Engine.instance.cameraEntity, CameraOrbitComponent)
+      editorCameraState.focusedEntities.set([node.entity])
       editorCameraState.refocus.set(true)
     }
   }, [])
