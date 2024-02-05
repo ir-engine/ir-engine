@@ -86,7 +86,6 @@
     "cli": "1.0.1",
     "config": "3.3.9",
     "cross-env": "7.0.3",
-    "daisyui": "^3.1.9",
     "node-fetch": "2.6.9",
     "postcss": "^8.4.23",
     "trace-unhandled": "2.0.1",

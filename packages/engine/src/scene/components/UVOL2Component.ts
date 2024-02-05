@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { usePrevious } from '@etherealengine/common/src/utils/usePrevious'
 import {
   defineComponent,
@@ -600,6 +601,26 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
     volumetric.currentTrackInfo.currentTime.set(volumetric.currentTrackInfo.mediaStartTime.value)
     volumetric.currentTrackInfo.duration.set(sortedManifest.duration)
+
+    if (isClient && !isMobile && !isMobileXRHeadset) {
+      // Client's device is desktop.
+      // Fetch the highest quality textures & geometry
+
+      const targetsCount = component.geometryInfo.targets.value.length
+      component.geometryInfo.merge({
+        userTarget: targetsCount - 1,
+        currentTarget: targetsCount - 1
+      })
+
+      component.textureInfo.textureTypes.value.forEach((textureType) => {
+        const targetsCount = component.textureInfo[textureType].targets.value.length
+        component.textureInfo[textureType].merge({
+          currentTarget: targetsCount - 1,
+          userTarget: targetsCount - 1
+        })
+      })
+    }
+
     const intervalId = setInterval(bufferLoop, 500)
     bufferLoop() // calling now because setInterval will call after 1 second
 

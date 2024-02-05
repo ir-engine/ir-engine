@@ -80,7 +80,6 @@ export const configureEffectComposer = (
   }
 
   const renderSettings = getState(RendererState)
-  renderSettings.usePostProcessing = true
   if (!renderSettings.usePostProcessing) return
 
   const effects: any[] = []
