@@ -45,6 +45,7 @@ import { Engine, defineSystem, getOptionalComponent, removeEntity, setComponent 
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkState, SceneUser } from '../NetworkState'
 import { NetworkWorldUserState } from '../NetworkUserState'
@@ -63,6 +64,7 @@ export const EntityNetworkState = defineState({
       requestingPeerId?: PeerID
       spawnPosition: Vector3
       spawnRotation: Quaternion
+      parentUUID?: EntityUUID
     }
   >,
 
@@ -75,7 +77,8 @@ export const EntityNetworkState = defineState({
         authorityPeerId: action.authorityPeerId ?? action.$peer,
         ownerPeer: action.$peer,
         spawnPosition: action.position ?? new Vector3(),
-        spawnRotation: action.rotation ?? new Quaternion()
+        spawnRotation: action.rotation ?? new Quaternion(),
+        parentUUID: action.parentUUID ?? undefined
       })
     }),
 
@@ -116,6 +119,11 @@ const EntityNetworkReactor = memo((props: { uuid: EntityUUID }) => {
       position: state.spawnPosition.value!,
       rotation: state.spawnRotation.value!
     })
+
+    if (state.parentUUID.value) {
+      /** @todo we might need to put this in a subreactor or a reactor that waits for the parent entity to exist */
+      setComponent(entity, EntityTreeComponent, { parentEntity: UUIDComponent.getEntityByUUID(state.parentUUID.value) })
+    }
     return () => {
       removeEntity(entity)
     }
