@@ -326,7 +326,10 @@ export function changeMaterialPrototype(material: Material, protoId: string) {
   )
   const fullParms = { ...extractDefaults(prototype.arguments), ...commonParms }
   const nuMat = factory(fullParms)
-  nuMat.customProgramCacheKey = () => material.customProgramCacheKey() + 1
+  if (nuMat.plugins) {
+    nuMat.customProgramCacheKey = () => nuMat.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
+  }
+
   replaceMaterial(material, nuMat)
   nuMat.uuid = material.uuid
   nuMat.name = material.name

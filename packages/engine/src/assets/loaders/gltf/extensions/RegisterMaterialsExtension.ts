@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MathUtils, Mesh, Object3D } from 'three'
+import { Mesh, Object3D } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
@@ -50,8 +50,10 @@ export function registerMaterials(root: Object3D, type: SourceType = SourceType.
       .filter((material) => !materialLibrary.materials[material.uuid])
       .map((material) => {
         if (!materialIsRegistered(material)) {
-          const cacheKey = MathUtils.generateUUID()
-          material.customProgramCacheKey = () => cacheKey
+          if (material.plugins) {
+            material.customProgramCacheKey = () =>
+              material.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
+          }
           const materialComponent = registerMaterial(material, { type, path })
           material.userData?.plugins && materialComponent.plugins.set(material.userData['plugins'])
         }
