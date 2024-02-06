@@ -116,15 +116,11 @@ const uploadThumbnail = async (file: FileBrowserContentType, blob: Blob) => {
     return ''
   }
 
-  const maybe = uploadToFeathersService(
-    fileThumbnailPath,
-    [new File([blob], file.key)],
-    {
-      assetKey: file.key,
-      isCustom: false,
-      contentType: 'image/png'
-    }
-  )
+  const maybe = uploadToFeathersService(fileThumbnailPath, [new File([blob], file.key)], {
+    assetKey: file.key,
+    isCustom: false,
+    contentType: 'image/png'
+  })
 
   /*
   Maybe adopt preexisting API:
@@ -173,11 +169,17 @@ const getThumbnailKey = (file: FileBrowserContentType, gen): Promise<string> => 
 
 export const FileIcon = ({ file, showRibbon }: { file: FileBrowserContentType; showRibbon?: boolean }) => {
   const fallback = { icon: FileIconType[file.type] }
-  const [thumbnailKey, setThumbnailKey] = useState<string>()
-  if (file.thumbnailKey == null && !file.key.includes('thumbnail')) {
-    const thumbnailGenerator = thumbnailGeneratorsByType.get(file.type)
-    if (thumbnailGenerator != null) {
-      getThumbnailKey(file, thumbnailGenerator).then((key) => setThumbnailKey(key))
+  const [thumbnailKey, setThumbnailKey] = useState<string>(file.thumbnailKey)
+  if (thumbnailKey == null) {
+    if (file.key.includes('thumbnail')) {
+      setThumbnailKey(file.key) // A thumbnail file is its own thumbnail
+    } else {
+      const thumbnailGenerator = thumbnailGeneratorsByType.get(file.type)
+      if (thumbnailGenerator != null) {
+        getThumbnailKey(file, thumbnailGenerator).then((key) => {
+          setThumbnailKey(key)
+        })
+      }
     }
   }
   return (
@@ -185,7 +187,7 @@ export const FileIcon = ({ file, showRibbon }: { file: FileBrowserContentType; s
       {isFolder(file) ? (
         <FolderIcon fontSize={'inherit'} />
       ) : (thumbnailKey?.length ?? 0) > 0 ? (
-        <img style={{ maxHeight: '50px' }} crossOrigin="anonymous" src={thumbnailKey} alt="" />
+        <img style={{ maxHeight: '75px' }} crossOrigin="anonymous" src={thumbnailKey} alt="" />
       ) : fallback.icon ? (
         <fallback.icon fontSize={'inherit'} />
       ) : (

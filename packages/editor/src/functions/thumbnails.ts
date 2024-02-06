@@ -52,15 +52,11 @@ export async function generateImageFileThumbnail(
 ): Promise<Blob | null> {
   const url = URL.createObjectURL(file)
   const img = new Image()
-
-  await new Promise((resolve, reject) => {
-    img.src = url
-    img.onload = resolve
-    img.onerror = reject
-  })
-
+  img.src = url
+  await img.decode()
+  const thumbnail = generateMediaThumbnail(img, width, height, background)
   URL.revokeObjectURL(url)
-  return generateMediaThumbnail(img, width, height, background)
+  return thumbnail
 }
 
 export async function generateVideoFileThumbnail(
@@ -95,8 +91,8 @@ export async function generateMediaThumbnail(
   height = 256,
   background = '#000'
 ): Promise<Blob | null> {
-  const elWidth = el instanceof HTMLInputElement ? el.width : (el as HTMLVideoElement).videoWidth
-  const elHeight = el instanceof HTMLInputElement ? el.height : (el as HTMLVideoElement).videoHeight
+  const elWidth = el instanceof HTMLImageElement ? el.width : (el as HTMLVideoElement).videoWidth
+  const elHeight = el instanceof HTMLImageElement ? el.height : (el as HTMLVideoElement).videoHeight
   const canvas = document.createElement('canvas')
   canvas.width = width
   canvas.height = height
