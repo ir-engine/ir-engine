@@ -194,9 +194,10 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   }
 
   const newZoomDistance = Math.min(followCamera.zoomLevel, maxDistance)
+  followCamera.zoomLevel = newZoomDistance //reset zoom level
 
   // Zoom smoothing
-  let smoothingSpeed = isInsideWall ? 0.1 : 0.3
+  const smoothingSpeed = isInsideWall ? 0.1 : 0.3
   const deltaSeconds = getState(ECSState).deltaSeconds
 
   followCamera.distance = smoothDamp(
