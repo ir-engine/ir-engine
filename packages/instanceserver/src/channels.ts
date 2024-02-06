@@ -38,6 +38,7 @@ import {
   InstanceID,
   InstanceType,
   LocationID,
+  SceneDataType,
   SceneID,
   UserID,
   UserKickType,
@@ -296,11 +297,11 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
     if (!sceneId) throw new Error('No sceneId provided')
 
     const sceneUpdatedListener = async () => {
-      const sceneData = await app
+      const sceneData = (await app
         .service(scenePath)
-        .get(null, { query: { sceneKey: sceneId, metadataOnly: false }, headers })
-      SceneState.loadScene(sceneId, sceneData)
+        .get('', { query: { sceneKey: sceneId, metadataOnly: false }, headers })) as SceneDataType
       getMutableState(SceneState).activeScene.set(sceneId)
+      SceneState.loadScene(sceneId, sceneData)
       /** @todo - quick hack to wait until scene has loaded */
 
       await new Promise<void>((resolve) => {

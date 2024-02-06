@@ -29,7 +29,6 @@ import { useTranslation } from 'react-i18next'
 
 import { Component } from '@etherealengine/ecs/src/ComponentFunctions'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
-import { ColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { GroundPlaneComponent } from '@etherealengine/engine/src/scene/components/GroundPlaneComponent'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
@@ -47,6 +46,7 @@ import { VariantComponent } from '@etherealengine/engine/src/scene/components/Va
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { useHookstate } from '@etherealengine/hyperflux'
+import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { AmbientLightComponent } from '@etherealengine/spatial/src/renderer/components/AmbientLightComponent'
 import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -72,6 +72,8 @@ import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/c
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { PrimitiveGeometryComponent } from '../../../../engine/src/scene/components/PrimitiveGeometryComponent'
@@ -94,11 +96,11 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
     PrimitiveGeometryComponent,
     GroundPlaneComponent,
     GroupComponent,
-    ColliderComponent,
     VariantComponent,
     SceneDynamicLoadTagComponent,
     ObjectGridSnapComponent
   ],
+  Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
   Interaction: [SpawnPointComponent, PortalComponent, LinkComponent, MountPointComponent],
   Lighting: [
     AmbientLightComponent,

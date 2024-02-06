@@ -38,7 +38,6 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
@@ -280,9 +279,10 @@ const execute = () => {
   }
 }
 
+const gizmoQuery = defineQuery([TransformGizmoComponent])
+
 const reactor = () => {
-  const selectionState = useHookstate(getMutableState(SelectionState))
-  const sceneQuery = defineQuery([SceneObjectComponent])
+  const selectedEntities = SelectionState.useSelectedEntities()
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
   const rendererState = useHookstate(getMutableState(RendererState))
 
@@ -298,20 +298,16 @@ const reactor = () => {
   }, [])
 
   useEffect(() => {
-    const selectedEntities = selectionState.selectedEntities
-    if (!selectedEntities.value) return
+    if (!selectedEntities.length) return
 
-    for (const entity of sceneQuery()) {
-      if (!hasComponent(entity, TransformGizmoComponent)) continue
+    for (const entity of gizmoQuery()) {
       removeComponent(entity, TransformGizmoComponent)
     }
-    const lastSelection = selectedEntities[selectedEntities.length - 1].value
+    const lastSelection = selectedEntities[selectedEntities.length - 1]
     if (!lastSelection) return
 
-    if (typeof lastSelection === 'string') return // TODO : gizmo for 3d objects without Ids
-
     setComponent(lastSelection, TransformGizmoComponent)
-  }, [selectionState.selectedEntities])
+  }, [selectedEntities])
 
   useEffect(() => {
     // set the active orbit camera to the main camera
