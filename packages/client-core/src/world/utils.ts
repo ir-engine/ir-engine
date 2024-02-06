@@ -36,6 +36,7 @@ export const loadSceneJsonOffline = async (projectName, sceneName) => {
   const sceneData = (await (
     await fetch(`${fileServer}/projects/${projectName}/${sceneName}.scene.json`)
   ).json()) as SceneJsonType
+  getMutableState(SceneState).activeScene.set(sceneID)
   SceneState.loadScene(sceneID, {
     scene: parseStorageProviderURLs(sceneData),
     name: sceneName,
@@ -43,5 +44,4 @@ export const loadSceneJsonOffline = async (projectName, sceneName) => {
     thumbnailUrl: `${fileServer}/projects/${projectName}/${sceneName}.thumbnail.jpg`,
     project: projectName
   })
-  getMutableState(SceneState).activeScene.set(sceneID)
 }
