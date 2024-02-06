@@ -110,7 +110,7 @@ const multiLogger = {
   /**
    * Usage:
    *
-   * import multiLogger from '@etherealengine/engine/src/common/functions/logger'
+   * import multiLogger from '@etherealengine/spatial/src/common/functions/logger'
    * const logger = multiLogger.child({ component: 'client-core:authentication' })
    *
    * logger.info('Logging in...')

@@ -37,13 +37,23 @@ import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
-import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { ObjectLayerComponents } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import iterateObject3D from '@etherealengine/engine/src/scene/util/iterateObject3D'
+import { SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
+import {
+  getMaterialSource,
+  materialFromId,
+  materialIsRegistered,
+  registerMaterial,
+  registerMaterialInstance,
+  unregisterMaterial,
+  unregisterMaterialInstance
+} from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
 import { getState } from '@etherealengine/hyperflux'
-import { Material, Mesh, Raycaster, Vector2 } from 'three'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { Material, MathUtils, Mesh, Raycaster, Vector2 } from 'three'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
@@ -85,13 +95,24 @@ export async function addMediaNode(
       const intersected = pointerScreenRaycaster.intersectObjects(sceneObjects)[0]
       const gltfLoader = getState(AssetLoaderState).gltfLoader
       gltfLoader.load(url, (gltf) => {
-        const material = iterateObject3D(
+        let material = iterateObject3D(
           gltf.scene,
           (mesh: Mesh) => mesh.material as Material,
           (mesh: Mesh) => mesh?.isMesh
         )[0]
+        if (!material) return
+        if (materialIsRegistered(material)) material = materialFromId(material.uuid).material
+        const cacheKey = MathUtils.generateUUID()
+        material.customProgramCacheKey = () => cacheKey
         iterateObject3D(intersected.object, (mesh: Mesh) => {
           if (!mesh?.isMesh) return
+          const src = getMaterialSource(mesh.material as Material)
+          if (!src) return
+          if (!materialIsRegistered(material)) registerMaterial(material, { type: SourceType.MODEL, path: src })
+          registerMaterialInstance(material, mesh.entity)
+          if (unregisterMaterialInstance(mesh.material as Material, mesh.entity) === 0) {
+            unregisterMaterial(mesh.material as Material)
+          }
           mesh.material = material
         })
       })

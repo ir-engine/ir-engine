@@ -24,11 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { XRAction, XRState } from '@etherealengine/engine/src/xr/XRState'
-import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
-import { WidgetAppActions } from '@etherealengine/engine/src/xrui/WidgetAppService'
-import { Widget, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
 import {
   defineActionQueue,
   dispatchAction,
@@ -38,13 +33,18 @@ import {
   startReactor,
   useHookstate
 } from '@etherealengine/hyperflux'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { XRAction, XRState } from '@etherealengine/spatial/src/xr/XRState'
+import { WidgetAppActions } from '@etherealengine/spatial/src/xrui/WidgetAppService'
+import { Widget, Widgets } from '@etherealengine/spatial/src/xrui/Widgets'
+import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { InputComponent } from '@etherealengine/engine/src/input/components/InputComponent'
-import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
-import { XRStandardGamepadAxes, XRStandardGamepadButton } from '@etherealengine/engine/src/input/state/ButtonState'
-import { InputState } from '@etherealengine/engine/src/input/state/InputState'
-import { XRAnchorSystemState } from '@etherealengine/engine/src/xr/XRAnchorSystem'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { XRStandardGamepadAxes, XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
+import { XRAnchorSystemState } from '@etherealengine/spatial/src/xr/XRAnchorSystem'
 import { useEffect } from 'react'
 import { MathUtils } from 'three'
 import { AnchorWidgetUI } from './ui/AnchorWidgetUI'

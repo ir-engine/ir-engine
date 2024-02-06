@@ -27,8 +27,8 @@ import React, { useImperativeHandle } from 'react'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
-import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 
 import { AudioPreviewPanel } from './AssetPreviewPanels/AudioPreviewPanel'
 import { ImagePreviewPanel } from './AssetPreviewPanels/ImagePreviewPanel'
@@ -88,6 +88,8 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
       case 'model/gltf':
       case 'model/gltf-binary':
       case 'model/glb':
+      case AssetType.VRM:
+      case 'model/vrm':
       case AssetType.glB:
       case AssetType.glTF:
       case 'gltf-binary':

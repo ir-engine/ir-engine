@@ -27,26 +27,21 @@ import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { getMutableState, useState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
+import { SDFSettingsState } from '@etherealengine/spatial/src/renderer/effects/sdf/SDFSettingsState'
 import { useEffect } from 'react'
-import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import { SDFComponent } from '../components/SDFComponent'
 
 const reactor = () => {
   const sdfQuery = useQuery([SDFComponent])
-  const sdfState = useState(getMutableState(SDFComponent.SDFStateSettingsState))
 
   useEffect(() => {
     if (sdfQuery.length === 0 || !sdfQuery.some((entity) => getComponent(entity, SDFComponent).enable)) {
-      getMutableState(SDFComponent.SDFStateSettingsState).enabled.set(false)
+      getMutableState(SDFSettingsState).enabled.set(false)
     } else {
-      getMutableState(SDFComponent.SDFStateSettingsState).enabled.set(true)
+      getMutableState(SDFSettingsState).enabled.set(true)
     }
   }, [sdfQuery])
-
-  useEffect(() => {
-    configureEffectComposer()
-  }, [sdfState.enabled])
 
   return null
 }

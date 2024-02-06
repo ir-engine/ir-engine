@@ -25,6 +25,7 @@ import { JSONTree } from 'react-json-tree'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import {
   NO_PROXY,
+  NO_PROXY_STEALTH,
   StateDefinitions,
   defineState,
   getMutableState,
@@ -33,7 +34,7 @@ import {
 } from '@etherealengine/hyperflux'
 
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 import styles from './styles.module.scss'
 
 const labelRenderer = (data: Record<string | number, any>) => {
@@ -72,7 +73,7 @@ export function StateDebug() {
       : Object.fromEntries(
           Object.entries(Engine.instance.store.stateMap)
             .filter(([key]) => key.toLowerCase().includes(stateSearch.value))
-            .map(([key, value]) => [key, value.value])
+            .map(([key, value]) => [key, value.get(NO_PROXY_STEALTH)])
         )
 
   const actionHistory = [...Engine.instance.store.actions.history].sort((a, b) => a.$time - b.$time)

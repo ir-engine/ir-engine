@@ -37,21 +37,20 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/engine/src/EngineState'
-import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
+import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { iOS } from '../../common/functions/isMobile'
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import { XRState } from '../../xr/XRState'
 import avatarBoneMatching from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { preloadedAnimations } from '../animation/Util'
@@ -62,6 +61,7 @@ import { AvatarControllerComponent } from '../components/AvatarControllerCompone
 import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
+import { LocalAvatarState } from '../state/AvatarState'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from './retargetMixamoRig'
 
 declare module '@pixiv/three-vrm/types/VRM' {
@@ -94,7 +94,6 @@ export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
       scene: model.scene,
       meta: { name: model.scene.children[0].name } as VRM1Meta
     })
-    scene.add(vrm.humanoid.normalizedHumanBonesRoot)
     if (!vrm.userData) vrm.userData = {}
     return vrm
   }
@@ -152,7 +151,7 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   rig.leftToes && rig.leftToes.node.getWorldPosition(leftToesPos)
   rig.leftLowerLeg.node.getWorldPosition(leftLowerLegPos)
   rig.leftUpperLeg.node.getWorldPosition(leftUpperLegPos)
-  rig.leftEye ? rig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos)
+  rig.leftEye ? rig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos).setY(headPos.y + 0.1) // fallback to rough estimation if no eye bone is present
 
   const avatarComponent = getMutableComponent(entity, AvatarComponent)
   avatarComponent.avatarHeight.set(size.y)
@@ -192,7 +191,7 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
     })
   }
 
-  if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)
+  if (entity === Engine.instance.localClientEntity) getMutableState(LocalAvatarState).avatarReady.set(true)
 }
 
 export const retargetAvatarAnimations = (entity: Entity) => {
@@ -205,7 +204,7 @@ export const retargetAvatarAnimations = (entity: Entity) => {
   }
   setComponent(entity, AnimationComponent, {
     animations: animations,
-    mixer: new AnimationMixer(rigComponent.normalizedRig.hips.node)
+    mixer: new AnimationMixer(rigComponent.vrm.humanoid.normalizedHumanBonesRoot)
   })
 }
 

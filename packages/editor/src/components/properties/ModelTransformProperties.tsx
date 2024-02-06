@@ -39,12 +39,12 @@ import {
   DefaultModelTransformParameters,
   ModelTransformParameters
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
-import { MaterialSource, SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
-import MeshBasicMaterial from '@etherealengine/engine/src/renderer/materials/constants/material-prototypes/MeshBasicMaterial.mat'
-import { materialsFromSource } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import bakeToVertices from '@etherealengine/engine/src/renderer/materials/functions/bakeToVertices'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelResources } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
+import { MaterialSource, SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
+import MeshBasicMaterial from '@etherealengine/engine/src/scene/materials/constants/material-prototypes/MeshBasicMaterial.mat'
+import { materialsFromSource } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
+import bakeToVertices from '@etherealengine/engine/src/scene/materials/functions/bakeToVertices'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { NO_PROXY, State, getMutableState } from '@etherealengine/hyperflux/functions/StateFunctions'
 
@@ -168,8 +168,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
   }, [transforming])
 
   const onBakeSelected = useCallback(async () => {
-    const selectedModelEntities: Entity[] = selectionState.selectedEntities
-      .get()
+    const selectedModelEntities: Entity[] = SelectionState.getSelectedEntities()
       .filter((entity) => typeof entity !== 'string' && hasComponent(entity, ModelComponent))
       .map((entity: Entity) => entity)
     for (const entity of selectedModelEntities) {

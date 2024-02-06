@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import config from '@etherealengine/common/src/config'
 import { SceneID, SceneJsonType } from '@etherealengine/common/src/schema.type.module'
-import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { getMutableState } from '@etherealengine/hyperflux'
+import { parseStorageProviderURLs } from '@etherealengine/spatial/src/common/functions/parseSceneJSON'
 
 const fileServer = config.client.fileServer
 
@@ -36,6 +36,7 @@ export const loadSceneJsonOffline = async (projectName, sceneName) => {
   const sceneData = (await (
     await fetch(`${fileServer}/projects/${projectName}/${sceneName}.scene.json`)
   ).json()) as SceneJsonType
+  getMutableState(SceneState).activeScene.set(sceneID)
   SceneState.loadScene(sceneID, {
     scene: parseStorageProviderURLs(sceneData),
     name: sceneName,
@@ -43,5 +44,4 @@ export const loadSceneJsonOffline = async (projectName, sceneName) => {
     thumbnailUrl: `${fileServer}/projects/${projectName}/${sceneName}.thumbnail.jpg`,
     project: projectName
   })
-  getMutableState(SceneState).activeScene.set(sceneID)
 }

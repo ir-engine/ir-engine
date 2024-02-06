@@ -37,7 +37,13 @@ import {
 } from '@etherealengine/hyperflux'
 import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
-import { ComponentJsonType, EntityJsonType, SceneID, scenePath } from '@etherealengine/common/src/schema.type.module'
+import {
+  ComponentJsonType,
+  EntityJsonType,
+  SceneDataType,
+  SceneID,
+  scenePath
+} from '@etherealengine/common/src/schema.type.module'
 import {
   ComponentJSONIDMap,
   getComponent,
@@ -52,27 +58,29 @@ import { entityExists, removeEntity, useEntityContext } from '@etherealengine/ec
 import { QueryReactor, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { NetworkState, SceneUser } from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
+import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
+import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { Not } from 'bitecs'
 import React from 'react'
 import { Group } from 'three'
-import { NetworkState, SceneUser } from '../../networking/NetworkState'
-import { NetworkTopics } from '../../networking/classes/Network'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { PhysicsState } from '../../physics/state/PhysicsState'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
-import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
-import { NameComponent } from '../components/NameComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
 import { SourceComponent } from '../components/SourceComponent'
-import { VisibleComponent } from '../components/VisibleComponent'
 import { proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 
 const reactor = () => {
@@ -180,9 +188,9 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
 
     const sceneUpdatedListener = async () => {
       const [projectName, sceneName] = props.sceneID.split('/')
-      const sceneData = await Engine.instance.api
+      const sceneData = (await Engine.instance.api
         .service(scenePath)
-        .get(null, { query: { project: projectName, name: sceneName } })
+        .get('', { query: { project: projectName, name: sceneName } })) as SceneDataType
       SceneState.loadScene(props.sceneID, sceneData)
     }
     // for testing
@@ -323,11 +331,12 @@ const EntityChildLoadReactor = (props: {
       childIndex: entityJSONState.index.value
     })
 
-    if (!hasComponent(entity, GroupComponent)) {
+    if (!hasComponent(entity, Object3DComponent) && !hasComponent(entity, MeshComponent)) {
       const obj3d = new Group()
       obj3d.entity = entity
       addObjectToGroup(entity, obj3d)
       proxifyParentChildRelationships(obj3d)
+      setComponent(entity, Object3DComponent, obj3d)
     }
 
     setComponent(entity, SourceComponent, props.sceneID)

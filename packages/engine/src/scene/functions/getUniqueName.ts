@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 
 const namePattern = new RegExp('(.*) \\d+$')
 

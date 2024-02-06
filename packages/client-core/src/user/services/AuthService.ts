@@ -60,7 +60,7 @@ import {
   userSettingPath
 } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
 import { AuthenticationResult } from '@feathersjs/authentication'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -106,7 +106,8 @@ export const UserSeed: UserType = {
   locationBans: [],
   instanceAttendance: [],
   createdAt: '',
-  updatedAt: ''
+  updatedAt: '',
+  lastLogin: null
 }
 
 const resolveWalletUser = (credentials: any): UserType => {

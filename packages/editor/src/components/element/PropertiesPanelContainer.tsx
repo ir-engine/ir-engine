@@ -24,21 +24,21 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useAllComponents, useComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { useAllComponents, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getMutableState } from '@etherealengine/hyperflux'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { Popover } from '@mui/material'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import { PropertiesPanelButton } from '../inputs/Button'
 import MaterialEditor from '../materials/MaterialEditor'
-import { MaterialSelectionState } from '../materials/MaterialLibraryState'
 import { CoreNodeEditor } from '../properties/CoreNodeEditor'
 import ElementList from './ElementList'
 import { PopoverContext } from './PopoverContext'
@@ -54,12 +54,12 @@ const EntityComponentEditor = (props: { entity; component; multiEdit }) => {
   return <Editor key={`${entity}-${Editor.name}`} multiEdit={multiEdit} entity={entity} component={component} />
 }
 
-const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
-  const { entity, multiEdit } = props
+const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => {
+  const { entityUUID, multiEdit } = props
   const anchorEl = useHookstate<HTMLButtonElement | null>(null)
   const { t } = useTranslation()
 
-  const uuid = useComponent(entity, UUIDComponent)
+  const entity = UUIDComponent.getEntityByUUID(entityUUID)
 
   const components = useAllComponents(entity).filter((c) => EntityNodeEditor.has(c))
 
@@ -94,9 +94,14 @@ const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
       >
         <ElementList />
       </Popover>
-      <CoreNodeEditor entity={entity} key={uuid.value} />
+      <CoreNodeEditor entity={entity} key={entityUUID + entity} />
       {components.map((c, i) => (
-        <EntityComponentEditor key={`${uuid.value}-${c.name}`} multiEdit={multiEdit} entity={entity} component={c} />
+        <EntityComponentEditor
+          key={`${entityUUID + entity}-${c.name}`}
+          multiEdit={multiEdit}
+          entity={entity}
+          component={c}
+        />
       ))}
     </PopoverContext.Provider>
   )
@@ -106,25 +111,14 @@ const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
  * PropertiesPanelContainer used to render editor view to customize property of selected element.
  */
 export const PropertiesPanelContainer = () => {
-  const selectionState = useHookstate(getMutableState(SelectionState))
-  const editorState = useHookstate(getMutableState(EditorState))
-  const entity = useHookstate<Entity>(UndefinedEntity)
-  const multiEdit = useHookstate<boolean>(false)
+  const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities).value
+  const lockedNode = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
+  const multiEdit = selectedEntities.length > 1
+  const uuid = lockedNode.value ? lockedNode.value : selectedEntities[selectedEntities.length - 1]
 
   const { t } = useTranslation()
 
-  useEffect(() => {
-    const selectedEntities = selectionState.selectedEntities.value
-    const lockedNode = editorState.lockPropertiesPanel.value
-    multiEdit.set(selectedEntities.length > 1)
-    entity.set(
-      lockedNode
-        ? UUIDComponent.getEntityByUUID(lockedNode) ?? lockedNode
-        : selectedEntities[selectedEntities.length - 1]
-    )
-  }, [selectionState.selectedEntities])
-
-  const materialID = useHookstate(getMutableState(MaterialSelectionState)).selectedMaterial.value
+  const materialID = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial).value
 
   return (
     <div
@@ -135,8 +129,8 @@ export const PropertiesPanelContainer = () => {
     >
       {materialID ? (
         <MaterialEditor materialID={materialID} />
-      ) : entity.value ? (
-        <EntityEditor entity={entity.value} key={entity.value} multiEdit={multiEdit.value} />
+      ) : uuid ? (
+        <EntityEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
       ) : (
         <div
           style={{

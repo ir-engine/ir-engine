@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { Component, SerializedComponentType, updateComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
 import { getMutableState } from '@etherealengine/hyperflux'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorState } from '../../services/EditorServices'
@@ -60,13 +60,12 @@ export const updateProperties = <C extends Component>(
   nodes?: Entity[]
 ) => {
   const editorState = getMutableState(EditorState)
-  const selectionState = getMutableState(SelectionState)
 
   const affectedNodes = nodes
     ? nodes
     : editorState.lockPropertiesPanel.value
     ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value)]
-    : selectionState.selectedEntities.value
+    : SelectionState.getSelectedEntities()
   for (let i = 0; i < affectedNodes.length; i++) {
     const node = affectedNodes[i]
     updateComponent(node, component, properties)
@@ -89,13 +88,12 @@ export const commitProperties = <C extends Component>(
   nodes?: Entity[]
 ) => {
   const editorState = getMutableState(EditorState)
-  const selectionState = getMutableState(SelectionState)
 
   const affectedNodes = nodes
     ? nodes
     : editorState.lockPropertiesPanel.value
     ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value)]
-    : selectionState.selectedEntities.value
+    : SelectionState.getSelectedEntities()
 
   EditorControlFunctions.modifyProperty(affectedNodes, component, properties)
 }

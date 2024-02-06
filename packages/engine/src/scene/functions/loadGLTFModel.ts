@@ -37,34 +37,27 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
+import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
+import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { FrustumCullCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { BoneComponent } from '../../avatar/components/BoneComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
-import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { MeshBVHComponent } from '../components/MeshBVHComponent'
-import { MeshComponent } from '../components/MeshComponent'
 import { ModelComponent } from '../components/ModelComponent'
-import { NameComponent } from '../components/NameComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
-import { VisibleComponent } from '../components/VisibleComponent'
-import { ObjectLayers } from '../constants/ObjectLayers'
-import iterateObject3D from '../util/iterateObject3D'
-import { enableObjectLayer } from './setObjectLayers'
-
-//isProxified: used to check if an object is proxified
-declare module 'three/src/core/Object3D' {
-  export interface Object3D {
-    readonly isProxified: true | undefined
-  }
-}
 
 export const parseECSData = (data: [string, any][]): ComponentJsonType[] => {
   const components: { [key: string]: any } = {}
@@ -168,8 +161,6 @@ export const parseGLTFModel = (entity: Entity, scene: Scene) => {
     })
   }
 
-  enableObjectLayer(scene, ObjectLayers.Scene, true)
-
   // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
   if (scene.animations?.length) {
     setComponent(entity, AnimationComponent, {
@@ -201,11 +192,20 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
     children: {
       get() {
         if (EngineRenderer.instance?.rendering) return []
-        return hasComponent(objEntity, EntityTreeComponent)
-          ? getComponent(objEntity, EntityTreeComponent)
-              .children.filter((child) => getOptionalComponent(child, GroupComponent)?.length)
-              .flatMap((child) => getComponent(child, GroupComponent))
-          : []
+        if (hasComponent(objEntity, EntityTreeComponent)) {
+          const childEntities = getComponent(objEntity, EntityTreeComponent).children
+          const result: Object3D[] = []
+          for (const childEntity of childEntities) {
+            if (hasComponent(childEntity, MeshComponent)) {
+              result.push(getComponent(childEntity, MeshComponent))
+            } else if (hasComponent(childEntity, Object3DComponent)) {
+              result.push(getComponent(childEntity, Object3DComponent))
+            }
+          }
+          return result
+        } else {
+          return []
+        }
       },
       set(value) {
         throw new Error('Cannot set children of proxified object')
@@ -253,6 +253,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
 
   addObjectToGroup(objEntity, obj)
   setComponent(objEntity, GLTFLoadedComponent, ['entity'])
+  ObjectLayerMaskComponent.setMask(objEntity, ObjectLayerMaskComponent.mask[rootEntity])
 
   /** Proxy children with EntityTreeComponent if it exists */
   proxifyParentChildRelationships(obj)

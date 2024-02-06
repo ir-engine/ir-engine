@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { EntityTreeComponent } from '@etherealengine/engine/src/transform/components/EntityTree'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 /**
  * Filters the parent entities from the given entity list.

@@ -33,6 +33,7 @@ import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   getComponent,
   getOptionalComponent,
+  hasComponent,
   removeComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -41,17 +42,19 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { EngineState } from '@etherealengine/engine/src/EngineState'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import {
+  createPriorityQueue,
+  createSortAndApplyPriorityQueue
+} from '@etherealengine/spatial/src/common/functions/PriorityQueue'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { TransformSystem } from '@etherealengine/spatial/src/transform/TransformModule'
+import { compareDistanceToCamera } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { XRLeftHandComponent, XRRightHandComponent } from '@etherealengine/spatial/src/xr/XRComponents'
+import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../common/functions/PriorityQueue'
-import { NetworkState } from '../../networking/NetworkState'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { TransformSystem } from '../../transform/TransformModule'
-import { compareDistanceToCamera } from '../../transform/components/DistanceComponents'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
-import { XRControlsState, XRState } from '../../xr/XRState'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
 import { AvatarHeadDecapComponent, AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
@@ -59,11 +62,13 @@ import { IKSerialization } from '../IKSerialization'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets, preloadedAnimations } from '../animation/Util'
+import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { getArmIKHint } from '../animation/getArmIKHint'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
 import { loadBundledAnimations } from '../functions/avatarFunctions'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
+import { LocalAvatarState } from '../state/AvatarState'
 import { AnimationSystem } from './AnimationSystem'
 
 export const AvatarAnimationState = defineState({
@@ -284,6 +289,15 @@ const execute = () => {
         leftFootTargetBlendWeight
       )
     }
+
+    if (hasComponent(entity, XRRightHandComponent)) {
+      applyHandRotationFK(rigComponent.vrm, 'right', getComponent(entity, XRRightHandComponent).rotations)
+    }
+
+    if (hasComponent(entity, XRLeftHandComponent)) {
+      applyHandRotationFK(rigComponent.vrm, 'left', getComponent(entity, XRLeftHandComponent).rotations)
+    }
+
     updateVRMRetargeting(rigComponent.vrm, entity)
   }
 }
@@ -309,7 +323,7 @@ const reactor = () => {
   const xrState = getMutableState(XRState)
   const session = useHookstate(xrState.session)
   const isCameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar)
-  const userReady = useHookstate(getMutableState(EngineState).userReady)
+  const userReady = useHookstate(getMutableState(LocalAvatarState).avatarReady)
 
   useEffect(() => {
     if (!session.value) return
@@ -325,7 +339,13 @@ const reactor = () => {
   }, [isCameraAttachedToAvatar, session])
 
   useEffect(() => {
-    if (userReady.value) setTrackingSpace()
+    if (!Engine.instance.localClientEntity) {
+      XRState.setTrackingSpace()
+      return
+    }
+    const eyeHeight = getComponent(Engine.instance.localClientEntity, AvatarComponent).eyeHeight
+    getMutableState(XRState).userEyeHeight.set(eyeHeight)
+    XRState.setTrackingSpace()
   }, [userReady])
 
   return null

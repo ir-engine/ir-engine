@@ -33,10 +33,10 @@ import './index.css'
 
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
 import '@etherealengine/engine/src/EngineModule'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 
 export const initializeEngineForChat = async () => {
   await loadEngineInjection()

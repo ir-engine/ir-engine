@@ -32,15 +32,15 @@ import { getOptionalComponent, hasComponent, setComponent } from '@etherealengin
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { WebcamInputComponent } from './WebcamInputComponent'
 
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SkinnedMeshComponent } from '@etherealengine/engine/src/avatar/components/SkinnedMeshComponent'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
-import { iterateEntityNode } from '@etherealengine/engine/src/transform/components/EntityTree'
+import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { MediaStreamState } from '../../transports/MediaStreams'
 
 const FACE_EXPRESSION_THRESHOLD = 0.1

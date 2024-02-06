@@ -27,21 +27,14 @@ import { PositionalAudioComponent } from '../audio/components/PositionalAudioCom
 import { LoopAnimationComponent } from '../avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '../interaction/components/GrabbableComponent'
 import { MountPointSystem } from '../interaction/systems/MountPointSystem'
-import { NoiseOffsetSystem } from '../renderer/materials/constants/plugins/NoiseOffsetPlugin'
-import { MaterialLibrarySystem } from '../renderer/materials/systems/MaterialLibrarySystem'
-import { TransformComponent } from '../transform/components/TransformComponent'
-import { XRAnchorComponent } from '../xr/XRComponents'
-import { AmbientLightComponent } from './components/AmbientLightComponent'
+import { NoiseOffsetSystem } from '../scene/materials/constants/plugins/NoiseOffsetPlugin'
+import { MaterialLibrarySystem } from '../scene/materials/systems/MaterialLibrarySystem'
 import { CameraSettingsComponent } from './components/CameraSettingsComponent'
 import { CloudComponent } from './components/CloudComponent'
-import { ColliderComponent } from './components/ColliderComponent'
-import { DirectionalLightComponent } from './components/DirectionalLightComponent'
 import { EnvMapBakeComponent } from './components/EnvMapBakeComponent'
 import { EnvmapComponent } from './components/EnvmapComponent'
 import { FogSettingsComponent } from './components/FogSettingsComponent'
 import { GroundPlaneComponent } from './components/GroundPlaneComponent'
-import { GroupComponent } from './components/GroupComponent'
-import { HemisphereLightComponent } from './components/HemisphereLightComponent'
 import { HyperspaceTagComponent } from './components/HyperspaceTagComponent'
 import { ImageComponent } from './components/ImageComponent'
 import { InteriorComponent } from './components/InteriorComponent'
@@ -51,7 +44,6 @@ import { MediaSettingsComponent } from './components/MediaSettingsComponent'
 import { MountPointComponent } from './components/MountPointComponent'
 import { OceanComponent } from './components/OceanComponent'
 import { ParticleSystemComponent } from './components/ParticleSystemComponent'
-import { PointLightComponent } from './components/PointLightComponent'
 import { PostProcessingComponent } from './components/PostProcessingComponent'
 import { PrimitiveGeometryComponent } from './components/PrimitiveGeometryComponent'
 import { RenderSettingsComponent } from './components/RenderSettingsComponent'
@@ -63,12 +55,10 @@ import { SkyboxComponent } from './components/SkyboxComponent'
 import { SpawnPointComponent } from './components/SpawnPointComponent'
 import { SplineComponent } from './components/SplineComponent'
 import { SplineTrackComponent } from './components/SplineTrackComponent'
-import { SpotLightComponent } from './components/SpotLightComponent'
 import { SystemComponent } from './components/SystemComponent'
 import { TextComponent } from './components/TextComponent'
 import { VariantComponent } from './components/VariantComponent'
 import { VideoComponent } from './components/VideoComponent'
-import { VisibleComponent } from './components/VisibleComponent'
 import { VolumetricComponent } from './components/VolumetricComponent'
 import { WaterComponent } from './components/WaterComponent'
 import { EnvironmentSystem } from './systems/EnvironmentSystem'
@@ -87,17 +77,12 @@ export const SceneComponents = [
   PositionalAudioComponent,
   LoopAnimationComponent,
   GrabbableComponent,
-  AmbientLightComponent,
   CameraSettingsComponent,
   CloudComponent,
-  ColliderComponent,
-  DirectionalLightComponent,
   EnvMapBakeComponent,
   EnvmapComponent,
   FogSettingsComponent,
   GroundPlaneComponent,
-  GroupComponent,
-  HemisphereLightComponent,
   HyperspaceTagComponent,
   ImageComponent,
   InteriorComponent,
@@ -106,7 +91,6 @@ export const SceneComponents = [
   MountPointComponent,
   OceanComponent,
   ParticleSystemComponent,
-  PointLightComponent,
   PostProcessingComponent,
   PrimitiveGeometryComponent,
   RenderSettingsComponent,
@@ -120,15 +104,11 @@ export const SceneComponents = [
   SplineComponent,
   SplineTrackComponent,
   SystemComponent,
-  SpotLightComponent,
   SystemComponent,
   VariantComponent,
   VideoComponent,
-  VisibleComponent,
   VolumetricComponent,
   WaterComponent,
-  TransformComponent,
-  XRAnchorComponent,
   LinkComponent,
   TextComponent
 ]

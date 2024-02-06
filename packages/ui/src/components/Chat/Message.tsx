@@ -27,8 +27,8 @@ import React, { useEffect } from 'react'
 
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { useFind, useGet, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useFind, useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
 import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
@@ -39,7 +39,7 @@ import {
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { ChannelID, ChannelType, channelPath, messagePath } from '@etherealengine/common/src/schema.type.module'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 import { Resizable } from 're-resizable'
 import { FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa'
 import { HiPhone, HiPhoneMissedCall } from 'react-icons/hi'

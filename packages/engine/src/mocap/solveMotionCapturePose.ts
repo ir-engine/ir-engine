@@ -48,6 +48,14 @@ import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getState } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { V_010, V_100 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import {
   NormalizedLandmark,
   NormalizedLandmarkList,
@@ -59,14 +67,6 @@ import {
 } from '@mediapipe/pose'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
-import { V_010, V_100 } from '../common/constants/MathConstants'
-import { RendererState } from '../renderer/RendererState'
-import { GroupComponent, addObjectToGroup } from '../scene/components/GroupComponent'
-import { NameComponent } from '../scene/components/NameComponent'
-import { setVisibleComponent } from '../scene/components/VisibleComponent'
-import { ObjectLayers } from '../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../scene/functions/setObjectLayers'
-import { TransformComponent } from '../transform/components/TransformComponent'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 
 const grey = new Color(0.5, 0.5, 0.5)
@@ -541,14 +541,7 @@ export const solveLimb = (
 
   const rig = getComponent(entity, AvatarRigComponent)
 
-  const avatarTransform = getComponent(entity, TransformComponent)
-
-  // get parent quaternion relative to avatar
-  const avatarInverse = new Quaternion().copy(avatarTransform.rotation)
-  avatarInverse.invert()
-  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(
-    new Quaternion()
-  ).premultiply(avatarInverse)
+  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(new Quaternion())
 
   startPoint.set(-start.x, lowestWorldY - start.y, -start.z)
   midPoint.set(-mid.x, lowestWorldY - mid.y, -mid.z)
@@ -590,10 +583,7 @@ export const solveHand = (
 
   const rig = getComponent(entity, AvatarRigComponent)
 
-  const avatarTransform = getComponent(entity, TransformComponent)
-  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(
-    new Quaternion()
-  ).premultiply(new Quaternion().copy(avatarTransform.rotation).invert())
+  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(new Quaternion())
 
   startPoint.set(extent.x, lowestWorldY - extent.y, extent.z)
   ref1Point.set(ref1.x, lowestWorldY - ref1.y, ref1.z)
@@ -634,10 +624,7 @@ export const solveFoot = (
 
   const rig = getComponent(entity, AvatarRigComponent)
 
-  const avatarTransform = getComponent(entity, TransformComponent)
-  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(
-    new Quaternion()
-  ).premultiply(new Quaternion().copy(avatarTransform.rotation).invert())
+  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(new Quaternion())
 
   const targetQuat = new Quaternion()
   if (grounded) {
@@ -676,8 +663,6 @@ export const solveHead = (
   rightEar: NormalizedLandmark,
   nose: NormalizedLandmark
 ) => {
-  const rig = getComponent(entity, AvatarRigComponent)
-
   leftEarVec3.set(-leftEar.x, -leftEar.y, -leftEar.z)
   rightEarVec3.set(-rightEar.x, -rightEar.y, -rightEar.z)
   noseVec3.set(-nose.x, -nose.y, -nose.z)

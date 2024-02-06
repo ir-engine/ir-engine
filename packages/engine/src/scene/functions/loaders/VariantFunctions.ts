@@ -1,19 +1,23 @@
 import { InstancedMesh, Material, Object3D, Vector3 } from 'three'
 
-import { DistanceFromCameraComponent } from '@etherealengine/engine/src/transform/components/DistanceComponents'
+import { DistanceFromCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 
 import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
+import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
+import {
+  GroupComponent,
+  addObjectToGroup,
+  removeObjectFromGroup
+} from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { pathResolver } from '../../../assets/functions/pathResolver'
-import { addOBCPlugin } from '../../../common/functions/OnBeforeCompilePlugin'
-import { isMobile } from '../../../common/functions/isMobile'
-import { TransformComponent } from '../../../transform/components/TransformComponent'
-import { isMobileXRHeadset } from '../../../xr/XRState'
-import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from '../../components/GroupComponent'
 import { InstancingComponent } from '../../components/InstancingComponent'
-import { MeshComponent } from '../../components/MeshComponent'
 import { ModelComponent } from '../../components/ModelComponent'
 import { VariantComponent, VariantLevel } from '../../components/VariantComponent'
 import getFirstMesh from '../../util/meshUtils'

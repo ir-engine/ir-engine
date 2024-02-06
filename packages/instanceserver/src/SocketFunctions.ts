@@ -34,7 +34,7 @@ import {
   instancePath,
   userPath
 } from '@etherealengine/common/src/schema.type.module'
-import { AuthError, AuthTask } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
+import { AuthError, AuthTask } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleConnectingPeer, handleDisconnect } from './NetworkFunctions'
 import { getServerNetwork } from './SocketWebRTCServerFunctions'

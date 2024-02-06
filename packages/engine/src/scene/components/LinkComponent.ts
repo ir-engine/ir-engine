@@ -40,16 +40,20 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { EngineState } from '@etherealengine/engine/src/EngineState'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
+import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { useEffect } from 'react'
 import { MathUtils, MeshBasicMaterial, Vector3 } from 'three'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
-import { matches } from '../../common/functions/MatchesUtils'
-import { InputComponent } from '../../input/components/InputComponent'
-import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { XRStandardGamepadButton } from '../../input/state/ButtonState'
-import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { createInteractUI } from '../../interaction/functions/interactUI'
 import { createNonInteractUI } from '../../interaction/functions/nonInteractUI'
 import {
@@ -57,11 +61,7 @@ import {
   addInteractableUI,
   removeInteractiveUI
 } from '../../interaction/systems/InteractiveSystem'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRState } from '../../xr/XRState'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
-import { VisibleComponent } from './VisibleComponent'
 
 const linkLogic = (linkComponent, xrState) => {
   if (!linkComponent.sceneNav) {

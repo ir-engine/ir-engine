@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { useEffect } from 'react'
 import { Water } from '../classes/Water'
-import { setCallback } from './CallbackComponent'
-import { addObjectToGroup } from './GroupComponent'
 import { UpdatableCallback, UpdatableComponent } from './UpdatableComponent'
 
 export const WaterComponent = defineComponent({

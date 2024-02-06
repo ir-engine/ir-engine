@@ -20,7 +20,7 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "jsx": "react",
-    "isolatedModules": false,
+    "isolatedModules": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
@@ -37,8 +37,6 @@
   ],
   "include": [
     "../../__global.d.ts",
-    "../engine/src/**/*.ts",
-    "../engine/src/**/*.tsx",
     "../server-core/**/*",
     "./**/*.ts",
     "./**/*.tsx"

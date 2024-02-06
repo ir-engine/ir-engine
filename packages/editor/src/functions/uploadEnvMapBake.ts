@@ -28,7 +28,6 @@ import { Vector3 } from 'three'
 import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import CubemapCapturer from '@etherealengine/engine/src/scene/classes/CubemapCapturer'
 import {
@@ -36,10 +35,11 @@ import {
   convertImageDataToKTX2Blob
 } from '@etherealengine/engine/src/scene/classes/ImageUtils'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getState } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { EditorState } from '../services/EditorServices'
