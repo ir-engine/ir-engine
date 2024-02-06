@@ -44,14 +44,7 @@ declare module '@etherealengine/common/declarations' {
 }
 
 export default (app: Application): void => {
-  const options = {
-    name: scenePath,
-    paginate: app.get('paginate'),
-    Model: app.get('knexClient'),
-    multi: true
-  }
-
-  app.use(scenePath, new SceneService(options), {
+  app.use(scenePath, new SceneService(), {
     // A list of all methods this service exposes externally
     methods: sceneMethods,
     // You can add additional custom events to be sent to clients here

@@ -29,7 +29,6 @@ import {
   SceneDataType,
   SceneID,
   SceneJsonType,
-  SceneMetadataCreate,
   ScenePatch,
   SceneQuery,
   SceneUpdate
@@ -175,25 +174,23 @@ const ensureUniqueName = async (context: HookContext<SceneService>) => {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
-  const data: SceneCreateData[] = Array.isArray(context.data) ? context.data : [context.data]
+  const data: SceneCreateData = context.data
+  logger.info('[scene.create]: ' + data.project)
+  context.newSceneName.push(NEW_SCENE_NAME)
+  const storageProviderName = data.storageProvider
+  context.storageProvider.push(getStorageProvider(storageProviderName))
+  let counter = 1
 
-  context.newSceneName = []
-  context.storageProvider = []
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    if (counter > 1) context.newSceneName = NEW_SCENE_NAME + '-' + counter
+    const sceneNameExists = await context.storageProvider.doesExist(
+      `${context.newSceneName}.scene.json`,
+      data.directory
+    )
+    if (!sceneNameExists) break
 
-  for (const [index, item] of data.entries()) {
-    logger.info('[scene.create]: ' + item.project)
-    context.newSceneName.push(NEW_SCENE_NAME)
-    const storageProviderName = item.storageProvider
-    context.storageProvider.push(getStorageProvider(storageProviderName))
-    let counter = 1
-
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      if (counter > 1) context.newSceneName[index] = NEW_SCENE_NAME + '-' + counter
-      if (!(await context.storageProvider[index].doesExist(`${context.newSceneName}.scene.json`, item.directory))) break
-
-      counter++
-    }
+    counter++
   }
 }
 
@@ -207,28 +204,26 @@ const createSceneInStorageProvider = async (context: HookContext<SceneService>) 
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
-  const data: SceneCreateData[] = Array.isArray(context.data) ? context.data : [context.data]
+  const data: SceneCreateData = context.data
 
-  for (const [index, item] of data.entries()) {
-    await Promise.all(
-      SCENE_ASSET_FILES.map((ext) =>
-        context.storageProvider[index].moveObject(
-          `default${ext}`,
-          `${context.newSceneName[index]}${ext}`,
-          `projects/default-project`,
-          item.directory,
-          true
-        )
+  await Promise.all(
+    SCENE_ASSET_FILES.map((ext) =>
+      context.storageProvider.moveObject(
+        `default${ext}`,
+        `${context.newSceneName}${ext}`,
+        `projects/default-project`,
+        data.directory,
+        true
       )
     )
-    try {
-      await context.storageProvider[index].createInvalidation(
-        SCENE_ASSET_FILES.map((asset) => `${item.directory}${context.newSceneName[index]}${asset}`)
-      )
-    } catch (e) {
-      logger.error(e)
-      logger.info(SCENE_ASSET_FILES)
-    }
+  )
+  try {
+    await context.storageProvider.createInvalidation(
+      SCENE_ASSET_FILES.map((asset) => `${data.directory}${context.newSceneName}${asset}`)
+    )
+  } catch (e) {
+    logger.error(e)
+    logger.info(SCENE_ASSET_FILES)
   }
 }
 
@@ -242,17 +237,15 @@ const createSceneLocally = async (context: HookContext<SceneService>) => {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
-  const data: SceneCreateData[] = Array.isArray(context.data) ? context.data : [context.data]
+  const data: SceneCreateData = context.data
 
-  for (const [index, item] of data.entries()) {
-    if (isDev) {
-      const projectPathLocal = path.resolve(appRootPath.path, item.localDirectory!)
-      for (const ext of SCENE_ASSET_FILES) {
-        fs.copyFileSync(
-          path.resolve(appRootPath.path, `${DEFAULT_DIRECTORY}/default${ext}`),
-          path.resolve(projectPathLocal + '/' + context.newSceneName[index] + ext)
-        )
-      }
+  if (isDev) {
+    const projectPathLocal = path.resolve(appRootPath.path, data.localDirectory!)
+    for (const ext of SCENE_ASSET_FILES) {
+      fs.copyFileSync(
+        path.resolve(appRootPath.path, `${DEFAULT_DIRECTORY}/default${ext}`),
+        path.resolve(projectPathLocal + '/' + context.newSceneName + ext)
+      )
     }
   }
 }
@@ -267,16 +260,11 @@ const setSceneCreateResult = async (context: HookContext<SceneService>) => {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
-  const data: SceneCreateData[] = Array.isArray(context.data) ? context.data : [context.data]
-  const result: SceneMetadataCreate[] = []
+  const data: SceneCreateData = context.data
 
-  for (const [index, item] of data.entries()) {
-    const scenePath = `${item.directory}${context.newSceneName[index]}.scene.json` as SceneID
+  const scenePath = `${data.directory}${context.newSceneName}.scene.json` as SceneID
 
-    result.push({ project: item.project!, name: context.newSceneName[index], scenePath })
-  }
-
-  context.result = result.length === 1 ? result[0] : result
+  context.result = { project: data.project!, name: context.newSceneName, scenePath }
 }
 
 /**
@@ -386,39 +374,34 @@ const saveSceneInStorageProvider = async (context: HookContext<SceneService>) =>
   if (!context.data || context.method !== 'update') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
-  try {
-    const { name, thumbnailBuffer, storageProviderName, directory } = context.data as SceneCreateData
-    const storageProvider = getStorageProvider(storageProviderName)
+  const { name, thumbnailBuffer, storageProviderName, directory } = context.data as SceneCreateData
+  const storageProvider = getStorageProvider(storageProviderName)
 
-    const newSceneJsonPath = `${directory}${name}.scene.json`
+  const newSceneJsonPath = `${directory}${name}.scene.json`
+  await storageProvider.putObject({
+    Key: newSceneJsonPath,
+    Body: Buffer.from(
+      JSON.stringify(
+        cleanStorageProviderURLs(context.parsedSceneData ?? (defaultSceneSeed as unknown as SceneJsonType))
+      )
+    ),
+    ContentType: 'application/json'
+  })
+
+  if (thumbnailBuffer && Buffer.isBuffer(thumbnailBuffer)) {
+    const sceneThumbnailPath = `${directory}${name}.thumbnail.jpg`
     await storageProvider.putObject({
-      Key: newSceneJsonPath,
-      Body: Buffer.from(
-        JSON.stringify(
-          cleanStorageProviderURLs(context.parsedSceneData ?? (defaultSceneSeed as unknown as SceneJsonType))
-        )
-      ),
-      ContentType: 'application/json'
+      Key: sceneThumbnailPath,
+      Body: thumbnailBuffer as Buffer,
+      ContentType: 'image/jpeg'
     })
+  }
 
-    if (thumbnailBuffer && Buffer.isBuffer(thumbnailBuffer)) {
-      const sceneThumbnailPath = `${directory}${name}.thumbnail.jpg`
-      await storageProvider.putObject({
-        Key: sceneThumbnailPath,
-        Body: thumbnailBuffer as Buffer,
-        ContentType: 'image/jpeg'
-      })
-    }
-
-    try {
-      await storageProvider.createInvalidation(SCENE_ASSET_FILES.map((asset) => `${directory}${name}${asset}`))
-    } catch (e) {
-      logger.error(e)
-      logger.info(SCENE_ASSET_FILES)
-    }
-  } catch (err) {
-    logger.error(err)
-    throw err
+  try {
+    await storageProvider.createInvalidation(SCENE_ASSET_FILES.map((asset) => `${directory}${name}${asset}`))
+  } catch (e) {
+    logger.error(e)
+    logger.info(SCENE_ASSET_FILES)
   }
 }
 
@@ -431,29 +414,25 @@ const saveSceneLocally = async (context: HookContext<SceneService>) => {
   if (!context.data || context.method !== 'update') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
-  try {
-    const { name, thumbnailBuffer, localDirectory } = context.data as SceneCreateData
 
-    if (isDev) {
-      const newSceneJsonPathLocal = path.resolve(appRootPath.path, `${localDirectory}${name}.scene.json`)
+  const { name, thumbnailBuffer, localDirectory } = context.data as SceneCreateData
 
-      fs.writeFileSync(
-        path.resolve(newSceneJsonPathLocal),
-        JSON.stringify(
-          cleanStorageProviderURLs(context.parsedSceneData ?? (defaultSceneSeed as unknown as SceneJsonType)),
-          null,
-          2
-        )
+  if (isDev) {
+    const newSceneJsonPathLocal = path.resolve(appRootPath.path, `${localDirectory}${name}.scene.json`)
+
+    fs.writeFileSync(
+      path.resolve(newSceneJsonPathLocal),
+      JSON.stringify(
+        cleanStorageProviderURLs(context.parsedSceneData ?? (defaultSceneSeed as unknown as SceneJsonType)),
+        null,
+        2
       )
+    )
 
-      if (thumbnailBuffer && Buffer.isBuffer(thumbnailBuffer)) {
-        const sceneThumbnailPath = path.resolve(appRootPath.path, `${localDirectory}${name}.thumbnail.jpg`)
-        fs.writeFileSync(path.resolve(sceneThumbnailPath), thumbnailBuffer as Buffer)
-      }
+    if (thumbnailBuffer && Buffer.isBuffer(thumbnailBuffer)) {
+      const sceneThumbnailPath = path.resolve(appRootPath.path, `${localDirectory}${name}.thumbnail.jpg`)
+      fs.writeFileSync(path.resolve(sceneThumbnailPath), thumbnailBuffer as Buffer)
     }
-  } catch (err) {
-    logger.error(err)
-    throw err
   }
 }
 
@@ -521,37 +500,32 @@ const removeSceneInStorageProvider = async (context: HookContext<SceneService>) 
   context.result = null
 }
 
-/**
- * Sets directory in data
- * @param context Hook context
- * @returns
- */
-const getDirectoryFromData = async (context: HookContext<SceneService>) => {
-  if (!context.data) {
-    throw new BadRequest(`${context.path} service data is empty`)
-  }
-  const data: SceneCreateData[] = Array.isArray(context.data) ? context.data : [context.data]
+// /**
+//  * Sets directory in data
+//  * @param context Hook context
+//  * @returns
+//  */
+// const getDirectoryFromData = async (context: HookContext<SceneService>) => {
+//   if (!context.data) {
+//     throw new BadRequest(`${context.path} service data is empty`)
+//   }
+//   const data: SceneCreateData = context.data
 
-  if (!data[0].directory) {
-    for (const item of data) {
-      checkIfProjectExists(context, item.project!)
-      item.directory = `projects/${item.project}/`
-      item.localDirectory = `packages/projects/projects/${item.project}/`
-    }
-    context.data = data.length === 1 ? data[0] : data
-  }
-}
+//   if (!data.directory) {
+//       checkIfProjectExists(context, item.project!)
+//       data.directory = `projects/${item.project}/`
+//       data.localDirectory = `packages/projects/projects/${item.project}/`
+//     context.data = data
+//   }
+// }
 
 /**
  * Sets directory in data of patch
  * @param context Hook context
  * @returns
  */
-const getDirectoryFromDataInPatch = async (context: HookContext<SceneService>) => {
-  if (!context.data || context.method !== 'patch') {
-    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
-  }
-  const data = context.data as ScenePatch
+const getDirectoryFromData = async (context: HookContext<SceneService>) => {
+  const data = context.data as ScenePatch | SceneCreateData
   if (!data.directory) {
     checkIfProjectExists(context, data.project!)
     data.directory = `projects/${data.project}/`
@@ -598,7 +572,7 @@ export default createSkippableHooks(
       ],
       patch: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-        getDirectoryFromDataInPatch,
+        getDirectoryFromData,
         renameSceneInStorageProvider,
         renameSceneLocally,
         updateLocations

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Params } from '@feathersjs/feathers'
+import { Paginated, Params } from '@feathersjs/feathers'
 
 import {
   SceneCreateData,
@@ -33,14 +33,15 @@ import {
   SceneQuery,
   SceneUpdate
 } from '@etherealengine/common/src/schemas/projects/scene.schema'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
+import { KnexAdapterParams } from '@feathersjs/knex'
+import { BaseService } from '../../BaseService'
 
 export interface SceneParams extends KnexAdapterParams<SceneQuery> {
   paginate?: false
 }
 
-export class SceneService<T = SceneDataType, ServiceParams extends Params = SceneParams> extends KnexService<
-  SceneDataType | SceneMetadataCreate | SceneUpdate | null,
+export class SceneService<T = SceneDataType, ServiceParams extends Params = SceneParams> extends BaseService<
+  SceneDataType | SceneDataType[] | Paginated<SceneDataType> | SceneMetadataCreate | SceneUpdate | null,
   SceneCreateData,
   SceneParams,
   ScenePatch
