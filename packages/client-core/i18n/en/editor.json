@@ -292,7 +292,6 @@
       "name": "Collider",
       "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
       "lbl-isTrigger": "Trigger",
-      "lbl-removeMesh": "Remove Mesh",
       "lbl-shape": "Shape",
       "lbl-type": "Body Type"
     },

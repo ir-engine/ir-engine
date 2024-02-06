@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RigidBody, RigidBodyType } from '@dimforge/rapier3d-compat'
+import { RigidBody, RigidBodyDesc, RigidBodyType } from '@dimforge/rapier3d-compat'
 import { Types } from 'bitecs'
 
 import {
@@ -35,7 +35,9 @@ import {
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { getState } from '@etherealengine/hyperflux'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
+import { Physics } from '../classes/Physics'
 import { PhysicsState } from '../state/PhysicsState'
+import { Body } from '../types/PhysicsTypes'
 
 const { f64 } = Types
 const Vector3Schema = { x: f64, y: f64, z: f64 }
@@ -54,10 +56,12 @@ const SCHEMA = {
 
 export const RigidBodyComponent = defineComponent({
   name: 'RigidBodyComponent',
+  jsonID: 'EE_rigidbody',
   schema: SCHEMA,
 
   onInit(entity) {
     return {
+      type: 'fixed' as Body,
       body: null! as RigidBody,
       previousPosition: proxifyVector3(this.previousPosition, entity),
       previousRotation: proxifyQuaternion(this.previousRotation, entity),
@@ -67,15 +71,51 @@ export const RigidBodyComponent = defineComponent({
       targetKinematicRotation: proxifyQuaternion(this.targetKinematicRotation, entity),
       linearVelocity: proxifyVector3(this.linearVelocity, entity),
       angularVelocity: proxifyVector3(this.angularVelocity, entity),
-      scale: proxifyVector3(this.scale, entity),
       /** If multiplier is 0, ridigbody moves immediately to target pose, linearly interpolating between substeps */
       targetKinematicLerpMultiplier: 0
     }
   },
 
-  onSet: (entity, component, json: { body: RigidBody }) => {
-    if (typeof json.body === 'object') component.body.set(json.body as RigidBody)
-    else throw new Error('RigidBodyComponent expects a RigidBody instance')
+  onSet: (entity, component, json) => {
+    if (!json) throw new Error('no RigidBodyComponent supplied ' + entity)
+
+    /** backwards compatibility for manually creating rigidbodies */
+    if (typeof json.body === 'object') {
+      if (component.body.value !== null) throw new Error('RigidBodyComponent already initialized ' + entity)
+      component.body.set(json.body)
+    } else {
+      if (typeof json.type === 'string') {
+        component.type.set(json.type)
+
+        if (component.body.value !== null) {
+          setRigidBodyType(entity, json.type)
+        }
+
+        let rigidBodyDesc: RigidBodyDesc = undefined!
+        switch (component.type.value) {
+          case 'fixed':
+          default:
+            rigidBodyDesc = RigidBodyDesc.fixed()
+            break
+
+          case 'dynamic':
+            rigidBodyDesc = RigidBodyDesc.dynamic()
+            break
+
+          case 'kinematic':
+            rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
+            break
+        }
+
+        Physics.createRigidBody(entity, getState(PhysicsState).physicsWorld, rigidBodyDesc)
+      }
+    }
+  },
+
+  toJSON: (entity, component) => {
+    return {
+      type: component.type.value as Body
+    }
   },
 
   onRemove: (entity, component) => {
@@ -122,11 +162,27 @@ export const getTagComponentForRigidBody = (type: RigidBodyType): RigidBodyTypes
   }
 }
 
-export const setRigidBodyType = (entity: Entity, type: RigidBodyType) => {
+export const setRigidBodyType = (entity: Entity, type: Body) => {
+  let typeEnum: RigidBodyType = undefined!
+  switch (type) {
+    case 'fixed':
+    default:
+      typeEnum = RigidBodyType.Fixed
+      break
+
+    case 'dynamic':
+      typeEnum = RigidBodyType.Dynamic
+      break
+
+    case 'kinematic':
+      typeEnum = RigidBodyType.KinematicPositionBased
+      break
+  }
+
   const rigidbody = getComponent(entity, RigidBodyComponent)
   const oldTypeTag = getTagComponentForRigidBody(rigidbody.body.bodyType())
   removeComponent(entity, oldTypeTag)
-  rigidbody.body.setBodyType(type, false)
-  const typeTag = getTagComponentForRigidBody(type)
+  rigidbody.body.setBodyType(typeEnum, false)
+  const typeTag = getTagComponentForRigidBody(typeEnum)
   setComponent(entity, typeTag)
 }

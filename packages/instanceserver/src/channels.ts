@@ -300,8 +300,8 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
       const sceneData = (await app
         .service(scenePath)
         .get('', { query: { sceneKey: sceneId, metadataOnly: false }, headers })) as SceneDataType
-      SceneState.loadScene(sceneId, sceneData)
       getMutableState(SceneState).activeScene.set(sceneId)
+      SceneState.loadScene(sceneId, sceneData)
       /** @todo - quick hack to wait until scene has loaded */
 
       await new Promise<void>((resolve) => {
