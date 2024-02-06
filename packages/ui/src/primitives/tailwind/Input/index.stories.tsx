@@ -23,38 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export const ObjectLayers = {
-  // anything loaded as a scene entity
-  Scene: 0 as const,
+import Text from './index'
 
-  // intersect with camera raycast
-  Camera: 1 as const,
+export default {
+  title: 'Primitives/Tailwind/Input',
+  component: Text,
+  parameters: {
+    componentSubtitle: 'Input',
+    jest: 'Input.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  }
+}
 
-  // for portal effect rendering & hiding the scene
-  Portal: 2 as const,
+export const Default = {
+  args: {
+    value: 'My Text Input',
+    label: 'Input Label'
+  }
+}
 
-  // avatars
-  Avatar: 3 as const,
-
-  // other gizmos (ik targets, infinite grid, origin)
-  Gizmos: 4 as const,
-
-  // XRUI, loading screen envmap mesh
-  UI: 5 as const,
-
-  // used to hide objects from studio screenshot/texture baking
-  PhysicsHelper: 6 as const,
-  AvatarHelper: 7 as const,
-  NodeHelper: 8 as const,
-
-  // custom threejs scene in a UI panel
-  Panel: 9 as const,
-
-  // transform gizmo
-  TransformGizmo: 10 as const,
-
-  // transform gizmo
-  HighlightEffect: 11 as const,
-
-  AssetPreview: 31 as const
-} as Record<string, number>
+export const WithDescription = {
+  args: {
+    value: 'Text Input',
+    label: 'Label',
+    description: 'A simple description for the Input'
+  }
+}

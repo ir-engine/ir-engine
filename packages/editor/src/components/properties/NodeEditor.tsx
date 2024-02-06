@@ -28,7 +28,6 @@ import React, { PropsWithChildren, Suspense } from 'react'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
-import { getState } from '@etherealengine/hyperflux'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'
 import PropertyGroup from './PropertyGroup'
@@ -100,8 +99,8 @@ export const NodeEditor: React.FC<PropsWithChildren<NodeEditorProps>> = ({
       onClose={
         component && hasComponent(entity, component)
           ? () => {
-              const nodes = getState(SelectionState).selectedEntities
-              EditorControlFunctions.addOrRemoveComponent(nodes, component, false)
+              const entities = SelectionState.getSelectedEntities()
+              EditorControlFunctions.addOrRemoveComponent(entities, component, false)
             }
           : undefined
       }

@@ -92,7 +92,7 @@ export const ModelComponent = defineComponent({
     return {
       src: '',
       cameraOcclusion: true,
-      //optional, only for bone matchable avatars
+      /** optional, only for bone matchable avatars */
       convertToVRM: false as boolean,
       // internal
       scene: null as Scene | null,
@@ -183,7 +183,7 @@ function ModelReactor(): JSX.Element {
         if (boneMatchedAsset instanceof VRM)
           setComponent(entity, AnimationComponent, {
             animations: loadedAsset.animations,
-            mixer: new AnimationMixer(boneMatchedAsset.humanoid.normalizedHumanBones.hips.node)
+            mixer: new AnimationMixer(boneMatchedAsset.humanoid.normalizedHumanBonesRoot)
           })
         modelComponent.asset.set(boneMatchedAsset)
       },

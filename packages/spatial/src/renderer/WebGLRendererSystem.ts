@@ -56,6 +56,7 @@ import { XRState } from '../xr/XRState'
 import { RendererState } from './RendererState'
 import WebGL from './THREE.WebGL'
 import { EffectMapType, defaultPostProcessingSchema } from './effects/PostProcessing'
+import { SDFSettingsState } from './effects/sdf/SDFSettingsState'
 import { changeRenderMode } from './functions/changeRenderMode'
 import { configureEffectComposer } from './functions/configureEffectComposer'
 
@@ -220,6 +221,7 @@ export class EngineRenderer {
       for (const c of xrCamera.cameras) c.layers.mask = camera.layers.mask
 
       this.rendering = true
+      this.renderer.clear()
       this.renderer.render(Engine.instance.scene, camera)
       this.rendering = false
     } else {
@@ -314,6 +316,7 @@ const reactor = () => {
   const engineRendererSettings = useHookstate(getMutableState(RendererState))
   const postprocessing = useHookstate(getMutableState(PostProcessingSettingsState))
   const xrState = useHookstate(getMutableState(XRState))
+  const sdfState = useHookstate(getMutableState(SDFSettingsState))
 
   useEffect(() => {
     EngineRenderer.instance.renderer.toneMapping = renderSettings.toneMapping.value
@@ -330,7 +333,7 @@ const reactor = () => {
 
   useEffect(() => {
     configureEffectComposer()
-  }, [postprocessing.enabled, postprocessing.effects, engineRendererSettings.usePostProcessing])
+  }, [postprocessing.enabled, postprocessing.effects, sdfState.enabled, engineRendererSettings.usePostProcessing])
 
   useEffect(() => {
     EngineRenderer.instance.scaleFactor =

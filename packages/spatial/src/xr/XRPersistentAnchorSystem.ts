@@ -35,22 +35,17 @@ import { XRSystem } from './XRSystem'
  *   adapted from https://github.com/mrdoob/three.js/pull/24872/files
  */
 
-type XRFramePersistentAnchorType = Omit<XRFrame, 'session' | 'createAnchor' | 'trackedAnchors'> & {
-  detectedPlanes: XRPlaneSet
-  lastChangedTime: number
-  session: XRSession & {
-    restorePersistentAnchor: (uuid: string) => Promise<XRAnchor>
-    deletePersistentAnchor: (uuid: string) => Promise<void>
+declare global {
+  interface XRAnchor {
+    requestPersistentHandle?(): Promise<string>
   }
-  createAnchor: (pose: XRRigidTransform, space: XRReferenceSpace) => Promise<XRAnchorPersistentType>
-  trackedAnchors: Set<XRAnchorPersistentType>
+  interface XRSession {
+    restorePersistentAnchor?(uuid: string): Promise<XRAnchor>
+    deletePersistentAnchor?(uuid: string): Promise<void>
+  }
 }
 
-type XRAnchorPersistentType = XRAnchor & {
-  requestPersistentHandle: () => Promise<string>
-}
-
-const createAnchor = async (xrFrame: XRFramePersistentAnchorType, position: Vector3, rotation: Quaternion) => {
+const createAnchor = async (xrFrame: XRFrame, position: Vector3, rotation: Quaternion) => {
   const referenceSpace = ReferenceSpace.origin
   if (xrFrame && referenceSpace) {
     const anchorPose = new XRRigidTransform(position, rotation)
@@ -60,17 +55,13 @@ const createAnchor = async (xrFrame: XRFramePersistentAnchorType, position: Vect
   }
 }
 
-const createPersistentAnchor = async (
-  xrFrame: XRFramePersistentAnchorType,
-  position: Vector3,
-  rotation: Quaternion
-) => {
+const createPersistentAnchor = async (xrFrame: XRFrame, position: Vector3, rotation: Quaternion) => {
   const referenceSpace = ReferenceSpace.origin
   if (xrFrame && referenceSpace) {
     const anchorPose = new XRRigidTransform(position, rotation)
-    const anchor = await xrFrame.createAnchor(anchorPose, referenceSpace)!
+    const anchor = await xrFrame.createAnchor?.(anchorPose, referenceSpace)!
     try {
-      const handle = await anchor.requestPersistentHandle()
+      const handle = await anchor.requestPersistentHandle?.()
       return [anchor, handle]
     } catch (e) {
       anchor.delete()
@@ -81,23 +72,23 @@ const createPersistentAnchor = async (
   }
 }
 
-const restoreAnchor = async (xrFrame: XRFramePersistentAnchorType, uuid: string) => {
+const restoreAnchor = async (xrFrame: XRFrame, uuid: string) => {
   if (xrFrame?.session) {
-    return await xrFrame.session.restorePersistentAnchor(uuid)
+    return await xrFrame.session.restorePersistentAnchor?.(uuid)
   } else {
     throw new Error('XRSession not available.')
   }
 }
 
-const deleteAnchor = async (xrFrame: XRFramePersistentAnchorType, uuid: string) => {
+const deleteAnchor = async (xrFrame: XRFrame, uuid: string) => {
   if (xrFrame?.session) {
-    await xrFrame.session.deletePersistentAnchor(uuid)
+    await xrFrame.session.deletePersistentAnchor?.(uuid)
   } else {
     throw new Error('XRSession not available.')
   }
 }
 
-const anchors = new Set<XRAnchorPersistentType>()
+const anchors = new Set<XRAnchor>()
 const anchorPoses = new Map()
 
 export const XRAnchorFunctions = {
@@ -110,14 +101,14 @@ export const XRAnchorFunctions = {
 }
 
 const execute = () => {
-  const frame = getState(XRState).xrFrame as XRFramePersistentAnchorType
+  const frame = getState(XRState).xrFrame
   if (!frame) return
 
   const xrSpace = ReferenceSpace.origin
   if (!xrSpace) return
 
   if (frame.trackedAnchors) {
-    const anchorsToRemove = [] as XRAnchorPersistentType[]
+    const anchorsToRemove = [] as XRAnchor[]
 
     for (const anchor of anchors) {
       if (!frame.trackedAnchors.has(anchor)) {
