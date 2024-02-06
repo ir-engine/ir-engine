@@ -176,9 +176,9 @@ const ensureUniqueName = async (context: HookContext<SceneService>) => {
 
   const data: SceneCreateData = context.data
   logger.info('[scene.create]: ' + data.project)
-  context.newSceneName.push(NEW_SCENE_NAME)
+  context.newSceneName = NEW_SCENE_NAME
   const storageProviderName = data.storageProvider
-  context.storageProvider.push(getStorageProvider(storageProviderName))
+  context.storageProvider = getStorageProvider(storageProviderName)
   let counter = 1
 
   // eslint-disable-next-line no-constant-condition
@@ -608,5 +608,5 @@ export default createSkippableHooks(
       remove: []
     }
   },
-  []
+  ['find']
 )
