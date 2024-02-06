@@ -132,16 +132,6 @@ export const MeshBVHComponent = defineComponent({
     useEffect(() => {
       if (!component.generated.value) return
 
-      const visualizers = component.visualizers.get(NO_PROXY)
-      const remove = () => {
-        if (visualizers) {
-          for (const visualizer of visualizers) {
-            removeObjectFromGroup(visualizer.entity, visualizer)
-          }
-        }
-        component.visualizers.set(null)
-      }
-
       if (debug.value && !component.visualizers.value) {
         component.visualizers.set([])
         const entities = childEntities.value
@@ -158,12 +148,17 @@ export const MeshBVHComponent = defineComponent({
             component.visualizers.merge([meshBVHVisualizer])
           }
         }
-      } else if (!debug.value) {
-        remove()
       }
 
+      const visualizers = component.visualizers.get(NO_PROXY)
+
       return () => {
-        remove()
+        if (visualizers) {
+          for (const visualizer of visualizers) {
+            removeObjectFromGroup(visualizer.entity, visualizer)
+          }
+        }
+        component.visualizers.set(null)
       }
     }, [component.generated, debug])
 

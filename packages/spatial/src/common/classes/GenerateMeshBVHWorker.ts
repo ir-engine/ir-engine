@@ -56,6 +56,12 @@ export class GenerateMeshBVHWorker {
       throw new Error('GenerateMeshBVHWorker: Already running job.')
     }
 
+    // If geometry has been disposed in the time that the last mesh bvh was generated
+    if (!geometry.attributes.position)
+      return new Promise<MeshBVH>((_, reject) => {
+        reject()
+      })
+
     const { worker } = this
     this.running = true
 
@@ -88,8 +94,6 @@ export class GenerateMeshBVHWorker {
       }
 
       const index = geometry.index ? Uint32Array.from(geometry.index.array) : null
-      // If geometry has been disposed in the time that the last mesh bvh was generated
-      if (!geometry.attributes.position) return
       const position = Float32Array.from(
         (geometry.attributes.position as BufferAttribute | InterleavedBufferAttribute).array
       )

@@ -70,7 +70,6 @@ function runBVHGenerator(signal: AbortSignal) {
     const mesh = meshQueue.shift() as Mesh
 
     worker.generate(mesh.geometry).then((bvh) => {
-      if (signal.aborted) return
       mesh.geometry.boundsTree = bvh
       runBVHGenerator(signal)
       ;(mesh as any).resolvePromiseBVH && (mesh as any).resolvePromiseBVH()
