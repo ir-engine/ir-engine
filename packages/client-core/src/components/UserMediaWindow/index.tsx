@@ -96,7 +96,7 @@ const useDrawMocapLandmarks = (
               if (lastMocapResult && lastMocapResult.timestamp !== lastTimestamp) {
                 lastTimestamp = lastMocapResult.timestamp
                 drawPoseToCanvas(canvasCtxRef, canvasRef, lastMocapResult.results.poseLandmarks)
-                break
+                return
               }
             }
           }
