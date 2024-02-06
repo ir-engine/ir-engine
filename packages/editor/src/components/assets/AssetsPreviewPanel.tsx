@@ -88,6 +88,8 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
       case 'model/gltf':
       case 'model/gltf-binary':
       case 'model/glb':
+      case AssetType.VRM:
+      case 'model/vrm':
       case AssetType.glB:
       case AssetType.glTF:
       case 'gltf-binary':

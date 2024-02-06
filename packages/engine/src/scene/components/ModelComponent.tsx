@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { AnimationMixer, Group, Scene } from 'three'
+import { AnimationMixer, BoxGeometry, CapsuleGeometry, CylinderGeometry, Group, Scene, SphereGeometry } from 'three'
 
 import { NO_PROXY, createState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -46,6 +46,9 @@ import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { Shape } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
@@ -92,7 +95,7 @@ export const ModelComponent = defineComponent({
     return {
       src: '',
       cameraOcclusion: true,
-      //optional, only for bone matchable avatars
+      /** optional, only for bone matchable avatars */
       convertToVRM: false as boolean,
       // internal
       scene: null as Scene | null,
@@ -293,6 +296,7 @@ function ModelReactor(): JSX.Element {
 
 const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
   const isMesh = useOptionalComponent(props.entity, MeshComponent)
+  const isModelColliders = useOptionalComponent(props.parentEntity, RigidBodyComponent)
 
   const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)
   useEffect(() => {
@@ -319,8 +323,32 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
     envmapComponent?.envMapSourceEntityUUID
   ])
 
+  useEffect(() => {
+    if (!isModelColliders || !isMesh) return
+
+    const geometry = getComponent(props.entity, MeshComponent).geometry
+
+    const shape = ThreeToPhysics[geometry.type]
+
+    if (!shape) return
+
+    setComponent(props.entity, ColliderComponent, { shape })
+
+    return () => {
+      removeComponent(props.entity, ColliderComponent)
+    }
+  }, [isModelColliders, isMesh])
+
   return null
 }
+
+/** Maps Three.js geometry types to physics shapes */
+const ThreeToPhysics = {
+  [SphereGeometry.prototype.type]: 'sphere',
+  [CapsuleGeometry.prototype.type]: 'capsule',
+  [CylinderGeometry.prototype.type]: 'cylinder',
+  [BoxGeometry.prototype.type]: 'box'
+} as Record<string, Shape>
 
 /**
  * Returns true if the entity is a mesh not a part of a model, or a model

@@ -62,6 +62,7 @@ import { ModelComponent } from './ModelComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 
+/** @deprecated - use the new API */
 export const ColliderComponent = defineComponent({
   name: 'Collider Component',
   jsonID: 'collider',
@@ -146,8 +147,6 @@ export const ColliderComponent = defineComponent({
     setComponent(entity, InputComponent)
   },
 
-  onRemove(entity, component) {},
-
   toJSON(entity, component) {
     return {
       bodyType: component.bodyType.value,
@@ -183,26 +182,19 @@ export const ColliderComponent = defineComponent({
           Physics.removeRigidBody(entity, physicsWorld)
         }
 
-        computeTransformMatrix(entity)
         iterateEntityNode(entity, computeTransformMatrix)
         if (hasComponent(entity, GroupComponent)) {
           updateGroupChildren(entity)
         }
 
-        const meshesToRemove = Physics.createRigidBodyForGroup(
-          entity,
-          physicsWorld,
-          {
-            bodyType: colliderComponent.bodyType,
-            shapeType: colliderComponent.shapeType,
-            isTrigger: colliderComponent.isTrigger,
-            removeMesh: colliderComponent.removeMesh,
-            collisionLayer: colliderComponent.collisionLayer,
-            collisionMask: colliderComponent.collisionMask,
-            restitution: colliderComponent.restitution
-          },
-          isMeshCollider
-        )
+        const meshesToRemove = Physics.createRigidBodyForGroup(entity, physicsWorld, {
+          bodyType: colliderComponent.bodyType,
+          shapeType: colliderComponent.shapeType,
+          isTrigger: colliderComponent.isTrigger,
+          collisionLayer: colliderComponent.collisionLayer,
+          collisionMask: colliderComponent.collisionMask,
+          restitution: colliderComponent.restitution
+        })
 
         if (!getState(EngineState).isEditor)
           for (const mesh of meshesToRemove) {
@@ -264,8 +256,7 @@ export const ColliderComponent = defineComponent({
               ? CollisionGroups.Trigger
               : colliderComponent.collisionLayer.value,
             collisionMask: colliderComponent.collisionMask.value,
-            restitution: colliderComponent.restitution.value,
-            removeMesh: colliderComponent.removeMesh.value
+            restitution: colliderComponent.restitution.value
           },
           new Vector3(),
           new Quaternion()
@@ -274,24 +265,12 @@ export const ColliderComponent = defineComponent({
 
         rigidbody.body.setTranslation(transformComponent.position.value, true)
         rigidbody.body.setRotation(transformComponent.rotation.value, true)
-        rigidbody.scale.copy(transformComponent.scale.value)
       }
     }, [isLoadedFromGLTF, colliderComponent, transformComponent, groupComponent?.length, modelHierarchy])
 
     return null
   }
 })
-
-/**
- * A lot of rapier's colliders don't make sense in this context, so create a list of simple primitives to allow
- */
-export const supportedColliderShapes = [
-  ShapeType.Cuboid,
-  ShapeType.Ball,
-  ShapeType.Capsule,
-  ShapeType.Cylinder,
-  ShapeType.TriMesh
-]
 
 export const createColliderDescFromScale = (shapeType: ShapeType, scale: Vector3) => {
   switch (shapeType as ShapeType) {

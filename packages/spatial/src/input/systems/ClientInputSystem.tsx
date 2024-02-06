@@ -77,12 +77,10 @@ function preventDefault(e) {
   e.preventDefault()
 }
 
-export const addClientInputListeners = () => {
+export const addClientInputListeners = (canvas = EngineRenderer.instance.renderer.domElement) => {
   const xrState = getState(XRState)
 
-  const canvas = EngineRenderer.instance.renderer.domElement
-
-  window.addEventListener('DOMMouseScroll', preventDefault, false)
+  canvas.addEventListener('DOMMouseScroll', preventDefault, false)
 
   const preventDefaultKeyDown = (evt) => {
     if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') return
@@ -91,9 +89,9 @@ export const addClientInputListeners = () => {
     if (evt.code === 'Space' || evt.code === 'Enter') evt.preventDefault()
   }
 
-  window.addEventListener('keydown', preventDefaultKeyDown, false)
+  //canvas.addEventListener('keydown', preventDefaultKeyDown, false)
 
-  document.addEventListener('gesturestart', preventDefault)
+  canvas.addEventListener('gesturestart', preventDefault)
   canvas.addEventListener('contextmenu', preventDefault)
 
   const addInputSource = (source: XRInputSource) => {
@@ -169,8 +167,8 @@ export const addClientInputListeners = () => {
     else if (buttonState[code]) buttonState[code].up = true
   }
 
-  document.addEventListener('keyup', onKeyEvent)
-  document.addEventListener('keydown', onKeyEvent)
+  canvas.addEventListener('keyup', onKeyEvent)
+  canvas.addEventListener('keydown', onKeyEvent)
 
   /** Clear mouse events */
   const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick']
@@ -183,15 +181,15 @@ export const addClientInputListeners = () => {
       if (!val?.up && val?.pressed) state[button].up = true
     }
   }
-  window.addEventListener('focus', clearKeyState)
-  window.addEventListener('blur', clearKeyState)
+
+  canvas.addEventListener('blur', clearKeyState)
   canvas.addEventListener('mouseleave', clearKeyState)
 
   const handleVisibilityChange = (event: Event) => {
     if (document.visibilityState === 'hidden') clearKeyState()
   }
 
-  document.addEventListener('visibilitychange', handleVisibilityChange)
+  canvas.addEventListener('visibilitychange', handleVisibilityChange)
 
   /** Mouse events */
   const onWheelEvent = (event: WheelEvent) => {
@@ -237,8 +235,8 @@ export const addClientInputListeners = () => {
     )
   }
 
-  window.addEventListener('touchmove', handleTouchMove, { passive: true, capture: true })
-  window.addEventListener('mousemove', handleMouseMove, { passive: true, capture: true })
+  canvas.addEventListener('touchmove', handleTouchMove, { passive: true, capture: true })
+  canvas.addEventListener('mousemove', handleMouseMove, { passive: true, capture: true })
   canvas.addEventListener('mouseup', handleMouseClick)
   canvas.addEventListener('mousedown', handleMouseClick)
   canvas.addEventListener('touchstart', handleMouseClick)
@@ -262,7 +260,7 @@ export const addClientInputListeners = () => {
     axes[index] = value.x
     axes[index + 1] = value.y
   }
-  document.addEventListener('touchstickmove', handleTouchDirectionalPad)
+  canvas.addEventListener('touchstickmove', handleTouchDirectionalPad)
 
   /**
    * AR uses the `select` event as taps on the screen for mobile AR sessions
@@ -330,9 +328,9 @@ export const addClientInputListeners = () => {
   return () => {
     inputSources().map((eid) => removeEntity(eid))
 
-    window.removeEventListener('DOMMouseScroll', preventDefault, false)
-    window.removeEventListener('keydown', preventDefaultKeyDown, false)
-    document.removeEventListener('gesturestart', preventDefault)
+    canvas.removeEventListener('DOMMouseScroll', preventDefault, false)
+    canvas.removeEventListener('keydown', preventDefaultKeyDown, false)
+    canvas.removeEventListener('gesturestart', preventDefault)
     canvas.removeEventListener('contextmenu', preventDefault)
 
     session?.removeEventListener('inputsourceschange', onInputSourcesChanged)
@@ -340,25 +338,25 @@ export const addClientInputListeners = () => {
     window.removeEventListener('gamepadconnected', addGamepad)
     window.removeEventListener('gamepaddisconnected', removeGamepad)
 
-    document.removeEventListener('keyup', onKeyEvent)
-    document.removeEventListener('keydown', onKeyEvent)
+    canvas.removeEventListener('keyup', onKeyEvent)
+    canvas.removeEventListener('keydown', onKeyEvent)
 
-    window.removeEventListener('focus', clearKeyState)
-    window.removeEventListener('blur', clearKeyState)
+    canvas.removeEventListener('focus', clearKeyState)
+    canvas.removeEventListener('blur', clearKeyState)
     canvas.removeEventListener('mouseleave', clearKeyState)
 
-    document.removeEventListener('visibilitychange', handleVisibilityChange)
+    canvas.removeEventListener('visibilitychange', handleVisibilityChange)
 
     canvas.removeEventListener('wheel', onWheelEvent)
 
-    window.removeEventListener('touchmove', handleTouchMove)
-    window.removeEventListener('mousemove', handleMouseMove)
+    canvas.removeEventListener('touchmove', handleTouchMove)
+    canvas.removeEventListener('mousemove', handleMouseMove)
     canvas.removeEventListener('mouseup', handleMouseClick)
     canvas.removeEventListener('mousedown', handleMouseClick)
     canvas.removeEventListener('touchstart', handleMouseClick)
     canvas.removeEventListener('touchend', handleMouseClick)
 
-    document.removeEventListener('touchstickmove', handleTouchDirectionalPad)
+    canvas.removeEventListener('touchstickmove', handleTouchDirectionalPad)
 
     session?.removeEventListener('selectstart', onXRSelectStart)
     session?.removeEventListener('selectend', onXRSelectEnd)
