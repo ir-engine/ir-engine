@@ -195,9 +195,12 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
           const entityUuids = range.filter((n) => n.entity).map((n) => getComponent(n.entity!, UUIDComponent))
           EditorControlFunctions.replaceSelection(entityUuids)
           setSelectedNode(node)
-        } else if (!node.selected) {
-          EditorControlFunctions.replaceSelection([getComponent(node.entity, UUIDComponent)])
-          setSelectedNode(node)
+        } else {
+          const selected = getState(SelectionState).selectedEntities.includes(getComponent(node.entity, UUIDComponent))
+          if (!selected) {
+            EditorControlFunctions.replaceSelection([getComponent(node.entity, UUIDComponent)])
+            setSelectedNode(node)
+          }
         }
         setPrevClickedNode(node)
       }
@@ -315,21 +318,24 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
   const onDeleteNode = useCallback((node: HeirarchyTreeNodeType) => {
     handleClose()
 
-    const objs = node.selected ? SelectionState.getSelectedEntities() : [node.entity]
+    const selected = getState(SelectionState).selectedEntities.includes(getComponent(node.entity, UUIDComponent))
+    const objs = selected ? SelectionState.getSelectedEntities() : [node.entity]
     EditorControlFunctions.removeObject(objs)
   }, [])
 
   const onDuplicateNode = useCallback((node: HeirarchyTreeNodeType) => {
     handleClose()
 
-    const objs = node.selected ? SelectionState.getSelectedEntities() : [node.entity]
+    const selected = getState(SelectionState).selectedEntities.includes(getComponent(node.entity, UUIDComponent))
+    const objs = selected ? SelectionState.getSelectedEntities() : [node.entity]
     EditorControlFunctions.duplicateObject(objs)
   }, [])
 
   const onGroupNodes = useCallback((node: HeirarchyTreeNodeType) => {
     handleClose()
 
-    const objs = node.selected ? SelectionState.getSelectedEntities() : [node.entity]
+    const selected = getState(SelectionState).selectedEntities.includes(getComponent(node.entity, UUIDComponent))
+    const objs = selected ? SelectionState.getSelectedEntities() : [node.entity]
 
     EditorControlFunctions.groupObjects(objs)
   }, [])
@@ -337,7 +343,8 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
   const onCopyNode = useCallback((node: HeirarchyTreeNodeType) => {
     handleClose()
 
-    const nodes = node.selected ? SelectionState.getSelectedEntities() : [node.entity]
+    const selected = getState(SelectionState).selectedEntities.includes(getComponent(node.entity, UUIDComponent))
+    const nodes = selected ? SelectionState.getSelectedEntities() : [node.entity]
     CopyPasteFunctions.copyEntities(nodes)
   }, [])
 
