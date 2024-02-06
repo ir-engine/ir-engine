@@ -26,13 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent, hasComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { hasComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { SceneTagComponent } from '@etherealengine/engine/src/scene/components/SceneTagComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { Entity } from '@etherealengine/ecs'
 import LockIcon from '@mui/icons-material/Lock'
 import UnlockIcon from '@mui/icons-material/LockOpen'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -58,7 +58,7 @@ const visibleInputGroupStyle = {
   }
 }
 
-export const CoreNodeEditor = (props) => {
+export const CoreNodeEditor = (props: { entity: Entity }) => {
   const { t } = useTranslation()
   const editorState = useHookstate(getMutableState(EditorState))
 
@@ -76,16 +76,14 @@ export const CoreNodeEditor = (props) => {
       }
     } else {
       if (currentEntity) {
-        getMutableState(EditorState).lockPropertiesPanel.set(
-          typeof currentEntity === 'string' ? (currentEntity as EntityUUID) : getComponent(currentEntity, UUIDComponent)
-        )
+        getMutableState(EditorState).lockPropertiesPanel.set(currentEntity)
       }
     }
   }, [locked])
 
   useEffect(() => {
-    const nodes = getMutableState(SelectionState).selectedEntities.value
-    EditorControlFunctions.addOrRemoveComponent(nodes, VisibleComponent, visible)
+    const entities = SelectionState.getSelectedEntities()
+    EditorControlFunctions.addOrRemoveComponent(entities, VisibleComponent, visible)
   }, [visible])
 
   return (

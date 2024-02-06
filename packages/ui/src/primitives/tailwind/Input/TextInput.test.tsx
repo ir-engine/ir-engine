@@ -23,22 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Vector3 } from 'three'
+import { describe, expect, it } from '@jest/globals'
+import { shallow } from 'enzyme'
+import React from 'react'
 
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { defineState } from '@etherealengine/hyperflux'
+import Input from './index'
+import { Default as story } from './index.stories'
 
-export const EditorCameraState = defineState({
-  name: 'EditorCameraState',
-  initial: {
-    zoomDelta: 0,
-    focusedObjects: [] as Entity[],
-    isPanning: false,
-    cursorDeltaX: 0,
-    cursorDeltaY: 0,
-    isOrbiting: false,
-    refocus: false
-  }
+describe('Input', () => {
+  it('- should render', () => {
+    const wrapper = shallow(<Input onChange={() => {}} {...story?.args} />)
+    expect(wrapper).toMatchSnapshot()
+  })
 })
-
-export const editorCameraCenter = new Vector3()
