@@ -46,7 +46,7 @@ import { SystemComponent } from '@etherealengine/engine/src/scene/components/Sys
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import { AmbientLightComponent } from '@etherealengine/spatial/src/renderer/components/AmbientLightComponent'
 import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -136,8 +136,8 @@ const ComponentListItem = ({ item }: { item: Component }) => {
     <ListItemButton
       sx={{ pl: 4, bgcolor: 'var(--dockBackground)' }}
       onClick={() => {
-        const nodes = getMutableState(SelectionState).selectedEntities.value
-        EditorControlFunctions.addOrRemoveComponent(nodes, item, true)
+        const entities = SelectionState.getSelectedEntities()
+        EditorControlFunctions.addOrRemoveComponent(entities, item, true)
         handleClosePopover()
       }}
     >
