@@ -103,9 +103,11 @@ export default function MaterialLibraryPanel() {
   const nodes = useState(createNodes())
 
   const onClick = useCallback((e: MouseEvent, node: MaterialLibraryEntryType) => {
-    if (!editorState.lockPropertiesPanel.get()) {
-      if (getState(MaterialLibraryState).materials[node.uuid]) selectedMaterial.set(node.uuid)
-    }
+    if (editorState.lockPropertiesPanel.get()) return
+    const material = getState(MaterialLibraryState).materials[node.uuid]
+    if (!material) return
+    selectedMaterial.set(node.uuid)
+    console.log(material)
   }, [])
 
   const onCollapse = useCallback((e: MouseEvent, node: MaterialLibraryEntryType) => {
