@@ -61,6 +61,7 @@ const convert = (entity: Entity, hierarchy: boolean) => {
         !!obj.userData['type'] ||
         !!obj.userData['xrengine.collider.type'] ||
         !!obj.userData['xrengine.collider.shapeType'] ||
+        !!obj.userData['xrengine.collider.isTrigger'] ||
         !!obj.userData['shapeType'] ||
         !!obj.userData['isTrigger']
     )
@@ -82,7 +83,7 @@ const convert = (entity: Entity, hierarchy: boolean) => {
     mesh.userData[`xrengine.${ColliderComponent.jsonID}.shape`] = shape
     setComponent(child, ColliderComponent, { shape })
 
-    const isTrigger = mesh.userData['isTrigger'] ?? false
+    const isTrigger = mesh.userData['isTrigger'] ?? mesh.userData['xrengine.collider.isTrigger'] ?? false
     if (isTrigger === true || isTrigger === 'true') setComponent(child, TriggerComponent)
     delete mesh.userData['isTrigger']
     mesh.userData[`xrengine.${TriggerComponent.jsonID}`] = true
