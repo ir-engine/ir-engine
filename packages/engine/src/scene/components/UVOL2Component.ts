@@ -137,7 +137,7 @@ export const calculatePriority = (manifest: PlayerManifest) => {
           supportedTextures.push(target)
         }
       }
-      if (targetData.format === 'vp9') {
+      if (targetData.format === 'video') {
         videoTextures.push(target)
       }
     })
@@ -645,7 +645,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       media.src = resolvePath(
         component.data.texture.baseColor.value.path,
         component.manifestPath.value,
-        'vp9',
+        'video',
         target,
         undefined,
         'baseColor'
