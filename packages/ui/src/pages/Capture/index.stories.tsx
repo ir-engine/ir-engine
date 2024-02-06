@@ -35,18 +35,17 @@ import { NotificationState } from '@etherealengine/client-core/src/common/servic
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 
 import Component from './index'
 
 import '@etherealengine/client/src/themes/base.css'
 import '@etherealengine/client/src/themes/components.css'
 import '@etherealengine/client/src/themes/utilities.css'
-import 'daisyui/dist/full.css'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import 'tailwindcss/tailwind.css'
 
 // import { useLocation } from 'react-router-dom'
@@ -54,7 +53,10 @@ import 'tailwindcss/tailwind.css'
 const initializeEngineForRecorder = async () => {
   // const projects = API.instance.client.service(projectsPath).find()
   // await loadEngineInjection(await projects)
-  dispatchAction(EngineActions.sceneLoaded({}))
+  getMutableState(SceneState).merge({
+    sceneLoading: false,
+    sceneLoaded: true
+  })
 }
 
 const argTypes = {}
@@ -70,8 +72,6 @@ const decorators = [
     const projectState = useHookstate(getMutableState(ProjectState))
 
     const notificationstate = useHookstate(getMutableState(NotificationState))
-
-    NotificationState.useNotifications()
 
     useEffect(() => {
       notificationstate.snackbar.set(notistackRef.current)

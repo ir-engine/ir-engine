@@ -29,27 +29,27 @@ import { DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, Side, Texture, Vecto
 import { defineState } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { isMobile } from '../../common/functions/isMobile'
-import { createPriorityQueue } from '../../ecs/PriorityQueue'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
   setComponent,
   useComponent,
   useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { isMobileXRHeadset } from '../../xr/XRState'
-import { ContentFitType, ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { createPriorityQueue } from '@etherealengine/spatial/src/common/functions/PriorityQueue'
+import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
+import { ContentFitType, ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
 import { clearErrors } from '../functions/ErrorFunctions'
-import { addObjectToGroup } from './GroupComponent'
 import { PLANE_GEO, resizeImageMesh } from './ImageComponent'
 import { MediaElementComponent } from './MediaComponent'
-import { NameComponent } from './NameComponent'
-import { UUIDComponent } from './UUIDComponent'
-import { VisibleComponent, setVisibleComponent } from './VisibleComponent'
 
 export const VideoTexturePriorityQueueState = defineState({
   name: 'VideoTexturePriorityQueueState',

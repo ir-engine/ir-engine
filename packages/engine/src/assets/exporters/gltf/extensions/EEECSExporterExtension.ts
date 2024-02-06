@@ -23,16 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Object3D } from 'three'
 import {
   getAllComponents,
   getComponent,
-  getMutableComponent,
-  hasComponent
-} from '../../../../ecs/functions/ComponentFunctions'
-import { NameComponent } from '../../../../scene/components/NameComponent'
+  hasComponent,
+  serializeComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { Object3D } from 'three'
 import { SceneObjectComponent } from '../../../../scene/components/SceneObjectComponent'
-import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { GLTFExporterPlugin } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -55,9 +55,9 @@ export class EEECSExporterExtension extends ExporterExtension implements GLTFExp
         !component.jsonID //skip components that don't have a jsonID
       )
         continue
-      const compData = component.toJSON(entity, getMutableComponent(entity, component))
+      const compData = serializeComponent(entity, component)
       if (!compData) continue
-      const extensionName = `EE_${component.jsonID}`
+      const extensionName = component.jsonID.startsWith('EE_') ? component.jsonID : `EE_${component.jsonID}`
       nodeDef.extensions = nodeDef.extensions ?? {}
       nodeDef.extensions[extensionName] = compData
       this.writer.extensionsUsed[extensionName] = true

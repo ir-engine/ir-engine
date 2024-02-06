@@ -30,7 +30,6 @@ import {
   ErrorBoundary,
   NO_PROXY,
   State,
-  defineActionQueue,
   dispatchAction,
   getMutableState,
   getState,
@@ -38,14 +37,13 @@ import {
 } from '@etherealengine/hyperflux'
 import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
-import { ComponentJsonType, EntityJsonType, SceneID, scenePath } from '@etherealengine/common/src/schema.type.module'
-import { Not } from 'bitecs'
-import React from 'react'
-import { Group } from 'three'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import { SceneState } from '../../ecs/classes/Scene'
+import {
+  ComponentJsonType,
+  EntityJsonType,
+  SceneDataType,
+  SceneID,
+  scenePath
+} from '@etherealengine/common/src/schema.type.module'
 import {
   ComponentJSONIDMap,
   getComponent,
@@ -53,26 +51,36 @@ import {
   removeComponent,
   setComponent,
   useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { QueryReactor, useQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem, destroySystem } from '../../ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '../../ecs/functions/SystemGroups'
-import { NetworkState } from '../../networking/NetworkState'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { PhysicsState } from '../../physics/state/PhysicsState'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { entityExists, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { QueryReactor, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { NetworkState, SceneUser } from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
+import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
+import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { Not } from 'bitecs'
+import React from 'react'
+import { Group } from 'three'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
-import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
-import { NameComponent } from '../components/NameComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
 import { SourceComponent } from '../components/SourceComponent'
-import { UUIDComponent } from '../components/UUIDComponent'
-import { VisibleComponent } from '../components/VisibleComponent'
 import { proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 
 const reactor = () => {
@@ -84,21 +92,20 @@ const reactor = () => {
   const physicsWorld = useHookstate(getMutableState(PhysicsState).physicsWorld)
 
   useEffect(() => {
-    if (!getState(EngineState).sceneLoading) return
+    if (!getState(SceneState).sceneLoading) return
 
     const values = Object.values(assetLoadingState.value)
     const total = values.reduce((acc, curr) => acc + curr.totalAmount, 0)
     const loaded = values.reduce((acc, curr) => acc + curr.loadedAmount, 0)
     const progress = !sceneAssetPendingTagQuery.length || total === 0 ? 100 : Math.round((100 * loaded) / total)
 
-    getMutableState(EngineState).loadingProgress.set(progress)
+    getMutableState(SceneState).loadingProgress.set(progress)
 
-    if (!sceneAssetPendingTagQuery.length && !getState(EngineState).sceneLoaded) {
-      getMutableState(EngineState).merge({
+    if (!sceneAssetPendingTagQuery.length && !getState(SceneState).sceneLoaded) {
+      getMutableState(SceneState).merge({
         sceneLoading: false,
         sceneLoaded: true
       })
-      dispatchAction(EngineActions.sceneLoaded({}))
       SceneAssetPendingTagComponent.loadingProgress.set({})
     }
   }, [sceneAssetPendingTagQuery.length, assetLoadingState, entities.keys])
@@ -113,6 +120,7 @@ const reactor = () => {
           TransformComponent,
           UUIDComponent,
           SceneObjectComponent,
+          Not(GLTFLoadedComponent),
           Not(SceneTagComponent)
         ]}
         ChildEntityReactor={NetworkedSceneObjectReactor}
@@ -127,26 +135,23 @@ const reactor = () => {
 /** @todo - this needs to be rework according to #9105 # */
 const NetworkedSceneObjectReactor = () => {
   const entity = useEntityContext()
-  const loaded = useHookstate(false)
-  const worldNetwork = useHookstate(NetworkState.worldNetworkState)
 
   useEffect(() => {
-    if (loaded.value) return
-    if (NetworkState.worldNetwork?.isHosting) {
-      if (!entityExists(entity)) return
-      if (hasComponent(entity, GLTFLoadedComponent)) return
-      const uuid = getComponent(entity, UUIDComponent)
-      const transform = getComponent(entity, TransformComponent)
-      dispatchAction(
-        WorldNetworkAction.spawnObject({
-          entityUUID: uuid,
-          position: transform.position.clone(),
-          rotation: transform.rotation.clone()
-        })
-      )
-      loaded.set(true)
-    }
-  }, [worldNetwork])
+    if (!entityExists(entity)) return
+    const uuid = getComponent(entity, UUIDComponent)
+    const transform = getComponent(entity, TransformComponent)
+    const isHostingWorldNetwork = !!NetworkState.worldNetwork?.isHosting
+    dispatchAction(
+      WorldNetworkAction.spawnObject({
+        $from: SceneUser,
+        $time: isHostingWorldNetwork ? undefined : 0,
+        entityUUID: uuid,
+        position: transform.position.clone(),
+        rotation: transform.rotation.clone(),
+        $topic: isHostingWorldNetwork ? NetworkTopics.world : undefined
+      })
+    )
+  }, [])
 
   return null
 }
@@ -167,7 +172,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     getSystemsFromSceneData(project, data).then((systems) => {
       // wait to set scene loading state until systems are loaded
       if (isActiveScene)
-        getMutableState(EngineState).merge({
+        getMutableState(SceneState).merge({
           sceneLoading: true,
           sceneLoaded: false
         })
@@ -183,9 +188,9 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
 
     const sceneUpdatedListener = async () => {
       const [projectName, sceneName] = props.sceneID.split('/')
-      const sceneData = await Engine.instance.api
+      const sceneData = (await Engine.instance.api
         .service(scenePath)
-        .get(null, { query: { project: projectName, name: sceneName } })
+        .get('', { query: { project: projectName, name: sceneName } })) as SceneDataType
       SceneState.loadScene(props.sceneID, sceneData)
     }
     // for testing
@@ -326,11 +331,12 @@ const EntityChildLoadReactor = (props: {
       childIndex: entityJSONState.index.value
     })
 
-    if (!hasComponent(entity, GroupComponent)) {
+    if (!hasComponent(entity, Object3DComponent) && !hasComponent(entity, MeshComponent)) {
       const obj3d = new Group()
       obj3d.entity = entity
       addObjectToGroup(entity, obj3d)
       proxifyParentChildRelationships(obj3d)
+      setComponent(entity, Object3DComponent, obj3d)
     }
 
     setComponent(entity, SourceComponent, props.sceneID)
@@ -399,7 +405,7 @@ const ComponentLoadReactor = (props: {
     if (!componentState?.value) return
     const entity = UUIDComponent.getEntityByUUID(props.entityUUID)
     loadComponents(entity, [componentState.get(NO_PROXY)])
-  }, [componentState])
+  }, [componentState.get(NO_PROXY)])
 
   return null
 }
@@ -429,15 +435,8 @@ const loadComponents = (entity: Entity, components: ComponentJsonType[]) => {
   }
 }
 
-const sceneLoadedActionQueue = defineActionQueue(EngineActions.sceneLoaded.matches)
-
-const execute = () => {
-  if (sceneLoadedActionQueue().length) getMutableState(EngineState).merge({ sceneLoading: false, sceneLoaded: true })
-}
-
 export const SceneLoadingSystem = defineSystem({
   uuid: 'ee.engine.scene.SceneLoadingSystem',
   insert: { after: PresentationSystemGroup },
-  execute,
   reactor
 })

@@ -28,7 +28,7 @@ import { lazy, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { routePath, RouteType } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineState, getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { loadRoute } from '@etherealengine/projects/loadRoute'
 

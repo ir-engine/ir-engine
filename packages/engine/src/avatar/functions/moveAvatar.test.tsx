@@ -30,25 +30,25 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
+import { EventDispatcher } from '@etherealengine/spatial/src/common/classes/EventDispatcher'
+import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { EntityNetworkStateSystem } from '@etherealengine/spatial/src/networking/NetworkModule'
+import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
-import { EventDispatcher } from '../../common/classes/EventDispatcher'
-import { Engine, destroyEngine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { SystemDefinitions } from '../../ecs/functions/SystemFunctions'
-import { createEngine } from '../../initializeEngine'
-import { EntityNetworkStateSystem } from '../../networking/NetworkModule'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { Physics } from '../../physics/classes/Physics'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { PhysicsState } from '../../physics/state/PhysicsState'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { applyGamepadInput } from './moveAvatar'
 import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { act, render } from '@testing-library/react'
 import React from 'react'
+import { AvatarComponent } from '../components/AvatarComponent'
 
 describe('moveAvatar function tests', () => {
   beforeEach(async () => {
@@ -82,8 +82,8 @@ describe('moveAvatar function tests', () => {
   })
 
   it('should apply world.fixedDelta @ 60 tick to avatar movement, consistent with physics simulation', async () => {
-    const engineState = getMutableState(EngineState)
-    engineState.simulationTimestep.set(1000 / 60)
+    const ecsState = getMutableState(ECSState)
+    ecsState.simulationTimestep.set(1000 / 60)
 
     dispatchAction(
       AvatarNetworkAction.spawn({
@@ -101,7 +101,7 @@ describe('moveAvatar function tests', () => {
     await act(() => rerender(tag))
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
-    const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
+    const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
 
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
     const avatar = getComponent(entity, AvatarControllerComponent)
@@ -120,8 +120,8 @@ describe('moveAvatar function tests', () => {
   })
 
   it('should apply world.fixedDelta @ 120 tick to avatar movement, consistent with physics simulation', async () => {
-    const engineState = getMutableState(EngineState)
-    engineState.simulationTimestep.set(1000 / 60)
+    const ecsState = getMutableState(ECSState)
+    ecsState.simulationTimestep.set(1000 / 60)
 
     dispatchAction(
       AvatarNetworkAction.spawn({
@@ -139,7 +139,7 @@ describe('moveAvatar function tests', () => {
     await act(() => rerender(tag))
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
-    const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
+    const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
 
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
 
@@ -157,8 +157,8 @@ describe('moveAvatar function tests', () => {
   it('should take world.physics.timeScale into account when moving avatars, consistent with physics simulation', async () => {
     Engine.instance.userID = 'user' as UserID
 
-    const engineState = getMutableState(EngineState)
-    engineState.simulationTimestep.set(1000 / 60)
+    const ecsState = getMutableState(ECSState)
+    ecsState.simulationTimestep.set(1000 / 60)
 
     /* mock */
     getState(PhysicsState).physicsWorld.timestep = 1 / 2
@@ -179,7 +179,7 @@ describe('moveAvatar function tests', () => {
     await act(() => rerender(tag))
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
-    const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
+    const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
 
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
 
@@ -197,8 +197,8 @@ describe('moveAvatar function tests', () => {
   it('should not allow velocity to breach a full unit through multiple frames', async () => {
     Engine.instance.userID = 'user' as UserID
 
-    const engineState = getMutableState(EngineState)
-    engineState.simulationTimestep.set(1000 / 60)
+    const ecsState = getMutableState(ECSState)
+    ecsState.simulationTimestep.set(1000 / 60)
 
     dispatchAction(
       AvatarNetworkAction.spawn({
@@ -216,7 +216,7 @@ describe('moveAvatar function tests', () => {
     await act(() => rerender(tag))
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
-    const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
+    const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
 
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
 

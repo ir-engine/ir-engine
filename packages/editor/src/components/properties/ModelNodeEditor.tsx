@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getState, useState } from '@etherealengine/hyperflux'
@@ -52,6 +52,8 @@ import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
 import { EditorComponentType, commitProperty } from './Util'
+
+import { VRM } from '@pixiv/three-vrm'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
@@ -98,7 +100,8 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     exporting.set(true)
     const fileName = `${srcPath.value}.${exportType.value}`
     exportRelativeGLTF(entity, srcProject.value, fileName).then(() => {
-      modelComponent.src.set(pathJoin(config.client.fileServer, 'projects', srcProject.value, fileName))
+      const nuPath = pathJoin(config.client.fileServer, 'projects', srcProject.value, fileName)
+      commitProperty(ModelComponent, 'src')(nuPath)
       exporting.set(false)
     })
   }
@@ -109,7 +112,11 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   }, [modelComponent.src])
 
   useEffect(() => {
-    bonematchable.set(modelComponent.asset.value && recursiveHipsLookup(modelComponent.asset.value?.scene))
+    if (!modelComponent.asset.value) return
+    bonematchable.set(
+      modelComponent.asset.value &&
+        (modelComponent.asset.value instanceof VRM || recursiveHipsLookup(modelComponent.asset.value.scene))
+    )
   }, [modelComponent.asset])
 
   return (

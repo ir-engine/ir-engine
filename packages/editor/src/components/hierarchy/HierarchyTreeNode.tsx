@@ -27,24 +27,27 @@ import React, { KeyboardEvent, StyleHTMLAttributes, useCallback, useEffect } fro
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   getAllComponents,
   getComponent,
   getOptionalComponent,
+  useComponent,
   useOptionalComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 
 import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
+import { getMutableState } from '@etherealengine/hyperflux'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
+import { useHookstate } from '@hookstate/core'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -93,11 +96,14 @@ export type HierarchyTreeNodeProps = {
 export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const node = props.data.nodes[props.index]
   const data = props.data
-  const selectionState = useHookstate(getMutableState(SelectionState))
+
+  const uuid = useComponent(node.entity, UUIDComponent)
+
+  const selected = useHookstate(getMutableState(SelectionState).selectedEntities).value.includes(uuid.value)
 
   const nodeName = useOptionalComponent(node.entity, NameComponent)?.value
 
-  const errors = node.entity ? useOptionalComponent(node.entity, ErrorComponent) : undefined
+  const errors = useOptionalComponent(node.entity, ErrorComponent)
 
   const sceneAssetLoading = useOptionalComponent(node.entity, SceneAssetPendingTagComponent)
 
@@ -130,10 +136,10 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
 
   const onChangeNodeName = useCallback((e) => data.onChangeName(node, e.target.value), [node, data.onChangeName])
 
-  const [_dragProps, drag, preview] = useDrag({
+  const [, drag, preview] = useDrag({
     type: ItemTypes.Node,
     item() {
-      const selectedEntities = selectionState.selectedEntities.value
+      const selectedEntities = SelectionState.getSelectedEntities()
       const multiple = selectedEntities.length > 1
 
       return {
@@ -143,8 +149,8 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
       }
     },
     canDrag() {
-      return !selectionState.selectedEntities.value.some(
-        (entity) => !(typeof entity === 'string' || getOptionalComponent(entity, EntityTreeComponent)?.parentEntity)
+      return !SelectionState.getSelectedEntities().some(
+        (entity) => !getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
       )
     },
     collect: (monitor) => ({
@@ -291,7 +297,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         className={
           styles.treeNodeContainer +
           (node.depth === 0 ? ' ' + styles.rootNode : '') +
-          (node.selected ? ' ' + styles.selected : '') +
+          (selected ? ' ' + styles.selected : '') +
           (node.active ? ' ' + styles.active : '')
         }
         onMouseDown={onMouseDownNode}

@@ -33,10 +33,7 @@ import {
   NormalAnimationBlendMode
 } from 'three'
 
-import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
-import { VRM } from '@pixiv/three-vrm'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { isClient } from '../../common/functions/getEnvironment'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   defineComponent,
   getComponent,
@@ -44,9 +41,12 @@ import {
   setComponent,
   useComponent,
   useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { CallbackComponent, StandardCallbacks, setCallback } from '../../scene/components/CallbackComponent'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { CallbackComponent, StandardCallbacks, setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
+import { VRM } from '@pixiv/three-vrm'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { AnimationComponent } from './AnimationComponent'
@@ -141,7 +141,7 @@ export const LoopAnimationComponent = defineComponent({
       } catch (e) {
         console.warn('Failed to bind animation in LoopAnimationComponent', entity, e)
       }
-    }, [animComponent?.animations, loopAnimationComponent.activeClipIndex])
+    }, [animComponent?.animations, loopAnimationComponent.activeClipIndex, modelComponent?.asset])
 
     useEffect(() => {
       if (loopAnimationComponent._action.value?.isRunning()) {
@@ -209,8 +209,7 @@ export const LoopAnimationComponent = defineComponent({
 
       if (!hasComponent(entity, AnimationComponent)) {
         setComponent(entity, AnimationComponent, {
-          mixer: new AnimationMixer(model.asset!.scene),
-          animations: model.scene?.animations ?? []
+          mixer: new AnimationMixer(model.asset!.scene)
         })
       }
     }, [modelComponent?.asset])
@@ -238,7 +237,7 @@ export const LoopAnimationComponent = defineComponent({
       return () => {
         aborted = true
       }
-    }, [animComponent, loopAnimationComponent.animationPack])
+    }, [animComponent, loopAnimationComponent.animationPack, modelComponent?.scene])
 
     return null
   }

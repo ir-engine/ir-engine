@@ -28,9 +28,9 @@ import React, { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import '@etherealengine/client-core/src/networking/ClientNetworkingSystem'

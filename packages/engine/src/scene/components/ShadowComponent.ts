@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { matches } from '../../common/functions/MatchesUtils'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 
 export const ShadowComponent = defineComponent({
   name: 'ShadowComponent',

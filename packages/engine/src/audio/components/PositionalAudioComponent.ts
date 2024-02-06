@@ -25,20 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import {
-  defineComponent,
-  useComponent,
-  useOptionalComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
-import { PositionalAudioHelper } from '../../debug/PositionalAudioHelper'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { RendererState } from '../../renderer/RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
-import { AudioNodeGroups, MediaElementComponent } from '../../scene/components/MediaComponent'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { AudioNodeGroups, MediaElementComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { PositionalAudioHelper } from './PositionalAudioHelper'
 
 export interface PositionalAudioInterface {
   refDistance: number

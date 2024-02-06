@@ -38,6 +38,7 @@ import {
   InstanceID,
   InstanceType,
   LocationID,
+  SceneDataType,
   SceneID,
   UserID,
   UserKickType,
@@ -52,21 +53,20 @@ import {
   userKickPath,
   userPath
 } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { NetworkConnectionParams, NetworkState, addNetwork } from '@etherealengine/engine/src/networking/NetworkState'
-import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
-import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
-import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
-import { HyperFlux, State, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { HyperFlux, State, getMutableState, getState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import config from '@etherealengine/server-core/src/appconfig'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
+import { NetworkConnectionParams, NetworkState, addNetwork } from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
+import { NetworkPeerFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkPeerFunctions'
+import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
+import { updatePeers } from '@etherealengine/spatial/src/networking/systems/OutgoingActionSystem'
 import './InstanceServerModule'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleDisconnect, setupIPs } from './NetworkFunctions'
@@ -287,23 +287,26 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
 
   if (instanceServerState.isMediaInstance) {
     getMutableState(NetworkState).hostIds.media.set(hostId)
-    dispatchAction(EngineActions.sceneLoaded({}))
+    getMutableState(SceneState).merge({
+      sceneLoading: false,
+      sceneLoaded: true
+    })
   } else {
     getMutableState(NetworkState).hostIds.world.set(hostId)
 
     if (!sceneId) throw new Error('No sceneId provided')
 
     const sceneUpdatedListener = async () => {
-      const sceneData = await app
+      const sceneData = (await app
         .service(scenePath)
-        .get(null, { query: { sceneKey: sceneId, metadataOnly: false }, headers })
-      SceneState.loadScene(sceneId, sceneData)
+        .get('', { query: { sceneKey: sceneId, metadataOnly: false }, headers })) as SceneDataType
       getMutableState(SceneState).activeScene.set(sceneId)
+      SceneState.loadScene(sceneId, sceneData)
       /** @todo - quick hack to wait until scene has loaded */
 
       await new Promise<void>((resolve) => {
         const interval = setInterval(() => {
-          if (getState(EngineState).sceneLoaded) {
+          if (getState(SceneState).sceneLoaded) {
             clearInterval(interval)
             resolve()
           }
@@ -449,6 +452,8 @@ const createOrUpdateInstance = async ({
         })
       const instance = await app.service(instancePath).get(instanceServerState.instance.id, { headers })
       if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return
+
+      logger.info(`Authorized user ${userId} to join server`)
       await serverState.agonesSDK.allocate()
       await app.service(instancePath).patch(
         instanceServerState.instance.id,

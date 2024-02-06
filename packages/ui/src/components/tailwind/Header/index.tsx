@@ -37,55 +37,37 @@ const Header = (props: { mode: State<'playback' | 'capture'> }) => {
   const { user } = authState
   const avatarDetails = user?.avatar?.value
   return (
-    <nav className="w-full navbar">
+    <nav className="relative w-full navbar">
+      <label tabIndex={0} className="absolute top-0 right-0">
+        <span className="mr-1">{user?.name?.value}</span>
+        <div className="avatar">
+          <div className="w-auto h-[60px] rounded-full">
+            {avatarDetails?.thumbnailResource?.url ? (
+              <img
+                src={avatarDetails.thumbnailResource?.url}
+                crossOrigin="anonymous"
+                className="w-auto h-[60px] rounded-full"
+              />
+            ) : (
+              <UserCircleIcon className="w-auto h-[120px] rounded-full" />
+            )}
+          </div>
+        </div>
+      </label>
       <div className="flex-1">
-        <a className="btn btn-ghost normal-case text-xl">Ethereal Capture</a>
-        <Button
-          icon={null}
-          className={'btn pointer-events-auto'}
-          disabled={props.mode.value === 'capture'}
-          title={'Capture'}
-          labelPosition="below"
-          onClick={() => props.mode.set('capture')}
-        />
-        <Button
-          icon={null}
-          className={'btn pointer-events-auto'}
-          disabled={props.mode.value === 'playback'}
-          title={'Playback'}
-          labelPosition="below"
-          onClick={() => props.mode.set('playback')}
-        />
+        <a className="normal-case text-xl">Ethereal Capture</a>
       </div>
       <div className="navbar-end">
-        {/* <label htmlFor="capture-drawer" className="btn btn-square btn-ghost drawer-button">
-          <EllipsisHorizontalIcon className="w-6 h-6" />
-        </label>
-        <ThemeSwitcher /> */}
         <div className="dropdown dropdown-end">
-          <label tabIndex={0} className="btn btn-ghost rounded-btn">
-            <span className="mr-1">{user?.name?.value}</span>
-            <div className="avatar">
-              <div className="w-8 rounded-full">
-                {avatarDetails?.thumbnailResource?.url ? (
-                  <img
-                    src={avatarDetails.thumbnailResource?.url}
-                    crossOrigin="anonymous"
-                    className="max-w-full w-auto h-8"
-                  />
-                ) : (
-                  <UserCircleIcon className="w-8 h-8" />
-                )}
-              </div>
-            </div>
-          </label>
-          <ul tabIndex={0} className="list-none menu dropdown-content p-2 shadow bg-base-100 rounded-box w-52 mt-4">
-            <li>
-              <a href="/" target="_blank">
-                Sign in
-              </a>
-            </li>
-          </ul>
+          <Button
+            className="pointer-events-auto w-[200px] h-[30px] bg-[#292D3E] rounded-full shadow-md text-center font=[lato] font-bold text-sm m-2"
+            title={'capture/playback'}
+            onClick={() => props.mode.set(props.mode.value === 'playback' ? 'capture' : 'playback')}
+          >
+            <a className="normal-case text-l">
+              {props.mode.value === 'playback' ? 'Switch to capture mode' : 'Switch to playback mode'}
+            </a>
+          </Button>
         </div>
       </div>
     </nav>

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getMutableComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getMutableComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { MountPoint, MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 
 import { Vector3 } from 'three'

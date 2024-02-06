@@ -26,15 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { DistanceModel, DistanceModelOptions } from '@etherealengine/engine/src/audio/constants/AudioConstants'
-import { hasComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
 import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
-import { getState } from '@etherealengine/hyperflux'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -57,7 +56,7 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
 
   useEffect(() => {
     if (!hasComponent(props.entity, MediaComponent) && !hasComponent(props.entity, VolumetricComponent)) {
-      const nodes = getState(SelectionState).selectedEntities
+      const nodes = SelectionState.getSelectedEntities()
       EditorControlFunctions.addOrRemoveComponent(nodes, MediaComponent, true)
     }
   }, [])

@@ -39,24 +39,36 @@ import {
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
-import { RendererState } from '../../renderer/RendererState'
-import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
-import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
-import { isMobileXRHeadset } from '../../xr/XRState'
-import { CallbackComponent } from '../components/CallbackComponent'
-import { GroupComponent, GroupQueryReactor } from '../components/GroupComponent'
-import { ModelComponent } from '../components/ModelComponent'
+import {
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
+import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { GroupComponent, GroupQueryReactor } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import {
+  DistanceFromCameraComponent,
+  FrustumCullCameraComponent
+} from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
+import { registerMaterial, unregisterMaterial } from '../../scene/materials/functions/MaterialLibraryFunctions'
+import { ModelComponent, useMeshOrModel } from '../components/ModelComponent'
+import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
-import { VisibleComponent } from '../components/VisibleComponent'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
-import iterateObject3D from '../util/iterateObject3D'
 
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 
@@ -164,7 +176,7 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
 const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
 
 const execute = () => {
-  const delta = getState(EngineState).deltaSeconds
+  const delta = getState(ECSState).deltaSeconds
   for (const entity of updatableQuery()) {
     const callbacks = getComponent(entity, CallbackComponent)
     callbacks.get(UpdatableCallback)?.(delta)
@@ -186,8 +198,32 @@ const execute = () => {
   }
 }
 
+const SceneObjectEntityReactor = (props: { entity: Entity }) => {
+  const isMeshOrModel = useMeshOrModel(props.entity)
+
+  useEffect(() => {
+    if (!isMeshOrModel) return
+
+    setComponent(props.entity, InputComponent, { highlight: getState(EngineState).isEditing })
+    return () => {
+      removeComponent(props.entity, InputComponent)
+    }
+  }, [isMeshOrModel])
+
+  return null
+}
+
 const reactor = () => {
-  return <GroupQueryReactor GroupChildReactor={SceneObjectReactor} />
+  const sceneObjectEntities = useQuery([SceneObjectComponent])
+
+  return (
+    <>
+      {sceneObjectEntities.map((entity) => (
+        <SceneObjectEntityReactor key={entity} entity={entity} />
+      ))}
+      <GroupQueryReactor GroupChildReactor={SceneObjectReactor} />
+    </>
+  )
 }
 
 export const SceneObjectSystem = defineSystem({

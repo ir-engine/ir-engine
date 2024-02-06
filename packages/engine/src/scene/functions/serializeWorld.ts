@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ComponentJsonType } from '@etherealengine/common/src/schema.type.module'
-import { Entity } from '../../ecs/classes/Entity'
-import { getAllComponents, getOptionalComponent, serializeComponent } from '../../ecs/functions/ComponentFunctions'
+import { getAllComponents, getOptionalComponent, serializeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 
 export const serializeEntity = (entity: Entity) => {

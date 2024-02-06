@@ -26,22 +26,25 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { AxesHelper, Quaternion, Vector3 } from 'three'
 
+import { Engine } from '@etherealengine/ecs'
+import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { NetworkObjectComponent } from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { Types } from 'bitecs'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { RendererState } from '../../renderer/RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
 
 const EPSILON = 1e-6
+const eyeOffset = 0.2
 
 export const AvatarHeadDecapComponent = defineComponent({
   name: 'AvatarHeadDecapComponent',
@@ -57,8 +60,12 @@ export const AvatarHeadDecapComponent = defineComponent({
 
       rig.rawRig.value.head.node.scale.setScalar(EPSILON)
 
+      const cameraComponent = getComponent(Engine.instance.cameraEntity, FollowCameraComponent)
+      cameraComponent.offset.setZ(eyeOffset)
+
       return () => {
         rig.rawRig.value.head.node.scale.setScalar(1)
+        cameraComponent.offset.setZ(0)
       }
     }, [headDecap, rig.rawRig])
 

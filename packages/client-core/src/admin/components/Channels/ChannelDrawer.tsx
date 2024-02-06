@@ -33,7 +33,7 @@ import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
 import { ChannelType, channelPath } from '@etherealengine/common/src/schema.type.module'
-import { useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { userHasAccess } from '../../../user/userHasAccess'
 import DrawerView from '../../common/DrawerView'

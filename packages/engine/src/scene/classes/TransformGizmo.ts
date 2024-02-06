@@ -25,6 +25,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 /* eslint-disable @typescript-eslint/ban-types */
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import {
   BoxGeometry,
   BufferGeometry,
@@ -48,9 +51,6 @@ import {
   TorusGeometry,
   Vector3
 } from 'three'
-import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '../../ecs/functions/EntityTree'
-import { MeshComponent } from '../components/MeshComponent'
 
 const _raycaster = new Raycaster()
 

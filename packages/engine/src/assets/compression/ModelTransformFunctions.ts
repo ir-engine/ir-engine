@@ -59,7 +59,7 @@ import { LoaderUtils, MathUtils } from 'three'
 
 import { fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
 import { baseName, pathJoin } from '@etherealengine/common/src/utils/miscUtils'
-import { Engine } from '../../ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { EEMaterial, EEMaterialExtension } from './extensions/EE_MaterialTransformer'
 import { EEResourceID, EEResourceIDExtension } from './extensions/EE_ResourceIDTransformer'
 import ModelTransformLoader from './ModelTransformLoader'
@@ -599,8 +599,8 @@ export async function transformModel(args: ModelTransformParameters) {
         }
         const texturePixels = await getPixels(texture.getImage()!, texture.getMimeType())
         const clampedData = new Uint8ClampedArray(texturePixels.data as Uint8Array)
-        const imgSize = texture.getSize()!
-        const imgData = new ImageData(clampedData, ...imgSize)
+        const imgSize = texture.getSize() ?? texturePixels.shape.slice(0, 2)
+        const imgData = new ImageData(clampedData, imgSize[0], imgSize[1])
 
         const compressedData = await ktx2Encoder.encode(imgData, {
           uastc: mergedParms.textureCompressionType === 'uastc',
