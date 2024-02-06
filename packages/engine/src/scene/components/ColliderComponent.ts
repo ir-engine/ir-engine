@@ -62,6 +62,7 @@ import { ModelComponent } from './ModelComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 
+/** @deprecated - use the new API */
 export const ColliderComponent = defineComponent({
   name: 'Collider Component',
   jsonID: 'collider',
@@ -270,17 +271,6 @@ export const ColliderComponent = defineComponent({
     return null
   }
 })
-
-/**
- * A lot of rapier's colliders don't make sense in this context, so create a list of simple primitives to allow
- */
-export const supportedColliderShapes = [
-  ShapeType.Cuboid,
-  ShapeType.Ball,
-  ShapeType.Capsule,
-  ShapeType.Cylinder,
-  ShapeType.TriMesh
-]
 
 export const createColliderDescFromScale = (shapeType: ShapeType, scale: Vector3) => {
   switch (shapeType as ShapeType) {
