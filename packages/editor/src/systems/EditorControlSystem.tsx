@@ -281,7 +281,7 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const selectionState = useHookstate(getMutableState(SelectionState))
+  const selectedEntities = SelectionState.useSelectedEntities()
   const sceneQuery = defineQuery([SceneObjectComponent])
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
   const rendererState = useHookstate(getMutableState(RendererState))
@@ -298,20 +298,17 @@ const reactor = () => {
   }, [])
 
   useEffect(() => {
-    const selectedEntities = selectionState.selectedEntities
-    if (!selectedEntities.value) return
+    if (!selectedEntities.length) return
 
     for (const entity of sceneQuery()) {
       if (!hasComponent(entity, TransformGizmoComponent)) continue
       removeComponent(entity, TransformGizmoComponent)
     }
-    const lastSelection = selectedEntities[selectedEntities.length - 1].value
+    const lastSelection = selectedEntities[selectedEntities.length - 1]
     if (!lastSelection) return
 
-    if (typeof lastSelection === 'string') return // TODO : gizmo for 3d objects without Ids
-
     setComponent(lastSelection, TransformGizmoComponent)
-  }, [selectionState.selectedEntities])
+  }, [selectedEntities])
 
   useEffect(() => {
     // set the active orbit camera to the main camera
