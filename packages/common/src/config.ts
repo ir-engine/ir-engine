@@ -86,6 +86,8 @@ const client = {
   featherStoreKey: globalThis.process.env.VITE_FEATHERS_STORE_KEY,
   gaMeasurementId: globalThis.process.env.VITE_GA_MEASUREMENT_ID
 }
+console.log(globalThis.process.env.TEST, globalThis.process.env.VITE_TEST_FILE_SERVER)
+console.log(client)
 
 /**
  * Full config
