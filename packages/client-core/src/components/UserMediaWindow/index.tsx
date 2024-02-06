@@ -55,8 +55,8 @@ import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
 import { UserName } from '@etherealengine/common/src/schema.type.module'
-import { PresentationSystemGroup, useExecute } from '@etherealengine/ecs'
-import { timeSeriesMocapData } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+import { useExecute } from '@etherealengine/ecs'
+import { MotionCaptureSystem, timeSeriesMocapData } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 import { drawPoseToCanvas } from '@etherealengine/ui/src/pages/Capture'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
@@ -83,8 +83,9 @@ const useDrawMocapLandmarks = (
   useExecute(
     () => {
       if (videoElement.paused || videoElement.ended || !videoElement.currentTime) return
-      const networkState = getState(NetworkState).networks
-      for (const [key, network] of Object.entries(networkState)) {
+      const networkState = getState(NetworkState)
+      if (networkState.hostIds.world) {
+        const network = networkState.networks[networkState.hostIds.world]
         if (network.peers[peerID]) {
           const userID = network.peers[peerID].userId
           const peers = network.users[userID]
@@ -102,7 +103,7 @@ const useDrawMocapLandmarks = (
         }
       }
     },
-    { after: PresentationSystemGroup }
+    { before: MotionCaptureSystem }
   )
 }
 
@@ -556,7 +557,12 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
             videoProducerGlobalMute ||
             !videoDisplayReady) && <img src={avatarThumbnail} alt="" crossOrigin="anonymous" draggable={false} />}
           <span key={peerID + '-' + type + '-video-container'} id={peerID + '-' + type + '-video-container'} />
-          <div className={styles['canvas-container']}>
+          <div
+            className={classNames({
+              [styles['canvas-container']]: true,
+              [styles['canvas-rotate']]: !isSelf
+            })}
+          >
             <Canvas ref={canvasRef} />
           </div>
         </div>
