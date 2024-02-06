@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { sceneUploadPath } from '@etherealengine/common/src/schemas/projects/scene-upload.schema'
-import { SceneJsonType, scenePath } from '@etherealengine/common/src/schemas/projects/scene.schema'
+import { SceneDataType, SceneJsonType, scenePath } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
@@ -93,9 +93,9 @@ describe('scene-upload.test', () => {
       }
     )
 
-    const uploadedSceneData = await app
+    const uploadedSceneData = (await app
       .service(scenePath)
-      .get(null, { query: { project: projectName, name: sceneName, metadataOnly: false } })
+      .get('', { query: { project: projectName, name: sceneName, metadataOnly: false } })) as SceneDataType
 
     assert.equal(uploadedSceneData.name, sceneName)
     assert.equal(uploadedSceneData.project, projectName)

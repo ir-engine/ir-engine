@@ -37,7 +37,7 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 
 import Dialog from '@mui/material/Dialog'
 
-import { scenePath } from '@etherealengine/common/src/schema.type.module'
+import { SceneDataType, scenePath } from '@etherealengine/common/src/schema.type.module'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SceneServices, SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
@@ -183,9 +183,9 @@ const onSaveAs = async () => {
       if (result?.name && projectName) {
         await saveScene(projectName, result.name, abortController.signal)
         getMutableState(SceneState).sceneModified.set(false)
-        const newSceneData = await Engine.instance.api
+        const newSceneData = (await Engine.instance.api
           .service(scenePath)
-          .get(null, { query: { project: projectName, name: result.name, metadataOnly: true } })
+          .get('', { query: { project: projectName, name: result.name, metadataOnly: true } })) as SceneDataType
         setSceneInState(newSceneData.scenePath)
       }
     }
