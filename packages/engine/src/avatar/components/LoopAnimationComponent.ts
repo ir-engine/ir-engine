@@ -222,7 +222,7 @@ export const LoopAnimationComponent = defineComponent({
 
     useEffect(() => {
       const asset = modelComponent?.asset.get(NO_PROXY) ?? null
-      const model = gltf.value
+      const model = gltf.get(NO_PROXY)
       if (
         !model ||
         !animComponent ||

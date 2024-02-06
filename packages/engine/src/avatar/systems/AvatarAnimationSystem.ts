@@ -323,6 +323,10 @@ const reactor = () => {
   const manager = useMutableState(AnimationState)
 
   useEffect(() => {
+    return unload
+  }, [])
+
+  useEffect(() => {
     const assets = gltfs.get(NO_PROXY)
     if (assets.length !== animations.length) return
 
@@ -342,8 +346,6 @@ const reactor = () => {
         manager.loadedAnimations[animations[i]].set(asset)
       }
     }
-
-    return unload
   }, [gltfs])
 
   useEffect(() => {
