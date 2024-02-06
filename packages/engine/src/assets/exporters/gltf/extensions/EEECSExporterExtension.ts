@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import {
   getAllComponents,
   getComponent,
-  getMutableComponent,
-  hasComponent
+  hasComponent,
+  serializeComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
@@ -55,9 +55,9 @@ export class EEECSExporterExtension extends ExporterExtension implements GLTFExp
         !component.jsonID //skip components that don't have a jsonID
       )
         continue
-      const compData = component.toJSON(entity, getMutableComponent(entity, component))
+      const compData = serializeComponent(entity, component)
       if (!compData) continue
-      const extensionName = `EE_${component.jsonID}`
+      const extensionName = component.jsonID.startsWith('EE_') ? component.jsonID : `EE_${component.jsonID}`
       nodeDef.extensions = nodeDef.extensions ?? {}
       nodeDef.extensions[extensionName] = compData
       this.writer.extensionsUsed[extensionName] = true

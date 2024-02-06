@@ -269,6 +269,17 @@ export function traverseEntityNodeParent(entity: Entity, cb: (parent: Entity) =>
   }
 }
 
+export function findAncestorWithComponent(entity: Entity, component: any): Entity | undefined {
+  let result: Entity | undefined
+  if (hasComponent(entity, component)) return entity
+  traverseEntityNodeParent(entity, (parent) => {
+    if (hasComponent(parent, component)) {
+      result = parent
+    }
+  })
+  return result
+}
+
 /**
  * Finds the index of an entity tree node using entity.
  * This function is useful for node which is not contained in array but can have same entity as one of array elements

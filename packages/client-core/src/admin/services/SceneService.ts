@@ -48,7 +48,7 @@ export const AdminSceneService = {
   fetchAdminScenes: async () => {
     const scenes = (await Engine.instance.api
       .service(scenePath)
-      .find({ query: { paginate: false } })) as SceneDataType[]
+      .find({ query: { paginate: false } })) as any as SceneDataType[]
     getMutableState(AdminSceneState).merge({
       scenes: scenes,
       retrieving: false,
@@ -58,9 +58,9 @@ export const AdminSceneService = {
     })
   },
   fetchAdminScene: async (sceneKey: SceneID) => {
-    const scene = await Engine.instance.api
+    const scene = (await Engine.instance.api
       .service(scenePath)
-      .get(null, { query: { sceneKey: sceneKey, metadataOnly: false } })
+      .get('', { query: { sceneKey: sceneKey, metadataOnly: false } })) as SceneDataType
     getMutableState(AdminSceneState).merge({
       singleScene: scene,
       retrieving: false,

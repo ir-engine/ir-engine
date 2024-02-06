@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { PhysicsPreTransformSystem } from './systems/PhysicsPreTransformSystem'
 import { PhysicsSystem } from './systems/PhysicsSystem'
+import { TriggerSystem } from './systems/TriggerSystem'
 
-export { PhysicsSystem }
+export { PhysicsSystem, PhysicsPreTransformSystem, TriggerSystem }
