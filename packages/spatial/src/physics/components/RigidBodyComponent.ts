@@ -50,8 +50,7 @@ const SCHEMA = {
   targetKinematicPosition: Vector3Schema,
   targetKinematicRotation: QuaternionSchema,
   linearVelocity: Vector3Schema,
-  angularVelocity: Vector3Schema,
-  scale: Vector3Schema
+  angularVelocity: Vector3Schema
 }
 
 export const RigidBodyComponent = defineComponent({
@@ -77,7 +76,7 @@ export const RigidBodyComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    if (!json) throw new Error('no RigidBodyComponent supplied ' + entity)
+    if (!json) return
 
     /** backwards compatibility for manually creating rigidbodies */
     if (typeof json.body === 'object') {
@@ -89,6 +88,7 @@ export const RigidBodyComponent = defineComponent({
 
         if (component.body.value !== null) {
           setRigidBodyType(entity, json.type)
+          return
         }
 
         let rigidBodyDesc: RigidBodyDesc = undefined!
@@ -107,7 +107,8 @@ export const RigidBodyComponent = defineComponent({
             break
         }
 
-        Physics.createRigidBody(entity, getState(PhysicsState).physicsWorld, rigidBodyDesc)
+        const world = getState(PhysicsState).physicsWorld
+        Physics.createRigidBody(entity, world, rigidBodyDesc)
       }
     }
   },

@@ -52,6 +52,7 @@ import {
 
 import {
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -117,7 +118,8 @@ function createRigidBody(
   const body = world.createRigidBody(rigidBodyDesc)
   colliderDesc.forEach((desc) => world.createCollider(desc, body))
 
-  setComponent(entity, RigidBodyComponent, { body })
+  setComponent(entity, RigidBodyComponent)
+  getMutableComponent(entity, RigidBodyComponent).body.set(body)
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const RigidBodyTypeTagComponent = getTagComponentForRigidBody(body.bodyType())
   setComponent(entity, RigidBodyTypeTagComponent, true)
