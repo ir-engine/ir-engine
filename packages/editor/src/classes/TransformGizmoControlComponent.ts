@@ -24,13 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  Engine,
+  Entity,
   PresentationSystemGroup,
   UndefinedEntity,
   defineComponent,
   defineQuery,
   getComponent,
-  setComponent,
   useComponent,
   useEntityContext,
   useExecute
@@ -41,15 +40,13 @@ import {
   TransformAxisType,
   TransformMode,
   TransformModeType,
-  TransformPivot,
   TransformSpace,
   TransformSpaceType
 } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { TransformComponent } from '@etherealengine/spatial'
 import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { useEffect } from 'react'
@@ -73,9 +70,10 @@ export const TransformGizmoControlComponent = defineComponent({
   onInit(entity) {
     //const control = new TransformControls()
     const control = {
-      controlledEntity: UndefinedEntity,
+      controlledEntities: [] as Entity[],
       visualEntity: UndefinedEntity,
       planeEntity: UndefinedEntity,
+      pivotEntity: UndefinedEntity,
       enabled: true,
       dragging: false,
       axis: null! as TransformAxisType | null,
@@ -103,8 +101,9 @@ export const TransformGizmoControlComponent = defineComponent({
   onSet(entity, component, json) {
     if (!json) return
 
-    if (matches.number.test(json.controlledEntity)) component.controlledEntity.set(json.controlledEntity)
+    if (matches.array.test(json.controlledEntities)) component.controlledEntities.set(json.controlledEntities)
     if (matches.number.test(json.visualEntity)) component.visualEntity.set(json.visualEntity)
+    if (matches.number.test(json.pivotEntity)) component.pivotEntity.set(json.pivotEntity)
     if (matches.number.test(json.planeEntity)) component.planeEntity.set(json.planeEntity)
 
     if (typeof json.enabled === 'boolean') component.enabled.set(json.enabled)
@@ -121,8 +120,10 @@ export const TransformGizmoControlComponent = defineComponent({
     if (typeof json.showZ === 'number') component.showZ.set(json.showZ)
   },
   onRemove: (entity, component) => {
-    //component.value.detach()
-    //component.value.dispose()
+    component.controlledEntities.set([])
+    component.visualEntity.set(UndefinedEntity)
+    component.planeEntity.set(UndefinedEntity)
+    component.pivotEntity.set(UndefinedEntity)
   },
   reactor: function (props) {
     const gizmoEntity = useEntityContext()
@@ -140,10 +141,13 @@ export const TransformGizmoControlComponent = defineComponent({
 
     useExecute(
       () => {
+        const gizmoControlComponent = getComponent(gizmoEntity, TransformGizmoControlComponent)
         if (gizmoControlComponent === undefined) return
-        if (!gizmoControlComponent.enabled.value) return
+        if (!gizmoControlComponent.enabled) return
 
+        if (!gizmoControlComponent.visualEntity) return
         gizmoUpdate(gizmoEntity)
+        if (!gizmoControlComponent.planeEntity) return
         planeUpdate(gizmoEntity)
         controlUpdate(gizmoEntity)
       },
@@ -162,6 +166,7 @@ export const TransformGizmoControlComponent = defineComponent({
           toneMapped: false
         })
       )
+
       // create dummy object to attach gizmo to, we can only attach to three js objects
       domElement.addEventListener('pointerdown', (event) => {
         onPointerDown(event, gizmoEntity)
@@ -172,6 +177,7 @@ export const TransformGizmoControlComponent = defineComponent({
       domElement.addEventListener('pointerup', (event) => {
         onPointerUp(event, gizmoEntity)
       })
+
       addObjectToGroup(gizmoControlComponent.planeEntity.value, plane)
       setObjectLayers(plane, ObjectLayers.TransformGizmo)
 
@@ -188,7 +194,6 @@ export const TransformGizmoControlComponent = defineComponent({
         domElement.removeEventListener('pointerup', (event) => {
           onPointerUp(event, gizmoEntity)
         })
-        removeObjectFromGroup(gizmoControlComponent.planeEntity.value, plane)
       }
     }, [])
 
@@ -196,41 +201,6 @@ export const TransformGizmoControlComponent = defineComponent({
       const mode = editorHelperState.transformMode.value
       gizmoControlComponent.mode.set(mode)
     }, [editorHelperState.transformMode])
-
-    useEffect(() => {
-      if (selectionState.selectedEntities.value.length < 1) return
-      let newPosition = getComponent(gizmoControlComponent.controlledEntity.value, TransformComponent).position
-      const selectedEntities = selectionState.selectedEntities.value.filter((value) => query().includes(value))
-      const selectedTransform = getComponent(selectedEntities[selectedEntities.length - 1], TransformComponent)
-
-      switch (editorHelperState.transformPivot.value) {
-        case TransformPivot.Origin:
-          newPosition = new Vector3(0, 0, 0)
-          break
-        case TransformPivot.Selection:
-          newPosition = selectedTransform.position
-          break
-        case TransformPivot.Center:
-        case TransformPivot.Bottom:
-          box.makeEmpty()
-
-          for (let i = 0; i < selectedEntities.length; i++) {
-            const parentEnt = selectedEntities[i]
-            const isUuid = typeof parentEnt === 'string'
-            if (isUuid) {
-              box.expandByObject(Engine.instance.scene.getObjectByProperty('uuid', parentEnt)!)
-            } else {
-              box.expandByPoint(getComponent(parentEnt, TransformComponent).position)
-            }
-          }
-          box.getCenter(newPosition)
-
-          if (editorHelperState.transformPivot.value === TransformPivot.Bottom) newPosition.y = box.min.y
-          break
-      }
-
-      setComponent(gizmoControlComponent.controlledEntity.value, TransformComponent, { position: newPosition })
-    }, [editorHelperState.transformPivot, selectionState.selectedEntities])
 
     useEffect(() => {
       const space = editorHelperState.transformSpace.value

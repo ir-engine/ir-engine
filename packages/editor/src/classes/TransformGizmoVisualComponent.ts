@@ -397,13 +397,13 @@ export const TransformGizmoVisualComponent = defineComponent({
         setObjectLayers(gizmoObject[mode], ObjectLayers.TransformGizmo)
         visualComponent.gizmo[mode].set(gizmo[mode])
 
-        setComponent(helper[mode], NameComponent, `helper${mode}Entity`)
+        setComponent(helper[mode], NameComponent, `gizmoHelper${mode}Entity`)
         addObjectToGroup(helper[mode], helperObject[mode])
         setComponent(helper[mode], VisibleComponent)
         setObjectLayers(helperObject[mode], ObjectLayers.TransformGizmo)
         visualComponent.helper[mode].set(helper[mode])
 
-        setComponent(picker[mode], NameComponent, `picker${mode}Entity`)
+        setComponent(picker[mode], NameComponent, `gizmoPicker${mode}Entity`)
         pickerObject[mode].visible = false
         addObjectToGroup(picker[mode], pickerObject[mode])
         setComponent(picker[mode], VisibleComponent)
