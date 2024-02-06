@@ -38,7 +38,6 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
@@ -280,9 +279,10 @@ const execute = () => {
   }
 }
 
+const gizmoQuery = defineQuery([TransformGizmoComponent])
+
 const reactor = () => {
   const selectedEntities = SelectionState.useSelectedEntities()
-  const sceneQuery = defineQuery([SceneObjectComponent])
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
   const rendererState = useHookstate(getMutableState(RendererState))
 
@@ -300,8 +300,7 @@ const reactor = () => {
   useEffect(() => {
     if (!selectedEntities.length) return
 
-    for (const entity of sceneQuery()) {
-      if (!hasComponent(entity, TransformGizmoComponent)) continue
+    for (const entity of gizmoQuery()) {
       removeComponent(entity, TransformGizmoComponent)
     }
     const lastSelection = selectedEntities[selectedEntities.length - 1]
