@@ -158,7 +158,6 @@ export default function ModelCompressionPanel({
 
   const savePresetList = (deleting: boolean) => {
     if (!deleting) {
-      // TODO: add a test to make sure this LOD's model transform params don't already exist in the preset list
       setPresetList([...presetList, lods[selectedLODIndex].value])
     }
     localStorage.setItem('presets', JSON.stringify(presetList))

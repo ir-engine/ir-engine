@@ -84,7 +84,7 @@ const UASTCFlagOptions = [
   { label: 'Disable Flip and Individual', value: 256 }
 ]
 
-const ImageCompressionBox = (compressProperties) => {
+const ImageCompressionBox = ({ compressProperties }) => {
   return (
     <>
       <InputGroup name="fileType" label={'File'}>
