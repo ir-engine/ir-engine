@@ -30,7 +30,7 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
@@ -54,8 +54,13 @@ const edgeMaterial = new LineBasicMaterial({
   depthWrite: false
 })
 
-function ValidMeshForBVH(mesh: Mesh): boolean {
-  return mesh && mesh.isMesh && !(mesh as InstancedMesh).isInstancedMesh && !(mesh as SkinnedMesh).isSkinnedMesh
+function ValidMeshForBVH(mesh: Mesh | undefined): boolean {
+  return (
+    mesh !== undefined &&
+    mesh.isMesh &&
+    !(mesh as InstancedMesh).isInstancedMesh &&
+    !(mesh as SkinnedMesh).isSkinnedMesh
+  )
 }
 
 export const MeshBVHComponent = defineComponent({
@@ -88,23 +93,33 @@ export const MeshBVHComponent = defineComponent({
     const visible = useOptionalComponent(entity, VisibleComponent)
     const model = useComponent(entity, ModelComponent)
     const childEntities = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
+    const abortControllerState = useHookstate(new AbortController())
 
     useEffect(() => {
-      let aborted = false
+      const abortController = abortControllerState.get(NO_PROXY)
+
+      return () => {
+        abortController.abort()
+      }
+    }, [])
+
+    useEffect(() => {
       if (!component.generated.value && visible?.value) {
+        const abortController = abortControllerState.get(NO_PROXY)
         const entities = childEntities.value
+        const cameraOcclusion = model.cameraOcclusion.get(NO_PROXY)
         let toGenerate = 0
         for (const currEntity of entities) {
           const mesh = getOptionalComponent(currEntity, MeshComponent)
-          if (ValidMeshForBVH(mesh!)) {
+          if (ValidMeshForBVH(mesh)) {
             toGenerate += 1
-            generateMeshBVH(mesh!).then(() => {
-              if (!aborted) {
+            generateMeshBVH(mesh!, abortController.signal).then(() => {
+              if (!abortController.signal.aborted) {
                 toGenerate -= 1
                 if (toGenerate == 0) {
                   component.generated.set(true)
                 }
-                if (model.cameraOcclusion) {
+                if (cameraOcclusion) {
                   ObjectLayerMaskComponent.enableLayers(currEntity, ObjectLayers.Camera)
                 }
               }
@@ -112,18 +127,15 @@ export const MeshBVHComponent = defineComponent({
           }
         }
       }
-
-      return () => {
-        aborted = true
-      }
     }, [visible, childEntities])
 
     useEffect(() => {
       if (!component.generated.value) return
 
+      const visualizers = component.visualizers.get(NO_PROXY)
       const remove = () => {
-        if (component.visualizers.value) {
-          for (const visualizer of component.visualizers.value) {
+        if (visualizers) {
+          for (const visualizer of visualizers) {
             removeObjectFromGroup(visualizer.entity, visualizer)
           }
         }

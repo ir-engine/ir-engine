@@ -416,14 +416,16 @@ const reactor = () => {
   )
 
   useEffect(() => {
+    return unload
+  }, [])
+
+  useEffect(() => {
     const texture = shadowTexture.get(NO_PROXY)
     if (!texture) return
 
     shadowMaterial.map = texture
     shadowMaterial.needsUpdate = true
     shadowState.set(shadowMaterial)
-
-    return unload
   }, [shadowTexture])
 
   EngineRenderer.instance.renderer.shadowMap.enabled = EngineRenderer.instance.renderer.shadowMap.autoUpdate =

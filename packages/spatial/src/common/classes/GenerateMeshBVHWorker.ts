@@ -88,6 +88,8 @@ export class GenerateMeshBVHWorker {
       }
 
       const index = geometry.index ? Uint32Array.from(geometry.index.array) : null
+      // If geometry has been disposed in the time that the last mesh bvh was generated
+      if (!geometry.attributes.position) return
       const position = Float32Array.from(
         (geometry.attributes.position as BufferAttribute | InterleavedBufferAttribute).array
       )
