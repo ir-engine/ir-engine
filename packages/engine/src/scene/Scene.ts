@@ -59,6 +59,7 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { useEffect } from 'react'
 import matches, { Validator } from 'ts-matches'
 import { SourceComponent } from './components/SourceComponent'
+import { migrateOldColliders } from './functions/migrateOldColliders'
 import { serializeEntity } from './functions/serializeWorld'
 
 export interface SceneSnapshotInterface {
@@ -135,6 +136,13 @@ export const SceneState = defineState({
   loadScene: (sceneID: SceneID, sceneData: SceneDataType) => {
     const metadata: SceneMetadataType = sceneData
     const data: SceneJsonType = sceneData.scene
+
+    /** migrate collider components only for the 'active scene' */
+    if (getState(SceneState).activeScene === sceneID)
+      for (const [uuid, entityJson] of Object.entries(data.entities)) {
+        migrateOldColliders(entityJson)
+      }
+
     getMutableState(SceneState).scenes[sceneID].set({
       metadata,
       snapshots: [{ data, selectedEntities: [] }],
@@ -234,8 +242,8 @@ export const SceneServices = {
       .service(scenePath)
       .get('' as SceneID, { query: { sceneKey: sceneID } })
       .then((sceneData) => {
-        SceneState.loadScene(sceneID, sceneData as SceneDataType)
         getMutableState(SceneState).activeScene.set(sceneID)
+        SceneState.loadScene(sceneID, sceneData as SceneDataType)
       })
 
     return () => {

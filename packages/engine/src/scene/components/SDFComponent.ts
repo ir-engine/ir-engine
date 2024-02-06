@@ -28,12 +28,12 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { SDFSettingsState } from '@etherealengine/spatial/src/renderer/effects/sdf/SDFSettingsState'
 import { SDFShader } from '@etherealengine/spatial/src/renderer/effects/sdf/SDFShader'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { useEffect } from 'react'
 import { Color, Vector3 } from 'three'
-import { setCallback } from './CallbackComponent'
 import { UpdatableCallback, UpdatableComponent } from './UpdatableComponent'
 
 export enum SDFMode {

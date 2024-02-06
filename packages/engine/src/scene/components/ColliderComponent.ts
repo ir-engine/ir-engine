@@ -146,8 +146,6 @@ export const ColliderComponent = defineComponent({
     setComponent(entity, InputComponent)
   },
 
-  onRemove(entity, component) {},
-
   toJSON(entity, component) {
     return {
       bodyType: component.bodyType.value,
@@ -183,26 +181,19 @@ export const ColliderComponent = defineComponent({
           Physics.removeRigidBody(entity, physicsWorld)
         }
 
-        computeTransformMatrix(entity)
         iterateEntityNode(entity, computeTransformMatrix)
         if (hasComponent(entity, GroupComponent)) {
           updateGroupChildren(entity)
         }
 
-        const meshesToRemove = Physics.createRigidBodyForGroup(
-          entity,
-          physicsWorld,
-          {
-            bodyType: colliderComponent.bodyType,
-            shapeType: colliderComponent.shapeType,
-            isTrigger: colliderComponent.isTrigger,
-            removeMesh: colliderComponent.removeMesh,
-            collisionLayer: colliderComponent.collisionLayer,
-            collisionMask: colliderComponent.collisionMask,
-            restitution: colliderComponent.restitution
-          },
-          isMeshCollider
-        )
+        const meshesToRemove = Physics.createRigidBodyForGroup(entity, physicsWorld, {
+          bodyType: colliderComponent.bodyType,
+          shapeType: colliderComponent.shapeType,
+          isTrigger: colliderComponent.isTrigger,
+          collisionLayer: colliderComponent.collisionLayer,
+          collisionMask: colliderComponent.collisionMask,
+          restitution: colliderComponent.restitution
+        })
 
         if (!getState(EngineState).isEditor)
           for (const mesh of meshesToRemove) {
@@ -264,8 +255,7 @@ export const ColliderComponent = defineComponent({
               ? CollisionGroups.Trigger
               : colliderComponent.collisionLayer.value,
             collisionMask: colliderComponent.collisionMask.value,
-            restitution: colliderComponent.restitution.value,
-            removeMesh: colliderComponent.removeMesh.value
+            restitution: colliderComponent.restitution.value
           },
           new Vector3(),
           new Quaternion()
@@ -274,7 +264,6 @@ export const ColliderComponent = defineComponent({
 
         rigidbody.body.setTranslation(transformComponent.position.value, true)
         rigidbody.body.setRotation(transformComponent.rotation.value, true)
-        rigidbody.scale.copy(transformComponent.scale.value)
       }
     }, [isLoadedFromGLTF, colliderComponent, transformComponent, groupComponent?.length, modelHierarchy])
 
