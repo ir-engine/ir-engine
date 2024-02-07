@@ -186,6 +186,9 @@ function createColliderDesc(entity: Entity, rootEntity: Entity, colliderDescOpti
   //check for old collider types to allow backwards compatibility
   if (typeof shape === 'undefined') {
     switch (colliderDescOptions.shape) {
+      case 'sphere':
+        shape = ShapeType.Ball
+        break
       case 'box':
         shape = ShapeType.Cuboid
         break

@@ -35,7 +35,7 @@ import {
 import { getState, useHookstate } from '@etherealengine/hyperflux'
 import React, { useEffect } from 'react'
 import { Vector3 } from 'three'
-import { EntityTreeComponent, traverseEntityNodeParent } from '../../transform/components/EntityTree'
+import { traverseEntityNodeParent } from '../../transform/components/EntityTree'
 import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { PhysicsState } from '../state/PhysicsState'
@@ -61,7 +61,7 @@ export const ColliderComponent = defineComponent({
   onSet(entity, component, json) {
     if (!json) return
 
-    if (typeof json.shape === 'number') component.shape.set(json.shape)
+    if (typeof json.shape === 'string') component.shape.set(json.shape)
     if (typeof json.mass === 'number') component.mass.set(json.mass)
     if (typeof json.massCenter === 'object')
       component.massCenter.set(new Vector3(json.massCenter.x, json.massCenter.y, json.massCenter.z))
@@ -98,10 +98,9 @@ export const supportedColliderShapes = [
 
 function ColliderComponentReactor() {
   const entity = useEntityContext()
-  /** @todo we may need to use a useHierarchyComponent sort of thing here */
-  const entityTreeComponent = useComponent(entity, EntityTreeComponent)
   const rigidbodyEntity = useHookstate(UndefinedEntity)
 
+  /** @todo we may need to use a useHierarchyComponent sort of thing here */
   useEffect(() => {
     let parentRigidbodyEntity = UndefinedEntity
     if (hasComponent(entity, RigidBodyComponent)) {
@@ -113,7 +112,7 @@ function ColliderComponentReactor() {
       }
     })
     rigidbodyEntity.set(parentRigidbodyEntity)
-  }, [entityTreeComponent.parentEntity])
+  }, [])
 
   return rigidbodyEntity.value ? (
     <ColliderComponentRigidbodyReactor
