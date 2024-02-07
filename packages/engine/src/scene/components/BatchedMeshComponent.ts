@@ -23,16 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import {
+  Entity,
+  defineComponent,
+  getComponent,
+  hasComponent,
+  useComponent,
+  useEntityContext
+} from '@etherealengine/ecs'
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
+import {
+  GroupComponent,
+  Object3DWithEntity,
+  addObjectToGroup,
+  removeObjectFromGroup
+} from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
 import { Material, Mesh } from 'three'
-import { BatchedMesh, convertToBatchedMeshMat } from '../../assets/classes/BatchedMesh'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { iterateEntityNode } from '../../ecs/functions/EntityTree'
-import iterateObject3D from '../util/iterateObject3D'
-import { GroupComponent, Object3DWithEntity, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { BatchedMesh } from 'three/examples/jsm/objects/BatchedMesh'
+import { convertToBatchedMeshMat } from '../../assets/functions/convertToBatchedMesh'
 
 export const BatchedMeshComponent = defineComponent({
   name: 'BatchedMeshComponent',
