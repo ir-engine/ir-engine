@@ -118,7 +118,7 @@ export const updateCameraTargetRotation = (cameraEntity: Entity) => {
   followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
 }
 
-const cameraLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Camera], MeshComponent])
+const cameraLayerQuery = defineQuery([VisibleComponent, ObjectLayerComponents[ObjectLayers.Camera], MeshComponent])
 
 export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
   const followCamera = getComponent(cameraEntity, FollowCameraComponent)
