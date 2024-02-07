@@ -93,7 +93,7 @@ const TableStory = () => {
         <TableRow className="border-b">
           {headerLabels.map((label, index) => (
             <TableHeaderCell
-              className="text-left p-4 border border-neutral-300 bg-neutral-100 text-neutral-600 font-bold uppercase"
+              className="text-left p-2 border border-neutral-300 bg-neutral-100 text-neutral-600 font-bold uppercase"
               key={index}
             >
               {label}
@@ -105,12 +105,12 @@ const TableStory = () => {
         {data.map((row, index) => (
           <TableRow className={`border-b ${index & 1 ? 'bg-gray-200' : 'bg-gray-100'}`} key={index}>
             {dataKeys.map((key, index) => (
-              <TableCell className="p-4 border border-neutral-300 text-left text-neutral-600 last:border-0" key={index}>
+              <TableCell className="p-3 border border-neutral-300 text-left text-neutral-600" key={index}>
                 {row[key]}
               </TableCell>
             ))}
-            <TableCell className="p-4 border border-neutral-300 text-left text-neutral-600 last:border-0">
-              <div className="flex justify-around">
+            <TableCell className="p-3 border border-neutral-300 text-left text-neutral-600">
+              <div className="flex justify-evenly">
                 <Button startIcon={<GrUpdate />} size="small" className="bg-[#61759f]">
                   Update
                 </Button>
