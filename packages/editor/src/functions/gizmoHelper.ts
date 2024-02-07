@@ -100,7 +100,10 @@ export function gizmoUpdate(gizmoEntity) {
   if (gizmoControl === undefined) return
   const mode = gizmoControl.mode
 
-  const space = mode === TransformMode.scale ? TransformSpace.local : gizmoControl.space // scale always oriented to local rotation
+  const space =
+    mode === TransformMode.scale && gizmoControl.controlledEntities.length === 1
+      ? TransformSpace.local
+      : gizmoControl.space // scale always oriented to local rotation
 
   const quaternion = space === TransformSpace.local ? gizmoControl.worldQuaternion : Q_IDENTITY
 
@@ -793,7 +796,6 @@ function pointerMove(pointer, gizmoEntity) {
           }
         }
         const newPosition = getComponent(cEntity, TransformComponent).position
-
         const newDistance = _positionMultiStart[cEntity].clone().sub(_positionStart.clone()).multiply(_tempVector2)
         newPosition.copy(newDistance.add(_positionStart))
         setComponent(cEntity, TransformComponent, { position: newPosition })
