@@ -104,7 +104,7 @@ export const MeshBVHComponent = defineComponent({
                 if (toGenerate == 0) {
                   component.generated.set(true)
                 }
-                if (model.cameraOcclusion && mesh?.visible) {
+                if (model.cameraOcclusion) {
                   ObjectLayerMaskComponent.enableLayers(currEntity, ObjectLayers.Camera)
                 }
               }
