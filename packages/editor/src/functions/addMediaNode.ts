@@ -102,6 +102,11 @@ export async function addMediaNode(
           (mesh: Mesh) => mesh?.isMesh
         )[0]
         if (!material) return
+        const withFlatShading: Material & { flatShading?: boolean } = material
+        if (withFlatShading.flatShading) {
+          withFlatShading.flatShading = false
+          withFlatShading.needsUpdate = true
+        }
         if (materialIsRegistered(material)) material = materialFromId(material.uuid).material
         iterateObject3D(intersected.object, (mesh: Mesh) => {
           if (!mesh?.isMesh) return
