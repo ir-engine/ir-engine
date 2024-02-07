@@ -148,9 +148,7 @@ export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
   raycaster.firstHitOnly = true // three-mesh-bvh setting
   raycaster.far = followCamera.maxDistance
   raycaster.set(target, targetToCamVec.normalize())
-  const hits = raycaster
-    .intersectObjects(sceneObjects, false)
-    .filter((item) => getOptionalComponent(item.object.entity, VisibleComponent) === true)
+  const hits = raycaster.intersectObjects(sceneObjects, false)
 
   if (hits[0] && hits[0].distance < maxDistance) {
     maxDistance = hits[0].distance
@@ -159,9 +157,7 @@ export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
   //Check the cone for minimum distance
   cameraRays.forEach((rayDir, i) => {
     raycaster.set(target, rayDir)
-    const hits = raycaster
-      .intersectObjects(sceneObjects, false)
-      .filter((item) => getOptionalComponent(item.object.entity, VisibleComponent) === true)
+    const hits = raycaster.intersectObjects(sceneObjects, false)
     if (hits[0] && hits[0].distance < maxDistance) {
       maxDistance = hits[0].distance
     }
