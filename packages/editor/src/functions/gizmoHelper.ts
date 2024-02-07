@@ -23,7 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine, Entity, UndefinedEntity, getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs'
+import {
+  Engine,
+  Entity,
+  UndefinedEntity,
+  getComponent,
+  getMutableComponent,
+  getOptionalComponent,
+  setComponent
+} from '@etherealengine/ecs'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import {
   TransformAxis,
@@ -885,7 +893,12 @@ function pointerMove(pointer, gizmoEntity) {
         .makeTranslation(_positionStart.x, _positionStart.y, _positionStart.z)
       const rotationMatrix = _tempMatrix
         .clone()
-        .makeRotationAxis(gizmoControlComponent.rotationAxis.value, gizmoControlComponent.rotationAngle.value)
+        .makeRotationAxis(
+          space === TransformSpace.local
+            ? _unit[axis].clone().applyQuaternion(gizmoControlComponent.worldQuaternion.value)
+            : gizmoControlComponent.rotationAxis.value,
+          gizmoControlComponent.rotationAngle.value
+        )
 
       for (const cEntity of gizmoControlComponent.controlledEntities.value) {
         _tempMatrix.compose(_positionMultiStart[cEntity], _quaternionMultiStart[cEntity], _scaleMultiStart[cEntity])
@@ -941,7 +954,7 @@ function getPointer(event) {
 }
 
 export function onPointerHover(event, gizmoEntity) {
-  const gizmoControl = getComponent(gizmoEntity, TransformGizmoControlComponent)
+  const gizmoControl = getOptionalComponent(gizmoEntity, TransformGizmoControlComponent)
   if (gizmoControl === undefined) return
   if (!gizmoControl.enabled) return
 
@@ -954,7 +967,7 @@ export function onPointerHover(event, gizmoEntity) {
 }
 
 export function onPointerDown(event, gizmoEntity) {
-  const gizmoControl = getComponent(gizmoEntity, TransformGizmoControlComponent)
+  const gizmoControl = getOptionalComponent(gizmoEntity, TransformGizmoControlComponent)
   if (gizmoControl === undefined) return
 
   if (!gizmoControl.enabled) return
@@ -972,7 +985,7 @@ export function onPointerDown(event, gizmoEntity) {
 }
 
 export function onPointerMove(event, gizmoEntity) {
-  const gizmoControl = getComponent(gizmoEntity, TransformGizmoControlComponent)
+  const gizmoControl = getOptionalComponent(gizmoEntity, TransformGizmoControlComponent)
   if (gizmoControl === undefined) return
 
   if (!gizmoControl.enabled) return
@@ -981,7 +994,7 @@ export function onPointerMove(event, gizmoEntity) {
 }
 
 export function onPointerUp(event, gizmoEntity) {
-  const gizmoControl = getComponent(gizmoEntity, TransformGizmoControlComponent)
+  const gizmoControl = getOptionalComponent(gizmoEntity, TransformGizmoControlComponent)
   if (gizmoControl === undefined) return
 
   if (!gizmoControl.enabled) return

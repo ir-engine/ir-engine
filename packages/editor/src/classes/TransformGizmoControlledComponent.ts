@@ -35,15 +35,14 @@ import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ec
 import { Engine, UndefinedEntity } from '@etherealengine/ecs'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { TransformPivot } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { NO_PROXY, getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { useHookstate } from '@hookstate/core'
 import { useEffect } from 'react'
-import { Box3, Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
+import { Box3, Vector3 } from 'three'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
 import { TransformGizmoControlComponent } from './TransformGizmoControlComponent'
@@ -61,7 +60,7 @@ export const TransformGizmoControlledComponent = defineComponent({
   reactor: function (props) {
     const entity = useEntityContext()
     const transformGizmoControlledComponent = useComponent(entity, TransformGizmoControlledComponent)
-    const selectionState = useHookstate(getMutableState(SelectionState))
+    const selectedEntities = SelectionState.useSelectedEntities()
     const editorHelperState = useHookstate(getMutableState(EditorHelperState))
     const box = new Box3()
 
@@ -73,10 +72,11 @@ export const TransformGizmoControlledComponent = defineComponent({
       setComponent(pivotEntity, EntityTreeComponent, {
         parentEntity: SceneState.getRootEntity(getState(SceneState).activeScene!)
       })
-      addObjectToGroup(
+      /*addObjectToGroup(
         pivotEntity,
         new Mesh(new SphereGeometry(1.5, 32, 32), new MeshBasicMaterial({ color: 0xff0000 }))
-      )
+      )*/
+      // useful for debug so leaving it here
       return pivotEntity
     }
 
@@ -110,8 +110,8 @@ export const TransformGizmoControlledComponent = defineComponent({
     }, [])
 
     useEffect(() => {
-      if (selectionState.selectedEntities.value.length <= 1) return
-      const controlledEntities = selectionState.selectedEntities.get(NO_PROXY)
+      if (selectedEntities.length <= 1) return
+      const controlledEntities = selectedEntities
       const existingPivot = getComponent(
         transformGizmoControlledComponent.controller.value,
         TransformGizmoControlComponent
@@ -122,13 +122,16 @@ export const TransformGizmoControlledComponent = defineComponent({
         pivotEntity: pivot
       })
       return () => {
+        setComponent(transformGizmoControlledComponent.controller.value, TransformGizmoControlComponent, {
+          pivotEntity: UndefinedEntity
+        })
         removeEntity(pivot)
       }
-    }, [selectionState.selectedEntities])
+    }, [selectedEntities])
 
     useEffect(() => {
-      if (selectionState.selectedEntities.value.length <= 1) return
-      const controlledEntities = selectionState.selectedEntities.get(NO_PROXY)
+      if (selectedEntities.length <= 1) return
+      const controlledEntities = selectedEntities
       const pivot = getComponent(
         transformGizmoControlledComponent.controller.value,
         TransformGizmoControlComponent
@@ -165,7 +168,7 @@ export const TransformGizmoControlledComponent = defineComponent({
       }
 
       setComponent(pivot, TransformComponent, { position: newPosition })
-    }, [editorHelperState.transformPivot, selectionState.selectedEntities])
+    }, [editorHelperState.transformPivot, selectedEntities])
 
     return null
   }

@@ -28,8 +28,6 @@ import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
-import { getMutableState } from '@etherealengine/hyperflux'
-import { useHookstate } from '@hookstate/core'
 import { useEffect } from 'react'
 import { TransformGizmoControlledComponent } from '../classes/TransformGizmoControlledComponent'
 import { SelectionState } from '../services/SelectionServices'
@@ -38,7 +36,7 @@ const sceneQuery = defineQuery([SceneObjectComponent])
 const controlledQuery = defineQuery([TransformGizmoControlledComponent])
 
 const reactor = () => {
-  const selectionState = useHookstate(getMutableState(SelectionState))
+  const selectedEntities = SelectionState.useSelectedEntities()
 
   for (const entity of sceneQuery()) {
     if (!hasComponent(entity, TransformGizmoControlledComponent)) continue
@@ -46,12 +44,11 @@ const reactor = () => {
   }
 
   useEffect(() => {
-    const selectedEntities = selectionState.selectedEntities
-    if (!selectedEntities.value) return
-    const lastSelection = selectedEntities[selectedEntities.length - 1].value
+    if (!selectedEntities) return
+    const lastSelection = selectedEntities[selectedEntities.length - 1]
     if (!lastSelection) return
     setComponent(lastSelection, TransformGizmoControlledComponent)
-  }, [selectionState.selectedEntities])
+  }, [selectedEntities])
 
   return null
 }

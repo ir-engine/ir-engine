@@ -28,13 +28,11 @@ import {
   PresentationSystemGroup,
   UndefinedEntity,
   defineComponent,
-  defineQuery,
-  getComponent,
+  getOptionalComponent,
   useComponent,
   useEntityContext,
   useExecute
 } from '@etherealengine/ecs'
-import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import {
   SnapMode,
   TransformAxisType,
@@ -50,7 +48,7 @@ import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/component
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { useEffect } from 'react'
-import { Box3, DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry, Quaternion, Vector3 } from 'three'
+import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry, Quaternion, Vector3 } from 'three'
 import { degToRad } from 'three/src/math/MathUtils'
 import {
   controlUpdate,
@@ -62,7 +60,6 @@ import {
   planeUpdate
 } from '../functions/gizmoHelper'
 import { EditorHelperState } from '../services/EditorHelperState'
-import { SelectionState } from '../services/SelectionServices'
 
 export const TransformGizmoControlComponent = defineComponent({
   name: 'TransformGizmoControl',
@@ -132,16 +129,13 @@ export const TransformGizmoControlComponent = defineComponent({
     //const gizmoEntity = createEntity()
     const domElement = EngineRenderer.instance.renderer.domElement
     domElement.style.touchAction = 'none' // disable touch scroll , hmm the editor window isnt scrollable anyways
-    const box = new Box3()
 
     //temp variables
     const editorHelperState = useHookstate(getMutableState(EditorHelperState))
-    const query = defineQuery([SceneObjectComponent]) // hardcoded for now until we can make it dynamic
-    const selectionState = useHookstate(getMutableState(SelectionState))
 
     useExecute(
       () => {
-        const gizmoControlComponent = getComponent(gizmoEntity, TransformGizmoControlComponent)
+        const gizmoControlComponent = getOptionalComponent(gizmoEntity, TransformGizmoControlComponent)
         if (gizmoControlComponent === undefined) return
         if (!gizmoControlComponent.enabled) return
 
