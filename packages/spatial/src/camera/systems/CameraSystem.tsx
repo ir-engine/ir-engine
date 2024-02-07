@@ -195,7 +195,6 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   }
 
   const newZoomDistance = Math.min(followCamera.zoomLevel, maxDistance)
-  followCamera.zoomLevel = newZoomDistance //reset zoom level
 
   // Zoom smoothing
   const smoothingSpeed = isInsideWall ? 0.1 : 0.3
