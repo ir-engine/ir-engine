@@ -212,9 +212,9 @@ const execute = () => {
         _hint
       )
 
-      // rigComponent.ikMatrices.rightUpperArm.world.setPosition(rawRig.rightUpperArm.node.getWorldPosition(new Vector3()))
-      // rigComponent.ikMatrices.rightLowerArm.world.setPosition(rawRig.rightLowerArm.node.getWorldPosition(new Vector3()))
-      // rigComponent.ikMatrices.rightHand.world.setPosition(rawRig.rightHand.node.getWorldPosition(new Vector3()))
+      rigComponent.ikMatrices.rightUpperArm.world.setPosition(rawRig.rightUpperArm.node.getWorldPosition(new Vector3()))
+      rigComponent.ikMatrices.rightLowerArm.world.setPosition(rawRig.rightLowerArm.node.getWorldPosition(new Vector3()))
+      rigComponent.ikMatrices.rightHand.world.setPosition(rawRig.rightHand.node.getWorldPosition(new Vector3()))
 
       solveTwoBoneIK(
         VRMHumanBoneName.RightUpperArm,
