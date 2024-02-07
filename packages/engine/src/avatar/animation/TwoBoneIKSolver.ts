@@ -138,8 +138,7 @@ export function solveTwoBoneIK(
     acNorm.copy(rootToTipVector).normalize(),
     atNorm.copy(rootToTargetVector).normalize()
   )
-  root.world.compose(rootBoneWorldPosition, rootRot, new Vector3(1, 1, 1))
-  root.local.copy(root.world)
+  root.local.makeRotationFromQuaternion(rootRot)
   // Object3DUtils.premultiplyWorldQuaternion(rawRoot, rot)
 
   // /** Apply hint */
