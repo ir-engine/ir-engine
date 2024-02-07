@@ -139,6 +139,7 @@ const execute = () => {
       avatarAnimationEntities.push(_entity)
     }
   }
+
   //updateAnimationGraph(avatarAnimationEntities)
 
   for (const entity of avatarAnimationEntities) {
@@ -232,8 +233,7 @@ const execute = () => {
 
       //test blend code
       normalizedRig.rightUpperArm.node.quaternion.setFromRotationMatrix(rigComponent.ikMatrices['rightUpperArm'].world)
-      normalizedRig.rightUpperArm.node.updateMatrixWorld()
-      normalizedRig.rightLowerArm.node.quaternion.setFromRotationMatrix(rigComponent.ikMatrices['rightLowerArm'].world)
+      normalizedRig.rightLowerArm.node.quaternion.setFromRotationMatrix(rigComponent.ikMatrices['rightLowerArm'].local)
     }
 
     if (leftHandTargetBlendWeight && leftHandTransform) {

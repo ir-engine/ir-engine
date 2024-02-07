@@ -124,8 +124,9 @@ export function solveTwoBoneIK(
 
   const midRot = new Quaternion().setFromAxisAngle(rotAxis.normalize(), rotAngle)
 
-  midBoneWorldQuaternion.premultiply(midRot)
-  mid.local.makeRotationFromQuaternion(midRot.multiply(rootBoneWorldQuaternion.clone().invert()))
+  mid.local.makeRotationFromQuaternion(
+    midBoneWorldQuaternion.premultiply(midRot).multiply(rootBoneWorldQuaternion.invert())
+  )
   mid.world.multiplyMatrices(root.world, mid.local)
   tip.world.multiplyMatrices(tip.local, mid.world)
   tipBoneWorldPosition.setFromMatrixPosition(tip.world)
