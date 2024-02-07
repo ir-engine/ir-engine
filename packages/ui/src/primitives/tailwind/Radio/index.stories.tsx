@@ -23,16 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
 import Component from './index'
 
 export default {
-  title: 'Primitives/Tailwind/Modal',
+  title: 'Primitives/Tailwind/Radio',
   component: Component,
   parameters: {
-    componentSubtitle: 'Modal',
-    jest: 'Modal.test.tsx',
+    componentSubtitle: 'Radio',
+    jest: 'Radio.test.tsx',
     design: {
       type: 'figma',
       url: ''
@@ -42,11 +40,12 @@ export default {
 
 export const Default = {
   args: {
-    title: 'Default Modal Title',
-    children: (
-      <>
-        <h3 className="font-bold text-lg">Hello!</h3>
-      </>
-    )
+    options: [
+      { name: 'A1', value: 'a1' },
+      { name: 'B2', value: 'b2' },
+      { name: 'C3', value: 'c3' }
+    ],
+    currentValue: 'b2',
+    onChange: () => {}
   }
 }
