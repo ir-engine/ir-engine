@@ -82,7 +82,6 @@ export const ModelComponent = defineComponent({
       cameraOcclusion: true,
       /** optional, only for bone matchable avatars */
       convertToVRM: false as boolean,
-      manageScene: true as boolean,
       // internal
       scene: null as Scene | null,
       asset: null as VRM | GLTF | null
@@ -93,8 +92,7 @@ export const ModelComponent = defineComponent({
     return {
       src: component.src.value,
       cameraOcclusion: component.cameraOcclusion.value,
-      convertToVRM: component.convertToVRM.value,
-      manageScene: component.manageScene.value
+      convertToVRM: component.convertToVRM.value
     }
   },
 
@@ -105,7 +103,6 @@ export const ModelComponent = defineComponent({
       component.cameraOcclusion.set(!(json as any).avoidCameraOcclusion)
     if (typeof json.cameraOcclusion === 'boolean') component.cameraOcclusion.set(json.cameraOcclusion)
     if (typeof json.convertToVRM === 'boolean') component.convertToVRM.set(json.convertToVRM)
-    if (typeof json.manageScene === 'boolean') component.manageScene.set(json.manageScene)
 
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
@@ -237,20 +234,17 @@ function ModelReactor(): JSX.Element {
 
     const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene)
     const uuid = getModelSceneID(entity)
-
-    if (modelComponent.manageScene) {
-      SceneState.loadScene(uuid, {
-        scene: {
-          entities: loadedJsonHierarchy,
-          root: getComponent(entity, UUIDComponent),
-          version: 0
-        },
-        scenePath: uuid,
-        name: '',
-        project: '',
-        thumbnailUrl: ''
-      })
-    }
+    SceneState.loadScene(uuid, {
+      scene: {
+        entities: loadedJsonHierarchy,
+        root: getComponent(entity, UUIDComponent),
+        version: 0
+      },
+      scenePath: uuid,
+      name: '',
+      project: '',
+      thumbnailUrl: ''
+    })
 
     if (!hasComponent(entity, AvatarRigComponent)) {
       //if this is not an avatar, add bbox snap
@@ -258,7 +252,7 @@ function ModelReactor(): JSX.Element {
     }
 
     return () => {
-      if (modelComponent.manageScene) getMutableState(SceneState).scenes[uuid].set(none)
+      getMutableState(SceneState).scenes[uuid].set(none)
     }
   }, [modelComponent.scene])
 

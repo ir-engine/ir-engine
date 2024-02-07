@@ -88,14 +88,6 @@ const onUploadDropBuffer = () =>
     this.array = new this.array.constructor(1)
   }
 
-const onTextureUploadDropSource = () =>
-  function (this: Texture) {
-    // source.data can't be null because the WebGLRenderer checks for it
-    this.source.data = { width: this.source.data.width, height: this.source.data.height, __deleted: true }
-    this.mipmaps.map((b) => delete b.data)
-    this.mipmaps = []
-  }
-
 export const cleanupAllMeshData = (child: Mesh, args: LoadingArgs) => {
   if (getState(EngineState).isEditor || !child.isMesh) return
   const geo = child.geometry as BufferGeometry
@@ -105,9 +97,6 @@ export const cleanupAllMeshData = (child: Mesh, args: LoadingArgs) => {
     for (const name in attributes) (attributes[name] as BufferAttribute).onUploadCallback = onUploadDropBuffer()
     if (geo.index) geo.index.onUploadCallback = onUploadDropBuffer()
   }
-  Object.entries(mat)
-    .filter(([k, v]: [keyof typeof mat, Texture]) => v?.isTexture)
-    .map(([_, v]) => (v.onUpdate = onTextureUploadDropSource()))
 }
 
 const processModelAsset = (asset: Mesh, args: LoadingArgs): void => {
