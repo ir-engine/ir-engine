@@ -59,7 +59,6 @@ import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
 import { AvatarHeadDecapComponent, AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
 import { IKSerialization } from '../IKSerialization'
-import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets, preloadedAnimations } from '../animation/Util'
 import { applyHandRotationFK } from '../animation/applyHandRotationFK'
@@ -140,7 +139,7 @@ const execute = () => {
       avatarAnimationEntities.push(_entity)
     }
   }
-  updateAnimationGraph(avatarAnimationEntities)
+  //updateAnimationGraph(avatarAnimationEntities)
 
   for (const entity of avatarAnimationEntities) {
     const rigComponent = getComponent(entity, AvatarRigComponent)
@@ -213,18 +212,28 @@ const execute = () => {
         _hint
       )
 
+      // rigComponent.ikMatrices.rightUpperArm.world.setPosition(rawRig.rightUpperArm.node.getWorldPosition(new Vector3()))
+      // rigComponent.ikMatrices.rightLowerArm.world.setPosition(rawRig.rightLowerArm.node.getWorldPosition(new Vector3()))
+      // rigComponent.ikMatrices.rightHand.world.setPosition(rawRig.rightHand.node.getWorldPosition(new Vector3()))
+
       solveTwoBoneIK(
         VRMHumanBoneName.RightUpperArm,
         VRMHumanBoneName.RightLowerArm,
         VRMHumanBoneName.RightHand,
-        rigComponent.vrm,
         rightHandTransform.position,
         rightHandTransform.rotation,
         null,
         _hint,
         rightHandTargetBlendWeight,
-        rightHandTargetBlendWeight
+        rightHandTargetBlendWeight,
+        1,
+        entity
       )
+
+      //test blend code
+      normalizedRig.rightUpperArm.node.quaternion.setFromRotationMatrix(rigComponent.ikMatrices['rightUpperArm'].world)
+      normalizedRig.rightUpperArm.node.updateMatrixWorld()
+      normalizedRig.rightLowerArm.node.quaternion.setFromRotationMatrix(rigComponent.ikMatrices['rightLowerArm'].world)
     }
 
     if (leftHandTargetBlendWeight && leftHandTransform) {
@@ -236,18 +245,20 @@ const execute = () => {
         'left',
         _hint
       )
-      solveTwoBoneIK(
-        VRMHumanBoneName.LeftUpperArm,
-        VRMHumanBoneName.LeftLowerArm,
-        VRMHumanBoneName.LeftHand,
-        rigComponent.vrm,
-        leftHandTransform.position,
-        leftHandTransform.rotation,
-        null,
-        _hint,
-        leftHandTargetBlendWeight,
-        leftHandTargetBlendWeight
-      )
+      // solveTwoBoneIK(
+      //   VRMHumanBoneName.LeftUpperArm,
+      //   VRMHumanBoneName.LeftLowerArm,
+      //   VRMHumanBoneName.LeftHand,
+      //   rigComponent.vrm,
+      //   leftHandTransform.position,
+      //   leftHandTransform.rotation,
+      //   null,
+      //   _hint,
+      //   leftHandTargetBlendWeight,
+      //   leftHandTargetBlendWeight,
+      //   1,
+      //   entity
+      // )
     }
 
     if (rightFootTargetBlendWeight && rightFootTransform) {
@@ -256,18 +267,20 @@ const execute = () => {
         .applyQuaternion(transform.rotation)
         .add(transform.position)
 
-      solveTwoBoneIK(
-        VRMHumanBoneName.RightUpperLeg,
-        VRMHumanBoneName.RightLowerLeg,
-        VRMHumanBoneName.RightFoot,
-        rigComponent.vrm,
-        rightFootTransform.position,
-        rightFootTransform.rotation,
-        null,
-        _hint,
-        rightFootTargetBlendWeight,
-        rightFootTargetBlendWeight
-      )
+      // solveTwoBoneIK(
+      //   VRMHumanBoneName.RightUpperLeg,
+      //   VRMHumanBoneName.RightLowerLeg,
+      //   VRMHumanBoneName.RightFoot,
+      //   rigComponent.vrm,
+      //   rightFootTransform.position,
+      //   rightFootTransform.rotation,
+      //   null,
+      //   _hint,
+      //   rightFootTargetBlendWeight,
+      //   rightFootTargetBlendWeight,
+      //   1,
+      //   entity
+      // )
     }
 
     if (leftFootTargetBlendWeight && leftFootTransform) {
@@ -276,18 +289,20 @@ const execute = () => {
         .applyQuaternion(transform.rotation)
         .add(transform.position)
 
-      solveTwoBoneIK(
-        VRMHumanBoneName.LeftUpperLeg,
-        VRMHumanBoneName.LeftLowerLeg,
-        VRMHumanBoneName.LeftFoot,
-        rigComponent.vrm,
-        leftFootTransform.position,
-        leftFootTransform.rotation,
-        null,
-        _hint,
-        leftFootTargetBlendWeight,
-        leftFootTargetBlendWeight
-      )
+      // solveTwoBoneIK(
+      //   VRMHumanBoneName.LeftUpperLeg,
+      //   VRMHumanBoneName.LeftLowerLeg,
+      //   VRMHumanBoneName.LeftFoot,
+      //   rigComponent.vrm,
+      //   leftFootTransform.position,
+      //   leftFootTransform.rotation,
+      //   null,
+      //   _hint,
+      //   leftFootTargetBlendWeight,
+      //   leftFootTargetBlendWeight,
+      //   1,
+      //   entity
+      // )
     }
 
     if (hasComponent(entity, XRRightHandComponent)) {

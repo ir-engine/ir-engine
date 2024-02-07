@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM, VRMHumanBones } from '@pixiv/three-vrm'
+import { VRM, VRMHumanBoneName, VRMHumanBones } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import { AnimationAction, SkeletonHelper, Vector3 } from 'three'
+import { AnimationAction, Matrix4, SkeletonHelper, Vector3 } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -95,6 +95,7 @@ export const AvatarAnimationComponent = defineComponent({
   }
 })
 
+export type Matrices = { local: Matrix4; world: Matrix4 }
 export const AvatarRigComponent = defineComponent({
   name: 'AvatarRigComponent',
 
@@ -104,6 +105,8 @@ export const AvatarRigComponent = defineComponent({
       normalizedRig: null! as VRMHumanBones,
       /** contains the raw bone quaternions */
       rawRig: null! as VRMHumanBones,
+      /** contains ik solve data */
+      ikMatrices: {} as Record<VRMHumanBoneName, Matrices>,
       /** clone of the normalized rig that is used for the ik pass */
       ikRig: null! as VRMHumanBones,
       helperEntity: null as Entity | null,
@@ -198,6 +201,24 @@ export const AvatarRigComponent = defineComponent({
         if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
       }
     }, [rigComponent.vrm])
+
+    useEffect(() => {
+      if (!rigComponent.normalizedRig.value) return
+      const rig = getComponent(entity, AvatarRigComponent)
+      rig.normalizedRig.hips.node.updateWorldMatrix(false, true)
+      rig.ikMatrices['rightUpperArm'] = {
+        world: new Matrix4().copy(rig.normalizedRig.rightUpperArm.node.matrixWorld),
+        local: new Matrix4().copy(rig.normalizedRig.rightUpperArm.node.matrix)
+      }
+      rig.ikMatrices['rightLowerArm'] = {
+        world: new Matrix4().copy(rig.normalizedRig.rightLowerArm.node.matrixWorld),
+        local: new Matrix4().copy(rig.normalizedRig.rightLowerArm.node.matrix)
+      }
+      rig.ikMatrices['rightHand'] = {
+        world: new Matrix4().copy(rig.normalizedRig.rightHand.node.matrixWorld),
+        local: new Matrix4().copy(rig.normalizedRig.rightHand.node.matrix)
+      }
+    }, [rigComponent.normalizedRig])
 
     useEffect(() => {
       if (!locomotionAnimationState?.value) return

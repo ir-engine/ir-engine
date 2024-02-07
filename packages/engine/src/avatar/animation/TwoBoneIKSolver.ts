@@ -25,8 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { Bone, MathUtils, Mesh, Object3D, Quaternion, Vector3 } from 'three'
 
-import { Object3DUtils } from '@etherealengine/common/src/utils/Object3DUtils'
-import { VRM, VRMHumanBoneName } from '@pixiv/three-vrm'
+import { Entity, getComponent } from '@etherealengine/ecs'
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 
 const sqrEpsilon = 1e-8
 
@@ -69,28 +70,30 @@ export function solveTwoBoneIK(
   rootName: VRMHumanBoneName,
   midName: VRMHumanBoneName,
   tipName: VRMHumanBoneName,
-  vrm: VRM,
   targetPosition: Vector3, // world space
   targetRotation: Quaternion, // world space
   rotationOffset: Quaternion | null = null,
   hint: Vector3 | null = null,
   targetPosWeight = 1,
   targetRotWeight = 0,
-  hintWeight = 1
+  hintWeight = 1,
+  entity: Entity
 ) {
   targetPos.copy(targetPosition)
   targetRot.copy(targetRotation)
 
-  const rawRoot = vrm.humanoid.getRawBoneNode(rootName)!
-  const rawMid = vrm.humanoid.getRawBoneNode(midName)!
-  const rawTip = vrm.humanoid.getRawBoneNode(tipName)!
-  const root = vrm.humanoid.getNormalizedBoneNode(rootName)!
-  const mid = vrm.humanoid.getNormalizedBoneNode(midName)!
-  const tip = vrm.humanoid.getNormalizedBoneNode(tipName)!
+  const rigComponent = getComponent(entity, AvatarRigComponent)
 
-  rootBoneWorldPosition.setFromMatrixPosition(rawRoot.matrixWorld)
-  midBoneWorldPosition.setFromMatrixPosition(rawMid.matrixWorld)
-  tipBoneWorldPosition.setFromMatrixPosition(rawTip.matrixWorld)
+  const root = rigComponent.ikMatrices[rootName]!
+  const mid = rigComponent.ikMatrices[midName]!
+  const tip = rigComponent.ikMatrices[tipName]!
+
+  rootBoneWorldPosition.setFromMatrixPosition(root.world)
+  midBoneWorldPosition.setFromMatrixPosition(mid.world)
+  tipBoneWorldPosition.setFromMatrixPosition(tip.world)
+  rootBoneWorldQuaternion.setFromRotationMatrix(root.world)
+  midBoneWorldQuaternion.setFromRotationMatrix(mid.world)
+  tipBoneWorldQuaternion.setFromRotationMatrix(tip.world)
 
   /** Apply target position weight */
   if (targetPosWeight) targetPos.lerp(tipBoneWorldPosition, 1 - targetPosWeight)
@@ -119,58 +122,68 @@ export function solveTwoBoneIK(
 
   rotAxis.crossVectors(rootToMidVector, midToTipVector)
 
-  rot.setFromAxisAngle(rotAxis.normalize(), rotAngle)
-  Object3DUtils.premultiplyWorldQuaternion(mid, rot)
+  const midRot = new Quaternion().setFromAxisAngle(rotAxis.normalize(), rotAngle)
 
-  Object3DUtils.updateParentsMatrixWorld(tip, 1)
+  mid.world.compose(midBoneWorldPosition, midRot, new Vector3(1, 1, 1))
+  mid.local.multiplyMatrices(mid.world, root.world.clone().invert())
+  tip.world.multiplyMatrices(tip.local, mid.world)
+  tipBoneWorldPosition.setFromMatrixPosition(tip.world)
+  // Object3DUtils.premultiplyWorldQuaternion(mid, rot)
+  // Object3DUtils.updateParentsMatrixWorld(tip, 1)
 
-  tipBoneWorldPosition.setFromMatrixPosition(rawTip.matrixWorld)
   rootToTipVector.subVectors(tipBoneWorldPosition, rootBoneWorldPosition)
+  const rootRot = new Quaternion().setFromUnitVectors(
+    acNorm.copy(rootToTipVector).normalize(),
+    atNorm.copy(rootToTargetVector).normalize()
+  )
+  root.world.compose(rootBoneWorldPosition, rootRot, new Vector3(1, 1, 1))
+  root.local.copy(root.world)
+  // Object3DUtils.premultiplyWorldQuaternion(rawRoot, rot)
 
-  rot.setFromUnitVectors(acNorm.copy(rootToTipVector).normalize(), atNorm.copy(rootToTargetVector).normalize())
-  Object3DUtils.premultiplyWorldQuaternion(root, rot)
+  // /** Apply hint */
+  // if (hasHint) {
+  //   if (rootToTipLength > 0) {
+  //     Object3DUtils.updateParentsMatrixWorld(rawTip, 2)
+  //     rawRoot.quaternion.identity()
+  //     midBoneWorldPosition.setFromMatrixPosition(rawMid.matrixWorld)
+  //     tipBoneWorldPosition.setFromMatrixPosition(rawTip.matrixWorld)
+  //     rootToMidVector.subVectors(midBoneWorldPosition, rootBoneWorldPosition)
+  //     rootToTipVector.subVectors(tipBoneWorldPosition, rootBoneWorldPosition)
 
-  /** Apply hint */
-  if (hasHint) {
-    if (rootToTipLength > 0) {
-      Object3DUtils.updateParentsMatrixWorld(tip, 2)
-      root.quaternion.identity()
-      midBoneWorldPosition.setFromMatrixPosition(rawMid.matrixWorld)
-      tipBoneWorldPosition.setFromMatrixPosition(rawTip.matrixWorld)
-      rootToMidVector.subVectors(midBoneWorldPosition, rootBoneWorldPosition)
-      rootToTipVector.subVectors(tipBoneWorldPosition, rootBoneWorldPosition)
+  //     acNorm.copy(rootToTipVector).divideScalar(rootToTipLength)
+  //     abProj.copy(rootToMidVector).addScaledVector(acNorm, -rootToMidVector.dot(acNorm)) // Prependicular component of vector projection
+  //     ahProj.copy(rootToHintVector).addScaledVector(acNorm, -rootToHintVector.dot(acNorm))
 
-      acNorm.copy(rootToTipVector).divideScalar(rootToTipLength)
-      abProj.copy(rootToMidVector).addScaledVector(acNorm, -rootToMidVector.dot(acNorm)) // Prependicular component of vector projection
-      ahProj.copy(rootToHintVector).addScaledVector(acNorm, -rootToHintVector.dot(acNorm))
-
-      if (ahProj.lengthSq() > 0) {
-        rot.setFromUnitVectors(abProj, ahProj)
-        if (hintWeight > 0) {
-          rot.x *= hintWeight
-          rot.y *= hintWeight
-          rot.z *= hintWeight
-          Object3DUtils.premultiplyWorldQuaternion(root, rot)
-        }
-      }
-    }
-  }
+  //     if (ahProj.lengthSq() > 0) {
+  //       rot.setFromUnitVectors(abProj, ahProj)
+  //       if (hintWeight > 0) {
+  //         rot.x *= hintWeight
+  //         rot.y *= hintWeight
+  //         rot.z *= hintWeight
+  //         Object3DUtils.premultiplyWorldQuaternion(rawRoot, rot)
+  //       }
+  //     }
+  //   }
+  // }
   /** Apply tip rotation */
-  Object3DUtils.getWorldQuaternion(tip, tip.quaternion)
-  /** Apply target rotation weight */
-  if (targetRotWeight === 1) {
-    tip.quaternion.copy(targetRot)
-  } else if (targetRotWeight > 0) {
-    tip.quaternion.fastSlerp(targetRot, targetRotWeight)
-  }
-  Object3DUtils.worldQuaternionToLocal(tip.quaternion, mid)
-  if (rotationOffset != undefined) tip.quaternion.premultiply(rotationOffset)
+  // Object3DUtils.getWorldQuaternion(rawTip, rawTip.quaternion)
+  // /** Apply target rotation weight */
+  // if (targetRotWeight === 1) {
+  //   rawTip.quaternion.copy(targetRot)
+  // } else if (targetRotWeight > 0) {
+  //   rawTip.quaternion.fastSlerp(targetRot, targetRotWeight)
+  // }
+  // Object3DUtils.worldQuaternionToLocal(rawTip.quaternion, rawMid)
+  // if (rotationOffset != undefined) rawTip.quaternion.premultiply(rotationOffset)
 }
 
 const targetPos = new Vector3(),
   rootBoneWorldPosition = new Vector3(),
   midBoneWorldPosition = new Vector3(),
   tipBoneWorldPosition = new Vector3(),
+  rootBoneWorldQuaternion = new Quaternion(),
+  midBoneWorldQuaternion = new Quaternion(),
+  tipBoneWorldQuaternion = new Quaternion(),
   rotAxis = new Vector3(),
   rootToMidVector = new Vector3(),
   midToTipVector = new Vector3(),
