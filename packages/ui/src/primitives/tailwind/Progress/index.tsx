@@ -24,29 +24,31 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
+import { twMerge } from 'tailwind-merge'
 
-import Component from './index'
-
-export default {
-  title: 'Primitives/Tailwind/Modal',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'Modal',
-    jest: 'Modal.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  }
+const sizes = {
+  small: 'h-1.5',
+  default: 'h-2.5',
+  large: 'h-4',
+  extralarge: 'h-6'
 }
 
-export const Default = {
-  args: {
-    title: 'Default Modal Title',
-    children: (
-      <>
-        <h3 className="font-bold text-lg">Hello!</h3>
-      </>
-    )
-  }
+export interface ProgressProps extends React.HTMLAttributes<HTMLProgressElement> {
+  className?: string
+  value: number
+  size?: keyof typeof sizes
+  barClassName?: string
 }
+
+const Progress = ({ className, barClassName, value, size = 'default' }: ProgressProps) => {
+  const twClassName = twMerge(sizes[size], 'rounded-full w-full bg-gray-200 dark:bg-gray-700', className)
+  const twBarClassName = twMerge(sizes[size], 'rounded-full bg-blue-800', barClassName)
+
+  return (
+    <div className={twClassName}>
+      <div className={twBarClassName} style={{ width: `${value}%` }} />
+    </div>
+  )
+}
+
+export default Progress

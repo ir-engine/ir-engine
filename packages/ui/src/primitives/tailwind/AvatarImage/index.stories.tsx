@@ -23,16 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
-import Component from './index'
+import AvatarImage from './index'
 
 export default {
-  title: 'Primitives/Tailwind/Modal',
-  component: Component,
+  title: 'Primitives/Tailwind/AvatarImage',
+  component: AvatarImage,
   parameters: {
-    componentSubtitle: 'Modal',
-    jest: 'Modal.test.tsx',
+    componentSubtitle: 'AvatarImage',
+    jest: 'AvatarImage.test.tsx',
     design: {
       type: 'figma',
       url: ''
@@ -42,11 +40,6 @@ export default {
 
 export const Default = {
   args: {
-    title: 'Default Modal Title',
-    children: (
-      <>
-        <h3 className="font-bold text-lg">Hello!</h3>
-      </>
-    )
+    src: ''
   }
 }

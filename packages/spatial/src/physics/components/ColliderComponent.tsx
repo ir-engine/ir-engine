@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Collider } from '@dimforge/rapier3d-compat'
 import {
   Entity,
   UndefinedEntity,
@@ -30,7 +31,8 @@ import {
   getComponent,
   hasComponent,
   useComponent,
-  useEntityContext
+  useEntityContext,
+  useOptionalComponent
 } from '@etherealengine/ecs'
 import { getState, useHookstate } from '@etherealengine/hyperflux'
 import React, { useEffect } from 'react'
@@ -41,6 +43,7 @@ import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { PhysicsState } from '../state/PhysicsState'
 import { Shape, Shapes } from '../types/PhysicsTypes'
 import { RigidBodyComponent } from './RigidBodyComponent'
+import { TriggerComponent } from './TriggerComponent'
 
 export const ColliderComponent = defineComponent({
   name: 'ColliderComponent',
@@ -54,7 +57,9 @@ export const ColliderComponent = defineComponent({
       friction: 0.5,
       restitution: 0.5,
       collisionLayer: CollisionGroups.Default,
-      collisionMask: DefaultCollisionMask
+      collisionMask: DefaultCollisionMask,
+      // internal
+      collider: null as Collider | null
     }
   },
 
@@ -125,6 +130,8 @@ function ColliderComponentReactor() {
 
 function ColliderComponentRigidbodyReactor(props: { entity: Entity; rigidbodyEntity: Entity }) {
   const rigidbodyComponent = useComponent(props.rigidbodyEntity, RigidBodyComponent)
+  const isTrigger = !!useOptionalComponent(props.entity, TriggerComponent)
+  const colliderComponent = useComponent(props.entity, ColliderComponent)
 
   useEffect(() => {
     if (!rigidbodyComponent.body.value) return
@@ -137,12 +144,22 @@ function ColliderComponentRigidbodyReactor(props: { entity: Entity; rigidbodyEnt
     const rigidbody = rigidbodyComponent.body.value
 
     const physicsWorld = getState(PhysicsState).physicsWorld
-    physicsWorld.createCollider(colliderDesc, rigidbody)
+    const collider = physicsWorld.createCollider(colliderDesc, rigidbody)
+    colliderComponent.collider.set(collider)
 
     return () => {
+      colliderComponent.collider.set(null)
       physicsWorld.removeCollider(colliderDesc, false)
     }
   }, [rigidbodyComponent.body])
+
+  useEffect(() => {
+    if (!colliderComponent.collider.value) return
+
+    const collider = colliderComponent.collider.value
+
+    collider.setSensor(isTrigger)
+  }, [colliderComponent.collider, isTrigger])
 
   return null
 }
