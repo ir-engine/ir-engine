@@ -42,7 +42,7 @@ import { SxProps, Theme } from '@mui/material/styles'
 import styles from './index.module.scss'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { hasComponent, removeComponent, setComponent } from '@etherealengine/ecs'
+import { setComponent } from '@etherealengine/ecs'
 import { defaultAnimationPath, preloadedAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { AssetPreviewCameraComponent } from '@etherealengine/engine/src/camera/components/AssetPreviewCameraComponent'
@@ -68,16 +68,10 @@ interface Props {
 const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: Props) => {
   const { t } = useTranslation()
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
-
   useRender3DPanelSystem(panelRef)
-
-  useEffect(() => {
-    loadAvatarPreview()
-  }, [avatarUrl])
-
   const renderPanelState = getMutableState(PreviewPanelRendererState)
 
-  const loadAvatarPreview = () => {
+  useEffect(() => {
     if (!avatarUrl) return
 
     const renderPanelEntities = renderPanelState.entities[panelRef.current.id]
@@ -86,20 +80,18 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     setComponent(entity, UUIDComponent, uuid)
     setComponent(entity, NameComponent, '3D Preview Entity')
 
-    if (hasComponent(entity, LoopAnimationComponent)) removeComponent(entity, LoopAnimationComponent)
-    if (hasComponent(entity, ModelComponent)) removeComponent(entity, ModelComponent)
-
-    setComponent(entity, VisibleComponent, true)
-    ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.AssetPreview)
-    setComponent(entity, ModelComponent, { src: avatarUrl, convertToVRM: true })
     setComponent(entity, LoopAnimationComponent, {
       animationPack: defaultAnimationPath + preloadedAnimations.locomotion + '.glb',
       activeClipIndex: 5
     })
+    setComponent(entity, ModelComponent, { src: avatarUrl, convertToVRM: true, manageScene: false })
+
+    setComponent(entity, VisibleComponent, true)
+    ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.AssetPreview)
     setComponent(entity, EnvmapComponent, { type: EnvMapSourceType.Skybox })
     const cameraEntity = renderPanelEntities[PanelEntities.camera].value
     setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: entity })
-  }
+  }, [avatarUrl])
 
   return (
     <Box className={`${commonStyles.preview} ${fill ? styles.fill : ''}`} sx={sx}>

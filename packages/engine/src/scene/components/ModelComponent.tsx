@@ -82,6 +82,7 @@ export const ModelComponent = defineComponent({
       cameraOcclusion: true,
       /** optional, only for bone matchable avatars */
       convertToVRM: false as boolean,
+      manageScene: true as boolean,
       // internal
       scene: null as Scene | null,
       asset: null as VRM | GLTF | null
@@ -92,7 +93,8 @@ export const ModelComponent = defineComponent({
     return {
       src: component.src.value,
       cameraOcclusion: component.cameraOcclusion.value,
-      convertToVRM: component.convertToVRM.value
+      convertToVRM: component.convertToVRM.value,
+      manageScene: component.manageScene.value
     }
   },
 
@@ -103,6 +105,7 @@ export const ModelComponent = defineComponent({
       component.cameraOcclusion.set(!(json as any).avoidCameraOcclusion)
     if (typeof json.cameraOcclusion === 'boolean') component.cameraOcclusion.set(json.cameraOcclusion)
     if (typeof json.convertToVRM === 'boolean') component.convertToVRM.set(json.convertToVRM)
+    if (typeof json.manageScene === 'boolean') component.manageScene.set(json.manageScene)
 
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
@@ -131,18 +134,10 @@ function ModelReactor(): JSX.Element {
 
   /** @todo this is a hack */
   const override = !isAvaturn(modelComponent.value.src) ? undefined : AssetType.glB
-  const [gltf, unload, error, progress] = useGLTF(
-    modelComponent.value.src,
-    entity,
-    {
-      forceAssetType: override,
-      ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
-    },
-    () => {
-      const uuid = getModelSceneID(entity)
-      getMutableState(SceneState).scenes[uuid].set(none)
-    }
-  )
+  const [gltf, unload, error, progress] = useGLTF(modelComponent.value.src, entity, {
+    forceAssetType: override,
+    ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
+  })
 
   useEffect(() => {
     /* unload should only be called when the component is unmounted
@@ -243,17 +238,19 @@ function ModelReactor(): JSX.Element {
     const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene)
     const uuid = getModelSceneID(entity)
 
-    SceneState.loadScene(uuid, {
-      scene: {
-        entities: loadedJsonHierarchy,
-        root: getComponent(entity, UUIDComponent),
-        version: 0
-      },
-      scenePath: uuid,
-      name: '',
-      project: '',
-      thumbnailUrl: ''
-    })
+    if (modelComponent.manageScene) {
+      SceneState.loadScene(uuid, {
+        scene: {
+          entities: loadedJsonHierarchy,
+          root: getComponent(entity, UUIDComponent),
+          version: 0
+        },
+        scenePath: uuid,
+        name: '',
+        project: '',
+        thumbnailUrl: ''
+      })
+    }
 
     if (!hasComponent(entity, AvatarRigComponent)) {
       //if this is not an avatar, add bbox snap
@@ -261,7 +258,7 @@ function ModelReactor(): JSX.Element {
     }
 
     return () => {
-      getMutableState(SceneState).scenes[uuid].set(none)
+      if (modelComponent.manageScene) getMutableState(SceneState).scenes[uuid].set(none)
     }
   }, [modelComponent.scene])
 
