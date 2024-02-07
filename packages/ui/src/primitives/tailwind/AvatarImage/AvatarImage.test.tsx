@@ -23,30 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { describe, expect, it } from '@jest/globals'
+import { shallow } from 'enzyme'
 import React from 'react'
 
-import Component from './index'
+import AvatarImage from './index'
+import { Default as story } from './index.stories'
 
-export default {
-  title: 'Primitives/Tailwind/Modal',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'Modal',
-    jest: 'Modal.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  }
-}
-
-export const Default = {
-  args: {
-    title: 'Default Modal Title',
-    children: (
-      <>
-        <h3 className="font-bold text-lg">Hello!</h3>
-      </>
-    )
-  }
-}
+describe('AvatarImage', () => {
+  it('- should render', () => {
+    const wrapper = shallow(<AvatarImage {...story?.args} />)
+    expect(wrapper).toMatchSnapshot()
+  })
+})

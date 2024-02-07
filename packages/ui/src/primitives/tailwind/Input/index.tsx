@@ -73,7 +73,7 @@ const Input = ({
   return (
     <div className="w-full flex items-center flex-col gap-2">
       {label && <Label className="self-stretch">{label}</Label>}
-      <input type={type} className={twInputClassname} value={value} {...props} />
+      <input type={type} className={twInputClassname} value={value} onChange={onChange} {...props} />
       {description && <p className="self-stretch text-xs text-theme-secondary text-muted-foreground">{description}</p>}
     </div>
   )
