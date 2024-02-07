@@ -41,8 +41,8 @@ import ActivityGraph from './ActivityGraph'
 
 import './index.scss'
 
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { analyticsPath } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
+import { analyticsPath } from '@etherealengine/common/src/schema.type.module'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { useTranslation } from 'react-i18next'
 import AnalyticsService, { AnalyticsQueryMap, AnalyticsQueryTypes } from './AnalyticsService'
 import UserGraph from './UserGraph'
@@ -95,8 +95,13 @@ const Analytics = () => {
   return (
     <>
       <div className={styles.dashboardCardsContainer}>
-        {analyticsServiceQueries.map((query) => (
-          <AnalyticsService name={query.type} colors={query.colors!} analyticsQueryMap={analyticsQueryMap} />
+        {analyticsServiceQueries.map((query, index) => (
+          <AnalyticsService
+            key={query.type + index}
+            name={query.type}
+            colors={query.colors!}
+            analyticsQueryMap={analyticsQueryMap}
+          />
         ))}
       </div>
       <div className={styles.mt20px}>

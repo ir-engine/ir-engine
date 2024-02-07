@@ -23,169 +23,83 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { memo, useCallback, useEffect } from 'react'
-import AutoSizer from 'react-virtualized-auto-sizer'
-import { areEqual, FixedSizeList } from 'react-window'
-import { MeshBasicMaterial } from 'three'
+import React from 'react'
 
-import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exportMaterialsGLTF'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
-import { LibraryEntryType } from '@etherealengine/engine/src/renderer/materials/constants/LibraryEntry'
-import {
-  entryId,
-  materialFromId,
-  registerMaterial
-} from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
-import { getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
+import MaterialLibraryIcon from '@mui/icons-material/Yard'
 
-import { Stack } from '@mui/material'
+import DockLayout, { DockMode, TabData } from 'rc-dock'
+import { useTranslation } from 'react-i18next'
+import { DockContainer } from '../EditorContainer'
+import { MaterialPreviewPanel } from '../assets/AssetPreviewPanels/MaterialPreviewPanel'
+import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
+import MaterialLibraryPanel from './MaterialLibraryPanelContainer'
 
-import { uploadProjectFiles } from '../../functions/assetFunctions'
-import { EditorState } from '../../services/EditorServices'
-import styles from '../hierarchy/styles.module.scss'
-import { Button } from '../inputs/Button'
-import MaterialLibraryEntry, { MaterialLibraryEntryType } from './MaterialLibraryEntry'
-import { MaterialSelectionState } from './MaterialLibraryState'
+export const MaterialLibraryPanelTitle = () => {
+  const { t } = useTranslation()
+  const materialPreviewPanelRef = React.useRef()
+  // const onLayoutChangedCallback = () => {
+  //   ;(assetsPreviewPanelRef as any).current?.onLayoutChanged?.()
+  // }
 
-export default function MaterialLibraryPanel() {
-  const editorState = useHookstate(getMutableState(EditorState))
-  const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
-  const materialLibrary = useHookstate(getMutableState(MaterialLibraryState))
-  const MemoMatLibEntry = memo(MaterialLibraryEntry, areEqual)
-  const nodeChanges = useState(0)
-  const publicPath = getState(EngineState).publicPath
-
-  const createSrcs = useCallback(() => Object.values(materialLibrary.sources.value), [materialLibrary.sources])
-  const srcs = useState(createSrcs())
-  useEffect(srcs.set.bind({}, createSrcs), [materialLibrary.sources])
-
-  const collapsedSrcs = useCallback(
-    () => new Set<string>(srcs.value.map((src) => entryId(src, LibraryEntryType.MATERIAL_SOURCE))),
-    [srcs]
-  )
-
-  const collapsedNodes = useState(collapsedSrcs())
-  const createNodes = useCallback((): MaterialLibraryEntryType[] => {
-    const result = srcs.value.flatMap((srcComp) => {
-      const uuid = entryId(srcComp, LibraryEntryType.MATERIAL_SOURCE)
-      const isCollapsed = collapsedNodes.value.has(uuid)
-      return [
+  // const onSelectionChanged = (props: AssetSelectionChangePropsType) => {
+  //   ;(assetsPreviewPanelRef as any).current?.onSelectionChanged?.(props)
+  // }
+  const defaultLayout = {
+    dockbox: {
+      mode: 'vertical' as DockMode,
+      children: [
         {
-          uuid,
-          type: LibraryEntryType.MATERIAL_SOURCE,
-          entry: srcComp,
-          selected: selectedMaterial.value === uuid,
-          active: selectedMaterial.value === uuid,
-          isCollapsed
-        },
-        ...(isCollapsed
-          ? []
-          : srcComp.entries
-              .filter((uuid) => !!materialLibrary.materials[uuid].value)
-              .map((uuid) => {
-                return {
-                  uuid,
-                  type: LibraryEntryType.MATERIAL,
-                  entry: materialFromId(uuid),
-                  selected: selectedMaterial.value === uuid,
-                  active: selectedMaterial.value === uuid
+          size: 5,
+          mode: 'horizontal' as DockMode,
+          children: [
+            {
+              tabs: [
+                {
+                  id: 'materialLibraryPanel',
+                  title: t('editor:layout.filebrowser.tab-name'),
+                  content: <MaterialLibraryPanel />
                 }
-              }))
+              ]
+            }
+          ]
+        },
+        {
+          size: 5,
+          tabs: [
+            {
+              id: 'previewPanel',
+              title: t('editor:layout.scene-assets.preview'),
+              cached: true,
+              content: <MaterialPreviewPanel ref={materialPreviewPanelRef} />
+            }
+          ]
+        }
       ]
-    })
-    return result
-  }, [nodeChanges, srcs, selectedMaterial])
-
-  const nodes = useState(createNodes())
-
-  const onClick = useCallback((e: MouseEvent, node: MaterialLibraryEntryType) => {
-    if (!editorState.lockPropertiesPanel.get()) {
-      if (getState(MaterialLibraryState).materials[node.uuid]) selectedMaterial.set(node.uuid)
     }
-  }, [])
-
-  const onCollapse = useCallback((e: MouseEvent, node: MaterialLibraryEntryType) => {
-    const isCollapsed = collapsedNodes.value.has(node.uuid)
-    if (isCollapsed) {
-      collapsedNodes.merge((_collapsedNodes) => {
-        _collapsedNodes.delete(node.uuid)
-        return _collapsedNodes
-      })
-    } else {
-      collapsedNodes.merge((_collapsedNodes) => {
-        _collapsedNodes.add(node.uuid)
-        return _collapsedNodes
-      })
-    }
-    nodeChanges.set(nodeChanges.get() + 1)
-  }, [])
-
-  useEffect(() => {
-    nodes.set(createNodes())
-  }, [nodeChanges, selectedMaterial, srcs])
+  }
 
   return (
     <>
-      <div className={styles.panelContainer}>
-        <div className={styles.panelSection}>
-          <AutoSizer>
-            {({ width, height }) => (
-              <FixedSizeList
-                height={height}
-                width={width}
-                itemSize={32}
-                itemCount={nodes.length}
-                itemData={{
-                  nodes: nodes.get(),
-                  onClick,
-                  onCollapse
-                }}
-                itemKey={(index, _) => index}
-                innerElementType="ul"
-              >
-                {MemoMatLibEntry}
-              </FixedSizeList>
-            )}
-          </AutoSizer>
-        </div>
-        <div className={styles.panelSection} style={{ height: 'auto', padding: '8px' }}>
-          <div className={styles.divider} />
-          <Stack direction={'column'} spacing={2}>
-            <Button
-              onClick={() => {
-                registerMaterial(new MeshBasicMaterial(), { path: '', type: SourceType.EDITOR_SESSION })
-                nodeChanges.set(nodeChanges.get() + 1)
-              }}
-            >
-              New
-            </Button>
-            <Button
-              onClick={async () => {
-                const projectName = editorState.projectName.value!
-                const materials = selectedMaterial.value ? [materialFromId(selectedMaterial.value)] : []
-                const libraryName = 'material-test.gltf'
-                const path = `${publicPath}/projects/${projectName}/assets/${libraryName}`
-                const gltf = (await exportMaterialsGLTF(materials, {
-                  binary: false,
-                  path
-                })!) as /*ArrayBuffer*/ { [key: string]: any }
-
-                const blob = [JSON.stringify(gltf)]
-                const file = new File(blob, libraryName)
-                /*const pName = editorState.projectName.value!
-                const blob = [gltf]
-                const file = new File(blob, "material-test.glb")*/
-                const urls = await Promise.all(uploadProjectFiles(projectName, [file], true).promises)
-                console.log('exported material data to ', ...urls)
-              }}
-            >
-              Save
-            </Button>
-          </Stack>
-        </div>
-      </div>
+      <DockContainer id="materialLibraryPanel" dividerAlpha={0.3}>
+        <DockLayout
+          defaultLayout={defaultLayout}
+          style={{ pointerEvents: 'none', position: 'absolute', left: 0, top: 5, right: 5, bottom: 5 }}
+          //onLayoutChange={onLayoutChangedCallback}
+        />
+      </DockContainer>
     </>
   )
+}
+
+export const MaterialLibraryPanelTab: TabData = {
+  id: 'materialLibraryPanel',
+  closable: true,
+  cached: true,
+  title: (
+    <PanelDragContainer>
+      <PanelIcon as={MaterialLibraryIcon} size={12} />
+      <PanelTitle>Material Library</PanelTitle>
+    </PanelDragContainer>
+  ),
+  content: <MaterialLibraryPanelTitle />
 }

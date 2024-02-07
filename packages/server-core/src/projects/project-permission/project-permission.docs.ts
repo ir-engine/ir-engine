@@ -30,7 +30,7 @@ import {
   projectPermissionPatchSchema,
   projectPermissionQuerySchema,
   projectPermissionSchema
-} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+} from '@etherealengine/common/src/schemas/projects/project-permission.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

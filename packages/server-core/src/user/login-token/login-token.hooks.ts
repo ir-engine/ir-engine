@@ -30,12 +30,12 @@ import {
   loginTokenDataValidator,
   loginTokenPatchValidator,
   loginTokenQueryValidator
-} from '@etherealengine/engine/src/schemas/user/login-token.schema'
+} from '@etherealengine/common/src/schemas/user/login-token.schema'
 import { HookContext } from '../../../declarations'
 
+import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { BadRequest } from '@feathersjs/errors'
 import moment from 'moment'
-import { toDateTimeSql } from '../../util/datetime-sql'
 import { LoginTokenService } from './login-token.class'
 import {
   loginTokenDataResolver,

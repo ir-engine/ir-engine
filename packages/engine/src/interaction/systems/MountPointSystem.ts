@@ -23,45 +23,45 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Box3, Vector3 } from 'three'
+import { Box3, Quaternion, Vector3 } from 'three'
 
-import {
-  defineActionQueue,
-  dispatchAction,
-  getMutableState,
-  getState,
-  receiveActions,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { useEffect } from 'react'
-import { animationStates, defaultAnimationPath } from '../../avatar/animation/Util'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
-import { teleportAvatar } from '../../avatar/functions/moveAvatar'
-import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
-import { isClient } from '../../common/functions/getEnvironment'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
-  defineQuery,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { useEffect } from 'react'
+import { emoteAnimations, preloadedAnimations } from '../../avatar/animation/Util'
+import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
+import { teleportAvatar } from '../../avatar/functions/moveAvatar'
+import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { MountPoint, MountPointComponent } from '../../scene/components/MountPointComponent'
 import { SittingComponent } from '../../scene/components/SittingComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { setVisibleComponent } from '../../scene/components/VisibleComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
+
+import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
+import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
+import { MotionCapturePoseComponent } from '../../mocap/MotionCapturePoseComponent'
+import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
 import { MountPointActions, MountPointState } from '../functions/MountPointActions'
 import { createInteractUI } from '../functions/interactUI'
-import { InteractiveUI, addInteractableUI } from './InteractiveSystem'
+import { InteractState, InteractiveUI, addInteractableUI } from './InteractiveSystem'
 
 /**
  * @todo refactor this into i18n and configurable
@@ -70,14 +70,75 @@ const mountPointInteractMessages = {
   [MountPoint.seat]: 'Press E to Sit'
 }
 
-const mountPointActionQueue = defineActionQueue(EngineActions.interactedWithObject.matches)
 const mountPointQuery = defineQuery([MountPointComponent])
 const sittingIdleQuery = defineQuery([SittingComponent])
 
 const execute = () => {
-  receiveActions(MountPointState)
-
   if (getState(EngineState).isEditor) return
+
+  const unmountEntity = (entity: Entity) => {
+    if (!hasComponent(entity, SittingComponent)) return
+    const rigidBody = getComponent(entity, RigidBodyComponent)
+
+    dispatchAction(
+      AvatarNetworkAction.setAnimationState({
+        animationAsset: preloadedAnimations.emotes,
+        clipName: emoteAnimations.seated,
+        needsSkip: true,
+        entityUUID: getComponent(entity, UUIDComponent)
+      })
+    )
+
+    const sittingComponent = getComponent(entity, SittingComponent)
+
+    AvatarControllerComponent.releaseMovement(Engine.instance.localClientEntity, sittingComponent.mountPointEntity)
+    dispatchAction(
+      MountPointActions.mountInteraction({
+        mounted: false,
+        mountedEntity: getComponent(entity, UUIDComponent),
+        targetMount: getComponent(sittingComponent.mountPointEntity, UUIDComponent)
+      })
+    )
+    const mountTransform = getComponent(sittingComponent.mountPointEntity, TransformComponent)
+    const mountComponent = getComponent(sittingComponent.mountPointEntity, MountPointComponent)
+    //we use teleport avatar only when rigidbody is not enabled, otherwise translation is called on rigidbody
+    const dismountPoint = new Vector3().copy(mountComponent.dismountOffset).applyMatrix4(mountTransform.matrixWorld)
+    teleportAvatar(entity, dismountPoint)
+    rigidBody.body.setEnabled(true)
+    removeComponent(entity, SittingComponent)
+  }
+
+  const mountEntity = (avatarEntity: Entity, mountEntity: Entity) => {
+    const avatarUUID = getComponent(avatarEntity, UUIDComponent)
+    const mountPoint = getOptionalComponent(mountEntity, MountPointComponent)
+    if (!mountPoint || mountPoint.type !== MountPoint.seat) return
+    const mountPointUUID = getComponent(mountEntity, UUIDComponent)
+
+    //check if we're already sitting or if the seat is occupied
+    if (getState(MountPointState)[mountPointUUID] || hasComponent(avatarEntity, SittingComponent)) return
+
+    setComponent(avatarEntity, SittingComponent, {
+      mountPointEntity: mountEntity!
+    })
+
+    AvatarControllerComponent.captureMovement(avatarEntity, mountEntity)
+    dispatchAction(
+      AvatarNetworkAction.setAnimationState({
+        animationAsset: preloadedAnimations.emotes,
+        clipName: emoteAnimations.seated,
+        loop: true,
+        layer: 1,
+        entityUUID: avatarUUID
+      })
+    )
+    dispatchAction(
+      MountPointActions.mountInteraction({
+        mounted: true,
+        mountedEntity: getComponent(avatarEntity, UUIDComponent),
+        targetMount: getComponent(mountEntity, UUIDComponent)
+      })
+    )
+  }
 
   for (const entity of mountPointQuery.enter()) {
     const mountPoint = getComponent(entity, MountPointComponent)
@@ -92,112 +153,69 @@ const execute = () => {
     }
   }
 
-  for (const action of mountPointActionQueue()) {
-    if (action.$from !== Engine.instance.userID) continue
-    if (!action.targetEntity || !hasComponent(action.targetEntity!, MountPointComponent)) continue
-    const avatarEntity = NetworkObjectComponent.getUserAvatarEntity(action.$from)
-    const avatarUUID = getComponent(avatarEntity, UUIDComponent)
-    const mountPoint = getComponent(action.targetEntity, MountPointComponent)
-    const mountPointUUID = getComponent(action.targetEntity, UUIDComponent)
+  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
+  const inputSource = getOptionalComponent(nonCapturedInputSource, InputSourceComponent)
+  if (inputSource && (inputSource.buttons.KeyE?.down || inputSource.buttons[XRStandardGamepadButton.Trigger]?.down))
+    mountEntity(Engine.instance.localClientEntity, getState(InteractState).available[0])
 
-    if (mountPoint.type !== MountPoint.seat || getState(MountPointState)[mountPointUUID]) continue
-
-    /**todo add logic for different mount types */
-    const avatar = getComponent(avatarEntity, AvatarComponent)
-
-    if (hasComponent(avatarEntity, SittingComponent)) continue
-    const mountTransform = getComponent(action.targetEntity!, TransformComponent)
-    const rigidBody = getComponent(avatarEntity, RigidBodyComponent)
-    rigidBody.body.setTranslation(
-      {
-        x: mountTransform.position.x,
-        y: mountTransform.position.y - avatar.avatarHalfHeight * 0.5,
-        z: mountTransform.position.z
-      },
-      true
-    )
-    rigidBody.body.setRotation(
-      {
-        x: mountTransform.rotation.x,
-        y: mountTransform.rotation.y,
-        z: mountTransform.rotation.z,
-        w: mountTransform.rotation.w
-      },
-      true
-    )
-    rigidBody.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
-    rigidBody.body.setEnabled(false)
-    setComponent(avatarEntity, SittingComponent, {
-      mountPointEntity: action.targetEntity!
-    })
-    getComponent(avatarEntity, AvatarControllerComponent).movementEnabled = false
-    dispatchAction(
-      AvatarNetworkAction.setAnimationState({
-        filePath: defaultAnimationPath + animationStates.seated + '.fbx',
-        clipName: animationStates.seated,
-        loop: true,
-        layer: 1,
-        entityUUID: avatarUUID
-      })
-    )
-    dispatchAction(
-      MountPointActions.mountInteraction({
-        mounted: true,
-        mountedEntity: getComponent(avatarEntity, UUIDComponent),
-        targetMount: getComponent(action.targetEntity, UUIDComponent)
-      })
-    )
+  /*Consider mocap inputs in the event we want to snap a real world seated person
+    to a mount point, to maintain physical continuity
+  */
+  const mocapInputSource = getOptionalComponent(Engine.instance.localClientEntity, MotionCapturePoseComponent)
+  if (mocapInputSource) {
+    if (mocapInputSource.sitting?.begun)
+      mountEntity(Engine.instance.localClientEntity, getState(InteractState).available[0])
+    if (mocapInputSource.standing?.begun) unmountEntity(Engine.instance.localClientEntity)
   }
 
   for (const entity of sittingIdleQuery()) {
     const controller = getComponent(entity, AvatarControllerComponent)
     if (controller.gamepadLocalInput.lengthSq() > 0.01) {
-      const rigidBody = getComponent(entity, RigidBodyComponent)
-      getComponent(Engine.instance.localClientEntity, AvatarControllerComponent).movementEnabled = true
-      dispatchAction(
-        AvatarNetworkAction.setAnimationState({
-          filePath: defaultAnimationPath + animationStates.seated + '.fbx',
-          clipName: animationStates.seated,
-          needsSkip: true,
-          entityUUID: getComponent(entity, UUIDComponent)
-        })
-      )
-
-      const sittingComponent = getComponent(entity, SittingComponent)
-
-      dispatchAction(
-        MountPointActions.mountInteraction({
-          mounted: false,
-          mountedEntity: getComponent(entity, UUIDComponent),
-          targetMount: getComponent(sittingComponent.mountPointEntity, UUIDComponent)
-        })
-      )
-      const mountTransform = getComponent(sittingComponent.mountPointEntity, TransformComponent)
-      const mountComponent = getComponent(sittingComponent.mountPointEntity, MountPointComponent)
-      //we use teleport avatar only when rigidbody is not enabled, otherwise translation is called on rigidbody
-      const dismountPoint = new Vector3().copy(mountComponent.dismountOffset).applyMatrix4(mountTransform.matrix)
-      teleportAvatar(entity, dismountPoint)
-      rigidBody.body.setEnabled(true)
-      removeComponent(entity, SittingComponent)
+      unmountEntity(entity)
+      continue
     }
+    const mountTransform = getComponent(getComponent(entity, SittingComponent).mountPointEntity, TransformComponent)
+
+    mountTransform.matrixWorld.decompose(vec3_0, quat, vec3_1)
+    const rig = getComponent(entity, AvatarRigComponent)
+    vec3_0.y -= rig.normalizedRig.hips.node.position.y - 0.25
+    setComponent(entity, TransformComponent, { rotation: mountTransform.rotation, position: vec3_0 })
+
+    if (!hasComponent(entity, MotionCaptureRigComponent)) continue
+
+    //Force mocapped avatar to always face the mount point's rotation
+    //const hipsQaut = new Quaternion(
+    //  MotionCaptureRigComponent.rig.hips.x[entity],
+    //  MotionCaptureRigComponent.rig.hips.y[entity],
+    //  MotionCaptureRigComponent.rig.hips.z[entity],
+    //  MotionCaptureRigComponent.rig.hips.w[entity]
+    //)
+    //avatarTransform.rotation.copy(mountTransform.rotation).multiply(hipsQaut.invert())
   }
+}
+
+const vec3_0 = new Vector3()
+const quat = new Quaternion()
+const vec3_1 = new Vector3()
+
+const reactor = () => {
+  const mountedEntities = useHookstate(getMutableState(MountPointState))
+  useEffect(() => {
+    //temporary logic for setting visibility of hints until interactive system is refactored
+    for (const mountEntity of mountPointQuery()) {
+      setVisibleComponent(
+        InteractiveUI.get(mountEntity)!.xrui.entity!,
+        !mountedEntities[getComponent(mountEntity, UUIDComponent)].value
+      )
+    }
+  }, [mountedEntities])
+
+  return null
 }
 
 export const MountPointSystem = defineSystem({
   uuid: 'ee.engine.MountPointSystem',
+  insert: { before: InputSystemGroup },
   execute,
-  reactor: () => {
-    const mountedEntities = useHookstate(getMutableState(MountPointState))
-    useEffect(() => {
-      //temporary logic for setting visibility of hints until interactive system is refactored
-      for (const mountEntity of mountPointQuery()) {
-        setVisibleComponent(
-          InteractiveUI.get(mountEntity)?.xrui.entity!,
-          !mountedEntities[getComponent(mountEntity, UUIDComponent)].value
-        )
-      }
-    }, [mountedEntities])
-
-    return null
-  }
+  reactor
 })

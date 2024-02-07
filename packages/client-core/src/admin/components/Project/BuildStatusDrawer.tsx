@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { BuildStatusType, buildStatusPath } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
+import { BuildStatusType, buildStatusPath } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -34,7 +34,7 @@ import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import DrawerView from '../../common/DrawerView'
 import TableComponent from '../../common/Table'
 import { buildStatusColumns } from '../../common/variables/buildStatus'

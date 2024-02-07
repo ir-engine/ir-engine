@@ -40,10 +40,11 @@ import {
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { UserName } from '@etherealengine/common/src/schema.type.module'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
 import { t } from 'i18next'
 import { Resizable } from 're-resizable'
 import React, { useEffect, useRef } from 'react'
@@ -93,7 +94,7 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
 
   const { videoStream: videoStreamState } = peerMediaChannelState
 
-  const username = getUsername()
+  const username = getUsername() as UserName
 
   const ref = useRef<HTMLVideoElement>(null)
 

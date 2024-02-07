@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
-import React, { useState } from 'react'
+import React from 'react'
 import { Vector3 } from 'three'
 
 import LinkIcon from '@mui/icons-material/Link'
@@ -90,40 +90,53 @@ export const Vector3Input = ({
   ...rest
 }: Vector3InputProp) => {
   const id = uniqueId++
-  const [uniformEnabled, setUniformEnabled] = useState(uniformScaling)
-  const newValue = useHookstate(new Vector3(0, 0, 0))
+  const uniformEnabled = useHookstate(uniformScaling)
 
   const onToggleUniform = () => {
-    setUniformEnabled(!uniformEnabled)
+    uniformEnabled.set((v) => !v)
   }
 
   const processChange = (field: string, fieldValue: number) => {
-    if (uniformEnabled) {
-      newValue.value.set(fieldValue, fieldValue, fieldValue)
+    if (uniformEnabled.value) {
+      value.set(fieldValue, fieldValue, fieldValue)
     } else {
-      const x = value ? value.x : 0
-      const y = value ? value.y : 0
-      const z = value ? value.z : 0
-
-      newValue.set(
-        new Vector3(field === 'x' ? fieldValue : x, field === 'y' ? fieldValue : y, field === 'z' ? fieldValue : z)
-      )
-    }
-
-    if (typeof onChange === 'function') {
-      onChange(newValue.value)
+      value[field] = fieldValue
     }
   }
 
-  const onChangeX = (x: number) => processChange('x', x)
+  const onChangeX = (x: number) => {
+    processChange('x', x)
+    onChange(value)
+  }
 
-  const onChangeY = (y: number) => processChange('y', y)
+  const onChangeY = (y: number) => {
+    processChange('y', y)
+    onChange(value)
+  }
 
-  const onChangeZ = (z: number) => processChange('z', z)
+  const onChangeZ = (z: number) => {
+    processChange('z', z)
+    onChange(value)
+  }
 
-  const vx = value ? value.x : 0
-  const vy = value ? value.y : 0
-  const vz = value ? value.z : 0
+  const onReleaseX = (x: number) => {
+    processChange('x', x)
+    onRelease?.(value)
+  }
+
+  const onReleaseY = (y: number) => {
+    processChange('y', y)
+    onRelease?.(value)
+  }
+
+  const onReleaseZ = (z: number) => {
+    processChange('z', z)
+    onRelease?.(value)
+  }
+
+  const vx = value.x
+  const vy = value.y
+  const vz = value.z
   const checkboxId = 'uniform-button-' + id
 
   return (
@@ -131,9 +144,15 @@ export const Vector3Input = ({
       <UniformButtonContainer>
         {uniformScaling && (
           <>
-            <Hidden as="input" id={checkboxId} type="checkbox" checked={uniformEnabled} onChange={onToggleUniform} />
+            <Hidden
+              as="input"
+              id={checkboxId}
+              type="checkbox"
+              checked={uniformEnabled.value}
+              onChange={onToggleUniform}
+            />
             <label title="Uniform Scale" htmlFor={checkboxId}>
-              {uniformEnabled ? <LinkIcon /> : <LinkOffIcon />}
+              {uniformEnabled.value ? <LinkIcon /> : <LinkOffIcon />}
             </label>
           </>
         )}
@@ -142,7 +161,7 @@ export const Vector3Input = ({
         {...rest}
         value={vx}
         onChange={onChangeX}
-        onRelease={onRelease}
+        onRelease={onReleaseX}
         prefix={
           hideLabels ? null : (
             <Vector3Scrubber {...rest} value={vx} onChange={onChangeX} onPointerUp={onRelease} axis="x" />
@@ -153,7 +172,7 @@ export const Vector3Input = ({
         {...rest}
         value={vy}
         onChange={onChangeY}
-        onRelease={onRelease}
+        onRelease={onReleaseY}
         prefix={
           hideLabels ? null : (
             <Vector3Scrubber {...rest} value={vy} onChange={onChangeY} onPointerUp={onRelease} axis="y" />
@@ -164,7 +183,7 @@ export const Vector3Input = ({
         {...rest}
         value={vz}
         onChange={onChangeZ}
-        onRelease={onRelease}
+        onRelease={onReleaseZ}
         prefix={
           hideLabels ? null : (
             <Vector3Scrubber {...rest} value={vz} onChange={onChangeZ} onPointerUp={onRelease} axis="z" />

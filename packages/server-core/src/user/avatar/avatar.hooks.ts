@@ -28,20 +28,25 @@ import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks
 
 import {
   AvatarID,
+  AvatarQuery,
   AvatarType,
   avatarDataValidator,
   avatarPatchValidator,
   avatarPath,
   avatarQueryValidator
-} from '@etherealengine/engine/src/schemas/user/avatar.schema'
+} from '@etherealengine/common/src/schemas/user/avatar.schema'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import logger from '../../ServerLogger'
 
-import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+import { userAvatarPath } from '@etherealengine/common/src/schemas/user/user-avatar.schema'
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
+import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'
 import isAction from '../../hooks/is-action'
+import { checkRefreshMode } from '../../hooks/is-refresh-mode'
 import persistQuery from '../../hooks/persist-query'
 import verifyScope from '../../hooks/verify-scope'
 import { AvatarService } from './avatar.class'
@@ -79,18 +84,36 @@ const setIdentifierName = async (context: HookContext<AvatarService>) => {
  */
 const ensureUserAccessibleAvatars = async (context: HookContext<AvatarService>) => {
   if (context.params.user && context.params.user.id) {
-    context.params.query = {
-      ...context.params?.query,
-      $or: [
-        ...(context.params?.query?.$or || []),
-        {
+    if (context.params.query?.$or) {
+      const orQuery: AvatarQuery['$or'] = []
+
+      for (const item of context.params.query.$or) {
+        orQuery.push({
+          ...item,
           isPublic: true
-        },
-        {
+        })
+        orQuery.push({
+          ...item,
           isPublic: false,
           userId: context.params.user.id
-        }
-      ]
+        })
+      }
+
+      context.params.query.$or = orQuery
+    } else {
+      context.params.query = {
+        ...context.params?.query,
+        $or: [
+          ...(context.params?.query?.$or || []),
+          {
+            isPublic: true
+          },
+          {
+            isPublic: false,
+            userId: context.params.user.id
+          }
+        ]
+      }
     }
   } else {
     context.params.query = {
@@ -98,6 +121,24 @@ const ensureUserAccessibleAvatars = async (context: HookContext<AvatarService>) 
       isPublic: true
     }
   }
+}
+
+const checkUserHasPermissionOrIsOwner = async (context: HookContext<AvatarService>) => {
+  const hasAvatarWriteScope = await checkScope(context.params.user!, 'globalAvatars', 'write')
+  if (hasAvatarWriteScope) {
+    return
+  }
+
+  const foundAvatar = await context.app.service(avatarPath).get(context.id!)
+  if (!foundAvatar) {
+    throw new BadRequest('Avatar not found')
+  }
+
+  if (foundAvatar.userId !== context.params.user?.id) {
+    throw new Forbidden('User is not owner of this avatar')
+  }
+
+  context.data = { ...context.data, userId: context.params.user.id }
 }
 
 const sortByUserName = async (context: HookContext<AvatarService>) => {
@@ -147,18 +188,19 @@ const removeAvatarResources = async (context: HookContext<AvatarService>) => {
  * @returns
  */
 const updateUserAvatars = async (context: HookContext<AvatarService>) => {
-  const avatars = (await context.app.service(avatarPath).find({
+  const avatars = await context.app.service(avatarPath).find({
     query: {
       id: {
         $ne: context.id?.toString() as AvatarID
-      }
-    },
-    paginate: false
-  })) as AvatarType[]
+      },
+      isPublic: true,
+      $limit: 1000
+    }
+  })
 
-  if (avatars.length > 0) {
-    const randomReplacementAvatar = avatars[Math.floor(Math.random() * avatars.length)]
-    await context.app.service(userPath).patch(
+  if (avatars.data.length > 0) {
+    const randomReplacementAvatar = avatars.data[Math.floor(Math.random() * avatars.data.length)]
+    await context.app.service(userAvatarPath).patch(
       null,
       {
         avatarId: randomReplacementAvatar.id as AvatarID
@@ -166,9 +208,23 @@ const updateUserAvatars = async (context: HookContext<AvatarService>) => {
       {
         query: {
           avatarId: context.id?.toString() as AvatarID
-        }
+        },
+        user: context.params.user
       }
     )
+  }
+}
+
+/**
+ * Hook used to check if request has any public avatar in data.
+ */
+const isPublicAvatar = () => {
+  return (context: HookContext) => {
+    const data: AvatarType[] = Array.isArray(context.data) ? context.data : [context.data]
+
+    const hasPublic = data.find((item) => item.isPublic)
+
+    return !!hasPublic
   }
 }
 
@@ -188,13 +244,14 @@ export default {
     ],
     get: [persistQuery, discardQuery('skipUser')],
     create: [
+      iff(isProvider('external') && !checkRefreshMode() && isPublicAvatar(), verifyScope('globalAvatars', 'write')),
       () => schemaHooks.validateData(avatarDataValidator),
       schemaHooks.resolveData(avatarDataResolver),
       setLoggedInUser('userId')
     ],
     update: [disallow()],
     patch: [
-      iff(isProvider('external'), verifyScope('globalAvatars', 'write')),
+      iff(isProvider('external'), checkUserHasPermissionOrIsOwner),
       () => schemaHooks.validateData(avatarPatchValidator),
       schemaHooks.resolveData(avatarPatchResolver)
     ],

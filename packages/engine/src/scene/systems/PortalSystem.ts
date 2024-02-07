@@ -25,28 +25,43 @@ Ethereal Engine. All Rights Reserved.
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { switchCameraMode } from '@etherealengine/spatial/src/camera/functions/switchCameraMode'
+import { CameraMode } from '@etherealengine/spatial/src/camera/types/CameraMode'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { EntityNetworkState } from '@etherealengine/spatial/src/networking/state/EntityNetworkState'
 import { useEffect } from 'react'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { PortalState } from '../components/PortalComponent'
-import { revertAvatarToMovingStateFromTeleport } from '../functions/loaders/PortalFunctions'
-import { HyperspacePortalSystem } from './HyperspacePortalSystem'
+import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
+import { PortalComponent, PortalState } from '../components/PortalComponent'
 
 const reactor = () => {
-  const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
-  const activePortalEntity = useHookstate(getState(PortalState).activePortalEntity)
+  const activePortalEntityState = useHookstate(getMutableState(PortalState).activePortalEntity)
 
   useEffect(() => {
-    if (sceneLoaded.value && activePortalEntity.value) {
-      revertAvatarToMovingStateFromTeleport()
+    const activePortalEntity = activePortalEntityState.value
+    if (!activePortalEntity) return
+    const activePortal = getComponent(activePortalEntity, PortalComponent)
+    switchCameraMode(Engine.instance.cameraEntity, { cameraMode: CameraMode.ShoulderCam })
+    AvatarControllerComponent.captureMovement(Engine.instance.localClientEntity, activePortalEntity)
+
+    return () => {
+      const localClientEntity = Engine.instance.localClientEntity
+      getState(EntityNetworkState)[getComponent(localClientEntity, UUIDComponent)].spawnPosition.copy(
+        activePortal.remoteSpawnPosition
+      )
+      AvatarControllerComponent.releaseMovement(Engine.instance.localClientEntity, activePortalEntity)
+      getMutableState(PortalState).lastPortalTimeout.set(Date.now())
     }
-  }, [sceneLoaded, activePortalEntity])
+  }, [activePortalEntityState])
 
   return null
 }
 
 export const PortalSystem = defineSystem({
   uuid: 'ee.engine.PortalSystem',
-  reactor,
-  subSystems: [HyperspacePortalSystem]
+  insert: { after: PresentationSystemGroup },
+  reactor
 })

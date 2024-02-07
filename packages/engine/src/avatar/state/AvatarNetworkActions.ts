@@ -23,56 +23,48 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { AvatarID } from '@etherealengine/common/src/schema.type.module'
 import { defineAction } from '@etherealengine/hyperflux'
-import matches from 'ts-matches'
-import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
-import { NetworkTopics } from '../../networking/classes/Network'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { AvatarID } from '../../schemas/user/avatar.schema'
+import { matchesEntityUUID } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
+import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
+import matches, { Validator } from 'ts-matches'
 import { matchesIkTarget } from '../animation/Util'
 
 export class AvatarNetworkAction {
-  static spawn = defineAction({
-    ...WorldNetworkAction.spawnObject.actionShape,
-    prefab: 'avatar'
-  })
+  static spawn = defineAction(
+    WorldNetworkAction.spawnObject.extend({
+      type: 'ee.engine.avatar.SPAWN',
+      avatarID: matches.string as Validator<unknown, AvatarID>
+    })
+  )
 
   static setAnimationState = defineAction({
     type: 'ee.engine.avatar.SET_ANIMATION_STATE',
     entityUUID: matchesEntityUUID,
     clipName: matches.string.optional(),
-    filePath: matches.string,
+    animationAsset: matches.string,
     loop: matches.boolean.optional(),
     needsSkip: matches.boolean.optional(),
     layer: matches.number.optional(),
     $topic: NetworkTopics.world
   })
 
-  static setAvatarXrTracking = defineAction({
-    type: 'ee.engine.avatar.SET_AVATAR_XR_TRACKING',
-    active: matches.boolean,
-    entityUUID: matchesEntityUUID,
-    $topic: NetworkTopics.world
-  })
-
   static setAvatarID = defineAction({
     type: 'ee.engine.avatar.SET_AVATAR_ID',
     entityUUID: matchesEntityUUID,
-    avatarID: matches.string as any as AvatarID,
+    avatarID: matches.string as Validator<unknown, AvatarID>,
     $cache: {
       removePrevious: true
     },
     $topic: NetworkTopics.world
   })
 
-  static spawnIKTarget = defineAction({
-    ...WorldNetworkAction.spawnObject.actionShape,
-    prefab: 'ik-target',
-    name: matchesIkTarget,
-    blendWeight: matches.number,
-    $cache: {
-      removePrevious: false
-    },
-    $topic: NetworkTopics.world
-  })
+  static spawnIKTarget = defineAction(
+    WorldNetworkAction.spawnObject.extend({
+      type: 'ee.engine.avatar.SPAWN_IK_TARGET',
+      name: matchesIkTarget,
+      blendWeight: matches.number
+    })
+  )
 }

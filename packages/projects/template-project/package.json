@@ -4,10 +4,11 @@
   "description": "",
   "main": "",
   "etherealEngine": {
-    "version": "1.5.0"
+    "version": "1.6.0"
   },
   "scripts": {
     "test": "mocha --config .mocharc.js",
+    "check-errors": "tsc --noemit",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "format-scss": "stylelint \"**/*.scss\" --fix",
     "format-staged": "lint-staged",

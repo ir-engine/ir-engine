@@ -27,14 +27,14 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
+import multiLogger from '@etherealengine/common/src/logger'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { ProjectType, projectPath } from '@etherealengine/common/src/schema.type.module'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'
 import { useUserHasAccessHook } from '../../../user/userHasAccess'
@@ -79,6 +79,7 @@ const ProjectTable = ({ className }: Props) => {
     query: {
       allowed: true,
       $limit: 100,
+      action: 'admin',
       $sort: {
         name: 1
       }
@@ -389,6 +390,7 @@ const ProjectTable = ({ className }: Props) => {
       )}
 
       <ConfirmDialog
+        processing={processing}
         open={confirm.open}
         description={confirm.description}
         onClose={handleCloseConfirmation}

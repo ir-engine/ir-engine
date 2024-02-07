@@ -37,7 +37,6 @@ import ProjectInvalidate from './project-invalidate/project-invalidate'
 import ProjectPermission from './project-permission/project-permission'
 import Project from './project/project'
 import Projects from './projects/projects'
-import SceneData from './scene-data/scene-data'
 import SceneUpload from './scene-upload/scene-upload'
 import Scene from './scene/scene'
 
@@ -57,6 +56,5 @@ export default [
   ProjectCheckUnfetchedCommit,
   ProjectCheckSourceDestinationMatch,
   Scene,
-  SceneData,
   SceneUpload
 ]

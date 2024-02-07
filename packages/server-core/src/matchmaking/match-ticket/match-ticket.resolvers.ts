@@ -30,7 +30,7 @@ import { v4 } from 'uuid'
 import { MatchTicketQuery, MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const matchTicketResolver = resolve<MatchTicketType, HookContext>({
   createdAt: virtual(async (matchTicket) => (matchTicket.createdAt ? fromDateTimeSql(matchTicket.createdAt) : '')),

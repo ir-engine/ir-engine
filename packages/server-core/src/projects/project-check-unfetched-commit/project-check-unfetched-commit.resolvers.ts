@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve } from '@feathersjs/schema'
 
-import { ProjectCheckUnfetchedCommitType } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
+import { ProjectCheckUnfetchedCommitType } from '@etherealengine/common/src/schemas/projects/project-check-unfetched-commit.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const projectCheckUnfetchedCommitResolver = resolve<ProjectCheckUnfetchedCommitType, HookContext>({})

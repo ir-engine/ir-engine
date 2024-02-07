@@ -25,10 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { Intersection, Object3D, Raycaster, Vector2, Vector3 } from 'three'
 
-import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { SnapMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { getState } from '@etherealengine/hyperflux'
+import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
 
@@ -40,6 +41,9 @@ import { getIntersectingNodeOnScreen } from './getIntersectingNode'
  */
 export const getScreenSpacePosition = (() => {
   const raycaster = new Raycaster()
+  raycaster.layers.disable(ObjectLayers.Camera)
+  raycaster.layers.enable(ObjectLayers.NodeHelper)
+  raycaster.layers.enable(ObjectLayers.Scene)
   const raycastTargets: Intersection<Object3D>[] = []
 
   return (screenSpacePosition: Vector2, target = new Vector3()): Vector3 => {
@@ -53,7 +57,7 @@ export const getScreenSpacePosition = (() => {
       raycaster.ray.at(20, target)
     }
 
-    if (editorHelperState.snapMode === SnapMode.Grid) {
+    if (editorHelperState.gridSnap === SnapMode.Grid) {
       const translationSnap = editorHelperState.translationSnap
 
       target.set(

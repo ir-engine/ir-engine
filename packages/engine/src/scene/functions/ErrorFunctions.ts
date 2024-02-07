@@ -27,15 +27,15 @@ import { isEmpty } from 'lodash'
 
 import { none } from '@etherealengine/hyperflux'
 
-import { Entity } from '../../ecs/classes/Entity'
 import {
-  addComponent,
   Component,
   ComponentErrorsType,
   getMutableComponent,
   hasComponent,
-  removeComponent
-} from '../../ecs/functions/ComponentFunctions'
+  removeComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { ErrorComponent } from '../components/ErrorComponent'
 
 export const addError = <C extends Component>(
@@ -45,7 +45,7 @@ export const addError = <C extends Component>(
   message?: string
 ) => {
   console.error('[addError]:', entity, Component.name, error, message)
-  if (!hasComponent(entity, ErrorComponent)) addComponent(entity, ErrorComponent)
+  if (!hasComponent(entity, ErrorComponent)) setComponent(entity, ErrorComponent)
   const errors = getMutableComponent(entity, ErrorComponent)
   if (!errors[Component.name].value) errors[Component.name].set({})
   errors[Component.name][error].set(message ?? '')

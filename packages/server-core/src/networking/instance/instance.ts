@@ -23,16 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
+import { Application, HookContext } from '../../../declarations'
 
 import {
   instanceMethods,
   instancePath,
   InstanceType
-} from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { scopePath, ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { channelPath, ChannelType } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { scopePath, ScopeType, ScopeTypeInterface } from '@etherealengine/common/src/schemas/scope/scope.schema'
+import { channelPath, ChannelType } from '@etherealengine/common/src/schemas/social/channel.schema'
+import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 import logger from '../../ServerLogger'
 import { InstanceService } from './instance.class'
@@ -70,14 +70,15 @@ export default (app: Application): void => {
    * @param data
    * @returns deleted channel
    */
-  service.publish('removed', async (data): Promise<any> => {
+  service.publish('removed', async (data, context: HookContext): Promise<any> => {
     try {
       const adminScopes = (await app.service(scopePath).find({
         query: {
-          type: 'admin:admin'
+          type: 'admin:admin' as ScopeType
         },
+        headers: context.params.headers,
         paginate: false
-      })) as ScopeType[]
+      })) as unknown as ScopeTypeInterface[]
 
       const targetIds = adminScopes.map((admin) => admin.userId)
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

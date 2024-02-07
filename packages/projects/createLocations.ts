@@ -29,14 +29,14 @@ import fs from 'fs'
 import path from 'path'
 import { v4 as generateUUID } from 'uuid'
 
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { LocationSettingType } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import {
   LocationData,
   LocationID,
   locationPath,
-  LocationType
-} from '@etherealengine/engine/src/schemas/social/location.schema'
+  LocationSettingType,
+  LocationType,
+  SceneID
+} from '@etherealengine/common/src/schema.type.module'
 import { Application } from '@etherealengine/server-core/declarations'
 
 function toCapitalCase(str: string) {
@@ -70,7 +70,7 @@ export const createLocations = async (app: Application, projectName: string) => 
           name: locationName,
           slugifiedName: sceneName,
           maxUsersPerInstance: 30,
-          sceneId: `${projectName}/${sceneName}` as SceneID,
+          sceneId: `projects/${projectName}/${sceneName}.scene.json` as SceneID,
           locationSetting,
           isLobby: false,
           isFeatured: false

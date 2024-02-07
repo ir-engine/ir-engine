@@ -24,12 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import PropTypes from 'prop-types'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 
-import { clamp } from '@etherealengine/engine/src/common/functions/MathLerpFunctions'
+import { clamp } from '@etherealengine/spatial/src/common/functions/MathLerpFunctions'
 
 import { getStepSize, toPrecision } from '../../functions/utils'
 
+import { useHookstate } from '@hookstate/core'
 import './NumericInput.css'
 
 // Import the CSS file
@@ -72,8 +73,8 @@ export interface NumericInputProp {
   convertFrom?: any
   precision?: number
   mediumStep?: number
-  onChange?: (n: any) => void
-  onRelease?: (n: any) => void
+  onChange?: (n: number) => void
+  onRelease?: (n: number) => void
   smallStep?: number
   largeStep?: number
   min?: number
@@ -117,8 +118,8 @@ const NumericInput = React.forwardRef(
     }: NumericInputProp,
     ref
   ) => {
-    const [tempValue, setTempValue] = useState<string | null>(null)
-    const [focused, setFocused] = useState(false)
+    const tempValue = useHookstate(0)
+    const focused = useHookstate(false)
     const inputEl = useRef<HTMLInputElement>(null)
 
     const handleStep = (event, direction, focus = true) => {
@@ -130,17 +131,19 @@ const NumericInput = React.forwardRef(
       const finalValue = convertTo(roundedValue)
 
       if (onChange) {
-        onChange(finalValue)
+        onChange(Number(finalValue))
       }
 
-      setTempValue(
-        roundedValue.toLocaleString('fullwide', {
-          useGrouping: false,
-          minimumFractionDigits: 0,
-          maximumFractionDigits: Math.abs(Math.log10(precision || 0)) + 1
-        })
+      tempValue.set(
+        Number(
+          roundedValue.toLocaleString('fullwide', {
+            useGrouping: false,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: Math.abs(Math.log10(precision || 0)) + 1
+          })
+        )
       )
-      setFocused(focus)
+      focused.set(focus)
     }
 
     const increment = () => {
@@ -154,10 +157,12 @@ const NumericInput = React.forwardRef(
     const handleKeyPress = (event) => {
       if (event.key === 'Escape') {
         handleBlur()
+        return
       }
 
       if (event.key === 'Enter') {
         handleBlur()
+        return
       }
 
       let direction = 0
@@ -181,42 +186,42 @@ const NumericInput = React.forwardRef(
     }
 
     const handleChange = (event) => {
-      const tempValue = event.target.value
+      const newValue = event.target.value
 
-      setTempValue(tempValue)
-      setFocused(true)
+      tempValue.set(newValue)
+      focused.set(true)
 
-      const parsedValue = parseFloat(tempValue)
+      const parsedValue = parseFloat(newValue)
 
       if (!Number.isNaN(parsedValue)) {
         const clampedValue = min != null && max != null ? clamp(parsedValue, min, max) : parsedValue
         const roundedValue = precision ? toPrecision(clampedValue, precision) : clampedValue
         const finalValue = convertTo(roundedValue)
-        onChange?.(finalValue)
+        onChange?.(Number(finalValue))
       }
     }
 
     const handleFocus = () => {
-      setTempValue(
+      tempValue.set(
         convertFrom(value).toLocaleString('fullwide', {
           useGrouping: false,
           minimumFractionDigits: 0,
           maximumFractionDigits: Math.abs(Math.log10(precision || 0)) + 1
         })
       )
-      setFocused(true)
+      focused.set(true)
     }
 
     useEffect(() => {
-      if (focused) inputEl?.current?.select()
+      if (focused.value) inputEl?.current?.select()
     }, [focused])
 
     const handleBlur = () => {
-      setTempValue(null)
-      setFocused(false)
+      if (!focused.value) return
+      focused.set(false)
 
       if (onRelease) {
-        onRelease(value)
+        onRelease(Number(tempValue.value!))
       }
     }
 
@@ -227,7 +232,7 @@ const NumericInput = React.forwardRef(
           {...rest}
           // unit={unit} // not a valid property?
           ref={inputEl}
-          value={focused ? tempValue : toPrecisionString(convertFrom(value), displayPrecision)}
+          value={focused.value ? tempValue.value : toPrecisionString(convertFrom(value), displayPrecision)}
           onKeyUp={handleKeyPress}
           onKeyDown={handleKeyDown}
           onChange={handleChange}

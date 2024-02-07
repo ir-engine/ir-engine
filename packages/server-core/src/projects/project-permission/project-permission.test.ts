@@ -28,20 +28,20 @@ import appRootPath from 'app-root-path'
 import assert from 'assert'
 import path from 'path'
 
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import {
   ProjectPermissionType,
   projectPermissionPath
-} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { InviteCode, UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/projects/project-permission.schema'
+import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { ScopeType, scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
+import { AvatarID } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
+import { InviteCode, UserID, UserName, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import { deleteFolderRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
-import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
 
 const newProjectName1 = 'ProjectTest_test_project_name_1'
 
@@ -77,28 +77,28 @@ describe('project-permission.test', () => {
     await cleanup(app)
 
     user1 = await app.service(userPath).create({
-      name: `Test #${Math.random()}`,
+      name: `Test #${Math.random()}` as UserName,
       isGuest: false,
       avatarId: '' as AvatarID,
       inviteCode: '' as InviteCode,
       scopes: []
     })
     user2 = await app.service(userPath).create({
-      name: `Test #${Math.random()}`,
+      name: `Test #${Math.random()}` as UserName,
       isGuest: false,
       avatarId: '' as AvatarID,
       inviteCode: '' as InviteCode,
       scopes: []
     })
     user3 = await app.service(userPath).create({
-      name: `Test #${Math.random()}`,
+      name: `Test #${Math.random()}` as UserName,
       isGuest: false,
       avatarId: '' as AvatarID,
       inviteCode: '' as InviteCode,
       scopes: []
     })
     user4 = await app.service(userPath).create({
-      name: `Test #${Math.random()}`,
+      name: `Test #${Math.random()}` as UserName,
       isGuest: false,
       avatarId: '' as AvatarID,
       inviteCode: '' as InviteCode,
@@ -129,27 +129,27 @@ describe('project-permission.test', () => {
     })) as Paginated<UserApiKeyType>
     user4.apiKey = user4ApiKeys.data.length > 0 ? user4ApiKeys.data[0] : user4.apiKey
     await app.service(scopePath).create({
-      type: 'editor:write',
+      type: 'editor:write' as ScopeType,
       userId: user1.id
     })
     await app.service(scopePath).create({
-      type: 'editor:write',
+      type: 'editor:write' as ScopeType,
       userId: user2.id
     })
     await app.service(scopePath).create({
-      type: 'editor:write',
+      type: 'editor:write' as ScopeType,
       userId: user3.id
     })
     await app.service(scopePath).create({
-      type: 'editor:write',
+      type: 'editor:write' as ScopeType,
       userId: user4.id
     })
     await app.service(scopePath).create({
-      type: 'projects:read',
+      type: 'projects:read' as ScopeType,
       userId: user4.id
     })
     await app.service(scopePath).create({
-      type: 'projects:write',
+      type: 'projects:write' as ScopeType,
       userId: user4.id
     })
   })

@@ -30,11 +30,11 @@ import { v4 } from 'uuid'
 import {
   ProjectPermissionQuery,
   ProjectPermissionType
-} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+} from '@etherealengine/common/src/schemas/projects/project-permission.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const projectPermissionResolver = resolve<ProjectPermissionType, HookContext>({
   user: virtual(async (projectPermission, context) => {

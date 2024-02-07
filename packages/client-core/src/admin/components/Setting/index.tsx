@@ -24,10 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Icon as Iconify } from '@iconify/react'
-import React, { Fragment, useEffect, useRef } from 'react'
+import React, { Fragment, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Divider from '@etherealengine/ui/src/primitives/mui/Divider'
@@ -40,7 +40,8 @@ import ListItemAvatar from '@etherealengine/ui/src/primitives/mui/ListItemAvatar
 import ListItemText from '@etherealengine/ui/src/primitives/mui/ListItemText'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { clientSettingPath } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
+import { clientSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { AuthState } from '../../../user/services/AuthService'
 import { userHasAccess } from '../../../user/userHasAccess'
 import styles from '../../styles/settings.module.scss'
 import Authentication from './Authentication'
@@ -154,39 +155,46 @@ const settingItems = [
 interface SidebarProps {
   selected: string
   onChange: (name: string) => void
+  userAccessibleSettings: typeof settingItems
 }
 
-const Sidebar = ({ selected, onChange }: SidebarProps) => {
+const Sidebar = ({ selected, onChange, userAccessibleSettings }: SidebarProps) => {
   return (
     <List>
-      {settingItems
-        .filter((item) =>
-          Array.isArray(item.scope) ? item.scope.find((scope) => userHasAccess(scope)) : userHasAccess(item.scope)
-        )
-        .map((item) => (
-          <Fragment key={item.name}>
-            <ListItem
-              button
-              onClick={() => onChange(item.name)}
-              className={selected === item.name ? `${styles.focused}` : `${styles.notFocused}`}
-            >
-              <ListItemAvatar>
-                <Avatar style={{ background: '#5e5a4d' }}>{item.icon}</Avatar>
-              </ListItemAvatar>
-              <ListItemText primary={item.title} />
-            </ListItem>
-            <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
-          </Fragment>
-        ))}
+      {userAccessibleSettings.map((item) => (
+        <Fragment key={item.name}>
+          <ListItem
+            button
+            onClick={() => onChange(item.name)}
+            className={selected === item.name ? `${styles.focused}` : `${styles.notFocused}`}
+          >
+            <ListItemAvatar>
+              <Avatar style={{ background: '#5e5a4d' }}>{item.icon}</Avatar>
+            </ListItemAvatar>
+            <ListItemText primary={item.title} />
+          </ListItem>
+          <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
+        </Fragment>
+      ))}
     </List>
   )
 }
 
 const Setting = () => {
   const rootRef = useRef<any>()
-  const selectedItem = useHookstate('project')
+  const selectedItem = useHookstate('')
   const menuVisible = useHookstate(false)
   const { t } = useTranslation()
+  const user = useHookstate(getMutableState(AuthState)).user
+  const userAccessibleSettings = useMemo(
+    () =>
+      user.value
+        ? settingItems.filter((item) =>
+            Array.isArray(item.scope) ? item.scope.find((scope) => userHasAccess(scope)) : userHasAccess(item.scope)
+          )
+        : [],
+    [user]
+  )
 
   const settingItem = settingItems.find((item) => item.name === selectedItem.value)
 
@@ -196,9 +204,13 @@ const Setting = () => {
 
   useEffect(() => {
     const hash = window.location.hash.replace('#', '')
-    const settingsItemsNames = settingItems.map((item) => item.name)
+    const settingsItemsNames = userAccessibleSettings.map((item) => item.name)
     if (settingsItemsNames.indexOf(hash) >= 0) selectedItem.set(hash)
-  }, [])
+    else if (userAccessibleSettings.length > 0) {
+      window.location.hash = `#${userAccessibleSettings[0].name}`
+      selectedItem.set(userAccessibleSettings[0].name)
+    }
+  }, [userAccessibleSettings])
 
   return (
     <div ref={rootRef}>
@@ -227,6 +239,7 @@ const Setting = () => {
               />
             </Grid>
             <Sidebar
+              userAccessibleSettings={userAccessibleSettings}
               selected={selectedItem.value}
               onChange={(name) => {
                 window.location.hash = `#${name}`
@@ -242,6 +255,7 @@ const Setting = () => {
             {t('admin:components.setting.settings')}
           </Typography>
           <Sidebar
+            userAccessibleSettings={userAccessibleSettings}
             selected={selectedItem.value}
             onChange={(name) => {
               window.location.hash = `#${name}`

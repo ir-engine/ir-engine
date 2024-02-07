@@ -34,15 +34,21 @@ import {
 } from '@behave-graph/core'
 import { GetSceneProperty, SetSceneProperty } from '@behave-graph/scene'
 import { OnButtonState } from './Events/onButtonState'
+import { OnCollision } from './Events/onCollision'
 import { OnQuery } from './Events/onQuery'
 import * as ComponentNodes from './Values/ComponentNodes'
 import * as CustomNodes from './Values/CustomNodes'
 import * as EntityNodes from './Values/EntityNodes'
 import { EntityValue } from './Values/EntityValue'
 import * as SplineNodes from './Values/SplineNodes'
-import { getActionDispatchers } from './helper/actionHelper'
-import { getComponentGetters, getComponentSetters } from './helper/componentHelper'
-import { getStateGetters, getStateSetters } from './helper/stateHelper'
+import * as VolumetricNodes from './Values/VolumetricNodes'
+import { registerActionDispatchers } from './helper/actionHelper'
+import {
+  registerComponentGetters,
+  registerComponentListeners,
+  registerComponentSetters
+} from './helper/componentHelper'
+import { registerStateGetters, registerStateListeners, registerStateSetters } from './helper/stateHelper'
 
 export const makeEngineDependencies = () => ({})
 
@@ -66,7 +72,7 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
     ...getNodeDescriptions(ComponentNodes),
     ...getNodeDescriptions(CustomNodes),
     ...getNodeDescriptions(SplineNodes),
-
+    ...getNodeDescriptions(VolumetricNodes),
     // variables
 
     // complex logic
@@ -75,6 +81,7 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
 
     // events
     OnButtonState, // click included
+    OnCollision,
     OnQuery,
     // async
     //switchScene.Description,
@@ -83,11 +90,13 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
     // flow control
 
     ...getEngineStringConversions(getEngineValuesMap()),
-    ...getComponentSetters(),
-    ...getComponentGetters(),
-    ...getStateSetters(),
-    ...getStateGetters(),
-    ...getActionDispatchers()
+    ...registerComponentSetters(),
+    ...registerComponentGetters(),
+    ...registerComponentListeners(),
+    ...registerStateSetters(),
+    ...registerStateGetters(),
+    ...registerStateListeners(),
+    ...registerActionDispatchers()
   ]
   return Object.fromEntries(nodeDefinitions.map((nodeDefinition) => [nodeDefinition.typeName, nodeDefinition]))
 })

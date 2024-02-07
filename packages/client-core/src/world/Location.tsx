@@ -29,33 +29,24 @@ import { useParams } from 'react-router-dom'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { LocationIcons } from '@etherealengine/client-core/src/components/LocationIcons'
-import {
-  useLoadLocation,
-  useLoadLocationScene,
-  useLoadScene
-} from '@etherealengine/client-core/src/components/World/LoadLocationScene'
+import { useLoadLocation, useLoadScene } from '@etherealengine/client-core/src/components/World/LoadLocationScene'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
-import { useDefaultLocationSystems } from '@etherealengine/client-core/src/world/useDefaultLocationSystems'
-import { AppLoadingState } from '@etherealengine/engine/src/common/AppLoadingService'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { useLoadEngineWithScene, useOfflineNetwork, useOnlineNetwork } from '../components/World/EngineHooks'
+import './LocationModule'
+
+import { useLoadEngineWithScene, useNetwork } from '../components/World/EngineHooks'
+import { LoadingUISystemState } from '../systems/LoadingUISystem'
 
 type Props = {
-  offline?: boolean
+  online?: boolean
 }
 
-const LocationPage = ({ offline }: Props) => {
+const LocationPage = ({ online }: Props) => {
   const params = useParams()
-  const appState = useHookstate(getMutableState(AppLoadingState).state)
+  const ready = useHookstate(getMutableState(LoadingUISystemState).ready)
 
-  useLoadLocationScene()
-
-  if (offline) {
-    useOfflineNetwork()
-  } else {
-    useOnlineNetwork()
-  }
+  useNetwork({ online })
 
   if (params.locationName) {
     useLoadLocation({ locationName: params.locationName })
@@ -66,11 +57,10 @@ const LocationPage = ({ offline }: Props) => {
   AuthService.useAPIListeners()
 
   useLoadEngineWithScene()
-  useDefaultLocationSystems(!offline)
 
   return (
     <>
-      {appState.value === 'START_STATE' && <LoadingCircle message={t('common:loader.loadingEngine')} />}
+      {!ready.value && <LoadingCircle message={t('common:loader.loadingEngine')} />}
       <LocationIcons />
     </>
   )

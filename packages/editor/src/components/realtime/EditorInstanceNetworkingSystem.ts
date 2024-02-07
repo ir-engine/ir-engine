@@ -25,12 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { EditorState } from '../../services/EditorServices'
 import { EditorActiveInstanceState } from './EditorActiveInstanceService'
 
@@ -38,14 +39,13 @@ let accumulator = 0
 
 const execute = () => {
   const editorState = getState(EditorState)
-  if (!editorState.projectName || !editorState.sceneName) return
+  if (!editorState.sceneID) return
 
-  accumulator += getState(EngineState).deltaSeconds
+  accumulator += getState(ECSState).deltaSeconds
 
   if (accumulator > 5) {
     accumulator = 0
-    const sceneId = `${editorState.projectName}/${editorState.sceneName}` as SceneID
-    EditorActiveInstanceState.getActiveInstances(sceneId)
+    EditorActiveInstanceState.getActiveInstances(editorState.sceneID)
   }
 }
 
@@ -64,6 +64,7 @@ const reactor = () => {
 
 export const EditorInstanceNetworkingSystem = defineSystem({
   uuid: 'ee.editor.EditorInstanceNetworkingSystem',
+  insert: { after: PresentationSystemGroup },
   execute,
   reactor
 })

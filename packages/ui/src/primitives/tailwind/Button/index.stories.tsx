@@ -22,14 +22,25 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import { ArgTypes } from '@storybook/react'
+import React from 'react'
+import { IoAddOutline, IoSend } from 'react-icons/io5'
+import Button from './index'
 
-import Component from './index'
-
-const argTypes = {}
+const argTypes: ArgTypes = {
+  size: {
+    control: 'select',
+    options: ['small', 'medium', 'large']
+  },
+  variant: {
+    control: 'select',
+    options: ['primary', 'outline', 'danger']
+  }
+}
 
 export default {
   title: 'Primitives/Tailwind/Button',
-  component: Component,
+  component: Button,
   parameters: {
     componentSubtitle: 'Button',
     jest: 'Button.test.tsx',
@@ -41,28 +52,22 @@ export default {
   argTypes
 }
 
-export const Default = { args: Component.defaultProps }
-
-export const LabelLeft = {
+export const Default = {
   args: {
-    ...Component.defaultProps,
-    title: 'left',
-    labelPosition: 'left'
+    children: 'Submit'
   }
 }
 
-export const LabelAbove = {
+export const WithStartIcon = {
   args: {
-    ...Component.defaultProps,
-    title: 'above',
-    labelPosition: 'above'
+    children: 'Submit',
+    startIcon: <IoAddOutline />
   }
 }
 
-export const LabelBelow = {
+export const WithEndIcon = {
   args: {
-    ...Component.defaultProps,
-    title: 'below',
-    labelPosition: 'below'
+    children: 'Send',
+    endIcon: <IoSend />
   }
 }

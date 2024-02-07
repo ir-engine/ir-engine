@@ -29,24 +29,25 @@ import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { matches } from '../../common/functions/MatchesUtils'
-import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
   hasComponent,
   removeComponent,
   setComponent,
   useComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { Physics } from '../../physics/classes/Physics'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
-import { PhysicsState } from '../../physics/state/PhysicsState'
-import { ObjectLayers } from '../constants/ObjectLayers'
-import { enableObjectLayer } from '../functions/setObjectLayers'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
+import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
+import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { enableObjectLayer } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 
@@ -74,7 +75,7 @@ export const GroundPlaneComponent = defineComponent({
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
      */
     if (
-      !getState(EngineState).sceneLoaded &&
+      !getState(SceneState).sceneLoaded &&
       hasComponent(entity, SceneObjectComponent) &&
       !hasComponent(entity, RigidBodyComponent)
     )
@@ -94,8 +95,6 @@ export const GroundPlaneComponent = defineComponent({
     const component = useComponent(entity, GroundPlaneComponent)
 
     useEffect(() => {
-      setComponent(entity, SceneAssetPendingTagComponent)
-
       const radius = 10000
 
       const mesh = new Mesh(
@@ -106,10 +105,12 @@ export const GroundPlaneComponent = defineComponent({
       mesh.geometry.rotateX(-Math.PI / 2)
       mesh.name = 'GroundPlaneMesh'
       mesh.material.polygonOffset = true
-      mesh.material.polygonOffsetUnits = -0.01
+      mesh.material.polygonOffsetFactor = -0.01
+      mesh.material.polygonOffsetUnits = 1
 
-      enableObjectLayer(mesh, ObjectLayers.Camera, true)
       addObjectToGroup(entity, mesh)
+      enableObjectLayer(mesh, ObjectLayers.Camera, true)
+      setComponent(entity, MeshComponent, mesh)
 
       const rigidBodyDesc = RigidBodyDesc.fixed()
       const colliderDesc = ColliderDesc.cuboid(radius * 2, 0.001, radius * 2)
@@ -123,7 +124,6 @@ export const GroundPlaneComponent = defineComponent({
       removeComponent(entity, SceneAssetPendingTagComponent)
 
       return () => {
-        if (!entityExists(entity)) return
         Physics.removeRigidBody(entity, physicsWorld)
         removeObjectFromGroup(entity, mesh)
       }

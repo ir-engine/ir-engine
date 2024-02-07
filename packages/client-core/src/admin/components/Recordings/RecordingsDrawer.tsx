@@ -30,13 +30,13 @@ import {
   AssetSelectionChangePropsType,
   AssetsPreviewPanel
 } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
-import FileBrowserContentPanel from '@etherealengine/editor/src/components/assets/FileBrowserContentPanel'
+import FileBrowserContentPanel from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserContentPanel'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
-import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { RecordingID, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
+import { RecordingID, recordingPath } from '@etherealengine/common/src/schema.type.module'
+import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import DrawerView from '../../common/DrawerView'
 import styles from '../../styles/admin.module.scss'
 
@@ -73,6 +73,7 @@ const RecordingFilesDrawer = ({ open, onClose, selectedRecordingId }: Props) => 
                   selectedFile={selectedRecordingId}
                   onSelectionChanged={onSelectionChanged}
                   folderName="recordings"
+                  nestingDirectory={selectedRecordingId}
                 />
               )}
             </Box>

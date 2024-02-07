@@ -25,30 +25,54 @@ Ethereal Engine. All Rights Reserved.
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { EngineState } from '../../ecs/classes/EngineState'
-import { defineQuery } from '../../ecs/functions/ComponentFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { Not } from 'bitecs'
+import { InstancingComponent } from '../components/InstancingComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { VariantComponent } from '../components/VariantComponent'
-import { setModelVariant } from '../functions/loaders/VariantFunctions'
+import { setInstancedMeshVariant, setMeshVariant, setModelVariant } from '../functions/loaders/VariantFunctions'
+import { SceneLoadingSystem } from './SceneLoadingSystem'
 
 const updateFrequency = 0.1
 let lastUpdate = 0
 
 const modelVariantQuery = defineQuery([VariantComponent, ModelComponent, TransformComponent])
+const meshVariantQuery = defineQuery([VariantComponent, MeshComponent, TransformComponent, Not(InstancingComponent)])
+const instancedMeshVariantQuery = defineQuery([
+  VariantComponent,
+  MeshComponent,
+  TransformComponent,
+  InstancingComponent
+])
 
 function execute() {
   const engineState = getState(EngineState)
-  if (engineState.isEditor) return
+  if (!getState(SceneState).sceneLoaded || engineState.isEditing) return
 
-  if (engineState.elapsedSeconds - lastUpdate < updateFrequency) return
-  lastUpdate = engineState.elapsedSeconds
+  const ecsState = getState(ECSState)
 
-  for (const entity of modelVariantQuery()) setModelVariant(entity)
+  if (ecsState.elapsedSeconds - lastUpdate < updateFrequency) return
+  lastUpdate = ecsState.elapsedSeconds
+
+  for (const entity of modelVariantQuery()) {
+    setModelVariant(entity)
+  }
+  for (const entity of meshVariantQuery()) {
+    setMeshVariant(entity)
+  }
+  for (const entity of instancedMeshVariantQuery()) {
+    setInstancedMeshVariant(entity)
+  }
 }
 
 export const VariantSystem = defineSystem({
   uuid: 'ee.engine.scene.VariantSystem',
+  insert: { with: SceneLoadingSystem },
   execute
 })

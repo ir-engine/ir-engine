@@ -23,22 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 
 import { EditorNavbar } from '../components/projects/EditorNavbar'
 import Projects from '../components/projects/ProjectsPage'
 
 import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { getState } from '@etherealengine/hyperflux'
 
 export const ProjectPage = () => {
   useRemoveEngineCanvas()
-
-  useEffect(() => {
-    SceneState.unloadScene(getState(SceneState).activeScene!)
-  }, [])
-
   return (
     <>
       <EditorNavbar />

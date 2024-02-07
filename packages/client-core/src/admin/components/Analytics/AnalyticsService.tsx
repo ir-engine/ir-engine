@@ -29,8 +29,8 @@ import { useTranslation } from 'react-i18next'
 import LoadingView from '../../../common/components/LoadingView'
 import Card from './CardNumber'
 
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { analyticsPath } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
+import { analyticsPath } from '@etherealengine/common/src/schema.type.module'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
 export type AnalyticsQueryTypes =
   | 'activeParties'

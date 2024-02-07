@@ -44,8 +44,8 @@ import {
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
 } from '@etherealengine/common/src/constants/AvatarConstants'
+import { AvatarType } from '@etherealengine/common/src/schema.type.module'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
@@ -353,6 +353,15 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
               onClick={() => PopupMenuServices.showPopupMenu(UserMenus.ReadyPlayer)}
             >
               {t('user:usermenu.profile.useReadyPlayerMe')}
+            </Button>
+
+            <Button
+              fullWidth
+              type="gradientRounded"
+              sx={{ mt: 1 }}
+              onClick={() => PopupMenuServices.showPopupMenu(UserMenus.Avaturn)}
+            >
+              {t('user:usermenu.profile.useAvaturn')}
             </Button>
 
             <InputText

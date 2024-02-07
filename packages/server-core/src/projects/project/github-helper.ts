@@ -40,21 +40,21 @@ import {
   VolumetricFileTypes
 } from '@etherealengine/engine/src/assets/constants/fileTypes'
 
-import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
-import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
+import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
+import { getDateTimeSql, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import { deleteFolderRecursive, writeFileSyncRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { Paginated } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import config from '../../appconfig'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
-import { getDateTimeSql, toDateTimeSql } from '../../util/datetime-sql'
-import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
 import { useGit } from '../../util/gitHelperFunctions'
 import { createExecutorJob, getProjectPushJobBody } from './project-helper'
 import { ProjectParams } from './project.class'
@@ -69,7 +69,6 @@ const PUSH_TIMEOUT = 60 * 10 //10 minute timeout on GitHub push jobs completing 
 export const getAuthenticatedRepo = async (token: string, repositoryPath: string) => {
   try {
     if (!/.git$/.test(repositoryPath)) repositoryPath = repositoryPath + '.git'
-    repositoryPath = repositoryPath.toLowerCase()
     const user = await getUser(token)
     return repositoryPath.replace('https://', `https://${user.data.login}:${token}@`)
   } catch (error) {

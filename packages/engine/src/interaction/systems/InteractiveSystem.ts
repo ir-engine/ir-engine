@@ -29,25 +29,25 @@ import { Euler, Quaternion, Vector3 } from 'three'
 import { defineState } from '@etherealengine/hyperflux'
 import { WebLayer3D } from '@etherealengine/xrui'
 
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getState } from '@etherealengine/hyperflux'
+import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
+import {
+  DistanceFromCameraComponent,
+  DistanceFromLocalClientComponent
+} from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
-import { V_010 } from '../../common/constants/MathConstants'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { removeEntity } from '../../ecs/functions/EntityFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import {
-  DistanceFromCameraComponent,
-  setDistanceFromCameraComponent,
-  setDistanceFromLocalClientComponent
-} from '../../transform/components/DistanceComponents'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { createTransitionState } from '../../xrui/functions/createTransitionState'
-import { createXRUI } from '../../xrui/functions/createXRUI'
 import { InteractableComponent } from '../components/InteractableComponent'
 import { gatherAvailableInteractables } from '../functions/gatherAvailableInteractables'
 import { createInteractUI } from '../functions/interactUI'
@@ -59,7 +59,7 @@ export const InteractState = defineState({
       /**
        * closest interactable to the player, in view of the camera, sorted by distance
        */
-      maxDistance: 1.5,
+      maxDistance: 2,
       available: [] as Entity[]
     }
   }
@@ -77,29 +77,27 @@ const vec3 = new Vector3()
 const flip = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 
 export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
-  const transform = getComponent(xrui.entity, TransformComponent)
-  transform.matrix.lookAt(
-    transform.position,
-    getComponent(Engine.instance.cameraEntity, TransformComponent).position,
-    V_010
-  )
-  transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
-  transform.rotation.multiply(flip)
+  const xruiTransform = getComponent(xrui.entity, TransformComponent)
+  TransformComponent.getWorldPosition(entity, xruiTransform.position)
 
-  if (!transform || !getComponent(Engine.instance.localClientEntity, TransformComponent)) return
-  transform.position.copy(getComponent(entity, TransformComponent).position)
-  transform.position.y += 1
+  if (!Engine.instance.localClientEntity) return
+
+  xruiTransform.position.y += 1
+
+  const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+  xruiTransform.rotation.copy(cameraTransform.rotation)
+
   const transition = InteractableTransitions.get(entity)!
-  getAvatarBoneWorldPosition(Engine.instance.localClientEntity, VRMHumanBoneName.Hips, vec3)
-  const distance = vec3.distanceToSquared(transform.position)
-  const inRange = distance < 5
+  getAvatarBoneWorldPosition(Engine.instance.localClientEntity, VRMHumanBoneName.Chest, vec3)
+  const distance = vec3.distanceToSquared(xruiTransform.position)
+  const inRange = distance < getState(InteractState).maxDistance
   if (transition.state === 'OUT' && inRange) {
     transition.setState('IN')
   }
   if (transition.state === 'IN' && !inRange) {
     transition.setState('OUT')
   }
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
   transition.update(deltaSeconds, (opacity) => {
     xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
       const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
@@ -140,14 +138,14 @@ const interactableQuery = defineQuery([InteractableComponent, Not(AvatarComponen
 let gatherAvailableInteractablesTimer = 0
 
 const execute = () => {
-  gatherAvailableInteractablesTimer += getState(EngineState).deltaSeconds
+  gatherAvailableInteractablesTimer += getState(ECSState).deltaSeconds
   // update every 0.3 seconds
   if (gatherAvailableInteractablesTimer > 0.1) gatherAvailableInteractablesTimer = 0
 
   // ensure distance component is set on all interactables
   for (const entity of allInteractablesQuery.enter()) {
-    setDistanceFromCameraComponent(entity)
-    setDistanceFromLocalClientComponent(entity)
+    setComponent(entity, DistanceFromCameraComponent)
+    setComponent(entity, DistanceFromLocalClientComponent)
   }
 
   // TODO: refactor InteractiveUI to be ui-centric rather than interactable-centeric
@@ -191,5 +189,6 @@ const execute = () => {
 
 export const InteractiveSystem = defineSystem({
   uuid: 'ee.engine.InteractiveSystem',
+  insert: { before: TransformSystem },
   execute
 })

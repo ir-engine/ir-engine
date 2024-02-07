@@ -26,18 +26,21 @@ Ethereal Engine. All Rights Reserved.
 import React, { ReactElement, useEffect } from 'react'
 import matches from 'ts-matches'
 
-import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
-import { setModelVariant } from '../functions/loaders/VariantFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { DistanceFromCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+import { setInstancedMeshVariant, setMeshVariant, setModelVariant } from '../functions/loaders/VariantFunctions'
+import { InstancingComponent } from './InstancingComponent'
 import { ModelComponent } from './ModelComponent'
 
 export type VariantLevel = {
@@ -93,6 +96,14 @@ function VariantReactor(): ReactElement {
   const entity = useEntityContext()
   const variantComponent = useComponent(entity, VariantComponent)
 
+  const meshComponent = getOptionalComponent(entity, MeshComponent)
+
+  useEffect(() => {
+    if (variantComponent.heuristic.value === 'DISTANCE' && meshComponent) {
+      meshComponent.removeFromParent()
+    }
+  }, [meshComponent])
+
   return (
     <>
       {variantComponent.levels.map((level, index) => (
@@ -123,5 +134,14 @@ const VariantLevelReactor = React.memo(({ entity, level }: { level: number; enti
   useEffect(() => {
     modelComponent && setModelVariant(entity)
   }, [variantLevel.src, variantLevel.metadata, modelComponent])
+
+  const meshComponent = useOptionalComponent(entity, MeshComponent)
+  const instancingComponent = getOptionalComponent(entity, InstancingComponent)
+
+  useEffect(() => {
+    meshComponent && !instancingComponent && setMeshVariant(entity)
+    meshComponent && instancingComponent && setInstancedMeshVariant(entity)
+  }, [variantLevel.src, variantLevel.metadata, meshComponent])
+
   return null
 })

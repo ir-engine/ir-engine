@@ -27,11 +27,11 @@ import { AuthenticationRequest, AuthenticationResult } from '@feathersjs/authent
 import { Paginated, Params } from '@feathersjs/feathers'
 import { random } from 'lodash'
 
-import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { avatarPath, AvatarType } from '@etherealengine/common/src/schemas/user/avatar.schema'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { InviteCode, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { userApiKeyPath, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
+import { InviteCode, UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { RedirectConfig } from '../../types/OauthStrategies'
@@ -70,13 +70,15 @@ export class DiscordStrategy extends CustomOAuthStrategy {
       {}
     )
     if (!entity.userId) {
-      const avatars = (await this.app.service(avatarPath).find({ isInternal: true })) as Paginated<AvatarType>
+      const avatars = (await this.app
+        .service(avatarPath)
+        .find({ isInternal: true, query: { isPublic: true, $limit: 1000 } })) as Paginated<AvatarType>
       const code = (await getFreeInviteCode(this.app)) as InviteCode
       const newUser = await this.app.service(userPath).create({
-        name: '',
+        name: '' as UserName,
         isGuest: false,
         inviteCode: code,
-        avatarId: avatars[random(avatars.total - 1)].id,
+        avatarId: avatars.data[random(avatars.data.length - 1)].id,
         scopes: []
       })
       entity.userId = newUser.id

@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
+import multiLogger from '@etherealengine/common/src/logger'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 import {
   localAudioConstraints,
   localVideoConstraints
-} from '@etherealengine/engine/src/networking/constants/VideoConstants'
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+} from '@etherealengine/spatial/src/networking/constants/VideoConstants'
 
 import { ProducerExtension } from './SocketWebRTCClientFunctions'
 

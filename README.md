@@ -68,7 +68,7 @@ Host Demos
 
 Create composable plug-ins for Ethereal Engine experiences with the Projects API
 
-### [Create your own projects](https://etherealengine.github.io/etherealengine-docs/docs/concepts/projects_api)
+### [Create your own projects](https://etherealengine.github.io/etherealengine-docs/docs/manual/creator/project/intro)
 
 ## Launch Ethereal Engine with Control Center Install - ***RECOMMENDED***
 
@@ -98,7 +98,7 @@ To install Ethereal Engine locally, the following pre-reqs are required.
 
 ### Getting Started
 
-See the [Installation instructions](https://etherealengine.github.io/etherealengine-docs/docs/installation/)
+See the [Installation instructions](https://etherealengine.github.io/etherealengine-docs/docs/manual/host/installation/intro)
 for more details.
 
 ## Usage
@@ -106,8 +106,8 @@ for more details.
 ### Documentation
 
 * [General Ethereal Engine documentation](https://etherealengine.github.io/etherealengine-docs/docs)
-* [Auto-generated (tsdoc) API reference](https://etherealengine.github.io/etherealengine-docs/docs/generated/common/)
-* [Avatar, Scene & Asset Pipeline](https://github.com/etherealengine/etherealengine/wiki/Avatar,-Scene-&-Asset-Pipeline)
+* [Auto-generated (typedoc) API reference](https://etherealengine.github.io/etherealengine-docs/typedoc/)
+* [Avatar](https://etherealengine.github.io/etherealengine-docs/docs/manual/creator/avatars/intro), [Scene](https://etherealengine.github.io/etherealengine-docs/docs/manual/creator/project/intro) & [Asset Pipeline](https://etherealengine.github.io/etherealengine-docs/docs/manual/creator/assets/intro)
 * [Why are we building Ethereal Engine?](https://etherealengine.github.io/etherealengine-docs/docs/)
 
 ## Contributing
@@ -115,7 +115,7 @@ for more details.
 * We expect contributors and community members to follow our
   [Code of Conduct](CODE_OF_CONDUCT.md).
 * See the **[Contributing Guide](CONTRIBUTING.md)** and corresponding
-  [wiki entry](https://github.com/etherealengine/etherealengine/wiki/Contributing)
+  [wiki entry](https://github.com/EtherealEngine/etherealengine/wiki/Testing-&-Contributing)
   for more details.
 * Version numbering of the Ethereal Engine monorepo follows the
   [Semantic versioning](http://semver.org/) approach.

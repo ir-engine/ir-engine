@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { Suspense, useTransition } from 'react'
 import Reconciler from 'react-reconciler'
 import { ConcurrentRoot, DefaultEventPriority } from 'react-reconciler/constants'
 
@@ -31,6 +31,7 @@ import { isDev } from '@etherealengine/common/src/config'
 
 import { createErrorBoundary } from '@etherealengine/common/src/utils/createErrorBoundary'
 
+import { State, createHookstate } from '@hookstate/core'
 import { HyperFlux } from './StoreFunctions'
 
 const ReactorReconciler = Reconciler({
@@ -79,9 +80,10 @@ ReactorReconciler.injectIntoDevTools({
 
 export type ReactorRoot = {
   fiber: any
-  isRunning: boolean
   Reactor: React.FC
-  error: Error | null
+  isRunning: State<boolean>
+  suspended: State<boolean>
+  errors: State<Error[]>
   promise: Promise<void>
   cleanupFunctions: Set<() => void>
   run: (force?: boolean) => Promise<void>
@@ -97,8 +99,7 @@ export function useReactorRootContext(): ReactorRoot {
 export const ReactorErrorBoundary = createErrorBoundary<{ children: React.ReactNode; reactorRoot: ReactorRoot }>(
   function error(props, error?: Error) {
     if (error) {
-      props.reactorRoot.error = error
-      props.reactorRoot.stop()
+      props.reactorRoot.errors.merge([error])
       return null
     } else {
       return <React.Fragment>{props.children}</React.Fragment>
@@ -106,11 +107,22 @@ export const ReactorErrorBoundary = createErrorBoundary<{ children: React.ReactN
   }
 )
 
+export const ErrorBoundary = createErrorBoundary(function error(props, error?: Error) {
+  if (error) {
+    return null
+  } else {
+    return <React.Fragment>{props.children}</React.Fragment>
+  }
+})
+
 export function startReactor(Reactor: React.FC): ReactorRoot {
   const isStrictMode = false
   const concurrentUpdatesByDefaultOverride = true
   const identifierPrefix = ''
-  const onRecoverableError = (err) => console.error(err)
+  const onRecoverableError = (err) => {
+    console.error(err, reactorRoot)
+    reactorRoot.errors.merge([err])
+  }
 
   const fiberRoot = ReactorReconciler.createContainer(
     {},
@@ -125,34 +137,39 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
 
   if (!Reactor.name) Object.defineProperty(Reactor, 'name', { value: 'HyperFluxReactor' })
 
+  const ReactorContainer = () => {
+    const [isPending] = useTransition()
+    reactorRoot.suspended.set(isPending)
+    return (
+      <ReactorRootContext.Provider value={reactorRoot}>
+        <Suspense fallback={<></>}>
+          <ReactorErrorBoundary key="reactor-error-boundary" reactorRoot={reactorRoot}>
+            <Reactor />
+          </ReactorErrorBoundary>
+        </Suspense>
+      </ReactorRootContext.Provider>
+    )
+  }
+
   const reactorRoot = {
     fiber: fiberRoot,
-    isRunning: false,
     Reactor,
-    error: null as Error | null,
-    promise: null! as Promise<void>,
+    isRunning: createHookstate(false),
+    errors: createHookstate([] as Error[]),
+    suspended: createHookstate(false),
     run() {
-      if (reactorRoot.isRunning) return Promise.resolve()
-      reactorRoot.isRunning = true
+      if (reactorRoot.isRunning.value) return Promise.resolve()
+      reactorRoot.isRunning.set(true)
       return new Promise<void>((resolve) => {
         HyperFlux.store.activeReactors.add(reactorRoot)
-        ReactorReconciler.updateContainer(
-          <ReactorRootContext.Provider value={reactorRoot}>
-            <ReactorErrorBoundary key="reactor-error-boundary" reactorRoot={reactorRoot}>
-              <Reactor />
-            </ReactorErrorBoundary>
-          </ReactorRootContext.Provider>,
-          fiberRoot,
-          null,
-          () => resolve()
-        )
+        ReactorReconciler.updateContainer(<ReactorContainer />, fiberRoot, null, () => resolve())
       })
     },
     stop() {
-      if (!reactorRoot.isRunning) return Promise.resolve()
+      if (!reactorRoot.isRunning.value) return Promise.resolve()
       return new Promise<void>((resolve) => {
         ReactorReconciler.updateContainer(null, fiberRoot, null, () => {
-          reactorRoot.isRunning = false
+          reactorRoot.isRunning.set(false)
           HyperFlux.store.activeReactors.delete(reactorRoot)
           reactorRoot.cleanupFunctions.forEach((fn) => fn())
           reactorRoot.cleanupFunctions.clear()
@@ -163,7 +180,7 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
     cleanupFunctions: new Set()
   } as ReactorRoot
 
-  reactorRoot.promise = reactorRoot.run()
+  reactorRoot.run()
 
   return reactorRoot
 }

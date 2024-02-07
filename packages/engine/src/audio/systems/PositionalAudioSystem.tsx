@@ -29,23 +29,28 @@ import { Vector3 } from 'three'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { ComponentType, defineQuery, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { createQueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
-import { MediaSettingsState } from '../../networking/MediaSettingsState'
-import { NetworkState, webcamAudioDataChannelType } from '../../networking/NetworkState'
-import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
+import { ComponentType, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { createQueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { MediaSettingsState } from '@etherealengine/spatial/src/networking/MediaSettingsState'
+import { NetworkState, webcamAudioDataChannelType } from '@etherealengine/spatial/src/networking/NetworkState'
+import {
+  NetworkObjectComponent,
+  NetworkObjectOwnedTag
+} from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
 import {
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
-} from '../../networking/systems/MediasoupMediaProducerConsumerState'
+} from '@etherealengine/spatial/src/networking/systems/MediasoupMediaProducerConsumerState'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup } from '../../scene/components/MediaComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AudioState } from '../AudioState'
 import { addPannerNode, removePannerNode, updateAudioPanner } from '../PositionalAudioFunctions'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
@@ -68,8 +73,9 @@ const avatarAudioStreams: WeakMap<ComponentType<typeof NetworkObjectComponent>, 
 
 const execute = () => {
   const audioState = getState(AudioState)
-
   const audioContext = audioState.audioContext
+  if (!audioContext) return
+
   const network = NetworkState.mediaNetwork
   const mediaSettings = getState(MediaSettingsState)
   const immersiveMedia = mediaSettings.immersiveMedia
@@ -150,7 +156,7 @@ const execute = () => {
     avatarAudioStreams.set(networkObject, stream)
   }
 
-  const endTime = audioContext.currentTime + getState(EngineState).deltaSeconds
+  const endTime = audioContext.currentTime + getState(ECSState).deltaSeconds
 
   /**
    * Update panner nodes
@@ -187,6 +193,12 @@ const execute = () => {
   if (isNaN(position.x)) return
   _rot.set(0, 0, -1).applyQuaternion(rotation)
   if (isNaN(_rot.x)) return
+  // firefox only supports the deprecated API
+  if (!audioContext.listener.positionX) {
+    audioContext.listener.setPosition(position.x, position.y, position.z)
+    audioContext.listener.setOrientation(_rot.x, _rot.y, _rot.z, 0, 1, 0)
+    return
+  }
   audioContext.listener.positionX.linearRampToValueAtTime(position.x, endTime)
   audioContext.listener.positionY.linearRampToValueAtTime(position.y, endTime)
   audioContext.listener.positionZ.linearRampToValueAtTime(position.z, endTime)
@@ -238,6 +250,7 @@ const reactor = () => {
 
 export const PositionalAudioSystem = defineSystem({
   uuid: 'ee.engine.PositionalAudioSystem',
+  insert: { after: PresentationSystemGroup },
   execute,
   reactor
 })

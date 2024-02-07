@@ -18,7 +18,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ProjectDestinationCheckType } from '@etherealengine/engine/src/schemas/projects/project-destination-check.schema'
+import { ProjectDestinationCheckType } from '@etherealengine/common/src/schemas/projects/project-destination-check.schema'
 import { ServiceInterface } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { checkDestination } from '../project/project-helper'

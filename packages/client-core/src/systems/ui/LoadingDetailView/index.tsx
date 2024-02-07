@@ -27,23 +27,12 @@ import { createState, useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
-import { useXRUIState } from '@etherealengine/engine/src/xrui/functions/useXRUIState'
 import { getMutableState } from '@etherealengine/hyperflux'
+import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import ProgressBar from './SimpleProgressBar'
 import LoadingDetailViewStyle from './style'
-
-interface LoadingUIState {
-  imageWidth: number
-  imageHeight: number
-  colors: {
-    main: string
-    background: string
-    alternate: string
-  }
-}
 
 export function createLoaderDetailView() {
   const xrui = createXRUI(
@@ -62,17 +51,11 @@ export function createLoaderDetailView() {
 }
 
 const LoadingDetailView = () => {
-  const uiState = useXRUIState<LoadingUIState>()
-  const engineState = useHookstate(getMutableState(EngineState))
+  const engineState = useHookstate(getMutableState(SceneState))
   const { t } = useTranslation()
 
   const sceneLoaded = engineState.sceneLoaded.value
-  const connectedWorld = engineState.connectedWorld.value
-  const loadingDetails = !sceneLoaded
-    ? t('common:loader.loadingObjects')
-    : !connectedWorld
-    ? t('common:loader.joiningWorld')
-    : t('common:loader.loadingComplete')
+  const loadingDetails = sceneLoaded ? t('common:loader.loadingComplete') : t('common:loader.loadingObjects')
 
   return (
     <>

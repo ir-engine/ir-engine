@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { InstancedMesh, Mesh } from 'three'
 
-import { GenerateMeshBVHWorker } from '../../common/classes/GenerateMeshBVHWorker'
+import { GenerateMeshBVHWorker } from '@etherealengine/spatial/src/common/classes/GenerateMeshBVHWorker'
 
 const poolSize = 1
 
@@ -68,7 +68,7 @@ function runBVHGenerator() {
     const mesh = meshQueue.shift() as Mesh
 
     worker.generate(mesh.geometry).then((bvh) => {
-      ;(mesh.geometry as any).boundsTree = bvh
+      mesh.geometry.boundsTree = bvh
       runBVHGenerator()
       ;(mesh as any).resolvePromiseBVH && (mesh as any).resolvePromiseBVH()
     })

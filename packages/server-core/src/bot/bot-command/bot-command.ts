@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { botCommandMethods, botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import { botCommandMethods, botCommandPath } from '@etherealengine/common/src/schemas/bot/bot-command.schema'
 
 import { Application } from '../../../declarations'
 import { BotCommandService } from './bot-command.class'

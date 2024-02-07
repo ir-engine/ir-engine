@@ -24,17 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Choices, NodeCategory, makeEventNodeDefinition } from '@behave-graph/core'
-import { Query, defineQuery, getComponent, removeQuery } from '../../../../../ecs/functions/ComponentFunctions'
-import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
-import { SystemUUID, defineSystem, disableSystem, startSystem } from '../../../../../ecs/functions/SystemFunctions'
-import { InputSourceComponent } from '../../../../../input/components/InputSourceComponent'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Query, defineQuery, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import {
   ButtonState,
   KeyboardButton,
   MouseButton,
   StandardGamepadButton,
   XRStandardGamepadButton
-} from '../../../../../input/state/ButtonState'
+} from '@etherealengine/spatial/src/input/state/ButtonState'
 
 let systemCounter = 0
 
@@ -89,6 +90,7 @@ export const OnButtonState = makeEventNodeDefinition({
     const query = defineQuery([InputSourceComponent])
     const systemUUID = defineSystem({
       uuid: 'behave-graph-onButton-' + systemCounter++,
+      insert: { with: InputSystemGroup },
       execute: () => {
         for (const eid of query()) {
           const inputSource = getComponent(eid, InputSourceComponent)
@@ -104,8 +106,6 @@ export const OnButtonState = makeEventNodeDefinition({
       }
     })
 
-    startSystem(systemUUID, { with: InputSystemGroup })
-
     const state: State = {
       query,
       systemUUID
@@ -114,7 +114,7 @@ export const OnButtonState = makeEventNodeDefinition({
     return state
   },
   dispose: ({ state: { query, systemUUID }, graph: { getDependency } }) => {
-    disableSystem(systemUUID)
+    destroySystem(systemUUID)
     removeQuery(query)
     return initialState()
   }

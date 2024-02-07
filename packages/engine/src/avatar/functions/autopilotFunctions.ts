@@ -24,23 +24,26 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { World } from '@dimforge/rapier3d-compat'
-import { CylinderGeometry, Mesh, MeshBasicMaterial, Object3D, Quaternion, Vector3 } from 'three'
+import { CylinderGeometry, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from 'three'
 
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { CameraComponent } from '../../camera/components/CameraComponent'
-import { V_010 } from '../../common/constants/MathConstants'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { InputState } from '../../input/state/InputState'
-import { Physics, RaycastArgs } from '../../physics/classes/Physics'
-import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
-import { PhysicsState } from '../../physics/state/PhysicsState'
-import { SceneQueryType } from '../../physics/types/PhysicsTypes'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
+import { Physics, RaycastArgs } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
+import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
+import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 
 export const interactionGroups = getInteractionGroups(
@@ -87,8 +90,8 @@ export const autopilotSetPosition = (entity: Entity) => {
 export const AutopilotMarker = defineState({
   name: 'autopilotMarkerState',
   initial: () => ({
-    markerObject: undefined as undefined | Object3D,
-    walkTarget: undefined as Vector3 | undefined
+    markerEntity: null as Entity | null,
+    walkTarget: null as Vector3 | null
   })
 })
 
@@ -97,17 +100,17 @@ const setupMarker = () => {
   const markerGeometry = new CylinderGeometry(0.175, 0.175, 0.05, 24, 1)
   const material = new MeshBasicMaterial({ color: '#FFF' })
   const mesh = new Mesh(markerGeometry, material)
-  mesh.visible = false
-  Engine.instance.scene.add(mesh)
-  markerState.merge({ markerObject: mesh })
+  const markerEntity = createEntity()
+  addObjectToGroup(markerEntity, mesh)
+  markerState.markerEntity.set(markerEntity)
 }
 
 export const scaleFluctuate = (sinOffset = 4, scaleMultiplier = 0.2, pulseSpeed = 10) => {
-  const marker = getState(AutopilotMarker).markerObject!
-  const elapsedSeconds = getState(EngineState).elapsedSeconds
+  const markerEntity = getState(AutopilotMarker).markerEntity!
+  const elapsedSeconds = getState(ECSState).elapsedSeconds
   const scalePulse = scaleMultiplier * (sinOffset + Math.sin(pulseSpeed * elapsedSeconds))
-  marker.scale.set(scalePulse, 1, scalePulse)
-  marker.updateMatrixWorld()
+  const transformComponent = getComponent(markerEntity, TransformComponent)
+  transformComponent.scale.set(scalePulse, 1, scalePulse)
 }
 
 export async function placeMarker(rayNormal: Vector3) {
@@ -115,16 +118,16 @@ export async function placeMarker(rayNormal: Vector3) {
 
   if (!markerState.walkTarget) return
 
-  if (!markerState.markerObject) setupMarker()
+  if (!markerState.markerEntity) setupMarker()
 
-  const marker = markerState.markerObject!
-  marker.visible = true
+  const marker = markerState.markerEntity!
+  setVisibleComponent(marker, true)
 
   const newRotation = new Quaternion().setFromUnitVectors(V_010, rayNormal)
 
-  marker.position.copy(markerState.walkTarget)
-  marker.quaternion.copy(newRotation)
-  marker.updateMatrixWorld()
+  const markerTransform = getComponent(marker, TransformComponent)
+  markerTransform.position.copy(markerState.walkTarget)
+  markerTransform.rotation.copy(newRotation)
 }
 
 const minDot = 0.45
@@ -148,7 +151,7 @@ export const assessWalkability = (
 
 export const clearWalkPoint = () => {
   const markerState = getMutableState(AutopilotMarker)
-  markerState.walkTarget.set(undefined)
-  if (!markerState.markerObject.value) return
-  markerState.markerObject.value.visible = false
+  markerState.walkTarget.set(null)
+  if (!markerState.markerEntity.value) return
+  setVisibleComponent(markerState.markerEntity.value, false)
 }

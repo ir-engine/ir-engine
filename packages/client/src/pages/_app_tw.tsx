@@ -31,20 +31,16 @@ import React, { useEffect, useRef, useState } from 'react'
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
 import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
 import { NotificationState } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 
-import EngineTW from '../engine_tw'
+import { ThemeProvider } from '@etherealengine/client-core/src/common/services/ThemeService'
 import PublicRouter, { CenteredLoadingCircle } from '../route/public_tw'
-import { ThemeContextProvider } from '../themes/themeContext'
 
-import 'daisyui/dist/full.css'
 import { useTranslation } from 'react-i18next'
-import 'tailwindcss/tailwind.css'
 import '../themes/base.css'
 import '../themes/components.css'
 import '../themes/utilities.css'
@@ -54,7 +50,6 @@ const AppPage = () => {
   const isLoggedIn = useHookstate(getMutableState(AuthState).isLoggedIn)
   const selfUser = authState.user
   const [projectComponents, setProjectComponents] = useState<Array<any>>([])
-  const projectState = useHookstate(getMutableState(ProjectState))
   const { t } = useTranslation()
 
   useEffect(() => {
@@ -69,10 +64,6 @@ const AppPage = () => {
       setProjectComponents(result)
     })
   }, [isLoggedIn])
-
-  useEffect(() => {
-    if (selfUser?.id.value && projectState.updateNeeded.value) ProjectService.fetchProjects()
-  }, [selfUser?.id, projectState.updateNeeded])
 
   useEffect(() => {
     Engine.instance.userID = selfUser.id.value
@@ -94,15 +85,13 @@ const TailwindPage = () => {
   const notistackRef = useRef<SnackbarProvider>()
   const notificationstate = useHookstate(getMutableState(NotificationState))
 
-  NotificationState.useNotifications()
-
   useEffect(() => {
     notificationstate.snackbar.set(notistackRef.current)
   }, [notistackRef.current])
 
   return (
-    <EngineTW>
-      <ThemeContextProvider>
+    <>
+      <ThemeProvider>
         <SnackbarProvider
           ref={notistackRef as any}
           maxSnack={7}
@@ -112,8 +101,8 @@ const TailwindPage = () => {
           <AppPage />
           <Debug />
         </SnackbarProvider>
-      </ThemeContextProvider>
-    </EngineTW>
+      </ThemeProvider>
+    </>
   )
 }
 

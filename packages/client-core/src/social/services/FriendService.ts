@@ -26,15 +26,16 @@ Ethereal Engine. All Rights Reserved.
 import i18n from 'i18next'
 import { useEffect } from 'react'
 
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import multiLogger from '@etherealengine/common/src/logger'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import {
-  userRelationshipPath,
-  UserRelationshipType
-} from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+  UserID,
+  UserName,
+  UserRelationshipType,
+  userRelationshipPath
+} from '@etherealengine/common/src/schema.type.module'
 import { Paginated } from '@feathersjs/feathers'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
@@ -100,9 +101,12 @@ export const FriendService = {
       const userRelationshipCreatedListener = (params) => {
         const selfUser = getState(AuthState).user
         if (params.userRelationshipType === 'requested' && selfUser.id === params.relatedUserId)
-          NotificationService.dispatchNotify(`${params.user.name} ${i18n.t('user:friends.requestReceived')}`, {
-            variant: 'success'
-          })
+          NotificationService.dispatchNotify(
+            `${params.user.name as UserName} ${i18n.t('user:friends.requestReceived')}`,
+            {
+              variant: 'success'
+            }
+          )
 
         FriendService.getUserRelationship(selfUser.id)
       }
@@ -110,9 +114,12 @@ export const FriendService = {
         const selfUser = getState(AuthState).user
 
         if (params.userRelationshipType === 'friend' && selfUser.id === params.relatedUserId) {
-          NotificationService.dispatchNotify(`${params.user.name} ${i18n.t('user:friends.requestAccepted')}`, {
-            variant: 'success'
-          })
+          NotificationService.dispatchNotify(
+            `${params.user.name as UserName} ${i18n.t('user:friends.requestAccepted')}`,
+            {
+              variant: 'success'
+            }
+          )
         }
 
         FriendService.getUserRelationship(selfUser.id)

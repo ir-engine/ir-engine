@@ -25,12 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineState } from '@etherealengine/hyperflux'
 
+/*todo: get rid of this in favor of direct translation from animation root motion*/
 export const AvatarMovementSettingsState = defineState({
   name: 'AvatarMovementSettingsState',
   initial: () => ({
-    // Speeds are same as animation's root motion - in meters per second
-    walkSpeed: 1.6762927669761485,
-    runSpeed: 3.769894125544925 * 1.5,
+    // Speeds are set by the animation's average root motion speed
+    walkSpeed: 0,
+    runSpeed: 0,
     jumpHeight: 2
   })
 })

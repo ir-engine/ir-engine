@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
 import verifyScope from '@etherealengine/server-core/src/hooks/verify-scope'
 
@@ -39,18 +39,18 @@ import {
   locationPatchValidator,
   locationPath,
   locationQueryValidator
-} from '@etherealengine/engine/src/schemas/social/location.schema'
+} from '@etherealengine/common/src/schemas/social/location.schema'
 
-import { LocationAdminType, locationAdminPath } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
+import { LocationAdminType, locationAdminPath } from '@etherealengine/common/src/schemas/social/location-admin.schema'
 import {
   LocationAuthorizedUserType,
   locationAuthorizedUserPath
-} from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
+} from '@etherealengine/common/src/schemas/social/location-authorized-user.schema'
 import {
   LocationSettingType,
   locationSettingPath
-} from '@etherealengine/engine/src/schemas/social/location-setting.schema'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/social/location-setting.schema'
+import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
 import { BadRequest } from '@feathersjs/errors'
 import { transaction } from '@feathersjs/knex'
 import { Knex } from 'knex'
@@ -314,7 +314,7 @@ export default {
 
   before: {
     all: [() => schemaHooks.validateQuery(locationQueryValidator), schemaHooks.resolveQuery(locationQueryResolver)],
-    find: [sortByLocationSetting],
+    find: [discardQuery('action'), discardQuery('studio'), sortByLocationSetting],
     get: [],
     create: [
       iff(isProvider('external'), verifyScope('location', 'write')),

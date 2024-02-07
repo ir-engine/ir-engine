@@ -23,6 +23,259 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import config from '@etherealengine/common/src/config'
+import {
+  defineComponent,
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { ObjectDirection } from '@etherealengine/spatial/src/common/constants/Axis3D'
+import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
+import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { EntityTreeComponent, destroyEntityTree } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { useEffect } from 'react'
+import {
+  AmbientLight,
+  BackSide,
+  BufferAttribute,
+  BufferGeometry,
+  CatmullRomCurve3,
+  Line,
+  LineBasicMaterial,
+  Mesh,
+  MeshBasicMaterial,
+  MirroredRepeatWrapping,
+  Object3D,
+  Texture,
+  TubeGeometry,
+  Vector3
+} from 'three'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { teleportAvatar } from '../../avatar/functions/moveAvatar'
+import { SceneLoadingSystem } from '../SceneModule'
+import { PortalComponent, PortalEffects, PortalState } from './PortalComponent'
 
-export const HyperspaceTagComponent = defineComponent({ name: 'HyperspaceTagComponent' })
+export const HyperspacePortalEffect = 'Hyperspace'
+
+class PortalEffect extends Object3D {
+  curve: CatmullRomCurve3
+  splineMesh: Line
+  tubeMaterial: MeshBasicMaterial
+  tubeGeometry: TubeGeometry
+  tubeMesh: Mesh
+  numPoints = 200
+  portalEntity: Entity
+
+  constructor(parent: Entity) {
+    super()
+    this.name = 'PortalEffect'
+
+    this.createMesh()
+    const portalEntity = (this.portalEntity = createEntity())
+    setComponent(portalEntity, NameComponent, this.name)
+    setComponent(portalEntity, EntityTreeComponent, { parentEntity: parent })
+    setComponent(portalEntity, VisibleComponent, true)
+    addObjectToGroup(portalEntity, this.tubeMesh)
+    this.tubeMesh.layers.set(ObjectLayers.Portal)
+  }
+
+  get texture() {
+    return this.tubeMaterial.map
+  }
+
+  set texture(val: Texture | null) {
+    this.tubeMaterial.map = val
+    if (this.tubeMaterial.map) {
+      this.tubeMaterial.map.wrapS = MirroredRepeatWrapping
+      this.tubeMaterial.map.wrapT = MirroredRepeatWrapping
+      if (this.tubeMaterial.map.repeat) this.tubeMaterial.map.repeat.set(1, 10)
+    }
+  }
+
+  createMesh() {
+    const points: Vector3[] = []
+
+    for (let i = 0; i < this.numPoints; i += 1) {
+      points.push(new Vector3(0, 0, i))
+    }
+
+    this.curve = new CatmullRomCurve3(points)
+
+    const geometry = new BufferGeometry()
+    const curvePoints = new Float32Array(
+      this.curve
+        .getPoints(this.numPoints)
+        .map((val: Vector3) => {
+          return val.toArray()
+        })
+        .flat()
+    )
+    geometry.setAttribute('position', new BufferAttribute(curvePoints, 3))
+    this.splineMesh = new Line(geometry, new LineBasicMaterial())
+
+    this.tubeMaterial = new MeshBasicMaterial({
+      side: BackSide,
+      transparent: true,
+      opacity: 0
+    })
+
+    const radialSegments = 24
+    const tubularSegments = this.numPoints / 10
+
+    this.tubeGeometry = new TubeGeometry(this.curve, tubularSegments, 2, radialSegments, false)
+    const tube = this.tubeGeometry.getAttribute('position') as BufferAttribute
+
+    const entryLength = 5
+    const segmentSize = this.numPoints / tubularSegments
+
+    for (let i = 0; i < radialSegments * entryLength; i++) {
+      const factor = (segmentSize * entryLength - tube.getZ(i)) * 0.1
+      tube.setX(i, tube.getX(i) * factor)
+      tube.setY(i, tube.getY(i) * factor)
+    }
+
+    this.tubeMesh = new Mesh(this.tubeGeometry, this.tubeMaterial)
+    this.tubeMesh.position.set(-0.5, 0, -15)
+  }
+
+  updateMaterialOffset(delta: number) {
+    if (this.tubeMaterial.map) this.tubeMaterial.map.offset.x += delta
+  }
+
+  update(delta: number) {
+    this.updateMaterialOffset(delta)
+  }
+}
+
+export const HyperspaceTagComponent = defineComponent({
+  name: 'HyperspaceTagComponent',
+
+  onInit(entity) {
+    const hyperspaceEffectEntity = createEntity()
+    const hyperspaceEffect = new PortalEffect(hyperspaceEffectEntity)
+    addObjectToGroup(hyperspaceEffectEntity, hyperspaceEffect)
+    setObjectLayers(hyperspaceEffect, ObjectLayers.Portal)
+
+    AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/assets/galaxyTexture.jpg`).then(
+      (texture) => {
+        hyperspaceEffect.texture = texture
+      }
+    )
+
+    getComponent(hyperspaceEffectEntity, TransformComponent).scale.set(10, 10, 10)
+    setComponent(hyperspaceEffectEntity, EntityTreeComponent, { parentEntity: entity })
+    setComponent(hyperspaceEffectEntity, VisibleComponent)
+
+    const ambientLightEntity = createEntity()
+    const light = new AmbientLight('#aaa')
+    light.layers.enable(ObjectLayers.Portal)
+    addObjectToGroup(ambientLightEntity, light)
+
+    setComponent(ambientLightEntity, EntityTreeComponent, { parentEntity: hyperspaceEffectEntity })
+    setComponent(ambientLightEntity, VisibleComponent)
+
+    return {
+      // all internals
+      sceneVisible: true,
+      transition: createTransitionState(0.5, 'OUT'),
+      hyperspaceEffectEntity,
+      ambientLightEntity
+    }
+  },
+
+  onRemove(entity, component) {
+    removeEntity(component.ambientLightEntity.value)
+    destroyEntityTree(component.hyperspaceEffectEntity.value)
+  },
+
+  reactor: () => {
+    const entity = useEntityContext()
+    const { transition, hyperspaceEffectEntity } = getComponent(entity, HyperspaceTagComponent)
+    const hyperspaceEffect = getComponent(hyperspaceEffectEntity, GroupComponent)[0] as any as PortalEffect
+    const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+
+    useEffect(() => {
+      // TODO: add BPCEM of old and new scenes and fade them in and out too
+      transition.setState('IN')
+
+      camera.layers.enable(ObjectLayers.Portal)
+
+      camera.zoom = 1.5
+
+      hyperspaceEffect.quaternion.setFromUnitVectors(
+        ObjectDirection.Forward,
+        new Vector3(0, 0, 1).applyQuaternion(cameraTransform.rotation).setY(0).normalize()
+      )
+    }, [])
+
+    useExecute(
+      () => {
+        if (!hasComponent(entity, HyperspaceTagComponent)) return
+        const ecsState = getState(ECSState)
+        const sceneLoaded = getState(SceneState).sceneLoaded
+
+        if (sceneLoaded && transition.alpha >= 1 && transition.state === 'IN') {
+          transition.setState('OUT')
+          camera.layers.enable(ObjectLayers.Scene)
+        }
+
+        transition.update(ecsState.deltaSeconds, (opacity) => {
+          hyperspaceEffect.update(ecsState.deltaSeconds)
+          hyperspaceEffect.tubeMaterial.opacity = opacity
+        })
+
+        const sceneVisible = getMutableComponent(entity, HyperspaceTagComponent).sceneVisible
+
+        if (transition.state === 'IN' && transition.alpha >= 1 && sceneVisible.value) {
+          /**
+           * hide scene, render just the hyperspace effect and avatar
+           */
+          getMutableState(PortalState).portalReady.set(true)
+          const activePortal = getComponent(getState(PortalState).activePortalEntity, PortalComponent)
+          // teleport player to where the portal spawn position is
+          teleportAvatar(Engine.instance.localClientEntity, activePortal!.remoteSpawnPosition, true)
+          camera.layers.disable(ObjectLayers.Scene)
+          sceneVisible.set(false)
+        }
+
+        if (sceneLoaded && transition.state === 'OUT' && transition.alpha <= 0 && !sceneVisible.value) {
+          sceneVisible.set(true)
+          removeComponent(entity, HyperspaceTagComponent)
+          getMutableState(PortalState).activePortalEntity.set(UndefinedEntity)
+          getMutableState(PortalState).portalReady.set(false)
+          camera.layers.disable(ObjectLayers.Portal)
+          return
+        }
+
+        getComponent(hyperspaceEffectEntity, TransformComponent).position.copy(cameraTransform.position)
+
+        if (camera.zoom > 0.75) {
+          camera.zoom -= ecsState.deltaSeconds
+          camera.updateProjectionMatrix()
+        }
+      },
+      { with: SceneLoadingSystem }
+    )
+
+    return null
+  }
+})
+
+PortalEffects.set(HyperspacePortalEffect, HyperspaceTagComponent)

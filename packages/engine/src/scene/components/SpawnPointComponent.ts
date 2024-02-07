@@ -24,19 +24,22 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { BoxGeometry, BoxHelper, Mesh, Scene } from 'three'
 
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { NO_PROXY, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
+import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { matches } from '../../common/functions/MatchesUtils'
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { RendererState } from '../../renderer/RendererState'
-import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 const GLTF_PATH = '/static/editor/spawn-point.glb'
 
@@ -47,8 +50,7 @@ export const SpawnPointComponent = defineComponent({
   onInit: (entity) => {
     return {
       permissionedUsers: [] as UserID[],
-      helper: null as Scene | null,
-      helperBox: null as BoxHelper | null
+      helperEntity: null as Entity | null
     }
   },
 
@@ -63,32 +65,33 @@ export const SpawnPointComponent = defineComponent({
     }
   },
 
-  onRemove: (entity, component) => {
-    if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
-  },
-
   reactor: function () {
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const spawnPoint = useComponent(entity, SpawnPointComponent)
 
     useEffect(() => {
-      if (debugEnabled.value && !spawnPoint.helper.value) {
-        AssetLoader.loadAsync(GLTF_PATH).then(({ scene: spawnPointHelperModel }) => {
-          const helper = spawnPointHelperModel.clone()
-          helper.name = `spawn-point-helper-${entity}`
-          const helperBox = new BoxHelper(new Mesh(new BoxGeometry(1, 0, 1)), 0xffffff)
-          helper.userData.helperBox = helperBox
-          helper.add(helperBox)
-          setObjectLayers(helper, ObjectLayers.NodeHelper)
-          addObjectToGroup(entity, helper)
-          spawnPoint.helper.set(helper)
-        })
-      }
+      if (!debugEnabled.value) return
 
-      if (!debugEnabled.value && spawnPoint.helper.value) {
-        removeObjectFromGroup(entity, spawnPoint.helper.value)
-        spawnPoint.helper.set(none)
+      const helperEntity = createEntity()
+      setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
+      setVisibleComponent(helperEntity, true)
+
+      spawnPoint.helperEntity.set(helperEntity)
+
+      let active = true
+      AssetLoader.loadAsync(GLTF_PATH).then(({ scene: helper }) => {
+        if (!active) return
+        helper.name = `spawn-point-helper-${entity}`
+        addObjectToGroup(helperEntity, helper)
+        setObjectLayers(helper, ObjectLayers.NodeHelper)
+        setComponent(helperEntity, NameComponent, helper.name)
+      })
+
+      return () => {
+        active = false
+        removeEntity(helperEntity)
+        spawnPoint.helperEntity.set(none)
       }
     }, [debugEnabled])
 

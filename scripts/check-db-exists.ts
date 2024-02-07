@@ -29,7 +29,7 @@ import cli from 'cli'
 import dotenv from 'dotenv-flow'
 import knex from 'knex'
 
-import { redisSettingPath } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
+import { redisSettingPath } from '@etherealengine/common/src/schema.type.module'
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 if (!kubernetesEnabled) {
@@ -56,7 +56,7 @@ const knexClient = knex({
 cli.main(async () => {
   const [results] = await knexClient.raw("SHOW TABLES LIKE 'user';")
 
-  if (results.length === 0) {
+  if (results.length === 0 || process.env.BUILDER_FORCE_DB_REFRESH === 'true') {
     console.log('User table not found, seeding the database...')
 
     const initPromise = new Promise((resolve) => {

@@ -35,19 +35,43 @@ import {
   Vector2,
   Vector3
 } from 'three'
-import { Behavior, BehaviorFromJSON, ParticleSystem, ParticleSystemJSONParameters, RenderMode } from 'three.quarks'
+import {
+  BatchedParticleRenderer,
+  Behavior,
+  BehaviorFromJSON,
+  ParticleSystem,
+  ParticleSystemJSONParameters,
+  RenderMode
+} from 'three.quarks'
 import matches from 'ts-matches'
 
-import { NO_PROXY, none } from '@etherealengine/hyperflux'
+import { NO_PROXY, defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
+import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { getBatchRenderer } from '../systems/ParticleSystemSystem'
-import getFirstMesh from '../util/getFirstMesh'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import getFirstMesh from '../util/meshUtils'
+
+export const ParticleState = defineState({
+  name: 'ParticleState',
+  initial: () => {
+    const batchRenderer = new BatchedParticleRenderer()
+    const batchRendererEntity = createEntity()
+    addObjectToGroup(batchRendererEntity, batchRenderer)
+    setComponent(batchRendererEntity, VisibleComponent)
+    setComponent(batchRendererEntity, NameComponent, 'Particle Batched Renderer')
+    return {
+      batchRenderer,
+      batchRendererEntity
+    }
+  }
+})
 
 /*
 SHAPE TYPES
@@ -776,7 +800,7 @@ export const ParticleSystemComponent = defineComponent({
     const entity = useEntityContext()
     const componentState = useComponent(entity, ParticleSystemComponent)
     const component = componentState.value
-    const batchRenderer = getBatchRenderer()!
+    const batchRenderer = useHookstate(getMutableState(ParticleState).batchRenderer)
 
     useEffect(() => {
       if (component.system) {
@@ -789,7 +813,7 @@ export const ParticleSystemComponent = defineComponent({
 
       function initParticleSystem(systemParameters: ParticleSystemJSONParameters, metadata: ParticleSystemMetadata) {
         const nuSystem = ParticleSystem.fromJSON(systemParameters, metadata, {})
-        batchRenderer.addSystem(nuSystem)
+        batchRenderer.value.addSystem(nuSystem)
         componentState.behaviors.set(
           component.behaviorParameters.map((behaviorJSON) => {
             const behavior = BehaviorFromJSON(behaviorJSON, nuSystem)
@@ -798,9 +822,11 @@ export const ParticleSystemComponent = defineComponent({
           })
         )
 
-        const emitterAsObj3D = nuSystem.emitter as unknown as Object3D
+        const emitterAsObj3D = nuSystem.emitter
         emitterAsObj3D.userData['_refresh'] = component._refresh
         addObjectToGroup(entity, emitterAsObj3D)
+        const transformComponent = getComponent(entity, TransformComponent)
+        emitterAsObj3D.matrix = transformComponent.matrix
         componentState.system.set(nuSystem)
       }
 
@@ -869,6 +895,19 @@ export const ParticleSystemComponent = defineComponent({
       Promise.all(loadDependencies).then(() => {
         currentIndex === componentState._loadIndex.value && initParticleSystem(processedParms, metadata)
       })
+      return () => {
+        if (component.system) {
+          const index = batchRenderer.value.systemToBatchIndex.get(component.system)
+          batchRenderer.value.deleteSystem(component.system)
+          if (typeof index === 'undefined') return
+          batchRenderer.value.children.splice(index, 1)
+          const [batch] = batchRenderer.value.batches.splice(index, 1)
+          for (const value of Object.values(batch)) {
+            if (typeof value?.dispose === 'function') value.dispose()
+          }
+          batch.dispose()
+        }
+      }
     }, [componentState._refresh])
     return null
   }

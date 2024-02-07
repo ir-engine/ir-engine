@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
-import { PodsType, ServerPodInfoType, podsPath } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
+import { PodsType, ServerPodInfoType, podsPath } from '@etherealengine/common/src/schema.type.module'
 import { useEffect } from 'react'
 
 export const useServerInfoFind = () => {

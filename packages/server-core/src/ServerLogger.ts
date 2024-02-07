@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 /**
  * A server-side only multi-stream logger.
- * For isomorphic or client-side logging, use packages/engine/src/common/functions/logger.ts
+ * For isomorphic or client-side logging, use packages/common/src/logger.ts
  * (which will send all log events to this server-side logger here, via an
  *  API endpoint).
  */
@@ -67,7 +67,7 @@ const streams = [streamToPretty, streamToElastic, streamToOpenSearch]
 export const opensearchOnlyLogger = pino(
   {
     level: 'debug',
-    enable: useLogger,
+    enabled: useLogger,
     base: {
       hostname: os.hostname,
       component: 'server-core'
@@ -79,7 +79,7 @@ export const opensearchOnlyLogger = pino(
 export const logger = pino(
   {
     level: 'debug',
-    enable: useLogger,
+    enabled: useLogger,
     base: {
       hostname: os.hostname,
       component: 'server-core'
@@ -91,7 +91,7 @@ export const logger = pino(
 export const elasticOnlyLogger = pino(
   {
     level: 'debug',
-    enable: useLogger,
+    enabled: useLogger,
     base: {
       hostname: os.hostname,
       component: 'server-core'

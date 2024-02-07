@@ -23,31 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ProjectDrawer from '@etherealengine/client-core/src/admin/components/Project/ProjectDrawer'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
+import multiLogger from '@etherealengine/common/src/logger'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import {
-  ArrowRightRounded,
-  Check,
-  Clear,
-  Delete,
-  Download,
-  DownloadDone,
-  FilterList,
-  Group,
-  Link,
-  LinkOff,
-  Search,
-  Settings,
-  Upload
-} from '@mui/icons-material'
+import ArrowRightRounded from '@mui/icons-material/ArrowRightRounded'
+import Check from '@mui/icons-material/Check'
+import Clear from '@mui/icons-material/Clear'
+import Delete from '@mui/icons-material/Delete'
+import Download from '@mui/icons-material/Download'
+import DownloadDone from '@mui/icons-material/DownloadDone'
+import FilterList from '@mui/icons-material/FilterList'
+import Group from '@mui/icons-material/Group'
+import Link from '@mui/icons-material/Link'
+import LinkOff from '@mui/icons-material/LinkOff'
+import Search from '@mui/icons-material/Search'
+import Settings from '@mui/icons-material/Settings'
+import Upload from '@mui/icons-material/Upload'
 import {
   Accordion,
   AccordionDetails,
@@ -63,14 +60,15 @@ import {
 } from '@mui/material'
 
 import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { projectPath, ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { InviteCode } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { getProjects } from '../../functions/projectFunctions'
+import { InviteCode, projectPath, ProjectType } from '@etherealengine/common/src/schema.type.module'
+import { useNavigate } from 'react-router-dom'
+import { EditorState } from '../../services/EditorServices'
 import { Button, MediumButton } from '../inputs/Button'
 import { CreateProjectDialog } from './CreateProjectDialog'
 import { DeleteDialog } from './DeleteDialog'
 import { EditPermissionsDialog } from './EditPermissionsDialog'
+
+import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import styles from './styles.module.scss'
 
 const logger = multiLogger.child({ component: 'editor:ProjectsPage' })
@@ -81,7 +79,7 @@ function sortAlphabetical(a, b) {
   return 0
 }
 
-const OfficialProjectData = [
+const OFFICIAL_PROJECTS_DATA = [
   {
     id: '1570ae14-889a-11ec-886e-b126f7590685',
     name: 'ee-ethereal-village',
@@ -141,7 +139,7 @@ const OfficialProjectData = [
   // },
 ]
 
-const CommunityProjectData = [] as any
+const COMMUNITY_PROJECTS_DATA = [] as typeof OFFICIAL_PROJECTS_DATA
 
 const ProjectExpansionList = (props: React.PropsWithChildren<{ id: string; summary: string }>) => {
   return (
@@ -165,16 +163,14 @@ const ProjectExpansionList = (props: React.PropsWithChildren<{ id: string; summa
 }
 
 const ProjectsPage = () => {
-  const installedProjects = useHookstate<ProjectType[]>([]) // constant projects initialized with an empty array.
-  const officialProjects = useHookstate<ProjectType[]>([])
-  const communityProjects = useHookstate<ProjectType[]>([])
+  const { t } = useTranslation()
   const activeProject = useHookstate<ProjectType | null>(null)
-  const loading = useHookstate(false)
   const error = useHookstate<Error | null>(null)
-  const query = useHookstate('')
+  const search = useHookstate({ local: '', query: '' })
+  const searchTimeoutCancelRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const filterAnchorEl = useHookstate<any>(null)
   const projectAnchorEl = useHookstate<any>(null)
-  const filter = useHookstate({ installed: false, official: true, community: true })
+  const projectCategoryFilter = useHookstate({ installed: true, official: true, community: true })
   const isCreateDialogOpen = useHookstate(false)
   const isDeleteDialogOpen = useHookstate(false)
   const updatingProject = useHookstate(false)
@@ -183,6 +179,7 @@ const ProjectsPage = () => {
   const projectDrawerOpen = useHookstate(false)
   const changeDestination = useHookstate(false)
 
+  const navigate = useNavigate()
   const hasWriteAccess =
     activeProject.value?.hasWriteAccess || (userHasAccess('admin:admin') && userHasAccess('projects:write'))
 
@@ -193,78 +190,53 @@ const ProjectsPage = () => {
 
   const githubProvider = user.identityProviders.value?.find((ip) => ip.type === 'github')
 
-  const { t } = useTranslation()
+  const { create: projectCreateQuery, remove: projectRemoveQuery } = useMutation(projectPath)
+  const projectFindQuery = useFind(projectPath, {
+    query: {
+      paginate: false,
+      allowed: true,
+      ...(!!search.query.value && { name: { $like: `%${search.query.value}%` } }),
+      $sort: { name: 1 }
+    }
+  })
+
+  const installedProjects = projectFindQuery.data.filter(() => projectCategoryFilter.installed.value)
+  const officialProjects = (
+    search.query.value
+      ? OFFICIAL_PROJECTS_DATA.filter(
+          (p) => p.name.includes(search.query.value) || p.description.includes(search.query.value)
+        )
+      : OFFICIAL_PROJECTS_DATA
+  )
+    .filter(() => projectCategoryFilter.official.value)
+    .filter((p) => !installedProjects?.find((ip) => ip.name.includes(p.name))) as ProjectType[]
+  officialProjects.sort(sortAlphabetical)
+
+  const communityProjects = (
+    search.query.value
+      ? COMMUNITY_PROJECTS_DATA.filter(
+          (p) => p.name.includes(search.query.value) || p.description.includes(search.query.value)
+        )
+      : COMMUNITY_PROJECTS_DATA
+  )
+    .filter(() => projectCategoryFilter.community.value)
+    .filter((p) => !installedProjects?.find((ip) => ip.name.includes(p.name))) as ProjectType[]
+  communityProjects.sort(sortAlphabetical)
 
   useEffect(() => {
-    Engine.instance.api.service(projectPath).on('patched', () => fetchInstalledProjects())
-  }, [])
-
-  const fetchInstalledProjects = async () => {
-    loading.set(true)
-    try {
-      const data = await getProjects()
-      installedProjects.set(data.sort(sortAlphabetical) ?? [])
-      if (activeProject.value)
-        activeProject.set(data.find((item) => item.id === activeProject.value?.id) as ProjectType | null)
-    } catch (error) {
-      logger.error(error)
-      error.set(error)
-    }
-    loading.set(false)
-  }
-
-  const fetchOfficialProjects = async (query?: string) => {
-    loading.set(true)
-    try {
-      const data = (
-        query
-          ? OfficialProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
-          : OfficialProjectData
-      ).filter((p) => !installedProjects.value?.find((ip) => ip.name.includes(p.name)))
-
-      console.log(OfficialProjectData, installedProjects, data)
-      officialProjects.set((data.sort(sortAlphabetical) as ProjectType[]) ?? [])
-    } catch (error) {
-      logger.error(error)
-      error.set(error)
-    }
-    loading.set(false)
-  }
-
-  const fetchCommunityProjects = async (query?: string) => {
-    loading.set(true)
-    try {
-      const data = (
-        query
-          ? CommunityProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
-          : CommunityProjectData
-      ).filter((p) => !installedProjects.value?.find((ip) => ip.name.includes(p.name)))
-
-      communityProjects.set(data.sort(sortAlphabetical) ?? [])
-    } catch (error) {
-      logger.error(error)
-      error.set(error)
-    }
-    loading.set(false)
-  }
-
-  useEffect(() => {
-    fetchOfficialProjects()
-    fetchCommunityProjects()
+    if (activeProject.value)
+      activeProject.set(installedProjects.find((item) => item.id === activeProject.value?.id) as ProjectType | null)
   }, [installedProjects])
 
   const refreshGithubRepoAccess = () => {
     ProjectService.refreshGithubRepoAccess()
-    fetchInstalledProjects()
+    projectFindQuery.refetch()
   }
 
   useEffect(() => {
     if (!authUser || !user) return
     if (authUser.accessToken.value == null || authUser.accessToken.value.length <= 0 || user.id.value == null) return
-
-    fetchInstalledProjects()
-    fetchOfficialProjects()
-    fetchCommunityProjects()
+    projectFindQuery.refetch()
   }, [authUser.accessToken])
 
   // TODO: Implement tutorial #7257
@@ -275,27 +247,34 @@ const ProjectsPage = () => {
   const onClickExisting = (event, project) => {
     event.preventDefault()
     if (!isInstalled(project)) return
-    RouterState.navigate(`/studio/${project.name}`)
+    navigate(`/studio?project=${project.name}`)
+    getMutableState(EditorState).projectName.set(project.name)
+    const parsed = new URL(window.location.href)
+    const query = parsed.searchParams
+    query.set('project', project.name)
+    parsed.search = query.toString()
+    if (typeof history.pushState !== 'undefined') {
+      window.history.replaceState({}, '', parsed.toString())
+    }
   }
 
-  const onCreateProject = async (name) => {
-    await ProjectService.createProject(name)
-    await fetchInstalledProjects()
+  const onCreateProject = async (name: string) => {
+    projectCreateQuery({ name }, { query: { action: 'studio' } })
   }
 
   const onCreatePermission = async (userInviteCode: InviteCode, projectId: string) => {
     await ProjectService.createPermission(userInviteCode, projectId)
-    await fetchInstalledProjects()
+    projectFindQuery.refetch()
   }
 
   const onPatchPermission = async (id: string, type: string) => {
     await ProjectService.patchPermission(id, type)
-    await fetchInstalledProjects()
+    projectFindQuery.refetch()
   }
 
   const onRemovePermission = async (id: string) => {
     await ProjectService.removePermission(id)
-    await fetchInstalledProjects()
+    projectFindQuery.refetch()
   }
 
   const openDeleteConfirm = () => isDeleteDialogOpen.set(true)
@@ -310,13 +289,7 @@ const ProjectsPage = () => {
 
     updatingProject.set(true)
     if (activeProject.value) {
-      try {
-        const proj = installedProjects.get({ noproxy: true }).find((proj) => proj.id === activeProject.value?.id)!
-        await ProjectService.removeProject(proj.id)
-        await fetchInstalledProjects()
-      } catch (err) {
-        logger.error(err)
-      }
+      projectRemoveQuery(activeProject.value.id)
     }
 
     closeProjectContextMenu()
@@ -327,7 +300,7 @@ const ProjectsPage = () => {
     uploadingProject.set(true)
     try {
       await ProjectService.pushProject(id)
-      await fetchInstalledProjects()
+      projectFindQuery.refetch()
     } catch (err) {
       logger.error(err)
     }
@@ -336,34 +309,28 @@ const ProjectsPage = () => {
 
   const isInstalled = (project: ProjectType | null) => {
     if (!project) return false
-
-    for (const installedProject of installedProjects.value) {
-      if (project.repositoryPath === installedProject.repositoryPath) return true
-    }
-
-    return false
+    return !!installedProjects.find((p) => p.repositoryPath === project.repositoryPath)
   }
 
   const hasRepo = (project: ProjectType | null) => {
     if (!project) return false
-
     return project.repositoryPath && project.repositoryPath.length > 0
   }
 
-  const handleSearch = (e) => {
-    query.set(e.target.value)
-
-    if (filter.value.installed) {
-      // todo
+  const handleSearch = (searchedText: string) => {
+    search.local.set(searchedText)
+    if (searchTimeoutCancelRef.current) {
+      clearTimeout(searchTimeoutCancelRef.current)
     }
-    if (filter.value.official) fetchOfficialProjects(e.target.value)
-    if (filter.value.community) fetchCommunityProjects(e.target.value)
+    searchTimeoutCancelRef.current = setTimeout(() => {
+      search.query.set(searchedText.replace(' ', '-'))
+    }, 100)
   }
 
-  const clearSearch = () => query.set('')
   const openFilterMenu = (e) => filterAnchorEl.set(e.target)
   const closeFilterMenu = () => filterAnchorEl.set(null)
-  const toggleFilter = (type: string) => filter.set({ ...filter.value, [type]: !filter.value[type] })
+  const toggleFilter = (type: string) =>
+    projectCategoryFilter.set({ ...projectCategoryFilter.value, [type]: !projectCategoryFilter.value[type] })
 
   const openProjectContextMenu = (event: MouseEvent, project: ProjectType) => {
     event.preventDefault()
@@ -435,10 +402,8 @@ const ProjectsPage = () => {
    * Rendering view for projects page, if user is not login yet then showing login view.
    * if user is logged in and has no existing projects then the welcome view is shown, providing link to the tutorials.
    * if user has existing projects then we show the existing projects in grids and a grid to add new project.
-   *
    */
   if (!authUser?.accessToken.value || authUser.accessToken.value.length === 0 || !user?.id.value) return <></>
-
   return (
     <main className={styles.projectPage}>
       <style>
@@ -471,27 +436,27 @@ const ProjectsPage = () => {
                 classes={{ paper: styles.filterMenu }}
               >
                 <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => toggleFilter('installed')}>
-                  {filter.value.installed && <Check />}
+                  {projectCategoryFilter.value.installed && <Check />}
                   {t(`editor.projects.installed`)}
                 </MenuItem>
                 <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => toggleFilter('official')}>
-                  {filter.value.official && <Check />}
+                  {projectCategoryFilter.value.official && <Check />}
                   {t(`editor.projects.official`)}
                 </MenuItem>
                 <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => toggleFilter('community')}>
-                  {filter.value.community && <Check />}
+                  {projectCategoryFilter.value.community && <Check />}
                   {t(`editor.projects.community`)}
                 </MenuItem>
               </Menu>
               <InputBase
-                value={query.value}
+                value={search.local.value}
                 classes={{ root: styles.inputRoot }}
                 placeholder={t(`editor.projects.lbl-searchProject`)}
                 inputProps={{ 'aria-label': t(`editor.projects.lbl-searchProject`) }}
-                onChange={handleSearch}
+                onChange={(event) => handleSearch(event.target.value)}
               />
-              {query.value ? (
-                <IconButton aria-label="search" disableRipple onClick={clearSearch}>
+              {search.local.value ? (
+                <IconButton aria-label="search" disableRipple onClick={() => handleSearch('')}>
                   <Clear />
                 </IconButton>
               ) : (
@@ -530,33 +495,33 @@ const ProjectsPage = () => {
           </div>
           <div className={styles.projectGrid}>
             {error.value && <div className={styles.errorMsg}>{error.value.message}</div>}
-            {(!query.value || filter.value.installed) && (
+            {projectCategoryFilter.installed.value && (
               <ProjectExpansionList
-                id={t(`editor.projects.installed`)}
-                summary={`${t('editor.projects.installed')} (${installedProjects.value.length})`}
+                id="installed-projects"
+                summary={`${t('editor.projects.installed')} (${installedProjects.length})`}
               >
-                {renderProjectList(installedProjects.value, true)}
+                {renderProjectList(installedProjects, true)}
               </ProjectExpansionList>
             )}
-            {(!query.value || (query.value && filter.value.official && officialProjects.value.length > 0)) && (
+            {projectCategoryFilter.official.value && (
               <ProjectExpansionList
-                id={t(`editor.projects.official`)}
-                summary={`${t('editor.projects.official')} (${officialProjects.value.length})`}
+                id="official-projects"
+                summary={`${t('editor.projects.official')} (${officialProjects.length})`}
               >
-                {renderProjectList(officialProjects.value)}
+                {renderProjectList(officialProjects)}
               </ProjectExpansionList>
             )}
-            {(!query.value || (!query.value && filter.value.community && communityProjects.value.length > 0)) && (
+            {projectCategoryFilter.community.value && (
               <ProjectExpansionList
-                id={t(`editor.projects.community`)}
-                summary={`${t('editor.projects.community')} (${communityProjects.value.length})`}
+                id="community-projects"
+                summary={`${t('editor.projects.community')} (${communityProjects.length})`}
               >
-                {renderProjectList(communityProjects.value)}
+                {renderProjectList(communityProjects)}
               </ProjectExpansionList>
             )}
           </div>
         </div>
-        {installedProjects.value.length < 2 && !loading ? (
+        {installedProjects.length < 2 && projectFindQuery.status === 'pending' ? (
           <div className={styles.welcomeContainer}>
             <h1>{t('editor.projects.welcomeMsg')}</h1>
             <h2>{t('editor.projects.description')}</h2>

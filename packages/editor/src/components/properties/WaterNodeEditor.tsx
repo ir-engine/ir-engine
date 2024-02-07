@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 
 import WaterIcon from '@mui/icons-material/Water'
 

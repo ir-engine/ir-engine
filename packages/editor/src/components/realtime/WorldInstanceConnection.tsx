@@ -38,8 +38,7 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import DirectionsRun from '@mui/icons-material/DirectionsRun'
 import DoneIcon from '@mui/icons-material/Done'
 
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 import { EditorState } from '../../services/EditorServices'
 import SelectInput from '../inputs/SelectInput'
 import { InfoTooltip } from '../layout/Tooltip'
@@ -66,7 +65,7 @@ export const WorldInstanceConnection = () => {
   )
 
   const editorState = useHookstate(getMutableState(EditorState))
-  const sceneId = `${editorState.projectName.value}/${editorState.sceneName.value}` as SceneID
+  const sceneId = editorState.sceneID.value!
 
   const onSelectInstance = (selectedInstance: string) => {
     if (selectedInstance === 'None' || (worldNetworkHostId && selectedInstance !== worldNetworkHostId)) {

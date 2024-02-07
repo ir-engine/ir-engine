@@ -27,13 +27,13 @@ import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationType } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 
-import { useFind, useMutation, useSearch } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { InstanceID, InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { ChannelID, InstanceID, InstanceType, instancePath } from '@etherealengine/common/src/schema.type.module'
+import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import TableComponent from '../../common/Table'
 import { InstanceData, instanceColumns } from '../../common/variables/instance'
 import styles from '../../styles/admin.module.scss'
@@ -106,7 +106,7 @@ const InstanceTable = ({ className, search }: Props) => {
     id: string,
     ipAddress: string,
     currentUsers: number,
-    channelId: string,
+    channelId: ChannelID,
     podName: string,
     location?: LocationType
   ): InstanceData => {
@@ -144,7 +144,7 @@ const InstanceTable = ({ className, search }: Props) => {
       el.id,
       el.ipAddress || '',
       el.currentUsers,
-      el.channelId || '',
+      el.channelId || ('' as ChannelID),
       el.podName || '',
       el.location as LocationType
     )

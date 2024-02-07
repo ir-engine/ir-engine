@@ -25,12 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { ReactElement, useEffect } from 'react'
 
-import { NO_PROXY, getMutableState, getState } from '@etherealengine/hyperflux'
+import { NO_PROXY_STEALTH, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EngineRenderer, PostProcessingSettingsState } from '../../renderer/WebGLRendererSystem'
-import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
+import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { EngineRenderer, PostProcessingSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 
 export const PostProcessingComponent = defineComponent({
   name: 'PostProcessingComponent',
@@ -45,16 +44,15 @@ export const PostProcessingComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
 
-    if (json.enabled) component.enabled.set(json.enabled)
-    if (json.effects) {
-      for (const [name, effect] of Object.entries(json.effects)) {
-        component.effects[name].merge(effect)
-      }
-    }
+    if (typeof json.enabled === 'boolean') component.enabled.set(json.enabled)
+    if (typeof json.effects === 'object') component.merge({ effects: json.effects })
   },
 
   toJSON: (entity, component) => {
-    return component.get(NO_PROXY)
+    return {
+      effects: component.effects.value,
+      enabled: component.enabled.value
+    }
   },
 
   reactor: PostProcessingComponentReactor
@@ -62,54 +60,17 @@ export const PostProcessingComponent = defineComponent({
 
 function PostProcessingComponentReactor(): ReactElement {
   const entity = useEntityContext()
-  const component = useComponent(entity, PostProcessingComponent)
+  const component = useHookstate(useComponent(entity, PostProcessingComponent))
 
   useEffect(() => {
     getMutableState(PostProcessingSettingsState).enabled.set(component.enabled.value)
-  }, [component.enabled])
-
-  if (!EngineRenderer.instance.effectComposer) return <></>
-
-  return (
-    <>
-      {Object.entries(getComponent(entity, PostProcessingComponent).effects)
-        .map(([name, effect]) =>
-          Object.entries(effect).map(([key, value]) => (
-            <PostProcessingEffectPropertyReactor
-              effectState={component.effects[name]}
-              effectName={name}
-              property={key}
-              key={name + key}
-              value={value}
-            />
-          ))
-        )
-        .flat()}
-    </>
-  )
-}
-
-const PostProcessingEffectPropertyReactor = (props: {
-  effectName: string
-  effectState
-  property: string
-  value: any
-}) => {
-  const { effectName, effectState, property, value } = props
+  }, [component.enabled.value])
 
   useEffect(() => {
-    // escape if undefined, as state is not yet initialized or schema is invalid
-    if (typeof getState(PostProcessingSettingsState).effects[effectName]?.[property] === 'undefined') return
+    getMutableState(PostProcessingSettingsState).merge({ effects: component.effects.get(NO_PROXY_STEALTH) })
+  }, [component.effects])
 
-    getMutableState(PostProcessingSettingsState).effects[effectName][property].set(value)
-    const effect = EngineRenderer.instance.effectComposer[effectName]
-    if (effect && property in effect) {
-      effect[property] = value
-    }
-    if (property === 'isActive') {
-      configureEffectComposer()
-    }
-  }, [value, effectState[property]])
+  if (!EngineRenderer.instance?.effectComposer) return <></>
 
-  return null
+  return <></>
 }

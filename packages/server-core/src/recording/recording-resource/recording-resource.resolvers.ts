@@ -29,12 +29,12 @@ import { v4 } from 'uuid'
 
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import {
   RecordingResourceQuery,
   RecordingResourceType
-} from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+} from '@etherealengine/common/src/schemas/recording/recording-resource.schema'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const recordingResourceResolver = resolve<RecordingResourceType, HookContext>({
   staticResource: virtual(async (recordingResource, context) => {

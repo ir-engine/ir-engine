@@ -24,22 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, SocketsList, makeEventNodeDefinition, sequence } from '@behave-graph/core'
-import {
-  Component,
-  ComponentMap,
-  Query,
-  defineQuery,
-  removeQuery
-} from '../../../../../ecs/functions/ComponentFunctions'
-import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
-import {
-  SystemDefinitions,
-  SystemUUID,
-  defineSystem,
-  disableSystem,
-  startSystem
-} from '../../../../../ecs/functions/SystemFunctions'
-import { TransformComponent } from '../../../../../transform/components/TransformComponent'
+import { Component, ComponentMap } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Query, defineQuery, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { SystemDefinitions, SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 let systemCounter = 0
 
@@ -127,6 +116,7 @@ export const OnQuery = makeEventNodeDefinition({
     let newQueryResult = []
     const systemUUID = defineSystem({
       uuid: 'behave-graph-onQuery-' + systemCounter++,
+      insert: { with: system },
       execute: () => {
         newQueryResult = query()
         if (newQueryResult.length === 0) return
@@ -145,7 +135,6 @@ export const OnQuery = makeEventNodeDefinition({
         prevQueryResult = tempResult
       }
     })
-    startSystem(systemUUID, { with: system })
     const state: State = {
       query,
       systemUUID
@@ -154,7 +143,7 @@ export const OnQuery = makeEventNodeDefinition({
     return state
   },
   dispose: ({ state: { query, systemUUID }, graph: { getDependency } }) => {
-    disableSystem(systemUUID)
+    destroySystem(systemUUID)
     removeQuery(query)
     return initialState()
   }

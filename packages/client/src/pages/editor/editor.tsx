@@ -26,19 +26,40 @@ Ethereal Engine. All Rights Reserved.
 import { useHookstate } from '@hookstate/core'
 import { t } from 'i18next'
 import React, { Suspense, useEffect, useState } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { PopupMenuInline } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuInline'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
-import { UserUISystem } from '@etherealengine/client-core/src/user/UserUISystem'
+import { SceneDataType, scenePath } from '@etherealengine/common/src/schema.type.module'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { EditorPage, useStudioEditor } from '@etherealengine/editor/src/pages/EditorPage'
-import { ProjectPage } from '@etherealengine/editor/src/pages/ProjectPage'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { getMutableState } from '@etherealengine/hyperflux'
+
+const RedirectStudio = () => {
+  const { projectName, sceneName } = useParams()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    Engine.instance.api
+      .service(scenePath)
+      .get('', { query: { project: projectName, name: sceneName, metadataOnly: true } })
+      .then((result) => {
+        const sceneResult = result as SceneDataType
+        getMutableState(EditorState).merge({
+          sceneName,
+          projectName,
+          sceneID: sceneResult.scenePath
+        })
+        navigate(`/studio?scenePath=${sceneResult.scenePath}`)
+      })
+  }, [])
+
+  return <></>
+}
 
 const EditorRouter = () => {
   const ready = useStudioEditor()
@@ -49,26 +70,24 @@ const EditorRouter = () => {
     <Suspense fallback={<LoadingCircle message={t('common:loader.loadingEditor')} />}>
       <PopupMenuInline />
       <Routes>
-        <Route path=":projectName/:sceneName" element={<EditorPage />} />
-        <Route path=":projectName" element={<EditorPage />} />
-        <Route path="*" element={<ProjectPage />} />
+        <Route path=":projectName/:sceneName" element={<RedirectStudio />} />
+        <Route path="*" element={<EditorPage />} />
       </Routes>
     </Suspense>
   )
 }
 
 const EditorProtectedRoutes = () => {
+  const location = useLocation()
   const authState = useHookstate(getMutableState(AuthState))
   const user = authState.user
   const [isAuthorized, setAuthorized] = useState<boolean | null>(null)
-
-  useSystems([UserUISystem], { after: PresentationSystemGroup })
 
   useEffect(() => {
     if (user.scopes.value) {
       const hasAccess = userHasAccess('editor:write')
       if (!hasAccess) {
-        RouterState.navigate('/')
+        RouterState.navigate('/', { redirectUrl: location.pathname })
         setAuthorized(false)
       } else setAuthorized(true)
     }

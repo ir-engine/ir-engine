@@ -28,12 +28,14 @@ import { VideoTexture } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { getComponent, getMutableComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { StandardCallbacks, setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
+import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { isClient } from '../../common/functions/getEnvironment'
-import { defineQuery, getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { StandardCallbacks, setCallback } from '../../scene/components/CallbackComponent'
 import { MediaComponent } from '../../scene/components/MediaComponent'
 import { VideoComponent, VideoTexturePriorityQueueState } from '../../scene/components/VideoComponent'
 import { AudioState, useAudioState } from '../AudioState'
@@ -137,31 +139,30 @@ const execute = () => {
 }
 
 const reactor = () => {
-  useEffect(() => {
-    const audioContext = getState(AudioState).audioContext
+  if (!isClient) return null
 
+  useEffect(() => {
     const enableAudioContext = () => {
+      const audioContext = getState(AudioState).audioContext
       if (audioContext.state === 'suspended') audioContext.resume()
     }
 
-    if (isClient) {
-      // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
-      // in order to ensure media will play programmatically
-      const handleAutoplay = () => {
-        enableAudioContext()
-        window.removeEventListener('pointerup', handleAutoplay)
-        window.removeEventListener('keypress', handleAutoplay)
-        window.removeEventListener('touchend', handleAutoplay)
-        EngineRenderer.instance.renderer.domElement.removeEventListener('pointerup', handleAutoplay)
-        EngineRenderer.instance.renderer.domElement.removeEventListener('touchend', handleAutoplay)
-      }
-      // TODO: add destroy callbacks
-      window.addEventListener('pointerup', handleAutoplay)
-      window.addEventListener('keypress', handleAutoplay)
-      window.addEventListener('touchend', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.addEventListener('pointerup', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.addEventListener('touchend', handleAutoplay)
+    // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
+    // in order to ensure media will play programmatically
+    const handleAutoplay = () => {
+      enableAudioContext()
+      window.removeEventListener('pointerup', handleAutoplay)
+      window.removeEventListener('keypress', handleAutoplay)
+      window.removeEventListener('touchend', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.removeEventListener('pointerup', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.removeEventListener('touchend', handleAutoplay)
     }
+    // TODO: add destroy callbacks
+    window.addEventListener('pointerup', handleAutoplay)
+    window.addEventListener('keypress', handleAutoplay)
+    window.addEventListener('touchend', handleAutoplay)
+    EngineRenderer.instance.renderer.domElement.addEventListener('pointerup', handleAutoplay)
+    EngineRenderer.instance.renderer.domElement.addEventListener('touchend', handleAutoplay)
 
     return () => {
       for (const sound of Object.values(AudioEffectPlayer.SOUNDS)) delete AudioEffectPlayer.instance.bufferMap[sound]
@@ -175,6 +176,7 @@ const reactor = () => {
 
 export const MediaSystem = defineSystem({
   uuid: 'ee.engine.MediaSystem',
+  insert: { before: PresentationSystemGroup },
   execute,
   reactor
 })

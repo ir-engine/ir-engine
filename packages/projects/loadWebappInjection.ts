@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
+import { projectsPath } from '@etherealengine/common/src/schema.type.module'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { loadConfigForProject } from './loadConfigForProject'
 
 export const loadWebappInjection = async () => {
@@ -37,7 +37,7 @@ export const loadWebappInjection = async () => {
           if (typeof projectConfig.webappInjection !== 'function') return null!
           return (await projectConfig.webappInjection()).default
         } catch (e) {
-          console.log(`Failed to import world load event for project ${project} with reason ${e}`)
+          console.error(`Failed to import webapp load event for project ${project} with reason ${e}`)
           return null!
         }
       })

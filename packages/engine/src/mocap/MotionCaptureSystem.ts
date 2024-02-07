@@ -29,41 +29,25 @@ import { useEffect } from 'react'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import { RingBuffer } from '../common/classes/RingBuffer'
 
-import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { Network } from '../networking/classes/Network'
-import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 
 import { NormalizedLandmarkList } from '@mediapipe/pose'
 
-import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataChannelRegistry'
-
-import { getState } from '@etherealengine/hyperflux'
-import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { RingBuffer } from '@etherealengine/spatial/src/common/classes/RingBuffer'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { Network } from '@etherealengine/spatial/src/networking/classes/Network'
 import {
-  BufferAttribute,
-  BufferGeometry,
-  LineBasicMaterial,
-  LineSegments,
-  Mesh,
-  MeshBasicMaterial,
-  Object3D,
-  Quaternion,
-  SphereGeometry,
-  Vector3
-} from 'three'
+  addDataChannelHandler,
+  removeDataChannelHandler
+} from '@etherealengine/spatial/src/networking/systems/DataChannelRegistry'
+import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
-import { V_010 } from '../common/constants/MathConstants'
-import { lerp } from '../common/functions/MathLerpFunctions'
-import { isClient } from '../common/functions/getEnvironment'
-import { Engine } from '../ecs/classes/Engine'
-import { EngineState } from '../ecs/classes/EngineState'
-import { defineQuery, getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
-import { NetworkState } from '../networking/NetworkState'
-import { RendererState } from '../renderer/RendererState'
-import { ObjectLayers } from '../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../scene/functions/setObjectLayers'
+import { AvatarComponent } from '../avatar/components/AvatarComponent'
+import { AnimationSystem } from '../avatar/systems/AnimationSystem'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 import { solveMotionCapturePose } from './solveMotionCapturePose'
 
@@ -124,8 +108,10 @@ const execute = () => {
   // for now, it is unnecessary to compute anything on the server
   if (!isClient) return
   const network = NetworkState.worldNetwork
+  if (!network) return
+
   for (const [peerID, mocapData] of timeSeriesMocapData) {
-    if (!network?.peers?.[peerID] || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
+    if (!network.peers[peerID] || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
       timeSeriesMocapData.delete(peerID)
       timeSeriesMocapLastSeen.delete(peerID)
     }
@@ -133,27 +119,30 @@ const execute = () => {
   for (const [peerID, mocapData] of timeSeriesMocapData) {
     const data = mocapData.getFirst()
     const userID = network.peers[peerID]!.userId
-    const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
+    const entity = AvatarComponent.getUserAvatarEntity(userID)
+    if (!entity) continue
 
     timeSeriesMocapLastSeen.set(peerID, Date.now())
     setComponent(entity, MotionCaptureRigComponent)
     solveMotionCapturePose(entity, data?.results.poseWorldLandmarks, data?.results.poseLandmarks)
-
     mocapData.clear() // TODO: add a predictive filter and remove this
   }
 
   for (const entity of motionCaptureQuery()) {
     const peers = Object.keys(network.peers).find((peerID: PeerID) => timeSeriesMocapData.has(peerID))
+    const rigComponent = getComponent(entity, AvatarRigComponent)
+    if (!rigComponent.normalizedRig) continue
+    const worldHipsParent = rigComponent.normalizedRig.hips.node.parent
     if (!peers) {
       removeComponent(entity, MotionCaptureRigComponent)
+      worldHipsParent?.position.setY(0)
       continue
     }
-    const rigComponent = getComponent(entity, AvatarRigComponent)
-
     for (const boneName of VRMHumanBoneList) {
-      const localbone = rigComponent.localRig[boneName]?.node
-      if (!localbone) continue
+      const normalizedBone = rigComponent.vrm.humanoid.normalizedHumanBones[boneName]?.node
+      if (!normalizedBone) continue
       if (!MotionCaptureRigComponent.solvingLowerBody[entity]) {
+        /**todo lower body solve logic should be on a per limb basis */
         if (
           boneName == VRMHumanBoneName.LeftUpperLeg ||
           boneName == VRMHumanBoneName.RightUpperLeg ||
@@ -172,93 +161,40 @@ const execute = () => {
       ) {
         MotionCaptureRigComponent.rig[boneName].w[entity] === 1
       }
-      localbone.quaternion.set(
-        MotionCaptureRigComponent.rig[boneName].x[entity],
-        MotionCaptureRigComponent.rig[boneName].y[entity],
-        MotionCaptureRigComponent.rig[boneName].z[entity],
-        MotionCaptureRigComponent.rig[boneName].w[entity]
-      )
 
-      if (!rigComponent.vrm.humanoid.normalizedRestPose[boneName]) continue
-      if (MotionCaptureRigComponent.solvingLowerBody[entity])
-        localbone.position.fromArray(rigComponent.vrm.humanoid.normalizedRestPose[boneName]!.position as number[])
-      localbone.scale.set(1, 1, 1)
-    }
-
-    const hipBone = rigComponent.localRig.hips.node
-    if (MotionCaptureRigComponent.solvingLowerBody[entity]) {
-      hipBone.position.set(
-        MotionCaptureRigComponent.hipPosition.x[entity],
-        MotionCaptureRigComponent.hipPosition.y[entity],
-        MotionCaptureRigComponent.hipPosition.z[entity]
-      )
-      hipBone.updateMatrixWorld(true)
-    }
-
-    const worldHipsParent = rigComponent.rig.hips.node.parent
-    if (worldHipsParent)
-      if (MotionCaptureRigComponent.solvingLowerBody[entity])
-        worldHipsParent.position.setY(
-          lerp(
-            worldHipsParent.position.y,
-            MotionCaptureRigComponent.footOffset[entity],
-            getState(EngineState).deltaSeconds * 5
-          )
+      normalizedBone.quaternion
+        .set(
+          MotionCaptureRigComponent.rig[boneName].x[entity],
+          MotionCaptureRigComponent.rig[boneName].y[entity],
+          MotionCaptureRigComponent.rig[boneName].z[entity],
+          MotionCaptureRigComponent.rig[boneName].w[entity]
         )
-      else worldHipsParent.position.setY(0)
+        .normalize()
 
-    const avatarDebug = getState(RendererState).avatarDebug
-    helperGroup.visible = avatarDebug
-    if (avatarDebug) {
-      const rawBones = rigComponent.localRig
-      for (const [key, value] of Object.entries(rawBones)) {
-        if (!boneHelpers[key]) {
-          const mesh = new Mesh(new SphereGeometry(0.01), new MeshBasicMaterial())
-          setObjectLayers(mesh, ObjectLayers.AvatarHelper)
-          // mesh.add(new AxesHelper(0.1))
-          if (key === 'hips') mesh.material.color.setHex(0xff0000)
-          if (key === 'spine') mesh.material.color.setHex(0x00ff00)
-          if (key === 'chest') mesh.material.color.setHex(0x4488ff)
-          if (key === 'upperChest') mesh.material.color.setHex(0x0000ff)
-          boneHelpers[key] = mesh
-          helperGroup.add(mesh)
-          if (!helperGroup.parent) Engine.instance.scene.add(helperGroup)
-          setObjectLayers(positionLineSegment, ObjectLayers.AvatarHelper)
-        }
-        const mesh = boneHelpers[key]
-        value.node.getWorldPosition(mesh.position)
-        value.node.getWorldQuaternion(mesh.quaternion)
-        mesh.updateMatrixWorld(true)
-      }
-
-      const bones = Object.values(rigComponent.localRig).filter(
-        (bone) => bone.node.parent && !bone.node.name.toLowerCase().includes('hips')
-      )
-
-      const posAttr = new BufferAttribute(new Float32Array(bones.length * 2 * 3).fill(0), 3)
-
-      let i = 0
-      for (const bone of bones) {
-        const pos = bone.node.getWorldPosition(new Vector3())
-        posAttr.setXYZ(i, pos.x, pos.y, pos.z)
-        const prevPos = bone.node.parent!.getWorldPosition(new Vector3())
-        posAttr.setXYZ(i + 1, prevPos.x, prevPos.y, prevPos.z)
-        i += 2
-      }
-
-      positionLineSegment.geometry.setAttribute('position', posAttr)
+      // if (!rigComponent.vrm.humanoid.normalizedRestPose[boneName]) continue
+      // if (MotionCaptureRigComponent.solvingLowerBody[entity])
+      //   normalizedBone.position.fromArray(rigComponent.vrm.humanoid.normalizedRestPose[boneName]!.position as number[])
     }
-    // rotate hips 180 degrees
-    hipBone.quaternion.premultiply(rotate180YQuaternion)
+
+    const hipBone = rigComponent.normalizedRig.hips.node
+    hipBone.position.set(
+      MotionCaptureRigComponent.hipPosition.x[entity],
+      MotionCaptureRigComponent.hipPosition.y[entity],
+      MotionCaptureRigComponent.hipPosition.z[entity]
+    )
+
+    // if (worldHipsParent)
+    //   if (MotionCaptureRigComponent.solvingLowerBody[entity])
+    //     worldHipsParent.position.setY(
+    //       lerp(
+    //         worldHipsParent.position.y,
+    //         MotionCaptureRigComponent.footOffset[entity],
+    //         getState(ECSState).deltaSeconds * 5
+    //       )
+    //     )
+    //   else worldHipsParent.position.setY(0)
   }
 }
-
-const rotate180YQuaternion = new Quaternion().setFromAxisAngle(V_010, Math.PI)
-const boneHelpers = {} as Record<string, Object3D>
-const helperGroup = new Object3D()
-const positionLineSegment = new LineSegments(new BufferGeometry(), new LineBasicMaterial({ vertexColors: true }))
-positionLineSegment.material.linewidth = 4
-helperGroup.add(positionLineSegment)
 
 const reactor = () => {
   useEffect(() => {
@@ -272,6 +208,7 @@ const reactor = () => {
 
 export const MotionCaptureSystem = defineSystem({
   uuid: 'ee.engine.MotionCaptureSystem',
+  insert: { after: AnimationSystem },
   execute,
   reactor
 })

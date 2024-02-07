@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   staticResourceDataValidator,
   staticResourcePatchValidator,
   staticResourcePath,
   staticResourceQueryValidator
-} from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+} from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import collectAnalytics from '@etherealengine/server-core/src/hooks/collect-analytics'
 import verifyScope from '../../hooks/verify-scope'
 
@@ -79,7 +79,11 @@ export default {
       () => schemaHooks.validateQuery(staticResourceQueryValidator),
       schemaHooks.resolveQuery(staticResourceQueryResolver)
     ],
-    find: [iff(isProvider('external'), verifyScope('static_resource', 'read')), collectAnalytics()],
+    find: [
+      iff(isProvider('external'), verifyScope('static_resource', 'read')),
+      discardQuery('action'),
+      collectAnalytics()
+    ],
     get: [disallow('external')],
     create: [
       iff(isProvider('external'), verifyScope('static_resource', 'write')),

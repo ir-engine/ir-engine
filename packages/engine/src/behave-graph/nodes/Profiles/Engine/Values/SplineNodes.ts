@@ -25,19 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import { Assert, NodeCategory, makeAsyncNodeDefinition, makeFunctionNodeDefinition } from '@behave-graph/core'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { Entity } from '../../../../../ecs/classes/Entity'
-import {
-  defineQuery,
-  getComponent,
-  getOptionalComponent,
-  setComponent
-} from '../../../../../ecs/functions/ComponentFunctions'
-import { PresentationSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
-import { SystemUUID, defineSystem, disableSystem, startSystem } from '../../../../../ecs/functions/SystemFunctions'
-import { NameComponent } from '../../../../../scene/components/NameComponent'
+import { getComponent, getOptionalComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { SplineComponent } from '../../../../../scene/components/SplineComponent'
 import { SplineTrackComponent } from '../../../../../scene/components/SplineTrackComponent'
-import { UUIDComponent } from '../../../../../scene/components/UUIDComponent'
 
 const splineQuery = defineQuery([SplineComponent])
 
@@ -60,9 +56,9 @@ export const getSpline = makeFunctionNodeDefinition({
   },
   out: { entity: 'entity' },
   exec: ({ read, write }) => {
-    const splineEntityUUID = read<string>('spline')
+    const splineEntityUUID = read<EntityUUID>('spline')
     Assert.mustBeTrue(splineEntityUUID !== '', 'Please select spline entity')
-    const splineEntity = UUIDComponent.entitiesByUUID[splineEntityUUID]
+    const splineEntity = UUIDComponent.getEntityByUUID(splineEntityUUID)
     write('entity', splineEntity)
   }
 })
@@ -111,24 +107,24 @@ export const addSplineTrack = makeAsyncNodeDefinition({
     write('entity', entity)
     const systemUUID = defineSystem({
       uuid: 'behave-graph-spline-tracker-' + systemCounter++,
+      insert: { with: PresentationSystemGroup },
       execute: () => {
         // can we hook into the spline track reactor somehow? this feels wasteful, but probably the right way to do it
         const splineTrack = getComponent(entity, SplineTrackComponent)
         if (splineTrack.loop) return
-        const splineEntity = UUIDComponent.entitiesByUUID[splineTrack.splineEntityUUID!]
+        const splineEntity = UUIDComponent.getEntityByUUID(splineTrack.splineEntityUUID!)
         if (!splineEntity) return
         const spline = getOptionalComponent(splineEntity, SplineComponent)
         if (!spline) return
         if (Math.floor(splineTrack.alpha) > spline!.elements.length - 1) {
           commit('trackEnd')
           finished?.()
-          disableSystem(systemUUID) // we only want to run it once
+          destroySystem(systemUUID) // we only want to run it once
           return
         }
       }
     })
 
-    startSystem(systemUUID, { with: PresentationSystemGroup })
     commit('flow')
     const state: State = {
       systemUUID
@@ -137,7 +133,7 @@ export const addSplineTrack = makeAsyncNodeDefinition({
     return state
   },
   dispose: ({ state: { systemUUID }, graph: { getDependency } }) => {
-    if (systemUUID) disableSystem(systemUUID) // for if we shut down the graph early
+    if (systemUUID) destroySystem(systemUUID) // for if we shut down the graph early
     return initialState()
   }
 })

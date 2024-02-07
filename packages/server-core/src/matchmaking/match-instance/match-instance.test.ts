@@ -26,19 +26,19 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import nock from 'nock'
 
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
-import { LocationID, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { matchInstancePath } from '@etherealengine/common/src/schemas/matchmaking/match-instance.schema'
+import { LocationID, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { FRONTEND_SERVICE_URL } from '@etherealengine/matchmaking/src/functions'
 import { matchTicketAssignmentPath } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
 import { MatchTicketType, matchTicketPath } from '@etherealengine/matchmaking/src/match-ticket.schema'
 
-import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { LocationSettingType } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
-import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { InviteCode, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
+import { LocationSettingType } from '@etherealengine/common/src/schemas/social/location-setting.schema'
+import { AvatarID } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { InviteCode, UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -121,7 +121,7 @@ describe.skip('matchmaking match-instance service', () => {
     connections.forEach((connection) => {
       for (let i = 0; i < ticketsNumber; i++) {
         const userPromise = app.service(userPath).create({
-          name: 'Test #' + Math.random(),
+          name: ('Test #' + Math.random()) as UserName,
           isGuest: true,
           avatarId: '' as AvatarID,
           inviteCode: '' as InviteCode,

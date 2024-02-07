@@ -55,6 +55,8 @@ const Projects = () => {
   const buildStatusDrawerOpen = useHookstate(false)
   const isFirstRun = useHookstate(true)
 
+  ProjectService.useAPIListeners()
+
   const refreshGithubRepoAccess = () => {
     ProjectService.refreshGithubRepoAccess()
   }

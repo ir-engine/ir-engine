@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated, Params } from '@feathersjs/feathers'
 
-import { LocationID, locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationID, locationPath, LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -53,7 +53,12 @@ export const patchInstanceserverLocation =
       }
 
       const patchServer = async () => {
-        const freeInstance = await getFreeInstanceserver({ app, iteration: 0, locationId })
+        const freeInstance = await getFreeInstanceserver({
+          app,
+          headers: params?.headers || {},
+          iteration: 0,
+          locationId
+        })
         await app.service('instanceserver-load').patch({
           id: freeInstance.id,
           ipAddress: freeInstance.ipAddress,

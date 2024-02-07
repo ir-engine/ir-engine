@@ -26,28 +26,19 @@ Ethereal Engine. All Rights Reserved.
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-
-import Box from '@mui/material/Box'
-
-import { EditorHelperState } from '../../services/EditorHelperState'
-import BooleanInput from '../inputs/BooleanInput'
 import Dialog from './Dialog'
 
 /**
  * SaveSceneDialog used to show dialog when to save scene.
- *
- * @param       {function} onConfirm
- * @param       {function} onCancel
- * @constructor
  */
-export function SaveSceneDialog({ onConfirm, onCancel }) {
+export function SaveSceneDialog({
+  onConfirm,
+  onCancel
+}: {
+  onConfirm: (val: boolean) => void
+  onCancel: (val?: boolean) => void
+}) {
   const { t } = useTranslation()
-  const state = useHookstate(getMutableState(EditorHelperState).isGenerateThumbnailsEnabled)
-
-  const onChangeGenerateThumbnails = (value) => {
-    state.set((enabled) => !enabled)
-  }
 
   /**
    * onConfirmCallback callback function is used handle confirm dialog.
@@ -82,12 +73,7 @@ export function SaveSceneDialog({ onConfirm, onCancel }) {
       onConfirm={onConfirmCallback}
       onCancel={onCancelCallback}
       confirmLabel={t('editor:dialog.saveScene.lbl-confirm')}
-    >
-      <Box sx={{ display: 'flex', alignItems: 'center', margin: '10px' }}>
-        <BooleanInput value={state.value} onChange={onChangeGenerateThumbnails} />
-        <label style={{ marginLeft: '10px' }}>{t('editor:dialog.saveScene.lbl-thumbnail')}</label>
-      </Box>
-    </Dialog>
+    />
   )
 }
 

@@ -35,7 +35,7 @@ import {
 } from 'three'
 
 import config from '@etherealengine/common/src/config'
-import { matches, matchesVector3 } from '../../common/functions/MatchesUtils'
+import { matches, matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 
 export const ikTargets = {
   rightHand: 'rightHand',
@@ -51,20 +51,26 @@ export const ikTargets = {
   leftKneeHint: 'leftKneeHint'
 }
 
-export const animationStates = {
-  dance1: 'dance1',
-  dance2: 'dance2',
-  dance3: 'dance3',
-  dance4: 'dance4',
-  clap: 'clap',
-  wave: 'wave',
-  kiss: 'kiss',
-  cry: 'cry',
-  laugh: 'laugh',
-  defeat: 'defeat',
+/** list out all the emote animation file names */
+export const emoteAnimations = {
+  dance1: 'Dance1',
+  dance2: 'Dance2',
+  dance3: 'Dance3',
+  dance4: 'Dance4',
+  clap: 'Clap',
+  wave: 'Wave',
+  kiss: 'Kiss',
+  cry: 'Cry',
+  laugh: 'Laugh',
+  defeat: 'Defeat',
+  falling: 'Falling',
+  seated: 'Seated'
+}
+
+/** the file names of preloaded animation bundles */
+export const preloadedAnimations = {
   locomotion: 'locomotion',
-  falling: 'falling',
-  seated: 'seated'
+  emotes: 'emotes'
 }
 
 export const defaultAnimationPath = `${config.client.fileServer}/projects/default-project/assets/animations/`

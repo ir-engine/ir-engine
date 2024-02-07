@@ -24,17 +24,24 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { useExecute } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import {
+  defineComponent,
+  getComponent,
+  getOptionalComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
+import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getState } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { useEffect } from 'react'
-import { Euler, Quaternion, Vector3 } from 'three'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { defineComponent, getOptionalComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { SplineComponent } from './SplineComponent'
-import { UUIDComponent } from './UUIDComponent'
 
 const _euler = new Euler()
 const _quat = new Quaternion()
@@ -81,18 +88,18 @@ export const SplineTrackComponent = defineComponent({
 
     useExecute(
       () => {
-        const { isEditor, deltaSeconds } = getState(EngineState)
+        const { isEditor } = getState(EngineState)
+        const { deltaSeconds } = getState(ECSState)
         if (isEditor) return
         if (!component.splineEntityUUID.value) return
-        const splineTargetEntity = UUIDComponent.entitiesByUUID[component.splineEntityUUID.value]
+        const splineTargetEntity = UUIDComponent.getEntityByUUID(component.splineEntityUUID.value)
         if (!splineTargetEntity) return
 
         const splineComponent = getOptionalComponent(splineTargetEntity, SplineComponent)
         if (!splineComponent) return
 
         // get local transform for this entity
-        const transform =
-          getOptionalComponent(entity, LocalTransformComponent) ?? getOptionalComponent(entity, TransformComponent)
+        const transform = getOptionalComponent(entity, TransformComponent)
         if (!transform) return
 
         const elements = splineComponent.elements
@@ -106,7 +113,7 @@ export const SplineTrackComponent = defineComponent({
           component.alpha.set(0)
         }
         component.alpha.set(
-          (alpha) => alpha + (deltaSeconds * component.velocity.value) / splineComponent.curve.getLength()
+          (alpha) => alpha + (deltaSeconds * component.velocity.value) / splineComponent.curve.getLength() // todo cache length to avoid recalculating every frame
         )
 
         // move along spline
@@ -116,6 +123,8 @@ export const SplineTrackComponent = defineComponent({
 
         // prevent a possible loop around hiccup; if no loop then do not permit modulo 0
         if (!component.loop.value && index > nextIndex) return
+
+        const splineTransform = getComponent(splineTargetEntity, TransformComponent)
 
         // translation
         splineComponent.curve.getPointAt(alpha - index, _point1Vector)
@@ -143,13 +152,27 @@ export const SplineTrackComponent = defineComponent({
             transform.rotation.copy(q1).fastSlerp(q2, alpha - index)
           }
         }
+
+        /** @todo optimize this */
+        transform.matrix.compose(transform.position, transform.rotation, transform.scale)
+        // apply spline transform
+        transform.matrix.premultiply(splineTransform.matrix)
+        transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
+
+        // update local transform for target
+        const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
+        if (!parentEntity) return
+        const parentTransform = getComponent(parentEntity, TransformComponent)
+        transform.matrix
+          .premultiply(mat4.copy(parentTransform.matrixWorld).invert())
+          .decompose(transform.position, transform.rotation, transform.scale)
       },
-      { with: PresentationSystemGroup }
+      { with: AnimationSystemGroup }
     )
 
     useEffect(() => {
       if (!component.splineEntityUUID.value) return
-      const splineTargetEntity = UUIDComponent.entitiesByUUID[component.splineEntityUUID.value]
+      const splineTargetEntity = UUIDComponent.getEntityByUUID(component.splineEntityUUID.value)
       if (!splineTargetEntity) return
       const splineComponent = getOptionalComponent(splineTargetEntity, SplineComponent)
       if (!splineComponent) return
@@ -159,3 +182,5 @@ export const SplineTrackComponent = defineComponent({
     return null
   }
 })
+
+const mat4 = new Matrix4()

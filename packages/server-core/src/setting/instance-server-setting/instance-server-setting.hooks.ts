@@ -30,7 +30,7 @@ import {
   instanceServerSettingDataValidator,
   instanceServerSettingPatchValidator,
   instanceServerSettingQueryValidator
-} from '@etherealengine/engine/src/schemas/setting/instance-server-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/instance-server-setting.schema'
 
 import verifyScope from '../../hooks/verify-scope'
 import {

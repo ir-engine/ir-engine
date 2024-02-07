@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 
 import MenuIcon from '@mui/icons-material/Menu'
+import WindowIcon from '@mui/icons-material/Window'
 
 import DropDownMenu from '../dropDownMenu'
 import { EditorNavbarProfile } from '../projects/EditorNavbarProfile'
@@ -34,6 +35,7 @@ import * as styles from './styles.module.scss'
 import GridTool from './tools/GridTool'
 import HelperToggleTool from './tools/HelperToggleTool'
 import PlayModeTool from './tools/PlayModeTool'
+import PublishLocation from './tools/PublishLocation'
 import RenderModeTool from './tools/RenderModeTool'
 import SceneScreenshot from './tools/SceneScreenshot'
 import StatsTool from './tools/StatsTool'
@@ -44,12 +46,14 @@ import TransformTool from './tools/TransformTool'
 
 type ToolBarProps = {
   menu?: any
+  panels?: any
 }
 
 export const ToolBar = (props: ToolBarProps) => {
   return (
     <div style={{ pointerEvents: 'auto' }} className={styles.toolbarContainer}>
       <DropDownMenu icon={MenuIcon} commands={props.menu} />
+      <DropDownMenu icon={WindowIcon} commands={props.panels} />
       <WorldInstanceConnection />
       <TransformTool />
       <TransformSpaceTool />
@@ -61,6 +65,7 @@ export const ToolBar = (props: ToolBarProps) => {
       <StatsTool />
       <HelperToggleTool />
       <SceneScreenshot />
+      <PublishLocation />
       <EditorNavbarProfile />
     </div>
   )

@@ -29,7 +29,7 @@ import { resolve } from '@feathersjs/schema'
 import {
   StaticResourceFiltersQuery,
   StaticResourceFiltersType
-} from '@etherealengine/engine/src/schemas/media/static-resource-filters.schema'
+} from '@etherealengine/common/src/schemas/media/static-resource-filters.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const staticResourceFiltersResolver = resolve<StaticResourceFiltersType, HookContext>({})

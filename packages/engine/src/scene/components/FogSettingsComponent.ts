@@ -27,9 +27,9 @@ import { useEffect } from 'react'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { FogSettingState } from '../systems/FogSystem'
+import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { FogSettingState } from '../FogState'
 
 export const FogSettingsComponent = defineComponent({
   name: 'FogSettingsComponent',

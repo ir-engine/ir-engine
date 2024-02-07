@@ -30,10 +30,10 @@ import { v4 } from 'uuid'
 import {
   InstanceAuthorizedUserQuery,
   InstanceAuthorizedUserType
-} from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
+} from '@etherealengine/common/src/schemas/networking/instance-authorized-user.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const instanceAuthorizedUserResolver = resolve<InstanceAuthorizedUserType, HookContext>({
   createdAt: virtual(async (instanceAuthorizedUser) => fromDateTimeSql(instanceAuthorizedUser.createdAt)),

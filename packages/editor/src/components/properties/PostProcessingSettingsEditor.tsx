@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BlendFunction } from 'postprocessing'
+import { BlendFunction, VignetteTechnique } from 'postprocessing'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
-import { Effects } from '@etherealengine/engine/src/scene/constants/PostProcessing'
+import { Effects } from '@etherealengine/spatial/src/renderer/effects/PostProcessing'
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
@@ -45,7 +45,7 @@ import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import styles from '../styles.module.scss'
 import PropertyGroup from './PropertyGroup'
-import { EditorComponentType, commitProperty, updateProperty } from './Util'
+import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
 
 enum PropertyTypes {
   BlendFunction,
@@ -55,7 +55,8 @@ enum PropertyTypes {
   KernelSize,
   SMAAPreset,
   EdgeDetectionMode,
-  PredicationMode
+  PredicationMode,
+  VignetteTechnique
 }
 
 type EffectPropertyDetail = { propertyType: PropertyTypes; name: string; min?: number; max?: number; step?: number }
@@ -70,16 +71,27 @@ const EffectsOptions: EffectOptionsType = {
     samples: { propertyType: PropertyTypes.Number, name: 'Samples', min: 1, max: 32, step: 1 },
     rings: { propertyType: PropertyTypes.Number, name: 'Rings', min: -1, max: 1, step: 0.01 },
 
+    rangeThreshold: { propertyType: PropertyTypes.Number, name: 'Range Threshold', min: -1, max: 1, step: 0.0001 }, // Occlusion proximity of ~0.3 world units
+    rangeFalloff: { propertyType: PropertyTypes.Number, name: 'Range Falloff', min: -1, max: 1, step: 0.0001 }, // with ~0.1 units of falloff.
     // Render up to a distance of ~20 world units.
     distanceThreshold: { propertyType: PropertyTypes.Number, name: 'Distance Threshold', min: -1, max: 1, step: 0.01 },
-
+    luminanceInfluence: {
+      propertyType: PropertyTypes.Number,
+      name: 'Luminance Influence',
+      min: -1,
+      max: 1,
+      step: 0.01
+    },
     // with an additional ~2.5 units of falloff.
-    distanceFalloff: { propertyType: PropertyTypes.Number, name: 'Distance Falloff', min: -1, max: 1, step: 0.01 },
+    distanceFalloff: { propertyType: PropertyTypes.Number, name: 'Distance Falloff', min: -1, max: 1, step: 0.001 },
     minRadiusScale: { propertyType: PropertyTypes.Number, name: 'Min Radius Scale', min: -1, max: 1, step: 0.01 },
     bias: { propertyType: PropertyTypes.Number, name: 'Bias', min: -1, max: 1, step: 0.01 },
     radius: { propertyType: PropertyTypes.Number, name: 'Radius', min: -1, max: 1, step: 0.01 },
-    intensity: { propertyType: PropertyTypes.Number, name: 'Intensity', min: -1, max: 1, step: 0.01 },
-    fade: { propertyType: PropertyTypes.Number, name: 'Fade', min: -1, max: 1, step: 0.01 }
+    intensity: { propertyType: PropertyTypes.Number, name: 'Intensity', min: 0, max: 10, step: 0.01 },
+    fade: { propertyType: PropertyTypes.Number, name: 'Fade', min: -1, max: 1, step: 0.01 },
+    resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: -10, max: 10, step: 0.01 },
+    kernelSize: { propertyType: PropertyTypes.Number, name: 'Kerne Size', min: 1, max: 5, step: 1 },
+    blur: { propertyType: PropertyTypes.Boolean, name: 'Blur' }
   },
   SSREffect: {
     distance: { propertyType: PropertyTypes.Number, name: 'Distance', min: 0.001, max: 10, step: 0.01 },
@@ -111,9 +123,11 @@ const EffectsOptions: EffectOptionsType = {
   },
   DepthOfFieldEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
-    bokehScale: { propertyType: PropertyTypes.Number, name: 'Bokeh Scale', min: -1, max: 1, step: 0.01 },
-    focalLength: { propertyType: PropertyTypes.Number, name: 'Focal Length', min: -1, max: 1, step: 0.01 },
-    focusDistance: { propertyType: PropertyTypes.Number, name: 'Focus Distance', min: -1, max: 1, step: 0.01 }
+    bokehScale: { propertyType: PropertyTypes.Number, name: 'Bokeh Scale', min: -10, max: 10, step: 0.01 },
+    focalLength: { propertyType: PropertyTypes.Number, name: 'Focal Length', min: 0, max: 1, step: 0.01 },
+    focalRange: { propertyType: PropertyTypes.Number, name: 'Focal Range', min: 0, max: 1, step: 0.01 },
+    focusDistance: { propertyType: PropertyTypes.Number, name: 'Focus Distance', min: 0, max: 1, step: 0.01 },
+    resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: -10, max: 10, step: 0.01 }
   },
   BloomEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
@@ -126,7 +140,10 @@ const EffectsOptions: EffectOptionsType = {
       max: 1,
       step: 0.01
     },
-    luminanceThreshold: { propertyType: PropertyTypes.Number, name: 'Luminance Threshold', min: 0, max: 1, step: 0.01 }
+    luminanceThreshold: { propertyType: PropertyTypes.Number, name: 'Luminance Threshold', min: 0, max: 1, step: 0.01 },
+    mipmapBlur: { propertyType: PropertyTypes.Boolean, name: 'Mipmap Blur' },
+    radius: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: 0, max: 10, step: 0.01 },
+    levels: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: 1, max: 10, step: 1 }
   },
   ToneMappingEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
@@ -134,8 +151,10 @@ const EffectsOptions: EffectOptionsType = {
     adaptationRate: { propertyType: PropertyTypes.Number, name: 'Adaptation Rate', min: -1, max: 1, step: 0.01 },
     averageLuminance: { propertyType: PropertyTypes.Number, name: 'Average Luminance', min: -1, max: 1, step: 0.01 },
     maxLuminance: { propertyType: PropertyTypes.Number, name: 'Max Luminance', min: -1, max: 1, step: 0.01 },
-    middleGrey: { propertyType: PropertyTypes.Number, name: 'Middle Grey', min: -1, max: 1, step: 0.01 }
-    // resolution:{ propertyType:PostProcessingPropertyTypes.Number, name:"Resolution" }
+    middleGrey: { propertyType: PropertyTypes.Number, name: 'Middle Grey', min: -1, max: 1, step: 0.01 },
+    resolution: { propertyType: PropertyTypes.Number, name: 'Resolution' },
+    whitePoint: { propertyType: PropertyTypes.Number, name: 'Resolution' },
+    minLuminance: { propertyType: PropertyTypes.Number, name: 'Resolution' }
   },
   BrightnessContrastEffect: {
     brightness: { propertyType: PropertyTypes.Number, name: 'Brightness', min: -1, max: 1, step: 0.01 },
@@ -191,10 +210,21 @@ const EffectsOptions: EffectOptionsType = {
     intensity: { propertyType: PropertyTypes.Number, name: 'Intensity', min: 0, max: 10, step: 0.01 },
     jitter: { propertyType: PropertyTypes.Number, name: 'Jitter', min: 0, max: 10, step: 0.01 },
     samples: { propertyType: PropertyTypes.Number, name: 'Samples', min: 1, max: 64, step: 1 }
+  },
+  VignetteEffect: {
+    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
+    technique: { propertyType: PropertyTypes.VignetteTechnique, name: 'Technique' },
+    eskil: { propertyType: PropertyTypes.Boolean, name: 'Eskil' },
+    offset: { propertyType: PropertyTypes.Number, name: 'Offset', min: 0, max: 10, step: 0.1 },
+    darkness: { propertyType: PropertyTypes.Number, name: 'Darkness', min: 0, max: 10, step: 0.1 }
   }
 }
 
 const BlendFunctionSelect = Object.entries(BlendFunction).map(([label, value]) => {
+  return { label, value }
+})
+
+const VignetteTechniqueSelect = Object.entries(VignetteTechnique).map(([label, value]) => {
   return { label, value }
 })
 
@@ -269,6 +299,16 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         renderVal = (
           <SelectInput
             options={BlendFunctionSelect}
+            onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            value={effectSettingState.value}
+          />
+        )
+        break
+
+      case PropertyTypes.VignetteTechnique:
+        renderVal = (
+          <SelectInput
+            options={VignetteTechniqueSelect}
             onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
             value={effectSettingState.value}
           />
@@ -359,9 +399,11 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         <div key={effect}>
           <Checkbox
             classes={{ checked: styles.checkbox }}
-            onChange={(e) => {
-              postprocessing.effects[effect].isActive.set(e.target.checked)
-            }}
+            onChange={(e) =>
+              commitProperties(PostProcessingComponent, { [`effects.${effect}.isActive`]: e.target.checked }, [
+                props.entity
+              ])
+            }
             checked={postprocessing.effects[effect]?.isActive?.value}
           />
           <span style={{ color: 'var(--textColor)' }}>{effect}</span>

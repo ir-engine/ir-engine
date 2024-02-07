@@ -24,16 +24,17 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BotUserAgent } from '@etherealengine/common/src/constants/BotUserAgent'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { WebLayerManager } from '@etherealengine/xrui'
 
-import { AudioState } from './audio/AudioState'
-import { CameraComponent } from './camera/components/CameraComponent'
-import { Engine } from './ecs/classes/Engine'
-import { EngineState } from './ecs/classes/EngineState'
-import { getComponent } from './ecs/functions/ComponentFunctions'
-import { EngineRenderer } from './renderer/WebGLRendererSystem'
-import { ObjectLayers } from './scene/constants/ObjectLayers'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
+import { AssetLoaderState } from './assets/state/AssetLoaderState'
 
 /**
  * initializeBrowser
@@ -41,16 +42,6 @@ import { ObjectLayers } from './scene/constants/ObjectLayers'
  * initializes everything for the browser context
  */
 export const initializeBrowser = () => {
-  const audioState = getMutableState(AudioState)
-
-  const audioContext = new (globalThis.AudioContext || globalThis.webkitAudioContext)()
-  audioContext.resume()
-  audioState.audioContext.set(audioContext)
-
-  const cameraGainNode = audioContext.createGain()
-  audioState.cameraGainNode.set(cameraGainNode)
-  cameraGainNode.connect(audioContext.destination)
-
   const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
 
   camera.layers.disableAll()
@@ -61,27 +52,14 @@ export const initializeBrowser = () => {
 
   getMutableState(EngineState).isBot.set(navigator.userAgent === BotUserAgent)
 
-  EngineRenderer.instance.initialize()
   const renderer = EngineRenderer.instance.renderer
-  if (!renderer) throw new Error('EngineRenderer.instance.renderer must exist before initializing XRUISystem')
+  if (!renderer) throw new Error('EngineRenderer.instance.renderer does not exist!')
 
-  WebLayerManager.initialize(renderer)
+  const gltfLoader = getState(AssetLoaderState).gltfLoader
+  initializeKTX2Loader(gltfLoader)
+
+  WebLayerManager.initialize(renderer, gltfLoader.ktx2Loader!)
   WebLayerManager.instance.ktx2Encoder.pool.setWorkerLimit(1)
 
-  setupInitialClickListener()
   Engine.instance.engineTimer.start()
-}
-
-const setupInitialClickListener = () => {
-  const canvas = EngineRenderer.instance.renderer.domElement
-  const initialClickListener = () => {
-    window.removeEventListener('click', initialClickListener)
-    window.removeEventListener('touchend', initialClickListener)
-    canvas.removeEventListener('click', initialClickListener)
-    canvas.removeEventListener('touchend', initialClickListener)
-  }
-  window.addEventListener('click', initialClickListener)
-  window.addEventListener('touchend', initialClickListener)
-  canvas.addEventListener('click', initialClickListener)
-  canvas.addEventListener('touchend', initialClickListener)
 }

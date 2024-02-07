@@ -35,8 +35,8 @@ import {
   instancePatchValidator,
   instancePath,
   instanceQueryValidator
-} from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { LocationID, LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+} from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { LocationID, LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
 import isAction from '../../hooks/is-action'
@@ -76,13 +76,14 @@ const sortByLocationName = async (context: HookContext<InstanceService>) => {
  */
 const addLocationSearchToQuery = async (context: HookContext<InstanceService>) => {
   const { action, search } = context.params.query || {}
-  const foundLocations = search
-    ? ((await context.app.service(locationPath)._find({
-        query: { name: { $like: `%${search}%` } },
-        paginate: false
-      })) as any as LocationType[])
-    : []
+  if (!search) return
 
+  const foundLocations = (await context.app.service(locationPath)._find({
+    query: { name: { $like: `%${search}%` } },
+    paginate: false
+  })) as any as LocationType[]
+
+  /** @TODO we should add a filter property to filter ended instances */
   context.params.query = {
     ...context.params.query,
     ended: false,

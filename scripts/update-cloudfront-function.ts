@@ -27,8 +27,8 @@ import { Application } from '@feathersjs/feathers'
 import cli from 'cli'
 
 import { InstalledRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
-import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
-import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
+import { routePath } from '@etherealengine/common/src/schema.type.module'
+import { createFeathersKoaApp, serverJobPipe } from '@etherealengine/server-core/src/createApp'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
@@ -53,7 +53,7 @@ const options = cli.parse({
 })
 cli.main(async () => {
   try {
-    const app = await createFeathersKoaApp(ServerMode.API)
+    const app = await createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
     const storageProvider = getStorageProvider()
     const routes = (await getAllRoutes(app, [], 0)).map((item) => item.route)

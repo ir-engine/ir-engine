@@ -24,7 +24,24 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
+import {
+  defineComponent,
+  getMutableComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
+import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
+import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { useEffect, useMemo, useRef } from 'react'
 import {
   BufferGeometry,
@@ -39,21 +56,6 @@ import {
 import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
-import { iOS } from '../../common/functions/isMobile'
-import { EngineState } from '../../ecs/classes/EngineState'
-import {
-  defineComponent,
-  getMutableComponent,
-  hasComponent,
-  removeComponent,
-  setComponent,
-  useComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { useExecute } from '../../ecs/functions/SystemFunctions'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MediaElementComponent } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { UVOLDissolveComponent } from './UVOLDissolveComponent'
@@ -113,6 +115,7 @@ function UVOL1Reactor() {
   const entity = useEntityContext()
   const volumetric = useComponent(entity, VolumetricComponent)
   const component = useComponent(entity, UVOL1Component)
+  const shadow = useOptionalComponent(entity, ShadowComponent)
   const videoElement = getMutableComponent(entity, MediaElementComponent).value
   const audioContext = getState(AudioState).audioContext
   const video = videoElement.element as HTMLVideoElement
@@ -160,9 +163,6 @@ function UVOL1Reactor() {
     if (volumetric.useLoadingEffect.value) {
       setComponent(entity, UVOLDissolveComponent)
     }
-    const shadow = getMutableComponent(entity, ShadowComponent)
-    shadow.cast.set(true)
-    shadow.receive.set(true)
 
     video.src = component.manifestPath.value.replace('.manifest', '.mp4')
     video.load()
@@ -170,6 +170,7 @@ function UVOL1Reactor() {
       volumetric.ended.set(true)
       video.removeEventListener('ended', setEnded)
     })
+    volumetric.currentTrackInfo.duration.set(component.data.frameData.length / component.data.frameRate.value)
 
     return () => {
       removeObjectFromGroup(entity, mesh)
@@ -180,6 +181,13 @@ function UVOL1Reactor() {
       video.src = ''
     }
   }, [])
+
+  useEffect(() => {
+    if (shadow) {
+      shadow.cast.set(true)
+      shadow.receive.set(true)
+    }
+  }, [shadow])
 
   useEffect(() => {
     if (component.loadingEffectStarted.value && !component.loadingEffectEnded.value) {
@@ -247,6 +255,7 @@ function UVOL1Reactor() {
         mesh.material.needsUpdate = true
         oldMaterial.dispose()
       }
+      volumetric.currentTrackInfo.currentTime.set(frameToPlay / component.data.frameRate.value)
 
       if (meshBuffer.has(frameToPlay)) {
         // @ts-ignore: value cannot be anything else other than BufferGeometry
@@ -263,9 +272,16 @@ function UVOL1Reactor() {
     processFrame(frameToPlay)
   })
 
+  useEffect(() => {
+    video.playbackRate = volumetric.currentTrackInfo.playbackRate.value
+  }, [volumetric.currentTrackInfo.playbackRate])
+
   useExecute(
     () => {
-      const delta = getState(EngineState).deltaSeconds
+      //do not execute if the cortoloader has not been initialized
+      if (getState(AssetLoaderState).cortoLoader === null) return
+
+      const delta = getState(ECSState).deltaSeconds
 
       if (
         component.loadingEffectStarted.value &&

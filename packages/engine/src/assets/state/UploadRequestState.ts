@@ -28,6 +28,7 @@ import { defineState } from '@etherealengine/hyperflux'
 export type UploadRequest = {
   file: File
   projectName: string
+  callback?: () => void
 }
 
 export const UploadRequestState = defineState({

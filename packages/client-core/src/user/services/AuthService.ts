@@ -30,37 +30,37 @@ import { v1 } from 'uuid'
 
 import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
 import { AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { AuthStrategiesType } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
+import multiLogger from '@etherealengine/common/src/logger'
+import { AuthStrategiesType } from '@etherealengine/common/src/schema.type.module'
 import { defineState, getMutableState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
-import { AvatarID } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { generateTokenPath } from '@etherealengine/engine/src/schemas/user/generate-token.schema'
 import {
+  AvatarID,
   IdentityProviderType,
-  identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
-import { loginPath } from '@etherealengine/engine/src/schemas/user/login.schema'
-import { magicLinkPath } from '@etherealengine/engine/src/schemas/user/magic-link.schema'
-import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import {
+  InstanceID,
+  UserApiKeyType,
+  UserAvatarPatch,
+  UserID,
+  UserName,
+  UserPatch,
+  UserPublicPatch,
   UserSettingID,
   UserSettingPatch,
   UserSettingType,
-  userSettingPath
-} from '@etherealengine/engine/src/schemas/user/user-setting.schema'
-import {
-  UserID,
-  UserPatch,
-  UserPublicPatch,
   UserType,
-  userPath
-} from '@etherealengine/engine/src/schemas/user/user.schema'
+  generateTokenPath,
+  identityProviderPath,
+  locationBanPath,
+  loginPath,
+  loginTokenPath,
+  magicLinkPath,
+  userApiKeyPath,
+  userAvatarPath,
+  userPath,
+  userSettingPath
+} from '@etherealengine/common/src/schema.type.module'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
 import { AuthenticationResult } from '@feathersjs/authentication'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -71,7 +71,7 @@ export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken t
 
 export const UserSeed: UserType = {
   id: '' as UserID,
-  name: '',
+  name: '' as UserName,
   isGuest: true,
   avatarId: '' as AvatarID,
   avatar: {
@@ -106,7 +106,8 @@ export const UserSeed: UserType = {
   locationBans: [],
   instanceAttendance: [],
   createdAt: '',
-  updatedAt: ''
+  updatedAt: '',
+  lastLogin: null
 }
 
 const resolveWalletUser = (credentials: any): UserType => {
@@ -343,10 +344,10 @@ export const AuthService = {
   async loginUserByOAuth(service: string, location: any) {
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     const token = getState(AuthState).authUser.accessToken
-    const path = location?.state?.from || location.pathname
+    const path = new URLSearchParams(location.search).get('redirectUrl') || location.pathname
 
     const redirectConfig = {
-      path: path
+      path
     } as Record<string, string>
 
     const currentUrl = new URL(window.location.href)
@@ -636,7 +637,7 @@ export const AuthService = {
     getMutableState(AuthState).user.merge({ apiKey })
   },
 
-  async updateUsername(userId: UserID, name: string) {
+  async updateUsername(userId: UserID, name: UserName) {
     const { name: updatedName } = (await Engine.instance.api
       .service(userPath)
       .patch(userId, { name: name })) as UserType
@@ -667,6 +668,19 @@ export const AuthService = {
         }
       }
 
+      const userAvatarPatchedListener = async (userAvatar: UserAvatarPatch) => {
+        console.log('USER AVATAR PATCHED %o', userAvatar)
+
+        if (!userAvatar.userId) return
+
+        const selfUser = getMutableState(AuthState).user
+
+        if (selfUser.id.value === userAvatar.userId) {
+          const user = await Engine.instance.api.service(userPath).get(userAvatar.userId)
+          getMutableState(AuthState).user.merge(user)
+        }
+      }
+
       const locationBanCreatedListener = async (params) => {
         const selfUser = getState(AuthState).user
         const currentLocation = getState(LocationState).currentLocation.location
@@ -679,10 +693,12 @@ export const AuthService = {
       }
 
       Engine.instance.api.service(userPath).on('patched', userPatchedListener)
+      Engine.instance.api.service(userAvatarPath).on('patched', userAvatarPatchedListener)
       Engine.instance.api.service(locationBanPath).on('created', locationBanCreatedListener)
 
       return () => {
         Engine.instance.api.service(userPath).off('patched', userPatchedListener)
+        Engine.instance.api.service(userAvatarPath).off('patched', userAvatarPatchedListener)
         Engine.instance.api.service(locationBanPath).off('created', locationBanCreatedListener)
       }
     }, [])

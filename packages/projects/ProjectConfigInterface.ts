@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { OembedType } from '@etherealengine/engine/src/schemas/media/oembed.schema'
+import { OembedType } from '@etherealengine/common/src/schema.type.module'
 import type { Application } from '@etherealengine/server-core/declarations'
 
 export interface ProjectConfigInterface {

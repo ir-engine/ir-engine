@@ -24,20 +24,26 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { ComponentJsonType } from '@etherealengine/common/src/schema.type.module'
+import {
+  ComponentJSONIDMap,
+  getComponent,
+  hasComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { MathUtils } from 'three'
-import { Entity } from '../../../../../ecs/classes/Entity'
-import { SceneState } from '../../../../../ecs/classes/Scene'
-import { getComponent, hasComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../../../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../../../../ecs/functions/EntityTree'
-import { UUIDComponent } from '../../../../../scene/components/UUIDComponent'
-import { createNewEditorNode } from '../../../../../scene/systems/SceneLoadingSystem'
 
 export const addEntityToScene = (
-  componentJson: Array<ComponentJson>,
+  componentJson: Array<ComponentJsonType>,
   parentEntity = SceneState.getRootEntity(),
-  beforeEntity = null as Entity | null
+  beforeEntity = UndefinedEntity as Entity
 ) => {
   const newEntity = createEntity()
   let childIndex = undefined as undefined | number
@@ -48,8 +54,14 @@ export const addEntityToScene = (
     }
   }
   setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
-  setComponent(newEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
-  createNewEditorNode(newEntity, componentJson, parentEntity)
+  setComponent(newEntity, TransformComponent)
+  const uuid = MathUtils.generateUUID() as EntityUUID
+  setComponent(newEntity, UUIDComponent, uuid)
+  setComponent(newEntity, VisibleComponent)
+  for (const component of componentJson) {
+    if (ComponentJSONIDMap.has(component.name))
+      setComponent(newEntity, ComponentJSONIDMap.get(component.name)!, component.props)
+  }
 
   return newEntity
 }

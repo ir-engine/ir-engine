@@ -23,10 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { defineAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { NO_PROXY, defineAction, getMutableState, useState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { UploadRequestState } from '@etherealengine/engine/src/assets/state/UploadRequestState'
 import { uploadProjectFiles } from '../functions/assetFunctions'
 
@@ -36,13 +37,16 @@ const clearUploadQueueAction = defineAction({
 
 export const UploadRequestSystem = defineSystem({
   uuid: 'ee.editor.UploadRequestSystem',
+  insert: { after: PresentationSystemGroup },
   reactor: () => {
     const uploadRequestState = useState(getMutableState(UploadRequestState))
     useEffect(() => {
-      const uploadRequests = uploadRequestState.queue.value
+      const uploadRequests = uploadRequestState.queue.get(NO_PROXY)
       if (uploadRequests.length === 0) return
       const uploadPromises = uploadRequests.map((uploadRequest) => {
-        return uploadProjectFiles(uploadRequest.projectName, [uploadRequest.file], true)
+        return Promise.all(uploadProjectFiles(uploadRequest.projectName, [uploadRequest.file], true).promises).then(
+          uploadRequest.callback
+        )
       })
       uploadRequestState.queue.set([])
     }, [uploadRequestState.queue.length])

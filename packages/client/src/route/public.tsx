@@ -29,7 +29,6 @@ import { useTranslation } from 'react-i18next'
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { useCustomRoutes } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { Route, Routes, useLocation } from 'react-router-dom'
 
 const $index = lazy(() => import('@etherealengine/client/src/pages'))
 const $offline = lazy(() => import('@etherealengine/client/src/pages/offline/offline'))
@@ -38,29 +37,39 @@ const $studio = lazy(() => import('@etherealengine/client/src/pages/editor/edito
 const $location = lazy(() => import('@etherealengine/client/src/pages/location/location'))
 
 /** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/6485 */
-function RouterComp() {
+function RouterComp({ route }: { route: string }) {
   const customRoutes = useCustomRoutes()
   const { t } = useTranslation()
-  const location = useLocation()
 
   // still allow admin even if no custom routes are loaded in case routes fail to load
-  if (location.pathname !== 'admin' && !customRoutes.length) {
+  if (route !== 'admin' && !customRoutes.length) {
     return <LoadingCircle message={t('common:loader.loadingRoutes')} />
+  }
+
+  let RouteElement
+
+  switch (route) {
+    case 'index':
+      RouteElement = $index
+      break
+    case 'offline':
+      RouteElement = $offline
+      break
+    case 'studio':
+      RouteElement = $studio
+      break
+    case 'location':
+      RouteElement = $location
+      break
+    case 'admin':
+      RouteElement = $admin
+      break
   }
 
   return (
     <ErrorBoundary>
       <Suspense fallback={<LoadingCircle message={t('common:loader.loadingRoute')} />}>
-        <Routes>
-          {customRoutes.map(({ component: Element, props, route }) => (
-            <Route key={'custom-index'} path={route} element={<Element {...props} />} />
-          ))}
-          <Route key={'index'} path={'/'} element={<$index />} />
-          <Route key={'admin'} path={'/admin/*'} element={<$admin />} />
-          <Route key={'location'} path={'/location/*'} element={<$location />} />
-          <Route key={'studio'} path={'/studio/*'} element={<$studio />} />
-          <Route key={'offline'} path={'/offline/*'} element={<$offline />} />
-        </Routes>
+        <RouteElement />
       </Suspense>
     </ErrorBoundary>
   )

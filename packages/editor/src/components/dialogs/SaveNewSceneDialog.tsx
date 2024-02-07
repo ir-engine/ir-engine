@@ -30,35 +30,14 @@ import FormField from '../inputs/FormField'
 import StringInput from '../inputs/StringInput'
 import Dialog from './Dialog'
 
-const leftContentStyles = {
-  display: 'flex',
-  width: '360px',
-  borderTopLeftRadius: 'inherit',
-  alignItems: 'center',
-  padding: '30px'
-}
-
-const imgStyles = {
-  borderRadius: '6px'
-}
-
-const rightContentStyles: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  flex: '1',
-  padding: '30px 30px'
-}
-
 /**
  * SaveNewSceneDialog used to show dialog when to save new scene.
  */
 export function SaveNewSceneDialog({
-  thumbnailUrl,
   initialName,
   onConfirm,
   onCancel
 }: {
-  thumbnailUrl: string
   initialName: string
   onConfirm: (value: { name: string }) => void
   onCancel: () => void
@@ -89,11 +68,8 @@ export function SaveNewSceneDialog({
       onCancel={onCancelCallback}
       confirmLabel={t('editor:dialog.saveScene.lbl-confirm')}
     >
-      <div style={{ display: 'flex' }}>
-        <div style={leftContentStyles}>
-          <img src={thumbnailUrl} alt="" crossOrigin="anonymous" style={imgStyles} />
-        </div>
-        <div style={rightContentStyles}>
+      <div style={{ width: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
           <FormField>
             <label htmlFor="name">{t('editor:dialog.saveNewScene.lbl-name')}</label>
             <StringInput
@@ -102,7 +78,7 @@ export function SaveNewSceneDialog({
               pattern={'[A-Za-z0-9-\':"!@#$%^&*(),.?~ ]{4,64}'}
               title={t('editor:dialog.saveNewScene.info-name')}
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={setName}
             />
           </FormField>
         </div>

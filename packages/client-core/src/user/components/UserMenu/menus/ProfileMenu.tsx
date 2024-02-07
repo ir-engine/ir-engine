@@ -42,15 +42,14 @@ import InputText from '@etherealengine/client-core/src/common/components/InputTe
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { authenticationSettingPath } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
-import { clientSettingPath } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
+import { authenticationSettingPath, clientSettingPath, UserName } from '@etherealengine/common/src/schema.type.module'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
@@ -175,7 +174,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   }
 
   const handleUpdateUsername = () => {
-    const name = username.value.trim()
+    const name = username.value.trim() as UserName
     if (!name) return
     if (selfUser.name.value.trim() !== name) {
       // @ts-ignore
@@ -422,9 +421,9 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
         </Box>
 
         <InputText
-          name="username"
+          name={'username' as UserName}
           label={t('user:usermenu.profile.lbl-username')}
-          value={username.value || ''}
+          value={username.value || ('' as UserName)}
           error={errorUsername.value}
           sx={{ mt: 4 }}
           endIcon={<Icon type="Check" />}

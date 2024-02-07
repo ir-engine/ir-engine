@@ -38,8 +38,8 @@ const recalculateNormals = (geometry: BufferGeometry) => {
   geometry.computeVertexNormals()
 }
 
-export default function GeometryEditor({ geometry }: { ['geometry']: BufferGeometry }) {
-  if (geometry === undefined) return <></>
+export default function GeometryEditor({ geometry }: { ['geometry']: BufferGeometry | null }) {
+  if (!geometry) return <></>
   const updateGeo = useHookstate(0)
 
   const updateGeoData = useCallback(
@@ -71,9 +71,6 @@ export default function GeometryEditor({ geometry }: { ['geometry']: BufferGeome
 
   return (
     <div className={styles.contentContainer}>
-      <Box>
-        <Typography variant={'h5'}>Geometry</Typography>
-      </Box>
       <div className={styles.divider} />
       <span>
         <Button onClick={() => recalculateNormals(geometry)}>Recalculate Normals</Button>

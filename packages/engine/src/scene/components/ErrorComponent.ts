@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '../../ecs/classes/Entity'
 import {
   Component,
   ComponentErrorsType,
   defineComponent,
-  getOptionalComponentState
-} from '../../ecs/functions/ComponentFunctions'
+  getOptionalMutableComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 
 export type ErrorComponentType = {
   [componentName: string]: {
@@ -43,7 +43,7 @@ export const ErrorComponent = defineComponent<ErrorComponentType>({
 })
 
 export const getEntityErrors = <C extends Component>(entity: Entity, component: C) => {
-  return getOptionalComponentState(entity, ErrorComponent)?.[component.name].value as Record<
+  return getOptionalMutableComponent(entity, ErrorComponent)?.[component.name].value as Record<
     ComponentErrorsType<C>,
     string
   >

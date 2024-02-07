@@ -25,14 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { BufferGeometry, DoubleSide, Mesh, MeshStandardMaterial, SRGBColorSpace, Vector4, VideoTexture } from 'three'
 
-import { OBCType } from '../../common/constants/OBCTypes'
-import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { GroupComponent } from '../components/GroupComponent'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { ScreenshareTargetComponent } from '../components/ScreenshareTargetComponent'
 import { fitTexture } from './fitTexture'
 
-const screenshareTargetQuery = defineQuery([ScreenshareTargetComponent])
+const screenshareTargetQuery = defineQuery([MeshComponent, ScreenshareTargetComponent])
 
 const getAspectRatioFromBufferGeometry = (mesh: Mesh<BufferGeometry>) => {
   mesh.geometry.computeBoundingBox()
@@ -58,7 +58,7 @@ export const applyVideoToTexture = (
   const screenAspect = getAspectRatioFromBufferGeometry(obj)
 
   addOBCPlugin(obj.material, {
-    id: OBCType.UVCLIP,
+    id: 'ee.engine.UVClipPlugin',
     compile: (shader) => {
       shader.fragmentShader = shader.fragmentShader.replace('void main() {', `uniform vec4 clipColor;\nvoid main() {\n`)
 
@@ -91,13 +91,10 @@ export const applyScreenshareToTexture = (video: HTMLVideoElement) => {
     ;(video as any).appliedTexture = true
     if (!video.videoWidth || !video.videoHeight) return
     for (const entity of screenshareTargetQuery()) {
-      const group = getComponent(entity, GroupComponent)
-      for (const obj3d of group)
-        obj3d.traverse((obj: Mesh<any, MeshStandardMaterial>) => {
-          if (obj.material) {
-            applyVideoToTexture(video, obj)
-          }
-        })
+      const mesh = getComponent(entity, MeshComponent)
+      if (mesh.material) {
+        applyVideoToTexture(video, mesh)
+      }
     }
   }
   if (!video.readyState) {

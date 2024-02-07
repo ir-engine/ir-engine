@@ -27,16 +27,14 @@ import { debounce } from 'lodash'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import {
-  LocalTransformComponent,
-  TransformComponent
-} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 
-import { computeTransformMatrix } from '@etherealengine/engine/src/transform/systems/TransformSystem'
+import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
+import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { previewScreenshot } from '../../functions/takeScreenshot'
 import { PropertiesPanelButton } from '../inputs/Button'
@@ -56,7 +54,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
 
   const onSetFromViewport = () => {
     const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    const transform = getComponent(props.entity, LocalTransformComponent)
+    const transform = getComponent(props.entity, TransformComponent)
     transform.position.copy(position)
     transform.rotation.copy(rotation)
     computeTransformMatrix(props.entity)
@@ -65,7 +63,12 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   }
 
   const updateScenePreview = async () => {
-    const imageBlob = (await previewScreenshot(512 / 2, 320 / 2))!
+    const imageBlob = (await previewScreenshot(
+      512 / 2,
+      320 / 2,
+      0.9,
+      getComponent(props.entity, ScenePreviewCameraComponent).camera
+    ))!
     const url = URL.createObjectURL(imageBlob)
     setBufferUrl(url)
   }
