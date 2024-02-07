@@ -158,6 +158,7 @@ export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
   cameraRays.forEach((rayDir, i) => {
     raycaster.set(target, rayDir)
     const hits = raycaster.intersectObjects(sceneObjects, false)
+
     if (hits[0] && hits[0].distance < maxDistance) {
       maxDistance = hits[0].distance
     }
