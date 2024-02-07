@@ -23,14 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import matches from 'ts-matches'
+import { describe, expect, it } from '@jest/globals'
+import { shallow } from 'enzyme'
+import React from 'react'
 
-const matchesNumberArray = matches.arrayOf(matches.number)
+import Text from './index'
+import { Default as story } from './index.stories'
 
-export const matchPose = matches.guard((v): v is Pose => {
-  if (!Array.isArray(v)) return false
-  if (!matchesNumberArray.test(v)) return false
-  if (v.length === 7) return true
-  return false
+describe('Text', () => {
+  it('- should render', () => {
+    const wrapper = shallow(<Text {...story?.args} />)
+    expect(wrapper).toMatchSnapshot()
+  })
 })
-export type Pose = [number, number, number, number, number, number, number]

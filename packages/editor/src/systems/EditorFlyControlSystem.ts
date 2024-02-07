@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MathUtils, Matrix3, Vector3 } from 'three'
+import { MathUtils, Vector3 } from 'three'
 
 import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -33,13 +33,12 @@ import { FlyControlComponent } from '@etherealengine/spatial/src/camera/componen
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { editorCameraCenter } from '../classes/EditorCameraState'
+import { TransformComponent } from '@etherealengine/spatial'
+import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { EditorHelperState } from '../services/EditorHelperState'
 
-const tempVec3 = new Vector3()
-const normalMatrix = new Matrix3()
-
+const center = new Vector3()
+const directionToCenter = new Vector3()
 const onSecondaryClick = () => {
   if (!hasComponent(Engine.instance.cameraEntity, FlyControlComponent)) {
     setComponent(Engine.instance.cameraEntity, FlyControlComponent, {
@@ -53,13 +52,14 @@ const onSecondaryClick = () => {
 }
 
 const onSecondaryReleased = () => {
-  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  const transform = getComponent(Engine.instance.cameraEntity, TransformComponent)
   if (hasComponent(Engine.instance.cameraEntity, FlyControlComponent)) {
-    const distance = camera.position.distanceTo(editorCameraCenter)
-    editorCameraCenter.addVectors(
-      camera.position,
-      tempVec3.set(0, 0, -distance).applyMatrix3(normalMatrix.getNormalMatrix(camera.matrix))
-    )
+    const editorCameraCenter = getComponent(Engine.instance.cameraEntity, CameraOrbitComponent).cameraOrbitCenter
+    center.subVectors(transform.position, editorCameraCenter)
+    const centerLength = center.length()
+    editorCameraCenter.copy(transform.position)
+    editorCameraCenter.add(directionToCenter.set(0, 0, -centerLength).applyQuaternion(transform.rotation))
+
     removeComponent(Engine.instance.cameraEntity, FlyControlComponent)
     getMutableState(EditorHelperState).isFlyModeEnabled.set(false)
   }

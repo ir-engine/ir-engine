@@ -63,6 +63,7 @@ declare global {
     sphericalHarmonicsCoefficients: Float32Array
   }
 }
+
 export const XRLightProbeState = defineState({
   name: 'ee.xr.LightProbe',
   initial: () => ({
@@ -104,7 +105,7 @@ const execute = () => {
 
   if (!('getLightEstimate' in xrFrame)) return
 
-  const lightEstimate = xrFrame.getLightEstimate!(xrLightProbeState.probe)
+  const lightEstimate = xrFrame.getLightEstimate?.(xrLightProbeState.probe)
   if (lightEstimate) {
     if (!xrLightProbeState.isEstimatingLight) getMutableState(XRLightProbeState).isEstimatingLight.set(true)
     if (!xrLightProbeState.directionalLightEntity) return

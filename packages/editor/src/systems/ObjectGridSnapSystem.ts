@@ -50,7 +50,7 @@ const objectGridQuery = defineQuery([ObjectGridSnapComponent])
 
 function isParentSelected(entity: Entity) {
   let walker: Entity | null = entity
-  const selectedEntities = getState(SelectionState).selectedEntities
+  const selectedEntities = SelectionState.getSelectedEntities()
   while (walker) {
     if (selectedEntities.includes(walker)) return walker
     walker = getOptionalComponent(walker, EntityTreeComponent)?.parentEntity ?? null
@@ -234,10 +234,11 @@ export const ObjectGridSnapSystem = defineSystem({
     }, [snapState.enabled])
 
     useEffect(() => {
-      const selectedEntities = [...selectionState.selectedEntities.value]
+      const selectedEntities = SelectionState.getSelectedEntities()
       return () => {
+        const currentSelectedEntities = SelectionState.getSelectedEntities()
         for (const entity of selectedEntities) {
-          if (selectionState.selectedEntities.value.includes(entity)) continue
+          if (currentSelectedEntities.includes(entity)) continue
           if (!hasComponent(entity, ObjectGridSnapComponent)) continue
           resetHelperTransform(entity)
         }

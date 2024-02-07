@@ -28,7 +28,13 @@ import i18n from 'i18next'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import multiLogger from '@etherealengine/common/src/logger'
-import { SceneDataType, SceneID, scenePath, sceneUploadPath } from '@etherealengine/common/src/schema.type.module'
+import {
+  SceneDataType,
+  SceneID,
+  SceneMetadataCreate,
+  scenePath,
+  sceneUploadPath
+} from '@etherealengine/common/src/schema.type.module'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
@@ -49,7 +55,7 @@ export const getScenes = async (projectName: string): Promise<SceneDataType[]> =
   try {
     const result = (await Engine.instance.api
       .service(scenePath)
-      .find({ query: { project: projectName, metadataOnly: true, paginate: false } })) as SceneDataType[]
+      .find({ query: { project: projectName, metadataOnly: true, paginate: false } })) as any as SceneDataType[]
     return result
   } catch (error) {
     logger.error(error, 'Error in getting project getScenes()')
@@ -65,9 +71,9 @@ export const getScenes = async (projectName: string): Promise<SceneDataType[]> =
  */
 export const getScene = async (projectName: string, sceneName: string, metadataOnly = true): Promise<SceneDataType> => {
   try {
-    return await Engine.instance.api
+    return (await Engine.instance.api
       .service(scenePath)
-      .get(null, { query: { project: projectName, name: sceneName, metadataOnly: metadataOnly } })
+      .get('', { query: { project: projectName, name: sceneName, metadataOnly: metadataOnly } })) as SceneDataType
   } catch (error) {
     logger.error(error, 'Error in getting project getScene()')
     throw error
@@ -162,7 +168,7 @@ export const onNewScene = async () => {
 
 export const createNewScene = async (projectName: string) => {
   try {
-    return Engine.instance.api.service(scenePath).create({ project: projectName })
+    return Engine.instance.api.service(scenePath).create({ project: projectName }) as any as SceneMetadataCreate
   } catch (error) {
     logger.error(error, 'Error in creating project')
     throw error

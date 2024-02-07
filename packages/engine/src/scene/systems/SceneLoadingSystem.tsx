@@ -37,7 +37,13 @@ import {
 } from '@etherealengine/hyperflux'
 import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
-import { ComponentJsonType, EntityJsonType, SceneID, scenePath } from '@etherealengine/common/src/schema.type.module'
+import {
+  ComponentJsonType,
+  EntityJsonType,
+  SceneDataType,
+  SceneID,
+  scenePath
+} from '@etherealengine/common/src/schema.type.module'
 import {
   ComponentJSONIDMap,
   getComponent,
@@ -182,9 +188,9 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
 
     const sceneUpdatedListener = async () => {
       const [projectName, sceneName] = props.sceneID.split('/')
-      const sceneData = await Engine.instance.api
+      const sceneData = (await Engine.instance.api
         .service(scenePath)
-        .get(null, { query: { project: projectName, name: sceneName } })
+        .get('', { query: { project: projectName, name: sceneName } })) as SceneDataType
       SceneState.loadScene(props.sceneID, sceneData)
     }
     // for testing
