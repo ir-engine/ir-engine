@@ -113,6 +113,7 @@ const raycasterPosition = new Vector3()
 
 const EntityCSMReactor = (props: { entity: Entity }) => {
   const activeLightEntity = props.entity
+  const renderSettings = useHookstate(getMutableState(RenderSettingsState))
 
   const directionalLightComponent = useComponent(activeLightEntity, DirectionalLightComponent)
   const shadowMapResolution = useHookstate(getMutableState(RendererState).shadowMapResolution)
@@ -127,14 +128,15 @@ const EntityCSMReactor = (props: { entity: Entity }) => {
         light: directionalLight,
         shadowBias: directionalLightComponent.shadowBias.value,
         maxFar: directionalLightComponent.cameraFar.value,
-        lightIntensity: directionalLightComponent.intensity.value
+        lightIntensity: directionalLightComponent.intensity.value,
+        cascades: renderSettings.cascades.value
       })
     )
     return () => {
       getState(RendererState).csm?.dispose()
       getMutableState(RendererState).csm.set(null)
     }
-  }, [directionalLightComponent.useInCSM])
+  }, [directionalLightComponent.useInCSM, renderSettings.cascades])
 
   /** Must run after scene object system to ensure source light is not lit */
   useExecute(

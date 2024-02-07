@@ -289,6 +289,7 @@ export const RenderSettingsState = defineState({
   name: 'RenderSettingsState',
   initial: {
     csm: true,
+    cascades: 5,
     toneMapping: LinearToneMapping as ToneMapping,
     toneMappingExposure: 0.8,
     shadowMapType: PCFSoftShadowMap as ShadowMapType
