@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import classNames from 'classnames'
 import hark from 'hark'
 import { t } from 'i18next'
-import React, { useEffect, useRef } from 'react'
+import React, { RefObject, useEffect, useRef } from 'react'
 
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import {
@@ -45,7 +45,7 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import { applyScreenshareToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
-import { NO_PROXY, State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { MediaSettingsState } from '@etherealengine/spatial/src/networking/MediaSettingsState'
 import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
@@ -55,7 +55,11 @@ import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
 import { UserName } from '@etherealengine/common/src/schema.type.module'
+import { useExecute } from '@etherealengine/ecs'
+import { MotionCaptureSystem, timeSeriesMocapData } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { drawPoseToCanvas } from '@etherealengine/ui/src/pages/Capture'
+import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
@@ -66,6 +70,41 @@ import styles from './index.module.scss'
 interface Props {
   peerID: PeerID
   type: 'screen' | 'cam'
+}
+
+const useDrawMocapLandmarks = (
+  videoElement: HTMLVideoElement,
+  canvasCtxRef: React.MutableRefObject<CanvasRenderingContext2D | undefined>,
+  canvasRef: RefObject<HTMLCanvasElement>,
+  peerID: PeerID
+) => {
+  let lastTimestamp = 0
+
+  useExecute(
+    () => {
+      if (videoElement.paused || videoElement.ended || !videoElement.currentTime) return
+      const networkState = getState(NetworkState)
+      if (networkState.hostIds.world) {
+        const network = networkState.networks[networkState.hostIds.world]
+        if (network.peers[peerID]) {
+          const userID = network.peers[peerID].userId
+          const peers = network.users[userID]
+          for (const peer of peers) {
+            const mocapBuffer = timeSeriesMocapData.get(peer)
+            if (mocapBuffer) {
+              const lastMocapResult = mocapBuffer.getLast()
+              if (lastMocapResult && lastMocapResult.timestamp !== lastTimestamp) {
+                lastTimestamp = lastMocapResult.timestamp
+                drawPoseToCanvas(canvasCtxRef, canvasRef, lastMocapResult.results.poseLandmarks)
+                return
+              }
+            }
+          }
+        }
+      }
+    },
+    { before: MotionCaptureSystem }
+  )
 }
 
 export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
@@ -430,11 +469,28 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
 
   const { videoElement, audioElement } = peerMediaChannelState.value
 
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const canvasCtxRef = useRef<CanvasRenderingContext2D>()
+
+  useDrawMocapLandmarks(videoElement, canvasCtxRef, canvasRef, peerID)
+
   useEffect(() => {
     videoElement.draggable = false
     document.getElementById(peerID + '-' + type + '-video-container')!.append(videoElement)
     document.getElementById(peerID + '-' + type + '-audio-container')!.append(audioElement)
   }, [])
+
+  useEffect(() => {
+    if (canvasRef.current && canvasRef.current.width !== videoElement.clientWidth) {
+      canvasRef.current.width = videoElement.clientWidth
+    }
+
+    if (canvasRef.current && canvasRef.current.height !== videoElement.clientHeight) {
+      canvasRef.current.height = videoElement.clientHeight
+    }
+
+    if (canvasRef.current) canvasCtxRef.current = canvasRef.current.getContext('2d')!
+  })
 
   useEffect(() => {
     if (!videoStream) return
@@ -501,6 +557,14 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
             videoProducerGlobalMute ||
             !videoDisplayReady) && <img src={avatarThumbnail} alt="" crossOrigin="anonymous" draggable={false} />}
           <span key={peerID + '-' + type + '-video-container'} id={peerID + '-' + type + '-video-container'} />
+          <div
+            className={classNames({
+              [styles['canvas-container']]: true,
+              [styles['canvas-rotate']]: !isSelf
+            })}
+          >
+            <Canvas ref={canvasRef} />
+          </div>
         </div>
         <span key={peerID + '-' + type + '-audio-container'} id={peerID + '-' + type + '-audio-container'} />
         <div className={styles['user-controls']}>

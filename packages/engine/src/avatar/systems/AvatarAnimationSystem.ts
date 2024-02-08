@@ -62,7 +62,7 @@ import { compareDistanceToCamera } from '@etherealengine/spatial/src/transform/c
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { XRLeftHandComponent, XRRightHandComponent } from '@etherealengine/spatial/src/xr/XRComponents'
 import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { useBatchGLTF } from '../../assets/functions/resourceHooks'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
@@ -309,6 +309,14 @@ const execute = () => {
     }
 
     updateVRMRetargeting(rigComponent.vrm, entity)
+
+    /** temporary hack for normalized bones to work with ik solves */
+    for (const boneName of VRMHumanBoneList) {
+      if (normalizedRig[boneName]) {
+        if (boneName == 'hips') normalizedRig[boneName]!.node.matrixWorld.copy(transform.matrixWorld)
+        else normalizedRig[boneName]!.node.updateMatrixWorld()
+      }
+    }
   }
 }
 

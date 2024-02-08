@@ -113,7 +113,7 @@ export const ModelComponent = defineComponent({
       component.src.value &&
       !component.scene.value
     )
-      setComponent(entity, SceneAssetPendingTagComponent)
+      SceneAssetPendingTagComponent.addResource(entity, component.src.value)
   },
 
   errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
@@ -161,6 +161,7 @@ function ModelReactor(): JSX.Element {
     console.error(err)
     addError(entity, ModelComponent, 'INVALID_SOURCE', err.message)
     removeComponent(entity, SceneAssetPendingTagComponent)
+    SceneAssetPendingTagComponent.removeResource(entity, modelComponent.src.value)
   }, [error])
 
   useEffect(() => {
@@ -218,17 +219,6 @@ function ModelReactor(): JSX.Element {
 
     if (!scene || !asset) return
 
-    if (EngineRenderer.instance)
-      EngineRenderer.instance.renderer
-        .compileAsync(scene, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
-        .catch(() => {
-          addError(entity, ModelComponent, 'LOADING_ERROR', 'Error compiling model')
-        })
-        .finally(() => {
-          removeComponent(entity, SceneAssetPendingTagComponent)
-        })
-    else removeComponent(entity, SceneAssetPendingTagComponent)
-
     /**hotfix for gltf animations being stored in the root and not scene property */
     if (!asset.scene.animations.length && !(asset instanceof VRM)) asset.scene.animations = asset.animations
 
@@ -250,6 +240,16 @@ function ModelReactor(): JSX.Element {
       //if this is not an avatar, add bbox snap
       setComponent(entity, ObjectGridSnapComponent)
     }
+
+    if (EngineRenderer.instance)
+      EngineRenderer.instance.renderer
+        .compileAsync(scene, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
+        .catch(() => {
+          addError(entity, ModelComponent, 'LOADING_ERROR', 'Error compiling model')
+        })
+        .finally(() => {
+          SceneAssetPendingTagComponent.removeResource(entity, modelComponent.value.src)
+        })
 
     return () => {
       getMutableState(SceneState).scenes[uuid].set(none)
@@ -276,8 +276,14 @@ function ModelReactor(): JSX.Element {
 }
 
 const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
+  const modelComponent = useComponent(props.parentEntity, ModelComponent)
   const isMesh = useOptionalComponent(props.entity, MeshComponent)
   const isModelColliders = useOptionalComponent(props.parentEntity, RigidBodyComponent)
+
+  useEffect(() => {
+    SceneAssetPendingTagComponent.removeResource(props.entity, `${props.parentEntity}`)
+    SceneAssetPendingTagComponent.removeResource(props.parentEntity, modelComponent.src.value)
+  }, [])
 
   const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)
   useEffect(() => {

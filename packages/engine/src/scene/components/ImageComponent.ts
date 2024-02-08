@@ -41,16 +41,11 @@ import {
 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
 import config from '@etherealengine/common/src/config'
 import { StaticResourceType } from '@etherealengine/common/src/schema.type.module'
-import {
-  defineComponent,
-  removeComponent,
-  setComponent,
-  useComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
@@ -59,7 +54,9 @@ import { AssetClass } from '../../assets/enum/AssetClass'
 import { useTexture } from '../../assets/functions/resourceHooks'
 import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
+import { SceneState } from '../Scene'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
+import { SceneObjectComponent } from './SceneObjectComponent'
 
 export const PLANE_GEO = new PlaneGeometry(1, 1, 1, 1)
 export const SPHERE_GEO = new SphereGeometry(1, 64, 32)
@@ -112,6 +109,12 @@ export const ImageComponent = defineComponent({
     if (typeof json.projection === 'string' && json.projection !== component.projection.value)
       component.projection.set(json.projection)
     if (typeof json.side === 'number' && json.side !== component.side.value) component.side.set(json.side)
+
+    /**
+     * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
+     */
+    if (!getState(SceneState).sceneLoaded && hasComponent(entity, SceneObjectComponent))
+      SceneAssetPendingTagComponent.addResource(entity, ImageComponent.jsonID)
   },
 
   onRemove: (entity, component) => {
@@ -165,7 +168,7 @@ export function ImageReactor() {
     const _texture = textureState.get(NO_PROXY)
     if (_texture) {
       texture.set(_texture)
-      removeComponent(entity, SceneAssetPendingTagComponent)
+      SceneAssetPendingTagComponent.removeResource(entity, ImageComponent.jsonID)
       return unload
     }
   }, [textureState])
@@ -173,20 +176,21 @@ export function ImageReactor() {
   useEffect(() => {
     if (!error.value) return
     addError(entity, ImageComponent, `LOADING_ERROR`, error.value.message)
-    removeComponent(entity, SceneAssetPendingTagComponent)
+    SceneAssetPendingTagComponent.removeResource(entity, ImageComponent.jsonID)
   }, [error])
 
   useEffect(() => {
     if (!image.source.value) {
-      return addError(entity, ImageComponent, `MISSING_TEXTURE_SOURCE`)
+      addError(entity, ImageComponent, `MISSING_TEXTURE_SOURCE`)
+      SceneAssetPendingTagComponent.removeResource(entity, ImageComponent.jsonID)
+      return
     }
 
     const assetType = AssetLoader.getAssetClass(image.source.value)
     if (assetType !== AssetClass.Image) {
-      return addError(entity, ImageComponent, `UNSUPPORTED_ASSET_CLASS`)
+      addError(entity, ImageComponent, `UNSUPPORTED_ASSET_CLASS`)
+      SceneAssetPendingTagComponent.removeResource(entity, ImageComponent.jsonID)
     }
-
-    setComponent(entity, SceneAssetPendingTagComponent)
   }, [image.source])
 
   useEffect(
