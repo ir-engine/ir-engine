@@ -54,12 +54,11 @@ import { compareDistanceToCamera } from '@etherealengine/spatial/src/transform/c
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { XRLeftHandComponent, XRRightHandComponent } from '@etherealengine/spatial/src/xr/XRComponents'
 import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
 import { AvatarHeadDecapComponent, AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
 import { IKSerialization } from '../IKSerialization'
-import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets, preloadedAnimations } from '../animation/Util'
 import { applyHandRotationFK } from '../animation/applyHandRotationFK'
@@ -140,7 +139,7 @@ const execute = () => {
       avatarAnimationEntities.push(_entity)
     }
   }
-  updateAnimationGraph(avatarAnimationEntities)
+  //updateAnimationGraph(avatarAnimationEntities)
 
   for (const entity of avatarAnimationEntities) {
     const rigComponent = getComponent(entity, AvatarRigComponent)
@@ -174,6 +173,14 @@ const execute = () => {
     const headTargetBlendWeight = AvatarIKTargetComponent.blendWeight[head]
 
     const transform = getComponent(entity, TransformComponent)
+
+    /** temporary hack for normalized bones to work with ik solves */
+    for (const boneName of VRMHumanBoneList) {
+      if (normalizedRig[boneName]) {
+        if (boneName == 'hips') normalizedRig[boneName]!.node.matrixWorld.copy(transform.matrixWorld)
+        else normalizedRig[boneName]!.node.updateMatrixWorld()
+      }
+    }
 
     const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
     if (headTargetBlendWeight) {
