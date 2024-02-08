@@ -39,7 +39,7 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { useEffect } from 'react'
 import { BufferGeometry, InstancedMesh, LineBasicMaterial, Mesh, Object3D, SkinnedMesh } from 'three'
-import { MeshBVHVisualizer, acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
+import { MeshBVHHelper, acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { ModelComponent } from './ModelComponent'
 
@@ -134,7 +134,7 @@ export const MeshBVHComponent = defineComponent({
         for (const currEntity of entities) {
           const mesh = getOptionalComponent(currEntity, MeshComponent)
           if (ValidMeshForBVH(mesh!)) {
-            const meshBVHVisualizer = new MeshBVHVisualizer(mesh!)
+            const meshBVHVisualizer = new MeshBVHHelper(mesh!)
             meshBVHVisualizer.edgeMaterial = edgeMaterial
             meshBVHVisualizer.depth = 20
             meshBVHVisualizer.displayParents = false
