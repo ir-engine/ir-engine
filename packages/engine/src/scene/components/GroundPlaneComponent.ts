@@ -28,13 +28,7 @@ import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial, Vector
 
 import { getState } from '@etherealengine/hyperflux'
 
-import {
-  defineComponent,
-  hasComponent,
-  removeComponent,
-  setComponent,
-  useComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineComponent, hasComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { TransformComponent } from '@etherealengine/spatial'
@@ -77,7 +71,7 @@ export const GroundPlaneComponent = defineComponent({
       hasComponent(entity, SceneObjectComponent) &&
       !hasComponent(entity, RigidBodyComponent)
     )
-      setComponent(entity, SceneAssetPendingTagComponent)
+      SceneAssetPendingTagComponent.addResource(entity, GroundPlaneComponent.jsonID)
   },
 
   toJSON(entity, component) {
@@ -119,8 +113,7 @@ export const GroundPlaneComponent = defineComponent({
         collisionMask: CollisionGroups.Default | CollisionGroups.Avatars
       })
 
-      removeComponent(entity, SceneAssetPendingTagComponent)
-
+      SceneAssetPendingTagComponent.removeResource(entity, GroundPlaneComponent.jsonID)
       return () => {
         removeComponent(entity, RigidBodyComponent)
         removeComponent(entity, ColliderComponent)

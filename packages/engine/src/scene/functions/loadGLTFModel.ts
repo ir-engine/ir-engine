@@ -57,6 +57,7 @@ import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { MeshBVHComponent } from '../components/MeshBVHComponent'
 import { ModelComponent } from '../components/ModelComponent'
+import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
 
 export const parseECSData = (data: [string, any][]): ComponentJsonType[] => {
@@ -234,6 +235,9 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     parentEntity,
     uuid
   })
+
+  if (hasComponent(rootEntity, SceneAssetPendingTagComponent))
+    SceneAssetPendingTagComponent.addResource(objEntity, `${rootEntity}`)
 
   setComponent(objEntity, NameComponent, name)
   setComponent(objEntity, TransformComponent, {
