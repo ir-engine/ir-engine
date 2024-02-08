@@ -373,9 +373,9 @@ const unload = (url: string, entity: Entity) => {
   })
 
   if (resource.references.length == 0) {
-    debugLog('Before Removing Resources', JSON.stringify(getRendererInfo()))
+    debugLog('Before Removing Resources', debug && JSON.stringify(getRendererInfo()))
     removeResource(url)
-    debugLog('After Removing Resources', JSON.stringify(getRendererInfo()))
+    debugLog('After Removing Resources', debug && JSON.stringify(getRendererInfo()))
   }
 }
 
