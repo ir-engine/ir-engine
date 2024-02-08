@@ -186,6 +186,9 @@ function createColliderDesc(entity: Entity, rootEntity: Entity, colliderDescOpti
   //check for old collider types to allow backwards compatibility
   if (typeof shape === 'undefined') {
     switch (colliderDescOptions.shape) {
+      case 'sphere':
+        shape = ShapeType.Ball
+        break
       case 'box':
         shape = ShapeType.Cuboid
         break
@@ -420,7 +423,7 @@ function castRay(world: World, raycastQuery: RaycastArgs, filterPredicate?: (col
     raycastQuery.excludeRigidBody,
     filterPredicate
   )
-  if (hitWithNormal != null) {
+  if (hitWithNormal?.collider) {
     const body = hitWithNormal.collider.parent() as RigidBody
     hits.push({
       collider: hitWithNormal.collider,

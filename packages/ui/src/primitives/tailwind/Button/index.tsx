@@ -41,7 +41,7 @@ export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   endIcon?: ReactNode
   children?: ReactNode
   size?: 'small' | 'medium' | 'large'
-  variant?: 'primary' | 'outline' | 'danger'
+  variant?: 'primary' | 'outline' | 'danger' | 'success'
   disabled?: boolean
   fullWidth?: boolean
   rounded?: boolean
@@ -56,7 +56,8 @@ const sizes = {
 
 const variants = {
   primary: 'bg-blue-800',
-  outline: 'border-2 border-slate-300 text-theme-primary',
+  outline: 'border border-solid border-gray-200 text-theme-primary',
+  success: 'bg-teal-700',
   danger: 'bg-pink-500'
 }
 
@@ -75,8 +76,8 @@ const Button = ({
   const twClassName = twMerge(
     'flex justify-between items-center',
     'font-medium font-[Inter] text-white',
-    'transition ease-in-out delay-150',
-    'shadow justify-center items-center inline-flex',
+    'transition ease-in-out',
+    'justify-center items-center inline-flex',
     sizes[size],
     variants[variant],
     fullWidth ? 'w-full' : 'w-fit',

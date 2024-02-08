@@ -128,7 +128,7 @@ export const ModelComponent = defineComponent({
       component.src.value &&
       !component.scene.value
     )
-      setComponent(entity, SceneAssetPendingTagComponent)
+      SceneAssetPendingTagComponent.addResource(entity, component.src.value)
   },
 
   errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
@@ -150,7 +150,8 @@ function ModelReactor(): JSX.Element {
     let aborted = false
     if (variantComponent && !variantComponent.calculated.value) return
     const model = modelComponent.value
-    if (!model.src) {
+    const src = model.src
+    if (!src) {
       modelComponent.scene.set(null)
       modelComponent.asset.set(null)
       return
@@ -164,10 +165,10 @@ function ModelReactor(): JSX.Element {
     }
 
     /** @todo this is a hack */
-    const override = !isAvaturn(model.src) ? undefined : AssetType.glB
+    const override = !isAvaturn(src) ? undefined : AssetType.glB
 
     AssetLoader.load(
-      modelComponent.src.value,
+      src,
       {
         forceAssetType: override,
         ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
@@ -192,7 +193,7 @@ function ModelReactor(): JSX.Element {
       },
       (onprogress) => {
         if (aborted) return
-        if (hasComponent(entity, SceneAssetPendingTagComponent))
+        if (getOptionalComponent(entity, SceneAssetPendingTagComponent)?.includes(src))
           SceneAssetPendingTagComponent.loadingProgress.merge({
             [entity]: {
               loadedAmount: onprogress.loaded,
@@ -204,11 +205,12 @@ function ModelReactor(): JSX.Element {
         if (aborted) return
         console.error(err)
         addError(entity, ModelComponent, 'INVALID_SOURCE', err.message)
-        removeComponent(entity, SceneAssetPendingTagComponent)
+        SceneAssetPendingTagComponent.removeResource(entity, src)
       }
     )
     return () => {
       aborted = true
+      SceneAssetPendingTagComponent.removeResource(entity, src)
     }
   }, [modelComponent.src, modelComponent.convertToVRM, variantComponent?.calculated])
 
@@ -235,17 +237,6 @@ function ModelReactor(): JSX.Element {
 
     if (!scene || !asset) return
 
-    if (EngineRenderer.instance)
-      EngineRenderer.instance.renderer
-        .compileAsync(scene, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
-        .catch(() => {
-          addError(entity, ModelComponent, 'LOADING_ERROR', 'Error compiling model')
-        })
-        .finally(() => {
-          removeComponent(entity, SceneAssetPendingTagComponent)
-        })
-    else removeComponent(entity, SceneAssetPendingTagComponent)
-
     /**hotfix for gltf animations being stored in the root and not scene property */
     if (!asset.scene.animations.length && !(asset instanceof VRM)) asset.scene.animations = asset.animations
 
@@ -269,8 +260,18 @@ function ModelReactor(): JSX.Element {
       setComponent(entity, ObjectGridSnapComponent)
     }
 
+    if (EngineRenderer.instance)
+      EngineRenderer.instance.renderer
+        .compileAsync(scene, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
+        .catch(() => {
+          addError(entity, ModelComponent, 'LOADING_ERROR', 'Error compiling model')
+        })
+        .finally(() => {
+          SceneAssetPendingTagComponent.removeResource(entity, src)
+        })
+
     return () => {
-      if (!(asset instanceof VRM)) clearMaterials(src) // [TODO] Replace with hooks and refrence counting
+      if (!(asset instanceof VRM)) clearMaterials(src) /** @todo Replace with hooks and refrence counting */
       getMutableState(SceneState).scenes[uuid].set(none)
     }
   }, [modelComponent.scene])
@@ -295,8 +296,14 @@ function ModelReactor(): JSX.Element {
 }
 
 const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
+  const modelComponent = useComponent(props.parentEntity, ModelComponent)
   const isMesh = useOptionalComponent(props.entity, MeshComponent)
   const isModelColliders = useOptionalComponent(props.parentEntity, RigidBodyComponent)
+
+  useEffect(() => {
+    SceneAssetPendingTagComponent.removeResource(props.entity, `${props.parentEntity}`)
+    SceneAssetPendingTagComponent.removeResource(props.parentEntity, modelComponent.src.value)
+  }, [])
 
   const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)
   useEffect(() => {
