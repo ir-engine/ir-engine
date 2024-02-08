@@ -260,7 +260,7 @@ export const addClientInputListeners = (canvas = EngineRenderer.instance.rendere
     axes[index] = value.x
     axes[index + 1] = value.y
   }
-  canvas.addEventListener('touchstickmove', handleTouchDirectionalPad)
+  document.addEventListener('touchstickmove', handleTouchDirectionalPad)
 
   /**
    * AR uses the `select` event as taps on the screen for mobile AR sessions
@@ -356,7 +356,7 @@ export const addClientInputListeners = (canvas = EngineRenderer.instance.rendere
     canvas.removeEventListener('touchstart', handleMouseClick)
     canvas.removeEventListener('touchend', handleMouseClick)
 
-    canvas.removeEventListener('touchstickmove', handleTouchDirectionalPad)
+    document.removeEventListener('touchstickmove', handleTouchDirectionalPad)
 
     session?.removeEventListener('selectstart', onXRSelectStart)
     session?.removeEventListener('selectend', onXRSelectEnd)

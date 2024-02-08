@@ -122,6 +122,24 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
           onChange={commitProperty(RenderSettingsComponent, 'csm')}
         />
       </InputGroup>
+      {rendererSettingsState.csm.value === true ? (
+        <InputGroup
+          name="Cascades"
+          label={t('editor:properties.renderSettings.lbl-csm-cascades')}
+          info={t('editor:properties.renderSettings.info-csm-cascades')}
+        >
+          <CompoundNumericInput
+            min={1}
+            max={5}
+            step={1}
+            value={rendererSettingsState.cascades.value}
+            onChange={updateProperty(RenderSettingsComponent, 'cascades')}
+            onRelease={commitProperty(RenderSettingsComponent, 'cascades')}
+          />
+        </InputGroup>
+      ) : (
+        <></>
+      )}
       <InputGroup
         name="Tone Mapping"
         label={t('editor:properties.renderSettings.lbl-toneMapping')}
