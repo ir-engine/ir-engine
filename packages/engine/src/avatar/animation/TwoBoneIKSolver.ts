@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Bone, MathUtils, Mesh, Object3D, Quaternion, Vector3 } from 'three'
+import { Bone, MathUtils, Matrix4, Mesh, Object3D, Quaternion, Vector3 } from 'three'
 
 import { Entity, getComponent } from '@etherealengine/ecs'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
@@ -90,6 +90,7 @@ export function solveTwoBoneIK(
 
   rootBoneWorldPosition.setFromMatrixPosition(root.world)
   mid.world.multiplyMatrices(root.world, mid.local)
+  console.log(mid.local.elements, root.world.elements)
   midBoneWorldPosition.setFromMatrixPosition(mid.world)
   tip.world.multiplyMatrices(mid.world, tip.local)
   tipBoneWorldPosition.setFromMatrixPosition(tip.world)
@@ -125,9 +126,7 @@ export function solveTwoBoneIK(
   rotAxis.crossVectors(rootToMidVector, midToTipVector)
 
   const midRot = new Quaternion().setFromAxisAngle(rotAxis.normalize(), rotAngle)
-  mid.local.makeRotationFromQuaternion(
-    midBoneWorldQuaternion.premultiply(midRot).multiply(rootBoneWorldQuaternion.invert())
-  )
+  mid.local.multiply(new Matrix4().makeRotationFromQuaternion(midRot.multiply(rootBoneWorldQuaternion.invert())))
   mid.world.multiplyMatrices(root.world, mid.local)
   tip.world.multiplyMatrices(mid.world, tip.local)
   tipBoneWorldPosition.setFromMatrixPosition(tip.world)
