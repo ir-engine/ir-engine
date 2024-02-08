@@ -175,14 +175,6 @@ const execute = () => {
 
     const transform = getComponent(entity, TransformComponent)
 
-    /** temporary hack for normalized bones to work with ik solves */
-    for (const boneName of VRMHumanBoneList) {
-      if (normalizedRig[boneName]) {
-        if (boneName == 'hips') normalizedRig[boneName]!.node.matrixWorld.copy(transform.matrixWorld)
-        else normalizedRig[boneName]!.node.updateMatrixWorld()
-      }
-    }
-
     const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
     if (headTargetBlendWeight) {
       const headTransform = getComponent(head, TransformComponent)
@@ -307,6 +299,14 @@ const execute = () => {
     }
 
     updateVRMRetargeting(rigComponent.vrm, entity)
+
+    /** temporary hack for normalized bones to work with ik solves */
+    for (const boneName of VRMHumanBoneList) {
+      if (normalizedRig[boneName]) {
+        if (boneName == 'hips') normalizedRig[boneName]!.node.matrixWorld.copy(transform.matrixWorld)
+        else normalizedRig[boneName]!.node.updateMatrixWorld()
+      }
+    }
   }
 }
 
