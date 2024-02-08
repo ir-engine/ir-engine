@@ -59,6 +59,7 @@ import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
 import { AvatarHeadDecapComponent, AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
 import { IKSerialization } from '../IKSerialization'
+import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets, preloadedAnimations } from '../animation/Util'
 import { applyHandRotationFK } from '../animation/applyHandRotationFK'
@@ -139,7 +140,7 @@ const execute = () => {
       avatarAnimationEntities.push(_entity)
     }
   }
-  //updateAnimationGraph(avatarAnimationEntities)
+  updateAnimationGraph(avatarAnimationEntities)
 
   for (const entity of avatarAnimationEntities) {
     const rigComponent = getComponent(entity, AvatarRigComponent)
