@@ -84,7 +84,7 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
       animationPack: defaultAnimationPath + preloadedAnimations.locomotion + '.glb',
       activeClipIndex: 5
     })
-    setComponent(entity, ModelComponent, { src: avatarUrl, convertToVRM: true, manageScene: false })
+    setComponent(entity, ModelComponent, { src: avatarUrl, convertToVRM: true })
 
     setComponent(entity, VisibleComponent, true)
     ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.AssetPreview)
