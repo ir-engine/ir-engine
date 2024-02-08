@@ -24,99 +24,75 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { ReactNode } from 'react'
-import { IconType } from 'react-icons'
 import { twMerge } from 'tailwind-merge'
 
 /**
  * Button component
  *
  * @param {ReactNode} startIcon - SVG Icon placed before the children.
- * @param {ReactNode} children - The content of the button.
  * @param {ReactNode} endIcon - SVG Icon placed after the children.
+ * @param {ReactNode} children
  * @param {'small' | 'medium' | 'large'} [size] - The size of the component. small is equivalent to the dense button styling.
  * @param {boolean} [fullWidth] - If true, the button will take up the full width of its container
- * @param {string} [backgroundColor] - The background color of the button. Default is #375DAF.
- * @param {boolean} [round] - If true, a capsule button is rendered.
- * @returns {JSX.Element} - The Button component.
  */
 
 export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
-  startIcon?: IconType | React.ReactElement // SVGElement
+  startIcon?: ReactNode
+  endIcon?: ReactNode
   children?: ReactNode
-  endIcon?: IconType | React.ReactElement // SVGElement
   size?: 'small' | 'medium' | 'large'
+  variant?: 'primary' | 'outline' | 'danger' | 'success'
+  disabled?: boolean
   fullWidth?: boolean
-  backgroundColor?: string
-  round?: boolean
+  rounded?: boolean
+  className?: string
+}
+
+const sizes = {
+  small: 'text-sm px-3 py-2',
+  medium: 'text-base px-4 py-2',
+  large: 'text-lg px-7 py-3'
+}
+
+const variants = {
+  primary: 'bg-blue-800',
+  outline: 'border border-solid border-gray-200 text-theme-primary',
+  success: 'bg-teal-700',
+  danger: 'bg-pink-500'
 }
 
 const Button = ({
   startIcon: StartIcon,
   children,
   endIcon: EndIcon,
-  size,
+  size = 'medium',
   fullWidth,
-  backgroundColor,
-  round,
+  rounded,
+  variant = 'primary',
+  disabled = false,
+  className,
   ...props
 }: ButtonProps): JSX.Element => {
-  const color = '#FFFFFF' // no matter the theme
-
-  const sizes = {
-    small: {
-      fontSize: 'text-sm',
-      padding: 'px-3 py-2',
-      svgSize: '1.5rem'
-    },
-    medium: {
-      fontSize: 'text-base',
-      padding: 'px-4 py-2',
-      svgSize: '2rem'
-    },
-    large: {
-      fontSize: 'text-lg',
-      padding: 'px-7 py-3',
-      svgSize: '2.4rem'
-    }
-  }
-
-  const className = twMerge(
-    sizes[size!].fontSize,
-    sizes[size!].padding,
+  const twClassName = twMerge(
+    'flex justify-between items-center',
+    'font-medium font-[Inter] text-white',
+    'transition ease-in-out',
+    'justify-center items-center inline-flex',
+    sizes[size],
+    variants[variant],
     fullWidth ? 'w-full' : 'w-fit',
-    round ? 'rounded-full' : 'rounded-lg',
-    'flex justify-between items-center font-semibold',
-    'transition ease-in-out delay-150 hover:drop-shadow-xl hover:-translate-y-0.5 hover:scale-110 duration-100'
+    rounded ? 'rounded-full' : 'rounded-md',
+    disabled ? 'bg-neutral-200 text-neutral-400' : '',
+    className
   )
-
-  const buttonStyles = {
-    color: color
-  }
-  if (backgroundColor) {
-    buttonStyles['backgroundColor'] = backgroundColor
-  }
 
   return (
-    <button className={className} style={buttonStyles} {...props}>
-      {StartIcon && (
-        <span className="mx-1">
-          {typeof StartIcon === 'function' ? <StartIcon color={color} size={sizes[size!].svgSize} /> : StartIcon}
-        </span>
-      )}
+    <button className={twClassName} {...props}>
+      {StartIcon && <span className="mx-1">{StartIcon}</span>}
       {children && <span className={twMerge('mx-1', fullWidth ? 'mx-auto' : '')}> {children}</span>}
-      {EndIcon && (
-        <span className="mx-1">
-          {typeof EndIcon === 'function' ? <EndIcon color={color} size={sizes[size!].svgSize} /> : EndIcon}
-        </span>
-      )}
+      {EndIcon && <span className="mx-1">{EndIcon}</span>}
     </button>
   )
-}
-
-Button.displayName = 'Button'
-
-Button.defaultProps = {
-  size: 'medium'
 }
 
 export default Button

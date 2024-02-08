@@ -94,8 +94,6 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   const entity = UUIDComponent.useEntityByUUID(entityUUID)
 
   useEffect(() => {
-    if (!isClient) return
-
     let aborted = false
 
     Engine.instance.api
@@ -115,17 +113,18 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   }, [avatarID])
 
   useEffect(() => {
-    if (!isClient) return
-
     if (!entity) return
 
     if (!userAvatarDetails.value) return
 
     spawnAvatarReceptor(entityUUID)
-    loadAvatarModelAsset(entity, userAvatarDetails.value)
+
+    if (isClient) loadAvatarModelAsset(entity, userAvatarDetails.value)
+
     return () => {
       if (!entityExists(entity)) return
-      unloadAvatarForUser(entity)
+
+      if (isClient) unloadAvatarForUser(entity)
     }
   }, [userAvatarDetails, entity])
 

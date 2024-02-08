@@ -39,7 +39,6 @@ export type HeirarchyTreeNodeType = {
   lastChild: boolean
   isLeaf?: boolean
   isCollapsed?: boolean
-  selected?: boolean
   active?: boolean
 }
 
@@ -83,7 +82,6 @@ export function* heirarchyTreeWalker(
       isCollapsed,
       depth,
       entity: entityNode,
-      selected: selectedEntities.includes(entityNode),
       active: selectedEntities.length > 0 && entityNode === selectedEntities[selectedEntities.length - 1],
       childIndex,
       lastChild

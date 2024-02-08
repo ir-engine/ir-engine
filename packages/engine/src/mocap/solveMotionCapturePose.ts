@@ -541,14 +541,7 @@ export const solveLimb = (
 
   const rig = getComponent(entity, AvatarRigComponent)
 
-  const avatarTransform = getComponent(entity, TransformComponent)
-
-  // get parent quaternion relative to avatar
-  const avatarInverse = new Quaternion().copy(avatarTransform.rotation)
-  avatarInverse.invert()
-  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(
-    new Quaternion()
-  ).premultiply(avatarInverse)
+  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(new Quaternion())
 
   startPoint.set(-start.x, lowestWorldY - start.y, -start.z)
   midPoint.set(-mid.x, lowestWorldY - mid.y, -mid.z)
@@ -590,10 +583,7 @@ export const solveHand = (
 
   const rig = getComponent(entity, AvatarRigComponent)
 
-  const avatarTransform = getComponent(entity, TransformComponent)
-  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(
-    new Quaternion()
-  ).premultiply(new Quaternion().copy(avatarTransform.rotation).invert())
+  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(new Quaternion())
 
   startPoint.set(extent.x, lowestWorldY - extent.y, extent.z)
   ref1Point.set(ref1.x, lowestWorldY - ref1.y, ref1.z)
@@ -634,10 +624,7 @@ export const solveFoot = (
 
   const rig = getComponent(entity, AvatarRigComponent)
 
-  const avatarTransform = getComponent(entity, TransformComponent)
-  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(
-    new Quaternion()
-  ).premultiply(new Quaternion().copy(avatarTransform.rotation).invert())
+  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(new Quaternion())
 
   const targetQuat = new Quaternion()
   if (grounded) {
@@ -676,8 +663,6 @@ export const solveHead = (
   rightEar: NormalizedLandmark,
   nose: NormalizedLandmark
 ) => {
-  const rig = getComponent(entity, AvatarRigComponent)
-
   leftEarVec3.set(-leftEar.x, -leftEar.y, -leftEar.z)
   rightEarVec3.set(-rightEar.x, -rightEar.y, -rightEar.z)
   noseVec3.set(-nose.x, -nose.y, -nose.z)

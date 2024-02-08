@@ -33,8 +33,8 @@ import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { stringHash } from '@etherealengine/spatial/src/common/functions/MathFunctions'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { MaterialSelectionState } from '../../../../../editor/src/components/materials/MaterialLibraryState'
 import { MaterialLibraryState } from '../MaterialLibrary'
+import { MaterialSelectionState } from '../MaterialLibraryState'
 import { MaterialComponentType } from '../components/MaterialComponent'
 import { MaterialPrototypeComponentType } from '../components/MaterialPrototypeComponent'
 import { MaterialSource, MaterialSourceComponentType } from '../components/MaterialSource'
@@ -326,7 +326,10 @@ export function changeMaterialPrototype(material: Material, protoId: string) {
   )
   const fullParms = { ...extractDefaults(prototype.arguments), ...commonParms }
   const nuMat = factory(fullParms)
-  nuMat.customProgramCacheKey = () => material.customProgramCacheKey() + 1
+  if (nuMat.plugins) {
+    nuMat.customProgramCacheKey = () => nuMat.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
+  }
+
   replaceMaterial(material, nuMat)
   nuMat.uuid = material.uuid
   nuMat.name = material.name
