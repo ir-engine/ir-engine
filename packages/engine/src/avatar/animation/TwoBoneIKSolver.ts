@@ -89,7 +89,9 @@ export function solveTwoBoneIK(
   const tip = rigComponent.ikMatrices[tipName]!
 
   rootBoneWorldPosition.setFromMatrixPosition(root.world)
+  mid.world.multiplyMatrices(root.world, mid.local)
   midBoneWorldPosition.setFromMatrixPosition(mid.world)
+  tip.world.multiplyMatrices(mid.world, tip.local)
   tipBoneWorldPosition.setFromMatrixPosition(tip.world)
   rootBoneWorldQuaternion.setFromRotationMatrix(root.world)
   midBoneWorldQuaternion.setFromRotationMatrix(mid.world)
@@ -123,12 +125,11 @@ export function solveTwoBoneIK(
   rotAxis.crossVectors(rootToMidVector, midToTipVector)
 
   const midRot = new Quaternion().setFromAxisAngle(rotAxis.normalize(), rotAngle)
-
   mid.local.makeRotationFromQuaternion(
     midBoneWorldQuaternion.premultiply(midRot).multiply(rootBoneWorldQuaternion.invert())
   )
   mid.world.multiplyMatrices(root.world, mid.local)
-  tip.world.multiplyMatrices(tip.local, mid.world)
+  tip.world.multiplyMatrices(mid.world, tip.local)
   tipBoneWorldPosition.setFromMatrixPosition(tip.world)
   // Object3DUtils.premultiplyWorldQuaternion(mid, rot)
   // Object3DUtils.updateParentsMatrixWorld(tip, 1)
@@ -138,7 +139,7 @@ export function solveTwoBoneIK(
     acNorm.copy(rootToTipVector).normalize(),
     atNorm.copy(rootToTargetVector).normalize()
   )
-  root.local.makeRotationFromQuaternion(rootRot)
+  root.local.makeRotationFromQuaternion(rootBoneWorldQuaternion.premultiply(rootRot))
   // Object3DUtils.premultiplyWorldQuaternion(rawRoot, rot)
 
   // /** Apply hint */
