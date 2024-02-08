@@ -293,7 +293,7 @@ const CaptureMode = () => {
             <Canvas ref={canvasRef} />
           </div>
           <Button
-            className="absolute bg-none h-full w-full container mx-auto m-0 p-0 top-0 left-0 z-2"
+            className="absolute bg-transparent h-full w-full container mx-auto m-0 p-0 top-0 left-0 z-2"
             onClick={() => {
               if (mediaNetworkState?.connected?.value) toggleWebcamPaused()
             }}
