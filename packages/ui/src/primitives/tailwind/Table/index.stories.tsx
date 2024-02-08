@@ -86,7 +86,7 @@ const data = [
 const headerLabels = ['Name', 'Version', 'Commit Hash', 'Date', 'Actions']
 const dataKeys = ['name', 'version', 'commitHash', 'date']
 
-const TableStory = () => {
+export const TableStory = () => {
   return (
     <Table>
       <TableHeadRow>
