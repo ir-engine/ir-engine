@@ -293,7 +293,7 @@ const CaptureMode = () => {
             <Canvas ref={canvasRef} />
           </div>
           <Button
-            className="absolute bg-none h-full w-full container mx-auto m-0 p-0 top-0 left-0 z-2"
+            className="absolute bg-transparent h-full w-full container mx-auto m-0 p-0 top-0 left-0 z-2"
             onClick={() => {
               if (mediaNetworkState?.connected?.value) toggleWebcamPaused()
             }}
@@ -342,7 +342,7 @@ const CaptureMode = () => {
   )
 }
 
-const drawPoseToCanvas = (
+export const drawPoseToCanvas = (
   canvasCtxRef: React.MutableRefObject<CanvasRenderingContext2D | undefined>,
   canvasRef: RefObject<HTMLCanvasElement>,
   poseLandmarks: NormalizedLandmarkList
@@ -354,15 +354,18 @@ const drawPoseToCanvas = (
   canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
   canvasCtxRef.current.globalCompositeOperation = 'source-over'
 
+  const lineWidth = canvasRef.current.width * 0.004
+  const radius = canvasRef.current.width * 0.002
+
   // Pose Connections
   drawConnectors(canvasCtxRef.current, poseLandmarks, POSE_CONNECTIONS, {
     color: '#fff',
-    lineWidth: 4
+    lineWidth: lineWidth
   })
   // Pose Landmarks
   drawLandmarks(canvasCtxRef.current, poseLandmarks, {
     color: '#fff',
-    radius: 2
+    radius: radius
   })
 
   // // Left Hand Connections

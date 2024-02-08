@@ -28,7 +28,13 @@ import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial, Vector
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { defineComponent, hasComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { TransformComponent } from '@etherealengine/spatial'
