@@ -23,13 +23,63 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useState } from 'react'
 
-import Component from './index'
+import Button from '../Button'
+import Modal from './index'
+
+const ModelStory = ({ title }) => {
+  const [open, setOpen] = useState(false)
+
+  const onClose = () => {
+    setOpen(false)
+  }
+
+  return (
+    <div>
+      <Button onClick={() => setOpen(true)}>Open Modal</Button>
+      <h1>Title</h1>
+      <p>
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Porro ex pariatur nisi quasi sit, illum cum repellendus
+        minima omnis modi nostrum corrupti laboriosam soluta eos quas quidem, nulla quos quam?
+      </p>
+      <p>
+        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Vero officiis, quaerat provident sunt, iure, deleniti
+        eligendi reiciendis aspernatur cumque fuga nam! Facilis fuga adipisci saepe enim vero sit quaerat amet.
+      </p>
+      <p>
+        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Dignissimos neque possimus in eos ullam aliquid
+        debitis ex libero! Qui eveniet repellat officia laudantium animi ad aspernatur voluptatum enim tenetur a?
+      </p>
+      <Modal title={title} open={open} onClose={onClose}>
+        <div className="flex flex-col mb-5 border-b border-[#e5e7eb]">
+          <label className="text-secondary">Location</label>
+          <input className="rounded-lg fIocus:outline-none px-3.5 py-1.5" type="text" placeholder="Enter here" />
+
+          <label className="text-secondary mt-6">Count</label>
+          <input
+            className="rounded-lg focus:outline-none px-3.5 py-1.5"
+            value="3"
+            type="number"
+            placeholder="Enter here"
+          />
+        </div>
+        <div className="flex justify-between mt-5">
+          <Button size="small" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button size="small" onClick={onClose}>
+            Submit
+          </Button>
+        </div>
+      </Modal>
+    </div>
+  )
+}
 
 export default {
   title: 'Primitives/Tailwind/Modal',
-  component: Component,
+  component: ModelStory,
   parameters: {
     componentSubtitle: 'Modal',
     jest: 'Modal.test.tsx',
@@ -42,11 +92,6 @@ export default {
 
 export const Default = {
   args: {
-    title: 'Default Modal Title',
-    children: (
-      <>
-        <h3 className="font-bold text-lg">Hello!</h3>
-      </>
-    )
+    title: 'Patch Instance Server'
   }
 }

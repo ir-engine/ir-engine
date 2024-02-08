@@ -24,54 +24,43 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { ReactNode } from 'react'
-import { useTranslation } from 'react-i18next'
 import { MdClose } from 'react-icons/md'
-import { twMerge } from 'tailwind-merge'
 import Button from '../Button'
 import Text from '../Text'
 
 export interface ModalProps {
+  open: boolean
   title?: string
-  hideFooter?: boolean
   className?: string
-  children: ReactNode
+  children?: ReactNode
   onClose?: () => void
-  onSubmit?: () => void
 }
 
 export const ModalHeader = ({ title, onClose }: { closeIcon?: boolean; title?: string; onClose?: () => void }) => {
   return (
-    <div className="relative flex justify-center items-center p-5 border-b border-b-gray-200">
+    <div className="relative flex justify-center items-center px-6 py-3 border-b border-[#e5e7eb]">
       {title && <Text>{title}</Text>}
       <Button variant="outline" className="border-0 absolute right-0" startIcon={<MdClose />} onClick={onClose} />
     </div>
   )
 }
 
-export const ModalFooter = ({ onCancel, onSubmit }: { onCancel?: () => void; onSubmit?: () => void }) => {
-  const { t } = useTranslation()
+const Modal = ({ open, title, onClose, children, className }: ModalProps) => {
   return (
-    <div className=" grid grid-flow-col border-t border-t-gray-200 py-5 px-6">
-      <Button variant="outline" onClick={onCancel}>
-        {t('common:components.cancel')}
-      </Button>
-      {onSubmit && (
-        <Button onClick={onSubmit} className="place-self-end">
-          {t('common:components.confirm')}
-        </Button>
-      )}
-    </div>
-  )
-}
-
-const Modal = ({ title, onClose, onSubmit, hideFooter, children, className }: ModalProps) => {
-  const twClassName = twMerge('relative p-4 w-full max-w-2xl max-h-full', className)
-  return (
-    <div className={twClassName}>
-      <div className="relative bg-theme-primary rounded-lg shadow">
+    <div
+      className={`fixed inset-0 flex justify-center items-center ${
+        open ? 'visible bg-black/20 backdrop-blur-sm' : 'invisible'
+      }`}
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className={`w-80 md:w-5/12 rounded-xl shadow transition-all bg-theme-primary ${
+          open ? 'scale-100 opacity-100' : 'scale-125 opacity-0'
+        } ${className}`}
+      >
         <ModalHeader title={title} onClose={onClose} />
-        <div className="py-5 px-10">{children}</div>
-        {!hideFooter && <ModalFooter onCancel={onClose} onSubmit={onSubmit} />}
+        <div className="w-full px-10 py-6">{children}</div>
       </div>
     </div>
   )
