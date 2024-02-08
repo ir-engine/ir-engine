@@ -33,6 +33,7 @@ import { exec } from 'child_process'
 import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
+import fs from 'fs'
 import path from 'path'
 
 dotenv.config({
@@ -86,10 +87,19 @@ const installManifest = async () => {
 
   await Promise.all(
     manifest.packages.map(async (url) => {
-      console.log(`Cloning ${url}`)
-      await execPromise(`git clone ${url}`, {
-        cwd: path.resolve(appRootPath.path, 'packages/projects/projects')
-      })
+      /** Check if folder already exists */
+      const folder = url.split('/').pop()
+      if (!folder) throw new Error('Invalid URL')
+
+      const folderExists = fs.existsSync(path.resolve(appRootPath.path, 'packages/projects/projects', folder))
+      if (folderExists) {
+        console.log(`Package ${folder} already exists, skipping`)
+      } else {
+        console.log(`Cloning ${url}`)
+        await execPromise(`git clone ${url}`, {
+          cwd: path.resolve(appRootPath.path, 'packages/projects/projects')
+        })
+      }
       await execPromise(`git checkout ${branch}`, {
         cwd: path.resolve(appRootPath.path, 'packages/projects/projects')
       })
