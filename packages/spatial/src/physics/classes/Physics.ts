@@ -423,7 +423,7 @@ function castRay(world: World, raycastQuery: RaycastArgs, filterPredicate?: (col
     raycastQuery.excludeRigidBody,
     filterPredicate
   )
-  if (hitWithNormal != null) {
+  if (hitWithNormal?.collider) {
     const body = hitWithNormal.collider.parent() as RigidBody
     hits.push({
       collider: hitWithNormal.collider,
