@@ -51,9 +51,10 @@ const options = cli.parse({
   branch?: string
 }
 
-// https://github.com/EtherealEnginePro/project-manifest/blob/main/eepro-kits.manifest.json
-
-/** Use git clone to fetch the manifest, to avoid having to handle github oauth */
+/**
+ * Use git clone to fetch the manifest, to avoid having to handle github oauth
+ * URL format must be in the form `https://github.com/<ORG>/<REPO>/blob/<BRANCH>/<MANIFEST_NAME>.manifest.json
+ */
 
 const fetchManifest = async () => {
   try {
