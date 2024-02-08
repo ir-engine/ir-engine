@@ -46,7 +46,8 @@ module.exports = {
         theme: {
           primary: "var(--bg-primary)",
           secondary: "var(--bg-secondary)",
-          highlight: "var(--bg-highlight)"
+          highlight: "var(--bg-highlight)",
+          surfaceMain: "var(--bg-surface-main)"
         }
       }
     }
