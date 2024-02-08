@@ -318,15 +318,18 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
 
       const network = getState(NetworkState).networks[networkID]
 
+      if (!network) return
+
       // remove from the peer state
       const media = network.peers[peerID]?.media
       if (media && media[producer.appData.mediaTag]) {
         delete media[producer.appData.mediaTag]
       }
 
-      const consumer = Object.values(getState(MediasoupMediaProducerConsumerState)[networkID].consumers).find(
-        (p) => p.peerID === peerID && p.mediaTag === mediaTag
-      )
+      const state = getState(MediasoupMediaProducerConsumerState)[networkID]
+      if (!state) return
+
+      const consumer = Object.values(state.consumers).find((p) => p.peerID === peerID && p.mediaTag === mediaTag)
 
       // todo, replace this with a better check
       if (consumer && isClient) {
