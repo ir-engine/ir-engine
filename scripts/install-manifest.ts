@@ -100,8 +100,8 @@ const installManifest = async () => {
           cwd: path.resolve(appRootPath.path, 'packages/projects/projects')
         })
       }
-      await execPromise(`git checkout ${branch}`, {
-        cwd: path.resolve(appRootPath.path, 'packages/projects/projects')
+      await execPromise(`git checkout ${branch} && git fetch -p && git rebase`, {
+        cwd: path.resolve(appRootPath.path, `packages/projects/projects/${folder}`)
       })
     })
   )
