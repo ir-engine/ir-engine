@@ -51,10 +51,31 @@ const options = cli.parse({
   branch?: string
 }
 
+// https://github.com/EtherealEnginePro/project-manifest/blob/main/eepro-kits.manifest.json
+
+/** Use git clone to fetch the manifest, to avoid having to handle github oauth */
+
 const fetchManifest = async () => {
-  if (!options.manifestURL) throw new Error('No manifest URL specified')
-  const response = await fetch(options.manifestURL)
-  return response.json()
+  try {
+    if (!options.manifestURL) throw new Error('No manifest URL specified')
+    const [org, repo, blob, branch, manifest] = options.manifestURL
+      .replace('https://', '')
+      .replace('github.com/', '')
+      .split('/')
+    const clonePath = path.resolve(appRootPath.path, '.temp', repo)
+    await execPromise(`git clone https://github.com/${org}/${repo} ${clonePath}`, {
+      cwd: appRootPath.path
+    })
+    const manifestPath = path.resolve(clonePath, manifest)
+    const manifestData = fs.readFileSync(manifestPath, 'utf8')
+    const manifestJSON = JSON.parse(manifestData)
+    // remove temp folder
+    fs.rmSync(path.resolve(appRootPath.path, '.temp'), { recursive: true })
+    return manifestJSON
+  } catch (err) {
+    console.log(err)
+    cli.fatal('Failed to fetch manifest')
+  }
 }
 
 interface PackageManifest_V_1_0_0 {
