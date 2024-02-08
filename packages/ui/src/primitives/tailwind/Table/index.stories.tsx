@@ -29,7 +29,7 @@ import { IoFolderOutline, IoPeopleOutline, IoTerminalOutline } from 'react-icons
 import { RiDeleteBinLine } from 'react-icons/ri'
 
 import Button from '../Button'
-import Table, { TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from './index'
+import Table, { TableBody, TableCell, TableHeadRow, TableHeaderCell, TablePagination, TableRow } from './index'
 
 const argTypes = {}
 
@@ -88,19 +88,17 @@ const dataKeys = ['name', 'version', 'commitHash', 'date']
 
 const TableStory = () => {
   return (
-    <Table className="border-collapse border rounded-md border-neutral-300 w-full text-sm">
-      <TableHead className="">
-        <TableRow className="border-b">
-          {headerLabels.map((label, index) => (
-            <TableHeaderCell
-              className="text-left p-2 border border-neutral-300 bg-neutral-100 text-neutral-600 font-bold uppercase"
-              key={index}
-            >
-              {label}
-            </TableHeaderCell>
-          ))}
-        </TableRow>
-      </TableHead>
+    <Table>
+      <TableHeadRow>
+        {headerLabels.map((label, index) => (
+          <TableHeaderCell
+            className="text-left p-2 border border-neutral-300 bg-neutral-100 text-neutral-600 font-bold uppercase"
+            key={index}
+          >
+            {label}
+          </TableHeaderCell>
+        ))}
+      </TableHeadRow>
       <TableBody className="">
         {data.map((row, index) => (
           <TableRow className={`border-b ${index & 1 ? 'bg-gray-200' : 'bg-gray-100'}`} key={index}>
@@ -143,7 +141,7 @@ const TableStory = () => {
 
 export default {
   title: 'Primitives/Tailwind/Table',
-  component: TableStory,
+  // component: TableStoryWrapper,
   parameters: {
     componentSubtitle: 'Table',
     // jest: 'Button.test.tsx',
@@ -156,5 +154,14 @@ export default {
 }
 
 export const Default = {
-  args: {}
+  render: TableStory
+}
+
+export const Pagination = {
+  render: TablePagination,
+  args: {
+    currentPage: 3,
+    totalPages: 5,
+    onPageChange: () => {}
+  }
 }
