@@ -147,7 +147,7 @@ const onLoad = () => {
   debugLog(totalVerts + ' Vertices')
 
   //@ts-ignore
-  window.resources = getState(ResourceState)
+  if (debug) window.resources = getState(ResourceState)
 }
 
 const onItemLoadedFor = <T extends AssetType>(url: string, resourceType: ResourceType, id: string, asset: T) => {
