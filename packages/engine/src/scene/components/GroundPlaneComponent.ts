@@ -23,27 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ColliderDesc, RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { useEffect } from 'react'
-import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 'three'
+import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial, Vector3 } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
-import {
-  defineComponent,
-  hasComponent,
-  removeComponent,
-  setComponent,
-  useComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineComponent, hasComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { TransformComponent } from '@etherealengine/spatial'
 import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
-import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { enableObjectLayer } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -79,7 +71,7 @@ export const GroundPlaneComponent = defineComponent({
       hasComponent(entity, SceneObjectComponent) &&
       !hasComponent(entity, RigidBodyComponent)
     )
-      setComponent(entity, SceneAssetPendingTagComponent)
+      SceneAssetPendingTagComponent.addResource(entity, GroundPlaneComponent.jsonID)
   },
 
   toJSON(entity, component) {
@@ -98,7 +90,7 @@ export const GroundPlaneComponent = defineComponent({
       const radius = 10000
 
       const mesh = new Mesh(
-        new PlaneGeometry(radius, radius),
+        new PlaneGeometry(1, 1),
         component.visible.value ? new MeshLambertMaterial() : new ShadowMaterial({ opacity: 0.5 })
       )
       component.mesh.set(mesh)
@@ -112,19 +104,19 @@ export const GroundPlaneComponent = defineComponent({
       enableObjectLayer(mesh, ObjectLayers.Camera, true)
       setComponent(entity, MeshComponent, mesh)
 
-      const rigidBodyDesc = RigidBodyDesc.fixed()
-      const colliderDesc = ColliderDesc.cuboid(radius * 2, 0.001, radius * 2)
-      colliderDesc.setCollisionGroups(
-        getInteractionGroups(CollisionGroups.Ground, CollisionGroups.Default | CollisionGroups.Avatars)
-      )
+      setComponent(entity, TransformComponent, { scale: new Vector3(radius * 2, 0.001, radius * 2) })
 
-      const physicsWorld = getState(PhysicsState).physicsWorld
-      Physics.createRigidBody(entity, physicsWorld, rigidBodyDesc, [colliderDesc])
+      setComponent(entity, RigidBodyComponent, { type: 'fixed' })
+      setComponent(entity, ColliderComponent, {
+        shape: 'box',
+        collisionLayer: CollisionGroups.Ground,
+        collisionMask: CollisionGroups.Default | CollisionGroups.Avatars
+      })
 
-      removeComponent(entity, SceneAssetPendingTagComponent)
-
+      SceneAssetPendingTagComponent.removeResource(entity, GroundPlaneComponent.jsonID)
       return () => {
-        Physics.removeRigidBody(entity, physicsWorld)
+        removeComponent(entity, RigidBodyComponent)
+        removeComponent(entity, ColliderComponent)
         removeObjectFromGroup(entity, mesh)
       }
     }, [])
