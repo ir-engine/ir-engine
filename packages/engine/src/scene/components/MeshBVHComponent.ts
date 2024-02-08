@@ -68,21 +68,17 @@ export const MeshBVHComponent = defineComponent({
 
   onInit(entity) {
     return {
-      generated: false,
-      visualizers: null as Object3D[] | null
+      generated: false
     }
   },
 
   onSet(entity, component, json) {
     if (!json) return
-
-    if (json.visualizers) component.visualizers.set(json.visualizers)
   },
 
   toJSON(entity, component) {
     return {
-      generated: component.generated.value,
-      visualizers: component.visualizers.value
+      generated: component.generated.value
     }
   },
 
@@ -132,8 +128,8 @@ export const MeshBVHComponent = defineComponent({
     useEffect(() => {
       if (!component.generated.value) return
 
-      if (debug.value && !component.visualizers.value) {
-        component.visualizers.set([])
+      const visualizers = [] as Object3D[]
+      if (debug.value) {
         const entities = childEntities.value
         for (const currEntity of entities) {
           const mesh = getOptionalComponent(currEntity, MeshComponent)
@@ -145,12 +141,10 @@ export const MeshBVHComponent = defineComponent({
             meshBVHVisualizer.update()
 
             addObjectToGroup(currEntity, meshBVHVisualizer)
-            component.visualizers.merge([meshBVHVisualizer])
+            visualizers.push(meshBVHVisualizer)
           }
         }
       }
-
-      const visualizers = component.visualizers.get(NO_PROXY)
 
       return () => {
         if (visualizers) {
@@ -158,7 +152,6 @@ export const MeshBVHComponent = defineComponent({
             removeObjectFromGroup(visualizer.entity, visualizer)
           }
         }
-        component.visualizers.set(null)
       }
     }, [component.generated, debug])
 

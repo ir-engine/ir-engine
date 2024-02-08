@@ -218,7 +218,6 @@ export const PortalComponent = defineComponent({
 
       return () => {
         removeObjectFromGroup(entity, portalMesh)
-        portalComponent.mesh.set(null)
       }
     }, [portalComponent.previewType])
 
@@ -231,21 +230,22 @@ export const PortalComponent = defineComponent({
     const [textureState, unload] = useTexture(portalDetails.value?.previewImageURL || '', entity)
 
     useEffect(() => {
-      if (!textureState.value) return
       return unload
-    }, [textureState])
+    }, [])
 
     useEffect(() => {
-      if (!portalDetails.value?.previewImageURL) return
-      portalComponent.remoteSpawnPosition.value.copy(portalDetails.value.spawnPosition)
-      portalComponent.remoteSpawnRotation.value.copy(portalDetails.value.spawnRotation)
-
       const texture = textureState.get(NO_PROXY)
       if (!texture || !portalComponent.mesh.value) return
 
       portalComponent.mesh.value.material.map = texture
       portalComponent.mesh.value.material.needsUpdate = true
-    }, [portalDetails, portalComponent.mesh, textureState])
+    }, [textureState, portalComponent.mesh])
+
+    useEffect(() => {
+      if (!portalDetails.value?.previewImageURL) return
+      portalComponent.remoteSpawnPosition.value.copy(portalDetails.value.spawnPosition)
+      portalComponent.remoteSpawnRotation.value.copy(portalDetails.value.spawnRotation)
+    }, [portalDetails])
 
     useEffect(() => {
       if (!isClient) return

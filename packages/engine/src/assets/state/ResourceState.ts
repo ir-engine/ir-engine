@@ -53,6 +53,16 @@ export enum ResourceType {
   Unknown
 }
 
+const resourceTypeName = {
+  [ResourceType.GLTF]: 'GLTF',
+  [ResourceType.Texture]: 'Texture',
+  [ResourceType.Geometry]: 'Geometry',
+  [ResourceType.Material]: 'Material',
+  [ResourceType.ECSData]: 'ECSData',
+  [ResourceType.Audio]: 'Audio',
+  [ResourceType.Unknown]: 'Unknown'
+}
+
 export type AssetType = GLTF | Texture | CompressedTexture | Geometry | Material
 
 type BaseMetadata = {
@@ -78,6 +88,13 @@ type Resource = {
   assetRefs: string[]
   metadata: Metadata
 }
+
+const debug = false
+const debugLog = debug
+  ? (message?: any, ...optionalParams: any[]) => {
+      console.log(message)
+    }
+  : (message?: any, ...optionalParams: any[]) => {}
 
 export const ResourceState = defineState({
   name: 'ResourceManagerState',
@@ -126,8 +143,11 @@ const onStart = (url: string, loaded: number, total: number) => {}
 const onLoad = () => {
   const totalSize = getCurrentSizeOfResources()
   const totalVerts = getCurrentVertCountOfResources()
-  console.log('Loaded: ' + totalSize + ' bytes of resources')
-  console.log(totalVerts + ' Vertices')
+  debugLog('Loaded: ' + totalSize + ' bytes of resources')
+  debugLog(totalVerts + ' Vertices')
+
+  //@ts-ignore
+  window.resources = getState(ResourceState)
 }
 
 const onItemLoadedFor = <T extends AssetType>(url: string, resourceType: ResourceType, id: string, asset: T) => {
@@ -138,6 +158,16 @@ const onItemLoadedFor = <T extends AssetType>(url: string, resourceType: Resourc
     console.warn('ResourceManager:loadedFor asset loaded for asset that is not loaded: ' + url)
     return
   }
+
+  debugLog(
+    'ResourceManager:loadedFor loading asset of type ' +
+      resourceTypeName[resourceType] +
+      ' with ID: ' +
+      id +
+      ' for asset at url: ' +
+      url
+  )
+
   if (!referencedAssets[id].value) {
     referencedAssets.merge({
       [id]: []
@@ -301,7 +331,7 @@ const load = <T extends AssetType>(
   const resource = resources[url]
   const callbacks = Callbacks[resourceType]
   callbacks.onStart(resource)
-  // console.log('ResourceManager:load Loading resource: ' + url + ' for entity: ' + entity)
+  debugLog('ResourceManager:load Loading resource: ' + url + ' for entity: ' + entity)
   AssetLoader.load(
     url,
     args,
@@ -332,7 +362,7 @@ const unload = (url: string, entity: Entity) => {
     return
   }
 
-  // console.log('ResourceManager:unload Unloading resource: ' + url + ' for entity: ' + entity)
+  debugLog('ResourceManager:unload Unloading resource: ' + url + ' for entity: ' + entity)
   const resource = resources[url]
   resource.references.set((entities) => {
     const index = entities.indexOf(entity)
@@ -343,9 +373,9 @@ const unload = (url: string, entity: Entity) => {
   })
 
   if (resource.references.length == 0) {
-    // console.log("Before Removing Resources", JSON.stringify(getRendererInfo()))
+    debugLog('Before Removing Resources', JSON.stringify(getRendererInfo()))
     removeResource(url)
-    // console.log("After Removing Resources", JSON.stringify(getRendererInfo()))
+    debugLog('After Removing Resources', JSON.stringify(getRendererInfo()))
   }
 }
 
@@ -377,9 +407,11 @@ const removeResource = (id: string) => {
     return
   }
 
-  // console.log('ResourceManager:removeResource: Removing resource: ' + id)
-  Cache.remove(id)
   const resource = resources[id]
+  debugLog(
+    'ResourceManager:removeResource: Removing ' + resourceTypeName[resource.type.value] + ' resource with ID: ' + id
+  )
+  Cache.remove(id)
   removeReferencedResources(resource)
 
   const asset = resource.asset.get(NO_PROXY)
