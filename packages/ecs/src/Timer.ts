@@ -41,6 +41,16 @@ type TimerUpdateCallback = (elapsedTime: number, xrFrame: XRFrame | null) => any
 const TPS_REPORTS_ENABLED = false
 const TPS_REPORT_INTERVAL_MS = 10000
 
+/**
+ * @returns callback function to call after running what you want to profile
+ */
+export function profile(): () => number {
+  const now = nowMilliseconds()
+  return (): number => {
+    return nowMilliseconds() - now
+  }
+}
+
 export function Timer(update: TimerUpdateCallback, renderer?: WebGLRenderer, serverTickRate = 60) {
   let debugTick = 0
 

@@ -35,6 +35,7 @@ import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRender
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
 import { AssetLoaderState } from './assets/state/AssetLoaderState'
+import { buildProfilerState } from './assets/state/ProfilerState'
 
 /**
  * initializeBrowser
@@ -61,5 +62,7 @@ export const initializeBrowser = () => {
   WebLayerManager.initialize(renderer, gltfLoader.ktx2Loader!)
   WebLayerManager.instance.ktx2Encoder.pool.setWorkerLimit(1)
 
-  Engine.instance.engineTimer.start()
+  buildProfilerState(EngineRenderer.instance, () => {
+    Engine.instance.engineTimer.start()
+  })
 }
