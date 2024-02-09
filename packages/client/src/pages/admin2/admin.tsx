@@ -173,13 +173,13 @@ const AdminTable = () => {
 
 const AdminSidebar = () => {
   return (
-    <aside className="bg-theme-surfaceMain w-[15vw] mx-8 px-2 py-4 rounded-lg">
+    <aside className="bg-theme-surfaceMain mx-8 w-[15vw] rounded-lg px-2 py-4">
       <ul className="space-y-8">
         {sideBarItems.map((item) => (
           <li>
             <a
               href="#"
-              className="flex items-center gap-3 text-theme-secondary my-3 mx-4 rounded-sm hover:bg-[#212226]"
+              className="text-theme-secondary mx-4 my-3 flex items-center gap-3 rounded-sm hover:bg-[#212226]"
             >
               {item.icon}
               {item.label}
@@ -187,7 +187,7 @@ const AdminSidebar = () => {
           </li>
         ))}
         <li>
-          <a href="#" className="flex items-center gap-3 text-theme-secondary my-5 mx-4 rounded-sm hover:bg-[#212226]">
+          <a href="#" className="text-theme-secondary mx-4 my-5 flex items-center gap-3 rounded-sm hover:bg-[#212226]">
             <HiArrowRightOnRectangle />
             Log Out
           </a>
@@ -203,7 +203,7 @@ const Admin = () => {
     ThemeState.setTheme('dark')
   }, [])
   return (
-    <main className="mt-6 flex gap-1.5 pointer-events-auto">
+    <main className="pointer-events-auto mt-6 flex gap-1.5">
       {/* only for multitenancy
        <nav className="w-full px-8 py-4 mb-1.5 flex items-center justify-between bg-theme-surfaceMain">
         <img src={EELogo} className="h-8 w-8" />

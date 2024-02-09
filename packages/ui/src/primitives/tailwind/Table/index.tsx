@@ -56,7 +56,7 @@ const TableHeadRow = ({
   className?: string
   children: JSX.Element | JSX.Element[]
 }) => {
-  const twClassName = twMerge('uppercase text-left', 'bg-neutral-100 dark:bg-[#212226]', className)
+  const twClassName = twMerge('text-left uppercase', 'bg-neutral-100 dark:bg-[#212226]', className)
   return (
     <thead className={theadClassName}>
       <tr className={twClassName}>{children}</tr>
@@ -110,7 +110,7 @@ export interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
 }
 
 const Table = ({ className, children }: TableProps) => {
-  const twClassName = twMerge('w-full rounded-md text-sm border-collapse', className)
+  const twClassName = twMerge('w-full border-collapse rounded-md text-sm', className)
   return <table className={twClassName}>{children}</table>
 }
 
@@ -129,19 +129,19 @@ const TablePagination = ({
   onPageChange: (newPage: number) => void
 }) => {
   return (
-    <nav className="flex items-center flex-column flex-wrap md:flex-row justify-between pt-4">
-      <ul className="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
+    <nav className="flex-column flex flex-wrap items-center justify-between pt-4 md:flex-row">
+      <ul className="inline-flex h-8 -space-x-px text-sm rtl:space-x-reverse">
         <li>
           <button
             onClick={() => onPageChange(0)}
-            className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-theme-surfaceMain border border-gray-300 rounded-s-lg hover:bg-gray-10 dark:border-gray-700 dark:text-white"
+            className="bg-theme-surfaceMain hover:bg-gray-10 flex h-8 items-center justify-center rounded-s-lg border border-gray-300 px-3 leading-tight text-gray-500 dark:border-gray-700 dark:text-white"
           >
             <HiRewind />
           </button>
         </li>
         <li>
           <button
-            className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-theme-surfaceMain border border-gray-300 hover:bg-gray-100 hover:text-gray-700  dark:hover:text-white dark:border-gray-700 dark:text-white"
+            className="bg-theme-surfaceMain flex h-8 items-center justify-center border border-gray-300 px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:text-white"
             onClick={() => onPageChange(Math.max(1, currentPage - 1))}
           >
             <GoChevronLeft />
@@ -151,7 +151,7 @@ const TablePagination = ({
           <li>
             <button
               onClick={() => onPageChange(page + 1)}
-              className={`flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-theme-surfaceMain border border-gray-300 hover:bg-gray-100 hover:text-gray-700  dark:hover:text-white dark:border-gray-700 dark:text-white ${
+              className={`bg-theme-surfaceMain flex h-8 items-center justify-center border border-gray-300 px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:text-white ${
                 currentPage === page + 1 ? 'bg-blue-50 dark:bg-gray-500' : ''
               }`}
             >
@@ -162,7 +162,7 @@ const TablePagination = ({
         <li>
           <button
             onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
-            className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-theme-surfaceMain border border-gray-300 hover:bg-gray-100 hover:text-gray-700  dark:hover:text-white dark:border-gray-700 dark:text-white"
+            className="bg-theme-surfaceMain flex h-8 items-center justify-center border border-gray-300 px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:text-white"
           >
             <GoChevronRight />
           </button>
@@ -170,7 +170,7 @@ const TablePagination = ({
         <li>
           <button
             onClick={() => onPageChange(totalPages)}
-            className="flex items-center justify-center px-3 h-8 leading-tight rounded-e-lg text-gray-500 bg-theme-surfaceMain border border-gray-300 hover:bg-gray-100 hover:text-gray-700  dark:hover:text-white dark:border-gray-700 dark:text-white"
+            className="bg-theme-surfaceMain flex h-8 items-center justify-center rounded-e-lg border border-gray-300 px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:text-white"
           >
             <HiFastForward />
           </button>

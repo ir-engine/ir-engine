@@ -61,8 +61,8 @@ const variantMap = {
 
 const CalloutText = ({ variant, children, className, ...props }: CalloutTextProps): JSX.Element => {
   const classes = twMerge(
-    'flex justify-start items-center',
-    'p-4 rounded-lg',
+    'flex items-center justify-start',
+    'rounded-lg p-4',
     variantMap[variant].lightColor,
     `dark:${variantMap[variant].darkColor}`,
     'text-primary',
@@ -73,7 +73,7 @@ const CalloutText = ({ variant, children, className, ...props }: CalloutTextProp
     <div className={classes} {...props}>
       <Icon
         size="1.5rem"
-        className={`min-w-6 min-h-6	mr-2 ${variantMap[variant].lightColor.replace('bg', 'text')} dark:${variantMap[
+        className={`mr-2 min-h-6	min-w-6 ${variantMap[variant].lightColor.replace('bg', 'text')} dark:${variantMap[
           variant
         ].darkColor.replace('bg', 'text')}]`}
       />

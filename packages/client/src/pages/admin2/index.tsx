@@ -38,7 +38,7 @@ const LocationRoutes = () => {
   if (!projectsLoaded)
     return (
       <LoadingCircle
-        className="flex justify-center items-center w-1/4 h-1/4"
+        className="flex h-1/4 w-1/4 items-center justify-center"
         message={t('common:loader.loadingProjects')}
       />
     )
@@ -47,7 +47,7 @@ const LocationRoutes = () => {
     <Suspense
       fallback={
         <LoadingCircle
-          className="flex justify-center items-center w-1/4 h-1/4"
+          className="flex h-1/4 w-1/4 items-center justify-center"
           message={t('common:loader.loadingLocation')}
         />
       }

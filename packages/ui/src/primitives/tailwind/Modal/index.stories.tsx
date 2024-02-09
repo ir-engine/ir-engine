@@ -42,13 +42,13 @@ const ModelStory = ({ title }) => {
     popover.set({
       element: (
         <Modal title={title} onClose={onClose}>
-          <div className="flex flex-col mb-5 border-b border-[#e5e7eb]">
+          <div className="mb-5 flex flex-col border-b border-[#e5e7eb]">
             <label className="text-secondary">Location</label>
-            <input className="rounded-lg fIocus:outline-none px-3.5 py-1.5" type="text" placeholder="Enter here" />
+            <input className="fIocus:outline-none rounded-lg px-3.5 py-1.5" type="text" placeholder="Enter here" />
 
             <label className="text-secondary mt-6">Count</label>
             <input
-              className="rounded-lg focus:outline-none px-3.5 py-1.5"
+              className="rounded-lg px-3.5 py-1.5 focus:outline-none"
               value="3"
               type="number"
               placeholder="Enter here"

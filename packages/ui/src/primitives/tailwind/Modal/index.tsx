@@ -39,7 +39,7 @@ export interface ModalProps {
 
 export const ModalHeader = ({ title, onClose }: { closeIcon?: boolean; title?: string; onClose?: () => void }) => {
   return (
-    <div className="relative flex justify-center items-center px-6 py-3 border-b border-[#e5e7eb]">
+    <div className="relative flex items-center justify-center border-b border-[#e5e7eb] px-6 py-3">
       {title && <Text>{title}</Text>}
       <Button variant="outline" className="absolute right-0 border-0" startIcon={<MdClose />} onClick={onClose} />
     </div>
@@ -48,7 +48,7 @@ export const ModalHeader = ({ title, onClose }: { closeIcon?: boolean; title?: s
 
 export const ModalFooter = ({ onClose, onSubmit }) => {
   return (
-    <div className="grid grid-cols-12 gap-6 pt-5 border-t border-[#e5e7eb]">
+    <div className="grid grid-cols-12 gap-6 border-t border-[#e5e7eb] pt-5">
       <Button fullWidth className="col-span-12 md:col-span-6" size="small" onClick={onClose}>
         Close
       </Button>
@@ -61,7 +61,7 @@ export const ModalFooter = ({ onClose, onSubmit }) => {
 }
 
 const Modal = ({ title, onClose, children, className }: ModalProps) => {
-  const twClassName = twMerge('rounded-xl shadow transition-all bg-theme-primary')
+  const twClassName = twMerge('bg-theme-primary rounded-xl shadow transition-all')
 
   return (
     <div onClick={(e) => e.stopPropagation()} className={twClassName}>

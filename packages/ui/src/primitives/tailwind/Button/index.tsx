@@ -74,7 +74,7 @@ const Button = ({
   ...props
 }: ButtonProps): JSX.Element => {
   const twClassName = twMerge(
-    'flex justify-between items-center',
+    'flex items-center justify-between',
     'font-medium text-white',
     'transition ease-in-out',
     'inline-flex items-center justify-center',
