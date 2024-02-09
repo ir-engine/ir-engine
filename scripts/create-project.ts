@@ -93,8 +93,8 @@ cli.main(async () => {
     /** Push to remote */
     if (options.repo) {
       await execPromise(`git remote add origin ${options.repo}`, { cwd: projectFolder })
-      await execPromise(`git push -u origin main`, { cwd: projectFolder })
       await execPromise(`git push -u origin dev`, { cwd: projectFolder })
+      await execPromise(`git push -u origin main`, { cwd: projectFolder })
     }
     cli.exit(0)
   } catch (err) {
