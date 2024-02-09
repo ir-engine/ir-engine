@@ -110,7 +110,7 @@ export interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
 }
 
 const Table = ({ className, children }: TableProps) => {
-  const twClassName = twMerge('w-full rounded-md text-sm', 'border border-collapse border-neutral-300', className)
+  const twClassName = twMerge('w-full rounded-md text-sm border-collapse', className)
   return <table className={twClassName}>{children}</table>
 }
 

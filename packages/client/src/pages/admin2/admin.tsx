@@ -44,6 +44,7 @@ import {
 import { IoFolderOutline, IoPeopleOutline, IoTerminalOutline } from 'react-icons/io5'
 import { RiDeleteBinLine, RiSendPlaneFill } from 'react-icons/ri'
 
+import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Table, {
   TableBody,
@@ -197,6 +198,7 @@ const AdminSidebar = () => {
 }
 
 const Admin = () => {
+  useRemoveEngineCanvas()
   useEffect(() => {
     ThemeState.setTheme('dark')
   }, [])
