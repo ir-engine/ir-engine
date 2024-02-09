@@ -41,7 +41,7 @@ export const ModalHeader = ({ title, onClose }: { closeIcon?: boolean; title?: s
   return (
     <div className="relative flex justify-center items-center px-6 py-3 border-b border-[#e5e7eb]">
       {title && <Text>{title}</Text>}
-      <Button variant="outline" className="border-0 absolute right-0" startIcon={<MdClose />} onClick={onClose} />
+      <Button variant="outline" className="absolute right-0 border-0" startIcon={<MdClose />} onClick={onClose} />
     </div>
   )
 }
