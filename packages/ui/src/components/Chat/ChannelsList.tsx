@@ -84,17 +84,17 @@ export const ChannelsList = () => {
           maxWidth={390}
         >
           <div
-            className={` h-[68px] flex flex-nowrap	mx-4 gap-1 justify-center rounded-[5px] ${
+            className={` mx-4 flex h-[68px]	flex-nowrap justify-center gap-1 rounded-[5px] ${
               selectedChannelId.value === props.channel.id ? 'bg-[#D4D7DC]' : ''
             }`}
             onClick={() => selectedChannelId.set(props.channel.id)}
           >
             <img
-              className="max-w-full mt-3 ml-5 rounded-8xs w-11 h-11 object-cover"
+              className="rounded-8xs ml-5 mt-3 h-11 w-11 max-w-full object-cover"
               alt=""
               src={UserIcon /**userThumbnail */}
             />
-            <div className="mt-3 justify-start w-[200px] whitespace-nowrap overflow-hidden text-ellipsis">
+            <div className="mt-3 w-[200px] justify-start overflow-hidden text-ellipsis whitespace-nowrap">
               <p className="font-bold text-[#3F3960]">{getChannelName(props.channel)}</p>
               <p className="h-4 text-xs text-[#787589]">{latestMessage}</p>
             </div>
@@ -106,18 +106,18 @@ export const ChannelsList = () => {
 
   return (
     <>
-      <div className="w-full h-[10vh] flex justify-center items-center">
+      <div className="flex h-[10vh] w-full items-center justify-center">
         <button
-          className="m-0 cursor-pointer rounded-[20px] p-0 bg-[#3F3960] w-[120px] h-8"
+          className="m-0 h-8 w-[120px] cursor-pointer rounded-[20px] bg-[#3F3960] p-0"
           onClick={() => isDrawerOpen.set(true)}
         >
-          <div className="[text-align-last:center] rounded-2xl text-[16px] text-sm font-segoe-ui text-white text-left">
+          <div className="font-segoe-ui rounded-2xl text-left text-[16px] text-sm text-white [text-align-last:center]">
             CREATE CHANNEL
           </div>
         </button>
         {isDrawerOpen.value && (
-          <div className="fixed inset-0 flex z-50">
-            <div className="bg-gray-500 bg-opacity-50 flex-1" onClick={() => isDrawerOpen.set(false)}></div>
+          <div className="fixed inset-0 z-50 flex">
+            <div className="flex-1 bg-gray-500 bg-opacity-50" onClick={() => isDrawerOpen.set(false)}></div>
             <DrawerCreateChannel />
           </div>
         )}

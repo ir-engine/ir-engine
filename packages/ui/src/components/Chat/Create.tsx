@@ -46,96 +46,96 @@ export const Create = () => {
   }
 
   return (
-    <div className="w-[520px] h-[70%] absolute flex-1 bg-[#15171B] flex flex-wrap">
-      <div className="w-full h-[14%] bg-[#15171B] flex flex-wrap">
-        <div className="w-[180px] justify-start mt-[26px] ml-7 gap-2  flex flex-wrap">
-          <IoMdAddCircle className="w-[22px] fill-[#ffffff] h-[25px]" />
+    <div className="absolute flex h-[70%] w-[520px] flex-1 flex-wrap bg-[#15171B]">
+      <div className="flex h-[14%] w-full flex-wrap bg-[#15171B]">
+        <div className="ml-7 mt-[26px] flex w-[180px] flex-wrap  justify-start gap-2">
+          <IoMdAddCircle className="h-[25px] w-[22px] fill-[#ffffff]" />
           <p className="text-[16px] font-bold text-white">CREATE</p>
         </div>
       </div>
-      <div className="box-border w-[370px] border-t-[1px] border-solid  ml-[150px] border-[#f6f7f8]" />
+      <div className="ml-[150px] box-border w-[370px] border-t-[1px]  border-solid border-[#f6f7f8]" />
 
-      <div className="w-full h-[86%] grid grid-cols-2 divide-x-0 bg-[#f6f7f8]">
-        <div className="w-[150px] h-[100%] bg-[#15171B]">
+      <div className="grid h-[86%] w-full grid-cols-2 divide-x-0 bg-[#f6f7f8]">
+        <div className="h-[100%] w-[150px] bg-[#15171B]">
           <div
-            className={`w-[120px] justify-start ml-7 gap-2  flex flex-wrap mt-7 ${
+            className={`ml-7 mt-7 flex w-[120px]  flex-wrap justify-start gap-2 ${
               activeSideButton === 1 ? 'text-[#935CFF]' : 'text-[#ffffff]'
             }`}
             onClick={() => handleSideButtonClick(1)}
           >
             <FriendIcon color={activeSideButton === 1 ? '#935CFF' : '#ffffff'} />
-            <p className="text-[16px] font-bold mt-2">FRIENDS</p>
+            <p className="mt-2 text-[16px] font-bold">FRIENDS</p>
           </div>
           <div
-            className={`w-[120px] justify-start ml-7 gap-2  flex flex-wrap mt-6 ${
+            className={`ml-7 mt-6 flex w-[120px]  flex-wrap justify-start gap-2 ${
               activeSideButton === 2 ? 'text-[#935CFF]' : 'text-[#ffffff]'
             }`}
             onClick={() => handleSideButtonClick(2)}
           >
             <PartyIcon color={activeSideButton === 2 ? '#935CFF' : '#ffffff'} />
-            <p className="text-[16px] font-bold mt-2.5">PARTY</p>
+            <p className="mt-2.5 text-[16px] font-bold">PARTY</p>
           </div>
           <div
-            className={`w-[120px] justify-start ml-7 gap-2  flex flex-wrap mt-6 ${
+            className={`ml-7 mt-6 flex w-[120px]  flex-wrap justify-start gap-2 ${
               activeSideButton === 3 ? 'text-[#935CFF]' : 'text-[#ffffff]'
             }`}
             onClick={() => handleSideButtonClick(3)}
           >
             <GroupIcon color={activeSideButton === 3 ? '#935CFF' : '#ffffff'} />
-            <p className="text-[16px] font-bold mt-2.5">GROUP</p>
+            <p className="mt-2.5 text-[16px] font-bold">GROUP</p>
           </div>
         </div>
-        <div className="w-[368px] h-[100%] bg-[#15171B] ml-[-108px]">
-          <div className="w-[350px] flex flex-wrap justify-start ml-5 mt-4 my-4 gap-[9px] ">
+        <div className="ml-[-108px] h-[100%] w-[368px] bg-[#15171B]">
+          <div className="my-4 ml-5 mt-4 flex w-[350px] flex-wrap justify-start gap-[9px] ">
             <button
-              className={`m-0 cursor-pointer rounded-[20px] border-dashed box-border border-[1px] p-0 w-[87px] h-6 ${
-                activeButton === 1 ? 'bg-[#935CFF] text-white border-[#935CFF]' : 'text-[#A0A0B2] border-[#595C60]'
+              className={`m-0 box-border h-6 w-[87px] cursor-pointer rounded-[20px] border-[1px] border-dashed p-0 ${
+                activeButton === 1 ? 'border-[#935CFF] bg-[#935CFF] text-white' : 'border-[#595C60] text-[#A0A0B2]'
               }`}
               onClick={() => handleButtonClick(1)}
             >
-              <div className="w-[180px] justify-start  gap-2 ml-2 flex flex-wrap">
-                <MdEmail className="w-[20px] fill-[#ffffff] h-[22px]" />
+              <div className="ml-2 flex  w-[180px] flex-wrap justify-start gap-2">
+                <MdEmail className="h-[22px] w-[20px] fill-[#ffffff]" />
                 <p className="text-[16px] font-normal text-white">Email</p>
               </div>
             </button>
             <button
-              className={`m-0 cursor-pointer rounded-[20px] border-dashed box-border border-[1px] p-0 w-[86px] h-6 ${
-                activeButton === 2 ? 'bg-[#935CFF] text-white border-[#935CFF]' : 'text-[#A0A0B2] border-[#595C60]'
+              className={`m-0 box-border h-6 w-[86px] cursor-pointer rounded-[20px] border-[1px] border-dashed p-0 ${
+                activeButton === 2 ? 'border-[#935CFF] bg-[#935CFF] text-white' : 'border-[#595C60] text-[#A0A0B2]'
               }`}
               onClick={() => handleButtonClick(2)}
             >
-              <div className="w-[180px] justify-start  gap-1 ml-2 flex flex-wrap">
-                <MdPhoneIphone className="w-[20px] fill-[#ffffff] h-[15px] mt-[3px]" />
+              <div className="ml-2 flex  w-[180px] flex-wrap justify-start gap-1">
+                <MdPhoneIphone className="mt-[3px] h-[15px] w-[20px] fill-[#ffffff]" />
                 <p className="text-[15px] font-normal text-white">Phone</p>
               </div>
             </button>
             <button
-              className={`m-0 cursor-pointer rounded-[20px] border-dashed box-border border-[1px] p-0 w-[111px] h-6 ${
-                activeButton === 3 ? 'bg-[#935CFF] text-white border-[#935CFF]' : 'text-[#A0A0B2] border-[#595C60]'
+              className={`m-0 box-border h-6 w-[111px] cursor-pointer rounded-[20px] border-[1px] border-dashed p-0 ${
+                activeButton === 3 ? 'border-[#935CFF] bg-[#935CFF] text-white' : 'border-[#595C60] text-[#A0A0B2]'
               }`}
               onClick={() => handleButtonClick(3)}
             >
-              <div className="w-[180px] justify-start  gap-2 ml-2 flex flex-wrap">
-                <BsPersonCircle className="w-[15px] fill-[#ffff] h-[20px]" />
+              <div className="ml-2 flex  w-[180px] flex-wrap justify-start gap-2">
+                <BsPersonCircle className="h-[20px] w-[15px] fill-[#ffff]" />
                 <p className="text-[14px] font-normal text-white">Invite Code</p>
               </div>
             </button>
-            <div className="w-[340px] h-[50vh]">
-              <div className="w-[40px] mt-8">
+            <div className="h-[50vh] w-[340px]">
+              <div className="mt-8 w-[40px]">
                 <p className="font-sans text-white">Email:</p>
-                <div className="mt-3 rounded-[5px] bg-[#d7d7d7] w-[306px] h-[45px] flex flex-wrap">
-                  <div className="w-[305px] h-[40px] mt-[2px] ml-[0.5px] mr-[0.5px]">
+                <div className="mt-3 flex h-[45px] w-[306px] flex-wrap rounded-[5px] bg-[#d7d7d7]">
+                  <div className="ml-[0.5px] mr-[0.5px] mt-[2px] h-[40px] w-[305px]">
                     <input
                       type="text"
-                      className="m-0 rounded-[5px] focus:outline-none focus:border-[#15171B] border-[#15171B] border-2 text-[#ffff] bg-[#15171B] p-[9.5px] w-full font-normal "
+                      className="m-0 w-full rounded-[5px] border-2 border-[#15171B] bg-[#15171B] p-[9.5px] font-normal text-[#ffff] focus:border-[#15171B] focus:outline-none "
                       placeholder="Your@domain.com"
                     />
                   </div>
                 </div>
               </div>
-              <div className="m-0 w-[305px] flex justify-end mt-5  items-center">
-                <button className="cursor-pointer rounded-[20px] p-0 bg-[#935CFF] w-[60px] h-6">
-                  <div className="[text-align-last:center] rounded-2xl text-[16px] text-sm font-segoe-ui text-white text-left">
+              <div className="m-0 mt-5 flex w-[305px] items-center  justify-end">
+                <button className="h-6 w-[60px] cursor-pointer rounded-[20px] bg-[#935CFF] p-0">
+                  <div className="font-segoe-ui rounded-2xl text-left text-[16px] text-sm text-white [text-align-last:center]">
                     Send
                   </div>
                 </button>
