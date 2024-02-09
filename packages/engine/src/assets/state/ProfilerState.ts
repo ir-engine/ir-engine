@@ -27,11 +27,13 @@ import { profile } from '@etherealengine/ecs/src/Timer'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { getGPUTier } from 'detect-gpu'
 import { BufferAttribute, BufferGeometry, Mesh, MeshBasicMaterial, OrthographicCamera, Scene } from 'three'
 
 export const ProfilerState = defineState({
   name: 'ProfilerState',
   initial: () => ({
+    tier: 0,
     meshRenderMs: 0
   })
 })
@@ -57,7 +59,8 @@ const createTriangle = (): Mesh => {
 
 const triangleCount = isMobile ? 5000 : 10000
 
-export const buildProfilerState = (renderer: EngineRenderer, onFinished: () => void) => {
+const checkMeshRender = (renderer: EngineRenderer, onFinished: () => void) => {
+  const profilerState = getMutableState(ProfilerState)
   const scene = new Scene()
   const meshes = [] as Mesh[]
   for (let i = 0; i < triangleCount; i++) {
@@ -65,8 +68,6 @@ export const buildProfilerState = (renderer: EngineRenderer, onFinished: () => v
     meshes.push(mesh)
     scene.add(mesh)
   }
-
-  const profilerState = getMutableState(ProfilerState)
 
   const fallback = () => {
     const end = profile()
@@ -97,7 +98,7 @@ export const buildProfilerState = (renderer: EngineRenderer, onFinished: () => v
           const disjoint = gl.getParameter(ext.GPU_DISJOINT_EXT)
 
           if (available && !disjoint) {
-            // Gets times in nanoseconds.
+            // Gets times in nanoseconds
             const timeStart = gl.getQueryParameter(startQuery!, gl.QUERY_RESULT)
             const timeEnd = gl.getQueryParameter(endQuery!, gl.QUERY_RESULT)
             const renderTime = (timeEnd - timeStart) * 0.000001
@@ -122,4 +123,15 @@ export const buildProfilerState = (renderer: EngineRenderer, onFinished: () => v
     ;(mesh.material as MeshBasicMaterial).dispose()
     scene.remove(mesh)
   }
+}
+
+export const buildProfilerState = async (renderer: EngineRenderer, onFinished: () => void) => {
+  const profilerState = getMutableState(ProfilerState)
+  const gpuTier = await getGPUTier()
+
+  profilerState.tier.set(gpuTier.tier)
+
+  checkMeshRender(renderer, () => {
+    onFinished()
+  })
 }
