@@ -41,20 +41,7 @@ import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/util
 
 export const avatarResolver = resolve<AvatarType, HookContext>({
   createdAt: virtual(async (avatar) => fromDateTimeSql(avatar.createdAt)),
-  updatedAt: virtual(async (avatar) => fromDateTimeSql(avatar.updatedAt))
-})
-
-export const avatarExternalResolver = resolve<AvatarType, HookContext>({
-  user: virtual(async (avatar, context) => {
-    if (context.params?.actualQuery?.skipUser) return {}
-    if (avatar.userId) {
-      try {
-        return await context.app.service(userPath).get(avatar.userId, { query: { skipAvatar: true } })
-      } catch (err) {
-        return {}
-      }
-    }
-  }),
+  updatedAt: virtual(async (avatar) => fromDateTimeSql(avatar.updatedAt)),
   modelResource: virtual(async (avatar, context) => {
     if (context.event !== 'removed' && avatar.modelResourceId)
       try {
@@ -70,6 +57,19 @@ export const avatarExternalResolver = resolve<AvatarType, HookContext>({
       } catch (err) {
         //Swallow missing resource errors, deal with them elsewhere
       }
+  })
+})
+
+export const avatarExternalResolver = resolve<AvatarType, HookContext>({
+  user: virtual(async (avatar, context) => {
+    if (context.params?.actualQuery?.skipUser) return {}
+    if (avatar.userId) {
+      try {
+        return await context.app.service(userPath).get(avatar.userId, { query: { skipAvatar: true } })
+      } catch (err) {
+        return {}
+      }
+    }
   })
 })
 

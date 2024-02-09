@@ -23,36 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import React from 'react'
+import { twMerge } from 'tailwind-merge'
 
-// todo move this to core engine
-const ClickawayListener = (props: { children: JSX.Element }) => {
-  const childOver = useHookstate(false)
+const sizes = {
+  small: 'h-1.5',
+  default: 'h-2.5',
+  large: 'h-4',
+  extralarge: 'h-6'
+}
+
+export interface ProgressProps extends React.HTMLAttributes<HTMLProgressElement> {
+  className?: string
+  value: number
+  size?: keyof typeof sizes
+  barClassName?: string
+}
+
+const Progress = ({ className, barClassName, value, size = 'default' }: ProgressProps) => {
+  const twClassName = twMerge(sizes[size], 'w-full rounded-full bg-gray-200 dark:bg-gray-700', className)
+  const twBarClassName = twMerge(sizes[size], 'rounded-full bg-blue-800', barClassName)
+
   return (
-    <div
-      className="fixed inset-0 bg-gray-800 bg-opacity-50"
-      onClick={() => {
-        if (childOver.value) return
-        getMutableState(PopoverState).element.set(null)
-      }}
-    >
-      <div
-        className="z-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform"
-        onMouseEnter={() => childOver.set(true)}
-        onMouseLeave={() => childOver.set(false)}
-      >
-        {props.children}
-      </div>
+    <div className={twClassName}>
+      <div className={twBarClassName} style={{ width: `${value}%` }} />
     </div>
   )
 }
 
-ClickawayListener.displayName = 'ClickawayListener'
-
-ClickawayListener.defaultProps = {
-  children: null
-}
-
-export default ClickawayListener
+export default Progress

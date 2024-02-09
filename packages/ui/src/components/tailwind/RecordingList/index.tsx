@@ -112,15 +112,15 @@ const RecordingsList = (props: {
                   })
                 }}
               >
-                <StopIcon className="block min-w-6 min-h-6" />
+                <StopIcon className="block min-h-6 min-w-6" />
               </button>
             ) : (
               <>
                 <button className="btn btn-ghost" onClick={() => startPlayback(recording.id, false)}>
-                  <PlayIcon className="block min-w-6 min-h-6" />
+                  <PlayIcon className="block min-h-6 min-w-6" />
                 </button>
                 <button style={{ pointerEvents: 'all' }} onClick={() => startPlayback(recording.id, true)}>
-                  <PlusCircleIcon className="block min-w-6 min-h-6" />
+                  <PlusCircleIcon className="block min-h-6 min-w-6" />
                 </button>
               </>
             )}
@@ -131,7 +131,7 @@ const RecordingsList = (props: {
   }
 
   return (
-    <div className="w-full aspect-video">
+    <div className="aspect-video w-full">
       <table className="table w-full">
         {/* head */}
         <thead>

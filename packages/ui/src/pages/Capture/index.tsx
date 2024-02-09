@@ -280,20 +280,20 @@ const CaptureMode = () => {
   const recordingStatus = getRecordingStatus()
 
   return (
-    <div className="w-full container mx-auto pointer-events-auto max-w-[1024px] m-4">
-      <div className="w-full h-auto px-2">
-        <div className="w-full h-auto relative aspect-video overflow-hidden">
-          <div className="absolute w-full h-full top-0 left-0 flex items-center bg-black">
+    <div className="container pointer-events-auto m-4 mx-auto w-full max-w-[1024px]">
+      <div className="h-auto w-full px-2">
+        <div className="relative aspect-video h-auto w-full overflow-hidden">
+          <div className="absolute left-0 top-0 flex h-full w-full items-center bg-black">
             <Video
               ref={videoRef}
-              className={twMerge('w-full h-auto opacity-100', !displaySettings?.showVideo && 'opacity-0')}
+              className={twMerge('h-auto w-full opacity-100', !displaySettings?.showVideo && 'opacity-0')}
             />
           </div>
-          <div className="object-contain absolute top-0 left-0 z-1 min-w-full h-auto">
+          <div className="z-1 absolute left-0 top-0 h-auto min-w-full object-contain">
             <Canvas ref={canvasRef} />
           </div>
           <Button
-            className="absolute bg-none h-full w-full container mx-auto m-0 p-0 top-0 left-0 z-2"
+            className="z-2 container absolute left-0 top-0 m-0 mx-auto h-full w-full bg-transparent p-0"
             onClick={() => {
               if (mediaNetworkState?.connected?.value) toggleWebcamPaused()
             }}
@@ -302,26 +302,26 @@ const CaptureMode = () => {
           </Button>
         </div>
       </div>
-      <div className="w-full h-auto relative aspect-video overflow-hidden">
-        <div className="w-full container mx-auto">
+      <div className="relative aspect-video h-auto w-full overflow-hidden">
+        <div className="container mx-auto w-full">
           <Button
-            className="w-[220px] h-[60px] bg-[#292D3E] rounded-full shadow-md text-center font=[lato] font-bold text-sm padding-[10px] m-2"
+            className="font=[lato] padding-[10px] m-2 h-[60px] w-[220px] rounded-full bg-[#292D3E] text-center text-sm font-bold shadow-md"
             title="Toggle Detection"
             onClick={() => {
               detectingStatus.set(detectingStatus.value === 'active' ? 'inactive' : 'active')
             }}
           >
-            <a className="normal-case text-xl">
+            <a className="text-xl normal-case">
               {detectingStatus.value === 'active' ? 'STOP DETECTING' : 'START DETECTING'}
             </a>
           </Button>
           <Button
             aria-disabled={recordingStatus === 'starting'}
-            className="w-[220px] h-[60px] bg-[#292D3E] rounded-full shadow-md text-center font=[lato] font-bold text-sm padding-[10px] m-2"
+            className="font=[lato] padding-[10px] m-2 h-[60px] w-[220px] rounded-full bg-[#292D3E] text-center text-sm font-bold shadow-md"
             title="Toggle Recording"
             onClick={onToggleRecording}
           >
-            <a className="normal-case text-xl">{recordingStatus === 'active' ? 'STOP RECORDING' : 'START RECORDING'}</a>
+            <a className="text-xl normal-case">{recordingStatus === 'active' ? 'STOP RECORDING' : 'START RECORDING'}</a>
           </Button>
           {/* <Toolbar
             className="w-full"
@@ -342,7 +342,7 @@ const CaptureMode = () => {
   )
 }
 
-const drawPoseToCanvas = (
+export const drawPoseToCanvas = (
   canvasCtxRef: React.MutableRefObject<CanvasRenderingContext2D | undefined>,
   canvasRef: RefObject<HTMLCanvasElement>,
   poseLandmarks: NormalizedLandmarkList
@@ -354,15 +354,18 @@ const drawPoseToCanvas = (
   canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
   canvasCtxRef.current.globalCompositeOperation = 'source-over'
 
+  const lineWidth = canvasRef.current.width * 0.004
+  const radius = canvasRef.current.width * 0.002
+
   // Pose Connections
   drawConnectors(canvasCtxRef.current, poseLandmarks, POSE_CONNECTIONS, {
     color: '#fff',
-    lineWidth: 4
+    lineWidth: lineWidth
   })
   // Pose Landmarks
   drawLandmarks(canvasCtxRef.current, poseLandmarks, {
     color: '#fff',
-    radius: 2
+    radius: radius
   })
 
   // // Left Hand Connections
@@ -463,16 +466,16 @@ const VideoPlayback = (props: {
   }, [currentTimeSeconds])
 
   return (
-    <div className="aspect-[4/3] w-auto h-full">
-      <div className="aspect-[4/3] top-0 left-0 items-center bg-black">
+    <div className="aspect-[4/3] h-full w-auto">
+      <div className="left-0 top-0 aspect-[4/3] items-center bg-black">
         <Video
           ref={videoRef}
           src={videoSrc}
           controls={false}
-          className={twMerge('aspect-[4/3] w-full h-auto opacity-100')}
+          className={twMerge('aspect-[4/3] h-auto w-full opacity-100')}
         />
       </div>
-      <div className="aspect-[4/3] absolute top-0 left-0 z-1 w-auto h-auto pointer-events-none">
+      <div className="z-1 pointer-events-none absolute left-0 top-0 aspect-[4/3] h-auto w-auto">
         <Canvas ref={canvasRef} />
       </div>
     </div>
@@ -497,8 +500,8 @@ const EngineCanvas = () => {
   }, [ref])
 
   return (
-    <div className="relative w-auto h-full aspect-[2/3]">
-      <div ref={ref} className="w-full h-full" />
+    <div className="relative aspect-[2/3] h-full w-auto">
+      <div ref={ref} className="h-full w-full" />
     </div>
   )
 }
@@ -514,10 +517,10 @@ export const PlaybackControls = (props: { durationSeconds: number }) => {
 
   const { durationSeconds } = props
   return (
-    <div className="w-full h-full flex flex-row">
+    <div className="flex h-full w-full flex-row">
       <div className="relative aspect-video overflow-hidden">
         <Button
-          className="w-auto h-[40px] container z-2"
+          className="z-2 container h-[40px] w-auto"
           onClick={() => {
             playing.set(!playing.value)
           }}
@@ -526,7 +529,7 @@ export const PlaybackControls = (props: { durationSeconds: number }) => {
         </Button>
       </div>
       <ReactSlider
-        className="w-full h-4 my-2 bg-gray-300 rounded-lg cursor-pointer"
+        className="my-2 h-4 w-full cursor-pointer rounded-lg bg-gray-300"
         min={0}
         value={playing.value ? currentTime.value : undefined}
         max={durationSeconds}
@@ -536,7 +539,7 @@ export const PlaybackControls = (props: { durationSeconds: number }) => {
           return (
             <div
               {...props}
-              className="w-8 h-4 bg-white rounded-full shadow-md text-center font=[lato] font-bold text-sm"
+              className="font=[lato] h-4 w-8 rounded-full bg-white text-center text-sm font-bold shadow-md"
             >
               {Math.round(state.valueNow)}
             </div>
@@ -596,8 +599,8 @@ const PlaybackMode = () => {
 
     return (
       <>
-        <div className="w-full h-auto relative aspect-video overflow-hidden flex-column items-center justify-center">
-          <div className="flex flex-row w-full h-full max-w-full items-center justify-center">
+        <div className="flex-column relative aspect-video h-auto w-full items-center justify-center overflow-hidden">
+          <div className="flex h-full w-full max-w-full flex-row items-center justify-center">
             {videoPlaybackPairs.map((r) => (
               <VideoPlayback startTime={startTime} {...r} key={r.video.id} />
             ))}
@@ -611,17 +614,17 @@ const PlaybackMode = () => {
 
   const NoRecording = () => {
     return (
-      <div className="max-w-[1024px] w-auto container mx-auto relative aspect-video overflow-hidden flex items-center justify-center bg-black">
+      <div className="container relative mx-auto flex aspect-video w-auto max-w-[1024px] items-center justify-center overflow-hidden bg-black">
         <h1 className="text-2xl">No Recording Selected</h1>
       </div>
     )
   }
 
   return (
-    <div className="w-full container mx-auto pointer-events-auto items-center justify-center content-center">
-      <div className="w-full h-auto px-2">{recording.data ? <ActiveRecording /> : <NoRecording />}</div>
-      <div className="max-w-[1024px] w-full container mx-auto flex">
-        <div className="w-full h-auto relative m-2">
+    <div className="container pointer-events-auto mx-auto w-full content-center items-center justify-center">
+      <div className="h-auto w-full px-2">{recording.data ? <ActiveRecording /> : <NoRecording />}</div>
+      <div className="container mx-auto flex w-full max-w-[1024px]">
+        <div className="relative m-2 h-auto w-full">
           <RecordingsList {...{ startPlayback, stopPlayback }} />
         </div>
       </div>
@@ -644,7 +647,7 @@ const CaptureDashboard = () => {
   const mode = useHookstate(getMutableState(CapturePageState).mode)
 
   return (
-    <div className="max-w-[1024px] w-full container mx-auto overflow-hidden">
+    <div className="container mx-auto w-full max-w-[1024px] overflow-hidden">
       <Header mode={mode} />
       {mode.value === 'playback' ? <PlaybackMode /> : <CaptureMode />}
     </div>

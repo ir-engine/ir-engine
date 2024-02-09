@@ -41,7 +41,7 @@ const CaptureSettings = ({ className }: SettingsProps) => {
   const captureState = useHookstate(getMutableState(CaptureClientSettingsState).settings)
   const tab = useHookstate(getMutableState(CaptureClientSettingsState).tab)
   return (
-    <div className={twMerge('w-full h-full static', className)}>
+    <div className={twMerge('static h-full w-full', className)}>
       <div className={'tabs tabs-boxed w-full'}>
         {captureState?.value.map((state, idx) => {
           return (
@@ -57,23 +57,23 @@ const CaptureSettings = ({ className }: SettingsProps) => {
           )
         })}
       </div>
-      <div className="w-full h-full relative">
+      <div className="relative h-full w-full">
         {captureState?.value?.map((state, idx) => {
           return (
             <div
               className={twMerge(
-                'absolute w-full opacity-0 invisible',
-                tab.value === idx && 'opacity-100 visible active'
+                'invisible absolute w-full opacity-0',
+                tab.value === idx && 'active visible opacity-100'
               )}
               key={`${state.name}_${idx}_content`}
             >
-              <ul className="list-none p-0 m-0 w-full">
+              <ul className="m-0 w-full list-none p-0">
                 {Object.keys(state).map((key, idx) => {
                   if (key === 'name' || key === 'tabOrder') return
                   switch (typeof state[key]) {
                     case 'number':
                       return (
-                        <li key={`${key}_${idx}`} className="cursor-pointer label">
+                        <li key={`${key}_${idx}`} className="label cursor-pointer">
                           <span className="label-text">{key}</span>
                           <input
                             onChange={() => {
@@ -100,7 +100,7 @@ const CaptureSettings = ({ className }: SettingsProps) => {
                     case 'boolean':
                     default:
                       return (
-                        <li key={`${key}_${idx}`} className="cursor-pointer label">
+                        <li key={`${key}_${idx}`} className="label cursor-pointer">
                           <span className="label-text">{key}</span>
                           <input
                             onChange={() => {

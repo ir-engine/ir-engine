@@ -120,7 +120,7 @@ const decorators = [
     // const engineState = useHookstate(getMutableState(EngineState))
 
     return (
-      <div className="w-full h-full container mx-auto">
+      <div className="container mx-auto h-full w-full">
         <Story />
         {projectComponents}
       </div>

@@ -95,7 +95,7 @@ const handleMocapData = (
 
 const motionCaptureQuery = defineQuery([MotionCaptureRigComponent, AvatarRigComponent])
 
-const timeSeriesMocapData = new Map<
+export const timeSeriesMocapData = new Map<
   PeerID,
   RingBuffer<{
     timestamp: number
