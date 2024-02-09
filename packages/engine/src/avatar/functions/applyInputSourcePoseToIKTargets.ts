@@ -71,7 +71,18 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
   const xrFrame = getState(XRState).xrFrame!
   const poses = new Float32Array(16 * 25)
 
-  xrFrame.fillPoses!(hand.values(), inputSource.gripSpace!, poses)
+  if (xrFrame.fillPoses) {
+    xrFrame.fillPoses(hand.values(), inputSource.gripSpace!, poses)
+  } else {
+    // use getPose api as fallback
+    for (const joint of hand.values()) {
+      const pose = xrFrame.getPose(joint, inputSource.gripSpace!)
+      if (pose) {
+        const index = XRJointBones.indexOf(joint.jointName)
+        poses.set(pose.transform.matrix, index * 16)
+      }
+    }
+  }
 
   const component = inputSource.handedness === 'right' ? XRRightHandComponent : XRLeftHandComponent
   const rotations = getComponent(entity, component).rotations
