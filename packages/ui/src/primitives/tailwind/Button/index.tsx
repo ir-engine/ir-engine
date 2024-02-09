@@ -74,10 +74,10 @@ const Button = ({
   ...props
 }: ButtonProps): JSX.Element => {
   const twClassName = twMerge(
-    'flex justify-between items-center',
-    'font-medium font-[Inter] text-white',
+    'flex items-center justify-between',
+    'font-[Inter] font-medium text-white',
     'transition ease-in-out',
-    'justify-center items-center inline-flex',
+    'inline-flex items-center justify-center',
     sizes[size],
     variants[variant],
     fullWidth ? 'w-full' : 'w-fit',
