@@ -25,15 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { ReactNode } from 'react'
 import { MdClose } from 'react-icons/md'
+import { twMerge } from 'tailwind-merge'
 import Button from '../Button'
 import Text from '../Text'
 
 export interface ModalProps {
-  open: boolean
   title?: string
   className?: string
   children?: ReactNode
   onClose?: () => void
+  onSubmit?: () => void
 }
 
 export const ModalHeader = ({ title, onClose }: { closeIcon?: boolean; title?: string; onClose?: () => void }) => {
@@ -45,23 +46,27 @@ export const ModalHeader = ({ title, onClose }: { closeIcon?: boolean; title?: s
   )
 }
 
-const Modal = ({ open, title, onClose, children, className }: ModalProps) => {
+export const ModalFooter = ({ onClose, onSubmit }) => {
   return (
-    <div
-      className={`fixed inset-0 flex justify-center items-center ${
-        open ? 'visible bg-black/20 backdrop-blur-sm' : 'invisible'
-      }`}
-      onClick={onClose}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className={`w-80 md:w-5/12 rounded-xl shadow transition-all bg-theme-primary ${
-          open ? 'scale-100 opacity-100' : 'scale-125 opacity-0'
-        } ${className}`}
-      >
-        <ModalHeader title={title} onClose={onClose} />
-        <div className="w-full px-10 py-6">{children}</div>
-      </div>
+    <div className="grid grid-cols-12 gap-6 pt-5 border-t border-[#e5e7eb]">
+      <Button fullWidth className="col-span-12 md:col-span-6" size="small" onClick={onClose}>
+        Close
+      </Button>
+
+      <Button fullWidth className="col-span-12 md:col-span-6" size="small" onClick={onSubmit}>
+        Submit
+      </Button>
+    </div>
+  )
+}
+
+const Modal = ({ title, onClose, children, className }: ModalProps) => {
+  const twClassName = twMerge('rounded-xl shadow transition-all bg-theme-primary')
+
+  return (
+    <div onClick={(e) => e.stopPropagation()} className={twClassName}>
+      <ModalHeader title={title} onClose={onClose} />
+      <div className="w-full px-10 py-6">{children}</div>
     </div>
   )
 }

@@ -203,7 +203,7 @@ const Admin = () => {
     ThemeState.setTheme('dark')
   }, [])
   return (
-    <main className="mt-6 flex gap-1.5">
+    <main className="mt-6 flex gap-1.5 pointer-events-auto">
       {/* only for multitenancy
        <nav className="w-full px-8 py-4 mb-1.5 flex items-center justify-between bg-theme-surfaceMain">
         <img src={EELogo} className="h-8 w-8" />
