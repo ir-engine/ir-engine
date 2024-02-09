@@ -175,7 +175,7 @@ const getGithubRepositories = () => ({
   stargazers_count: 80,
   watchers_count: 80,
   size: 108,
-  default_branch: 'master',
+  default_branch: 'main',
   open_issues_count: 0,
   is_template: false,
   topics: ['test-user', 'atom', 'electron', 'api'],
@@ -223,6 +223,6 @@ const getGithubListBranches = () => [
         contexts: ['ci-test', 'linter']
       }
     },
-    protection_url: 'https://api.github.com/repos/test-user/test-repo/branches/master/protection'
+    protection_url: 'https://api.github.com/repos/test-user/test-repo/branches/main/protection'
   }
 ]
