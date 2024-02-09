@@ -48,6 +48,7 @@ import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { throttle } from 'lodash'
 import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
+import { InputPointerComponent } from '../../input/components/InputPointerComponent'
 
 let lastZoom = 0
 
@@ -94,12 +95,13 @@ const execute = () => {
 
   if (cameraOrbitComponent.disabled.value) return
 
-  const pointerState = getState(InputState).pointerState
+  const inputState = getState(InputState)
   const inputSource = getComponent(cameraOrbitComponent.inputEntity.value, InputSourceComponent)
+  const inputPointer = getComponent(cameraOrbitComponent.inputEntity.value, InputPointerComponent)
   const buttons = inputSource.buttons
 
   const selecting = buttons.PrimaryClick?.pressed
-  const zoom = pointerState.scroll.y
+  const zoom = inputState.scroll.y
   const panning = buttons.AuxiliaryClick?.pressed
 
   const editorCamera = getMutableComponent(entity, CameraOrbitComponent)
@@ -109,14 +111,14 @@ const execute = () => {
   }
   if (selecting) {
     editorCamera.isOrbiting.set(true)
-    const mouseMovement = pointerState.movement
+    const mouseMovement = inputPointer.movement
     if (mouseMovement) {
       editorCamera.cursorDeltaX.set(mouseMovement.x)
       editorCamera.cursorDeltaY.set(mouseMovement.y)
     }
   } else if (panning) {
     editorCamera.isPanning.set(true)
-    const mouseMovement = pointerState.movement
+    const mouseMovement = inputPointer.movement
     if (mouseMovement) {
       editorCamera.cursorDeltaX.set(mouseMovement.x)
       editorCamera.cursorDeltaY.set(mouseMovement.y)

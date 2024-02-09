@@ -77,16 +77,19 @@ export class Engine {
 
   /**
    * The xr origin reference space entity
+   * TODO: rename this to localFloorEntity
    */
   originEntity = UndefinedEntity
 
   /**
    * The xr origin group
+   * TODO: remove this
    */
   origin = new Group()
 
   /**
    * The camera entity
+   * TODO: rename this to viewerEntity (align w/ WebXR naming)
    */
   cameraEntity = UndefinedEntity
 

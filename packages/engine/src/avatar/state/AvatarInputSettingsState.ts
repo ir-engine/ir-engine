@@ -25,25 +25,23 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
-export const AvatarAxesControlScheme = {
-  Move: 'AvatarControlScheme_Move' as const,
-  Teleport: 'AvatarControlScheme_Teleport' as const
+export const enum AvatarAxesControlScheme {
+  Move = 'AvatarControlScheme_Move',
+  Teleport = 'AvatarControlScheme_Teleport'
 }
 
-export const AvatarControllerType = {
-  None: 'AvatarControllerType_None' as const,
-  XRHands: 'AvatarControllerType_XRHands' as const,
-  OculusQuest: 'AvatarControllerType_OculusQuest' as const
+export const enum AvatarControllerType {
+  None = 'AvatarControllerType_None',
+  XRHands = 'AvatarControllerType_XRHands',
+  OculusQuest = 'AvatarControllerType_OculusQuest'
 }
 
 export const AvatarInputSettingsState = defineState({
   name: 'AvatarInputSettingsState',
   initial: () => ({
-    controlType: AvatarControllerType.None as (typeof AvatarControllerType)[keyof typeof AvatarControllerType],
-    leftAxesControlScheme:
-      AvatarAxesControlScheme.Move as (typeof AvatarAxesControlScheme)[keyof typeof AvatarAxesControlScheme],
-    rightAxesControlScheme:
-      AvatarAxesControlScheme.Teleport as (typeof AvatarAxesControlScheme)[keyof typeof AvatarAxesControlScheme],
+    controlType: AvatarControllerType.None,
+    leftAxesControlScheme: AvatarAxesControlScheme.Move,
+    rightAxesControlScheme: AvatarAxesControlScheme.Teleport,
     invertRotationAndMoveSticks: true,
     showAvatar: true
   }),

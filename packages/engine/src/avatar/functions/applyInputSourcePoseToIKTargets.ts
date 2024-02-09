@@ -23,35 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
-
-import { getState } from '@etherealengine/hyperflux'
+import { Euler, Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { ECS, Engine, Entity } from '@etherealengine/ecs'
+import { getState } from '@etherealengine/hyperflux'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { Q_Y_180 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import {
-  XRJointAvatarBoneMap,
-  XRJointBones,
-  XRJointParentMap,
-  XRLeftHandComponent,
-  XRRightHandComponent
-} from '@etherealengine/spatial/src/xr/XRComponents'
 import { ReferenceSpace, XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
-
-const matrixWorld = new Matrix4()
-const parentMatrixWorld = new Matrix4()
-const localMatrix = new Matrix4()
-const quat = new Quaternion()
 
 declare global {
   interface XRFrame {
@@ -60,88 +45,104 @@ declare global {
   }
 }
 
-const helpers = {}
-/**
- * Gets world space pose for each joint in the hand and stores the rotation in an XRHandComponent in local space
- * @param inputSource
- * @param entity
- */
-const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
-  const hand = inputSource.hand!
-  const xrFrame = getState(XRState).xrFrame!
-  const poses = new Float32Array(16 * 25)
+// const handJointPoses = new Float32Array(16 * 25)
+// const jointWorld = new Matrix4()
+// const parentJointWorldInv = new Matrix4()
+// const jointLocal = new Matrix4()
+// const jointQuat = new Quaternion()
 
-  xrFrame.fillPoses!(hand.values(), inputSource.gripSpace!, poses)
+// /**
+//  * Gets world space pose for each joint in the hand and stores the rotation in an XRHandComponent in local space
+//  * @param inputSource
+//  * @param entity
+//  */
+// const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
+//   const hand = inputSource.hand!
+//   const xrFrame = getState(XRState).xrFrame!
 
-  const component = inputSource.handedness === 'right' ? XRRightHandComponent : XRLeftHandComponent
-  const rotations = getComponent(entity, component).rotations
+//   if (xrFrame.fillPoses) {
+//     xrFrame.fillPoses(hand.values(), inputSource.targetRaySpace, handJointPoses)
+//   } else {
+//     // use getPose api as fallback
+//     for (const joint of hand.values()) {
+//       const pose = xrFrame.getPose(joint, inputSource.targetRaySpace)
+//       if (pose) {
+//         const index = XRJointBones.indexOf(joint.jointName)
+//         handJointPoses.set(pose.transform.matrix, index * 16)
+//       }
+//     }
+//   }
 
-  // const wristMatrix = new Matrix4().fromArray(
-  //   xrFrame.getPose(inputSource.gripSpace!, ReferenceSpace.origin!)!.transform.matrix
-  // )
+//   const HandComponent = inputSource.handedness === 'right' ? XRRightHandComponent : XRHandComponent
+//   const rotations = getComponent(entity, HandComponent).rotations
 
-  // start at 1 as we can skip wrist
-  for (let i = 1; i < 25; i++) {
-    const joint = XRJointBones[i]
+//   // const wristMatrix = new Matrix4().fromArray(
+//   //   xrFrame.getPose(inputSource.gripSpace!, ReferenceSpace.origin!)!.transform.matrix
+//   // )
 
-    if (joint.includes('tip')) continue
+//   // start at 1 as we can skip wrist
+//   for (let i = 1; i < 25; i++) {
+//     const joint = XRJointBones[i]
 
-    const parentJoint = XRJointParentMap[joint]
+//     if (joint.includes('tip')) continue
 
-    if (!parentJoint) continue
+//     const parentJoint = XRJointParentMap[joint]
 
-    // if (!helpers[inputSource.handedness + joint]) {
-    //   helpers[inputSource.handedness + joint] = new AxesHelper(0.05)
-    //   helpers[inputSource.handedness + joint].name = inputSource.handedness + joint + ' helper'
-    //   Engine.instance.scene.add(helpers[inputSource.handedness + joint])
-    // }
-    // helpers[inputSource.handedness + joint].matrixWorld.copy(matrixWorld).premultiply(wristMatrix)
+//     if (!parentJoint) continue
 
-    const parentIndex = XRJointBones.indexOf(parentJoint)
+//     // if (!helpers[inputSource.handedness + joint]) {
+//     //   helpers[inputSource.handedness + joint] = new AxesHelper(0.05)
+//     //   helpers[inputSource.handedness + joint].name = inputSource.handedness + joint + ' helper'
+//     //   Engine.instance.scene.add(helpers[inputSource.handedness + joint])
+//     // }
+//     // helpers[inputSource.handedness + joint].matrixWorld.copy(matrixWorld).premultiply(wristMatrix)
 
-    // get local space rotation
-    parentMatrixWorld.fromArray(poses, parentIndex * 16).invert()
-    matrixWorld.fromArray(poses, i * 16)
-    localMatrix.multiplyMatrices(matrixWorld, parentMatrixWorld)
+//     const parentIndex = XRJointBones.indexOf(parentJoint)
 
-    quat.setFromRotationMatrix(localMatrix)
-    if (joint === 'thumb-metacarpal')
-      quat.multiply(inputSource.handedness == 'right' ? rightControllerOffset : leftControllerOffset)
+//     // get local space rotation
+//     parentJointWorldInv.fromArray(handJointPoses, parentIndex * 16).invert()
+//     jointWorld.fromArray(handJointPoses, i * 16)
+//     jointLocal.multiplyMatrices(jointWorld, parentMatrixWorld)
 
-    quat.invert()
+//     jointQuat.setFromRotationMatrix(jointLocal)
+//     if (joint === 'thumb-metacarpal')
+//       jointQuat.multiply(inputSource.handedness == 'right' ? rightControllerOffset : leftControllerOffset)
 
-    const boneIndex = Object.keys(XRJointAvatarBoneMap).indexOf(joint)
+//     jointQuat.invert()
 
-    quat.toArray(rotations, boneIndex * 4)
-  }
-}
+//     const boneIndex = Object.keys(XRJointAvatarBoneMap).indexOf(joint)
+
+//     jointQuat.toArray(rotations, boneIndex * 4)
+//   }
+// }
 
 //set offsets so hands align with controllers.
 export const leftControllerOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI / 2, 0))
 export const rightControllerOffset = new Quaternion().setFromEuler(new Euler(0, -Math.PI / 2, 0))
+const inputSources = ECS.defineQuery([InputSourceComponent])
 
 /**
  * Pulls pose data from input sources into the ECS
  */
 export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
   const xrFrame = getState(XRState).xrFrame!
-  const referenceSpace = ReferenceSpace.origin
+  const originSpace = ReferenceSpace.origin
 
-  const uuid = getComponent(localClientEntity, UUIDComponent)
-  const ikTargetLeftHand = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftHand) as EntityUUID)
-  const ikTargetRightHand = UUIDComponent.getEntityByUUID((uuid + ikTargets.rightHand) as EntityUUID)
-  const ikTargetHead = UUIDComponent.getEntityByUUID((uuid + ikTargets.head) as EntityUUID)
-  const ikTargetLeftFoot = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftFoot) as EntityUUID)
-  const ikTargetRightFoot = UUIDComponent.getEntityByUUID((uuid + ikTargets.rightFoot) as EntityUUID)
+  const uuid = ECS.getComponent(localClientEntity, UUIDComponent)
+  const ikTargetLeftHandEid = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftHand) as EntityUUID)
+  const ikTargetRightHandEid = UUIDComponent.getEntityByUUID((uuid + ikTargets.rightHand) as EntityUUID)
+  const ikTargetHeadEid = UUIDComponent.getEntityByUUID((uuid + ikTargets.head) as EntityUUID)
+  const ikTargetLeftFootEid = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftFoot) as EntityUUID)
+  const ikTargetRightFootEid = UUIDComponent.getEntityByUUID((uuid + ikTargets.rightFoot) as EntityUUID)
 
   // reset all IK targets
-  if (ikTargetHead) AvatarIKTargetComponent.blendWeight[ikTargetHead] = 0
-  if (ikTargetLeftHand) AvatarIKTargetComponent.blendWeight[ikTargetLeftHand] = 0
-  if (ikTargetRightHand) AvatarIKTargetComponent.blendWeight[ikTargetRightHand] = 0
-  if (ikTargetLeftFoot) AvatarIKTargetComponent.blendWeight[ikTargetLeftFoot] = 0
-  if (ikTargetRightFoot) AvatarIKTargetComponent.blendWeight[ikTargetRightFoot] = 0
+  if (ikTargetHeadEid) AvatarIKTargetComponent.blendWeight[ikTargetHeadEid] = 0
+  if (ikTargetLeftHandEid) AvatarIKTargetComponent.blendWeight[ikTargetLeftHandEid] = 0
+  if (ikTargetRightHandEid) AvatarIKTargetComponent.blendWeight[ikTargetRightHandEid] = 0
+  if (ikTargetLeftFootEid) AvatarIKTargetComponent.blendWeight[ikTargetLeftFootEid] = 0
+  if (ikTargetRightFootEid) AvatarIKTargetComponent.blendWeight[ikTargetRightFootEid] = 0
 
-  const isInXR = xrFrame && referenceSpace
+  const isInXR = xrFrame && originSpace
   if (!isInXR) {
     return
   }
@@ -149,19 +150,19 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
   const { isCameraAttachedToAvatar } = getState(XRControlsState)
 
   /** Head */
-  if (isCameraAttachedToAvatar && ikTargetHead) {
-    const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    const ikTransform = getComponent(ikTargetHead, TransformComponent)
+  if (isCameraAttachedToAvatar && ikTargetHeadEid) {
+    const cameraTransform = ECS.getComponent(Engine.instance.cameraEntity, TransformComponent)
+    const ikTransform = ECS.getComponent(ikTargetHeadEid, TransformComponent)
     ikTransform.position.copy(cameraTransform.position)
     ikTransform.rotation.copy(cameraTransform.rotation).multiply(Q_Y_180)
-    AvatarIKTargetComponent.blendWeight[ikTargetHead] = 1
-    const rigComponent = getComponent(localClientEntity, AvatarRigComponent)
-    const avatar = getComponent(localClientEntity, AvatarComponent)
+    AvatarIKTargetComponent.blendWeight[ikTargetHeadEid] = 1
+    const rigComponent = ECS.getComponent(localClientEntity, AvatarRigComponent)
+    const avatar = ECS.getComponent(localClientEntity, AvatarComponent)
     if (rigComponent) {
-      const avatarTransform = getComponent(localClientEntity, TransformComponent)
+      const avatarTransform = ECS.getComponent(localClientEntity, TransformComponent)
       if (cameraTransform.position.y - avatarTransform.position.y < avatar.avatarHeight) {
-        AvatarIKTargetComponent.blendWeight[ikTargetLeftFoot] = 1
-        AvatarIKTargetComponent.blendWeight[ikTargetRightFoot] = 1
+        AvatarIKTargetComponent.blendWeight[ikTargetLeftFootEid] = 1
+        AvatarIKTargetComponent.blendWeight[ikTargetRightFootEid] = 1
       }
     }
   }
@@ -169,68 +170,32 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
   /** In miniature mode, IK doesn't make much sense */
   if (!isCameraAttachedToAvatar) return
 
-  const inverseWorldScale = 1 / XRState.worldScale
-
-  const localClientTransform = getComponent(localClientEntity, TransformComponent)
-  const nonCapturedInputSourceEntities = InputSourceComponent.nonCapturedInputSourceQuery()
-
-  for (const inputSourceEntity of nonCapturedInputSourceEntities) {
-    const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
+  for (const inputSourceEntity of inputSources()) {
+    const inputSourceComponent = ECS.getComponent(inputSourceEntity, InputSourceComponent)
     const handedness = inputSourceComponent.source.handedness
     if (handedness === 'none') continue
+    const ikTargetEntity = handedness === 'right' ? ikTargetRightHandEid : ikTargetLeftHandEid
+    if (ikTargetEntity) {
+      const ikTransform = ECS.getComponent(ikTargetEntity, TransformComponent)
+      const wristSpace = inputSourceComponent.source.hand?.get('wrist')
+      const gripSpace = inputSourceComponent.source.gripSpace
+      const targetRaySpace = inputSourceComponent.source.targetRaySpace
+      const rotationOffset = handedness === 'right' ? rightControllerOffset : leftControllerOffset
 
-    const entity = handedness === 'right' ? ikTargetRightHand : ikTargetLeftHand
-    const XRHandComponent = handedness === 'right' ? XRRightHandComponent : XRLeftHandComponent
-    if (entity) {
-      const ikTransform = getComponent(entity, TransformComponent)
-      const hand = inputSourceComponent.source.hand as XRHand | undefined
-      /** detect hand joint pose support */
-      if (hand && xrFrame.fillPoses && xrFrame.getJointPose) {
-        if (!hasComponent(localClientEntity, XRHandComponent)) {
-          setComponent(localClientEntity, XRHandComponent, { hand })
-        }
-        const wrist = hand.get('wrist')
-        if (wrist) {
-          const jointPose = xrFrame.getJointPose(wrist, referenceSpace)
-          if (jointPose) {
-            ikTransform.position.copy(jointPose.transform.position as unknown as Vector3)
-            // .sub(localClientTransform.position)
-            // .multiplyScalar(inverseWorldScale)
-            // .add(localClientTransform.position)
-            ikTransform.rotation
-              .copy(jointPose.transform.orientation as unknown as Quaternion)
-              .multiply(handedness === 'right' ? rightControllerOffset : leftControllerOffset)
-          }
-        }
-        applyHandPose(inputSourceComponent.source, localClientEntity)
+      let pose: XRPose | undefined = wristSpace && xrFrame.getJointPose?.(wristSpace, originSpace)
+      if (!pose && gripSpace) {
+        pose = xrFrame.getPose(gripSpace, originSpace)
+      }
+      if (!pose && targetRaySpace) {
+        pose = xrFrame.getPose(targetRaySpace, originSpace)
+      }
 
-        AvatarIKTargetComponent.blendWeight[entity] = 1
-      } else {
-        removeComponent(localClientEntity, XRHandComponent)
-        if (inputSourceComponent.source.gripSpace) {
-          const pose = xrFrame.getPose(inputSourceComponent.source.gripSpace, referenceSpace)
-          if (pose) {
-            ikTransform.position.copy(pose.transform.position as any as Vector3)
-            // .sub(localClientTransform.position)
-            // .multiplyScalar(inverseWorldScale)
-            // .add(localClientTransform.position)
-            ikTransform.rotation
-              .copy(pose.transform.orientation as any as Quaternion)
-              .multiply(handedness === 'right' ? rightControllerOffset : leftControllerOffset)
+      if (pose) {
+        ikTransform.position.copy(pose.transform.position as unknown as Vector3)
+        ikTransform.rotation.copy(pose.transform.orientation as unknown as Quaternion).multiply(rotationOffset)
 
-            AvatarIKTargetComponent.blendWeight[entity] = 1
-          }
-        } else {
-          const pose = xrFrame.getPose(inputSourceComponent.source.targetRaySpace, referenceSpace)
-          if (pose) {
-            ikTransform.position.copy(pose.transform.position as any as Vector3)
-            ikTransform.rotation
-              .copy(pose.transform.orientation as any as Quaternion)
-              .multiply(handedness === 'right' ? rightControllerOffset : leftControllerOffset)
-
-            AvatarIKTargetComponent.blendWeight[entity] = 1
-          }
-        }
+        // TODO: blendwieght should be managed by the animation system
+        AvatarIKTargetComponent.blendWeight[ikTargetEntity] = 1
       }
     }
   }
