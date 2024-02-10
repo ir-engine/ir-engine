@@ -29,15 +29,18 @@ import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { getGPUTier } from 'detect-gpu'
 import {
+  AddEquation,
   BufferAttribute,
   BufferGeometry,
   Color,
+  CustomBlending,
   DataTexture,
   Mesh,
   MeshBasicMaterial,
   OrthographicCamera,
   PlaneGeometry,
-  Scene
+  Scene,
+  SrcAlphaFactor
 } from 'three'
 
 export const ProfilerState = defineState({
@@ -144,19 +147,20 @@ const checkMeshRender = (renderer: EngineRenderer, onFinished: () => void) => {
   }
 
   checkRender(renderer, scene, (renderTime) => {
-    console.log('Took ' + renderTime + 'ms to render ' + triangleCount + ' triangles')
     profilerState.meshRenderMs.set(renderTime)
+
+    for (const mesh of meshes) {
+      mesh.geometry.dispose()
+      ;(mesh.material as MeshBasicMaterial).dispose()
+      scene.remove(mesh)
+    }
+
     onFinished()
   })
-
-  for (const mesh of meshes) {
-    mesh.geometry.dispose()
-    ;(mesh.material as MeshBasicMaterial).dispose()
-    scene.remove(mesh)
-  }
 }
-const [r, g, b] = [255, 255, 255]
-const createPlane = (): Mesh => {
+
+const size = isMobile ? 1024 : 4096
+const createPlane = (r = 255, g = 255, b = 255, a = 1): Mesh => {
   const data = new Uint8Array(size * size * 4)
   for (let i = 0; i < size * size; i++) {
     const stride = i * 4
@@ -164,7 +168,7 @@ const createPlane = (): Mesh => {
     data[stride] = r
     data[stride + 1] = g
     data[stride + 2] = b
-    data[stride + 3] = 1
+    data[stride + 3] = a
   }
   const dataTexture = new DataTexture(data, size, size)
   const geometry = new PlaneGeometry(1000, 1000)
@@ -173,7 +177,6 @@ const createPlane = (): Mesh => {
   return new Mesh(geometry, material)
 }
 
-const size = isMobile ? 1024 : 4096
 const chechTextureRender = (renderer: EngineRenderer, onFinished: () => void) => {
   const profilerState = getMutableState(ProfilerState)
   const scene = new Scene()
@@ -183,13 +186,44 @@ const chechTextureRender = (renderer: EngineRenderer, onFinished: () => void) =>
 
   checkRender(renderer, scene, (renderTime) => {
     profilerState.textureRenderMs.set(renderTime)
-    console.log('Took ' + profilerState.textureRenderMs.value + 'ms to render ' + size + 'x' + size + ' texture ')
+
+    mesh.geometry.dispose()
+    ;(mesh.material as MeshBasicMaterial).dispose()
+    scene.remove(mesh)
+
     onFinished()
   })
+}
 
-  mesh.geometry.dispose()
-  ;(mesh.material as MeshBasicMaterial).dispose()
-  scene.remove(mesh)
+const chechAlphaRender = (renderer: EngineRenderer, onFinished: () => void) => {
+  const profilerState = getMutableState(ProfilerState)
+  const scene = new Scene()
+
+  const mesh = createPlane(0, 0, 255, 0.5)
+  const alphaMesh = createPlane(255, 0, 0, 0.5)
+  const material = alphaMesh.material as MeshBasicMaterial
+  material.transparent = true
+  material.blending = CustomBlending
+  material.blendSrc = SrcAlphaFactor
+  material.blendDst = SrcAlphaFactor
+  material.blendEquation = AddEquation
+  material.needsUpdate = true
+
+  scene.add(mesh)
+  scene.add(alphaMesh)
+
+  checkRender(renderer, scene, (renderTime) => {
+    profilerState.alphaRenderMs.set(renderTime)
+
+    mesh.geometry.dispose()
+    ;(mesh.material as MeshBasicMaterial).dispose()
+    scene.remove(mesh)
+    alphaMesh.geometry.dispose()
+    ;(alphaMesh.material as MeshBasicMaterial).dispose()
+    scene.remove(alphaMesh)
+
+    onFinished()
+  })
 }
 
 export const buildProfilerState = async (renderer: EngineRenderer, onFinished: () => void) => {
@@ -200,7 +234,10 @@ export const buildProfilerState = async (renderer: EngineRenderer, onFinished: (
 
   checkMeshRender(renderer, () => {
     chechTextureRender(renderer, () => {
-      onFinished()
+      chechAlphaRender(renderer, () => {
+        console.log(JSON.stringify(profilerState.value))
+        onFinished()
+      })
     })
   })
 }
