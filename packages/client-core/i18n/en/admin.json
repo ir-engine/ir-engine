@@ -66,6 +66,7 @@
       "ban": "Ban",
       "yes": "Yes",
       "no": "No",
+      "all": "All",
       "refresh": "Refresh",
       "fillRequiredFields": "Please fill all required field",
       "fixErrorFields": "Please fix all errors"

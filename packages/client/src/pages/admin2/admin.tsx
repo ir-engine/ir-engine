@@ -42,7 +42,7 @@ import {
   HiUserCircle
 } from 'react-icons/hi2'
 import { RiSendPlaneFill } from 'react-icons/ri'
-import ProjectTable from './components/project/ProjectTable'
+import AdminProject from './components/project'
 
 const sideBarItems = [
   { label: 'Dashboard', icon: <HiOutlineHome /> },
@@ -106,7 +106,7 @@ const Admin = () => {
       </nav>  */}
       <AdminSidebar />
       <div className="w-[80%]">
-        <ProjectTable />
+        <AdminProject />
       </div>
       <PopupMenu />
     </main>
