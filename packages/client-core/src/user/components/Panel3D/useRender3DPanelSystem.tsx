@@ -39,7 +39,7 @@ import {
   removeEntity,
   setComponent
 } from '@etherealengine/ecs'
-import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
+import { NO_PROXY, defineState, getMutableState, none } from '@etherealengine/hyperflux'
 import { DirectionalLightComponent, TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import {
@@ -156,6 +156,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
       getMutableState(ActiveOrbitCamera).set(UndefinedEntity)
       const thisIdIndex = rendererState.ids.value.findIndex((value) => value === id)
       rendererState.entities[id].set(none)
+      rendererState.renderers[id].get(NO_PROXY).dispose()
       rendererState.renderers[id].set(none)
       rendererState.ids[thisIdIndex].set(none)
     }
