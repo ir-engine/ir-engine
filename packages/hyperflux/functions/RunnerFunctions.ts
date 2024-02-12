@@ -28,99 +28,140 @@ type Effect = {
   lastCallback?: () => void
 }
 
-type Context = {
-  children: Array<Context | Effect>
+type SubContext = {
+  children: Record<string | number, SubContext | Effect>
+  effectIndex: number
   lastVals: Array<any>
 }
 
-const contexts = {} as { [key: string]: Context }
+type Context = SubContext & {
+  cleanup: () => void
+}
 
-let _currentContext = null as Context | null
-let _index = 0
+export const contexts = {} as { [key: string]: Context }
 
+let _currentContext = null as SubContext | null
+
+const _cleanup = () => {
+  // console.log(JSON.stringify(_currentContext, null, 2))
+  for (const child of Object.values(_currentContext!.children)) {
+    // console.log(child)
+    if (typeof child !== 'object') continue
+    if ('children' in child) {
+      _currentContext = child as SubContext
+      _cleanup()
+      _currentContext = null
+    } else {
+      child.lastCallback?.()
+    }
+  }
+}
 const runContext = (context: string, cb: () => void) => {
   if (!contexts[context]) {
     contexts[context] = {
-      children: [],
-      lastVals: []
+      children: {},
+      lastVals: [],
+      effectIndex: 0,
+      cleanup: () => {
+        _currentContext = contexts[context]
+        _cleanup()
+        _currentContext = null
+        delete contexts[context]
+      }
     }
   }
   _currentContext = contexts[context]
+  _currentContext.effectIndex = 0
   cb()
+  console.log('runContext', JSON.stringify(_currentContext, null, 2))
   _currentContext = null
+
+  return contexts[context]
 }
 
-const runGroup = <T>(arr: Array<T>, cb: (val: T) => void) => {
-  const _context = _currentContext
-  if (!_context) throw new Error('group must be called within a context')
+const runGroup = <T = string | number>(arr: Array<T>, cb: (val: T) => void) => {
+  const _parentContext = _currentContext
+  if (!_parentContext) throw new Error('group must be called within a context')
 
   // run cleanup for all children that are no longer in the array
-  let i = 0
-  for (const val of _context.lastVals) {
-    if (val === arr[i]) {
-      i++
+  for (const val of _parentContext.lastVals) {
+    // console.log('val', val, arr[i])
+    if (arr.includes(val)) {
+      // todo optimize '.includes'
       continue
     }
 
-    const context = _context.children[i] as Context | Effect
-    console.log('cleaning up', i, context)
-    if ('children' in context) {
-      for (const child of context.children) {
-        if ('lastCallback' in child) {
-          child.lastCallback?.()
-        }
-      }
-    }
-    if ('lastCallback' in context) {
-      context.lastCallback?.()
-    }
+    _currentContext = _parentContext.children[val] as SubContext
+    // console.log('unmount in group', i, JSON.stringify(_context, null, 2), context)
+    _cleanup()
+    delete _parentContext.children[val]
+    _currentContext = _parentContext
   }
 
-  _context.lastVals = [...arr]
+  _parentContext.lastVals = [...arr]
 
-  _index = 0
+  // const childContext = _parentContext.children[i] as SubContext | Effect
+
+  // console.log('group', JSON.stringify(_context, null, 2), arr)
   // run cb for all children that are in the array
   for (let i = 0; i < arr.length; i++) {
-    if (!_context.children[i]) {
-      _context.children.push({
-        children: [],
-        lastVals: []
-      })
+    const val = arr[i] as string | number
+    if (!_parentContext.children[val]) {
+      _parentContext.children[val] = {
+        children: {},
+        effectIndex: 0,
+        lastVals: undefined!
+      } as SubContext
     }
-    _currentContext = _context
-    cb(arr[i])
-    _index++
-    _currentContext = _context
+
+    _currentContext = _parentContext.children[val] as SubContext
+    _currentContext.effectIndex = 0
+    // console.log(_currentContext)
+    cb(val as T)
   }
+
+  _currentContext = _parentContext
 }
 
 const runEffect = (cb: () => (() => void) | void, deps: Array<any>) => {
-  const _context = _currentContext
-  if (!_context) throw new Error('onChange must be called within a context')
+  const _parentContext = _currentContext
+  if (!_parentContext) throw new Error('runEffect must be called within a context')
 
-  const index = _index
+  const index = _parentContext.effectIndex
+  _parentContext.effectIndex++
 
-  // console.log(_context, index)
-
-  if (!_context.children[index]) {
-    _context.children[index] = {
-      lastVals: new Array(deps.length).fill(undefined),
+  if (!_parentContext.children[index]) {
+    _parentContext.children[index] = {
+      lastVals: undefined,
       lastCallback: undefined
     } as Effect
   }
 
-  const context = _context.children[index] as Effect
+  const context = _parentContext.children[index] as Effect
 
-  if (!context?.lastVals) {
-    context.lastVals = new Array(deps.length).fill(undefined)
+  // console.log('runEffect', index, context.lastVals, deps)
+
+  if (!context.lastVals) {
+    context.lastVals = [...deps]
+    // for effects without dependencies, run once and never again
+    if (!deps.length) {
+      context.lastCallback = cb() as () => void | undefined
+      // console.log('after', context)
+      return
+    }
+  } else {
+    if (context.lastVals.length != deps.length) throw new Error('deps length must not change')
   }
 
-  const lastVals = context.lastVals!
+  if (!deps.length) return
+
+  const lastVals = context.lastVals
 
   for (let i = 0; i < lastVals.length; i++) {
-    if (lastVals[i] !== deps[i]) {
+    if (typeof lastVals[i] !== typeof deps[i] || lastVals[i] !== deps[i]) {
       if (context.lastCallback) context.lastCallback()
       context.lastCallback = cb() as () => void | undefined
+      // console.log('after', i, lastVals[i], deps[i], context)
       lastVals[i] = deps[i]
     }
   }
@@ -129,3 +170,7 @@ const runEffect = (cb: () => (() => void) | void, deps: Array<any>) => {
 const Runner = { runContext, runGroup, runEffect }
 
 export { Runner }
+
+/**
+ * @todo we need to be keying groups by their passed value
+ */
