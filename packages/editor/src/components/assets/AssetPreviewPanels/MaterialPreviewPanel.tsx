@@ -89,7 +89,7 @@ export const MaterialPreviewPanel = (props) => {
     const material = getState(MaterialLibraryState).materials[selectedMaterial.value].material
     if (!material) return
     addObjectToGroup(entity, new Mesh(new SphereGeometry(5, 32, 32), material))
-    setComponent(entity, EnvmapComponent, { type: 'Skybox' })
+    setComponent(entity, EnvmapComponent, { type: 'Skybox', envMapIntensity: 2 })
     const orbitCamera = getMutableComponent(renderPanelEntities[PanelEntities.camera].value, CameraOrbitComponent)
     orbitCamera.focusedEntities.set([entity])
     orbitCamera.refocus.set(true)
