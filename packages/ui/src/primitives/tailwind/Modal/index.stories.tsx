@@ -45,7 +45,7 @@ export const Default = {
     title: 'Default Modal Title',
     children: (
       <>
-        <h3 className="font-bold text-lg">Hello!</h3>
+        <h3 className="text-lg font-bold">Hello!</h3>
       </>
     )
   }
