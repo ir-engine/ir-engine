@@ -22,6 +22,7 @@ fi
 
 docker buildx build \
     --load \
+    --build-arg NODE_ENV=$NODE_ENV \
     -t $ECR_URL/$REPO_NAME-root:${TAG} \
     -t $DOCR_REGISTRY/$REPO_NAME-root:latest_$STAGE \
     -f dockerfiles/root/Dockerfile-root .
