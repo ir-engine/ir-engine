@@ -149,7 +149,7 @@ function ColliderComponentRigidbodyReactor(props: { entity: Entity; rigidbodyEnt
 
     return () => {
       colliderComponent.collider.set(null)
-      physicsWorld.removeCollider(colliderDesc, false)
+      physicsWorld.removeCollider(collider, false)
     }
   }, [rigidbodyComponent.body])
 

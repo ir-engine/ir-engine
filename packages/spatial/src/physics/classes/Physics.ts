@@ -190,6 +190,7 @@ function createColliderDesc(entity: Entity, rootEntity: Entity, colliderDescOpti
         shape = ShapeType.Ball
         break
       case 'box':
+      case 'plane':
         shape = ShapeType.Cuboid
         break
       case 'mesh':
@@ -216,7 +217,8 @@ function createColliderDesc(entity: Entity, rootEntity: Entity, colliderDescOpti
 
   switch (shape as ShapeType) {
     case ShapeType.Cuboid:
-      colliderDesc = ColliderDesc.cuboid(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
+      if (colliderDescOptions.shape === 'plane') colliderDesc = ColliderDesc.cuboid(10000, 0.001, 10000)
+      else colliderDesc = ColliderDesc.cuboid(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
       break
 
     case ShapeType.Ball:
@@ -423,7 +425,7 @@ function castRay(world: World, raycastQuery: RaycastArgs, filterPredicate?: (col
     raycastQuery.excludeRigidBody,
     filterPredicate
   )
-  if (hitWithNormal != null) {
+  if (hitWithNormal?.collider) {
     const body = hitWithNormal.collider.parent() as RigidBody
     hits.push({
       collider: hitWithNormal.collider,

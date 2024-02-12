@@ -61,8 +61,8 @@ export function ChatPage() {
   }, [])
 
   return (
-    <div className="w-full container mx-auto pointer-events-auto">
-      <div className="w-full h-[100vh] flex bg-[#E3E5E8] pointer">
+    <div className="container pointer-events-auto mx-auto w-full">
+      <div className="pointer flex h-[100vh] w-full bg-[#E3E5E8]">
         <ChatSection />
         <MessageContainer />
         <Media />
