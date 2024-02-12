@@ -481,8 +481,6 @@ describe('Runner', () => {
     ids.push('1')
     entities['1'] = { a: 1, b: 2 }
 
-    console.log('\nconsole 2')
-
     Runner.runContext(context, runner)
 
     assert.equal(mount, 1)
@@ -491,8 +489,6 @@ describe('Runner', () => {
     ids.push('2')
     entities['2'] = { a: 10, b: 11 }
 
-    console.log('\nconsole 3')
-
     Runner.runContext(context, runner)
 
     assert.equal(mount, 2)
@@ -500,8 +496,6 @@ describe('Runner', () => {
 
     entities['1'] = { a: 3, b: 4 }
     entities['2'] = { a: 12, b: 13 }
-
-    console.log('\nconsole 4')
 
     Runner.runContext(context, runner)
 
@@ -513,8 +507,6 @@ describe('Runner', () => {
     ids.pop()
     delete entities['2']
 
-    console.log('\nconsole 5')
-
     Runner.runContext(context, runner)
 
     assert.equal(states['1'].a, 3)
@@ -524,8 +516,6 @@ describe('Runner', () => {
     ids.unshift('2')
     entities['2'] = { a: 12, b: 13 }
 
-    console.log('\nconsole 6')
-
     Runner.runContext(context, runner)
 
     assert.equal(states['1'].a, 3)
@@ -534,13 +524,150 @@ describe('Runner', () => {
 
     entities['2'] = { a: 20, b: 21 }
 
-    console.log('\nconsole 7')
-
     Runner.runContext(context, runner)
 
     assert.equal(states['1'].a, 3)
     assert.equal(entities['2'].a, 20)
     assert.equal(mount, 3)
     assert.equal(unmount, 1)
+  })
+
+  it('should run group and effects together', () => {
+    const entities = {} as Record<string, { a: number; b: number }>
+    const states = {} as Record<string, { a: number; b: number }>
+
+    const ids = [] as string[]
+
+    const context = 'test deps 9'
+
+    let mount = 0
+    let unmount = 0
+    let runnerMount = 0
+    let runnerUnmount = 0
+    let stateChange = 0
+
+    let state = 0
+
+    const runner = () => {
+      Runner.runGroup(ids, (id) => {
+        Runner.runEffect(() => {
+          mount++
+          console.log('mount', mount, id)
+          return () => {
+            unmount++
+            console.log('unmount', unmount, id)
+          }
+        }, [])
+
+        Runner.runEffect(() => {
+          if (!states[id]) states[id] = {} as { a: number; b: number }
+          states[id].a = entities[id].a
+          console.log('IN EFFECT', id, states)
+        }, [entities[id].a])
+      })
+
+      Runner.runEffect(() => {
+        runnerMount++
+        console.log('runnerMount', runnerMount)
+        return () => {
+          runnerUnmount++
+          console.log('runnerUnmount', runnerUnmount)
+        }
+      }, [])
+
+      Runner.runEffect(() => {
+        stateChange++
+      }, [state])
+    }
+
+    Runner.runContext(context, runner)
+
+    assert.equal(Object.keys(states).length, 0)
+
+    state = 1
+
+    Runner.runContext(context, runner)
+
+    assert.equal(runnerMount, 1)
+    assert.equal(runnerUnmount, 0)
+    assert.equal(mount, 0)
+    assert.equal(unmount, 0)
+    assert.equal(stateChange, 1)
+
+    ids.push('1')
+    entities['1'] = { a: 1, b: 2 }
+
+    Runner.runContext(context, runner)
+
+    assert.equal(runnerMount, 1)
+    assert.equal(runnerUnmount, 0)
+    assert.equal(stateChange, 1)
+    assert.equal(mount, 1)
+    assert.equal(unmount, 0)
+  })
+
+  it('should run nested groups', () => {
+    const ids = [] as string[]
+    const ids2 = [] as string[]
+
+    const context = 'test deps 9'
+
+    let mount = 0
+    let unmount = 0
+
+    const runner = () => {
+      Runner.runGroup(ids, (id) => {
+        Runner.runGroup(ids2, (id2) => {
+          Runner.runEffect(() => {
+            mount++
+            console.log('mount', mount, id)
+            return () => {
+              unmount++
+              console.log('unmount', unmount, id)
+            }
+          }, [])
+        })
+      })
+    }
+
+    Runner.runContext(context, runner)
+
+    assert.equal(mount, 0)
+    assert.equal(unmount, 0)
+
+    ids.push('1')
+
+    Runner.runContext(context, runner)
+
+    assert.equal(mount, 0)
+    assert.equal(unmount, 0)
+
+    ids2.push('a')
+
+    Runner.runContext(context, runner)
+
+    assert.equal(mount, 1)
+    assert.equal(unmount, 0)
+
+    ids.push('2')
+
+    Runner.runContext(context, runner)
+
+    assert.equal(mount, 2)
+    assert.equal(unmount, 0)
+
+    ids2.push('b')
+
+    Runner.runContext(context, runner)
+
+    assert.equal(mount, 4)
+    assert.equal(unmount, 0)
+
+    ids.length = 0
+
+    Runner.runContext(context, runner)
+
+    assert.equal(mount, 4)
+    assert.equal(unmount, 4)
   })
 })
