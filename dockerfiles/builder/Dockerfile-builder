@@ -1,3 +1,6 @@
+ARG ECR_URL
+ARG REPO_NAME
+ARG STAGE
 FROM ${ECR_URL}/${REPO_NAME}-root:latest_${STAGE} as builder
 
 COPY . .

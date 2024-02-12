@@ -35,6 +35,9 @@ then
     --push \
     --cache-to type=gha,mode=max \
     --cache-from type=gha \
+    --build-arg ECR_URL=$ECR_URL \
+    --build-arg REPO_NAME=$REPO_NAME \
+    --build-arg STAGE=$STAGE \
     -t $ECR_URL/$REPO_NAME-builder:latest_$STAGE \
     -t $ECR_URL/$REPO_NAME-builder:"${EEVERSION}_${TAG}" \
     -t ${LABEL}-builder:"${EEVERSION}_${TAG}" \
@@ -44,6 +47,9 @@ else
     --push \
     --cache-to type=gha,mode=max \
     --cache-from type=gha \
+    --build-arg ECR_URL=$ECR_URL \
+    --build-arg REPO_NAME=$REPO_NAME \
+    --build-arg STAGE=$STAGE \
     -t $ECR_URL/$REPO_NAME-builder:latest_$STAGE \
     -t $ECR_URL/$REPO_NAME-builder:"${EEVERSION}_${TAG}" \
     -f dockerfiles/builder/Dockerfile-builder .
