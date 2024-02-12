@@ -174,17 +174,13 @@ const ownerPeer = (uuid: EntityUUID) => {
   }, [networkState.peers, networkState.users])
 }
 
-const run = () => {
+const runner = () => {
   const keys = Object.keys(getState(EntityNetworkState))
   Runner.runGroup(keys, entityNetwork)
 }
 
-const execute = () => {
-  Runner.runContext(EntityNetworkStateSystem, run)
-}
-
 export const EntityNetworkStateSystem = defineSystem({
   uuid: 'ee.networking.EntityNetworkStateSystem',
-  execute,
+  runner,
   insert: { with: SimulationSystemGroup }
 })
