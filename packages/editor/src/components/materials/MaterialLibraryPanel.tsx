@@ -30,13 +30,12 @@ import MaterialLibraryIcon from '@mui/icons-material/Yard'
 import DockLayout, { DockMode, TabData } from 'rc-dock'
 import { useTranslation } from 'react-i18next'
 import { DockContainer } from '../EditorContainer'
-import { MaterialPreviewPanel } from '../assets/AssetPreviewPanels/MaterialPreviewPanel'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
 import MaterialLibraryPanel from './MaterialLibraryPanelContainer'
 
 export const MaterialLibraryPanelTitle = () => {
   const { t } = useTranslation()
-  const materialPreviewPanelRef = React.useRef()
+  //const materialPreviewPanelRef = React.useRef()
   // const onLayoutChangedCallback = () => {
   //   ;(assetsPreviewPanelRef as any).current?.onLayoutChanged?.()
   // }
@@ -62,18 +61,19 @@ export const MaterialLibraryPanelTitle = () => {
               ]
             }
           ]
-        },
-        {
-          size: 5,
-          tabs: [
-            {
-              id: 'previewPanel',
-              title: t('editor:layout.scene-assets.preview'),
-              cached: true,
-              content: <MaterialPreviewPanel ref={materialPreviewPanelRef} />
-            }
-          ]
         }
+        /** @todo have to fix issues of preview panel effecting scene */
+        // {
+        //   size: 5,
+        //   tabs: [
+        //     {
+        //       id: 'previewPanel',
+        //       title: t('editor:layout.scene-assets.preview'),
+        //       cached: true,
+        //       content: <MaterialPreviewPanel ref={materialPreviewPanelRef} />
+        //     }
+        //   ]
+        // }
       ]
     }
   }
