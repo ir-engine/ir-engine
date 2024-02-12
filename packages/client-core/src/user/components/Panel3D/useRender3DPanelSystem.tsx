@@ -114,17 +114,19 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
         ObjectLayerMaskComponent.setLayer(light, ObjectLayers.AssetPreview)
         setComponent(light, TransformComponent, { rotation: new Quaternion().setFromEuler(rotation) })
         setComponent(light, DirectionalLightComponent, {
-          intensity
+          intensity,
+          useInCSM: false
         })
         setComponent(light, VisibleComponent, true)
         setComponent(light, NameComponent, '3D Preview Light')
         return light
       }
-      const backLight = createLight(new Euler(-0.5, 0, 0), 2)
-      const frontLight1 = createLight(new Euler(-4, Math.PI * 0.1, 0), 2)
-      const frontLight2 = createLight(new Euler(-4, -Math.PI * 0.1, 0), 2)
+      /**@todo fix csm issues this causes */
+      // const backLight = createLight(new Euler(-0.5, 0, 0), 2)
+      // const frontLight1 = createLight(new Euler(-4, Math.PI * 0.1, 0), 2)
+      // const frontLight2 = createLight(new Euler(-4, -Math.PI * 0.1, 0), 2)
 
-      rendererState.environment.set([backLight, frontLight1, frontLight2])
+      // rendererState.environment.set([backLight, frontLight1, frontLight2])
     }
 
     if (!rendererState.renderers.value[id]) {
