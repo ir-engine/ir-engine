@@ -28,10 +28,10 @@ import { twMerge } from 'tailwind-merge'
 
 const LoadingCircle = ({ message, className }: { message: string; className?: string }) => (
   <div className={twMerge('', className)}>
-    <div role="status" className="my-0 mx-auto block relative w-full h-full">
+    <div role="status" className="relative mx-auto my-0 block h-full w-full">
       <svg
         aria-hidden="true"
-        className="w-auto h-full text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+        className="h-full w-auto animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -45,7 +45,7 @@ const LoadingCircle = ({ message, className }: { message: string; className?: st
           fill="currentFill"
         />
       </svg>
-      <span className="w-full sr-only text-black">{message}</span>
+      <span className="sr-only w-full text-black">{message}</span>
     </div>
   </div>
 )

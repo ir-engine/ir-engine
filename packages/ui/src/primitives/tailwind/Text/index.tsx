@@ -57,7 +57,7 @@ const Text = ({
   const Component = componentTypes[component]
 
   const twClassName = twMerge(
-    'leading-normal inline-block',
+    'inline-block leading-normal',
     `font-${fontWeight} font-[${fontFamily}] text-${fontSize} text-theme-${theme}`,
     className
   )
