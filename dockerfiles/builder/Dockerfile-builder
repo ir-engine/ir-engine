@@ -1,26 +1,8 @@
-FROM node:18-buster-slim as builder
-
-RUN apt update
-# Create app directory
-WORKDIR /app
-
-RUN apt install -y build-essential meson python3-testresources python3-venv python3-pip git
-
-# to make use of caching, copy only package files and install dependencies
-COPY patches/ ./patches/
-COPY package.json .
-COPY packages/common/package.json ./packages/common/
-COPY packages/ecs/package.json ./packages/ecs/
-COPY packages/engine/package.json ./packages/engine/
-COPY packages/hyperflux/package.json ./packages/hyperflux/
-COPY packages/matchmaking/package.json ./packages/matchmaking/
-COPY packages/projects/package.json ./packages/projects/
-COPY packages/server/package.json ./packages/server/
-COPY packages/server-core/package.json ./packages/server-core/
-COPY packages/spatial/package.json ./packages/spatial/
-COPY packages/xrui/package.json ./packages/xrui/
-
-RUN npm install --loglevel notice --legacy-peer-deps
+ARG STAGE="dig"
+ARG ECR_URL="registry.digitalocean.com/etherealengine"
+ARG REPO_NAME="etherealengine"
+ARG TAG="dig-do-88.4.2555"
+FROM ${ECR_URL}/${REPO_NAME}-dig-root:${TAG} as builder
 
 COPY . .
 
@@ -32,7 +14,8 @@ ENV APP_ENV=production
 
 FROM node:18-buster-slim as runner
 WORKDIR /app
-
+COPY ../../scripts/setup_helm.sh .
+RUN chmod +x setup_helm.sh && ./setup_helm.sh
 COPY --from=builder /app ./
 
 CMD ["scripts/run-builder.sh"]

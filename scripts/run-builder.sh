@@ -11,7 +11,7 @@ START_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 mkdir -pv ~/.docker
 cp -v /var/lib/docker/certs/client/* ~/.docker
 touch ./builder-started.txt
-bash ./scripts/setup_helm.sh
+#bash ./scripts/setup_helm.sh
 if [[ "$CLOUD_PROVIDER" == "do" ]]; then
   bash ./scripts/setup_do.sh $DO_API_TOKEN $CLUSTER_NAME
 else
@@ -57,8 +57,8 @@ mkdir -p ./project-package-jsons/projects/default-project
 cp packages/projects/default-project/package.json ./project-package-jsons/projects/default-project
 find packages/projects/projects/ -name package.json -exec bash -c 'mkdir -p ./project-package-jsons/$(dirname $1) && cp $1 ./project-package-jsons/$(dirname $1)' - '{}' \;
 
-bash ./scripts/$BUILD_PUBLISH_SCRIPT $RELEASE_NAME $DOCKER_LABEL root root $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR $DOCR_REGISTRY >root-build-logs.txt 2>root-build-error.txt
-npm run record-build-error -- --service=root --isDocker=true
+#bash ./scripts/$BUILD_PUBLISH_SCRIPT $RELEASE_NAME $DOCKER_LABEL root root $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR $DOCR_REGISTRY >root-build-logs.txt 2>root-build-error.txt
+#npm run record-build-error -- --service=root --isDocker=true
 
 npm install -g cli @aws-sdk/client-s3
 

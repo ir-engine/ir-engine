@@ -3,7 +3,7 @@ set -e
 set -x
 
 STAGE="dig"
-TAG="dig-do-5.4.6"
+TAG="dig-do-88.4.2555"
 LABEL="etherealengine/etherealengine"
 DOCR_REGISTRY="registry.digitalocean.com/etherealengine"
 REPO_NAME="etherealengine"
@@ -12,6 +12,13 @@ EEVERSION=$(jq -r .version ./packages/server-core/package.json)
 echo "Entering the script"
 
 doctl registry login
+
+docker buildx build \
+    --load \
+    -t $DOCR_REGISTRY/$REPO_NAME-dig-root:${TAG} \
+    -t $DOCR_REGISTRY/$REPO_NAME-dig-root:latest_$STAGE \
+    -f dockerfiles/root/Dockerfile-root .
+docker push --all-tags $DOCR_REGISTRY/$REPO_NAME-dig-root
 
 if [ $PUBLISH_DOCKERHUB == 'true' ]
 then
