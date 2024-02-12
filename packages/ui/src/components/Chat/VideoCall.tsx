@@ -168,7 +168,7 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
       maxHeight={250}
     >
       <div
-        className={`relative h-full rounded-[5px] flex items-center justify-center`}
+        className={`relative flex h-full items-center justify-center rounded-[5px]`}
         style={{ backgroundColor: 'gray' }} // TODO derive color from user thumbnail
       >
         {videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute ? (
@@ -177,30 +177,30 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
             alt=""
             crossOrigin="anonymous"
             draggable={false}
-            className="max-w-full rounded-full w-[40px] h-[40px]"
+            className="h-[40px] w-[40px] max-w-full rounded-full"
             id={peerID + '-thumbnail'}
           />
         ) : (
           <video
-            className="w-full h-full"
+            className="h-full w-full"
             ref={ref}
             key={peerID + '-video-container'}
             id={peerID + '-video-container'}
           />
         )}
-        <div className="absolute min-w-0 max-w-xs bottom-1 left-1  flex justify-center items-center rounded-[20px] px-1 bg-[#B6AFAE]">
-          <p className="[text-align-last:center] rounded-2xl text-[12px] font-segoe-ui text-white text-left">
+        <div className="absolute bottom-1 left-1 flex min-w-0  max-w-xs items-center justify-center rounded-[20px] bg-[#B6AFAE] px-1">
+          <p className="font-segoe-ui rounded-2xl text-left text-[12px] text-white [text-align-last:center]">
             {username}
           </p>
         </div>
         <button
-          className="m-0 absolute bottom-1 right-1 w-[20px] h-[20px] flex px-1 justify-center  items-center rounded-full bg-[#EDEEF0]"
+          className="absolute bottom-1 right-1 m-0 flex h-[20px] w-[20px] items-center justify-center  rounded-full bg-[#EDEEF0] px-1"
           onClick={toggleAudio}
         >
           {audioStreamPaused ? (
-            <FaMicrophoneSlash className="w-5 h-5 overflow-hidden  fill-[#3F3960]" />
+            <FaMicrophoneSlash className="h-5 w-5 overflow-hidden  fill-[#3F3960]" />
           ) : (
-            <FaMicrophone className="w-3 h-3 overflow-hidden fill-[#008000]" />
+            <FaMicrophone className="h-3 w-3 overflow-hidden fill-[#008000]" />
           )}
         </button>
       </div>
@@ -211,7 +211,7 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
 export const MediaCall = () => {
   const windows = useMediaWindows()
   return (
-    <div className="flex flex-wrap gap-1 mx-1 mt-1">
+    <div className="mx-1 mt-1 flex flex-wrap gap-1">
       {windows.map(({ peerID, type }) => (
         <UserMedia peerID={peerID} type={type} key={peerID} />
       ))}
