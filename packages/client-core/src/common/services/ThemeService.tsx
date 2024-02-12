@@ -35,7 +35,8 @@ const lightTheme = {
   'bg-surface-main': '#F5F5F5',
   'text-primary': '#262626',
   'text-secondary': '#6B7280',
-  'text-highlight': '#FFFFFF'
+  'text-highlight': '#FFFFFF',
+  'border-primary': '#E5E7EB'
 }
 
 const darkTheme = {
@@ -45,7 +46,8 @@ const darkTheme = {
   'bg-surface-main': '#1A1B1E',
   'text-primary': '#F5F5F5',
   'text-secondary': '#D4D4D4',
-  'text-highlight': '#FFFFFF'
+  'text-highlight': '#FFFFFF',
+  'border-primary': '#2B2C30'
 }
 
 const themes = {

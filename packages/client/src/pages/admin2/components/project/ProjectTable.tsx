@@ -25,19 +25,29 @@ Ethereal Engine. All Rights Reserved.
 
 import { ProjectType, projectPath } from '@etherealengine/common/src/schema.type.module'
 import React from 'react'
-import { HiLink } from 'react-icons/hi2'
 import { IoFolderOutline, IoPeopleOutline, IoTerminalOutline } from 'react-icons/io5'
 import { RiDeleteBinLine } from 'react-icons/ri'
 import DataTable from '../../common/Table'
 import { ProjectRowType, projectsColumns } from '../../common/constants/project'
 
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { ProjectService } from '@etherealengine/client-core/src/common/services/ProjectService'
+import multiLogger from '@etherealengine/common/src/logger'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
+import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
-import { GrGithub, GrUpdate } from 'react-icons/gr'
+import { GrEdit, GrGithub, GrUpdate } from 'react-icons/gr'
+
+const logger = multiLogger.child({ component: 'client-core:ProjectTable' })
 
 export default function ProjectTable() {
   const { t } = useTranslation()
+  const modalProcessing = useHookstate(false)
+  const popoverState = getMutableState(PopoverState)
   const projectQuery = useFind(projectPath, {
     query: {
       allowed: true,
@@ -48,6 +58,18 @@ export default function ProjectTable() {
       }
     }
   })
+
+  const showConfirmDialog = (project: ProjectType, text: string, onSubmit: () => void) => {
+    popoverState.element.set(
+      <Modal
+        onSubmit={onSubmit}
+        onClose={!modalProcessing.value ? () => popoverState.element.set(null) : undefined}
+        hideFooter={modalProcessing.value}
+      >
+        {modalProcessing.value ? <LoadingCircle className="h-[10vh]" /> : <Text>{text}</Text>}
+      </Modal>
+    )
+  }
 
   const createRows = (rows: readonly ProjectType[]): ProjectRowType[] =>
     rows.map((row) => ({
@@ -72,22 +94,76 @@ export default function ProjectTable() {
           <Button startIcon={<GrUpdate />} size="small" className="bg-[#61759f] dark:bg-[#2A3753]">
             {t('admin:components.common.update')}
           </Button>
-          <Button startIcon={<GrGithub />} size="small" className="bg-[#61759f] dark:bg-[#2A3753]">
+          <Button
+            startIcon={<GrGithub />}
+            size="small"
+            className="bg-[#61759f] dark:bg-[#2A3753]"
+            onClick={() => {
+              showConfirmDialog(
+                row,
+                `${t('admin:components.project.confirmPushProjectToGithub')}? ${row.name} - ${row.repositoryPath}`,
+                async () => {
+                  if (!row || !row.repositoryPath || row.name === 'default-project') return
+
+                  modalProcessing.set(true)
+                  await ProjectService.pushProject(row.id).catch(() => modalProcessing.set(false))
+                  modalProcessing.set(false)
+
+                  popoverState.element.set(null)
+                }
+              )
+            }}
+          >
             {t('admin:components.project.actions.push')}
           </Button>
-          <Button startIcon={<HiLink />} size="small" className="bg-[#61759f] dark:bg-[#2A3753]">
-            {t('admin:components.project.actions.repo')}
+          <Button startIcon={<GrEdit />} size="small" className="bg-[#61759f] dark:bg-[#2A3753]" onClick={() => {}}>
+            {t('admin:components.project.actions.update')}
           </Button>
-          <Button startIcon={<IoPeopleOutline />} size="small" className="bg-[#61759f] dark:bg-[#2A3753]">
+          <Button
+            startIcon={<IoPeopleOutline />}
+            size="small"
+            className="bg-[#61759f] dark:bg-[#2A3753]"
+            onClick={() => {}}
+          >
             {t('admin:components.project.actions.access')}
           </Button>
-          <Button startIcon={<IoTerminalOutline />} size="small" className="bg-[#61759f] dark:bg-[#2A3753]">
+          <Button
+            startIcon={<IoTerminalOutline />}
+            size="small"
+            className="bg-[#61759f] dark:bg-[#2A3753]"
+            onClick={() => {
+              showConfirmDialog(
+                row,
+                `${t('admin:components.project.confirmProjectInvalidate')} '${row.name}'?`,
+                async () => {
+                  modalProcessing.set(true)
+                  await ProjectService.invalidateProjectCache(row.name)
+                  popoverState.element.set(null)
+                }
+              )
+            }}
+          >
             {t('admin:components.project.actions.invalidateCache')}
           </Button>
           <Button startIcon={<IoFolderOutline />} size="small" className="bg-[#61759f] dark:bg-[#2A3753]">
             {t('admin:components.common.view')}
           </Button>
-          <Button startIcon={<RiDeleteBinLine />} size="small" className="bg-[#61759f] dark:bg-[#2A3753]">
+          <Button
+            startIcon={<RiDeleteBinLine />}
+            size="small"
+            className="bg-[#61759f] dark:bg-[#2A3753]"
+            onClick={() => {
+              showConfirmDialog(
+                row,
+                `${t('admin:components.project.confirmProjectDelete')} '${row.name}'?`,
+                async () => {
+                  modalProcessing.set(true)
+                  await ProjectService.removeProject(row.id).catch((err) => logger.error(err))
+                  popoverState.element.set(null)
+                }
+              )
+            }}
+          >
             {t('admin:components.common.remove')}
           </Button>
         </div>

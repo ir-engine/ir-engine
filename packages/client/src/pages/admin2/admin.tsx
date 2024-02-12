@@ -24,6 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ThemeState } from '@etherealengine/client-core/src/common/services/ThemeService'
+import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
+import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
 import React, { useEffect } from 'react'
 import {
   HiArrowRightOnRectangle,
@@ -40,8 +42,6 @@ import {
   HiUserCircle
 } from 'react-icons/hi2'
 import { RiSendPlaneFill } from 'react-icons/ri'
-
-import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
 import ProjectTable from './components/project/ProjectTable'
 
 const sideBarItems = [
@@ -108,6 +108,7 @@ const Admin = () => {
       <div className="w-[80%]">
         <ProjectTable />
       </div>
+      <PopupMenu />
     </main>
   )
 }

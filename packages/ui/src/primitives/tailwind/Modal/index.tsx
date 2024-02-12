@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { MdClose } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import Button from '../Button'
@@ -31,42 +32,52 @@ import Text from '../Text'
 
 export interface ModalProps {
   title?: string
+  hideFooter?: boolean
   className?: string
-  children?: ReactNode
+  children: ReactNode
   onClose?: () => void
   onSubmit?: () => void
 }
 
 export const ModalHeader = ({ title, onClose }: { closeIcon?: boolean; title?: string; onClose?: () => void }) => {
   return (
-    <div className="relative flex items-center justify-center border-b border-[#e5e7eb] px-6 py-3">
+    <div className="border-b-theme-primary relative flex items-center justify-center border-b px-6 py-5">
       {title && <Text>{title}</Text>}
-      <Button variant="outline" className="absolute right-0 border-0" startIcon={<MdClose />} onClick={onClose} />
+      <Button
+        variant="outline"
+        className="absolute right-0 border-0 dark:bg-transparent dark:text-[#A3A3A3]"
+        startIcon={<MdClose />}
+        onClick={onClose}
+      />
     </div>
   )
 }
 
-export const ModalFooter = ({ onClose, onSubmit }) => {
+export const ModalFooter = ({ onCancel, onSubmit }: { onCancel?: () => void; onSubmit?: () => void }) => {
+  const { t } = useTranslation()
   return (
-    <div className="grid grid-cols-12 gap-6 border-t border-[#e5e7eb] pt-5">
-      <Button fullWidth className="col-span-12 md:col-span-6" size="small" onClick={onClose}>
-        Close
+    <div className="border-t-theme-primary grid grid-flow-col border-t px-6 py-5">
+      <Button variant="outline" onClick={onCancel}>
+        {t('common:components.cancel')}
       </Button>
-
-      <Button fullWidth className="col-span-12 md:col-span-6" size="small" onClick={onSubmit}>
-        Submit
-      </Button>
+      {onSubmit && (
+        <Button onClick={onSubmit} className="place-self-end">
+          {t('common:components.confirm')}
+        </Button>
+      )}
     </div>
   )
 }
 
-const Modal = ({ title, onClose, children, className }: ModalProps) => {
-  const twClassName = twMerge('bg-theme-primary rounded-xl shadow transition-all')
-
+const Modal = ({ title, onClose, onSubmit, hideFooter, children, className }: ModalProps) => {
+  const twClassName = twMerge('relative max-h-full w-full max-w-2xl p-4', className)
   return (
-    <div onClick={(e) => e.stopPropagation()} className={twClassName}>
-      <ModalHeader title={title} onClose={onClose} />
-      <div className="w-full px-10 py-6">{children}</div>
+    <div className={twClassName}>
+      <div className="bg-theme-primary relative rounded-lg shadow">
+        {onClose && <ModalHeader title={title} onClose={onClose} />}
+        <div className="w-full px-10 py-6">{children}</div>
+        {!hideFooter && <ModalFooter onCancel={onClose} onSubmit={onSubmit} />}
+      </div>
     </div>
   )
 }

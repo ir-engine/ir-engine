@@ -49,6 +49,11 @@ module.exports = {
           highlight: "var(--bg-highlight)",
           surfaceMain: "var(--bg-surface-main)"
         }
+      },
+      borderColor: {
+        theme: {
+          primary: "var(--border-primary)"
+        }
       }
     }
   }

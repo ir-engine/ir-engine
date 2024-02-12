@@ -29,7 +29,7 @@ import { PopoverState } from '@etherealengine/client-core/src/common/services/Po
 import { getMutableState } from '@etherealengine/hyperflux'
 import Button from '../Button'
 import PopupMenu from '../PopupMenu'
-import Modal, { ModalFooter } from './index'
+import Modal from './index'
 
 const ModelStory = ({ title }) => {
   const popover = getMutableState(PopoverState)
@@ -41,7 +41,7 @@ const ModelStory = ({ title }) => {
   const onOpen = () => {
     popover.set({
       element: (
-        <Modal title={title} onClose={onClose}>
+        <Modal title={title} onClose={onClose} onSubmit={() => {}}>
           <div className="mb-5 flex flex-col border-b border-[#e5e7eb]">
             <label className="text-secondary">Location</label>
             <input className="fIocus:outline-none rounded-lg px-3.5 py-1.5" type="text" placeholder="Enter here" />
@@ -54,7 +54,6 @@ const ModelStory = ({ title }) => {
               placeholder="Enter here"
             />
           </div>
-          <ModalFooter onClose={onClose} onSubmit={onClose} />
         </Modal>
       )
     })

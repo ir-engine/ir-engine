@@ -135,8 +135,9 @@ const TablePagination = ({
           <ul className="inline-flex h-8 -space-x-px text-sm rtl:space-x-reverse">
             <li>
               <button
+                disabled={currentPage === 0}
                 onClick={() => onPageChange(0)}
-                className="bg-theme-surfaceMain flex h-8 items-center justify-center rounded-s-lg border border-gray-300 px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:text-white"
+                className="bg-theme-surfaceMain flex h-8 items-center justify-center rounded-s-lg border border-gray-300 px-3 leading-tight text-gray-500 hover:enabled:bg-gray-100 hover:enabled:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:enabled:text-white"
               >
                 <HiRewind />
               </button>
@@ -144,7 +145,7 @@ const TablePagination = ({
             <li>
               <button
                 disabled={currentPage === 0}
-                className="bg-theme-surfaceMain flex h-8 items-center justify-center border border-gray-300 px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:text-white"
+                className="bg-theme-surfaceMain flex h-8 items-center justify-center border border-gray-300 px-3 leading-tight text-gray-500 hover:enabled:bg-gray-100 hover:enabled:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:enabled:text-white"
                 onClick={() => onPageChange(Math.max(0, currentPage - 1))}
               >
                 <GoChevronLeft />
@@ -154,7 +155,7 @@ const TablePagination = ({
               <li key={page}>
                 <button
                   onClick={() => onPageChange(page)}
-                  className={`bg-theme-surfaceMain flex h-8 items-center justify-center border border-gray-300 px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:text-white ${
+                  className={`bg-theme-surfaceMain flex h-8 items-center justify-center border border-gray-300 px-3 leading-tight text-gray-500 hover:enabled:bg-gray-100 hover:enabled:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:enabled:text-white ${
                     currentPage === page ? 'bg-blue-50 dark:bg-gray-500' : ''
                   }`}
                 >
@@ -166,15 +167,16 @@ const TablePagination = ({
               <button
                 disabled={currentPage === totalPages - 1}
                 onClick={() => onPageChange(Math.min(totalPages - 1, currentPage + 1))}
-                className="bg-theme-surfaceMain flex h-8 items-center justify-center border border-gray-300 px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:text-white"
+                className="bg-theme-surfaceMain flex h-8 items-center justify-center border border-gray-300 px-3 leading-tight text-gray-500 hover:enabled:bg-gray-100 hover:enabled:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:enabled:text-white"
               >
                 <GoChevronRight />
               </button>
             </li>
             <li>
               <button
+                disabled={currentPage === totalPages - 1}
                 onClick={() => onPageChange(totalPages - 1)}
-                className="bg-theme-surfaceMain flex h-8 items-center justify-center rounded-e-lg border border-gray-300 px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:text-white"
+                className="bg-theme-surfaceMain flex h-8 items-center justify-center rounded-e-lg border border-gray-300 px-3 leading-tight text-gray-500 hover:enabled:bg-gray-100 hover:enabled:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:enabled:text-white"
               >
                 <HiFastForward />
               </button>
