@@ -25,23 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { InputHTMLAttributes } from 'react'
 import { twMerge } from 'tailwind-merge'
-
-export interface LabelProps extends React.HtmlHTMLAttributes<HTMLLabelElement> {
-  className?: string
-}
-
-const Label = ({ className, children }: LabelProps) => {
-  return (
-    <label
-      className={twMerge(
-        'text-theme-secondary text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
-        className
-      )}
-    >
-      {children}
-    </label>
-  )
-}
+import Label from '../Label'
 
 export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   value: string | number
@@ -64,7 +48,7 @@ const Input = ({
 }: InputProps) => {
   const twInputClassname = twMerge(
     'text-base font-normal tracking-tight',
-    'textshadow-sm flex h-9 w-full rounded-lg border bg-transparent px-3.5 py-5 transition-colors',
+    'textshadow-sm border-theme-primary flex h-9 w-full rounded-lg border bg-transparent px-3.5 py-5 transition-colors',
     'file:border-0 file:bg-transparent file:text-sm file:font-medium',
     'placeholder:text-muted-foreground focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50',
     inputClassName

@@ -40,7 +40,8 @@ import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCir
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
-import { GrEdit, GrGithub, GrUpdate } from 'react-icons/gr'
+import { GrEdit, GrGithub } from 'react-icons/gr'
+import AddEditProjectModal from './AddEditProjectModal'
 
 const logger = multiLogger.child({ component: 'client-core:ProjectTable' })
 
@@ -91,9 +92,6 @@ export default function ProjectTable() {
         : '-',
       actions: (
         <div className="flex justify-evenly">
-          <Button startIcon={<GrUpdate />} size="small" className="bg-[#61759f] dark:bg-[#2A3753]">
-            {t('admin:components.common.update')}
-          </Button>
           <Button
             startIcon={<GrGithub />}
             size="small"
@@ -116,7 +114,14 @@ export default function ProjectTable() {
           >
             {t('admin:components.project.actions.push')}
           </Button>
-          <Button startIcon={<GrEdit />} size="small" className="bg-[#61759f] dark:bg-[#2A3753]" onClick={() => {}}>
+          <Button
+            startIcon={<GrEdit />}
+            size="small"
+            className="bg-[#61759f] dark:bg-[#2A3753]"
+            onClick={() => {
+              popoverState.element.set(<AddEditProjectModal />)
+            }}
+          >
             {t('admin:components.project.actions.update')}
           </Button>
           <Button

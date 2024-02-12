@@ -157,7 +157,7 @@
       "updateAndRebuild": "Update Engine/Rebuild",
       "checking": "Checking Rebuild",
       "project": "Project",
-      "githubUrl": "Github URL",
+      "githubUrl": "GitHub URL",
       "urlRequired": "URL is required",
       "urlCantEmpty": "URL can't be empty",
       "updateGithubRepoLink": "Update GitHub Repo Link",
