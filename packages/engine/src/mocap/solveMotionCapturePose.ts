@@ -539,10 +539,6 @@ export const solveLimb = (
 ) => {
   if (!start || !mid || !end) return
 
-  const rig = getComponent(entity, AvatarRigComponent)
-
-  const parentQuaternion = rig.rawRig[parentTargetBoneName]!.node.getWorldQuaternion(new Quaternion())
-
   startPoint.set(-start.x, lowestWorldY - start.y, -start.z)
   midPoint.set(-mid.x, lowestWorldY - mid.y, -mid.z)
   endPoint.set(-end.x, lowestWorldY - end.y, -end.z)
@@ -551,7 +547,7 @@ export const solveLimb = (
   const midQuaternion = new Quaternion().setFromUnitVectors(axis, vec3.subVectors(midPoint, endPoint).normalize())
 
   // convert to local space
-  const startLocal = new Quaternion().copy(startQuaternion).premultiply(parentQuaternion)
+  const startLocal = new Quaternion().copy(startQuaternion)
   const midLocal = new Quaternion().copy(midQuaternion).premultiply(startQuaternion.clone().invert())
 
   MotionCaptureRigComponent.rig[startTargetBoneName].x[entity] = startLocal.x
