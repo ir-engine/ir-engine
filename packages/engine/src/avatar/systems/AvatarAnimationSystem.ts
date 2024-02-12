@@ -213,10 +213,11 @@ const execute = () => {
         _hint
       )
 
-      rigComponent.ikMatrices.rightUpperArm.world.makeRotationFromQuaternion(
-        rawRig.rightUpperArm.node.getWorldQuaternion(new Quaternion())
+      rigComponent.ikMatrices.rightUpperArm.world.identity()
+      rigComponent.ikMatrices.rightUpperArm.world.multiplyMatrices(
+        rigComponent.normalizedRig.rightUpperArm.node.parent!.matrixWorld,
+        rigComponent.ikMatrices.rightUpperArm.local
       )
-      rigComponent.ikMatrices.rightUpperArm.world.setPosition(rawRig.rightUpperArm.node.getWorldPosition(new Vector3()))
 
       solveTwoBoneIK(
         VRMHumanBoneName.RightUpperArm,
