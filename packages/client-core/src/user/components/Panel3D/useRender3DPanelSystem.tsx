@@ -114,7 +114,8 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
         ObjectLayerMaskComponent.setLayer(light, ObjectLayers.AssetPreview)
         setComponent(light, TransformComponent, { rotation: new Quaternion().setFromEuler(rotation) })
         setComponent(light, DirectionalLightComponent, {
-          intensity
+          intensity,
+          useInCSM: false
         })
         setComponent(light, VisibleComponent, true)
         setComponent(light, NameComponent, '3D Preview Light')
