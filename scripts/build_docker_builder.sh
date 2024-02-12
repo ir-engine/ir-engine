@@ -20,6 +20,13 @@ else
   aws ecr-public describe-repositories --repository-names $REPO_NAME-builder --region us-east-1 || aws ecr-public create-repository --repository-name $REPO_NAME-builder --region us-east-1
 fi
 
+docker buildx build \
+    --load \
+    -t $ECR_URL/$REPO_NAME-root:${TAG} \
+    -t $DOCR_REGISTRY/$REPO_NAME-root:latest_$STAGE \
+    -f dockerfiles/root/Dockerfile-root .
+docker push --all-tags $DOCR_REGISTRY/$REPO_NAME-root
+
 if [ $PUBLISH_DOCKERHUB == 'true' ]
 then
   echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
