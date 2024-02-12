@@ -100,20 +100,25 @@ describe('Runner', () => {
 
     const context = 'test deps 1'
 
+    let count = 0
+
     const runner = () => {
       Runner.runEffect(() => {
+        count++
         states.a = entities.a
       }, [entities.a])
     }
 
     Runner.runContext(context, runner)
 
+    assert.equal(count, 1)
     assert.equal(states.a, undefined)
 
     entities.a = 1
 
     Runner.runContext(context, runner)
 
+    assert.equal(count, 2)
     assert.equal(states.a, 1)
   })
 
@@ -122,11 +127,14 @@ describe('Runner', () => {
     const states = {} as { a: number }
 
     const context = 'test deps 2'
+
+    let mount = 0
     let unmount = 0
 
     const runner = () => {
       Runner.runEffect(() => {
         states.a = entities.a
+        mount++
         return () => {
           unmount++
         }
@@ -137,20 +145,23 @@ describe('Runner', () => {
 
     assert.equal(states.a, undefined)
     assert.equal(unmount, 0)
+    assert.equal(mount, 1)
 
     entities.a = 1
 
     Runner.runContext(context, runner)
 
     assert.equal(states.a, 1)
-    assert.equal(unmount, 0)
+    assert.equal(unmount, 1)
+    assert.equal(mount, 2)
 
     entities.a = 2
 
     Runner.runContext(context, runner)
 
     assert.equal(states.a, 2)
-    assert.equal(unmount, 1)
+    assert.equal(unmount, 2)
+    assert.equal(mount, 3)
   })
 
   it('should not run effect when dependencies do not change', () => {
@@ -175,24 +186,28 @@ describe('Runner', () => {
     Runner.runContext(context, runner)
 
     assert.equal(states.a, undefined)
-    assert.equal(mount, 0)
+    assert.equal(mount, 1)
+    assert.equal(unmount, 0)
 
     Runner.runContext(context, runner)
 
     assert.equal(states.a, undefined)
-    assert.equal(mount, 0)
+    assert.equal(mount, 1)
+    assert.equal(unmount, 0)
 
     entities.a = 1
 
     Runner.runContext(context, runner)
 
     assert.equal(states.a, 1)
-    assert.equal(mount, 1)
+    assert.equal(mount, 2)
+    assert.equal(unmount, 1)
 
     Runner.runContext(context, runner)
 
     assert.equal(states.a, 1)
-    assert.equal(mount, 1)
+    assert.equal(mount, 2)
+    assert.equal(unmount, 1)
   })
 
   it('should run effect unmount when context is destroyed', () => {
@@ -253,12 +268,15 @@ describe('Runner', () => {
     const states = {} as { a: number }
 
     const context = 'test deps 5'
+
+    let mount = 0
     let unmount = 0
 
     const runner = () => {
       Runner.runGroup(['hi'], (val) => {
         Runner.runEffect(() => {
           states.a = entities.a
+          mount++
           return () => {
             unmount++
           }
@@ -269,6 +287,7 @@ describe('Runner', () => {
     Runner.runContext(context, runner)
 
     assert.equal(states.a, undefined)
+    assert.equal(mount, 1)
     assert.equal(unmount, 0)
 
     entities.a = 1
@@ -276,14 +295,16 @@ describe('Runner', () => {
     Runner.runContext(context, runner)
 
     assert.equal(states.a, 1)
-    assert.equal(unmount, 0)
+    assert.equal(mount, 2)
+    assert.equal(unmount, 1)
 
     entities.a = 2
 
     Runner.runContext(context, runner)
 
     assert.equal(states.a, 2)
-    assert.equal(unmount, 1)
+    assert.equal(mount, 3)
+    assert.equal(unmount, 2)
   })
 
   it('should run multiple effects with dependencies', () => {
@@ -323,8 +344,8 @@ describe('Runner', () => {
 
     assert.equal(states.a, undefined)
     assert.equal(states.b, undefined)
-    assert.equal(mountA, 0)
-    assert.equal(mountB, 0)
+    assert.equal(mountA, 1)
+    assert.equal(mountB, 1)
     assert.equal(unmountA, 0)
     assert.equal(unmountB, 0)
 
@@ -334,9 +355,9 @@ describe('Runner', () => {
 
     assert.equal(states.a, 1)
     assert.equal(states.b, undefined)
-    assert.equal(mountA, 1)
-    assert.equal(mountB, 0)
-    assert.equal(unmountA, 0)
+    assert.equal(mountA, 2)
+    assert.equal(mountB, 1)
+    assert.equal(unmountA, 1)
     assert.equal(unmountB, 0)
 
     entities.b = 2
@@ -346,10 +367,10 @@ describe('Runner', () => {
     assert.equal(states.a, 1)
     assert.equal(states.b, 2)
 
-    assert.equal(mountA, 1)
-    assert.equal(mountB, 1)
-    assert.equal(unmountA, 0)
-    assert.equal(unmountB, 0)
+    assert.equal(mountA, 2)
+    assert.equal(mountB, 2)
+    assert.equal(unmountA, 1)
+    assert.equal(unmountB, 1)
 
     entities.a = 3
 
@@ -357,10 +378,10 @@ describe('Runner', () => {
 
     assert.equal(states.a, 3)
     assert.equal(states.b, 2)
-    assert.equal(mountA, 2)
-    assert.equal(mountB, 1)
-    assert.equal(unmountA, 1)
-    assert.equal(unmountB, 0)
+    assert.equal(mountA, 3)
+    assert.equal(mountB, 2)
+    assert.equal(unmountA, 2)
+    assert.equal(unmountB, 1)
   })
 
   it('should run multiple effects with dependencies in a group', () => {
@@ -402,8 +423,8 @@ describe('Runner', () => {
 
     assert.equal(states.a, undefined)
     assert.equal(states.b, undefined)
-    assert.equal(mountA, 0)
-    assert.equal(mountB, 0)
+    assert.equal(mountA, 1)
+    assert.equal(mountB, 1)
     assert.equal(unmountA, 0)
     assert.equal(unmountB, 0)
 
@@ -413,9 +434,9 @@ describe('Runner', () => {
 
     assert.equal(states.a, 1)
     assert.equal(states.b, undefined)
-    assert.equal(mountA, 1)
-    assert.equal(mountB, 0)
-    assert.equal(unmountA, 0)
+    assert.equal(mountA, 2)
+    assert.equal(mountB, 1)
+    assert.equal(unmountA, 1)
     assert.equal(unmountB, 0)
 
     entities.b = 2
@@ -425,10 +446,10 @@ describe('Runner', () => {
     assert.equal(states.a, 1)
     assert.equal(states.b, 2)
 
-    assert.equal(mountA, 1)
-    assert.equal(mountB, 1)
-    assert.equal(unmountA, 0)
-    assert.equal(unmountB, 0)
+    assert.equal(mountA, 2)
+    assert.equal(mountB, 2)
+    assert.equal(unmountA, 1)
+    assert.equal(unmountB, 1)
 
     entities.a = 3
 
@@ -436,10 +457,10 @@ describe('Runner', () => {
 
     assert.equal(states.a, 3)
     assert.equal(states.b, 2)
-    assert.equal(mountA, 2)
-    assert.equal(mountB, 1)
-    assert.equal(unmountA, 1)
-    assert.equal(unmountB, 0)
+    assert.equal(mountA, 3)
+    assert.equal(mountB, 2)
+    assert.equal(unmountA, 2)
+    assert.equal(unmountB, 1)
   })
 
   it('should run group with multiple changing entries', () => {
@@ -592,7 +613,7 @@ describe('Runner', () => {
     assert.equal(runnerUnmount, 0)
     assert.equal(mount, 0)
     assert.equal(unmount, 0)
-    assert.equal(stateChange, 1)
+    assert.equal(stateChange, 2)
 
     ids.push('1')
     entities['1'] = { a: 1, b: 2 }
@@ -601,7 +622,7 @@ describe('Runner', () => {
 
     assert.equal(runnerMount, 1)
     assert.equal(runnerUnmount, 0)
-    assert.equal(stateChange, 1)
+    assert.equal(stateChange, 2)
     assert.equal(mount, 1)
     assert.equal(unmount, 0)
   })
@@ -610,7 +631,7 @@ describe('Runner', () => {
     const ids = [] as string[]
     const ids2 = [] as string[]
 
-    const context = 'test deps 9'
+    const context = 'test deps 10'
 
     let mount = 0
     let unmount = 0

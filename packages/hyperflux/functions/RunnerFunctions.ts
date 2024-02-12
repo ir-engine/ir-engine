@@ -46,7 +46,6 @@ let _currentContext = null as SubContext | null
 const _cleanup = () => {
   const context = _currentContext!
   for (const child of Object.values(context.groups)) {
-    // console.log(child)
     if (typeof child !== 'object') continue
     if ('groups' in child) {
       _currentContext = child as SubContext
@@ -78,7 +77,7 @@ const runContext = (context: string, cb: () => void) => {
   _currentContext = contexts[context]
   _currentContext.effectIndex = 0
   cb()
-  console.log('runContext', JSON.stringify(_currentContext, null, 2))
+  // console.log('runContext', JSON.stringify(_currentContext, null, 2))
   _currentContext = null
 
   return contexts[context]
@@ -94,14 +93,12 @@ const runGroup = <T = string | number>(arr: Array<T>, cb: (val: T) => void) => {
 
   // run cleanup for all children that are no longer in the array
   for (const val of _parentContext.lastVals) {
-    // console.log('val', val, arr[i])
     if (arr.includes(val)) {
       // todo optimize '.includes'
       continue
     }
 
     _currentContext = _parentContext.groups[val] as SubContext
-    // console.log('unmount in group', i, JSON.stringify(_context, null, 2), context)
     _cleanup()
     delete _parentContext.groups[val]
     _currentContext = _parentContext
@@ -109,10 +106,6 @@ const runGroup = <T = string | number>(arr: Array<T>, cb: (val: T) => void) => {
 
   _parentContext.lastVals = [...arr]
 
-  // const childContext = _parentContext.children[i] as SubContext | Effect
-
-  // console.log('group', JSON.stringify(_context, null, 2), arr)
-  // run cb for all children that are in the array
   for (let i = 0; i < arr.length; i++) {
     const val = arr[i] as string | number
     if (!_parentContext.groups[val]) {
@@ -126,7 +119,6 @@ const runGroup = <T = string | number>(arr: Array<T>, cb: (val: T) => void) => {
 
     _currentContext = _parentContext.groups[val] as SubContext
     _currentContext.effectIndex = 0
-    // console.log(_currentContext)
     cb(val as T)
   }
 
@@ -149,16 +141,11 @@ const runEffect = (cb: () => (() => void) | void, deps: Array<any>) => {
 
   const context = _parentContext.effects[index] as Effect
 
-  // console.log('runEffect', index, context.lastVals, deps)
-
   if (!context.lastVals) {
     context.lastVals = [...deps]
-    // for effects without dependencies, run once and never again
-    if (!deps.length) {
-      context.lastCallback = cb() as () => void | undefined
-      // console.log('after', context)
-      return
-    }
+    // run on initial mount
+    context.lastCallback = cb() as () => void | undefined
+    return
   } else {
     if (context.lastVals.length != deps.length) throw new Error('deps length must not change')
   }
@@ -171,7 +158,6 @@ const runEffect = (cb: () => (() => void) | void, deps: Array<any>) => {
     if (typeof lastVals[i] !== typeof deps[i] || lastVals[i] !== deps[i]) {
       if (context.lastCallback) context.lastCallback()
       context.lastCallback = cb() as () => void | undefined
-      // console.log('after', i, lastVals[i], deps[i], context)
       lastVals[i] = deps[i]
     }
   }
