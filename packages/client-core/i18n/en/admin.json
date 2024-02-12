@@ -132,6 +132,19 @@
       "name": "Channel Name"
     },
     "project": {
+      "columns": {
+        "name": "Name",
+        "projectVersion": "Version",
+        "commitSHA": "Commit SHA",
+        "commitDate": "Commit Date",
+        "actions": "Actions"
+      },
+      "actions": {
+        "push": "Push",
+        "repo": "Repo",
+        "access": "Access",
+        "invalidateCache": "Invalidate Cache"
+      },
       "addProject": "Add Project",
       "updateProject": "Update Project",
       "downloadProject": "Download Project",
