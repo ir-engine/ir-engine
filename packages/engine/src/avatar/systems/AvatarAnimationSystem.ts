@@ -301,12 +301,13 @@ const execute = () => {
     updateVRMRetargeting(rigComponent.vrm, entity)
 
     /** temporary hack for normalized bones to work with ik solves */
-    for (const boneName of VRMHumanBoneList) {
-      if (normalizedRig[boneName]) {
-        if (boneName == 'hips') normalizedRig[boneName]!.node.matrixWorld.copy(transform.matrixWorld)
-        else normalizedRig[boneName]!.node.updateMatrixWorld()
+    if (headTargetBlendWeight)
+      for (const boneName of VRMHumanBoneList) {
+        if (normalizedRig[boneName]) {
+          if (boneName == 'hips') normalizedRig[boneName]!.node.matrixWorld.copy(transform.matrixWorld)
+          else normalizedRig[boneName]!.node.updateMatrixWorld()
+        }
       }
-    }
   }
 }
 
