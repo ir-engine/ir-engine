@@ -66,14 +66,9 @@ describe('EntityNetworkState', () => {
     return destroyEngine()
   })
 
-  const EntityNetworkStateSystemReactor = SystemDefinitions.get(EntityNetworkStateSystem)!.reactor!
+  const executeEntityNetworkStateSystem = SystemDefinitions.get(EntityNetworkStateSystem)!.execute!
   const NetworkWorldUserStateSystemReactor = SystemDefinitions.get(NetworkWorldUserStateSystem)!.reactor!
-  const tag = (
-    <>
-      <EntityNetworkStateSystemReactor />
-      <NetworkWorldUserStateSystemReactor />
-    </>
-  )
+  const tag = <NetworkWorldUserStateSystemReactor />
 
   describe('spawnObject', () => {
     it('should spawn object owned by host', async () => {
@@ -104,6 +99,7 @@ describe('EntityNetworkState', () => {
 
       const { rerender, unmount } = render(tag)
       await act(() => rerender(tag))
+      executeEntityNetworkStateSystem()
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -149,6 +145,7 @@ describe('EntityNetworkState', () => {
 
       const { rerender, unmount } = render(tag)
       await act(() => rerender(tag))
+      executeEntityNetworkStateSystem()
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -196,6 +193,7 @@ describe('EntityNetworkState', () => {
 
       const { rerender, unmount } = render(tag)
       await act(() => rerender(tag))
+      executeEntityNetworkStateSystem()
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -233,6 +231,7 @@ describe('EntityNetworkState', () => {
 
       const { rerender, unmount } = render(tag)
       await act(() => rerender(tag))
+      executeEntityNetworkStateSystem()
 
       const entity = UUIDComponent.getEntityByUUID(Engine.instance.userID as any as EntityUUID)
 
@@ -277,6 +276,7 @@ describe('EntityNetworkState', () => {
 
       const { rerender, unmount } = render(tag)
       await act(() => rerender(tag))
+      executeEntityNetworkStateSystem()
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -303,10 +303,12 @@ describe('EntityNetworkState', () => {
       ActionFunctions.applyIncomingActions()
 
       await act(() => rerender(tag))
+      executeEntityNetworkStateSystem()
 
       ActionFunctions.applyIncomingActions()
 
       await act(() => rerender(tag))
+      executeEntityNetworkStateSystem()
 
       const networkObjectEntitiesAfter = networkObjectQuery()
       const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery()
@@ -352,6 +354,7 @@ describe('EntityNetworkState', () => {
 
     const { rerender, unmount } = render(tag)
     await act(() => rerender(tag))
+    executeEntityNetworkStateSystem()
 
     const networkObjectQuery = defineQuery([NetworkObjectComponent])
     const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
