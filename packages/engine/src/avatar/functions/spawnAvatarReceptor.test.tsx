@@ -30,10 +30,15 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { SystemDefinitions } from '@etherealengine/ecs'
 import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkWorldUserStateSystem } from '@etherealengine/spatial/src/networking/NetworkUserState'
+import { Network } from '@etherealengine/spatial/src/networking/classes/Network'
+import { NetworkPeerFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkPeerFunctions'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import {
   RigidBodyComponent,
@@ -41,6 +46,10 @@ import {
 } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { createMockNetwork } from '@etherealengine/spatial/tests/util/createMockNetwork'
+import { render } from '@testing-library/react'
+import React from 'react'
+import { act } from 'react-dom/test-utils'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -56,13 +65,23 @@ describe('spawnAvatarReceptor', () => {
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
     Engine.instance.userID = 'user' as UserID
     loadEmptyScene()
+    createMockNetwork()
   })
 
   afterEach(() => {
     return destroyEngine()
   })
 
+  const NetworkWorldUserStateSystemReactor = SystemDefinitions.get(NetworkWorldUserStateSystem)!.reactor!
+  const tag = <NetworkWorldUserStateSystemReactor />
+
   it('check the create avatar function', async () => {
+    const network = NetworkState.worldNetwork as Network
+    NetworkPeerFunctions.createPeer(network, Engine.instance.peerID, 0, Engine.instance.userID, 0, 'user name')
+
+    const { rerender, unmount } = render(tag)
+    await act(() => rerender(tag))
+
     // mock entity to apply incoming unreliable updates to
     dispatchAction(
       AvatarNetworkAction.spawn({
@@ -87,5 +106,7 @@ describe('spawnAvatarReceptor', () => {
     assert(hasComponent(entity, AvatarControllerComponent))
     assert(hasComponent(entity, RigidBodyComponent))
     assert(hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent))
+
+    unmount()
   })
 })

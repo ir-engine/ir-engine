@@ -32,13 +32,17 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Runner, defineState, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { Engine, getOptionalComponent, removeEntity, setComponent } from '@etherealengine/ecs'
+import { Engine, getOptionalComponent, removeComponent, removeEntity, setComponent } from '@etherealengine/ecs'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkState, SceneUser } from '../NetworkState'
 import { NetworkWorldUserState } from '../NetworkUserState'
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import {
+  NetworkObjectAuthorityTag,
+  NetworkObjectComponent,
+  NetworkObjectOwnedTag
+} from '../components/NetworkObjectComponent'
 
 export const EntityNetworkState = defineState({
   name: 'ee.EntityNetworkState',
@@ -90,12 +94,13 @@ export const EntityNetworkState = defineState({
   },
 
   onEventSourcing: () => {
-    Runner.runContext('entityNetwork', entityNetworkContext)
+    Runner.runContext(EntityNetworkState.name, entityNetworkContext)
   }
 })
 
 const entityNetworkContext = () => {
   const keys = Object.keys(getState(EntityNetworkState))
+  console.log('entityNetworkContext', keys)
   Runner.runGroup(keys, entityNetwork)
 }
 
@@ -123,17 +128,26 @@ const entityNetwork = (uuid: EntityUUID) => {
   Runner.runEffect(() => {
     if (!userConnected) return
     const entity = UUIDComponent.getEntityByUUID(uuid)
+
+    const ownerId =
+      ownerID === SceneUser
+        ? isWorldNetworkConnected
+          ? NetworkState.worldNetwork.hostId
+          : Engine.instance.userID
+        : ownerID
+
     setComponent(entity, NetworkObjectComponent, {
-      ownerId:
-        ownerID === SceneUser
-          ? isWorldNetworkConnected
-            ? NetworkState.worldNetwork.hostId
-            : Engine.instance.userID
-          : ownerID,
+      ownerId,
       ownerPeer: state.ownerPeer,
       authorityPeerID: state.authorityPeerId,
       networkId: state.networkId
     })
+
+    if (state.authorityPeerId === Engine.instance.peerID) setComponent(entity, NetworkObjectAuthorityTag)
+    else removeComponent(entity, NetworkObjectAuthorityTag)
+
+    if (ownerId === Engine.instance.userID) setComponent(entity, NetworkObjectOwnedTag)
+    else removeComponent(entity, NetworkObjectOwnedTag)
   }, [isWorldNetworkConnected, userConnected, state.ownerId, state.authorityPeerId, state.networkId])
 
   Runner.runEffect(() => {

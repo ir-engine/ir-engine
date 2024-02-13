@@ -24,24 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import * as bitecs from 'bitecs'
-import { useEffect } from 'react'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import {
   Component,
-  Engine,
   Entity,
   UndefinedEntity,
   defineComponent,
   defineQuery,
   getComponent,
-  hasComponent,
-  removeComponent,
-  setComponent,
-  useComponent,
-  useEntityContext
+  hasComponent
 } from '@etherealengine/ecs'
 
 /** ID of last network created. */
@@ -83,24 +77,6 @@ export const NetworkObjectComponent = defineComponent({
       component.networkId.set(json.networkId)
       NetworkObjectComponent.networkId[entity] = json.networkId
     }
-  },
-
-  reactor: function () {
-    const entity = useEntityContext()
-    const networkObject = useComponent(entity, NetworkObjectComponent)
-
-    useEffect(() => {
-      if (networkObject.authorityPeerID.value === Engine.instance.peerID)
-        setComponent(entity, NetworkObjectAuthorityTag)
-      else removeComponent(entity, NetworkObjectAuthorityTag)
-    }, [networkObject.authorityPeerID])
-
-    useEffect(() => {
-      if (networkObject.ownerId.value === Engine.instance.userID) setComponent(entity, NetworkObjectOwnedTag)
-      else removeComponent(entity, NetworkObjectOwnedTag)
-    }, [networkObject.ownerId])
-
-    return null
   },
 
   /**

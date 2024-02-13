@@ -83,6 +83,9 @@ describe('EntityNetworkState', () => {
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'host')
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
 
+      const { rerender, unmount } = render(tag)
+      await act(() => rerender(tag))
+
       const objNetId = 3 as NetworkId
 
       dispatchAction(
@@ -96,9 +99,6 @@ describe('EntityNetworkState', () => {
       )
 
       applyIncomingActions()
-
-      const { rerender, unmount } = render(tag)
-      await act(() => rerender(tag))
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -132,7 +132,6 @@ describe('EntityNetworkState', () => {
       const { rerender, unmount } = render(tag)
       await act(() => rerender(tag))
 
-      const objParams = 123
       const objNetId = 3 as NetworkId
 
       dispatchAction(
