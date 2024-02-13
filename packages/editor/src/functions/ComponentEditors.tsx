@@ -71,8 +71,8 @@ import GroundPlaneNodeEditor from '../components/properties/GroundPlaneNodeEdito
 import HemisphereLightNodeEditor from '../components/properties/HemisphereLightNodeEditor'
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
 // import InstancingNodeEditor from '../components/properties/InstancingNodeEditor'
-import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
-import BehaveGraphNodeEditor from '../components/properties/BehaveGraphNodeEditor'
+import { VisualScriptComponent } from '@etherealengine/engine/src/visual-script/components/VisualScriptComponent'
+import VisualScriptNodeEditor from '../components/properties/VisualScriptNodeEditor'
 
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
@@ -168,6 +168,6 @@ EntityNodeEditor.set(PersistentAnchorComponent, PersistentAnchorNodeEditor)
 EntityNodeEditor.set(VariantComponent, VariantNodeEditor)
 EntityNodeEditor.set(SplineComponent, SplineNodeEditor)
 EntityNodeEditor.set(SplineTrackComponent, SplineTrackNodeEditor)
-EntityNodeEditor.set(BehaveGraphComponent, BehaveGraphNodeEditor)
+EntityNodeEditor.set(VisualScriptComponent, VisualScriptNodeEditor)
 EntityNodeEditor.set(LinkComponent, LinkNodeEditor)
 EntityNodeEditor.set(TextComponent, TextNodeEditor)

@@ -42,8 +42,11 @@ import { ComputedTransformComponent } from '@etherealengine/spatial/src/transfor
 import PauseIcon from '@mui/icons-material/Pause'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 
-import { BehaveGraphActions, graphQuery } from '@etherealengine/engine/src/behave-graph/systems/BehaveGraphSystem'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import {
+  VisualScriptActions,
+  visualScriptQuery
+} from '@etherealengine/engine/src/visual-script/systems/VisualScriptSystem'
 import { useTranslation } from 'react-i18next'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
@@ -66,10 +69,10 @@ const PlayModeTool = () => {
       removeComponent(Engine.instance.cameraEntity, FollowCameraComponent)
       removeComponent(Engine.instance.cameraEntity, TargetCameraRotationComponent)
       getMutableState(EngineState).isEditing.set(true)
-      graphQuery().forEach((entity) => dispatchAction(BehaveGraphActions.stop({ entity })))
+      visualScriptQuery().forEach((entity) => dispatchAction(VisualScriptActions.stop({ entity })))
 
       SceneState.applyCurrentSnapshot(getState(SceneState).activeScene!)
-      // stop all behave graph logic
+      // stop all visual script logic
     } else {
       const avatarDetails = authState.user.avatar.value
 
@@ -84,8 +87,8 @@ const PlayModeTool = () => {
 
       // todo
       // getMutableState(EngineState).isEditing.set(false)
-      // run all behave graph logic
-      graphQuery().forEach((entity) => dispatchAction(BehaveGraphActions.execute({ entity })))
+      // run all visual script logic
+      visualScriptQuery().forEach((entity) => dispatchAction(VisualScriptActions.execute({ entity })))
     }
   }
 

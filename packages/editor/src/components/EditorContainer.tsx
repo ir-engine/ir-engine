@@ -63,12 +63,12 @@ import SaveSceneDialog from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 import { PropertiesPanelTab } from './element/PropertiesPanel'
-import { GraphPanelTab } from './graph/GraphPanel'
 import { HierarchyPanelTab } from './hierarchy/HierarchyPanel'
 import { MaterialLibraryPanelTab } from './materials/MaterialLibraryPanel'
 import { ViewportPanelTab } from './panels/ViewportPanel'
 import * as styles from './styles.module.scss'
 import ToolBar from './toolbar/ToolBar'
+import { VisualScriptPanelTab } from './visualScript/VisualScriptPanel'
 
 const logger = multiLogger.child({ component: 'editor:EditorContainer' })
 
@@ -324,7 +324,7 @@ const defaultLayout: LayoutData = {
             tabs: [HierarchyPanelTab, MaterialLibraryPanelTab]
           },
           {
-            tabs: [PropertiesPanelTab, GraphPanelTab]
+            tabs: [PropertiesPanelTab, VisualScriptPanelTab]
           }
         ]
       }
@@ -335,7 +335,7 @@ const defaultLayout: LayoutData = {
 const tabs = [
   HierarchyPanelTab,
   PropertiesPanelTab,
-  GraphPanelTab,
+  VisualScriptPanelTab,
   MaterialLibraryPanelTab,
   ViewportPanelTab,
   ProjectBrowserPanelTab,
