@@ -413,7 +413,8 @@ const config = {
   },
   noSSL: process.env.NOSSL === 'true',
   localBuild: process.env.VITE_LOCAL_BUILD === 'true',
-  testEnabled
+  testEnabled,
+  allowOutOfDateProjects: process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'true'
 }
 
 chargebeeInst.configure({
