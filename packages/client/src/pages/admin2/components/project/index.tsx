@@ -24,10 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
+import { isDev } from '@etherealengine/common/src/config'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiArrowPath, HiPlus } from 'react-icons/hi2'
 import ProjectTable from './ProjectTable'
@@ -35,6 +38,23 @@ import UpdateEngineModal from './UpdateEngineModal'
 
 export default function AdminProject() {
   const { t } = useTranslation()
+  const projectState = useHookstate(getMutableState(ProjectState))
+
+  ProjectService.useAPIListeners()
+
+  useEffect(() => {
+    let interval
+
+    if (projectState.rebuilding.value) {
+      interval = setInterval(ProjectService.checkReloadStatus, 10000)
+    } else {
+      clearInterval(interval)
+      ProjectService.fetchProjects()
+    }
+
+    return () => clearInterval(interval)
+  }, [projectState.rebuilding.value])
+
   return (
     <div>
       <Text className="mb-6" fontSize="xl">
@@ -54,8 +74,12 @@ export default function AdminProject() {
             onClick={() => {
               getMutableState(PopoverState).element.set(<UpdateEngineModal />)
             }}
+            // disabled={isDev}
+            endIcon={!isDev && projectState.rebuilding.value ? <LoadingCircle className="h-6 w-6" /> : undefined}
           >
-            {t('admin:components.project.updateAndRebuild')}
+            {!isDev && projectState.rebuilding.value
+              ? t('admin:components.project.rebuilding')
+              : t('admin:components.project.updateAndRebuild')}
           </Button>
           <Button startIcon={<HiPlus />} size="small">
             {t('admin:components.project.addProject')}

@@ -26,16 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React, { ReactNode } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-/**
- * Button component
- *
- * @param {ReactNode} startIcon - SVG Icon placed before the children.
- * @param {ReactNode} endIcon - SVG Icon placed after the children.
- * @param {ReactNode} children
- * @param {'small' | 'medium' | 'large'} [size] - The size of the component. small is equivalent to the dense button styling.
- * @param {boolean} [fullWidth] - If true, the button will take up the full width of its container
- */
-
 export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   startIcon?: ReactNode
   endIcon?: ReactNode
@@ -78,6 +68,7 @@ const Button = ({
     'font-medium text-white',
     'transition ease-in-out',
     'inline-flex items-center justify-center',
+    'disabled:cursor-not-allowed',
     sizes[size],
     variants[variant],
     fullWidth ? 'w-full' : 'w-fit',
@@ -87,7 +78,7 @@ const Button = ({
   )
 
   return (
-    <button className={twClassName} {...props}>
+    <button role="button" disabled={disabled} className={twClassName} {...props}>
       {StartIcon && <span className="mx-1">{StartIcon}</span>}
       {children && <span className={twMerge('mx-1', fullWidth ? 'mx-auto' : '')}> {children}</span>}
       {EndIcon && <span className="mx-1">{EndIcon}</span>}
