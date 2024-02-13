@@ -130,8 +130,8 @@ function ModelReactor(): JSX.Element {
   const modelComponent = useComponent(entity, ModelComponent)
 
   /** @todo this is a hack */
-  const override = !isAvaturn(modelComponent.value.src) ? undefined : AssetType.glB
-  const [gltf, unload, error, progress] = useGLTF(modelComponent.value.src, entity, {
+  const override = !isAvaturn(modelComponent.src.value) ? undefined : AssetType.glB
+  const [gltf, unload, error, progress] = useGLTF(modelComponent.src.value, entity, {
     forceAssetType: override,
     ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
   })
@@ -160,7 +160,6 @@ function ModelReactor(): JSX.Element {
 
     console.error(err)
     addError(entity, ModelComponent, 'INVALID_SOURCE', err.message)
-    removeComponent(entity, SceneAssetPendingTagComponent)
     SceneAssetPendingTagComponent.removeResource(entity, modelComponent.src.value)
   }, [error])
 
@@ -214,8 +213,8 @@ function ModelReactor(): JSX.Element {
 
   // update scene
   useEffect(() => {
-    const scene = getComponent(entity, ModelComponent).scene
-    const asset = getComponent(entity, ModelComponent).asset
+    const scene = modelComponent.scene.value
+    const asset = modelComponent.asset.value
 
     if (!scene || !asset) return
 
@@ -224,6 +223,7 @@ function ModelReactor(): JSX.Element {
 
     const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene)
     const uuid = getModelSceneID(entity)
+
     SceneState.loadScene(uuid, {
       scene: {
         entities: loadedJsonHierarchy,
@@ -248,7 +248,7 @@ function ModelReactor(): JSX.Element {
           addError(entity, ModelComponent, 'LOADING_ERROR', 'Error compiling model')
         })
         .finally(() => {
-          SceneAssetPendingTagComponent.removeResource(entity, modelComponent.value.src)
+          SceneAssetPendingTagComponent.removeResource(entity, modelComponent.src.value)
         })
 
     return () => {

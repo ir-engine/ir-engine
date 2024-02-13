@@ -42,7 +42,7 @@ import { SxProps, Theme } from '@mui/material/styles'
 import styles from './index.module.scss'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { setComponent } from '@etherealengine/ecs'
+import { setComponent, UndefinedEntity } from '@etherealengine/ecs'
 import { defaultAnimationPath, preloadedAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { AssetPreviewCameraComponent } from '@etherealengine/engine/src/camera/components/AssetPreviewCameraComponent'
@@ -55,6 +55,7 @@ import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { MathUtils } from 'three'
 
 interface Props {
@@ -85,6 +86,7 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
       activeClipIndex: 5
     })
     setComponent(entity, ModelComponent, { src: avatarUrl, convertToVRM: true })
+    setComponent(entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
 
     setComponent(entity, VisibleComponent, true)
     ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.AssetPreview)
