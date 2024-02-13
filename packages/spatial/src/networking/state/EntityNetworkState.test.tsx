@@ -52,7 +52,7 @@ import { act, render } from '@testing-library/react'
 import React from 'react'
 import { MathUtils } from 'three'
 import { NetworkWorldUserStateSystem } from '../NetworkUserState'
-import { EntityNetworkStateSystem } from './EntityNetworkState'
+import './EntityNetworkState'
 
 describe('EntityNetworkState', () => {
   beforeEach(async () => {
@@ -67,7 +67,6 @@ describe('EntityNetworkState', () => {
     return destroyEngine()
   })
 
-  const runnerEntityNetworkState = SystemDefinitions.get(EntityNetworkStateSystem)!.runner!
   const NetworkWorldUserStateSystemReactor = SystemDefinitions.get(NetworkWorldUserStateSystem)!.reactor!
   const tag = <NetworkWorldUserStateSystemReactor />
 
@@ -100,7 +99,6 @@ describe('EntityNetworkState', () => {
 
       const { rerender, unmount } = render(tag)
       await act(() => rerender(tag))
-      runnerEntityNetworkState()
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -131,6 +129,9 @@ describe('EntityNetworkState', () => {
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostId, 0, 'host')
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
 
+      const { rerender, unmount } = render(tag)
+      await act(() => rerender(tag))
+
       const objParams = 123
       const objNetId = 3 as NetworkId
 
@@ -143,10 +144,6 @@ describe('EntityNetworkState', () => {
         })
       )
       applyIncomingActions()
-
-      const { rerender, unmount } = render(tag)
-      await act(() => rerender(tag))
-      runnerEntityNetworkState()
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -179,6 +176,9 @@ describe('EntityNetworkState', () => {
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
       NetworkPeerFunctions.createPeer(network, peerID3, 2, userId2, 2, 'second user name')
 
+      const { rerender, unmount } = render(tag)
+      await act(() => rerender(tag))
+
       const objNetId = 3 as NetworkId
 
       dispatchAction(
@@ -191,10 +191,6 @@ describe('EntityNetworkState', () => {
         })
       )
       applyIncomingActions()
-
-      const { rerender, unmount } = render(tag)
-      await act(() => rerender(tag))
-      runnerEntityNetworkState()
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -221,6 +217,9 @@ describe('EntityNetworkState', () => {
 
       NetworkPeerFunctions.createPeer(network, peerID, 1, userId, 1, 'user name')
 
+      const { rerender, unmount } = render(tag)
+      await act(() => rerender(tag))
+
       dispatchAction(
         WorldNetworkAction.spawnObject({
           networkId: 42 as NetworkId,
@@ -229,10 +228,6 @@ describe('EntityNetworkState', () => {
         })
       )
       applyIncomingActions()
-
-      const { rerender, unmount } = render(tag)
-      await act(() => rerender(tag))
-      runnerEntityNetworkState()
 
       const entity = UUIDComponent.getEntityByUUID(Engine.instance.userID as any as EntityUUID)
 
@@ -262,6 +257,9 @@ describe('EntityNetworkState', () => {
       NetworkPeerFunctions.createPeer(network, peerID, 0, userId, 1, 'user name')
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
 
+      const { rerender, unmount } = render(tag)
+      await act(() => rerender(tag))
+
       const objNetId = 3 as NetworkId
 
       dispatchAction(
@@ -274,10 +272,6 @@ describe('EntityNetworkState', () => {
         })
       )
       applyIncomingActions()
-
-      const { rerender, unmount } = render(tag)
-      await act(() => rerender(tag))
-      runnerEntityNetworkState()
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -302,14 +296,7 @@ describe('EntityNetworkState', () => {
       )
 
       ActionFunctions.applyIncomingActions()
-
-      await act(() => rerender(tag))
-      runnerEntityNetworkState()
-
       ActionFunctions.applyIncomingActions()
-
-      await act(() => rerender(tag))
-      runnerEntityNetworkState()
 
       const networkObjectEntitiesAfter = networkObjectQuery()
       const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery()
@@ -339,6 +326,9 @@ describe('EntityNetworkState', () => {
     NetworkPeerFunctions.createPeer(network, peerID, 0, userId, 1, 'user name')
     NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
 
+    const { rerender, unmount } = render(tag)
+    await act(() => rerender(tag))
+
     const objNetId = 3 as NetworkId
 
     dispatchAction(
@@ -352,10 +342,6 @@ describe('EntityNetworkState', () => {
     )
 
     applyIncomingActions()
-
-    const { rerender, unmount } = render(tag)
-    await act(() => rerender(tag))
-    runnerEntityNetworkState()
 
     const networkObjectQuery = defineQuery([NetworkObjectComponent])
     const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -411,6 +397,7 @@ describe('EntityNetworkState', () => {
     const objNetId = 3 as NetworkId
 
     const { rerender, unmount } = render(tag)
+    await act(() => rerender(tag))
 
     const start = performance.now()
 
@@ -431,23 +418,29 @@ describe('EntityNetworkState', () => {
     const applyActionsEnd = performance.now()
     console.log('10000 entities apply action time:', applyActionsEnd - start)
 
-    await act(() => rerender(tag))
-
     const reactorEnd = performance.now()
 
     console.log('10000 entities reactor time:', reactorEnd - applyActionsEnd)
 
-    runnerEntityNetworkState()
+    const runner1End = performance.now()
 
-    const runnerEnd = performance.now()
+    console.log('10000 entities unchanged runner time:', runner1End - reactorEnd)
 
-    console.log('10000 entities runner time:', runnerEnd - reactorEnd)
+    dispatchAction(
+      WorldNetworkAction.spawnObject({
+        $from: hostUserId, // from  host
+        networkId: objNetId,
+        $topic: NetworkTopics.world,
+        $peer: Engine.instance.peerID,
+        entityUUID: MathUtils.generateUUID() as any as EntityUUID
+      })
+    )
 
-    runnerEntityNetworkState()
+    applyIncomingActions()
 
     const runner2End = performance.now()
 
-    console.log('10000 entities runner time:', runner2End - runnerEnd)
+    console.log('10000 entities 1 new entity runner time:', runner2End - runner1End)
     console.log('10000 entities total time:', runner2End - start)
 
     unmount()

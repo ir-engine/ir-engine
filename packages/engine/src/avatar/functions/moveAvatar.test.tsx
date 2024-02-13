@@ -32,10 +32,8 @@ import { applyIncomingActions, dispatchAction, getMutableState, getState } from 
 import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
 import { EventDispatcher } from '@etherealengine/spatial/src/common/classes/EventDispatcher'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
-import { EntityNetworkStateSystem } from '@etherealengine/spatial/src/networking/NetworkModule'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
@@ -47,7 +45,6 @@ import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { act, render } from '@testing-library/react'
-import React from 'react'
 import { AvatarComponent } from '../components/AvatarComponent'
 
 describe('moveAvatar function tests', () => {
@@ -74,9 +71,6 @@ describe('moveAvatar function tests', () => {
     }
   })
 
-  const Reactor = SystemDefinitions.get(EntityNetworkStateSystem)!.reactor!
-  const tag = <Reactor />
-
   afterEach(() => {
     return destroyEngine()
   })
@@ -96,9 +90,6 @@ describe('moveAvatar function tests', () => {
     )
 
     applyIncomingActions()
-
-    const { rerender, unmount } = render(tag)
-    await act(() => rerender(tag))
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
     const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)

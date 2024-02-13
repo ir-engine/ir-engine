@@ -29,7 +29,15 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
-import { Runner, defineState, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import {
+  Runner,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  none,
+  syncEventSource
+} from '@etherealengine/hyperflux'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { Engine, defineSystem, getOptionalComponent, removeEntity, setComponent } from '@etherealengine/ecs'
@@ -174,13 +182,17 @@ const ownerPeer = (uuid: EntityUUID) => {
   }, [networkState.peers, networkState.users])
 }
 
-const runner = () => {
+const run = () => {
   const keys = Object.keys(getState(EntityNetworkState))
   Runner.runGroup(keys, entityNetwork)
 }
 
+const execute = () => {
+  syncEventSource(EntityNetworkState, run)
+}
+
 export const EntityNetworkStateSystem = defineSystem({
   uuid: 'ee.networking.EntityNetworkStateSystem',
-  runner,
+  execute,
   insert: { with: SimulationSystemGroup }
 })

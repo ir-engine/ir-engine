@@ -35,7 +35,7 @@ import { deepEqual } from '@etherealengine/common/src/utils/deepEqual'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { ReactorRoot } from './ReactorFunctions'
-import { setInitialState, StateDefinitions } from './StateFunctions'
+import { setInitialState, StateDefinition, StateDefinitions } from './StateFunctions'
 import { HyperFlux } from './StoreFunctions'
 
 const logger = multiLogger.child({ component: 'hyperflux:Action' })
@@ -525,6 +525,13 @@ export const applyIncomingActions = () => {
   }
 
   applyEventSourcingToAllQueues()
+}
+
+export const syncEventSource = (stateDefintion: StateDefinition<any, any>, syncCallback: () => void) => {
+  const queue = stateDefintion.receptorActionQueue
+  if (!queue) return
+
+  // uhhh
 }
 
 /**
