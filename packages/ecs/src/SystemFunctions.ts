@@ -29,7 +29,7 @@ import { FC, useEffect } from 'react'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import multiLogger from '@etherealengine/common/src/logger'
-import { Runner, getMutableState, getState, startReactor } from '@etherealengine/hyperflux'
+import { getMutableState, getState, startReactor } from '@etherealengine/hyperflux'
 
 import { MathUtils } from 'three'
 import { SystemState } from './SystemState'
@@ -50,7 +50,6 @@ export interface SystemArgs {
   insert: InsertSystem
   timeStep?: number | 'variable'
   execute?: () => void
-  runner?: () => void
   reactor?: FC
 }
 
@@ -68,7 +67,6 @@ export interface System {
   preSystems: SystemUUID[]
   /** runs after preSystems, and before subSystems */
   execute: () => void
-  runner?: () => void
   subSystems: SystemUUID[]
   postSystems: SystemUUID[]
   sceneSystem?: boolean
@@ -102,7 +100,6 @@ export function executeSystem(systemUUID: SystemUUID) {
 
   try {
     getMutableState(SystemState).currentSystemUUID.set(systemUUID)
-    if (system.runner) system.runner()
     system.execute()
   } catch (e) {
     logger.error(`Failed to execute system ${system.uuid}`)
@@ -150,7 +147,6 @@ export function defineSystem(systemConfig: SystemArgs) {
     sceneSystem: false,
     timeStep: 'variable',
     ...systemConfig,
-    runner: systemConfig.runner ? () => Runner.runContext(system.uuid, systemConfig.runner!) : undefined,
     uuid: systemConfig.uuid as SystemUUID,
     enabled: false,
     systemDuration: 0

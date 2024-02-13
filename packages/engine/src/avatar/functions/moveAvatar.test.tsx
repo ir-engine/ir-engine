@@ -48,10 +48,7 @@ import '@etherealengine/spatial/src/networking/state/EntityNetworkState'
 import { SystemDefinitions } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
-import {
-  NetworkWorldUserState,
-  NetworkWorldUserStateSystem
-} from '@etherealengine/spatial/src/networking/NetworkUserState'
+import { NetworkWorldUserStateSystem } from '@etherealengine/spatial/src/networking/NetworkUserState'
 import { Network } from '@etherealengine/spatial/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkPeerFunctions'
 import { createMockNetwork } from '@etherealengine/spatial/tests/util/createMockNetwork'
@@ -112,8 +109,6 @@ describe('moveAvatar function tests', () => {
     )
 
     applyIncomingActions()
-
-    console.log(getState(NetworkWorldUserState))
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
     const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)

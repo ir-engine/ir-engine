@@ -100,7 +100,6 @@ export const EntityNetworkState = defineState({
 
 const entityNetworkContext = () => {
   const keys = Object.keys(getState(EntityNetworkState))
-  console.log('entityNetworkContext', keys)
   Runner.runGroup(keys, entityNetwork)
 }
 
