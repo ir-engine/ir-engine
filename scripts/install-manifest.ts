@@ -28,7 +28,7 @@ Ethereal Engine. All Rights Reserved.
  * - uses CLI to fetch a manifest and clone projects
  */
 
-import { exec } from 'child_process'
+import { execPromise } from '@etherealengine/server-core/src/util/execPromise'
 
 import appRootPath from 'app-root-path'
 import cli from 'cli'
@@ -83,18 +83,6 @@ interface PackageManifest_V_1_0_0 {
   version: string // semver
   name: string
   packages: Array<string>
-}
-
-function execPromise(cmd, opts) {
-  return new Promise((resolve, reject) => {
-    exec(cmd, opts, (error, stdout, stderr) => {
-      if (error) {
-        console.warn(error)
-      }
-      console.log(stdout ? stdout : stderr)
-      resolve(stdout ? stdout : stderr)
-    })
-  })
 }
 
 const installManifest = async () => {
