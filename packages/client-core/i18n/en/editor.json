@@ -912,8 +912,37 @@
       "lbl-newProject": "New Project"
     }
   },
-  "visualScriptPanel":{
-    "addVisualScript" : "Add Visual Script"
+  "visualScript":{
+    "panel": {
+      "addVisualScript" : "Add Visual Script"
+    },
+    "modal": {
+      "clear": {  
+        "title":"Clear Visual Script",
+        "confirm": "Are you sure?"
+      },
+      "help": {
+        "title":"Help",
+        "addNodeHelp":" Right click anywhere to add a new node.",
+        "addConnectionHelp":"Drag from the output of one node to the input of another to create a connection or into empty space to add a new node and connect it",
+        "deleteNodeHelp":"Left click to select individual or use Shift+Left click to box select nodes or connections, backspace to delete selected nodes or connections."
+      },
+      "load": {
+        "title":"Load Visual Script",
+        "examples":  "Select an example"
+      },
+      "save":"Save Visual Script",
+      "buttons": {
+        "clear": "Clear",
+        "cancel": "Cancel",
+        "load": "Load",
+        "close": "Close",
+        "copy": {
+          "done": "Copied!",
+          "begin": "Copy"
+        }
+      }
+    }
   },
   "layout": {
     "assetGrid": {
@@ -942,7 +971,7 @@
         "hemisphere-light": "A light which illuminates the scene from directly overhead.",
         "particle-system": "Creates a particle emitter.",
         "system": "Inserts code into the scene by creating a new Entity Component System based on the provided .ts file",
-        "visual-script": "Customizes state and behavior of entities through a visual node and edge connection.",
+        "visual-script": "Customizes state and behavior of entities through a visual node connections.",
         "envmapbake": "Add Env Mapbake to your scene.",
         "scene-preview-camera": "A preview camera which generates a scene thumbnail and the starting position.",
         "skybox": "Sets the area outside your map (skybox) with a specific sky type.",

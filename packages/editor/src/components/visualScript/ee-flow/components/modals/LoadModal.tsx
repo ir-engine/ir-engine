@@ -28,6 +28,7 @@ import { useReactFlow } from 'reactflow'
 
 import { GraphJSON } from '@behave-graph/core'
 
+import { useTranslation } from 'react-i18next'
 import { Modal } from './Modal'
 
 export type Examples = {
@@ -46,6 +47,7 @@ export const LoadModal: React.FC<LoadModalProps> = ({ open = false, onClose, set
   const [selected, setSelected] = useState('')
 
   const instance = useReactFlow()
+  const { t } = useTranslation()
 
   useEffect(() => {
     if (selected) {
@@ -81,10 +83,10 @@ export const LoadModal: React.FC<LoadModalProps> = ({ open = false, onClose, set
 
   return (
     <Modal
-      title="Load Visual Script"
+      title={t('editor:visualScript.modal.load.title')}
       actions={[
-        { label: 'Cancel', onClick: handleClose },
-        { label: 'Load', onClick: handleLoad }
+        { label: t('editor:visualScript.modal.buttons.cancel'), onClick: handleClose },
+        { label: t('editor:visualScript.modal.buttons.load'), onClick: handleLoad }
       ]}
       open={open}
       onClose={onClose}
@@ -92,7 +94,7 @@ export const LoadModal: React.FC<LoadModalProps> = ({ open = false, onClose, set
       <textarea
         autoFocus
         style={{
-          border: '1px solid #cbd5e0',
+          border: '1px solid var(--borderStyle)',
           width: '100%',
           padding: '0.5rem',
           height: '8rem',
@@ -103,12 +105,12 @@ export const LoadModal: React.FC<LoadModalProps> = ({ open = false, onClose, set
         value={value}
         onChange={(e) => setValue(e.currentTarget.value)}
       ></textarea>
-      <div style={{ padding: '1rem', textAlign: 'center', color: '#4a5568' }}>or</div>
+      <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--textColor)' }}>or</div>
       <select
         style={{
-          backgroundColor: '#f7fafc',
-          border: '1px solid #cbd5e0',
-          color: '#1a202c',
+          backgroundColor: 'var(--popupBackground)',
+          border: '1px solid var(--borderStyle)',
+          color: 'var(--textColor)',
           fontSize: '14px',
           borderRadius: '0.25rem',
           display: 'block',
@@ -120,7 +122,7 @@ export const LoadModal: React.FC<LoadModalProps> = ({ open = false, onClose, set
         value={selected}
       >
         <option disabled value="">
-          Select an example
+          {t('editor:visualScript.modal.load.examples')}
         </option>
         {Object.keys(examples).map((key) => (
           <option key={key} value={key}>

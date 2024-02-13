@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
+import { useTranslation } from 'react-i18next'
 import { Modal } from './Modal'
 
 export type HelpModalProps = {
@@ -33,16 +34,18 @@ export type HelpModalProps = {
 }
 
 export const HelpModal: React.FC<HelpModalProps> = ({ open = false, onClose }) => {
+  const { t } = useTranslation()
+
   return (
-    <Modal title="Help" actions={[{ label: 'Close', onClick: onClose }]} open={open} onClose={onClose}>
-      <p style={{ marginBottom: '0.5rem' }}>Right click anywhere to add a new node.</p>
-      <p style={{ marginBottom: '0.5rem' }}>
-        Drag a connection into empty space to add a new node and connect it to the source.
-      </p>
-      <p style={{ marginBottom: '0.5rem' }}>
-        Click and drag on a socket to connect to another socket of the same type.
-      </p>
-      <p>Left click to select nodes or connections, backspace to delete selected nodes or connections.</p>
+    <Modal
+      title={t('editor:visualScript.modal.help.title')}
+      actions={[{ label: t('editor:visualScript.modal.buttons.close'), onClick: onClose }]}
+      open={open}
+      onClose={onClose}
+    >
+      <p style={{ marginBottom: '0.5rem' }}>{t('editor:visualScript.modal.help.addNodeHelp')}</p>
+      <p style={{ marginBottom: '0.5rem' }}>{t('editor:visualScript.modal.help.addConnectionHelp')}</p>
+      <p style={{ marginBottom: '0.5rem' }}>{t('editor:visualScript.modal.help.deleteNodeHelp')}</p>
     </Modal>
   )
 }

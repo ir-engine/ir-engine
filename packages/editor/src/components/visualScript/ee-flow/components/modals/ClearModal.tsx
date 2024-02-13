@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useReactFlow } from 'reactflow'
 
+import { useTranslation } from 'react-i18next'
 import { Modal } from './Modal'
 
 export type ClearModalProps = {
@@ -35,6 +36,7 @@ export type ClearModalProps = {
 
 export const ClearModal: React.FC<ClearModalProps> = ({ open = false, onClose }) => {
   const instance = useReactFlow()
+  const { t } = useTranslation()
 
   const handleClear = () => {
     instance.setNodes([])
@@ -48,15 +50,15 @@ export const ClearModal: React.FC<ClearModalProps> = ({ open = false, onClose })
 
   return (
     <Modal
-      title="Clear Visual Script"
+      title={t('editor:visualScript.modal.clear.title')}
       actions={[
-        { label: 'Cancel', onClick: onClose },
-        { label: 'Clear', onClick: handleClear }
+        { label: t('editor:visualScript.modal.buttons.cancel'), onClick: onClose },
+        { label: t('editor:visualScript.modal.buttons.clear'), onClick: handleClear }
       ]}
       open={open}
       onClose={onClose}
     >
-      <p>Are you sure?</p>
+      <p>{t('editor:visualScript.modal.clear.confirm')}</p>
     </Modal>
   )
 }

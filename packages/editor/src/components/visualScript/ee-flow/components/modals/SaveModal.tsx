@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useMemo, useRef, useState } from 'react'
 import { useEdges, useNodes } from 'reactflow'
 
+import { useTranslation } from 'react-i18next'
 import { NodeSpecGenerator } from '../../hooks/useNodeSpecGenerator'
 import { flowToVisual } from '../../transformers/flowToVisual'
 import { Modal } from './Modal'
@@ -39,6 +40,7 @@ export type SaveModalProps = {
 export const SaveModal: React.FC<SaveModalProps> = ({ open = false, onClose, specGenerator }) => {
   const ref = useRef<HTMLTextAreaElement>(null)
   const [copied, setCopied] = useState(false)
+  const { t } = useTranslation()
 
   const edges = useEdges()
   const nodes = useNodes()
@@ -59,10 +61,15 @@ export const SaveModal: React.FC<SaveModalProps> = ({ open = false, onClose, spe
 
   return (
     <Modal
-      title="Save Visual Script"
+      title={t('editor:visualScript.modal.save')}
       actions={[
-        { label: 'Cancel', onClick: onClose },
-        { label: copied ? 'Copied' : 'Copy', onClick: handleCopy }
+        { label: t('editor:visualScript.modal.buttons.cancel'), onClick: onClose },
+        {
+          label: copied
+            ? t('editor:visualScript.modal.buttons.copy.done')
+            : t('editor:visualScript.modal.buttons.copy.begin'),
+          onClick: handleCopy
+        }
       ]}
       open={open}
       onClose={onClose}

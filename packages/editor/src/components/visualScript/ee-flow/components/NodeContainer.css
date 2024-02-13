@@ -7,7 +7,7 @@
 }
 
 .node-title {
-  background-color:  #748eba; 
+  background-color:  var(--navbarBackground); 
   color: var(--textColor);
   padding: 0.25rem 0.5rem;
   border-top-left-radius: 0.25rem;
@@ -20,6 +20,6 @@
   gap: 0.5rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-  border-color:  #a0aec0;
+  border-color:  var(--borderStyle);
 }
 

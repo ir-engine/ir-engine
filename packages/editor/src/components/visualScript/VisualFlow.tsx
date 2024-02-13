@@ -51,7 +51,7 @@ export const ActiveVisualScript = (props: { entity }) => {
 
   return (
     <Flow
-      initialVisualScriptJson={visualScriptComponent.visualScript}
+      initialVisualScript={visualScriptComponent.visualScript}
       examples={{}}
       registry={visualScriptState.registries[visualScriptComponent.domain]}
       onChangeVisualScript={
@@ -93,7 +93,7 @@ const VisualFlow = () => {
                 addVisualScript()
               }}
             >
-              {t('editor:visualScriptPanel.addVisualScript')}
+              {t('editor:visualScript.panel.addVisualScript')}
             </PropertiesPanelButton>
           ) : (
             <></>
