@@ -324,7 +324,9 @@ export function defineAction<Shape extends Omit<ActionShape<Action>, keyof Actio
  * @param topics @todo potentially in the future, support dispatching to multiple topics
  * @param store
  */
-export const dispatchAction = <A extends Action>(action: A) => {
+export const dispatchAction = <A extends Action>(_action: A) => {
+  const action = JSON.parse(JSON.stringify(_action))
+
   const storeId = HyperFlux.store.getDispatchId()
   const agentId = HyperFlux.store.peerID
 
