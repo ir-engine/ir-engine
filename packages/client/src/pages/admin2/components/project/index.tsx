@@ -74,7 +74,7 @@ export default function AdminProject() {
             onClick={() => {
               getMutableState(PopoverState).element.set(<UpdateEngineModal />)
             }}
-            // disabled={isDev}
+            disabled={isDev}
             endIcon={!isDev && projectState.rebuilding.value ? <LoadingCircle className="h-6 w-6" /> : undefined}
           >
             {!isDev && projectState.rebuilding.value

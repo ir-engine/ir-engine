@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { InputHTMLAttributes } from 'react'
+import { HiXCircle } from 'react-icons/hi'
 import { twMerge } from 'tailwind-merge'
 import Label from '../Label'
 
@@ -34,16 +35,20 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   description?: string
   type?: InputHTMLAttributes<HTMLInputElement>['type']
   onChange: InputHTMLAttributes<HTMLInputElement>['onChange']
+  error?: string
+  disabled?: boolean
 }
 
 const Input = ({
   inputClassName,
   label,
   type = 'text',
+  error,
   description,
   value,
   itemType,
   onChange,
+  disabled,
   ...props
 }: InputProps) => {
   const twInputClassname = twMerge(
@@ -57,8 +62,20 @@ const Input = ({
   return (
     <div className="flex w-full flex-col items-center gap-2">
       {label && <Label className="self-stretch">{label}</Label>}
-      <input type={type} className={twInputClassname} value={value} onChange={onChange} {...props} />
+      <input
+        disabled={disabled}
+        type={type}
+        className={twInputClassname}
+        value={value}
+        onChange={onChange}
+        {...props}
+      />
       {description && <p className="text-theme-secondary self-stretch text-xs">{description}</p>}
+      {error && (
+        <p className="text-[#E11D48 text-sm">
+          <HiXCircle className="mr-2.5" /> {error}
+        </p>
+      )}
     </div>
   )
 }

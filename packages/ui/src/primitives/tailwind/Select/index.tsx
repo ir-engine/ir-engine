@@ -24,19 +24,30 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
+import { HiXCircle } from 'react-icons/hi'
 import { twMerge } from 'tailwind-merge'
 import Label from '../Label'
 
 export interface SelectProps extends React.HTMLAttributes<HTMLSelectElement> {
   label?: string
   inputClassName?: string
+  error?: string
   description?: string
   currentValue: any
   options: { name: string; value: any }[]
   onChange: (value: any) => void
 }
 
-const Select = ({ inputClassName, label, description, currentValue, options, onChange, ...props }: SelectProps) => {
+const Select = ({
+  inputClassName,
+  label,
+  error,
+  description,
+  currentValue,
+  options,
+  onChange,
+  ...props
+}: SelectProps) => {
   const twInputClassname = twMerge(
     'p-2.5 text-base font-normal',
     'textshadow-sm border-theme-primary w-full rounded-lg border bg-transparent transition-colors',
@@ -61,6 +72,11 @@ const Select = ({ inputClassName, label, description, currentValue, options, onC
         ))}
       </select>
       {description && <p className="text-theme-secondary self-stretch text-xs">{description}</p>}
+      {error && (
+        <p className="text-[#E11D48 text-sm">
+          <HiXCircle className="mr-2.5" /> {error}
+        </p>
+      )}
     </div>
   )
 }

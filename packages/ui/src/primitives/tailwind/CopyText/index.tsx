@@ -63,7 +63,7 @@ const Text = ({ text, className }: CopyTextProps) => {
           right: '1.5rem' // top-6, right-6 classes are not working
         }}
         startIcon={<IoMdCopy />}
-      ></Button>
+      />
     </div>
   )
 }
