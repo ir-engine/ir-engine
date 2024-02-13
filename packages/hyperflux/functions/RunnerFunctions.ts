@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { defineState, getMutableState, getState } from './StateFunctions'
+
 type Effect = {
   lastVals: Array<any>
   lastCallback?: () => void
@@ -39,7 +41,10 @@ type Context = SubContext & {
   cleanup: () => void
 }
 
-export const contexts = {} as { [key: string]: Context }
+export const ContextState = defineState({
+  name: 'hyperflux.ContextState',
+  initial: {} as { [key: string]: Context }
+})
 
 let _currentContext = null as SubContext | null
 
@@ -61,8 +66,9 @@ const _cleanup = () => {
 }
 
 const runContext = (context: string, cb: () => void) => {
+  const contexts = getState(ContextState)
   if (!contexts[context]) {
-    contexts[context] = {
+    getMutableState(ContextState)[context].set({
       effects: {},
       groups: {},
       lastVals: [],
@@ -73,7 +79,7 @@ const runContext = (context: string, cb: () => void) => {
         _currentContext = null
         delete contexts[context]
       }
-    }
+    })
   }
   _currentContext = contexts[context]
   _currentContext.effectIndex = 0

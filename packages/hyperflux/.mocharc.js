@@ -33,10 +33,7 @@ module.exports = {
     'tests/mocha.env', // init env here
     'jsdom-global/register'
   ],
-  extension: [
-    'ts',
-    'tsx'
-  ],
+  extension: ['ts', 'tsx'],
   bail: true,
   exit: true,
   recursive: true,

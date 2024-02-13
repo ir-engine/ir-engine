@@ -44,7 +44,6 @@ import { applyGamepadInput } from './moveAvatar'
 import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { act, render } from '@testing-library/react'
 import { AvatarComponent } from '../components/AvatarComponent'
 
 describe('moveAvatar function tests', () => {
@@ -105,9 +104,6 @@ describe('moveAvatar function tests', () => {
 
     /* run */
     applyGamepadInput(entity)
-
-    /* assert */
-    unmount()
   })
 
   it('should apply world.fixedDelta @ 120 tick to avatar movement, consistent with physics simulation', async () => {
@@ -126,9 +122,6 @@ describe('moveAvatar function tests', () => {
 
     applyIncomingActions()
 
-    const { rerender, unmount } = render(tag)
-    await act(() => rerender(tag))
-
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
     const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
 
@@ -140,9 +133,6 @@ describe('moveAvatar function tests', () => {
 
     /* run */
     applyGamepadInput(entity)
-
-    /* assert */
-    unmount()
   })
 
   it('should take world.physics.timeScale into account when moving avatars, consistent with physics simulation', async () => {
@@ -166,9 +156,6 @@ describe('moveAvatar function tests', () => {
 
     applyIncomingActions()
 
-    const { rerender, unmount } = render(tag)
-    await act(() => rerender(tag))
-
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
     const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
 
@@ -180,9 +167,6 @@ describe('moveAvatar function tests', () => {
 
     /* run */
     applyGamepadInput(entity)
-
-    /* assert */
-    unmount()
   })
 
   it('should not allow velocity to breach a full unit through multiple frames', async () => {
@@ -202,9 +186,6 @@ describe('moveAvatar function tests', () => {
     )
 
     applyIncomingActions()
-
-    const { rerender, unmount } = render(tag)
-    await act(() => rerender(tag))
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
     const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
@@ -228,8 +209,5 @@ describe('moveAvatar function tests', () => {
     applyGamepadInput(entity)
     physicsWorld.step()
     applyGamepadInput(entity)
-
-    /* assert */
-    unmount()
   })
 })

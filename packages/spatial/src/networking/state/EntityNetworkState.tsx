@@ -29,19 +29,10 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
-import {
-  Runner,
-  defineState,
-  dispatchAction,
-  getMutableState,
-  getState,
-  none,
-  syncEventSource
-} from '@etherealengine/hyperflux'
+import { Runner, defineState, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { Engine, defineSystem, getOptionalComponent, removeEntity, setComponent } from '@etherealengine/ecs'
-import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { Engine, getOptionalComponent, removeEntity, setComponent } from '@etherealengine/ecs'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -96,8 +87,17 @@ export const EntityNetworkState = defineState({
     onDestroyObject: WorldNetworkAction.destroyObject.receive((action) => {
       getMutableState(EntityNetworkState)[action.entityUUID].set(none)
     })
+  },
+
+  onEventSourcing: () => {
+    Runner.runContext('entityNetwork', entityNetworkContext)
   }
 })
+
+const entityNetworkContext = () => {
+  const keys = Object.keys(getState(EntityNetworkState))
+  Runner.runGroup(keys, entityNetwork)
+}
 
 const entityNetwork = (uuid: EntityUUID) => {
   const state = getState(EntityNetworkState)[uuid]
@@ -181,18 +181,3 @@ const ownerPeer = (uuid: EntityUUID) => {
     }
   }, [networkState.peers, networkState.users])
 }
-
-const run = () => {
-  const keys = Object.keys(getState(EntityNetworkState))
-  Runner.runGroup(keys, entityNetwork)
-}
-
-const execute = () => {
-  syncEventSource(EntityNetworkState, run)
-}
-
-export const EntityNetworkStateSystem = defineSystem({
-  uuid: 'ee.networking.EntityNetworkStateSystem',
-  execute,
-  insert: { with: SimulationSystemGroup }
-})

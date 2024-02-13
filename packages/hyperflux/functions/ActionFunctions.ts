@@ -35,7 +35,7 @@ import { deepEqual } from '@etherealengine/common/src/utils/deepEqual'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { ReactorRoot } from './ReactorFunctions'
-import { setInitialState, StateDefinition, StateDefinitions } from './StateFunctions'
+import { setInitialState, StateDefinitions } from './StateFunctions'
 import { HyperFlux } from './StoreFunctions'
 
 const logger = multiLogger.child({ component: 'hyperflux:Action' })
@@ -436,16 +436,23 @@ const createEventSourceQueues = (action: Required<ResolvedActionType>) => {
         receptorActionQueue.resync()
       }
 
+      let hasNewActions = false
+
       // apply each action to each matching receptor, in order
       for (const action of receptorActionQueue()) {
         for (const receptor of Object.values(definition.receptors!)) {
           try {
-            receptor.matchesAction.test(action) && receptor(action)
+            if (receptor.matchesAction.test(action)) {
+              receptor(action)
+              hasNewActions = true
+            }
           } catch (e) {
             logger.error(e)
           }
         }
       }
+
+      if (definition.onEventSourcing && hasNewActions) definition.onEventSourcing()
     }
 
     HyperFlux.store.receptors[definition.name] = applyEventSourcing
@@ -525,13 +532,6 @@ export const applyIncomingActions = () => {
   }
 
   applyEventSourcingToAllQueues()
-}
-
-export const syncEventSource = (stateDefintion: StateDefinition<any, any>, syncCallback: () => void) => {
-  const queue = stateDefintion.receptorActionQueue
-  if (!queue) return
-
-  // uhhh
 }
 
 /**

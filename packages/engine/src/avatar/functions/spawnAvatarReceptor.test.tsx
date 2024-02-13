@@ -32,10 +32,8 @@ import { applyIncomingActions, dispatchAction, getMutableState } from '@ethereal
 import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
-import { EntityNetworkStateSystem } from '@etherealengine/spatial/src/networking/NetworkModule'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import {
   RigidBodyComponent,
@@ -43,8 +41,6 @@ import {
 } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { act, render } from '@testing-library/react'
-import React from 'react'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -66,9 +62,6 @@ describe('spawnAvatarReceptor', () => {
     return destroyEngine()
   })
 
-  const Reactor = SystemDefinitions.get(EntityNetworkStateSystem)!.reactor!
-  const tag = <Reactor />
-
   it('check the create avatar function', async () => {
     // mock entity to apply incoming unreliable updates to
     dispatchAction(
@@ -83,9 +76,6 @@ describe('spawnAvatarReceptor', () => {
 
     applyIncomingActions()
 
-    const { rerender, unmount } = render(tag)
-    await act(() => rerender(tag))
-
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
 
     const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
@@ -97,7 +87,5 @@ describe('spawnAvatarReceptor', () => {
     assert(hasComponent(entity, AvatarControllerComponent))
     assert(hasComponent(entity, RigidBodyComponent))
     assert(hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent))
-
-    unmount()
   })
 })

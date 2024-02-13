@@ -48,6 +48,7 @@ export type StateDefinition<S, Receptors extends ReceptorMap> = {
   initial: SetInitialStateAction<S>
   receptors?: Receptors
   receptorActionQueue?: ActionQueueHandle
+  onEventSourcing?: () => void
   onCreate?: (store: HyperStore, state: State<S>) => void
 }
 
