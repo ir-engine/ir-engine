@@ -102,6 +102,7 @@ const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projec
 const filterDisabledProjects = (context: HookContext<ProjectService>) => {
   if (config.allowOutOfDateProjects) return
   if (context.params.query) context.params.query.enabled = true
+  else context.params.query = { enabled: true }
 }
 
 /**
