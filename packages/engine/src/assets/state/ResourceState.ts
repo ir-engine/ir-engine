@@ -427,7 +427,15 @@ const removeResource = (id: string) => {
         ;(asset as Geometry).dispose()
         break
       case ResourceType.Material:
-        ;(asset as Material).dispose()
+        {
+          const material = asset as Material
+          for (const [key, val] of Object.entries(material) as [string, Texture][]) {
+            if (val && typeof val.dispose === 'function') {
+              val.dispose()
+            }
+          }
+          material.dispose()
+        }
         break
       case ResourceType.ECSData:
         break

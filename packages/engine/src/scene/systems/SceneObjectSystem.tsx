@@ -82,6 +82,22 @@ export const disposeMaterial = (material: Material) => {
 }
 
 export const disposeObject3D = (obj: Object3D) => {
+  const mesh = obj as Mesh<any, any>
+  if (mesh.material) {
+    if (Array.isArray(mesh.material)) {
+      mesh.material.forEach(disposeMaterial)
+    } else {
+      disposeMaterial(mesh.material)
+    }
+  }
+
+  if (mesh.geometry) {
+    mesh.geometry.dispose()
+    for (const key in mesh.geometry.attributes) {
+      mesh.geometry.deleteAttribute(key)
+    }
+  }
+
   const skinnedMesh = obj as SkinnedMesh
   if (skinnedMesh.isSkinnedMesh) {
     skinnedMesh.skeleton?.dispose()
