@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-
 module.exports = {
   failZero: false,
   parallel: true,
@@ -33,12 +31,10 @@ module.exports = {
     'tests/mocha.env', // init env here
     'jsdom-global/register'
   ],
-  extension: [
-    'ts'
-  ],
+  extension: ['ts'],
   bail: true,
   exit: true,
   recursive: true,
   jobs: '1',
   timeout: '20000'
-};
+}

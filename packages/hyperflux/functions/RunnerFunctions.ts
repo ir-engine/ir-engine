@@ -59,6 +59,7 @@ const _cleanup = () => {
     }
   }
 }
+
 const runContext = (context: string, cb: () => void) => {
   if (!contexts[context]) {
     contexts[context] = {

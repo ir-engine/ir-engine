@@ -50,6 +50,7 @@ import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { act, render } from '@testing-library/react'
 import React from 'react'
+import { MathUtils } from 'three'
 import { NetworkWorldUserStateSystem } from '../NetworkUserState'
 import { EntityNetworkStateSystem } from './EntityNetworkState'
 
@@ -389,6 +390,65 @@ describe('EntityNetworkState', () => {
     assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).ownerId, hostUserId) // owner remains same
     assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).authorityPeerID, peerID) // peer remains same
     assert.equal(hasComponent(networkObjectEntitiesAfter[0], NetworkObjectOwnedTag), false)
+
+    unmount()
+  })
+
+  it('benchmark 10000 entities spawn', async () => {
+    const hostUserId = 'world' as UserID
+    const hostPeerId = 'host peer id' as PeerID
+    const userId = 'user id' as UserID
+    const peerID = Engine.instance.store.peerID
+    const peerID2 = 'peer id 2' as PeerID
+
+    Engine.instance.userID = userId // user being the action dispatcher
+    const network = NetworkState.worldNetwork as Network
+
+    NetworkPeerFunctions.createPeer(network, hostPeerId, 0, hostUserId, 0, 'host')
+    NetworkPeerFunctions.createPeer(network, peerID, 0, userId, 1, 'user name')
+    NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
+
+    const objNetId = 3 as NetworkId
+
+    const { rerender, unmount } = render(tag)
+
+    const start = performance.now()
+
+    for (let i = 0; i < 10000; i++) {
+      dispatchAction(
+        WorldNetworkAction.spawnObject({
+          $from: hostUserId, // from  host
+          networkId: objNetId,
+          $topic: NetworkTopics.world,
+          $peer: Engine.instance.peerID,
+          entityUUID: MathUtils.generateUUID() as any as EntityUUID
+        })
+      )
+    }
+
+    applyIncomingActions()
+
+    const applyActionsEnd = performance.now()
+    console.log('10000 entities apply action time:', applyActionsEnd - start)
+
+    await act(() => rerender(tag))
+
+    const reactorEnd = performance.now()
+
+    console.log('10000 entities reactor time:', reactorEnd - applyActionsEnd)
+
+    runnerEntityNetworkState()
+
+    const runnerEnd = performance.now()
+
+    console.log('10000 entities runner time:', runnerEnd - reactorEnd)
+
+    runnerEntityNetworkState()
+
+    const runner2End = performance.now()
+
+    console.log('10000 entities runner time:', runner2End - runnerEnd)
+    console.log('10000 entities total time:', runner2End - start)
 
     unmount()
   })
