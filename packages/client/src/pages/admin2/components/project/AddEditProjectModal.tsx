@@ -42,6 +42,7 @@ import { ModalHeader } from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Radios from '@etherealengine/ui/src/primitives/tailwind/Radio'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
+import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -61,6 +62,7 @@ export default function AddEditProjectModal({
   processing: boolean
 }) {
   const { t } = useTranslation()
+  const showAutoUpdateOptions = useHookstate(false)
 
   const project =
     update && inputProject
@@ -462,59 +464,69 @@ export default function AddEditProjectModal({
               )}
 
               <Text>{t('admin:components.project.autoUpdate')}</Text>
-              <div className="flex w-full">
-                <div className="w-1/2">
-                  <Label className="mb-4">{t('admin:components.project.autoUpdateMode')}</Label>
-                  <Radios
-                    className="grid-flow-col"
-                    options={[
-                      { name: t('admin:components.project.prod'), value: 'prod' },
-                      { name: t('admin:components.project.dev'), value: 'dev' }
-                    ]}
-                    currentValue={projectUpdateStatus.value?.updateType === 'tag' ? 'prod' : 'dev'}
-                    onChange={(value) =>
-                      ProjectUpdateService.setUpdateType(project.name, value === 'prod' ? 'tag' : 'commit')
-                    }
-                  />
-                </div>
-                <div className="w-1/2">
-                  <Select
-                    label={t('admin:components.project.autoUpdateInterval')}
-                    options={[
-                      {
-                        value: '*/5 * * * *',
-                        name: `5 ${t('admin:components.project.minutes')}`
-                      },
-                      {
-                        value: '*/30 * * * *',
-                        name: `30 ${t('admin:components.project.minutes')}`
-                      },
-                      {
-                        value: '0 * * * *',
-                        name: `1 ${t('admin:components.project.hour')}`
-                      },
-                      {
-                        value: '0 */3 * * *',
-                        name: `3 ${t('admin:components.project.hours')}`
-                      },
-                      {
-                        value: '0 */6 * * *',
-                        name: `6 ${t('admin:components.project.hours')}`
-                      },
-                      {
-                        value: '0 */12 * * *',
-                        name: `12 ${t('admin:components.project.hours')}`
-                      },
-                      {
-                        value: '0 0 * * *',
-                        name: `1 ${t('admin:components.project.day')}`
+              <Toggle
+                value={showAutoUpdateOptions.value}
+                onChange={(value) => {
+                  console.log('debug1 the value was', value)
+                  showAutoUpdateOptions.set(value)
+                }}
+                label={t('admin:components.project.enableAutoUpdate')}
+              />
+              {showAutoUpdateOptions.value && (
+                <div className="flex w-full">
+                  <div className="w-1/2">
+                    <Label className="mb-4">{t('admin:components.project.autoUpdateMode')}</Label>
+                    <Radios
+                      className="grid-flow-col"
+                      options={[
+                        { name: t('admin:components.project.prod'), value: 'prod' },
+                        { name: t('admin:components.project.dev'), value: 'dev' }
+                      ]}
+                      currentValue={projectUpdateStatus.value?.updateType === 'tag' ? 'prod' : 'dev'}
+                      onChange={(value) =>
+                        ProjectUpdateService.setUpdateType(project.name, value === 'prod' ? 'tag' : 'commit')
                       }
-                    ]}
-                    currentValue={projectUpdateStatus.value?.updateSchedule || DefaultUpdateSchedule}
-                    onChange={(value) => ProjectUpdateService.setUpdateSchedule(project.name, value)}
-                  />
+                    />
+                  </div>
+                  <div className="w-1/2">
+                    <Select
+                      label={t('admin:components.project.autoUpdateInterval')}
+                      options={[
+                        {
+                          value: '*/5 * * * *',
+                          name: `5 ${t('admin:components.project.minutes')}`
+                        },
+                        {
+                          value: '*/30 * * * *',
+                          name: `30 ${t('admin:components.project.minutes')}`
+                        },
+                        {
+                          value: '0 * * * *',
+                          name: `1 ${t('admin:components.project.hour')}`
+                        },
+                        {
+                          value: '0 */3 * * *',
+                          name: `3 ${t('admin:components.project.hours')}`
+                        },
+                        {
+                          value: '0 */6 * * *',
+                          name: `6 ${t('admin:components.project.hours')}`
+                        },
+                        {
+                          value: '0 */12 * * *',
+                          name: `12 ${t('admin:components.project.hours')}`
+                        },
+                        {
+                          value: '0 0 * * *',
+                          name: `1 ${t('admin:components.project.day')}`
+                        }
+                      ]}
+                      currentValue={projectUpdateStatus.value?.updateSchedule || DefaultUpdateSchedule}
+                      onChange={(value) => ProjectUpdateService.setUpdateSchedule(project.name, value)}
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
         </div>
