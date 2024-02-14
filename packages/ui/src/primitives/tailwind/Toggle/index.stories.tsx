@@ -23,27 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import React from 'react'
-import ClickawayListener from '../ClickawayListener'
+import Component from './index'
 
-const PopupMenu = () => {
-  const popoverElement = useHookstate(getMutableState(PopoverState).elements)
-  return (
-    <>
-      {popoverElement.get(NO_PROXY).map((element, idx) => {
-        return (
-          <div key={idx} className={idx === popoverElement.length - 1 ? 'block' : 'hidden'}>
-            <ClickawayListener>{element ?? undefined}</ClickawayListener>
-          </div>
-        )
-      })}
-    </>
-  )
+export default {
+  title: 'Primitives/Tailwind/Toggle',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'Toggle',
+    jest: 'Toggle.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  }
 }
-PopupMenu.displayName = 'PopupMenu'
 
-PopupMenu.defaultProps = {}
+export const Off = {
+  args: {
+    label: 'Toggle Off Example',
+    value: false,
+    onChange: () => {}
+  }
+}
 
-export default PopupMenu
+export const On = {
+  args: {
+    label: 'Toggle On Example',
+    value: true,
+    onChange: () => {}
+  }
+}

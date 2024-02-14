@@ -23,27 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import React from 'react'
-import ClickawayListener from '../ClickawayListener'
+import { twMerge } from 'tailwind-merge'
+import Label from '../Label'
 
-const PopupMenu = () => {
-  const popoverElement = useHookstate(getMutableState(PopoverState).elements)
+export interface ToggleProps {
+  value: boolean
+  label?: string
+  className?: string
+  onChange: (value: boolean) => void
+}
+
+const Toggle = ({ className, label, value, onChange }: ToggleProps) => {
+  const twClassName = twMerge(
+    "peer relative h-6 w-11 cursor-pointer rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-['']",
+    'peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:ring-4 peer-focus:ring-blue-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800',
+    className
+  )
+
   return (
-    <>
-      {popoverElement.get(NO_PROXY).map((element, idx) => {
-        return (
-          <div key={idx} className={idx === popoverElement.length - 1 ? 'block' : 'hidden'}>
-            <ClickawayListener>{element ?? undefined}</ClickawayListener>
-          </div>
-        )
-      })}
-    </>
+    <div className="flex w-full items-center gap-4">
+      <input type="checkbox" className="peer sr-only" checked={value} onChange={() => onChange(!value)} />
+      <div className={twClassName} onClick={() => onChange(!value)} />
+      {label && <Label>{label}</Label>}
+    </div>
   )
 }
-PopupMenu.displayName = 'PopupMenu'
 
-PopupMenu.defaultProps = {}
-
-export default PopupMenu
+export default Toggle
