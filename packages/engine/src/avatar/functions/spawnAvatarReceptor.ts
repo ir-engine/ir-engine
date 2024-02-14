@@ -153,10 +153,6 @@ const createAvatarRigidBody = (entity: Entity): RigidBody => {
 export const createAvatarController = (entity: Entity) => {
   if (!hasComponent(entity, RigidBodyComponent)) {
     createAvatarRigidBody(entity)
-    setComponent(entity, AvatarControllerComponent, {
-      bodyCollider: createAvatarCollider(entity),
-      controller: Physics.createCharacterController(getState(PhysicsState).physicsWorld, {})
-    })
   }
 
   const rigidbody = getComponent(entity, RigidBodyComponent)

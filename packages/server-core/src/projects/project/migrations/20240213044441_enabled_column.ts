@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,24 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { projectPath } from '@etherealengine/common/src/schema.type.module'
+import type { Knex } from 'knex'
 
-import { BufferGeometry, Group, Material } from "three";
-import { Loader } from "../base/Loader";
-
-export class USDAParser {
-    parse(text: string): object
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const enabledColumnExists = await knex.schema.hasColumn(projectPath, 'enabled')
+  if (!enabledColumnExists) {
+    await knex.schema.alterTable(projectPath, async (table) => {
+      table.boolean('enabled').defaultTo(true)
+    })
+  }
 }
 
-export class USDZLoader extends Loader {
-    register(plugin: USDZLoaderPlugin): void
-    unregister(plugin: USDZLoaderPlugin): void
-    load(url: string, onLoad: (result) => void, onProgress?: (progress) => void, onError?: (error) => void, signal?: AbortSignal): void
-    parse(buffer: string, onLoad: (result) => void): object
-}
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const enabledColumnExists = await knex.schema.hasColumn(projectPath, 'enabled')
 
-export interface USDZLoaderPlugin {
-    buildMesh?: ((mesh: Mesh<BufferGeometry, any>, data: any) => Mesh<BufferGeometry, any>)
-    buildGeometry?: ((geo: BufferGeometry, data: any) => BufferGeometry)
-    buildMaterial?: ((material: Material, data: any) => Material)
-    buildXform?: ((xform: Group, data: any) => Group)
+  if (enabledColumnExists) {
+    await knex.schema.alterTable(projectPath, async (table) => {
+      table.dropColumn('enabled')
+    })
+  }
 }

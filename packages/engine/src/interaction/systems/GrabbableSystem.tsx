@@ -118,10 +118,21 @@ export const GrabbableState = defineState({
       const state = getMutableState(GrabbableState)
       state[action.entityUUID].set(none)
     })
+  },
+
+  reactor: () => {
+    const grabbableState = useHookstate(getMutableState(GrabbableState))
+    return (
+      <>
+        {grabbableState.keys.map((entityUUID: EntityUUID) => (
+          <GrabbableReactor key={entityUUID} entityUUID={entityUUID} />
+        ))}
+      </>
+    )
   }
 })
 
-const GrabbableReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) => {
+const GrabbableReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   const state = useHookstate(getMutableState(GrabbableState)[entityUUID])
   const entity = UUIDComponent.useEntityByUUID(entityUUID)
   const grabberEntity = UUIDComponent.useEntityByUUID(state.grabberUserId.value as EntityUUID)
@@ -167,18 +178,7 @@ const GrabbableReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID })
   }, [entity, grabberEntity, bodyState])
 
   return null
-})
-
-export const GrabbablesReactor = React.memo(() => {
-  const grabbableState = Object.keys(useHookstate(getMutableState(GrabbableState)).value)
-  return (
-    <>
-      {grabbableState.map((entityUUID: EntityUUID) => (
-        <GrabbableReactor key={entityUUID} entityUUID={entityUUID} />
-      ))}
-    </>
-  )
-})
+}
 
 /** @deprecated @todo - replace with reactor */
 export function transferAuthorityOfObjectReceptor(
@@ -388,6 +388,5 @@ const execute = () => {
 export const GrabbableSystem = defineSystem({
   uuid: 'ee.engine.GrabbableSystem',
   insert: { with: SimulationSystemGroup },
-  execute,
-  reactor: GrabbablesReactor
+  execute
 })

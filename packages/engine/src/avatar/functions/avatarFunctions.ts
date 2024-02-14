@@ -40,7 +40,6 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
@@ -62,7 +61,7 @@ import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { LocalAvatarState } from '../state/AvatarState'
-import { bindAnimationClipFromMixamo, retargetAnimationClip } from './retargetMixamoRig'
+import { bindAnimationClipFromMixamo } from './retargetMixamoRig'
 
 declare module '@pixiv/three-vrm/types/VRM' {
   export interface VRM {
@@ -206,30 +205,6 @@ export const retargetAvatarAnimations = (entity: Entity) => {
     animations: animations,
     mixer: new AnimationMixer(rigComponent.vrm.humanoid.normalizedHumanBonesRoot)
   })
-}
-
-/**loads animation bundles. assumes the bundle is a glb */
-export const loadBundledAnimations = (animationFiles: string[]) => {
-  const manager = getMutableState(AnimationState)
-
-  //preload animations
-  for (const animationFile of animationFiles) {
-    AssetLoader.loadAsync(
-      `${config.client.fileServer}/projects/default-project/assets/animations/${animationFile}.glb`
-    ).then((asset: GLTF) => {
-      // delete unneeded geometry data to save memory
-      asset.scene.traverse((node) => {
-        delete (node as any).geometry
-        delete (node as any).material
-      })
-      for (let i = 0; i < asset.animations.length; i++) {
-        retargetAnimationClip(asset.animations[i], asset.scene)
-      }
-      //ensure animations are always placed in the scene
-      asset.scene.animations = asset.animations
-      manager.loadedAnimations[animationFile].set(asset)
-    })
-  }
 }
 
 /**
