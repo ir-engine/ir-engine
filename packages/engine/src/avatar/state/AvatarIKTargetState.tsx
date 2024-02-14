@@ -27,14 +27,12 @@ import { defineState, getMutableState, none, useHookstate } from '@etherealengin
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
-import React, { useEffect } from 'react'
+import React, { useLayoutEffect } from 'react'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
-import { AvatarMovementSystem } from './AvatarMovementSystem'
 
 export const AvatarIKTargetState = defineState({
   name: 'ee.engine.avatar.AvatarIKTargetState',
@@ -53,6 +51,17 @@ export const AvatarIKTargetState = defineState({
     onDestroyObject: WorldNetworkAction.destroyObject.receive((action) => {
       getMutableState(AvatarIKTargetState)[action.entityUUID].set(none)
     })
+  },
+
+  reactor: () => {
+    const avatarIKTargetState = useHookstate(getMutableState(AvatarIKTargetState))
+    return (
+      <>
+        {avatarIKTargetState.keys.map((entityUUID: EntityUUID) => (
+          <AvatarReactor key={entityUUID} entityUUID={entityUUID} />
+        ))}
+      </>
+    )
   }
 })
 
@@ -60,7 +69,7 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   const state = useHookstate(getMutableState(AvatarIKTargetState)[entityUUID])
   const entity = UUIDComponent.useEntityByUUID(entityUUID)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!entity) return
     setComponent(entity, NameComponent, state.name.value)
     setComponent(entity, AvatarIKTargetComponent)
@@ -68,20 +77,3 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
 
   return null
 }
-
-export const AvatarIKTargetStateReactor = () => {
-  const avatarIKTargetState = useHookstate(getMutableState(AvatarIKTargetState))
-  return (
-    <>
-      {avatarIKTargetState.keys.map((entityUUID: EntityUUID) => (
-        <AvatarReactor key={entityUUID} entityUUID={entityUUID} />
-      ))}
-    </>
-  )
-}
-
-export const AvatarIKTargetSystem = defineSystem({
-  uuid: 'ee.engine.AvatarIKTargetSystem',
-  insert: { after: AvatarMovementSystem },
-  reactor: AvatarIKTargetStateReactor
-})
