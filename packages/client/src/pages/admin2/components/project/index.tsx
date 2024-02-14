@@ -78,7 +78,7 @@ export default function AdminProject() {
             startIcon={<HiArrowPath />}
             size="small"
             onClick={() => {
-              getMutableState(PopoverState).element.set(<UpdateEngineModal />)
+              PopoverState.showPopupover(<UpdateEngineModal />)
             }}
             disabled={isDev}
             endIcon={!isDev && projectState.rebuilding.value ? <LoadingCircle className="h-6 w-6" /> : undefined}
@@ -91,7 +91,7 @@ export default function AdminProject() {
             startIcon={<HiPlus />}
             size="small"
             onClick={() => {
-              getMutableState(PopoverState).element.set(
+              PopoverState.showPopupover(
                 <AddEditProjectModal
                   processing={modalProcessing.value}
                   onSubmit={async () => {

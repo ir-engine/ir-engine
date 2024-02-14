@@ -26,42 +26,79 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { getMutableState } from '@etherealengine/hyperflux'
 import Button from '../Button'
 import PopupMenu from '../PopupMenu'
 import Modal from './index'
 
 const ModelStory = ({ title }) => {
-  const popover = getMutableState(PopoverState)
-
   const onClose = () => {
-    popover.set({ element: null })
+    PopoverState.hidePopupover()
   }
 
   const onOpen = () => {
-    popover.set({
-      element: (
-        <Modal title={title} onClose={onClose} onSubmit={() => {}}>
-          <div className="mb-5 flex flex-col border-b border-[#e5e7eb]">
-            <label className="text-secondary">Location</label>
-            <input className="fIocus:outline-none rounded-lg px-3.5 py-1.5" type="text" placeholder="Enter here" />
+    PopoverState.showPopupover(
+      <Modal title={title} onClose={onClose} onSubmit={() => {}}>
+        <div className="mb-5 flex flex-col border-b border-[#e5e7eb]">
+          <label className="text-secondary">Location</label>
+          <input className="fIocus:outline-none rounded-lg px-3.5 py-1.5" type="text" placeholder="Enter here" />
 
-            <label className="text-secondary mt-6">Count</label>
-            <input
-              className="rounded-lg px-3.5 py-1.5 focus:outline-none"
-              value="3"
-              type="number"
-              placeholder="Enter here"
-            />
-          </div>
-        </Modal>
-      )
-    })
+          <label className="text-secondary mt-6">Count</label>
+          <input
+            className="rounded-lg px-3.5 py-1.5 focus:outline-none"
+            value="3"
+            type="number"
+            placeholder="Enter here"
+          />
+        </div>
+      </Modal>
+    )
   }
 
   return (
     <div>
       <Button onClick={onOpen}>Open Modal</Button>
+      <PopupMenu />
+    </div>
+  )
+}
+
+const MultipleModelStory = ({ title }) => {
+  const onClose = () => {
+    PopoverState.hidePopupover()
+  }
+
+  const onSecondPopupOpen = () => {
+    PopoverState.showPopupover(
+      <Modal title={title} onClose={onClose} onSubmit={() => {}}>
+        <div className="mb-5 flex flex-col border-b border-[#e5e7eb]">
+          <label className="text-secondary">Location</label>
+          <input className="fIocus:outline-none rounded-lg px-3.5 py-1.5" type="text" placeholder="Enter here" />
+
+          <label className="text-secondary mt-6">Count</label>
+          <input
+            className="rounded-lg px-3.5 py-1.5 focus:outline-none"
+            value="3"
+            type="number"
+            placeholder="Enter here"
+          />
+        </div>
+      </Modal>
+    )
+  }
+
+  return (
+    <div>
+      <Button
+        onClick={() => {
+          PopoverState.showPopupover(
+            <Modal title="First Modal" onClose={onClose}>
+              <Button onClick={onSecondPopupOpen}>Click to open modal</Button>
+            </Modal>
+          )
+        }}
+      >
+        Open Modal
+      </Button>
       <PopupMenu />
     </div>
   )
@@ -83,5 +120,12 @@ export default {
 export const Default = {
   args: {
     title: 'Patch Instance Server'
+  }
+}
+
+export const Multiple = {
+  component: MultipleModelStory,
+  args: {
+    title: 'Second Modal'
   }
 }

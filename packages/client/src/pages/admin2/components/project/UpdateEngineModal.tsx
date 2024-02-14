@@ -70,7 +70,7 @@ export default function UpdateEngineModal() {
   return (
     <Modal
       title={t('admin:components.project.updateEngine')}
-      onClose={() => getMutableState(PopoverState).element.set(null)}
+      onClose={() => PopoverState.hidePopupover()}
       hideFooter={modalProcessing.value}
       onSubmit={async () => {
         modalProcessing.set(true)

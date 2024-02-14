@@ -33,7 +33,7 @@ import { ProjectRowType, projectsColumns } from '../../common/constants/project'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { ProjectService } from '@etherealengine/client-core/src/common/services/ProjectService'
 import multiLogger from '@etherealengine/common/src/logger'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
@@ -41,14 +41,12 @@ import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
 import { GrEdit, GrGithub } from 'react-icons/gr'
-import AddEditProjectModal from './AddEditProjectModal'
 
 const logger = multiLogger.child({ component: 'client-core:ProjectTable' })
 
 export default function ProjectTable() {
   const { t } = useTranslation()
   const modalProcessing = useHookstate(false)
-  const popoverState = getMutableState(PopoverState)
   const projectQuery = useFind(projectPath, {
     query: {
       allowed: true,
@@ -61,10 +59,10 @@ export default function ProjectTable() {
   })
 
   const showConfirmDialog = (project: ProjectType, text: string, onSubmit: () => void) => {
-    popoverState.element.set(
+    PopoverState.showPopupover(
       <Modal
         onSubmit={onSubmit}
-        onClose={!modalProcessing.value ? () => popoverState.element.set(null) : undefined}
+        onClose={!modalProcessing.value ? () => PopoverState.hidePopupover() : undefined}
         hideFooter={modalProcessing.value}
       >
         {modalProcessing.value ? <LoadingCircle className="h-[10vh]" /> : <Text>{text}</Text>}
@@ -107,7 +105,7 @@ export default function ProjectTable() {
                   await ProjectService.pushProject(row.id).catch(() => modalProcessing.set(false))
                   modalProcessing.set(false)
 
-                  popoverState.element.set(null)
+                  PopoverState.hidePopupover()
                 }
               )
             }}
@@ -119,7 +117,7 @@ export default function ProjectTable() {
             size="small"
             className="bg-[#61759f] dark:bg-[#2A3753]"
             onClick={() => {
-              popoverState.element.set(<AddEditProjectModal />)
+              PopoverState.showPopupover(<></>)
             }}
           >
             {t('admin:components.project.actions.update')}
@@ -143,7 +141,7 @@ export default function ProjectTable() {
                 async () => {
                   modalProcessing.set(true)
                   await ProjectService.invalidateProjectCache(row.name)
-                  popoverState.element.set(null)
+                  PopoverState.hidePopupover()
                 }
               )
             }}
@@ -164,7 +162,7 @@ export default function ProjectTable() {
                 async () => {
                   modalProcessing.set(true)
                   await ProjectService.removeProject(row.id).catch((err) => logger.error(err))
-                  popoverState.element.set(null)
+                  PopoverState.hidePopupover()
                 }
               )
             }}
