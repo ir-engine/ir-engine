@@ -213,8 +213,7 @@ function ModelReactor(): JSX.Element {
 
   // update scene
   useEffect(() => {
-    const scene = modelComponent.scene.value
-    const asset = modelComponent.asset.value
+    const { scene, asset, src } = getComponent(entity, ModelComponent)
 
     if (!scene || !asset) return
 
@@ -248,7 +247,7 @@ function ModelReactor(): JSX.Element {
           addError(entity, ModelComponent, 'LOADING_ERROR', 'Error compiling model')
         })
         .finally(() => {
-          SceneAssetPendingTagComponent.removeResource(entity, modelComponent.src.value)
+          SceneAssetPendingTagComponent.removeResource(entity, src)
         })
 
     return () => {

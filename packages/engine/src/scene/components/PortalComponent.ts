@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { useEffect } from 'react'
 import { ArrowHelper, BackSide, Euler, Mesh, MeshBasicMaterial, Quaternion, SphereGeometry, Vector3 } from 'three'
 
@@ -48,12 +47,10 @@ import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { V_100 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import {
@@ -163,10 +160,7 @@ export const PortalComponent = defineComponent({
 
       /** Allow scene data populating rigidbody component too */
       if (hasComponent(entity, RigidBodyComponent)) return
-      setComponent(entity, RigidBodyComponent, {
-        type: 'fixed',
-        body: Physics.createRigidBody(entity, getState(PhysicsState).physicsWorld, RigidBodyDesc.fixed())
-      })
+      setComponent(entity, RigidBodyComponent, { type: 'fixed' })
       setComponent(entity, ColliderComponent, {
         shape: 'box',
         collisionLayer: CollisionGroups.Trigger,
