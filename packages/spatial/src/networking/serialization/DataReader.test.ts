@@ -31,7 +31,7 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
@@ -863,6 +863,9 @@ describe('DataReader', () => {
       TransformComponent.rotation.y[entity] = 0
       TransformComponent.rotation.z[entity] = 0
       TransformComponent.rotation.w[entity] = 0
+
+      // have to remove this so the data can be read back in
+      removeComponent(entity, NetworkObjectAuthorityTag)
     }
 
     const view = createViewCursor(packet)
