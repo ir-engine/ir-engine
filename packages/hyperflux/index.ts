@@ -25,6 +25,5 @@ Ethereal Engine. All Rights Reserved.
 
 export * from './functions/ActionFunctions'
 export * from './functions/ReactorFunctions'
-export * from './functions/RunnerFunctions'
 export * from './functions/StateFunctions'
 export * from './functions/StoreFunctions'

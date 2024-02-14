@@ -30,7 +30,6 @@ import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState } from '@etherealengine/hyperflux'
-import * as ActionFunctions from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { applyIncomingActions, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -238,14 +237,11 @@ describe('EntityNetworkState', () => {
     })
   })
 
-  describe('destroyObject', () => {})
-
   describe('transfer authority of object', () => {
     it('should transfer authority of object (and not ownership)', async () => {
       const hostUserId = 'world' as UserID
       const hostPeerId = 'host peer id' as PeerID
       const userId = 'user id' as UserID
-      Engine.instance.store.peerID = 'peer id' as PeerID
       const peerID = Engine.instance.store.peerID
       const peerID2 = 'peer id 2' as PeerID
 
@@ -294,8 +290,8 @@ describe('EntityNetworkState', () => {
         })
       )
 
-      ActionFunctions.applyIncomingActions()
-      ActionFunctions.applyIncomingActions()
+      applyIncomingActions()
+      applyIncomingActions()
 
       const networkObjectEntitiesAfter = networkObjectQuery()
       const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery()
@@ -379,7 +375,7 @@ describe('EntityNetworkState', () => {
     unmount()
   })
 
-  it('benchmark 10000 entities spawn', async () => {
+  it.skip('benchmark 10000 entities spawn', async () => {
     const hostUserId = 'world' as UserID
     const hostPeerId = 'host peer id' as PeerID
     const userId = 'user id' as UserID

@@ -30,13 +30,19 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import {
   Component,
+  Engine,
   Entity,
   UndefinedEntity,
   defineComponent,
   defineQuery,
   getComponent,
-  hasComponent
+  hasComponent,
+  removeComponent,
+  setComponent,
+  useComponent,
+  useEntityContext
 } from '@etherealengine/ecs'
+import { useLayoutEffect } from 'react'
 
 /** ID of last network created. */
 let availableNetworkId = 0 as NetworkId
@@ -77,6 +83,26 @@ export const NetworkObjectComponent = defineComponent({
       component.networkId.set(json.networkId)
       NetworkObjectComponent.networkId[entity] = json.networkId
     }
+  },
+
+  reactor: function () {
+    const entity = useEntityContext()
+    const networkObject = useComponent(entity, NetworkObjectComponent)
+
+    useLayoutEffect(() => {
+      console.log(networkObject.authorityPeerID.value, Engine.instance.peerID)
+      if (networkObject.authorityPeerID.value === Engine.instance.peerID)
+        setComponent(entity, NetworkObjectAuthorityTag)
+      else removeComponent(entity, NetworkObjectAuthorityTag)
+    }, [networkObject.authorityPeerID])
+
+    useLayoutEffect(() => {
+      console.log(networkObject.ownerId.value, Engine.instance.userID)
+      if (networkObject.ownerId.value === Engine.instance.userID) setComponent(entity, NetworkObjectOwnedTag)
+      else removeComponent(entity, NetworkObjectOwnedTag)
+    }, [networkObject.ownerId])
+
+    return null
   },
 
   /**

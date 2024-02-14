@@ -59,13 +59,17 @@ export const InputComponent = defineComponent({
     const entity = useEntityContext()
     const input = useComponent(entity, InputComponent)
 
+    console.log('input', input)
+
     useLayoutEffect(() => {
+      console.log('input.inputSources', input.inputSources)
       if (!input.inputSources.length || !input.highlight.value) return
       setComponent(entity, HighlightComponent)
       return () => {
+        console.log('removeComponent')
         removeComponent(entity, HighlightComponent)
       }
-    }, [input.inputSources, input.highlight])
+    }, [input.inputSources.length, input.highlight])
 
     /** @todo - fix */
     // useLayoutEffect(() => {
