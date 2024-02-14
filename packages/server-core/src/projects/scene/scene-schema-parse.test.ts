@@ -65,7 +65,7 @@ describe('Scene Helper Functions', () => {
     })
 
     after(() => {
-      destroyEngine()
+      return destroyEngine()
     })
 
     it('should parse saved data', async function () {

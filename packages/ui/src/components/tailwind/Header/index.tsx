@@ -37,34 +37,34 @@ const Header = (props: { mode: State<'playback' | 'capture'> }) => {
   const { user } = authState
   const avatarDetails = user?.avatar?.value
   return (
-    <nav className="relative w-full navbar">
-      <label tabIndex={0} className="absolute top-0 right-0">
+    <nav className="navbar relative w-full">
+      <label tabIndex={0} className="absolute right-0 top-0">
         <span className="mr-1">{user?.name?.value}</span>
         <div className="avatar">
-          <div className="w-auto h-[60px] rounded-full">
+          <div className="h-[60px] w-auto rounded-full">
             {avatarDetails?.thumbnailResource?.url ? (
               <img
                 src={avatarDetails.thumbnailResource?.url}
                 crossOrigin="anonymous"
-                className="w-auto h-[60px] rounded-full"
+                className="h-[60px] w-auto rounded-full"
               />
             ) : (
-              <UserCircleIcon className="w-auto h-[120px] rounded-full" />
+              <UserCircleIcon className="h-[120px] w-auto rounded-full" />
             )}
           </div>
         </div>
       </label>
       <div className="flex-1">
-        <a className="normal-case text-xl">Ethereal Capture</a>
+        <a className="text-xl normal-case">Ethereal Capture</a>
       </div>
       <div className="navbar-end">
         <div className="dropdown dropdown-end">
           <Button
-            className="pointer-events-auto w-[200px] h-[30px] bg-[#292D3E] rounded-full shadow-md text-center font=[lato] font-bold text-sm m-2"
+            className="font=[lato] pointer-events-auto m-2 h-[30px] w-[200px] rounded-full bg-[#292D3E] text-center text-sm font-bold shadow-md"
             title={'capture/playback'}
             onClick={() => props.mode.set(props.mode.value === 'playback' ? 'capture' : 'playback')}
           >
-            <a className="normal-case text-l">
+            <a className="text-l normal-case">
               {props.mode.value === 'playback' ? 'Switch to capture mode' : 'Switch to playback mode'}
             </a>
           </Button>

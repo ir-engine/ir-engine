@@ -241,6 +241,9 @@ if (!isClient) {
 
   // patches for headless-gl - currently unused
 
+  //@ts-ignore
+  THREE.TextureLoader.prototype.load = function (url, onLoad, onProgress, onError) {}
+
   // patch navigator
   if (!globalThis.navigator)
     (globalThis as any).navigator = {

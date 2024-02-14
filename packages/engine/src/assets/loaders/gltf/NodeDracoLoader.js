@@ -15,7 +15,6 @@
 // 'use strict';
 
 import {
-  FileLoader,
   BufferGeometry,
   DefaultLoadingManager,
   Float32BufferAttribute,
@@ -28,6 +27,7 @@ import {
   Uint32BufferAttribute,
   Uint8BufferAttribute
 } from 'three'
+import { FileLoader } from '../base/FileLoader'
 
 import draco from 'draco3dgltf'
 
@@ -66,7 +66,7 @@ export class NodeDRACOLoader {
     return DRACO_ENCODER
   }
 
-  load(url, onLoad, onProgress, onError) {
+  load(url, onLoad, onProgress, onError, signal) {
     var scope = this
     var loader = new FileLoader(scope.manager)
     loader.setPath(this.path)
@@ -77,7 +77,8 @@ export class NodeDRACOLoader {
         scope.decodeDracoFile(blob, onLoad)
       },
       onProgress,
-      onError
+      onError,
+      signal
     )
   }
 

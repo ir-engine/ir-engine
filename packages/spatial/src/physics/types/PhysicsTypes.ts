@@ -102,6 +102,7 @@ export const Shapes = {
   Capsule: 'capsule' as const,
   Cylinder: 'cylinder' as const,
   Box: 'box' as const,
+  Plane: 'plane' as const,
   ConvexHull: 'convex_hull' as const,
   Mesh: 'mesh' as const,
   Heightfield: 'heightfield' as const
