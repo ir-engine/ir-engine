@@ -413,7 +413,10 @@ const config = {
   },
   noSSL: process.env.NOSSL === 'true',
   localBuild: process.env.VITE_LOCAL_BUILD === 'true',
-  testEnabled
+  testEnabled,
+  /** @todo when project versioning is fully implemented, remove 'undefined' check here */
+  allowOutOfDateProjects:
+    typeof process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'undefined' || process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'true'
 }
 
 chargebeeInst.configure({
