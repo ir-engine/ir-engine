@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { discardQuery, iff, isProvider } from 'feathers-hooks-common'
+import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import { projectPermissionPath } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
 import {
@@ -70,6 +70,7 @@ import logger from '../../ServerLogger'
 import config from '../../appconfig'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import enableClientPagination from '../../hooks/enable-client-pagination'
+import isAction from '../../hooks/is-action'
 import { cleanString } from '../../util/cleanString'
 import { useGit } from '../../util/gitHelperFunctions'
 import { checkAppOrgStatus, checkUserOrgWriteStatus, checkUserRepoWriteStatus } from './github-helper'
@@ -97,6 +98,12 @@ import {
 const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/template-project/`)
 
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
+
+const filterDisabledProjects = (context: HookContext<ProjectService>) => {
+  if (config.allowOutOfDateProjects) return
+  if (context.params.query) context.params.query.enabled = true
+  else context.params.query = { enabled: true }
+}
 
 /**
  * Checks whether the user has push access to the project
@@ -558,7 +565,13 @@ export default createSkippableHooks(
 
     before: {
       all: [() => schemaHooks.validateQuery(projectQueryValidator), schemaHooks.resolveQuery(projectQueryResolver)],
-      find: [enableClientPagination(), discardQuery('action'), ensurePushStatus, addLimitToParams],
+      find: [
+        enableClientPagination(),
+        iffElse(isAction('admin'), [], filterDisabledProjects),
+        discardQuery('action'),
+        ensurePushStatus,
+        addLimitToParams
+      ],
       get: [],
       create: [
         iff(isProvider('external'), verifyScope('editor', 'write')),
