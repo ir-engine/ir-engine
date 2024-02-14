@@ -33,7 +33,7 @@ const lightTheme = {
   'bg-secondary': '#FFFFFF',
   'bg-highlight': '#FFFFFF',
   'text-primary': '#262626',
-  'text-secondary': '#404040',
+  'text-secondary': '#6B7280',
   'text-highlight': '#FFFFFF'
 }
 

@@ -261,12 +261,23 @@ export function iterateEntityNode<R>(
  * @param tree Entity Tree
  */
 export function traverseEntityNodeParent(entity: Entity, cb: (parent: Entity) => void): void {
-  const entityTreeNode = getComponent(entity, EntityTreeComponent)
-  if (entityTreeNode.parentEntity) {
+  const entityTreeNode = getOptionalComponent(entity, EntityTreeComponent)
+  if (entityTreeNode?.parentEntity) {
     const parent = entityTreeNode.parentEntity
     cb(parent)
     traverseEntityNodeParent(parent, cb)
   }
+}
+
+export function findAncestorWithComponent(entity: Entity, component: any): Entity | undefined {
+  let result: Entity | undefined
+  if (hasComponent(entity, component)) return entity
+  traverseEntityNodeParent(entity, (parent) => {
+    if (hasComponent(parent, component)) {
+      result = parent
+    }
+  })
+  return result
 }
 
 /**

@@ -40,22 +40,22 @@ export const ViewMember = () => {
   ]
 
   return (
-    <div className="bg-[#15171B] text-white w-[380px] transform translate-x-0 transition-transform ease-in-out duration-[100]">
-      <div className="w-[200px] justify-start mt-[45px] ml-9 gap-2  flex flex-wrap">
+    <div className="w-[380px] translate-x-0 transform bg-[#15171B] text-white transition-transform duration-[100] ease-in-out">
+      <div className="ml-9 mt-[45px] flex w-[200px] flex-wrap  justify-start gap-2">
         <p className="text-[16px] font-bold text-white">GROUP TEST 1</p>
-        <p className="text-[10px] font-bold text-[#83769C] mt-[5px]">12 Member (s)</p>
+        <p className="mt-[5px] text-[10px] font-bold text-[#83769C]">12 Member (s)</p>
       </div>
-      <div className="w-[380px] flex flex-wrap mt-9 gap-2 justify-center">
+      <div className="mt-9 flex w-[380px] flex-wrap justify-center gap-2">
         {Members.map((item) => {
           return (
-            <div className="rounded-[10px] bg-[#15171B] w-[350px] h-[45px] flex flex-wrap">
-              <div className="rounded-full ml-4 my-2 bg-[#26282B] w-[30px] h-[30px] justify-between">
-                <img className="max-w-full w-[13.64px] mx-2 h-[28.64px] overflow-hidden" alt="" src={UserIcon} />
+            <div className="flex h-[45px] w-[350px] flex-wrap rounded-[10px] bg-[#15171B]">
+              <div className="my-2 ml-4 h-[30px] w-[30px] justify-between rounded-full bg-[#26282B]">
+                <img className="mx-2 h-[28.64px] w-[13.64px] max-w-full overflow-hidden" alt="" src={UserIcon} />
               </div>
-              <p className="text-[12px] w-[220px] ml-3 font-bold text-white mt-3.5">{item.name}</p>
-              <div className="rounded-full  my-2 bg-[#26282B] w-[30px] h-[30px] justify-between">
+              <p className="ml-3 mt-3.5 w-[220px] text-[12px] font-bold text-white">{item.name}</p>
+              <div className="my-2  h-[30px] w-[30px] justify-between rounded-full bg-[#26282B]">
                 <button className="m-0 w-[40px] ">
-                  <MdDelete className="w-[22px] h-[30px] mx-1 fill-[#DD3333] overflow-hidden" />
+                  <MdDelete className="mx-1 h-[30px] w-[22px] overflow-hidden fill-[#DD3333]" />
                 </button>
               </div>
             </div>
