@@ -106,4 +106,5 @@ jobs:
           key: dir-${{github.sha}}
       - run: npm run dev-docker
       - run: npm run dev-reinit
+      - run: git config --global user.email "you@example.com" && git config --global user.name "Your Name"
       - run: npm run test
