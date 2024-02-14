@@ -25,7 +25,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 
-import { BufferGeometry, Group, Loader, Material } from "three";
+import { BufferGeometry, Group, Material } from "three";
+import { Loader } from "../base/Loader";
 
 export class USDAParser {
     parse(text: string): object
@@ -34,7 +35,7 @@ export class USDAParser {
 export class USDZLoader extends Loader {
     register(plugin: USDZLoaderPlugin): void
     unregister(plugin: USDZLoaderPlugin): void
-    load(url: string, onLoad: (result) => void, onProgress: (progress) => void, onError: (error) => void): void
+    load(url: string, onLoad: (result) => void, onProgress?: (progress) => void, onError?: (error) => void, signal?: AbortSignal): void
     parse(buffer: string, onLoad: (result) => void): object
 }
 

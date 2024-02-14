@@ -27,7 +27,6 @@ import React, { useEffect } from 'react'
 import { Euler, Quaternion, Vector3, WebGLRenderer } from 'three'
 
 import {
-  Engine,
   Entity,
   PresentationSystemGroup,
   UndefinedEntity,
@@ -35,11 +34,12 @@ import {
   defineQuery,
   defineSystem,
   getComponent,
+  getOptionalComponent,
   removeComponent,
   removeEntity,
   setComponent
 } from '@etherealengine/ecs'
-import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
+import { NO_PROXY, defineState, getMutableState, none } from '@etherealengine/hyperflux'
 import { DirectionalLightComponent, TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import {
@@ -49,6 +49,7 @@ import {
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { addClientInputListeners } from '@etherealengine/spatial/src/input/systems/ClientInputSystem'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import {
   ObjectLayerComponents,
   ObjectLayerMaskComponent
@@ -158,6 +159,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
       getMutableState(ActiveOrbitCamera).set(UndefinedEntity)
       const thisIdIndex = rendererState.ids.value.findIndex((value) => value === id)
       rendererState.entities[id].set(none)
+      rendererState.renderers[id].get(NO_PROXY).dispose()
       rendererState.renderers[id].set(none)
       rendererState.ids[thisIdIndex].set(none)
     }
@@ -193,21 +195,20 @@ export const render3DPanelSystem = defineSystem({
         iterateEntityNode(previewEntity, (entity) => {
           setComponent(entity, ObjectLayerComponents[ObjectLayers.AssetPreview])
         })
-        const cameraComponent = getComponent(cameraEntity, CameraComponent)
-        // sync with view camera
-        const viewCamera = cameraComponent.cameras[0]
-        viewCamera.projectionMatrix.copy(cameraComponent.projectionMatrix)
-        viewCamera.quaternion.copy(cameraComponent.quaternion)
-        viewCamera.position.copy(cameraComponent.position)
-        viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
-        // hack to make the background transparent for the preview
-        const lastBackground = Engine.instance.scene.background
-        Engine.instance.scene.background = null
-        rendererState.renderers[id].value.render(Engine.instance.scene, viewCamera)
-        Engine.instance.scene.background = lastBackground
-        iterateEntityNode(previewEntity, (entity) => {
-          removeComponent(entity, ObjectLayerComponents[ObjectLayers.AssetPreview])
-        })
+        const group = getOptionalComponent(previewEntity, GroupComponent)
+        if (group && group[0]) {
+          const cameraComponent = getComponent(cameraEntity, CameraComponent)
+          // sync with view camera
+          const viewCamera = cameraComponent.cameras[0]
+          viewCamera.projectionMatrix.copy(cameraComponent.projectionMatrix)
+          viewCamera.quaternion.copy(cameraComponent.quaternion)
+          viewCamera.position.copy(cameraComponent.position)
+          viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
+          rendererState.renderers[id].value.render(group[0], viewCamera)
+          iterateEntityNode(previewEntity, (entity) => {
+            removeComponent(entity, ObjectLayerComponents[ObjectLayers.AssetPreview])
+          })
+        }
       }
     }
   }

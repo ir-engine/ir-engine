@@ -56,6 +56,12 @@ export class GenerateMeshBVHWorker {
       throw new Error('GenerateMeshBVHWorker: Already running job.')
     }
 
+    // If geometry has been disposed in the time that the last mesh bvh was generated
+    if (!geometry.attributes.position)
+      return new Promise<MeshBVH>((_, reject) => {
+        reject()
+      })
+
     const { worker } = this
     this.running = true
 

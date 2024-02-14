@@ -23,11 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { act, render } from '@testing-library/react'
 import assert from 'assert'
-import React from 'react'
 
-import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEngine } from '../../initializeEngine'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
@@ -48,17 +51,12 @@ describe('InputComponent', () => {
     assert(inputComponent.grow === json.grow)
     assert(inputComponent.highlight === json.highlight)
 
-    inputComponent.inputSources.push(entity)
+    getMutableComponent(entity, InputComponent).inputSources.merge([entity])
 
-    const Reactor = InputComponent.reactor
-    const tag = <Reactor />
-    const { rerender, unmount } = render(tag)
-
-    await act(() => rerender(tag))
+    // force reactor to run again
+    setComponent(entity, InputComponent)
 
     assert(hasComponent(entity, HighlightComponent))
-
-    unmount()
   })
 
   afterEach(() => {
