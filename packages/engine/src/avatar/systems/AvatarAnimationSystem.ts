@@ -215,8 +215,8 @@ const execute = () => {
       )
 
       solveTwoBoneIK(
-        transform.position,
-        transform.rotation,
+        rawRig.rightUpperArm.node.parent!.getWorldPosition(_vector3),
+        rawRig.rightUpperArm.node.parent!.getWorldQuaternion(new Quaternion()),
         rigComponent.ikMatrices.rightUpperArm!,
         rigComponent.ikMatrices.rightLowerArm!,
         rigComponent.ikMatrices.rightHand!,
@@ -226,7 +226,7 @@ const execute = () => {
       )
 
       //test blend code
-      normalizedRig.rightUpperArm.node.quaternion.setFromRotationMatrix(rigComponent.ikMatrices['rightUpperArm'].local) //.multiply(normalizedRig.rightUpperArm.node.parent!.getWorldQuaternion(new Quaternion()).invert())
+      normalizedRig.rightUpperArm.node.quaternion.setFromRotationMatrix(rigComponent.ikMatrices['rightUpperArm'].local) //.premultiply(rawRig.rightUpperArm.node.parent!.getWorldQuaternion(new Quaternion()))
       normalizedRig.rightLowerArm.node.quaternion.setFromRotationMatrix(rigComponent.ikMatrices['rightLowerArm'].local)
     }
 

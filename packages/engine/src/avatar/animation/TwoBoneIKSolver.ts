@@ -74,8 +74,10 @@ export function solveTwoBoneIK(
   targetRotation: Quaternion, // world space
   hint: Vector3 | null = null
 ) {
-  targetPos.copy(targetPosition).sub(fromPos)
-  targetPos.applyQuaternion(fromRot.clone().invert())
+  //bad. this needs to be in world space
+  //root bone needs to be in world space rather than target pos being in root bone space
+  targetPos.copy(targetPosition)
+  //targetPos.sub(fromPos).applyQuaternion(fromRot.clone().invert())
   targetRot.copy(targetRotation)
 
   rootBoneWorldPosition.setFromMatrixPosition(root.world)
