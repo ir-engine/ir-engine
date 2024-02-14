@@ -23,21 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { useEffect } from 'react'
-import {
-  ArrowHelper,
-  BackSide,
-  Euler,
-  Mesh,
-  MeshBasicMaterial,
-  Quaternion,
-  SphereGeometry,
-  Texture,
-  Vector3
-} from 'three'
+import { ArrowHelper, BackSide, Euler, Mesh, MeshBasicMaterial, Quaternion, SphereGeometry, Vector3 } from 'three'
 
-import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { portalPath } from '@etherealengine/common/src/schema.type.module'
@@ -58,12 +47,10 @@ import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { V_100 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import {
@@ -74,7 +61,7 @@ import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/s
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { useTexture } from '../../assets/functions/resourceHooks'
 
 export const PortalPreviewTypeSimple = 'Simple' as const
 export const PortalPreviewTypeSpherical = 'Spherical' as const
@@ -173,10 +160,7 @@ export const PortalComponent = defineComponent({
 
       /** Allow scene data populating rigidbody component too */
       if (hasComponent(entity, RigidBodyComponent)) return
-      setComponent(entity, RigidBodyComponent, {
-        type: 'fixed',
-        body: Physics.createRigidBody(entity, getState(PhysicsState).physicsWorld, RigidBodyDesc.fixed())
-      })
+      setComponent(entity, RigidBodyComponent, { type: 'fixed' })
       setComponent(entity, ColliderComponent, {
         shape: 'box',
         collisionLayer: CollisionGroups.Trigger,
@@ -228,7 +212,6 @@ export const PortalComponent = defineComponent({
 
       return () => {
         removeObjectFromGroup(entity, portalMesh)
-        portalComponent.mesh.set(null)
       }
     }, [portalComponent.previewType])
 
@@ -238,20 +221,25 @@ export const PortalComponent = defineComponent({
       previewImageURL: string
     }>(null)
 
+    const [textureState, unload] = useTexture(portalDetails.value?.previewImageURL || '', entity)
+
+    useEffect(() => {
+      return unload
+    }, [])
+
+    useEffect(() => {
+      const texture = textureState.get(NO_PROXY)
+      if (!texture || !portalComponent.mesh.value) return
+
+      portalComponent.mesh.value.material.map = texture
+      portalComponent.mesh.value.material.needsUpdate = true
+    }, [textureState, portalComponent.mesh])
+
     useEffect(() => {
       if (!portalDetails.value?.previewImageURL) return
       portalComponent.remoteSpawnPosition.value.copy(portalDetails.value.spawnPosition)
       portalComponent.remoteSpawnRotation.value.copy(portalDetails.value.spawnRotation)
-      AssetLoader.loadAsync(portalDetails.value.previewImageURL).then((texture: Texture) => {
-        if (!portalComponent.mesh.value || aborted) return
-        portalComponent.mesh.value.material.map = texture
-        portalComponent.mesh.value.material.needsUpdate = true
-      })
-      let aborted = false
-      return () => {
-        aborted = true
-      }
-    }, [portalDetails, portalComponent.mesh])
+    }, [portalDetails])
 
     useEffect(() => {
       if (!isClient) return
