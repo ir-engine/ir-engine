@@ -277,7 +277,10 @@ export default function AddEditProjectModal({
       <div className="bg-theme-primary relative rounded-lg shadow">
         <ModalHeader
           title={update ? t('admin:components.project.updateProject') : t('admin:components.project.addProject')}
-          onClose={() => PopoverState.hidePopupover()}
+          onClose={() => {
+            ProjectUpdateService.clearProjectUpdate(project.name)
+            PopoverState.hidePopupover()
+          }}
         />
         <div className="w-full px-10 py-6">
           {processing ? (
@@ -517,7 +520,13 @@ export default function AddEditProjectModal({
         </div>
 
         <div className="border-t-theme-primary grid grid-flow-col border-t px-6 py-5">
-          <Button variant="outline" onClick={() => PopoverState.hidePopupover()}>
+          <Button
+            variant="outline"
+            onClick={() => {
+              ProjectUpdateService.clearProjectUpdate(project.name)
+              PopoverState.hidePopupover()
+            }}
+          >
             {t('common:components.cancel')}
           </Button>
           {onSubmit && (

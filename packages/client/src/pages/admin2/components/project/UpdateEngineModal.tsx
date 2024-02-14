@@ -23,7 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ProjectUpdateState } from '@etherealengine/client-core/src/admin/services/ProjectUpdateService'
+import {
+  ProjectUpdateService,
+  ProjectUpdateState
+} from '@etherealengine/client-core/src/admin/services/ProjectUpdateService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
@@ -35,9 +38,10 @@ import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCir
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuInfo } from 'react-icons/lu'
+import AddEditProjectModal from './AddEditProjectModal'
 
 export default function UpdateEngineModal() {
   const { t } = useTranslation()
@@ -66,6 +70,10 @@ export default function UpdateEngineModal() {
       }Version ${builderTag.engineVersion} -- Pushed ${pushedDate}`
     }
   })
+
+  useEffect(() => {
+    if (engineCommit) selectedCommitTag.set(engineCommit)
+  }, [engineCommit])
 
   return (
     <Modal
@@ -109,7 +117,6 @@ export default function UpdateEngineModal() {
           <Select
             label={t('admin:components.project.commitData')}
             options={selectCommitTagOptions}
-            defaultValue={engineCommit}
             currentValue={selectedCommitTag.value}
             onChange={(value) => {
               selectedCommitTag.set(value)
@@ -133,20 +140,41 @@ export default function UpdateEngineModal() {
                 {projectState.projects.value
                   .filter((project) => project.name !== 'default-project' && project.repositoryPath.length > 0)
                   .map((project) => (
-                    <div className="border-theme-primary border px-3.5 py-5 dark:bg-[#141619]">
+                    <div key={project.id} className="border-theme-primary border px-3.5 py-5 dark:bg-[#141619]">
                       <Checkbox
                         label={project.name}
                         value={projectsToUpdate.value.has(project.name)}
                         onChange={(value) => {
-                          value
-                            ? projectsToUpdate.set((set) => {
-                                set.add(project.name)
-                                return set
-                              })
-                            : projectsToUpdate.set((set) => {
-                                set.delete(project.name)
-                                return set
-                              })
+                          if (value) {
+                            ProjectUpdateService.initializeProjectUpdate(project.name)
+                            ProjectUpdateService.setTriggerSetDestination(
+                              project.name,
+                              project.repositoryPath,
+                              project.updateType,
+                              project.updateSchedule
+                            )
+                            PopoverState.showPopupover(
+                              <AddEditProjectModal
+                                inputProject={project}
+                                processing={false}
+                                update={true}
+                                submitDisabled={false}
+                                onSubmit={() => {
+                                  PopoverState.hidePopupover()
+                                  projectsToUpdate.set((set) => {
+                                    set.add(project.name)
+                                    return set
+                                  })
+                                }}
+                              />
+                            )
+                          } else {
+                            ProjectUpdateService.clearProjectUpdate(project.name)
+                            projectsToUpdate.set((set) => {
+                              set.delete(project.name)
+                              return set
+                            })
+                          }
                         }}
                       />
                     </div>
