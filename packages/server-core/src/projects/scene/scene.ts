@@ -44,7 +44,7 @@ declare module '@etherealengine/common/declarations' {
 }
 
 export default (app: Application): void => {
-  app.use(scenePath, new SceneService(app), {
+  app.use(scenePath, new SceneService(), {
     // A list of all methods this service exposes externally
     methods: sceneMethods,
     // You can add additional custom events to be sent to clients here

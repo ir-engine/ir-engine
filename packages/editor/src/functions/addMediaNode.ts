@@ -40,6 +40,7 @@ import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetL
 import { SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
 import {
   getMaterialSource,
+  materialFromId,
   materialIsRegistered,
   registerMaterial,
   registerMaterialInstance,
@@ -52,7 +53,7 @@ import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterat
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { Material, MathUtils, Mesh, Raycaster, Vector2 } from 'three'
+import { Material, Mesh, Raycaster, Vector2 } from 'three'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
@@ -94,15 +95,13 @@ export async function addMediaNode(
       const intersected = pointerScreenRaycaster.intersectObjects(sceneObjects)[0]
       const gltfLoader = getState(AssetLoaderState).gltfLoader
       gltfLoader.load(url, (gltf) => {
-        const material = iterateObject3D(
+        let material = iterateObject3D(
           gltf.scene,
           (mesh: Mesh) => mesh.material as Material,
           (mesh: Mesh) => mesh?.isMesh
         )[0]
         if (!material) return
-        unregisterMaterial(material)
-        const cacheKey = MathUtils.generateUUID()
-        material.customProgramCacheKey = () => cacheKey
+        if (materialIsRegistered(material)) material = materialFromId(material.uuid).material
         iterateObject3D(intersected.object, (mesh: Mesh) => {
           if (!mesh?.isMesh) return
           const src = getMaterialSource(mesh.material as Material)

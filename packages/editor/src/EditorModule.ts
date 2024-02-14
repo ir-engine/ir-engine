@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { RenderInfoSystem } from '@etherealengine/spatial/src/renderer/RenderInfoSystem'
 import { EditorInstanceNetworkingSystem } from './components/realtime/EditorInstanceNetworkingSystem'
-import { EditorCameraSystem } from './systems/EditorCameraSystem'
 import { EditorControlSystem } from './systems/EditorControlSystem'
 import { EditorFlyControlSystem } from './systems/EditorFlyControlSystem'
 import { GizmoSystem } from './systems/GizmoSystem'
@@ -41,6 +40,5 @@ export {
   ModelHandlingSystem,
   ObjectGridSnapSystem,
   UploadRequestSystem,
-  EditorCameraSystem,
   RenderInfoSystem
 }

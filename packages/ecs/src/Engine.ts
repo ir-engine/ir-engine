@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import type { UserID } from '@etherealengine/common/src/schema.type.module'
 import * as Hyperflux from '@etherealengine/hyperflux'
 import { createHyperStore, getState } from '@etherealengine/hyperflux'
-import { HyperFlux, HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
+import { HyperFlux, HyperStore, disposeStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 import * as bitECS from 'bitecs'
 
 import type { FeathersApplication } from '@feathersjs/feathers'
@@ -123,12 +123,7 @@ export async function destroyEngine() {
     removeQuery(query.query)
   }
 
-  const activeReactors = [] as Promise<void>[]
-
-  for (const reactor of Engine.instance.store.activeReactors) {
-    activeReactors.push(reactor.stop())
-  }
-  await Promise.all(activeReactors)
+  await disposeStore()
 
   /** @todo include in next bitecs update */
   // bitecs.deleteWorld(Engine.instance)

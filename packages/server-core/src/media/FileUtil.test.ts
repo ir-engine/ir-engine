@@ -162,6 +162,6 @@ describe('FileUtil functions', () => {
   after(() => {
     fs.rmSync(PROJECT_PATH, { force: true, recursive: true })
     fs.rmSync(STORAGE_PATH, { force: true, recursive: true })
-    destroyEngine()
+    return destroyEngine()
   })
 })

@@ -241,6 +241,11 @@ const ProjectTable = ({ className }: Props) => {
           <span>{el.version}</span>
         </Box>
       ),
+      enabled: (
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <span>{el.enabled ? t('common:enabled') : t('common:disabled')}</span>
+        </Box>
+      ),
       commitSHA: (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <div className={styles.commitContents}>

@@ -27,7 +27,6 @@ import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChann
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { ChannelID, InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import {
   NO_PROXY_STEALTH,
   defineAction,
@@ -41,7 +40,6 @@ import {
 import React, { useEffect } from 'react'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
 
-import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { MediaStreamAppData, MediaTagType, NetworkState } from '../NetworkState'
 import { MediasoupTransportObjectsState } from './MediasoupTransportState'
 
@@ -290,6 +288,17 @@ export const MediasoupMediaProducerConsumerState = defineState({
         paused: action.paused
       })
     })
+  },
+
+  reactor: () => {
+    const networkIDs = useHookstate(getMutableState(MediasoupMediaProducerConsumerState))
+    return (
+      <>
+        {networkIDs.keys.map((id: InstanceID) => (
+          <NetworkReactor key={id} networkID={id} />
+        ))}
+      </>
+    )
   }
 })
 
@@ -318,15 +327,18 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
 
       const network = getState(NetworkState).networks[networkID]
 
+      if (!network) return
+
       // remove from the peer state
       const media = network.peers[peerID]?.media
       if (media && media[producer.appData.mediaTag]) {
         delete media[producer.appData.mediaTag]
       }
 
-      const consumer = Object.values(getState(MediasoupMediaProducerConsumerState)[networkID].consumers).find(
-        (p) => p.peerID === peerID && p.mediaTag === mediaTag
-      )
+      const state = getState(MediasoupMediaProducerConsumerState)[networkID]
+      if (!state) return
+
+      const consumer = Object.values(state.consumers).find((p) => p.peerID === peerID && p.mediaTag === mediaTag)
 
       // todo, replace this with a better check
       if (consumer && isClient) {
@@ -470,20 +482,3 @@ const NetworkReactor = (props: { networkID: InstanceID }) => {
     </>
   )
 }
-
-const reactor = () => {
-  const networkIDs = useHookstate(getMutableState(MediasoupMediaProducerConsumerState))
-  return (
-    <>
-      {networkIDs.keys.map((id: InstanceID) => (
-        <NetworkReactor key={id} networkID={id} />
-      ))}
-    </>
-  )
-}
-
-export const MediasoupMediaProducerConsumerStateSystem = defineSystem({
-  uuid: 'ee.engine.network.mediasoup.MediasoupMediaProducerConsumerStateSystem',
-  insert: { after: PresentationSystemGroup },
-  reactor
-})

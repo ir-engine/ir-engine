@@ -60,13 +60,13 @@ export const DrawerCreateChannel = () => {
     return (
       <>
         <div
-          className={`w-[320px] h-[68px] flex flex-wrap mx-4 gap-1 justify-center rounded-[5px] ${
+          className={`mx-4 flex h-[68px] w-[320px] flex-wrap justify-center gap-1 rounded-[5px] ${
             selectedFriends.value.includes(props.friend.id) ? 'bg-[#D4D7DC]' : ''
           }`}
           onClick={() => selectedFriends.merge([props.friend.id])}
         >
-          <div className="w-[230px] flex flex-wrap gap-5 justify-start">
-            <img className="max-w-full mt-3 rounded-8xs w-11 h-11 object-cover" alt="" src={userThumbnail} />
+          <div className="flex w-[230px] flex-wrap justify-start gap-5">
+            <img className="rounded-8xs mt-3 h-11 w-11 max-w-full object-cover" alt="" src={userThumbnail} />
             <div className="mt-3 justify-start">
               <p className="font-bold text-[#3F3960]">{props.friend.name}</p>
             </div>
@@ -77,18 +77,18 @@ export const DrawerCreateChannel = () => {
   }
 
   return (
-    <div className="bg-[#15171B] text-white w-[380px] transform translate-x-0 transition-transform ease-in-out duration-[100]">
-      <div className="w-[180px] justify-start mt-[45px] ml-9 gap-2  flex flex-wrap">
-        <IoMdAddCircle className="w-[22px] fill-[#ffffff] h-[25px]" />
+    <div className="w-[380px] translate-x-0 transform bg-[#15171B] text-white transition-transform duration-[100] ease-in-out">
+      <div className="ml-9 mt-[45px] flex w-[180px] flex-wrap  justify-start gap-2">
+        <IoMdAddCircle className="h-[25px] w-[22px] fill-[#ffffff]" />
         <p className="text-[16px] font-bold text-white">CREATE CHANNEL</p>
       </div>
       {friends.map((friend, index) => (
         <RenderUser friend={friend} key={index} />
       ))}
       {selectedFriends.value && (
-        <div className="w-[330px] flex justify-start ml-9 mt-9 items-center">
-          <button className="m-0 cursor-pointer rounded-[20px] p-0 bg-[#3F3960] w-[120px] h-8" onClick={createChannel}>
-            <div className="[text-align-last:center] rounded-2xl text-[16px] text-sm font-segoe-ui text-white text-left">
+        <div className="ml-9 mt-9 flex w-[330px] items-center justify-start">
+          <button className="m-0 h-8 w-[120px] cursor-pointer rounded-[20px] bg-[#3F3960] p-0" onClick={createChannel}>
+            <div className="font-segoe-ui rounded-2xl text-left text-[16px] text-sm text-white [text-align-last:center]">
               Create Now
             </div>
           </button>

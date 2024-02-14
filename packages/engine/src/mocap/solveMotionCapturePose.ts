@@ -473,6 +473,7 @@ export const solveSpine = (
   hipToShoulderQuaternion.setFromUnitVectors(V_010, vec3.subVectors(shoulderCenter, hipCenter).normalize())
 
   const hipWorldQuaterion = getQuaternionFromPointsAlongPlane(hipright, hipleft, shoulderCenter, new Quaternion(), true)
+  //hipWorldQuaterion.multiply(new Quaternion().setFromEuler(new Euler(0, Math.PI, Math.PI)))
 
   // const restLegLeft = rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.LeftUpperLeg]!
   // const restLegRight = rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.RightUpperLeg]!
@@ -484,11 +485,10 @@ export const solveSpine = (
   //   .add(hipCenter)
 
   if (trackingLowerBody) {
-    hipDirection.setFromUnitVectors(V_100, new Vector3().subVectors(hipright, hipleft).setY(0))
-    MotionCaptureRigComponent.hipRotation.x[entity] = hipDirection.x
-    MotionCaptureRigComponent.hipRotation.y[entity] = hipDirection.y
-    MotionCaptureRigComponent.hipRotation.z[entity] = hipDirection.z
-    MotionCaptureRigComponent.hipRotation.w[entity] = hipDirection.w
+    MotionCaptureRigComponent.hipRotation.x[entity] = hipWorldQuaterion.x
+    MotionCaptureRigComponent.hipRotation.y[entity] = hipWorldQuaterion.y
+    MotionCaptureRigComponent.hipRotation.z[entity] = hipWorldQuaterion.z
+    MotionCaptureRigComponent.hipRotation.w[entity] = hipWorldQuaterion.w
   } else {
     if (leftHip.visibility! + rightHip.visibility! > 1) spineRotation.copy(hipWorldQuaterion)
     else {
@@ -539,17 +539,6 @@ export const solveLimb = (
 ) => {
   if (!start || !mid || !end) return
 
-  const rig = getComponent(entity, AvatarRigComponent)
-
-  const avatarTransform = getComponent(entity, TransformComponent)
-
-  // get parent quaternion relative to avatar
-  const avatarInverse = new Quaternion().copy(avatarTransform.rotation)
-  avatarInverse.invert()
-  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(
-    new Quaternion()
-  ).premultiply(avatarInverse)
-
   startPoint.set(-start.x, lowestWorldY - start.y, -start.z)
   midPoint.set(-mid.x, lowestWorldY - mid.y, -mid.z)
   endPoint.set(-end.x, lowestWorldY - end.y, -end.z)
@@ -558,7 +547,7 @@ export const solveLimb = (
   const midQuaternion = new Quaternion().setFromUnitVectors(axis, vec3.subVectors(midPoint, endPoint).normalize())
 
   // convert to local space
-  const startLocal = new Quaternion().copy(startQuaternion).premultiply(parentQuaternion.clone().invert())
+  const startLocal = new Quaternion().copy(startQuaternion)
   const midLocal = new Quaternion().copy(midQuaternion).premultiply(startQuaternion.clone().invert())
 
   MotionCaptureRigComponent.rig[startTargetBoneName].x[entity] = startLocal.x
@@ -590,10 +579,7 @@ export const solveHand = (
 
   const rig = getComponent(entity, AvatarRigComponent)
 
-  const avatarTransform = getComponent(entity, TransformComponent)
-  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(
-    new Quaternion()
-  ).premultiply(new Quaternion().copy(avatarTransform.rotation).invert())
+  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(new Quaternion())
 
   startPoint.set(extent.x, lowestWorldY - extent.y, extent.z)
   ref1Point.set(ref1.x, lowestWorldY - ref1.y, ref1.z)
@@ -634,10 +620,7 @@ export const solveFoot = (
 
   const rig = getComponent(entity, AvatarRigComponent)
 
-  const avatarTransform = getComponent(entity, TransformComponent)
-  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(
-    new Quaternion()
-  ).premultiply(new Quaternion().copy(avatarTransform.rotation).invert())
+  const parentQuaternion = rig.normalizedRig[parentTargetBoneName]!.node.getWorldQuaternion(new Quaternion())
 
   const targetQuat = new Quaternion()
   if (grounded) {
@@ -676,8 +659,6 @@ export const solveHead = (
   rightEar: NormalizedLandmark,
   nose: NormalizedLandmark
 ) => {
-  const rig = getComponent(entity, AvatarRigComponent)
-
   leftEarVec3.set(-leftEar.x, -leftEar.y, -leftEar.z)
   rightEarVec3.set(-rightEar.x, -rightEar.y, -rightEar.z)
   noseVec3.set(-nose.x, -nose.y, -nose.z)
@@ -707,7 +688,7 @@ const getQuaternionFromPointsAlongPlane = (
   plane.setFromCoplanarPoints(invert ? b : a, invert ? a : b, planeRestraint)
   const orthogonalVector = plane.normal
   directionVector.subVectors(a, b).normalize()
-  thirdVector.crossVectors(orthogonalVector, directionVector)
+  thirdVector.crossVectors(orthogonalVector, invert ? directionVector.reflect(new Vector3(0, 1, 0)) : directionVector)
   rotationMatrix.makeBasis(directionVector, thirdVector, orthogonalVector)
   return target.setFromRotationMatrix(rotationMatrix)
 }

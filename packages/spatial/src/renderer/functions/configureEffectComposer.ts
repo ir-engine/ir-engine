@@ -80,7 +80,6 @@ export const configureEffectComposer = (
   }
 
   const renderSettings = getState(RendererState)
-  renderSettings.usePostProcessing = true
   if (!renderSettings.usePostProcessing) return
 
   const effects: any[] = []
@@ -156,8 +155,9 @@ export const configureEffectComposer = (
       useDepthDownsamplingPass = true
       composer[key] = eff
       effects.push(eff)
-    } else if (key === Effects.SSREffect) {
-      const eff = new EffectClass(scene, camera, velocityDepthNormalPass, effectOptions)
+    } else if (key === Effects.SSREffect || key === Effects.SSGIEffect) {
+      // SSR is just a mode of SSGI, and can't both be run at the same time
+      const eff = new EffectClass(composer, scene, camera, { ...effectOptions, velocityDepthNormalPass })
       useVelocityDepthNormalPass = true
       composer[key] = eff
       effects.push(eff)
@@ -165,9 +165,6 @@ export const configureEffectComposer = (
       const eff = new EffectClass(camera, effectOptions)
       composer[key] = eff
       effects.push(eff)
-    } else if (key === Effects.SSGIEffect) {
-      const eff = new EffectClass(scene, camera, velocityDepthNormalPass, effectOptions)
-      useVelocityDepthNormalPass = true
     } else if (key === Effects.TRAAEffect) {
       // todo support more than 1 texture
       const textureCount = 1
