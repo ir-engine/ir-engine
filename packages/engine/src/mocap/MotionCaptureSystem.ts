@@ -47,7 +47,7 @@ import {
 import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
-import { AnimationSystem } from '../avatar/systems/AnimationSystem'
+import { AvatarAnimationSystem } from '../avatar/systems/AvatarAnimationSystem'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 import { solveMotionCapturePose } from './solveMotionCapturePose'
 
@@ -95,7 +95,7 @@ const handleMocapData = (
 
 const motionCaptureQuery = defineQuery([MotionCaptureRigComponent, AvatarRigComponent])
 
-const timeSeriesMocapData = new Map<
+export const timeSeriesMocapData = new Map<
   PeerID,
   RingBuffer<{
     timestamp: number
@@ -208,7 +208,7 @@ const reactor = () => {
 
 export const MotionCaptureSystem = defineSystem({
   uuid: 'ee.engine.MotionCaptureSystem',
-  insert: { after: AnimationSystem },
+  insert: { before: AvatarAnimationSystem },
   execute,
   reactor
 })

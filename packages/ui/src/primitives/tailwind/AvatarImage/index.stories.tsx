@@ -23,14 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import matches from 'ts-matches'
+import AvatarImage from './index'
 
-const matchesNumberArray = matches.arrayOf(matches.number)
+export default {
+  title: 'Primitives/Tailwind/AvatarImage',
+  component: AvatarImage,
+  parameters: {
+    componentSubtitle: 'AvatarImage',
+    jest: 'AvatarImage.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  }
+}
 
-export const matchPose = matches.guard((v): v is Pose => {
-  if (!Array.isArray(v)) return false
-  if (!matchesNumberArray.test(v)) return false
-  if (v.length === 7) return true
-  return false
-})
-export type Pose = [number, number, number, number, number, number, number]
+export const Default = {
+  args: {
+    src: ''
+  }
+}

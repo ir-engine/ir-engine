@@ -167,6 +167,10 @@ export const serverPipe = pipe(configureOpenAPI(), configurePrimus(), configureR
 
 export const serverJobPipe = pipe(configurePrimus(), configureK8s()) as (app: Application) => Application
 
+export const serverJobRedisPipe = pipe(configurePrimus(), configureRedis(), configureK8s()) as (
+  app: Application
+) => Application
+
 export const createFeathersKoaApp = (
   serverMode: ServerTypeMode = ServerMode.API,
   configurationPipe = serverPipe

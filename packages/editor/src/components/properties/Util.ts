@@ -60,13 +60,12 @@ export const updateProperties = <C extends Component>(
   nodes?: Entity[]
 ) => {
   const editorState = getMutableState(EditorState)
-  const selectionState = getMutableState(SelectionState)
 
   const affectedNodes = nodes
     ? nodes
     : editorState.lockPropertiesPanel.value
     ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value)]
-    : selectionState.selectedEntities.value
+    : SelectionState.getSelectedEntities()
   for (let i = 0; i < affectedNodes.length; i++) {
     const node = affectedNodes[i]
     updateComponent(node, component, properties)
@@ -89,13 +88,12 @@ export const commitProperties = <C extends Component>(
   nodes?: Entity[]
 ) => {
   const editorState = getMutableState(EditorState)
-  const selectionState = getMutableState(SelectionState)
 
   const affectedNodes = nodes
     ? nodes
     : editorState.lockPropertiesPanel.value
     ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value)]
-    : selectionState.selectedEntities.value
+    : SelectionState.getSelectedEntities()
 
   EditorControlFunctions.modifyProperty(affectedNodes, component, properties)
 }

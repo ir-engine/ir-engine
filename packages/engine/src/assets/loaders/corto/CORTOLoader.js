@@ -25,7 +25,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 
-import { BufferAttribute, BufferGeometry, FileLoader } from 'three'
+import { BufferAttribute, BufferGeometry } from 'three'
+import { FileLoader } from "../base/FileLoader"
 
 class CORTOLoader {
   constructor() {

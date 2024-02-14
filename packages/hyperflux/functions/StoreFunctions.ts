@@ -67,6 +67,8 @@ export interface HyperStore {
    */
   stateMap: Record<string, State<any>>
 
+  stateReactors: Record<string, ReactorRoot>
+
   actions: {
     /** All queues that have been created */
     queues: Map<ActionQueueHandle, ActionQueueInstance>
@@ -117,6 +119,7 @@ export function createHyperStore(options: {
     getCurrentReactorRoot: options.getCurrentReactorRoot ?? (() => undefined),
     peerID: uuidv4() as PeerID,
     stateMap: {},
+    stateReactors: {},
     actions: {
       queues: new Map(),
       cached: [],
@@ -140,4 +143,14 @@ export function createHyperStore(options: {
   HyperFlux.store = store
   bitecs.createWorld(store)
   return store
+}
+
+export const disposeStore = async (store = HyperFlux.store) => {
+  const activeReactors = [] as Promise<void>[]
+  for (const reactor of store.activeReactors) {
+    activeReactors.push(reactor.stop())
+  }
+  await Promise.all(activeReactors)
+  /** @todo this causes errors in tests */
+  // bitecs.deleteWorld(store)
 }

@@ -25,10 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { memo, useCallback, useEffect } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { areEqual, FixedSizeList } from 'react-window'
+import { FixedSizeList, areEqual } from 'react-window'
 import { MeshBasicMaterial } from 'three'
 
 import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exportMaterialsGLTF'
+import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
+import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
 import { LibraryEntryType } from '@etherealengine/engine/src/scene/materials/constants/LibraryEntry'
 import {
@@ -36,8 +38,7 @@ import {
   materialFromId,
   registerMaterial
 } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
-import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
-import { getMutableState, getState, NO_PROXY, useHookstate, useState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
 
 import { Stack } from '@mui/material'
 
@@ -49,7 +50,6 @@ import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
 import MaterialLibraryEntry, { MaterialLibraryEntryType } from './MaterialLibraryEntry'
-import { MaterialSelectionState } from './MaterialLibraryState'
 
 export default function MaterialLibraryPanel() {
   const editorState = useHookstate(getMutableState(EditorState))
@@ -103,9 +103,11 @@ export default function MaterialLibraryPanel() {
   const nodes = useState(createNodes())
 
   const onClick = useCallback((e: MouseEvent, node: MaterialLibraryEntryType) => {
-    if (!editorState.lockPropertiesPanel.get()) {
-      if (getState(MaterialLibraryState).materials[node.uuid]) selectedMaterial.set(node.uuid)
-    }
+    if (editorState.lockPropertiesPanel.get()) return
+    const material = getState(MaterialLibraryState).materials[node.uuid]
+    if (!material) return
+    selectedMaterial.set(node.uuid)
+    console.log(material)
   }, [])
 
   const onCollapse = useCallback((e: MouseEvent, node: MaterialLibraryEntryType) => {

@@ -35,7 +35,6 @@ import {
 	DirectionalLight,
 	EquirectangularReflectionMapping,
 	Euler,
-	FileLoader,
 	Float32BufferAttribute,
 	Group,
 	Line,
@@ -68,6 +67,7 @@ import {
 	VectorKeyframeTrack,
 	SRGBColorSpace
 } from 'three';
+import { FileLoader } from '../base/FileLoader';
 import * as fflate from 'fflate';
 import { NURBSCurve } from './NURBSCurve';
 
@@ -99,7 +99,7 @@ class FBXLoader extends Loader {
 
 	}
 
-	load( url, onLoad, onProgress, onError ) {
+	load( url, onLoad, onProgress, onError, signal ) {
 
 		const scope = this;
 
@@ -133,7 +133,7 @@ class FBXLoader extends Loader {
 
 			}
 
-		}, onProgress, onError );
+		}, onProgress, onError, signal );
 
 	}
 
