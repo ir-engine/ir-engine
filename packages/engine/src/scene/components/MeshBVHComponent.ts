@@ -103,7 +103,6 @@ export const MeshBVHComponent = defineComponent({
       if (!component.generated.value && visible?.value) {
         const abortController = abortControllerState.get(NO_PROXY)
         const entities = childEntities.value
-        const cameraOcclusion = model.cameraOcclusion.get(NO_PROXY)
         let toGenerate = 0
         for (const currEntity of entities) {
           const mesh = getOptionalComponent(currEntity, MeshComponent)
@@ -115,7 +114,7 @@ export const MeshBVHComponent = defineComponent({
                 if (toGenerate == 0) {
                   component.generated.set(true)
                 }
-                if (cameraOcclusion) {
+                if (model.cameraOcclusion.get(NO_PROXY)) {
                   ObjectLayerMaskComponent.enableLayers(currEntity, ObjectLayers.Camera)
                 }
               }

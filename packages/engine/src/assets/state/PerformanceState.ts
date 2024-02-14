@@ -47,6 +47,8 @@ export const PerformanceState = defineState({
   name: 'PerformanceState',
   initial: () => ({
     tier: 0,
+    // Distinct from isMobile, VR headsets have mobile GPUs, but not mobile browsers
+    isMobileGPU: false as boolean | undefined,
     budgets: {
       maxTextureSize: 0,
       max3DTextureSize: 0,
@@ -238,18 +240,25 @@ const chechAlphaRender = (renderer: EngineRenderer, onFinished: () => void) => {
 export const buildPerformanceState = async (renderer: EngineRenderer, onFinished: () => void) => {
   const performance = getMutableState(PerformanceState)
   const gpuTier = await getGPUTier()
-
-  performance.tier.set(gpuTier.tier)
+  let tier = gpuTier.tier
+  performance.isMobileGPU.set(gpuTier.isMobile)
 
   const gl = renderer.renderContext as WebGL2RenderingContext
+  const max3DTextureSize = gl.getParameter(gl.MAX_3D_TEXTURE_SIZE)
   performance.budgets.set({
     maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
-    max3DTextureSize: gl.getParameter(gl.MAX_3D_TEXTURE_SIZE),
+    max3DTextureSize: max3DTextureSize,
     maxRenderBufferSize: gl.getParameter(gl.MAX_RENDERBUFFER_SIZE),
     maxIndices: gl.getParameter(gl.MAX_ELEMENTS_INDICES),
     maxVerticies: gl.getParameter(gl.MAX_ELEMENTS_VERTICES)
   })
 
+  if (max3DTextureSize > 16000) tier += 2
+  else if (max3DTextureSize > 8000) tier += 1
+  else if (max3DTextureSize > 4000) tier += 0
+  else tier = Math.max(tier - 1, 0)
+
+  performance.tier.set(tier)
   onFinished()
 
   // TODO runtime performance checking
