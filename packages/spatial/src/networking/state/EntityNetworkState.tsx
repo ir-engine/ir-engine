@@ -65,8 +65,8 @@ export const EntityNetworkState = defineState({
         networkId: action.networkId,
         authorityPeerId: action.authorityPeerId ?? action.$peer,
         ownerPeer: action.$peer,
-        spawnPosition: action.position ?? new Vector3(),
-        spawnRotation: action.rotation ?? new Quaternion()
+        spawnPosition: action.position ? new Vector3().copy(action.position) : new Vector3(),
+        spawnRotation: action.rotation ? new Quaternion().copy(action.rotation) : new Quaternion()
       })
     }),
 

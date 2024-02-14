@@ -83,7 +83,6 @@ export const disposeMaterial = (material: Material) => {
 
 export const disposeObject3D = (obj: Object3D) => {
   const mesh = obj as Mesh<any, any>
-
   if (mesh.material) {
     if (Array.isArray(mesh.material)) {
       mesh.material.forEach(disposeMaterial)

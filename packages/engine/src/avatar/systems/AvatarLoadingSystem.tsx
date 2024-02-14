@@ -36,7 +36,7 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import React from 'react'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { useTexture } from '../../assets/functions/resourceHooks'
 import { AnimationState } from '../AnimationManager'
 import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
@@ -110,24 +110,38 @@ const reactor = () => {
 
   const assetsReady = useHookstate(false)
 
+  const [itemLight, lightUnload] = useTexture('/static/itemLight.png')
+  const [itemPlate, plateUnload] = useTexture('/static/itemPlate.png')
+
+  useEffect(() => {
+    const texture = itemLight.value
+    if (!texture) return
+
+    texture.colorSpace = SRGBColorSpace
+    texture.needsUpdate = true
+    SpawnEffectComponent.lightMesh.material.map = texture
+    return lightUnload
+  }, [itemLight])
+
+  useEffect(() => {
+    const texture = itemPlate.value
+    if (!texture) return
+
+    texture.colorSpace = SRGBColorSpace
+    texture.needsUpdate = true
+    SpawnEffectComponent.plateMesh.material.map = texture
+    return plateUnload
+  }, [itemPlate])
+
+  useEffect(() => {
+    if (itemLight.value && itemPlate.value) assetsReady.set(true)
+  }, [itemLight, itemPlate])
+
   useEffect(() => {
     SpawnEffectComponent.lightMesh.geometry.computeBoundingSphere()
     SpawnEffectComponent.plateMesh.geometry.computeBoundingSphere()
     SpawnEffectComponent.lightMesh.name = 'light_obj'
     SpawnEffectComponent.plateMesh.name = 'plate_obj'
-
-    AssetLoader.loadAsync('/static/itemLight.png').then((texture) => {
-      texture.colorSpace = SRGBColorSpace
-      texture.needsUpdate = true
-      SpawnEffectComponent.lightMesh.material.map = texture
-    })
-
-    AssetLoader.loadAsync('/static/itemPlate.png').then((texture) => {
-      texture.colorSpace = SRGBColorSpace
-      texture.needsUpdate = true
-      SpawnEffectComponent.plateMesh.material.map = texture
-      assetsReady.set(true)
-    })
   }, [])
 
   const loadingEffect = useHookstate(getMutableState(AnimationState).avatarLoadingEffect)
