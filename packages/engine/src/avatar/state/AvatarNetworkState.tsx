@@ -127,7 +127,7 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   }, [avatarID])
 
   useEffect(() => {
-    if (isClient) return
+    if (!isClient) return
     if (!entity || !userAvatarDetails.value) return
 
     loadAvatarModelAsset(entity, userAvatarDetails.value)
