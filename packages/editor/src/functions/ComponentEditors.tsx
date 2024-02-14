@@ -71,8 +71,8 @@ import GroundPlaneNodeEditor from '../components/properties/GroundPlaneNodeEdito
 import HemisphereLightNodeEditor from '../components/properties/HemisphereLightNodeEditor'
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
 // import InstancingNodeEditor from '../components/properties/InstancingNodeEditor'
-import { VisualScriptComponent } from '@etherealengine/engine/src/visual-script/components/VisualScriptComponent'
-import VisualScriptNodeEditor from '../components/properties/VisualScriptNodeEditor'
+import { VisualScriptComponent } from '@etherealengine/visual-script'
+import { VisualScriptNodeEditor } from '../components/properties/VisualScriptNodeEditor'
 
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'

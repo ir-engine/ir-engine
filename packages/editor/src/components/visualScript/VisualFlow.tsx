@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { VisualScriptComponent } from '@etherealengine/engine/src/visual-script/components/VisualScriptComponent'
-import { VisualScriptState } from '@etherealengine/engine/src/visual-script/state/VisualScriptState'
 import { getState } from '@etherealengine/hyperflux'
+import { Flow, VisualScriptComponent, VisualScriptState } from '@etherealengine/visual-script'
+import '@etherealengine/visual-script/src/ui/ReactFlowStyle.css'
 import { isEqual } from 'lodash'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -37,8 +37,6 @@ import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'
 import { PropertiesPanelButton } from '../inputs/Button'
 import { commitProperty } from '../properties/Util'
-import { Flow } from './ee-flow/components/Flow'
-import './ee-flow/styles.css'
 
 export const ActiveVisualScript = (props: { entity }) => {
   const { entity } = props

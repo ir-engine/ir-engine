@@ -32,6 +32,7 @@
     "@etherealengine/client-core": "^1.6.0",
     "@etherealengine/common": "^1.6.0",
     "@etherealengine/engine": "^1.6.0",
+    "@etherealengine/visual-script": "^1.6.0",
     "@etherealengine/hyperflux": "^1.6.0",
     "@etherealengine/ui": "^1.6.0",
     "@fortawesome/fontawesome-svg-core": "^6.3.0",

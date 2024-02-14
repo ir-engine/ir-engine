@@ -30,7 +30,7 @@ import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
 import IntegrationInstructionsIcon from '@mui/icons-material/IntegrationInstructions'
 
-import { VisualScriptComponent } from '@etherealengine/engine/src/visual-script/components/VisualScriptComponent'
+import { VisualScriptComponent } from '@etherealengine/visual-script'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NodeEditor from './NodeEditor'

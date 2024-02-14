@@ -1,5 +1,3 @@
-import './styles.css'
-
 /*
 CPAL-1.0 License
 
@@ -25,14 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+export * from './ReactFlowStyle.css'
 export * from './components/AutoSizeInput'
 export * from './components/Controls'
+export * from './components/Flow'
 export * from './components/InputSocket'
 export * from './components/Node'
 export * from './components/NodeContainer'
 export * from './components/NodePicker'
 export * from './components/OutputSocket'
-export * from './components/VisualFlow'
 export * from './components/modals/ClearModal'
 export * from './components/modals/HelpModal'
 export * from './components/modals/LoadModal'

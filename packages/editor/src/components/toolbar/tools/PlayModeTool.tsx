@@ -43,10 +43,7 @@ import PauseIcon from '@mui/icons-material/Pause'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
-import {
-  VisualScriptActions,
-  visualScriptQuery
-} from '@etherealengine/engine/src/visual-script/systems/VisualScriptSystem'
+import { VisualScriptActions, visualScriptQuery } from '@etherealengine/visual-script'
 import { useTranslation } from 'react-i18next'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'

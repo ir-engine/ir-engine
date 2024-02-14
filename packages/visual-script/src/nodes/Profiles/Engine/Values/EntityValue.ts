@@ -23,8 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { ValueType } from '@behave-graph/core'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 
-declare module '*.module.css' {
-  const classes: { [key: string]: string };
-  export default classes;
+export const EntityValue: ValueType = {
+  name: 'entity',
+  creator: () => 0,
+  deserialize: (value: Entity): Entity => value,
+  serialize: (value: Entity) => value,
+  equals: (a: Entity, b: Entity) => a === b,
+  clone: (value: Entity) => value,
+  lerp: function (start: any, end: any, t: number) {
+    throw new Error('Function not implemented.')
+  }
 }
