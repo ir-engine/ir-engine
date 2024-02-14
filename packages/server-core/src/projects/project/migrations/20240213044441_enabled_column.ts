@@ -23,29 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import exportModelGLTF from '@etherealengine/engine/src/assets/functions/exportModelGLTF'
-import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
+import { projectPath } from '@etherealengine/common/src/schema.type.module'
+import type { Knex } from 'knex'
 
-import { uploadProjectFiles } from './assetFunctions'
-
-export default async function exportGLTF(entity: Entity, path: string) {
-  const [, pName, fileName] = pathResolver().exec(path)!
-  return exportRelativeGLTF(entity, pName, fileName)
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const enabledColumnExists = await knex.schema.hasColumn(projectPath, 'enabled')
+  if (!enabledColumnExists) {
+    await knex.schema.alterTable(projectPath, async (table) => {
+      table.boolean('enabled').defaultTo(true)
+    })
+  }
 }
 
-export async function exportRelativeGLTF(entity: Entity, projectName: string, relativePath: string) {
-  const isGLTF = /\.gltf$/.test(relativePath)
-  const gltf = await exportModelGLTF(entity, {
-    projectName,
-    relativePath,
-    binary: !isGLTF,
-    embedImages: !isGLTF,
-    includeCustomExtensions: true,
-    onlyVisible: false
-  })
-  const blob = isGLTF ? [JSON.stringify(gltf)] : [gltf]
-  const file = new File(blob, relativePath)
-  const urls = await Promise.all(uploadProjectFiles(projectName, [file]).promises)
-  console.log('exported model data to ', ...urls)
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const enabledColumnExists = await knex.schema.hasColumn(projectPath, 'enabled')
+
+  if (enabledColumnExists) {
+    await knex.schema.alterTable(projectPath, async (table) => {
+      table.dropColumn('enabled')
+    })
+  }
 }

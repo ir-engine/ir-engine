@@ -43,11 +43,15 @@ import { KnexAdapterOptions, KnexAdapterParams, KnexService } from '@feathersjs/
 import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
+import config from '../../appconfig'
 import {
   deleteProjectFilesInStorageProvider,
   getCommitSHADate,
+  getEnginePackageJson,
   getGitProjectData,
   getProjectConfig,
+  getProjectEnabled,
+  getProjectPackageJson,
   onProjectEvent,
   uploadLocalProjectToProvider
 } from './project-helper'
@@ -97,6 +101,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
   async _seedProject(projectName: string): Promise<any> {
     logger.warn('[Projects]: Found new locally installed project: ' + projectName)
     const projectConfig = getProjectConfig(projectName) ?? {}
+    const enabled = getProjectEnabled(projectName)
 
     const gitData = getGitProjectData(projectName)
     const { commitSHA, commitDate } = await getCommitSHADate(projectName)
@@ -104,6 +109,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     await super._create({
       id: v4(),
       name: projectName,
+      enabled,
       repositoryPath: gitData.repositoryPath,
       sourceRepo: gitData.sourceRepo,
       sourceBranch: gitData.sourceBranch,
@@ -153,7 +159,15 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
       const { commitSHA, commitDate } = await getCommitSHADate(projectName)
 
-      await super._patch(null, { commitSHA, commitDate: toDateTimeSql(commitDate) }, { query: { name: projectName } })
+      const engineVersion = getProjectPackageJson(projectName).etherealEngine?.version
+      const version = getEnginePackageJson().version
+      const enabled = config.allowOutOfDateProjects ? true : engineVersion === version
+
+      await super._patch(
+        null,
+        { enabled, commitSHA, commitDate: toDateTimeSql(commitDate) },
+        { query: { name: projectName } }
+      )
 
       promises.push(uploadLocalProjectToProvider(this.app, projectName))
     }

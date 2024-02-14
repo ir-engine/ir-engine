@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AvatarNetworkSystem } from './state/AvatarNetworkState'
+import { AvatarIKTargetState } from './state/AvatarIKTargetState'
+import { AvatarState } from './state/AvatarNetworkState'
 import { AnimationSystem } from './systems/AnimationSystem'
 import { AvatarAnimationSystem } from './systems/AvatarAnimationSystem'
 import { AvatarAutopilotSystem } from './systems/AvatarAutopilotSystem'
 import { AvatarCameraInputSystem } from './systems/AvatarCameraInputSystem'
 import { AvatarControllerSystem } from './systems/AvatarControllerSystem'
-import { AvatarIKTargetSystem } from './systems/AvatarIKTargetSystem'
 import { AvatarInputSystem } from './systems/AvatarInputSystem'
 import { AvatarLoadingSystem } from './systems/AvatarLoadingSystem'
 import { AvatarMovementSystem } from './systems/AvatarMovementSystem'
@@ -37,13 +37,13 @@ import { AvatarTeleportSystem } from './systems/AvatarTeleportSystem'
 import { ReferenceSpaceTransformSystem } from './systems/ReferenceSpaceTransformSystem'
 
 export default {
-  AvatarNetworkSystem,
+  AvatarState,
   AnimationSystem,
   AvatarAnimationSystem,
   AvatarAutopilotSystem,
   AvatarCameraInputSystem,
   AvatarControllerSystem,
-  AvatarIKTargetSystem,
+  AvatarIKTargetState,
   AvatarInputSystem,
   AvatarLoadingSystem,
   AvatarMovementSystem,

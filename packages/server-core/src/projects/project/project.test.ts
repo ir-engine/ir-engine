@@ -37,7 +37,7 @@ import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schem
 import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import { UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { deleteFolderRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
+import { copyFolderRecursiveSync, deleteFolderRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { Paginated } from '@feathersjs/feathers'
 import { v1 } from 'uuid'
 import { Application } from '../../../declarations'
@@ -132,25 +132,24 @@ describe('project.test', () => {
     let testUpdateProjectName: string
 
     before(() => {
-      sourceDirectory = path.resolve(appRootPath.path, `packages/projects/projects/test-cloning-directory.git`)
-      fs.mkdirSync(sourceDirectory)
-      fs.writeFileSync(path.resolve(sourceDirectory, 'README.md'), 'Test Cloning Directory')
+      sourceDirectory = path.resolve(appRootPath.path, `packages/projects/projects/test-cloning-directory`)
+      copyFolderRecursiveSync(
+        path.resolve(appRootPath.path, `packages/projects/template-project`),
+        path.resolve(appRootPath.path, `packages/projects/projects`)
+      )
+      fs.renameSync(path.resolve(appRootPath.path, `packages/projects/projects/template-project`), sourceDirectory)
 
       const git = useGit(sourceDirectory)
       git.init()
-      git.add('README.md')
+      git.add('.')
       git.commit('initial commit')
-    })
 
-    before(() => {
       testUpdateProjectName = `test-update-project-name-${v1()}`
     })
 
     after(async () => {
       await cleanup(app, testUpdateProjectName)
-    })
-
-    after(() => {
+      await cleanup(app, 'template-project')
       fs.rmSync(sourceDirectory, { force: true, recursive: true })
     })
 
@@ -162,7 +161,7 @@ describe('project.test', () => {
       await app.service(projectPath).update(
         testProject.id,
         {
-          sourceURL: sourceDirectory,
+          sourceURL: sourceDirectory + '/', // slash is needed to force the sourceURL to be a directory
           name: testUpdateProjectName
         },
         getParams()
@@ -183,7 +182,7 @@ describe('project.test', () => {
       await app.service(projectPath).update(
         testProject.id,
         {
-          sourceURL: sourceDirectory,
+          sourceURL: sourceDirectory + '/',
           name: testProject.name
         },
         getParams()

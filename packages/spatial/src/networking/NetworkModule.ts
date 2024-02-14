@@ -27,13 +27,13 @@ import { IncomingActionSystem } from '../networking/systems/IncomingActionSystem
 import { OutgoingActionSystem } from '../networking/systems/OutgoingActionSystem'
 import { EntityNetworkState } from './state/EntityNetworkState'
 import { IncomingNetworkSystem } from './systems/IncomingNetworkSystem'
-import { MediasoupMediaProducerConsumerStateSystem } from './systems/MediasoupMediaProducerConsumerState'
+import { MediasoupMediaProducerConsumerState } from './systems/MediasoupMediaProducerConsumerState'
 import { OutgoingNetworkSystem } from './systems/OutgoingNetworkSystem'
 
 export {
   EntityNetworkState,
   IncomingNetworkSystem,
-  MediasoupMediaProducerConsumerStateSystem,
+  MediasoupMediaProducerConsumerState,
   OutgoingNetworkSystem,
   IncomingActionSystem,
   OutgoingActionSystem
