@@ -43,13 +43,22 @@ import {
   SrcAlphaFactor
 } from 'three'
 
-export const ProfilerState = defineState({
-  name: 'ProfilerState',
+export const PerformanceState = defineState({
+  name: 'PerformanceState',
   initial: () => ({
     tier: 0,
-    meshRenderMs: 0,
-    textureRenderMs: 0,
-    alphaRenderMs: 0
+    budgets: {
+      maxTextureSize: 0,
+      max3DTextureSize: 0,
+      maxRenderBufferSize: 0,
+      maxIndices: 0,
+      maxVerticies: 0
+    },
+    render: {
+      meshRenderMs: 0,
+      textureRenderMs: 0,
+      alphaRenderMs: 0
+    }
   })
 })
 
@@ -68,6 +77,7 @@ const checkRender = (renderer: EngineRenderer, scene: Scene, onFinished: (ms: nu
   scene.background = new Color(0xf0f0f0)
   scene.add(camera)
 
+  let renderTime = 0
   const fallback = () => {
     const end = profile()
     renderer.renderer.render(scene, camera)
@@ -75,7 +85,6 @@ const checkRender = (renderer: EngineRenderer, scene: Scene, onFinished: (ms: nu
     onFinished(renderTime)
   }
 
-  let renderTime = 0
   if (renderer.supportWebGL2) {
     const gl = renderer.renderContext as WebGL2RenderingContext
     const ext = gl.getExtension('EXT_disjoint_timer_query_webgl2')
@@ -137,7 +146,7 @@ const createTriangle = (): Mesh => {
 
 const triangleCount = isMobile ? 1250 : 5000
 const checkMeshRender = (renderer: EngineRenderer, onFinished: () => void) => {
-  const profilerState = getMutableState(ProfilerState)
+  const profilerState = getMutableState(PerformanceState)
   const scene = new Scene()
   const meshes = [] as Mesh[]
   for (let i = 0; i < triangleCount; i++) {
@@ -147,7 +156,7 @@ const checkMeshRender = (renderer: EngineRenderer, onFinished: () => void) => {
   }
 
   checkRender(renderer, scene, (renderTime) => {
-    profilerState.meshRenderMs.set(renderTime)
+    profilerState.render.meshRenderMs.set(renderTime)
 
     for (const mesh of meshes) {
       mesh.geometry.dispose()
@@ -178,14 +187,14 @@ const createPlane = (r = 255, g = 255, b = 255, a = 1): Mesh => {
 }
 
 const chechTextureRender = (renderer: EngineRenderer, onFinished: () => void) => {
-  const profilerState = getMutableState(ProfilerState)
+  const profilerState = getMutableState(PerformanceState)
   const scene = new Scene()
 
   const mesh = createPlane()
   scene.add(mesh)
 
   checkRender(renderer, scene, (renderTime) => {
-    profilerState.textureRenderMs.set(renderTime)
+    profilerState.render.textureRenderMs.set(renderTime)
 
     mesh.geometry.dispose()
     ;(mesh.material as MeshBasicMaterial).dispose()
@@ -196,7 +205,7 @@ const chechTextureRender = (renderer: EngineRenderer, onFinished: () => void) =>
 }
 
 const chechAlphaRender = (renderer: EngineRenderer, onFinished: () => void) => {
-  const profilerState = getMutableState(ProfilerState)
+  const profilerState = getMutableState(PerformanceState)
   const scene = new Scene()
 
   const mesh = createPlane(0, 0, 255, 0.5)
@@ -213,7 +222,7 @@ const chechAlphaRender = (renderer: EngineRenderer, onFinished: () => void) => {
   scene.add(alphaMesh)
 
   checkRender(renderer, scene, (renderTime) => {
-    profilerState.alphaRenderMs.set(renderTime)
+    profilerState.render.alphaRenderMs.set(renderTime)
 
     mesh.geometry.dispose()
     ;(mesh.material as MeshBasicMaterial).dispose()
@@ -226,18 +235,30 @@ const chechAlphaRender = (renderer: EngineRenderer, onFinished: () => void) => {
   })
 }
 
-export const buildProfilerState = async (renderer: EngineRenderer, onFinished: () => void) => {
-  const profilerState = getMutableState(ProfilerState)
+export const buildPerformanceState = async (renderer: EngineRenderer, onFinished: () => void) => {
+  const performance = getMutableState(PerformanceState)
   const gpuTier = await getGPUTier()
 
-  profilerState.tier.set(gpuTier.tier)
+  performance.tier.set(gpuTier.tier)
 
-  checkMeshRender(renderer, () => {
-    chechTextureRender(renderer, () => {
-      chechAlphaRender(renderer, () => {
-        console.log(JSON.stringify(profilerState.value))
-        onFinished()
-      })
-    })
+  const gl = renderer.renderContext as WebGL2RenderingContext
+  performance.budgets.set({
+    maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
+    max3DTextureSize: gl.getParameter(gl.MAX_3D_TEXTURE_SIZE),
+    maxRenderBufferSize: gl.getParameter(gl.MAX_RENDERBUFFER_SIZE),
+    maxIndices: gl.getParameter(gl.MAX_ELEMENTS_INDICES),
+    maxVerticies: gl.getParameter(gl.MAX_ELEMENTS_VERTICES)
   })
+
+  onFinished()
+
+  // TODO runtime performance checking
+  // checkMeshRender(renderer, () => {
+  //   chechTextureRender(renderer, () => {
+  //     chechAlphaRender(renderer, () => {
+  //       console.log(JSON.stringify(profilerState.value))
+  //       onFinished()
+  //     })
+  //   })
+  // })
 }
