@@ -30,10 +30,12 @@ import { RiDeleteBinLine } from 'react-icons/ri'
 import DataTable from '../../common/Table'
 import { ProjectRowType, projectsColumns } from '../../common/constants/project'
 
+import { ProjectUpdateState } from '@etherealengine/client-core/src/admin/services/ProjectUpdateService'
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { ProjectService } from '@etherealengine/client-core/src/common/services/ProjectService'
 import multiLogger from '@etherealengine/common/src/logger'
-import { useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
@@ -41,6 +43,7 @@ import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
 import { GrEdit, GrGithub } from 'react-icons/gr'
+import AddEditProjectModal from './AddEditProjectModal'
 
 const logger = multiLogger.child({ component: 'client-core:ProjectTable' })
 
@@ -58,7 +61,7 @@ export default function ProjectTable() {
     }
   })
 
-  const showConfirmDialog = (project: ProjectType, text: string, onSubmit: () => void) => {
+  const showConfirmDialog = (_project: ProjectType, text: string, onSubmit: () => void) => {
     PopoverState.showPopupover(
       <Modal
         onSubmit={onSubmit}
@@ -70,108 +73,142 @@ export default function ProjectTable() {
     )
   }
 
-  const createRows = (rows: readonly ProjectType[]): ProjectRowType[] =>
-    rows.map((row) => ({
-      name: (
-        <a href={`/studio/${row.name}`} className={row.needsRebuild ? 'text-blue-400' : 'text-theme-primary'}>
-          {row.name}
-        </a>
-      ),
-      projectVersion: row.version,
-      commitSHA: row.commitSHA,
-      commitDate: row.commitDate
-        ? new Date(row.commitDate).toLocaleString('en-us', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric'
-          })
-        : '-',
-      actions: (
-        <div className="flex justify-evenly">
-          <Button
-            startIcon={<GrGithub />}
-            size="small"
-            className="bg-[#61759f] dark:bg-[#2A3753]"
-            onClick={() => {
-              showConfirmDialog(
-                row,
-                `${t('admin:components.project.confirmPushProjectToGithub')}? ${row.name} - ${row.repositoryPath}`,
-                async () => {
-                  if (!row || !row.repositoryPath || row.name === 'default-project') return
+  const RowActions = ({ project }: { project: ProjectType }) => {
+    const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)[project.name]).value
 
+    return (
+      <div className="flex justify-evenly">
+        <Button
+          startIcon={<GrGithub />}
+          size="small"
+          className="bg-[#61759f] dark:bg-[#2A3753]"
+          onClick={() => {
+            showConfirmDialog(
+              project,
+              `${t('admin:components.project.confirmPushProjectToGithub')}? ${project.name} - ${
+                project.repositoryPath
+              }`,
+              async () => {
+                if (!project || !project.repositoryPath || project.name === 'default-project') return
+
+                modalProcessing.set(true)
+                await ProjectService.pushProject(project.id).catch(() => modalProcessing.set(false))
+                modalProcessing.set(false)
+
+                PopoverState.hidePopupover()
+              }
+            )
+          }}
+        >
+          {t('admin:components.project.actions.push')}
+        </Button>
+        <Button
+          startIcon={<GrEdit />}
+          size="small"
+          className="bg-[#61759f] dark:bg-[#2A3753]"
+          onClick={() => {
+            PopoverState.showPopupover(
+              <AddEditProjectModal
+                update={true}
+                processing={modalProcessing.value}
+                inputProject={project}
+                submitDisabled={true}
+                onSubmit={async () => {
                   modalProcessing.set(true)
-                  await ProjectService.pushProject(row.id).catch(() => modalProcessing.set(false))
+                  await ProjectService.uploadProject({
+                    sourceURL: projectUpdateStatus.sourceURL,
+                    destinationURL: projectUpdateStatus.destinationURL,
+                    name: projectUpdateStatus.projectName,
+                    reset: true,
+                    commitSHA: projectUpdateStatus.selectedSHA,
+                    sourceBranch: projectUpdateStatus.selectedBranch,
+                    updateType: projectUpdateStatus.updateType,
+                    updateSchedule: projectUpdateStatus.updateSchedule
+                  }).catch((err) => {
+                    NotificationService.dispatchNotify(err.message, { variant: 'error' })
+                  })
                   modalProcessing.set(false)
+                  PopoverState.hidePopupover()
+                }}
+              />
+            )
+          }}
+        >
+          {t('admin:components.project.actions.update')}
+        </Button>
+        <Button
+          startIcon={<IoPeopleOutline />}
+          size="small"
+          className="bg-[#61759f] dark:bg-[#2A3753]"
+          onClick={() => {}}
+        >
+          {t('admin:components.project.actions.access')}
+        </Button>
+        <Button
+          startIcon={<IoTerminalOutline />}
+          size="small"
+          className="bg-[#61759f] dark:bg-[#2A3753]"
+          onClick={() => {
+            showConfirmDialog(
+              project,
+              `${t('admin:components.project.confirmProjectInvalidate')} '${project.name}'?`,
+              async () => {
+                modalProcessing.set(true)
+                await ProjectService.invalidateProjectCache(project.name)
+                PopoverState.hidePopupover()
+              }
+            )
+          }}
+        >
+          {t('admin:components.project.actions.invalidateCache')}
+        </Button>
+        <Button startIcon={<IoFolderOutline />} size="small" className="bg-[#61759f] dark:bg-[#2A3753]">
+          {t('admin:components.common.view')}
+        </Button>
+        <Button
+          startIcon={<RiDeleteBinLine />}
+          size="small"
+          className="bg-[#61759f] dark:bg-[#2A3753]"
+          onClick={() => {
+            showConfirmDialog(
+              project,
+              `${t('admin:components.project.confirmProjectDelete')} '${project.name}'?`,
+              async () => {
+                modalProcessing.set(true)
+                await ProjectService.removeProject(project.id).catch((err) => logger.error(err))
+                PopoverState.hidePopupover()
+              }
+            )
+          }}
+        >
+          {t('admin:components.common.remove')}
+        </Button>
+      </div>
+    )
+  }
 
-                  PopoverState.hidePopupover()
-                }
-              )
-            }}
-          >
-            {t('admin:components.project.actions.push')}
-          </Button>
-          <Button
-            startIcon={<GrEdit />}
-            size="small"
-            className="bg-[#61759f] dark:bg-[#2A3753]"
-            onClick={() => {
-              PopoverState.showPopupover(<></>)
-            }}
-          >
-            {t('admin:components.project.actions.update')}
-          </Button>
-          <Button
-            startIcon={<IoPeopleOutline />}
-            size="small"
-            className="bg-[#61759f] dark:bg-[#2A3753]"
-            onClick={() => {}}
-          >
-            {t('admin:components.project.actions.access')}
-          </Button>
-          <Button
-            startIcon={<IoTerminalOutline />}
-            size="small"
-            className="bg-[#61759f] dark:bg-[#2A3753]"
-            onClick={() => {
-              showConfirmDialog(
-                row,
-                `${t('admin:components.project.confirmProjectInvalidate')} '${row.name}'?`,
-                async () => {
-                  modalProcessing.set(true)
-                  await ProjectService.invalidateProjectCache(row.name)
-                  PopoverState.hidePopupover()
-                }
-              )
-            }}
-          >
-            {t('admin:components.project.actions.invalidateCache')}
-          </Button>
-          <Button startIcon={<IoFolderOutline />} size="small" className="bg-[#61759f] dark:bg-[#2A3753]">
-            {t('admin:components.common.view')}
-          </Button>
-          <Button
-            startIcon={<RiDeleteBinLine />}
-            size="small"
-            className="bg-[#61759f] dark:bg-[#2A3753]"
-            onClick={() => {
-              showConfirmDialog(
-                row,
-                `${t('admin:components.project.confirmProjectDelete')} '${row.name}'?`,
-                async () => {
-                  modalProcessing.set(true)
-                  await ProjectService.removeProject(row.id).catch((err) => logger.error(err))
-                  PopoverState.hidePopupover()
-                }
-              )
-            }}
-          >
-            {t('admin:components.common.remove')}
-          </Button>
-        </div>
-      )
-    }))
+  const createRows = (rows: readonly ProjectType[]): ProjectRowType[] =>
+    rows.map((row) => {
+      return {
+        name: (
+          <a href={`/studio/${row.name}`} className={row.needsRebuild ? 'text-blue-400' : 'text-theme-primary'}>
+            {row.name}
+          </a>
+        ),
+        projectVersion: row.version,
+        commitSHA: row.commitSHA,
+        commitDate: row.commitDate
+          ? new Date(row.commitDate).toLocaleString('en-us', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: 'numeric'
+            })
+          : '-',
+        actions: <RowActions project={row} />
+      }
+    })
 
   return <DataTable query={projectQuery} columns={projectsColumns} rows={createRows(projectQuery.data)} />
 }
