@@ -143,18 +143,13 @@ describe('project.test', () => {
       git.init()
       git.add('.')
       git.commit('initial commit')
-    })
 
-    before(() => {
       testUpdateProjectName = `test-update-project-name-${v1()}`
     })
 
     after(async () => {
       await cleanup(app, testUpdateProjectName)
       await cleanup(app, 'template-project')
-    })
-
-    after(() => {
       fs.rmSync(sourceDirectory, { force: true, recursive: true })
     })
 
