@@ -33,12 +33,6 @@ import { matches } from '../common/functions/MatchesUtils'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRState } from './XRState'
 
-declare global {
-  interface XRHand {
-    get: (joint: XRHandJoint) => XRJointSpace | undefined
-  }
-}
-
 /** Maps each XR Joint to it's parent joint */
 export const XRJointParentMap = {
   'thumb-metacarpal': 'wrist',

@@ -26,7 +26,17 @@ Ethereal Engine. All Rights Reserved.
 import { AvatarID, InviteCode, UserID, UserName } from '@etherealengine/common/src/schema.type.module'
 
 export interface UserColumn {
-  id: 'id' | 'name' | 'avatarId' | 'accountIdentifier' | 'isGuest' | 'location' | 'inviteCode' | 'instanceId' | 'action'
+  id:
+    | 'id'
+    | 'name'
+    | 'avatarId'
+    | 'accountIdentifier'
+    | 'isGuest'
+    | 'location'
+    | 'inviteCode'
+    | 'instanceId'
+    | 'action'
+    | 'lastLogin'
   label: string
   minWidth?: number
   align?: 'right'
@@ -37,6 +47,7 @@ export const userColumns: UserColumn[] = [
   { id: 'name', label: 'Name', minWidth: 65 },
   { id: 'avatarId', label: 'Avatar', minWidth: 65 },
   { id: 'accountIdentifier', label: 'Linked Accounts', minWidth: 65 },
+  { id: 'lastLogin', label: 'Last Login', minWidth: 65 },
   {
     id: 'isGuest',
     label: 'Is Guest',
@@ -76,6 +87,7 @@ export interface UserData {
   name: UserName
   avatarId: AvatarID | JSX.Element
   accountIdentifier: string | JSX.Element
+  lastLogin: string | null
   isGuest: string
   inviteCode: InviteCode | JSX.Element
   action: any

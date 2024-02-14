@@ -94,13 +94,13 @@ export const MessageList = (props: { channelID: ChannelID }) => {
           minWidth={260}
           maxWidth={780}
         >
-          <div className="flex gap-1 my-5 justify-end">
-            <div className="w-max-[780px] min-w-0 h-[100%] mr-5 ml-[58px] justify-end">
-              <p className="rounded-xl border-[#E1E1E1] border-2 text-black bg-[#E1E1E1] p-[3px]">
+          <div className="my-5 flex justify-end gap-1">
+            <div className="w-max-[780px] ml-[58px] mr-5 h-[100%] min-w-0 justify-end">
+              <p className="rounded-xl border-2 border-[#E1E1E1] bg-[#E1E1E1] p-[3px] text-black">
                 {props.message.text}
               </p>
             </div>
-            <img className="rounded-[38px]  w-9 h-9 object-cover" alt="" src={userThumbnail} />
+            <img className="h-9  w-9 rounded-[38px] object-cover" alt="" src={userThumbnail} />
           </div>
         </Resizable>
       </>
@@ -127,9 +127,9 @@ export const MessageList = (props: { channelID: ChannelID }) => {
           maxWidth={600}
         >
           <div className="flex flex-wrap">
-            <img className="max-w-full rounded-[38px]  w-9 h-9 object-cover" alt="" src={userThumbnail} />
-            <div className="h-[20px] ml-5">
-              <p className="rounded-3xl border-[#F8F8F8] border-2 text-black bg-[#F8F8F8] p-[3px]">
+            <img className="h-9 w-9  max-w-full rounded-[38px] object-cover" alt="" src={userThumbnail} />
+            <div className="ml-5 h-[20px]">
+              <p className="rounded-3xl border-2 border-[#F8F8F8] bg-[#F8F8F8] p-[3px] text-black">
                 {props.message.text}
               </p>
             </div>
@@ -153,25 +153,25 @@ export const MessageList = (props: { channelID: ChannelID }) => {
     }
 
     return (
-      <div className="relative w-full bottom-0 h-[70px]  gap-5 flex flex-wrap justify-center bg-[#ffffff]">
+      <div className="relative bottom-0 flex h-[70px]  w-full flex-wrap justify-center gap-5 bg-[#ffffff]">
         <button className="">
-          <img className="w-[30px] rounded-full font-bold h-[30px] overflow-hidden" alt="" src={AttachFileIcon} />
+          <img className="h-[30px] w-[30px] overflow-hidden rounded-full font-bold" alt="" src={AttachFileIcon} />
         </button>
-        <div className="mt-3 rounded-3xl bg-[#d7d7d7] w-[80%] h-[45px] flex flex-wrap">
-          <div className="rounded-full ml-4 my-2 bg-white w-[30px] h-[30px] justify-between">
-            <img className="max-w-full w-[13.64px] mx-2 h-[28.64px] overflow-hidden" alt="" src={UserSvg} />
+        <div className="mt-3 flex h-[45px] w-[80%] flex-wrap rounded-3xl bg-[#d7d7d7]">
+          <div className="my-2 ml-4 h-[30px] w-[30px] justify-between rounded-full bg-white">
+            <img className="mx-2 h-[28.64px] w-[13.64px] max-w-full overflow-hidden" alt="" src={UserSvg} />
           </div>
-          <div className="w-[525px] h-[30px] ml-1 mt-[2.5px]">
+          <div className="ml-1 mt-[2.5px] h-[30px] w-[525px]">
             <input
               type="text"
-              className="m-0 rounded-3xl focus:outline-none focus:border-[#d7d7d7] border-[#d7d7d7] border-2 text-black bg-[#d7d7d7] p-2 w-full "
+              className="m-0 w-full rounded-3xl border-2 border-[#d7d7d7] bg-[#d7d7d7] p-2 text-black focus:border-[#d7d7d7] focus:outline-none "
               value={composingMessage.value}
               onChange={(e) => composingMessage.set(e.target.value)}
             />
           </div>
         </div>
         <button className="" onClick={sendMessage}>
-          <img className="w-[30px] h-[30px]" alt="" src={SendIcon} />
+          <img className="h-[30px] w-[30px]" alt="" src={SendIcon} />
         </button>
       </div>
     )
@@ -180,7 +180,7 @@ export const MessageList = (props: { channelID: ChannelID }) => {
   return (
     <>
       <div
-        className="w-full bg-[#FFFFFF] ml-8  mt-4 justify-center content-center overflow-scroll hide-scroll"
+        className="hide-scroll ml-8 mt-4  w-full content-center justify-center overflow-scroll bg-[#FFFFFF]"
         style={{ height: height }}
       >
         {messages.map((message, index) => {
@@ -226,60 +226,60 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
   return (
     <>
       <div className="ml-8">
-        <p className="text-2xl min-w-0 max-w-xs font-bold text-[#3F3960]">{channelName}</p>
+        <p className="min-w-0 max-w-xs text-2xl font-bold text-[#3F3960]">{channelName}</p>
       </div>
-      <div className="flex gap-6 justify-end mr-5">
-        {connecting && <p className="mt-6 pt-2 flex flex-wrap text-[#3F3960]">Connecting...</p>}
+      <div className="mr-5 flex justify-end gap-6">
+        {connecting && <p className="mt-6 flex flex-wrap pt-2 text-[#3F3960]">Connecting...</p>}
         {mediaConnected && (
           <>
             <button
-              className="m-0 w-[38px] h-[38px] flex flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
+              className="m-0 flex h-[38px] w-[38px] flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
               onClick={toggleWebcamPaused}
             >
               {isCamVideoEnabled ? (
-                <MdVideocam className="w-5 h-5 overflow-hidden mt-2 fill-[#ff1515]" />
+                <MdVideocam className="mt-2 h-5 w-5 overflow-hidden fill-[#ff1515]" />
               ) : (
-                <MdVideocamOff className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]" />
+                <MdVideocamOff className="mt-2 h-5 w-5 overflow-hidden fill-[#3F3960]" />
               )}
             </button>
             <button
-              className="m-0 w-[38px] h-[38px] flex flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
+              className="m-0 flex h-[38px] w-[38px] flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
               onClick={toggleMicrophonePaused}
             >
               {isCamAudioEnabled ? (
-                <FaMicrophone className="w-5 h-5 overflow-hidden mt-2 fill-[#ff1515]" />
+                <FaMicrophone className="mt-2 h-5 w-5 overflow-hidden fill-[#ff1515]" />
               ) : (
-                <FaMicrophoneSlash className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]" />
+                <FaMicrophoneSlash className="mt-2 h-5 w-5 overflow-hidden fill-[#3F3960]" />
               )}
             </button>
             <button
-              className="m-0 w-[38px] h-[38px] flex flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
+              className="m-0 flex h-[38px] w-[38px] flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
               onClick={toggleScreenshare}
             >
               {isScreenVideoEnabled ? (
-                <MdScreenShare className="w-6 h-6 overflow-hidden mt-2 fill-[#ff1515]" />
+                <MdScreenShare className="mt-2 h-6 w-6 overflow-hidden fill-[#ff1515]" />
               ) : (
-                <MdStopScreenShare className="w-6 h-6 overflow-hidden mt-2 fill-[#3F3960]" />
+                <MdStopScreenShare className="mt-2 h-6 w-6 overflow-hidden fill-[#3F3960]" />
               )}
             </button>
           </>
         )}
         <button
-          className="m-0 w-[38px] h-[38px] flex flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
+          className="m-0 flex h-[38px] w-[38px] flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
           onClick={() => {
             startMediaCall()
           }}
         >
           {targetChannelId && targetChannelId === selectedChannelID ? (
             <HiPhoneMissedCall
-              className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]"
+              className="mt-2 h-5 w-5 overflow-hidden fill-[#3F3960]"
               onClick={() => {
                 height = '75%'
               }}
             />
           ) : (
             <HiPhone
-              className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]"
+              className="mt-2 h-5 w-5 overflow-hidden fill-[#3F3960]"
               onClick={() => {
                 height = '54%'
               }}
@@ -317,7 +317,7 @@ export const MessageContainer = () => {
         maxWidth={830}
       >
         <div className=" h-[100vh] bg-white">
-          <div className="w-full h-[90px] flex flex-wrap flex-col justify-center">
+          <div className="flex h-[90px] w-full flex-col flex-wrap justify-center">
             {selectedChannelID && <MessageHeader selectedChannelID={selectedChannelID!} />}
           </div>
           <Resizable
@@ -337,7 +337,7 @@ export const MessageContainer = () => {
           >
             {mediaConnected && (
               <>
-                <div className="w-full justify-center content-center overflow-x-scroll hide-scroll">
+                <div className="hide-scroll w-full content-center justify-center overflow-x-scroll">
                   <MediaCall />
                 </div>
               </>

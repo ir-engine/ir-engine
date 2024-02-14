@@ -36,7 +36,8 @@ export default async function exportModelGLTF(
     relativePath: '',
     binary: true,
     includeCustomExtensions: true,
-    embedImages: true
+    embedImages: true,
+    onlyVisible: false
   }
 ) {
   const scene = getComponent(entity, ModelComponent).scene ?? getComponent(entity, GroupComponent)[0]

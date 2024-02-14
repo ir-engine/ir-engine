@@ -30,8 +30,8 @@ import {
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { CallbackComponent, setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { useEffect } from 'react'
-import { CallbackComponent, setCallback } from './CallbackComponent'
 
 export const SceneDynamicLoadTagComponent = defineComponent({
   name: 'SceneDynamicLoadTagComponent',

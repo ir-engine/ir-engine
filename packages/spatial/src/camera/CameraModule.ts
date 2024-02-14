@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { CameraFadeBlackEffectSystem } from './systems/CameraFadeBlackEffectSystem'
+import { CameraOrbitSystem } from './systems/CameraOrbitSystem'
 import { CameraSystem } from './systems/CameraSystem'
 
-export default { CameraFadeBlackEffectSystem, CameraSystem }
+export default { CameraFadeBlackEffectSystem, CameraSystem, CameraOrbitSystem }

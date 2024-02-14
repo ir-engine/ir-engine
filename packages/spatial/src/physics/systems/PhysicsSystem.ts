@@ -68,6 +68,7 @@ export function smoothPositionBasedKinematicBody(entity: Entity, dt: number, sub
     rigidbodyComponent.position.lerp(rigidbodyComponent.targetKinematicPosition, alpha)
     rigidbodyComponent.rotation.fastSlerp(rigidbodyComponent.targetKinematicRotation, alpha)
   }
+  if (!rigidbodyComponent.body) return
   rigidbodyComponent.body.setNextKinematicTranslation(rigidbodyComponent.position)
   rigidbodyComponent.body.setNextKinematicRotation(rigidbodyComponent.rotation)
 }
@@ -90,6 +91,7 @@ export function smoothVelocityBasedKinematicBody(entity: Entity, dt: number, sub
     rigidbodyComponent.position.lerp(rigidbodyComponent.targetKinematicPosition, alpha)
     rigidbodyComponent.rotation.slerp(rigidbodyComponent.targetKinematicRotation, alpha)
   }
+  if (!rigidbodyComponent.body) return
   /** @todo implement proper velocity based kinematic movement */
   rigidbodyComponent.body.setNextKinematicTranslation(rigidbodyComponent.position)
   rigidbodyComponent.body.setNextKinematicRotation(rigidbodyComponent.rotation)
@@ -121,6 +123,7 @@ const execute = () => {
   for (const entity of allRigidBodies) {
     const rigidBody = getComponent(entity, RigidBodyComponent)
     const body = rigidBody.body
+    if (!body) continue
     const translation = body.translation() as Vector3
     const rotation = body.rotation() as Quaternion
     RigidBodyComponent.previousPosition.x[entity] = translation.x
@@ -186,6 +189,7 @@ const execute = () => {
   for (const entity of allRigidBodies) {
     const rigidBody = getComponent(entity, RigidBodyComponent)
     const body = rigidBody.body
+    if (!body) continue
     const translation = body.translation() as Vector3
     const rotation = body.rotation() as Quaternion
     const linvel = body.linvel() as Vector3

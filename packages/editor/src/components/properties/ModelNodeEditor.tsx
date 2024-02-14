@@ -53,6 +53,8 @@ import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
 import { EditorComponentType, commitProperty } from './Util'
 
+import { VRM } from '@pixiv/three-vrm'
+
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
  *
@@ -110,7 +112,11 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   }, [modelComponent.src])
 
   useEffect(() => {
-    bonematchable.set(modelComponent.asset.value && recursiveHipsLookup(modelComponent.asset.value?.scene))
+    if (!modelComponent.asset.value) return
+    bonematchable.set(
+      modelComponent.asset.value &&
+        (modelComponent.asset.value instanceof VRM || recursiveHipsLookup(modelComponent.asset.value.scene))
+    )
   }, [modelComponent.asset])
 
   return (

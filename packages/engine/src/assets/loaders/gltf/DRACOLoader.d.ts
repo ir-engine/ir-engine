@@ -34,7 +34,8 @@ export class DRACOLoader extends Loader {
     url: string,
     onLoad: (geometry: BufferGeometry) => void,
     onProgress?: (event: ProgressEvent) => void,
-    onError?: (event: ErrorEvent) => void
+    onError?: (event: ErrorEvent) => void,
+    signal?: AbortSignal
   ): void
   setDecoderPath(path: string): DRACOLoader
   setDecoderConfig(config: object): DRACOLoader

@@ -32,12 +32,8 @@ import { InstanceID, UserID, UserName } from '@etherealengine/common/src/schema.
 import { applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
-import { act, render } from '@testing-library/react'
-import React from 'react'
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
-import { EntityNetworkStateSystem } from '../NetworkModule'
 import { NetworkState } from '../NetworkState'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
@@ -156,9 +152,6 @@ describe('NetworkPeerFunctions', () => {
       assert.equal(network.peerIDToPeerIndex[peerID], peerIndex)
     })
 
-    const Reactor = SystemDefinitions.get(EntityNetworkStateSystem)!.reactor!
-    const tag = <Reactor />
-
     it('should remove peer and owned network objects', async () => {
       const userId = 'world' as UserID & InstanceID
       const anotherPeerID = 'another peer id' as PeerID
@@ -184,20 +177,13 @@ describe('NetworkPeerFunctions', () => {
 
       applyIncomingActions()
 
-      const { rerender, unmount } = render(tag)
-      await act(() => rerender(tag))
-
       // process remove actions and execute entity removal
       Engine.instance.store.defaultDispatchDelay = () => 0
       NetworkPeerFunctions.destroyPeer(network, anotherPeerID)
 
       applyIncomingActions()
 
-      await act(() => rerender(tag))
-
       assert(!NetworkObjectComponent.getNetworkObject(userId, networkId))
-
-      unmount()
     })
   })
 })
