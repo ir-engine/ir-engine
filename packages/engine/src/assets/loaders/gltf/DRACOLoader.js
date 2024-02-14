@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-
-import { BufferAttribute, BufferGeometry, FileLoader, Loader } from 'three'
+import { BufferAttribute, BufferGeometry } from 'three'
+import { FileLoader } from '../base/FileLoader'
+import { Loader } from '../base/Loader'
 
 const _taskCache = new WeakMap()
 
@@ -75,7 +75,7 @@ class DRACOLoader extends Loader {
     return this
   }
 
-  load(url, onLoad, onProgress, onError) {
+  load(url, onLoad, onProgress, onError, signal) {
     const loader = new FileLoader(this.manager)
 
     loader.setPath(this.path)
@@ -95,7 +95,8 @@ class DRACOLoader extends Loader {
         this.decodeGeometry(buffer, taskConfig).then(onLoad).catch(onError)
       },
       onProgress,
-      onError
+      onError,
+      signal
     )
   }
 

@@ -34,12 +34,12 @@ import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ec
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { useGLTF } from '../../assets/functions/resourceHooks'
 
 const GLTF_PATH = '/static/editor/spawn-point.glb'
 
@@ -70,30 +70,34 @@ export const SpawnPointComponent = defineComponent({
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const spawnPoint = useComponent(entity, SpawnPointComponent)
 
+    const [gltf, unload] = useGLTF(debugEnabled.value ? GLTF_PATH : '', entity)
+
+    // Only call unload when unmounted
     useEffect(() => {
-      if (!debugEnabled.value) return
+      return unload
+    }, [])
+
+    useEffect(() => {
+      const scene = gltf.get(NO_PROXY)?.scene
+      if (!scene || !debugEnabled.value) return
 
       const helperEntity = createEntity()
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
-      setVisibleComponent(helperEntity, true)
-
       spawnPoint.helperEntity.set(helperEntity)
 
-      let active = true
-      AssetLoader.loadAsync(GLTF_PATH).then(({ scene: helper }) => {
-        if (!active) return
-        helper.name = `spawn-point-helper-${entity}`
-        addObjectToGroup(helperEntity, helper)
-        setObjectLayers(helper, ObjectLayers.NodeHelper)
-        setComponent(helperEntity, NameComponent, helper.name)
-      })
+      scene.name = `spawn-point-helper-${entity}`
+      addObjectToGroup(helperEntity, scene)
+      setObjectLayers(scene, ObjectLayers.NodeHelper)
+      setComponent(helperEntity, NameComponent, scene.name)
+
+      setVisibleComponent(spawnPoint.helperEntity.value!, true)
 
       return () => {
-        active = false
+        removeObjectFromGroup(helperEntity, scene)
         removeEntity(helperEntity)
         spawnPoint.helperEntity.set(none)
       }
-    }, [debugEnabled])
+    }, [gltf, debugEnabled])
 
     return null
   }
