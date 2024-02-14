@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { lazy, useEffect } from 'react'
 
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getMutableState, none } from '@etherealengine/hyperflux'
 
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { useTranslation } from 'react-i18next'
 import { InviteService } from '../social/services/InviteService'
 import { PopupMenuState } from './components/UserMenu/PopupMenuService'

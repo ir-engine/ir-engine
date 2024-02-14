@@ -25,7 +25,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 
-import { Group, Loader, LoadingManager } from 'three'
+import { Group, LoadingManager } from 'three'
+import { Loader } from '../base/Loader'
 
 export class FBXLoader extends Loader {
     constructor(manager?: LoadingManager);
@@ -35,6 +36,7 @@ export class FBXLoader extends Loader {
         onLoad: (object: Group) => void,
         onProgress?: (event: ProgressEvent) => void,
         onError?: (event: ErrorEvent) => void,
+        signal?: AbortSignal
     ): void;
     loadAsync(url: string, onProgress?: (event: ProgressEvent) => void): Promise<Group>;
     parse(FBXBuffer: ArrayBuffer | string, path: string): Group;

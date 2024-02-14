@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { EntityNetworkState } from '@etherealengine/spatial/src/networking/state/EntityNetworkState'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { teleportAvatar } from './moveAvatar'
 

@@ -36,43 +36,47 @@ import {
   getMutableState,
   getState,
   none,
-  receiveActions,
   useHookstate
 } from '@etherealengine/hyperflux'
 
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
-import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
-import { AvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
-import { matches, matchesEntityUUID } from '../../common/functions/MatchesUtils'
-import { isClient } from '../../common/functions/getEnvironment'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
-  defineQuery,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent,
   useComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { entityExists } from '../../ecs/functions/EntityFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { XRStandardGamepadButton } from '../../input/state/ButtonState'
-import { NetworkState } from '../../networking/NetworkState'
-import { NetworkTopics } from '../../networking/classes/Network'
-import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { Physics } from '../../physics/classes/Physics'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { matches, matchesEntityUUID } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
+import {
+  NetworkObjectAuthorityTag,
+  NetworkObjectComponent
+} from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
+import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
+import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
+import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { GrabbableComponent, GrabbedComponent, GrabberComponent } from '../components/GrabbableComponent'
 import { createInteractUI } from '../functions/interactUI'
 import { InteractState, InteractableTransitions, addInteractableUI, removeInteractiveUI } from './InteractiveSystem'
@@ -100,28 +104,35 @@ export const GrabbableState = defineState({
     }
   >,
 
-  receptors: [
-    [
-      GrabbableNetworkAction.setGrabbedObject,
-      (state, action: typeof GrabbableNetworkAction.setGrabbedObject.matches._TYPE) => {
-        if (action.grabbed)
-          state[action.entityUUID].set({
-            attachmentPoint: action.attachmentPoint ?? 'right',
-            grabberUserId: action.grabberUserId
-          })
-        else state[action.entityUUID].set(none)
-      }
-    ],
-    [
-      WorldNetworkAction.destroyObject,
-      (state, action: typeof WorldNetworkAction.destroyObject.matches._TYPE) => {
-        state[action.entityUUID].set(none)
-      }
-    ]
-  ]
+  receptors: {
+    onSetGrabbedObject: GrabbableNetworkAction.setGrabbedObject.receive((action) => {
+      const state = getMutableState(GrabbableState)
+      if (action.grabbed)
+        state[action.entityUUID].set({
+          attachmentPoint: action.attachmentPoint ?? 'right',
+          grabberUserId: action.grabberUserId
+        })
+      else state[action.entityUUID].set(none)
+    }),
+    onDestroyObject: WorldNetworkAction.destroyObject.receive((action) => {
+      const state = getMutableState(GrabbableState)
+      state[action.entityUUID].set(none)
+    })
+  },
+
+  reactor: () => {
+    const grabbableState = useHookstate(getMutableState(GrabbableState))
+    return (
+      <>
+        {grabbableState.keys.map((entityUUID: EntityUUID) => (
+          <GrabbableReactor key={entityUUID} entityUUID={entityUUID} />
+        ))}
+      </>
+    )
+  }
 })
 
-const GrabbableReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) => {
+const GrabbableReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   const state = useHookstate(getMutableState(GrabbableState)[entityUUID])
   const entity = UUIDComponent.useEntityByUUID(entityUUID)
   const grabberEntity = UUIDComponent.useEntityByUUID(state.grabberUserId.value as EntityUUID)
@@ -167,27 +178,14 @@ const GrabbableReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID })
   }, [entity, grabberEntity, bodyState])
 
   return null
-})
-
-export const GrabbablesReactor = React.memo(() => {
-  const grabbableState = Object.keys(useHookstate(getMutableState(GrabbableState)).value)
-  console.log('grabbableState', grabbableState)
-
-  return (
-    <>
-      {grabbableState.map((entityUUID: EntityUUID) => (
-        <GrabbableReactor key={entityUUID} entityUUID={entityUUID} />
-      ))}
-    </>
-  )
-})
+}
 
 /** @deprecated @todo - replace with reactor */
 export function transferAuthorityOfObjectReceptor(
   action: ReturnType<typeof WorldNetworkAction.transferAuthorityOfObject>
 ) {
   if (action.newAuthority !== Engine.instance.peerID) return
-  const grabbableEntity = NetworkObjectComponent.getNetworkObject(action.ownerId, action.networkId)!
+  const grabbableEntity = UUIDComponent.getEntityByUUID(action.entityUUID)
   if (hasComponent(grabbableEntity, GrabbableComponent)) {
     const grabberUserId = NetworkState.worldNetwork.peers[action.newAuthority]?.userId
     dispatchAction(
@@ -204,13 +202,13 @@ export function transferAuthorityOfObjectReceptor(
 
 // since grabbables are all client authoritative, we don't need to recompute this for all users
 export function grabbableQueryAll(grabbableEntity: Entity) {
-  const grabbedComponent = getComponent(grabbableEntity, GrabbedComponent)
+  const grabbedComponent = getOptionalComponent(grabbableEntity, GrabbedComponent)
   if (!grabbedComponent) return
   const attachmentPoint = grabbedComponent.attachmentPoint
 
   const target = getHandTarget(grabbedComponent.grabberEntity, attachmentPoint ?? 'right')!
 
-  const rigidbodyComponent = getComponent(grabbableEntity, RigidBodyComponent)
+  const rigidbodyComponent = getOptionalComponent(grabbableEntity, RigidBodyComponent)
 
   if (rigidbodyComponent) {
     rigidbodyComponent.targetKinematicPosition.copy(target.position)
@@ -232,7 +230,7 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
   TransformComponent.getWorldPosition(entity, xruiTransform.position)
 
   if (hasComponent(xrui.entity, VisibleComponent)) {
-    const boundingBox = getComponent(entity, BoundingBoxComponent)
+    const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
     if (boundingBox) {
       const boundingBoxHeight = boundingBox.box.max.y - boundingBox.box.min.y
       xruiTransform.position.y += boundingBoxHeight * 2
@@ -262,7 +260,7 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
       transition.setState('OUT')
     }
   }
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
   transition.update(deltaSeconds, (opacity) => {
     if (opacity === 0) {
       removeComponent(xrui.entity, VisibleComponent)
@@ -275,6 +273,8 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
 }
 
 export const grabEntity = (grabberEntity: Entity, grabbedEntity: Entity, attachmentPoint: 'left' | 'right'): void => {
+  // todo, do we ever need to handle this in offline contexts?
+  if (!NetworkState.worldNetwork) return console.warn('[GrabbableSystem] no world network found')
   const networkComponent = getComponent(grabbedEntity, NetworkObjectComponent)
   if (networkComponent.authorityPeerID === Engine.instance.peerID) {
     dispatchAction(
@@ -288,10 +288,9 @@ export const grabEntity = (grabberEntity: Entity, grabbedEntity: Entity, attachm
   } else {
     dispatchAction(
       WorldNetworkAction.requestAuthorityOverObject({
-        networkId: networkComponent.networkId,
-        ownerId: networkComponent.ownerId,
+        entityUUID: getComponent(grabbedEntity, UUIDComponent),
         newAuthority: Engine.instance.peerID,
-        $to: networkComponent.authorityPeerID
+        $to: networkComponent.ownerPeer
       })
     )
   }
@@ -300,7 +299,7 @@ export const grabEntity = (grabberEntity: Entity, grabbedEntity: Entity, attachm
 export const dropEntity = (grabberEntity: Entity): void => {
   const grabberComponent = getComponent(grabberEntity, GrabberComponent)
   if (!grabberComponent) return
-  const handedness = getState(AvatarInputSettingsState).preferredHand
+  const handedness = getState(InputState).preferredHand
   const grabbedEntity = grabberComponent[handedness]!
   if (!grabbedEntity) return
   const networkComponent = getComponent(grabbedEntity, NetworkObjectComponent)
@@ -315,8 +314,7 @@ export const dropEntity = (grabberEntity: Entity): void => {
   } else {
     dispatchAction(
       WorldNetworkAction.transferAuthorityOfObject({
-        networkId: networkComponent.networkId,
-        ownerId: networkComponent.ownerId,
+        entityUUID: getComponent(grabbedEntity, UUIDComponent),
         newAuthority: networkComponent.authorityPeerID
       })
     )
@@ -328,6 +326,7 @@ export const dropEntity = (grabberEntity: Entity): void => {
  */
 export const grabbableInteractMessage = 'Grab'
 
+/** @todo replace this with event sourcing */
 const transferAuthorityOfObjectQueue = defineActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)
 
 const ownedGrabbableQuery = defineQuery([GrabbableComponent, NetworkObjectAuthorityTag])
@@ -335,13 +334,13 @@ const grabbableQuery = defineQuery([GrabbableComponent])
 
 const onDrop = () => {
   const grabber = getComponent(Engine.instance.localClientEntity, GrabberComponent)
-  const handedness = getState(AvatarInputSettingsState).preferredHand
+  const handedness = getState(InputState).preferredHand
   const grabbedEntity = grabber[handedness]!
   if (!grabbedEntity) return
   dropEntity(Engine.instance.localClientEntity)
 }
 
-const onGrab = (targetEntity: Entity, handedness = getState(AvatarInputSettingsState).preferredHand) => {
+const onGrab = (targetEntity: Entity, handedness = getState(InputState).preferredHand) => {
   if (!hasComponent(targetEntity, GrabbableComponent)) return
   const grabber = getComponent(Engine.instance.localClientEntity, GrabberComponent)
   const grabbedEntity = grabber[handedness]!
@@ -355,7 +354,6 @@ const onGrab = (targetEntity: Entity, handedness = getState(AvatarInputSettingsS
 
 const execute = () => {
   if (getState(EngineState).isEditor) return
-  receiveActions(GrabbableState)
 
   /** @todo this should move to input group */
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
@@ -390,6 +388,5 @@ const execute = () => {
 export const GrabbableSystem = defineSystem({
   uuid: 'ee.engine.GrabbableSystem',
   insert: { with: SimulationSystemGroup },
-  execute,
-  reactor: GrabbablesReactor
+  execute
 })

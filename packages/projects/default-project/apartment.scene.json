@@ -4,10 +4,6 @@
     "60a390ad-4193-493d-84bf-cfb77b5095c2": {
       "components": [
         {
-          "name": "visible",
-          "props": {}
-        },
-        {
           "name": "transform",
           "props": {
             "position": {
@@ -229,6 +225,20 @@
             "toneMapping": 1,
             "toneMappingExposure": 0.8,
             "shadowMapType": 2
+          }
+        },
+        {
+          "name": "visible",
+          "props": true
+        },
+        {
+          "name": "scene-settings",
+          "props": {
+            "thumbnailURL": "__$project$__/default-project/apartment.thumbnail.jpg",
+            "loadingScreenURL": "__$project$__/default-project/apartment.loadingscreen.ktx2",
+            "primaryColor": "#A8B6C6",
+            "backgroundColor": "rgb(64, 70, 71)",
+            "alternativeColor": "#8EBBAE"
           }
         }
       ],
@@ -572,16 +582,18 @@
           "props": {}
         },
         {
-          "name": "collider",
+          "name": "EE_rigidbody",
           "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": false,
-            "removeMesh": false,
+            "type": "fixed"
+          }
+        },
+        {
+          "name": "EE_collider",
+          "props": {
+            "shape": "box",
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1,
-            "triggers": []
+            "restitution": 1
           }
         }
       ],
@@ -617,16 +629,18 @@
           "props": {}
         },
         {
-          "name": "collider",
+          "name": "EE_rigidbody",
           "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": false,
-            "removeMesh": false,
+            "type": "fixed"
+          }
+        },
+        {
+          "name": "EE_collider",
+          "props": {
+            "shape": "box",
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1,
-            "triggers": []
+            "restitution": 1
           }
         }
       ],
@@ -662,16 +676,18 @@
           "props": {}
         },
         {
-          "name": "collider",
+          "name": "EE_rigidbody",
           "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": false,
-            "removeMesh": false,
+            "type": "fixed"
+          }
+        },
+        {
+          "name": "EE_collider",
+          "props": {
+            "shape": "box",
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1,
-            "triggers": []
+            "restitution": 1
           }
         }
       ],
@@ -707,16 +723,18 @@
           "props": {}
         },
         {
-          "name": "collider",
+          "name": "EE_rigidbody",
           "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": false,
-            "removeMesh": false,
+            "type": "fixed"
+          }
+        },
+        {
+          "name": "EE_collider",
+          "props": {
+            "shape": "box",
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1,
-            "triggers": []
+            "restitution": 1
           }
         }
       ],
@@ -752,16 +770,18 @@
           "props": {}
         },
         {
-          "name": "collider",
+          "name": "EE_rigidbody",
           "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": false,
-            "removeMesh": false,
+            "type": "fixed"
+          }
+        },
+        {
+          "name": "EE_collider",
+          "props": {
+            "shape": "box",
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1,
-            "triggers": []
+            "restitution": 1
           }
         }
       ],
@@ -797,16 +817,18 @@
           "props": {}
         },
         {
-          "name": "collider",
+          "name": "EE_rigidbody",
           "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": false,
-            "removeMesh": false,
+            "type": "fixed"
+          }
+        },
+        {
+          "name": "EE_collider",
+          "props": {
+            "shape": "box",
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1,
-            "triggers": []
+            "restitution": 1
           }
         }
       ],
@@ -842,16 +864,18 @@
           "props": {}
         },
         {
-          "name": "collider",
+          "name": "EE_rigidbody",
           "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": false,
-            "removeMesh": false,
+            "type": "fixed"
+          }
+        },
+        {
+          "name": "EE_collider",
+          "props": {
+            "shape": "box",
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1,
-            "triggers": []
+            "restitution": 1
           }
         }
       ],
@@ -887,16 +911,18 @@
           "props": {}
         },
         {
-          "name": "collider",
+          "name": "EE_rigidbody",
           "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": false,
-            "removeMesh": false,
+            "type": "fixed"
+          }
+        },
+        {
+          "name": "EE_collider",
+          "props": {
+            "shape": "box",
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1,
-            "triggers": []
+            "restitution": 1
           }
         }
       ],
@@ -935,30 +961,11 @@
           }
         },
         {
-          "name": "collider",
-          "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": true,
-            "removeMesh": true,
-            "collisionLayer": 8,
-            "collisionMask": 2,
-            "restitution": 0,
-            "triggers": [
-              {
-                "onEnter": "teleport",
-                "onExit": null,
-                "target": ""
-              }
-            ]
-          }
-        },
-        {
           "name": "portal",
           "props": {
             "location": "sky-station",
             "linkedPortalId": "6a1cf0d6-ddfe-4058-b5ca-5bb18bc7efae",
-            "redirect": true,
+            "redirect": false,
             "effectType": "Hyperspace",
             "previewType": "Spherical",
             "previewImageURL": "__$project$__/default-project/apartment-Portal.ktx2",
@@ -978,6 +985,33 @@
         {
           "name": "visible",
           "props": true
+        },
+        {
+          "name": "EE_rigidbody",
+          "props": {
+            "type": "fixed"
+          }
+        },
+        {
+          "name": "EE_collider",
+          "props": {
+            "shape": "box",
+            "collisionLayer": 8,
+            "collisionMask": 2,
+            "restitution": 0
+          }
+        },
+        {
+          "name": "EE_trigger",
+          "props": {
+            "triggers": [
+              {
+                "onEnter": "teleport",
+                "onExit": null,
+                "target": ""
+              }
+            ]
+          }
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
@@ -1012,15 +1046,23 @@
           "props": {}
         },
         {
-          "name": "collider",
+          "name": "EE_rigidbody",
           "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": true,
-            "removeMesh": false,
+            "type": "fixed"
+          }
+        },
+        {
+          "name": "EE_collider",
+          "props": {
+            "shape": "box",
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1,
+            "restitution": 1
+          }
+        },
+        {
+          "name": "EE_trigger",
+          "props": {
             "triggers": [
               {
                 "onEnter": null,
@@ -1063,15 +1105,23 @@
           "props": {}
         },
         {
-          "name": "collider",
+          "name": "EE_rigidbody",
           "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": true,
-            "removeMesh": false,
+            "type": "fixed"
+          }
+        },
+        {
+          "name": "EE_collider",
+          "props": {
+            "shape": "box",
             "collisionLayer": 1,
             "collisionMask": 8,
-            "restitution": 1,
+            "restitution": 1
+          }
+        },
+        {
+          "name": "EE_trigger",
+          "props": {
             "triggers": [
               {
                 "onEnter": null,
@@ -1189,15 +1239,23 @@
           "props": {}
         },
         {
-          "name": "collider",
+          "name": "EE_rigidbody",
           "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": true,
-            "removeMesh": false,
+            "type": "fixed"
+          }
+        },
+        {
+          "name": "EE_collider",
+          "props": {
+            "shape": "box",
             "collisionLayer": 1,
             "collisionMask": 8,
-            "restitution": 1,
+            "restitution": 1
+          }
+        },
+        {
+          "name": "EE_trigger",
+          "props": {
             "triggers": [
               {
                 "onEnter": null,

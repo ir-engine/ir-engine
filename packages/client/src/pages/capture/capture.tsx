@@ -27,11 +27,11 @@ import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { useOfflineNetwork, useOnlineNetwork } from '@etherealengine/client-core/src/components/World/EngineHooks'
+import { useNetwork } from '@etherealengine/client-core/src/components/World/EngineHooks'
 import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { ECSRecordingActions } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { defineActionQueue, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import CaptureUI from '@etherealengine/ui/src/pages/Capture'
@@ -59,7 +59,6 @@ export const CaptureLocation = () => {
   const params = useParams()
 
   const locationName = params?.locationName as string | undefined
-  const offline = !locationName
 
   useEffect(() => {
     if (locationName) LocationState.setLocationName(locationName)
@@ -69,11 +68,7 @@ export const CaptureLocation = () => {
     if (locationState.locationName.value) LocationService.getLocationByName(locationState.locationName.value)
   }, [locationState.locationName.value])
 
-  if (offline) {
-    useOfflineNetwork()
-  } else {
-    useOnlineNetwork()
-  }
+  useNetwork({ online: !!locationName })
 
   AuthService.useAPIListeners()
 

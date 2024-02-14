@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { ReactNode, useEffect, useRef } from 'react'
 
-import { clamp } from '@etherealengine/engine/src/common/functions/MathLerpFunctions'
+import { clamp } from '@etherealengine/spatial/src/common/functions/MathLerpFunctions'
 
 import MultipleStopIcon from '@mui/icons-material/MultipleStop'
 
@@ -111,6 +111,7 @@ const Scrubber: React.FC<ScrubberProps> = ({
     startValue: null as number | null,
     delta: null as number | null,
     mouseX: null,
+    currentValue: null as number | null,
     mouseY: null
   })
 
@@ -128,6 +129,8 @@ const Scrubber: React.FC<ScrubberProps> = ({
       const finalValue = convertTo(roundedValue)
       onChange(finalValue)
 
+      state.currentValue.set(finalValue)
+
       state.delta.set(nextDelta)
       state.mouseX.set(mX)
       state.mouseY.set(mY)
@@ -143,7 +146,7 @@ const Scrubber: React.FC<ScrubberProps> = ({
       state.mouseY.set(null)
 
       if (onRelease) {
-        onRelease(value)
+        onRelease(state.currentValue.value)
       }
 
       document.exitPointerLock()

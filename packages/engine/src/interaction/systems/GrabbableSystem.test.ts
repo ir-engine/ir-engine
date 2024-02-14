@@ -30,31 +30,29 @@ import { Mesh, MeshNormalMaterial, Quaternion, SphereGeometry, Vector3 } from 't
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserID, UserName } from '@etherealengine/common/src/schema.type.module'
+import { AvatarID, UserID, UserName } from '@etherealengine/common/src/schema.type.module'
 import {
   applyIncomingActions,
   clearOutgoingActions,
   dispatchAction,
   getMutableState,
-  getState,
-  receiveActions
+  getState
 } from '@etherealengine/hyperflux'
 
+import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { Network } from '@etherealengine/spatial/src/networking/classes/Network'
+import { NetworkObjectComponent } from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
+import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
-import { destroyEngine, Engine } from '../../ecs/classes/Engine'
-import { getComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { createEngine } from '../../initializeEngine'
-import { Network } from '../../networking/classes/Network'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { NetworkState } from '../../networking/NetworkState'
-import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
-import { Physics } from '../../physics/classes/Physics'
-import { PhysicsState } from '../../physics/state/PhysicsState'
-import { addObjectToGroup } from '../../scene/components/GroupComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GrabbedComponent, GrabberComponent } from '../components/GrabbableComponent'
 import { dropEntity, grabEntity } from './GrabbableSystem'
 
@@ -90,11 +88,11 @@ describe.skip('EquippableSystem Integration Tests', () => {
         networkId: networkObject.networkId,
         position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userID as string as EntityUUID
+        entityUUID: Engine.instance.userID as string as EntityUUID,
+        avatarID: '' as AvatarID
       })
     )
     applyIncomingActions()
-    receiveActions(EntityNetworkState)
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
 

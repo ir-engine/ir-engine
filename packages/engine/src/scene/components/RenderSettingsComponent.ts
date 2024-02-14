@@ -27,9 +27,9 @@ import { useEffect } from 'react'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { RenderSettingsState } from '../../renderer/WebGLRendererSystem'
+import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { RenderSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 
 export const RenderSettingsComponent = defineComponent({
   name: 'RenderSettingsComponent',
@@ -45,6 +45,7 @@ export const RenderSettingsComponent = defineComponent({
     if (!json) return
 
     if (typeof json.csm === 'boolean') component.csm.set(json.csm)
+    if (typeof json.cascades === 'number') component.cascades.set(json.cascades)
     if (typeof json.toneMapping === 'number') component.toneMapping.set(json.toneMapping)
     if (typeof json.toneMappingExposure === 'number') component.toneMappingExposure.set(json.toneMappingExposure)
     if (typeof json.shadowMapType === 'number') component.shadowMapType.set(json.shadowMapType)
@@ -53,6 +54,7 @@ export const RenderSettingsComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       csm: component.csm.value,
+      cascades: component.cascades.value,
       toneMapping: component.toneMapping.value,
       toneMappingExposure: component.toneMappingExposure.value,
       shadowMapType: component.shadowMapType.value

@@ -125,7 +125,8 @@
       "info-origin": "Sets pivot mode to the world origin (0,0,0)"
     },
     "transformSnapTool": {
-      "toggleSnapMode": "[C] Toggle Snap Mode",
+      "toggleBBoxSnap": "[B] Toggle Bounding Box Snap",
+      "toggleSnapMode": "[C] Toggle Grid Snap",
       "info-translate": "Translate objects by a unit of measurement.",
       "info-rotate": "Rotate objects by a specific degrees."
     },
@@ -178,6 +179,11 @@
     "sceneScreenshot": {
       "lbl": "Screenshot",
       "info": "Takes a screenshot of your scene at the current view."
+    },
+    "publishLocation": {
+      "title": "Publish",
+      "lbl": "Publish Location",
+      "info": "Publish location for the selected scene."
     }
   },
   "properties": {
@@ -286,7 +292,6 @@
       "name": "Collider",
       "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
       "lbl-isTrigger": "Trigger",
-      "lbl-removeMesh": "Remove Mesh",
       "lbl-shape": "Shape",
       "lbl-type": "Body Type"
     },
@@ -368,7 +373,7 @@
       "error-url": "Error Loading From URL",
       "lbl-loopAnimation": "Loop Animation",
       "lbl-animationSpeed": "Animation Speed",
-      "lbl-convertToVRM": "Convert to VRM",
+      "lbl-convertToVRM": "Use VRM",
       "lbl-isGPUInstancing": "Is Using GPU Instancing",
       "lbl-cameraOcclusion": "Occlude Camera",
       "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
@@ -674,12 +679,25 @@
       "info-useShadows": "Enables shadows",
       "lbl-csm": "Cascading Shadow Maps",
       "info-csm": "Enables cascading shadow maps.",
+      "lbl-csm-cascades": "Cascades",
+      "info-csm-cascades": "Smaller the size of the scene. More efficient to have less cascades.",
       "lbl-toneMapping": "Tone Mapping",
       "info-toneMapping": "Enables tone mapping on the scene renderer. Has no effect when a post processing is enabled.",
       "lbl-toneMappingExposure": "Tone Mapping Exposure",
       "info-toneMappingExposure": "Specifies the tone mapping exposure on the scene renderer. Has no effect when a post processing is enabled.",
       "lbl-shadowMapType": "Shadow Map Type",
       "info-shadowMapType": "Type of shadow map"
+    },
+    "sceneSettings": {
+      "name": "Scene Settings",
+      "description": "Customise the scene settings",
+      "lbl-thumbnail": "Thumbnail",
+      "info-thumbnail": "Change the thumbnail",
+      "generate": "Generate",
+      "save": "Save",
+      "lbl-loading": "Loading Screen",
+      "info-loading": "Change the loading screen",
+      "lbl-colors": "Colors"
     },
     "scene": {
       "name": "Scene",
@@ -1011,12 +1029,17 @@
     "lbl-rename": "Rename",
     "lbl-duplicate": "Duplicate",
     "lbl-group": "Group",
+    "lbl-copy": "Copy",
+    "lbl-paste": "Paste",
     "lbl-delete": "Delete",
     "lbl-expandAll": "Expand All",
     "lbl-collapseAll": "Collapse All",
     "lbl-explode": "Explode Objects",
     "lbl-addEntity": "Add Entity",
-    "issues": "Issues"
+    "issues": "Issues",
+    "copy-paste": {
+      "no-hierarchy-nodes": "No hierarchy nodes found"
+    }
   },
   "materialLibrary": {
     "lbl": "Material Library",

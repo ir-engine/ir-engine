@@ -51,6 +51,7 @@ const StyledStringInput = React.forwardRef<any, StyledStringInputProps>(
         style={inputStyle}
         onBlur={onRelease}
         onChange={onChange}
+        style={inputStyle}
         {...rest}
         ref={ref}
       />

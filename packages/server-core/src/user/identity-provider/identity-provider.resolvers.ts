@@ -33,7 +33,7 @@ import {
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const identityProviderResolver = resolve<IdentityProviderType, HookContext>({
   createdAt: virtual(async (identityProvider) => fromDateTimeSql(identityProvider.createdAt)),

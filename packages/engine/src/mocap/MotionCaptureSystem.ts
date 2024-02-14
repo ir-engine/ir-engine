@@ -29,22 +29,25 @@ import { useEffect } from 'react'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import { RingBuffer } from '../common/classes/RingBuffer'
 
-import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { Network } from '../networking/classes/Network'
-import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 
 import { NormalizedLandmarkList } from '@mediapipe/pose'
 
-import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataChannelRegistry'
-
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { RingBuffer } from '@etherealengine/spatial/src/common/classes/RingBuffer'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { Network } from '@etherealengine/spatial/src/networking/classes/Network'
+import {
+  addDataChannelHandler,
+  removeDataChannelHandler
+} from '@etherealengine/spatial/src/networking/systems/DataChannelRegistry'
 import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
-import { AnimationSystem } from '../avatar/systems/AnimationSystem'
-import { isClient } from '../common/functions/getEnvironment'
-import { defineQuery, getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
-import { NetworkState } from '../networking/NetworkState'
+import { AvatarComponent } from '../avatar/components/AvatarComponent'
+import { AvatarAnimationSystem } from '../avatar/systems/AvatarAnimationSystem'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 import { solveMotionCapturePose } from './solveMotionCapturePose'
 
@@ -92,7 +95,7 @@ const handleMocapData = (
 
 const motionCaptureQuery = defineQuery([MotionCaptureRigComponent, AvatarRigComponent])
 
-const timeSeriesMocapData = new Map<
+export const timeSeriesMocapData = new Map<
   PeerID,
   RingBuffer<{
     timestamp: number
@@ -116,7 +119,7 @@ const execute = () => {
   for (const [peerID, mocapData] of timeSeriesMocapData) {
     const data = mocapData.getFirst()
     const userID = network.peers[peerID]!.userId
-    const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
+    const entity = AvatarComponent.getUserAvatarEntity(userID)
     if (!entity) continue
 
     timeSeriesMocapLastSeen.set(peerID, Date.now())
@@ -186,7 +189,7 @@ const execute = () => {
     //       lerp(
     //         worldHipsParent.position.y,
     //         MotionCaptureRigComponent.footOffset[entity],
-    //         getState(EngineState).deltaSeconds * 5
+    //         getState(ECSState).deltaSeconds * 5
     //       )
     //     )
     //   else worldHipsParent.position.setY(0)
@@ -205,7 +208,7 @@ const reactor = () => {
 
 export const MotionCaptureSystem = defineSystem({
   uuid: 'ee.engine.MotionCaptureSystem',
-  insert: { after: AnimationSystem },
+  insert: { before: AvatarAnimationSystem },
   execute,
   reactor
 })

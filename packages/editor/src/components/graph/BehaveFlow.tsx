@@ -23,10 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { BehaveGraphState } from '@etherealengine/engine/src/behave-graph/state/BehaveGraphState'
-import { getComponent, hasComponent, useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 import { isEqual } from 'lodash'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -69,9 +70,7 @@ export const ActiveBehaveGraph = (props: { entity }) => {
 }
 
 const BehaveFlow = () => {
-  const selectionState = useHookstate(getMutableState(SelectionState))
-
-  const entities = selectionState.selectedEntities.value
+  const entities = SelectionState.useSelectedEntities()
   const entity = entities[entities.length - 1]
   const validEntity = typeof entity === 'number' && hasComponent(entity, BehaveGraphComponent)
   const { t } = useTranslation()

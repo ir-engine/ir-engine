@@ -28,16 +28,16 @@ import { Consumer, PlainTransport, Router } from 'mediasoup/node/lib/types'
 import { useEffect } from 'react'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { localConfig } from '@etherealengine/server-core/src/config'
+import serverLogger from '@etherealengine/server-core/src/ServerLogger'
 import {
   NetworkState,
   PeerMediaType,
   screenshareAudioDataChannelType,
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
-} from '@etherealengine/engine/src/networking/NetworkState'
-import { localConfig } from '@etherealengine/server-core/src/config'
-import serverLogger from '@etherealengine/server-core/src/ServerLogger'
+} from '@etherealengine/spatial/src/networking/NetworkState'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import {
@@ -45,8 +45,8 @@ import {
   recordingResourceUploadPath,
   RecordingSchemaType
 } from '@etherealengine/common/src/schema.type.module'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { RecordingAPIState } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { getMutableState, none } from '@etherealengine/hyperflux'
 import { PassThrough } from 'stream'

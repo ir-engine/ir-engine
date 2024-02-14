@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { CanvasTexture, ClampToEdgeWrapping, CompressedTexture, LinearMipmapLinearFilter, SRGBColorSpace } from 'three'
 
-import { KTX2Loader } from '@etherealengine/engine/src/assets/loaders/gltf/KTX2Loader'
-
 import { TextureData, TextureHash, WebLayerManagerBase } from '../WebLayerManagerBase'
 import { WebLayer3D } from './WebLayer3D'
 
@@ -35,26 +33,19 @@ export interface ThreeTextureData {
   compressedTexture?: CompressedTexture
 }
 export class WebLayerManager extends WebLayerManagerBase {
-  static DEFAULT_TRANSCODER_PATH = `https://unpkg.com/@loaders.gl/textures@3.1.7/dist/libs/`
-
-  static initialize(renderer: THREE.WebGLRenderer) {
+  static initialize(renderer: THREE.WebGLRenderer, ktx2Loader) {
     WebLayerManager.instance = new WebLayerManager()
     WebLayerManager.instance.renderer = renderer
-    WebLayerManager.instance.ktx2Loader.setWorkerLimit(2)
-    WebLayerManager.instance.ktx2Loader.detectSupport(renderer)
+    WebLayerManager.instance.ktx2Loader = ktx2Loader
     WebLayerManager.instance.ktx2Encoder.setWorkerLimit(1)
   }
 
   static instance: WebLayerManager
 
-  constructor() {
-    super()
-    this.ktx2Loader.setTranscoderPath(WebLayerManager.DEFAULT_TRANSCODER_PATH)
-  }
-
   renderer!: THREE.WebGLRenderer
   textureEncoding = SRGBColorSpace
-  ktx2Loader = new KTX2Loader()
+  // ktx2Loader: KTX2Loader // todo, currently the type exists in the engine package, which we cannot import here
+  ktx2Loader: any
 
   texturesByHash = new Map<string, ThreeTextureData>()
   // texturesByCharacter = new Map<number, ThreeTextureData>()

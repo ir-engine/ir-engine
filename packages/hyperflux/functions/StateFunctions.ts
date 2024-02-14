@@ -24,21 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { createState, SetInitialStateAction, State, useHookstate } from '@hookstate/core'
-import type { Function, Object, String } from 'ts-toolbelt'
+import type { Object as _Object, Function, String } from 'ts-toolbelt'
 
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
+import multiLogger from '@etherealengine/common/src/logger'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { resolveObject } from '@etherealengine/common/src/utils/resolveObject'
-import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 
-import {
-  Action,
-  ActionCreator,
-  ActionQueueDefinition,
-  ActionShape,
-  defineActionQueue,
-  removeActionQueue
-} from './ActionFunctions'
+import { ActionQueueHandle, ActionReceptor } from './ActionFunctions'
+import { startReactor } from './ReactorFunctions'
 import { HyperFlux, HyperStore } from './StoreFunctions'
 
 export * from '@hookstate/core'
@@ -48,89 +42,62 @@ const logger = multiLogger.child({ component: 'hyperflux:State' })
 export const NO_PROXY = { noproxy: true }
 export const NO_PROXY_STEALTH = { noproxy: true, stealth: true }
 
-export type StateActionReceptor<S, A extends ActionShape<Action>> = [
-  ActionCreator<A>,
-  (state: State<S>, action: any) => void
-]
+export type ReceptorMap = Record<string, ActionReceptor<any>>
 
-export type StateDefinition<S> = {
+export type StateDefinition<S, Receptors extends ReceptorMap> = {
   name: string
   initial: SetInitialStateAction<S>
-  receptors?: StateActionReceptor<S, any>[]
-  receptorActionQueue?: ActionQueueDefinition
+  receptors?: Receptors
+  receptorActionQueue?: ActionQueueHandle
+  reactor?: any // why does React.FC break types?
   onCreate?: (store: HyperStore, state: State<S>) => void
 }
 
-const StateDefinitions = new Set<string>()
+export const StateDefinitions = new Map<string, StateDefinition<any, ReceptorMap>>()
 
-export function defineState<S, StateExtras = unknown>(definition: StateDefinition<S> & StateExtras) {
-  if (StateDefinitions.has(definition.name)) throw new Error(`State ${definition.name} already defined`)
-  StateDefinitions.add(definition.name)
-  return definition as StateDefinition<S> & { _TYPE: S } & StateExtras
-}
-
-export function registerState<S>(StateDefinition: StateDefinition<S>) {
-  logger.info(`registerState ${StateDefinition.name}`)
-
-  const initial =
-    typeof StateDefinition.initial === 'function'
-      ? (StateDefinition.initial as any)()
-      : JSON.parse(JSON.stringify(StateDefinition.initial))
-  HyperFlux.store.valueMap[StateDefinition.name] = initial
-  HyperFlux.store.stateMap[StateDefinition.name] = createState(initial)
-  HyperFlux.store.stateMap[StateDefinition.name].attach(() => ({
-    id: Symbol('update root state value map'),
-    init: () => ({
-      onSet(arg) {
-        if (arg.path.length === 0 && typeof arg.value === 'object')
-          HyperFlux.store.valueMap[StateDefinition.name] = arg.value
-      }
-    })
-  }))
-  if (StateDefinition.onCreate) StateDefinition.onCreate(HyperFlux.store, getMutableState(StateDefinition))
-
-  if (StateDefinition.receptors) {
-    StateDefinition.receptorActionQueue = defineActionQueue(StateDefinition.receptors.map((r) => r[0].matches as any))
-    HyperFlux.store.getCurrentReactorRoot()?.cleanupFunctions.add(() => {
-      removeActionQueue(StateDefinition.receptorActionQueue!)
-    })
-  }
-}
-
-export function receiveActions<S>(StateDefinition: StateDefinition<S>) {
-  if (!StateDefinition.receptors) throw new Error(`State ${StateDefinition.name} has no receptors.`)
-  const store = HyperFlux.store
-  if (!store.stateMap[StateDefinition.name]) registerState(StateDefinition)
-  const actions = StateDefinition.receptorActionQueue?.() // TODO: should probably put the receptor query in the store, not the state definition
-  if (!actions) return
-  const state = store.stateMap[StateDefinition.name] as State<S>
-  for (const a of actions) {
-    // TODO: implement state snapshots, rewind / replay when receiving actions out of order, etc.
-    for (const receptor of StateDefinition.receptors) {
-      receptor[0].matches.test(a) && receptor[1](state, a)
+export const setInitialState = (def: StateDefinition<any, ReceptorMap>) => {
+  const initial = typeof def.initial === 'function' ? (def.initial as any)() : JSON.parse(JSON.stringify(def.initial))
+  if (HyperFlux.store.stateMap[def.name]) {
+    HyperFlux.store.stateMap[def.name].set(initial)
+  } else {
+    const state = (HyperFlux.store.stateMap[def.name] = createState(initial))
+    if (def.onCreate) def.onCreate(HyperFlux.store, state)
+    if (def.reactor) {
+      const reactor = startReactor(def.reactor)
+      HyperFlux.store.stateReactors[def.name] = reactor
     }
   }
 }
 
-export function getMutableState<S>(StateDefinition: StateDefinition<S>) {
-  if (!HyperFlux.store.stateMap[StateDefinition.name]) registerState(StateDefinition)
+export function defineState<S, R extends ReceptorMap, StateExtras = unknown>(
+  definition: StateDefinition<S, R> & StateExtras
+) {
+  if (StateDefinitions.has(definition.name)) throw new Error(`State ${definition.name} already defined`)
+  StateDefinitions.set(definition.name, definition)
+  return definition as StateDefinition<S, R> & { _TYPE: S } & StateExtras
+}
+
+export function getMutableState<S, R extends ReceptorMap>(StateDefinition: StateDefinition<S, R>) {
+  if (!HyperFlux.store.stateMap[StateDefinition.name]) setInitialState(StateDefinition)
   return HyperFlux.store.stateMap[StateDefinition.name] as State<S>
 }
 
-export function getState<S>(StateDefinition: StateDefinition<S>) {
-  if (!HyperFlux.store.stateMap[StateDefinition.name]) registerState(StateDefinition)
-  return HyperFlux.store.valueMap[StateDefinition.name] as DeepReadonly<S>
+export function getState<S, R extends ReceptorMap>(StateDefinition: StateDefinition<S, R>) {
+  if (!HyperFlux.store.stateMap[StateDefinition.name]) setInitialState(StateDefinition)
+  return HyperFlux.store.stateMap[StateDefinition.name].get(NO_PROXY_STEALTH) as DeepReadonly<S>
 }
 
-export function useMutableState<S, P extends string>(StateDefinition: StateDefinition<S>): State<S>
-export function useMutableState<S, P extends string>(
-  StateDefinition: StateDefinition<S>,
+export function useMutableState<S, R extends ReceptorMap, P extends string>(
+  StateDefinition: StateDefinition<S, R>
+): State<S>
+export function useMutableState<S, R extends ReceptorMap, P extends string>(
+  StateDefinition: StateDefinition<S, R>,
   path: Function.AutoPath<State<S>, P>
-): Object.Path<State<S>, String.Split<P, '.'>>
-export function useMutableState<S, P extends string>(
-  StateDefinition: StateDefinition<S>,
+): _Object.Path<State<S>, String.Split<P, '.'>>
+export function useMutableState<S, R extends ReceptorMap, P extends string>(
+  StateDefinition: StateDefinition<S, R>,
   path?: Function.AutoPath<State<S>, P>
-): Object.Path<State<S>, String.Split<P, '.'>> {
+): _Object.Path<State<S>, String.Split<P, '.'>> {
   const rootState = getMutableState(StateDefinition)
   const resolvedState = path ? resolveObject(rootState, path as any) : rootState
   return useHookstate(resolvedState) as any
@@ -149,7 +116,10 @@ const stateNamespaceKey = 'ee.hyperflux'
  * or fallback to a default value, but we can't do that without knowing what the acceptable values are, which means
  * we need to pass in a schema or validator function to this function (we should use ts-pattern for this).
  */
-export const syncStateWithLocalStorage = (stateDefinition: ReturnType<typeof defineState<any>>, keys: string[]) => {
+export const syncStateWithLocalStorage = (
+  stateDefinition: ReturnType<typeof defineState<any, any>>,
+  keys: string[]
+) => {
   if (!isClient) return
   const state = getMutableState(stateDefinition)
 

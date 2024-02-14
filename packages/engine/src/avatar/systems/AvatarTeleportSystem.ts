@@ -42,22 +42,23 @@ import {
 
 import { defineState, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { CameraActions } from '../../camera/CameraState'
-import { easeOutCubic, normalizeRange } from '../../common/functions/MathFunctions'
-import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { addObjectToGroup } from '../../scene/components/GroupComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { setVisibleComponent } from '../../scene/components/VisibleComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { ReferenceSpace, XRAction, XRControlsState, XRState } from '../../xr/XRState'
-import { createTransitionState } from '../../xrui/functions/createTransitionState'
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { easeOutCubic, normalizeRange } from '@etherealengine/spatial/src/common/functions/MathFunctions'
+import checkPositionIsValid from '@etherealengine/spatial/src/common/functions/checkPositionIsValid'
+import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { ReferenceSpace, XRAction, XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { teleportAvatar } from '.././functions/moveAvatar'
 import { AvatarAnimationSystem } from './AvatarAnimationSystem'
@@ -157,7 +158,7 @@ const execute = () => {
   if (!guidelineEntity) return
 
   if (fadeBackInAccumulator >= 0) {
-    fadeBackInAccumulator += getState(EngineState).deltaSeconds
+    fadeBackInAccumulator += getState(ECSState).deltaSeconds
     if (fadeBackInAccumulator > 0.25) {
       fadeBackInAccumulator = -1
       teleportAvatar(Engine.instance.localClientEntity, getComponent(guideCursorEntity, TransformComponent).position)
@@ -243,7 +244,7 @@ const execute = () => {
     }
     setVisibleComponent(guideCursorEntity, canTeleport)
   }
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
   transition.update(deltaSeconds, (alpha) => {
     if (alpha === 0 && transition.state === 'OUT') {
       setVisibleComponent(guidelineEntity, false)

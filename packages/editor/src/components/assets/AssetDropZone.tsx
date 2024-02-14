@@ -28,7 +28,7 @@ import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { Vector2, Vector3 } from 'three'
 
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 

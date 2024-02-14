@@ -29,8 +29,8 @@ import { resolve, virtual } from '@feathersjs/schema'
 import { ApiJobQuery, ApiJobType } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { v4 } from 'uuid'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const apiJobResolver = resolve<ApiJobType, HookContext>({
   startTime: virtual(async (apiJob) => fromDateTimeSql(apiJob.startTime)),

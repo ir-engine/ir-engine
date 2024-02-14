@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { Fragment } from 'react'
 
-import { generateDefaults } from '@etherealengine/engine/src/renderer/materials/constants/DefaultArgs'
+import { generateDefaults } from '@etherealengine/engine/src/scene/materials/constants/DefaultArgs'
 
 import BooleanInput from './BooleanInput'
 import ColorInput from './ColorInput'
@@ -98,8 +98,8 @@ export default function ParameterInput({
                   return <ColorInput value={values[k]} onChange={setArgsProp(k)} />
                 case 'texture':
                   if (thumbnails?.[k])
-                    return <TexturePreviewInput preview={thumbnails[k]} value={values[k]} onChange={setArgsProp(k)} />
-                  else return <TexturePreviewInput value={values[k]} onChange={setArgsProp(k)} />
+                    return <TexturePreviewInput preview={thumbnails[k]} value={values[k]} onRelease={setArgsProp(k)} />
+                  else return <TexturePreviewInput value={values[k]} onRelease={setArgsProp(k)} />
                 case 'vec2':
                 case 'vec3':
                   return (

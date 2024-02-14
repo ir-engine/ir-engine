@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import classNames from 'classnames'
 import hark from 'hark'
 import { t } from 'i18next'
-import React, { useEffect, useRef } from 'react'
+import React, { RefObject, useEffect, useRef } from 'react'
 
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import {
@@ -42,20 +42,24 @@ import {
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
-import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
 import { applyScreenshareToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
-import { getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
+import { MediaSettingsState } from '@etherealengine/spatial/src/networking/MediaSettingsState'
+import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
 import { UserName } from '@etherealengine/common/src/schema.type.module'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { useExecute } from '@etherealengine/ecs'
+import { MotionCaptureSystem, timeSeriesMocapData } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { drawPoseToCanvas } from '@etherealengine/ui/src/pages/Capture'
+import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
@@ -66,6 +70,41 @@ import styles from './index.module.scss'
 interface Props {
   peerID: PeerID
   type: 'screen' | 'cam'
+}
+
+const useDrawMocapLandmarks = (
+  videoElement: HTMLVideoElement,
+  canvasCtxRef: React.MutableRefObject<CanvasRenderingContext2D | undefined>,
+  canvasRef: RefObject<HTMLCanvasElement>,
+  peerID: PeerID
+) => {
+  let lastTimestamp = 0
+
+  useExecute(
+    () => {
+      if (videoElement.paused || videoElement.ended || !videoElement.currentTime) return
+      const networkState = getState(NetworkState)
+      if (networkState.hostIds.world) {
+        const network = networkState.networks[networkState.hostIds.world]
+        if (network.peers[peerID]) {
+          const userID = network.peers[peerID].userId
+          const peers = network.users[userID]
+          for (const peer of peers) {
+            const mocapBuffer = timeSeriesMocapData.get(peer)
+            if (mocapBuffer) {
+              const lastMocapResult = mocapBuffer.getLast()
+              if (lastMocapResult && lastMocapResult.timestamp !== lastTimestamp) {
+                lastTimestamp = lastMocapResult.timestamp
+                drawPoseToCanvas(canvasCtxRef, canvasRef, lastMocapResult.results.poseLandmarks)
+                return
+              }
+            }
+          }
+        }
+      }
+    },
+    { before: MotionCaptureSystem }
+  )
 }
 
 export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
@@ -83,7 +122,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     audioProducerGlobalMute,
     videoElement,
     audioElement
-  } = peerMediaChannelState.get({ noproxy: true })
+  } = peerMediaChannelState.value
 
   const audioTrackClones = useHookstate<any[]>([])
   const videoTrackClones = useHookstate<any[]>([])
@@ -102,7 +141,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const _volume = useHookstate(1)
 
-  const selfUser = useHookstate(getMutableState(AuthState).user).get({ noproxy: true })
+  const selfUser = useHookstate(getMutableState(AuthState).user).get(NO_PROXY)
   const currentLocation = useHookstate(getMutableState(LocationState).currentLocation.location)
   const enableGlobalMute =
     currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
@@ -159,7 +198,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
       }
       if (audioStream != null) {
         const newAudioTrack = audioStream.track!.clone()
-        const updateAudioTrackClones = audioTrackClones.get({ noproxy: true }).concat(newAudioTrack)
+        const updateAudioTrackClones = audioTrackClones.get(NO_PROXY).concat(newAudioTrack)
         audioTrackClones.set(updateAudioTrackClones)
         audioElement.srcObject = new MediaStream([newAudioTrack])
         newHark = hark(audioElement.srcObject, { play: false })
@@ -177,7 +216,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     }
 
     return () => {
-      audioTrackClones.get({ noproxy: true }).forEach((track) => track.stop())
+      audioTrackClones.get(NO_PROXY).forEach((track) => track.stop())
       unmounted = true
       if (newHark) newHark.stop()
     }
@@ -197,7 +236,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
           // if (!videoRef?.srcObject?.active || !videoRef?.srcObject?.getVideoTracks()[0].enabled) {
           const newVideoTrack = videoStream.track!.clone()
-          videoTrackClones.get({ noproxy: true }).forEach((track) => track.stop())
+          videoTrackClones.get(NO_PROXY).forEach((track) => track.stop())
           videoTrackClones.set([newVideoTrack])
           videoElement!.srcObject = new MediaStream([newVideoTrack])
           if (isScreen) {
@@ -210,7 +249,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     }
 
     return () => {
-      videoTrackClones.get({ noproxy: true }).forEach((track) => track.stop())
+      videoTrackClones.get(NO_PROXY).forEach((track) => track.stop())
     }
   }, [videoTrackId.value])
 
@@ -222,7 +261,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
           if (!(videoElement?.srcObject as MediaStream)?.getVideoTracks()[0].enabled) {
             const newVideoTrack = videoStream.track!.clone()
-            videoTrackClones.get({ noproxy: true }).forEach((track) => track.stop())
+            videoTrackClones.get(NO_PROXY).forEach((track) => track.stop())
             videoTrackClones.set([newVideoTrack])
             videoElement!.srcObject = new MediaStream([newVideoTrack])
           }
@@ -239,7 +278,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
           if (!(audioElement?.srcObject as MediaStream)?.getAudioTracks()[0].enabled) {
             const newAudioTrack = audioStream.track!.clone()
-            const updateAudioTrackClones = audioTrackClones.get({ noproxy: true }).concat(newAudioTrack)
+            const updateAudioTrackClones = audioTrackClones.get(NO_PROXY).concat(newAudioTrack)
             audioTrackClones.set(updateAudioTrackClones)
             audioElement!.srcObject = new MediaStream([newAudioTrack])
           }
@@ -318,7 +357,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const getUsername = () => {
     if (isSelf && !isScreen) return t('user:person.you')
     if (isSelf && isScreen) return t('user:person.yourScreen')
-    const username = userId ? usernames.get({ noproxy: true })[userId] : 'A User'
+    const username = userId ? usernames.get(NO_PROXY)[userId] : 'A User'
     if (!isSelf && isScreen) return username + "'s Screen"
     return username
   }
@@ -430,11 +469,28 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
 
   const { videoElement, audioElement } = peerMediaChannelState.value
 
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const canvasCtxRef = useRef<CanvasRenderingContext2D>()
+
+  useDrawMocapLandmarks(videoElement, canvasCtxRef, canvasRef, peerID)
+
   useEffect(() => {
     videoElement.draggable = false
     document.getElementById(peerID + '-' + type + '-video-container')!.append(videoElement)
     document.getElementById(peerID + '-' + type + '-audio-container')!.append(audioElement)
   }, [])
+
+  useEffect(() => {
+    if (canvasRef.current && canvasRef.current.width !== videoElement.clientWidth) {
+      canvasRef.current.width = videoElement.clientWidth
+    }
+
+    if (canvasRef.current && canvasRef.current.height !== videoElement.clientHeight) {
+      canvasRef.current.height = videoElement.clientHeight
+    }
+
+    if (canvasRef.current) canvasCtxRef.current = canvasRef.current.getContext('2d')!
+  })
 
   useEffect(() => {
     if (!videoStream) return
@@ -501,6 +557,14 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
             videoProducerGlobalMute ||
             !videoDisplayReady) && <img src={avatarThumbnail} alt="" crossOrigin="anonymous" draggable={false} />}
           <span key={peerID + '-' + type + '-video-container'} id={peerID + '-' + type + '-video-container'} />
+          <div
+            className={classNames({
+              [styles['canvas-container']]: true,
+              [styles['canvas-rotate']]: !isSelf
+            })}
+          >
+            <Canvas ref={canvasRef} />
+          </div>
         </div>
         <span key={peerID + '-' + type + '-audio-container'} id={peerID + '-' + type + '-audio-container'} />
         <div className={styles['user-controls']}>

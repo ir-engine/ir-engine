@@ -31,27 +31,24 @@ import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import multiLogger from '@etherealengine/common/src/logger'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import Dialog from '@mui/material/Dialog'
 
-import { scenePath } from '@etherealengine/common/src/schema.type.module'
-import { SceneServices, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { SceneDataType, scenePath } from '@etherealengine/common/src/schema.type.module'
+import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { SceneServices, SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { t } from 'i18next'
 import { inputFileWithAddToScene } from '../functions/assetFunctions'
 import { onNewScene, saveScene, setSceneInState } from '../functions/sceneFunctions'
-import { takeScreenshot } from '../functions/takeScreenshot'
-import { uploadSceneBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
-import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
+import { SelectionState } from '../services/SelectionServices'
 import './EditorContainer.css'
 import AssetDropZone from './assets/AssetDropZone'
 import { ProjectBrowserPanelTab } from './assets/ProjectBrowserPanel'
@@ -92,7 +89,7 @@ export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }
 
 const SceneLoadingProgress = () => {
   const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
-  const loadingProgress = useHookstate(getMutableState(EngineState).loadingProgress).value
+  const loadingProgress = useHookstate(getMutableState(SceneState).loadingProgress).value
   return (
     <div style={{ top: '50px', position: 'relative' }}>
       <div
@@ -145,7 +142,8 @@ const onEditorError = (error) => {
 
 const onCloseProject = () => {
   const editorState = getMutableState(EditorState)
-  editorState.sceneModified.set(false)
+  const sceneState = getMutableState(SceneState)
+  sceneState.sceneModified.set(false)
   editorState.projectName.set(null)
   editorState.sceneID.set(null)
   editorState.sceneName.set(null)
@@ -165,8 +163,7 @@ const onCloseProject = () => {
 
 const onSaveAs = async () => {
   const { projectName, sceneName } = getState(EditorState)
-  const editorState = getMutableState(EditorState)
-  const sceneLoaded = getState(EngineState).sceneLoaded
+  const { sceneLoaded, sceneModified } = getState(SceneState)
 
   // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
   if (!sceneLoaded) {
@@ -176,26 +173,19 @@ const onSaveAs = async () => {
 
   const abortController = new AbortController()
   try {
-    if (sceneName || editorState.sceneModified.value) {
-      const thumbnailBlob = await takeScreenshot(512, 320, 'jpeg')
-      const file = new File([thumbnailBlob!], editorState.sceneName + '.thumbnail.jpg')
+    if (sceneName || sceneModified) {
       const result: { name: string } | void = await new Promise((resolve) => {
         DialogState.setDialog(
-          <SaveNewSceneDialog
-            thumbnailUrl={URL.createObjectURL(thumbnailBlob!)}
-            initialName={Engine.instance.scene.name}
-            onConfirm={resolve}
-            onCancel={resolve}
-          />
+          <SaveNewSceneDialog initialName={Engine.instance.scene.name} onConfirm={resolve} onCancel={resolve} />
         )
       })
       DialogState.setDialog(null)
       if (result?.name && projectName) {
-        await saveScene(projectName, result.name, file, abortController.signal)
-        editorState.sceneModified.set(false)
-        const newSceneData = await Engine.instance.api
+        await saveScene(projectName, result.name, abortController.signal)
+        getMutableState(SceneState).sceneModified.set(false)
+        const newSceneData = (await Engine.instance.api
           .service(scenePath)
-          .get(null, { query: { project: projectName, name: result.name, metadataOnly: true } })
+          .get('', { query: { project: projectName, name: result.name, metadataOnly: true } })) as SceneDataType
         setSceneInState(newSceneData.scenePath)
       }
     }
@@ -215,9 +205,9 @@ const onImportAsset = async () => {
 
 const onSaveScene = async () => {
   const { projectName, sceneName } = getState(EditorState)
-  const { sceneModified } = getState(EditorState)
-  const { sceneLoaded } = getState(EngineState)
-  console.log('onSaveScene')
+  const { sceneModified, sceneLoaded } = getState(SceneState)
+
+  if (!projectName) return
 
   // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
   if (!sceneLoaded) {
@@ -232,13 +222,8 @@ const onSaveScene = async () => {
     return
   }
 
-  const thumbnailBlob = await takeScreenshot(512, 320)
-  const file = new File([thumbnailBlob!], sceneName + '.thumbnail.jpg')
-
   const result = (await new Promise((resolve) => {
-    DialogState.setDialog(
-      <SaveSceneDialog onConfirm={resolve} onCancel={resolve} thumbnailUrl={URL.createObjectURL(thumbnailBlob!)} />
-    )
+    DialogState.setDialog(<SaveSceneDialog onConfirm={resolve} onCancel={resolve} />)
   })) as any
 
   if (!result) {
@@ -263,17 +248,9 @@ const onSaveScene = async () => {
   await new Promise((resolve) => setTimeout(resolve, 5))
 
   try {
-    if (projectName) {
-      const isGenerateThumbnailsEnabled = getState(EditorHelperState).isGenerateThumbnailsEnabled
-      if (isGenerateThumbnailsEnabled) {
-        await uploadSceneBakeToServer()
-        await saveScene(projectName, sceneName, file, abortController.signal)
-      } else {
-        await saveScene(projectName, sceneName, null, abortController.signal)
-      }
-    }
+    await saveScene(projectName, sceneName, abortController.signal)
 
-    getMutableState(EditorState).sceneModified.set(false)
+    getMutableState(SceneState).sceneModified.set(false)
 
     DialogState.setDialog(null)
   } catch (error) {
@@ -369,8 +346,8 @@ const tabs = [
  * EditorContainer class used for creating container for Editor
  */
 const EditorContainer = () => {
-  const { sceneName, projectName, sceneID, sceneModified } = useHookstate(getMutableState(EditorState))
-  const sceneLoaded = useHookstate(getMutableState(EngineState)).sceneLoaded
+  const { sceneName, projectName, sceneID } = useHookstate(getMutableState(EditorState))
+  const { sceneLoaded, sceneModified } = useHookstate(getMutableState(SceneState))
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
 
   const sceneLoading = sceneID.value && !sceneLoaded.value
@@ -429,6 +406,12 @@ const EditorContainer = () => {
   useEffect(() => {
     if (!sceneID.value) return
     return SceneServices.setCurrentScene(sceneID.value)
+  }, [sceneID])
+
+  useEffect(() => {
+    return () => {
+      getMutableState(SelectionState).selectedEntities.set([])
+    }
   }, [sceneID])
 
   useEffect(() => {

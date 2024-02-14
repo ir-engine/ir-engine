@@ -27,40 +27,41 @@ import { Not } from 'bitecs'
 import { useEffect } from 'react'
 import { Group, Vector3 } from 'three'
 
+import multiLogger from '@etherealengine/common/src/logger'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
-import { easeOutElastic } from '@etherealengine/engine/src/common/functions/MathFunctions'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { defineQuery, getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
-import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
-import { NetworkState, webcamVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
+import { applyVideoToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
+import { getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { easeOutElastic } from '@etherealengine/spatial/src/common/functions/MathFunctions'
+import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { MediaSettingsState } from '@etherealengine/spatial/src/networking/MediaSettingsState'
+import { NetworkState, webcamVideoDataChannelType } from '@etherealengine/spatial/src/networking/NetworkState'
 import {
   NetworkObjectComponent,
   NetworkObjectOwnedTag
-} from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
-import { Physics, RaycastArgs } from '@etherealengine/engine/src/physics/classes/Physics'
-import { CollisionGroups } from '@etherealengine/engine/src/physics/enums/CollisionGroups'
-import { getInteractionGroups } from '@etherealengine/engine/src/physics/functions/getInteractionGroups'
-import { SceneQueryType } from '@etherealengine/engine/src/physics/types/PhysicsTypes'
-import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { setVisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { applyVideoToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { XRUIComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
-import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
-import { getMutableState, getState, none } from '@etherealengine/hyperflux'
+} from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
+import { Physics, RaycastArgs } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
+import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
+import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
 
-import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
-import { InputState } from '@etherealengine/engine/src/input/state/InputState'
-import { MediasoupMediaProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
-import { PhysicsState } from '@etherealengine/engine/src/physics/state/PhysicsState'
-import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
+import { MediasoupMediaProducerConsumerState } from '@etherealengine/spatial/src/networking/systems/MediasoupMediaProducerConsumerState'
+import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
@@ -76,7 +77,7 @@ export const AvatarMenus = {
 }
 
 export const renderAvatarContextMenu = (userId: UserID, contextMenuEntity: Entity) => {
-  const userEntity = NetworkObjectComponent.getUserAvatarEntity(userId)
+  const userEntity = AvatarComponent.getUserAvatarEntity(userId)
   if (!userEntity) return
 
   const contextMenuXRUI = getComponent(contextMenuEntity, XRUIComponent)
@@ -154,7 +155,7 @@ const onSecondaryClick = () => {
 }
 
 const execute = () => {
-  const engineState = getState(EngineState)
+  const ecsState = getState(ECSState)
 
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
   if (nonCapturedInputSource) {
@@ -164,7 +165,7 @@ const execute = () => {
     if (keys.SecondaryClick?.down) onSecondaryClick()
   }
 
-  videoPreviewTimer += engineState.deltaSeconds
+  videoPreviewTimer += ecsState.deltaSeconds
   if (videoPreviewTimer > 1) videoPreviewTimer = 0
 
   for (const userEntity of userQuery.enter()) {
@@ -208,7 +209,7 @@ const execute = () => {
     if (dist < 20) transition.setState('IN')
 
     let springAlpha = transition.alpha
-    const deltaSeconds = getState(EngineState).deltaSeconds
+    const deltaSeconds = getState(ECSState).deltaSeconds
 
     transition.update(deltaSeconds, (alpha) => {
       springAlpha = easeOutElastic(alpha)

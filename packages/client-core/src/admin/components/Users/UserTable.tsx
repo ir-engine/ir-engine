@@ -41,7 +41,7 @@ import {
   UserType,
   userPath
 } from '@etherealengine/common/src/schema.type.module'
-import { useFind, useMutation, useSearch } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
@@ -90,7 +90,8 @@ const UserTable = ({ className, search, skipGuests }: UserProps & { skipGuests: 
     avatarId: AvatarID | JSX.Element,
     identityProviders: IdentityProviderType[],
     isGuest: string,
-    inviteCode: InviteCode | JSX.Element
+    inviteCode: InviteCode | JSX.Element,
+    lastLogin: string | null
   ): UserData => {
     const discordIp = identityProviders.find((ip) => ip.type === 'discord')
     const googleIp = identityProviders.find((ip) => ip.type === 'google')
@@ -150,6 +151,15 @@ const UserTable = ({ className, search, skipGuests }: UserProps & { skipGuests: 
           )}
         </Box>
       ),
+      lastLogin: lastLogin
+        ? new Date(lastLogin).toLocaleString('en-us', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric'
+          })
+        : '',
       isGuest,
       inviteCode,
       action: (
@@ -188,7 +198,8 @@ const UserTable = ({ className, search, skipGuests }: UserProps & { skipGuests: 
       el.avatarId || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>,
       el.identityProviders || [],
       el.isGuest.toString(),
-      el.inviteCode || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
+      el.inviteCode || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>,
+      el.lastLogin
     )
   })
 

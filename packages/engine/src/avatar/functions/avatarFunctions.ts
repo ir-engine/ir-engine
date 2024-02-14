@@ -24,12 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRM, VRM1Meta, VRMHumanBone, VRMHumanoid } from '@pixiv/three-vrm'
-import { AnimationClip, AnimationMixer, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Box3, Vector3 } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { Entity } from '../../ecs/classes/Entity'
 import {
   getComponent,
   getMutableComponent,
@@ -37,24 +35,24 @@ import {
   hasComponent,
   removeComponent,
   setComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
+import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { isClient } from '../../common/functions/getEnvironment'
-import { iOS } from '../../common/functions/isMobile'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import { XRState } from '../../xr/XRState'
 import avatarBoneMatching from '../AvatarBoneMatching'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
-import { locomotionAnimation } from '../animation/Util'
+import { preloadedAnimations } from '../animation/Util'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -62,7 +60,8 @@ import { AvatarControllerComponent } from '../components/AvatarControllerCompone
 import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
-import { bindAnimationClipFromMixamo, retargetAnimationClip } from './retargetMixamoRig'
+import { LocalAvatarState } from '../state/AvatarState'
+import { bindAnimationClipFromMixamo } from './retargetMixamoRig'
 
 declare module '@pixiv/three-vrm/types/VRM' {
   export interface VRM {
@@ -72,12 +71,12 @@ declare module '@pixiv/three-vrm/types/VRM' {
     }
   }
 }
-
 /** Checks if the asset is a VRM. If not, attempt to use
  *  Mixamo based naming schemes to autocreate necessary VRM humanoid objects. */
 export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
   const scene = model.scene ?? model // FBX assets do not have 'scene' property
   if (!scene) return null!
+
   //vrm1's vrm object is in the userData property
   if (model.userData?.vrm instanceof VRM) {
     return model.userData.vrm
@@ -89,7 +88,6 @@ export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
     model.humanoid.normalizedHumanBonesRoot.removeFromParent()
     bones.hips.node.rotateY(Math.PI)
     const humanoid = new VRMHumanoid(bones)
-    model.scene.add(humanoid.normalizedHumanBonesRoot)
     const vrm = new VRM({
       humanoid,
       scene: model.scene,
@@ -135,10 +133,14 @@ const hipsPos = new Vector3(),
   leftLowerLegPos = new Vector3(),
   leftUpperLegPos = new Vector3(),
   footGap = new Vector3(),
-  eyePos = new Vector3()
+  eyePos = new Vector3(),
+  size = new Vector3(),
+  box = new Box3()
 
 export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   iterateEntityNode(entity, computeTransformMatrix)
+
+  box.expandByObject(vrm.scene).getSize(size)
 
   const rig = vrm.humanoid.rawHumanBones
   rig.hips.node.getWorldPosition(hipsPos)
@@ -148,9 +150,10 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   rig.leftToes && rig.leftToes.node.getWorldPosition(leftToesPos)
   rig.leftLowerLeg.node.getWorldPosition(leftLowerLegPos)
   rig.leftUpperLeg.node.getWorldPosition(leftUpperLegPos)
-  rig.leftEye ? rig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos)
+  rig.leftEye ? rig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos).setY(headPos.y + 0.1) // fallback to rough estimation if no eye bone is present
 
   const avatarComponent = getMutableComponent(entity, AvatarComponent)
+  avatarComponent.avatarHeight.set(size.y)
   avatarComponent.torsoLength.set(Math.abs(headPos.y - hipsPos.y))
   avatarComponent.upperLegLength.set(Math.abs(hipsPos.y - leftLowerLegPos.y))
   avatarComponent.lowerLegLength.set(Math.abs(leftLowerLegPos.y - leftFootPos.y))
@@ -174,7 +177,7 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
 
   setObjectLayers(model.scene, ObjectLayers.Avatar)
 
-  const loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
+  const loadingEffect = getState(AnimationState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
 
   removeComponent(entity, AvatarPendingComponent)
 
@@ -187,7 +190,7 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
     })
   }
 
-  if (entity === Engine.instance.localClientEntity) getMutableState(EngineState).userReady.set(true)
+  if (entity === Engine.instance.localClientEntity) getMutableState(LocalAvatarState).avatarReady.set(true)
 }
 
 export const retargetAvatarAnimations = (entity: Entity) => {
@@ -200,79 +203,19 @@ export const retargetAvatarAnimations = (entity: Entity) => {
   }
   setComponent(entity, AnimationComponent, {
     animations: animations,
-    mixer: new AnimationMixer(rigComponent.normalizedRig.hips.node)
+    mixer: new AnimationMixer(rigComponent.vrm.humanoid.normalizedHumanBonesRoot)
   })
 }
 
-export const loadLocomotionAnimations = () => {
-  const manager = getMutableState(AnimationState)
-
-  //preload locomotion animations
-  AssetLoader.loadAsync(
-    `${config.client.fileServer}/projects/default-project/assets/animations/${locomotionAnimation}.glb`
-  ).then((locomotionAsset: GLTF) => {
-    // delete unneeded geometry data to save memory
-    locomotionAsset.scene.traverse((node) => {
-      // if ((node as Mesh).isMesh) node.removeFromParent()
-      delete (node as any).geometry
-      delete (node as any).material
-    })
-    for (let i = 0; i < locomotionAsset.animations.length; i++) {
-      retargetAnimationClip(locomotionAsset.animations[i], locomotionAsset.scene)
-    }
-    manager.loadedAnimations[locomotionAnimation].set(locomotionAsset)
-    //update avatar speed from root motion
-    // todo: refactor this for direct translation from root motion
-    setAvatarSpeedFromRootMotion()
-  })
-}
-
-/** @todo this shares duplicate functionality with loadAndPlayAvatarAnimation */
-export const loadAnimationArray = (animations: string[], subDir: string) => {
-  const manager = getMutableState(AnimationState)
-
-  for (const clipName of animations) {
-    const filePath = `${config.client.fileServer}/projects/default-project/assets/animations/${subDir}/${clipName}.fbx`
-    AssetLoader.loadAsync(filePath).then((animationsAsset: GLTF) => {
-      const stateName = filePath.split('/').pop()!.split('.')[0]
-
-      // delete unneeded geometry data to save memory
-      animationsAsset.scene.traverse((node) => {
-        // if ((node as Mesh).isMesh) node.removeFromParent()
-        delete (node as any).geometry
-        delete (node as any).material
-      })
-
-      //if no clipname specified, set first animation name to state name for lookup
-      if (animationsAsset.scene.animations.length == 0) return
-      animationsAsset.scene.animations[0].name = clipName!
-      // switch (fileType) {
-      //   case 'fbx':
-      animationsAsset.scene.animations[0].name = clipName ?? stateName
-      animationsAsset.animations = animationsAsset.animations ?? animationsAsset.scene.animations
-      //     break
-      //   case 'glb':
-      //     //if it's a glb, set the scene's animations to the asset's animations
-      //     //this lets us assume they are in the same location for both fbx and glb files
-      //     animationsAsset.animations[0].name = clipName ?? stateName
-      //     animationsAsset.animations = animationsAsset.scene.animations
-      //     break
-      // }
-
-      retargetAnimationClip(animationsAsset.animations[0], animationsAsset.scene)
-      manager.loadedAnimations[clipName].set(animationsAsset)
-    })
-  }
-}
-
-/**todo: stop using global state for avatar speed
+/**
+ * @todo: stop using global state for avatar speed
  * in future this will be derrived from the actual root motion of a
  * given avatar's locomotion animations
  */
 export const setAvatarSpeedFromRootMotion = () => {
   const manager = getState(AnimationState)
-  const run = manager.loadedAnimations[locomotionAnimation].animations[4] ?? [new AnimationClip()]
-  const walk = manager.loadedAnimations[locomotionAnimation].animations[6] ?? [new AnimationClip()]
+  const run = manager.loadedAnimations[preloadedAnimations.locomotion].animations[4] ?? [new AnimationClip()]
+  const walk = manager.loadedAnimations[preloadedAnimations.locomotion].animations[6] ?? [new AnimationClip()]
   const movement = getMutableState(AvatarMovementSettingsState)
   if (run) movement.runSpeed.set(getRootSpeed(run))
   if (walk) movement.walkSpeed.set(getRootSpeed(walk))

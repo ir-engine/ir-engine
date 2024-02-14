@@ -23,11 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
-import { defineAction, defineState, none, receiveActions } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState, none } from '@etherealengine/hyperflux'
+import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
 
 export class AvatarUIActions {
   static setUserTyping = defineAction({
@@ -44,20 +42,10 @@ export const AvatarUIState = defineState({
     usersTyping: {} as { [key: string]: true }
   },
 
-  receptors: [
-    [
-      AvatarUIActions.setUserTyping,
-      (state, action) => {
-        state.usersTyping[action.$from].set(action.typing ? true : none)
-      }
-    ]
-  ]
-})
-
-export const AvatarUIStateSystem = defineSystem({
-  uuid: 'ee.engine.avatar.AvatarUIStateSystem',
-  insert: { after: PresentationSystemGroup },
-  execute: () => {
-    receiveActions(AvatarUIState)
+  receptors: {
+    onSetUserType: AvatarUIActions.setUserTyping.receive((action) => {
+      const state = getMutableState(AvatarUIState)
+      state.usersTyping[action.$from].set(action.typing ? true : none)
+    })
   }
 })

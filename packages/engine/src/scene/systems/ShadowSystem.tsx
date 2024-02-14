@@ -34,52 +34,60 @@ import {
   Quaternion,
   Raycaster,
   Sphere,
-  Texture,
   Vector3
 } from 'three'
 
 import config from '@etherealengine/common/src/config'
-import { defineState, getMutableState, getState, hookstate, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, defineState, getMutableState, getState, hookstate, useHookstate } from '@etherealengine/hyperflux'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { CSM } from '../../assets/csm/CSM'
-import { CSMHelper } from '../../assets/csm/CSMHelper'
-import { V_001 } from '../../common/constants/MathConstants'
-import { isClient } from '../../common/functions/getEnvironment'
-import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
-  defineQuery,
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent,
-  useComponent,
-  useQuery
-} from '../../ecs/functions/ComponentFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
-import { QueryReactor, defineSystem, useExecute } from '../../ecs/functions/SystemFunctions'
-import { RendererState } from '../../renderer/RendererState'
-import { EngineRenderer, RenderSettingsState } from '../../renderer/WebGLRendererSystem'
-import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
-import { compareDistanceToCamera } from '../../transform/components/DistanceComponents'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRLightProbeState } from '../../xr/XRLightProbeSystem'
-import { isMobileXRHeadset } from '../../xr/XRState'
-import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { QueryReactor, defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem, useExecute } from '@etherealengine/ecs/src/SystemFunctions'
+import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { V_001 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import {
+  createPriorityQueue,
+  createSortAndApplyPriorityQueue
+} from '@etherealengine/spatial/src/common/functions/PriorityQueue'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { EngineRenderer, RenderSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
+import {
+  GroupComponent,
+  GroupQueryReactor,
+  addObjectToGroup
+} from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { CSM } from '@etherealengine/spatial/src/renderer/csm/CSM'
+import { CSMHelper } from '@etherealengine/spatial/src/renderer/csm/CSMHelper'
+import {
+  getShadowsEnabled,
+  useShadowsEnabled
+} from '@etherealengine/spatial/src/renderer/functions/RenderSettingsFunction'
+import { compareDistanceToCamera } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { XRLightProbeState } from '@etherealengine/spatial/src/xr/XRLightProbeSystem'
+import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
+import { useTexture } from '../../assets/functions/resourceHooks'
 import { DropShadowComponent } from '../components/DropShadowComponent'
-import { GroupComponent, GroupQueryReactor, addObjectToGroup } from '../components/GroupComponent'
-import { MeshComponent } from '../components/MeshComponent'
 import { useMeshOrModel } from '../components/ModelComponent'
-import { NameComponent } from '../components/NameComponent'
-import { ObjectLayerComponents } from '../components/ObjectLayerComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
-import { VisibleComponent } from '../components/VisibleComponent'
-import { ObjectLayers } from '../constants/ObjectLayers'
 import { SceneObjectSystem } from './SceneObjectSystem'
 
 export const ShadowSystemState = defineState({
@@ -105,6 +113,7 @@ const raycasterPosition = new Vector3()
 
 const EntityCSMReactor = (props: { entity: Entity }) => {
   const activeLightEntity = props.entity
+  const renderSettings = useHookstate(getMutableState(RenderSettingsState))
 
   const directionalLightComponent = useComponent(activeLightEntity, DirectionalLightComponent)
   const shadowMapResolution = useHookstate(getMutableState(RendererState).shadowMapResolution)
@@ -119,14 +128,15 @@ const EntityCSMReactor = (props: { entity: Entity }) => {
         light: directionalLight,
         shadowBias: directionalLightComponent.shadowBias.value,
         maxFar: directionalLightComponent.cameraFar.value,
-        lightIntensity: directionalLightComponent.intensity.value
+        lightIntensity: directionalLightComponent.intensity.value,
+        cascades: renderSettings.cascades.value
       })
     )
     return () => {
       getState(RendererState).csm?.dispose()
       getMutableState(RendererState).csm.set(null)
     }
-  }, [directionalLightComponent.useInCSM])
+  }, [directionalLightComponent.useInCSM, renderSettings.cascades])
 
   /** Must run after scene object system to ensure source light is not lit */
   useExecute(
@@ -309,16 +319,22 @@ function ShadowMeshReactor(props: { entity: Entity; obj: Mesh<any, Material> }) 
   useEffect(() => {
     obj.castShadow = shadowComponent.cast.value
     obj.receiveShadow = shadowComponent.receive.value
+  }, [shadowComponent.cast, shadowComponent.receive])
 
+  useEffect(() => {
     const csm = getState(RendererState).csm
-    if (obj.material && obj.receiveShadow) {
-      csm?.setupMaterial(obj)
+    if (!csm || !obj.receiveShadow) return
+
+    if (obj.material) {
+      csm.setupMaterial(obj)
     }
 
     return () => {
-      if (obj.material) csm?.teardownMaterial(obj.material)
+      if (obj.material) {
+        csm.teardownMaterial(obj.material)
+      }
     }
-  }, [shadowComponent.cast, shadowComponent.receive, csm])
+  }, [shadowComponent.receive, csm])
 
   return null
 }
@@ -331,7 +347,7 @@ const sortedEntityTransforms = [] as Entity[]
 const cameraLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Camera], MeshComponent])
 
 const updateDropShadowTransforms = () => {
-  const { deltaSeconds } = getState(EngineState)
+  const { deltaSeconds } = getState(ECSState)
   const { priorityQueue } = getState(ShadowSystemState)
 
   sortAndApplyPriorityQueue(priorityQueue, sortedEntityTransforms, deltaSeconds)
@@ -397,15 +413,22 @@ const reactor = () => {
 
   const useShadows = useShadowsEnabled()
 
+  const [shadowTexture, unload] = useTexture(
+    `${config.client.fileServer}/projects/default-project/assets/drop-shadow.png`
+  )
+
   useEffect(() => {
-    AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/assets/drop-shadow.png`).then(
-      (texture: Texture) => {
-        shadowMaterial.map = texture
-        shadowMaterial.needsUpdate = true
-        shadowState.set(shadowMaterial)
-      }
-    )
+    return unload
   }, [])
+
+  useEffect(() => {
+    const texture = shadowTexture.get(NO_PROXY)
+    if (!texture) return
+
+    shadowMaterial.map = texture
+    shadowMaterial.needsUpdate = true
+    shadowState.set(shadowMaterial)
+  }, [shadowTexture])
 
   EngineRenderer.instance.renderer.shadowMap.enabled = EngineRenderer.instance.renderer.shadowMap.autoUpdate =
     useShadows

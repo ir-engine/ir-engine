@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Vector3 } from 'three'
 
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { getHandTarget } from '../components/AvatarIKComponents'
 
 export const interactiveReachDistance = 3

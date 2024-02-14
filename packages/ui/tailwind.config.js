@@ -24,29 +24,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-
 /** @type {import('tailwindcss').Config} */
 
 module.exports = {
   mode: 'jit',
   content: [
-    './src/**/*.{js,jsx,ts,tsx}',
+    '../**/*.{ts,tsx}',
   ],
   darkMode: "class",
   important: true, // important in prod is must be
-  theme: ["default"],
-  daisyui: {
-    themes: ['default', 'dark', 'vaporwave'],
-    // daisyUI config (optional)
-    styled: true,
-    base: false,
-    utils: true,
-    logs: false,
-    rtl: false,
-    prefix: "",
-    darkTheme: "dark",
-  },
-  plugins: [
-    require("daisyui"),
-  ],
+  theme: {
+    extend: {
+      textColor: {
+        theme: {
+          primary: "var(--text-primary)",
+          secondary: "var(--text-secondary)",
+          highlight: "var(--text-highlight)"
+        }
+      },
+      backgroundColor: {
+        theme: {
+          primary: "var(--bg-primary)",
+          secondary: "var(--bg-secondary)",
+          highlight: "var(--bg-highlight)"
+        }
+      }
+    }
+  }
 }

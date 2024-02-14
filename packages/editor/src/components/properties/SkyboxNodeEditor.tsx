@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SkyTypeEnum } from '@etherealengine/engine/src/scene/constants/SkyTypeEnum'
@@ -178,7 +178,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
   // creating editor view for equirectangular Settings
   const renderEquirectangularSettings = () => (
     <InputGroup name="Texture" label={t('editor:properties.skybox.lbl-texture')}>
-      <ImageInput value={skyboxComponent.equirectangularPath.value} onChange={onChangeEquirectangularPathOption} />
+      <ImageInput value={skyboxComponent.equirectangularPath.value} onRelease={onChangeEquirectangularPathOption} />
       {hasError && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.skybox.error-url')}</div>}
     </InputGroup>
   )
@@ -186,7 +186,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
   // creating editor view for cubemap Settings
   const renderCubemapSettings = () => (
     <InputGroup name="Texture" label={t('editor:properties.skybox.lbl-texture')}>
-      <FolderInput value={skyboxComponent.cubemapPath.value} onChange={onChangeCubemapPathOption} />
+      <FolderInput value={skyboxComponent.cubemapPath.value} onRelease={onChangeCubemapPathOption} />
       {hasError && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.skybox.error-url')}</div>}
     </InputGroup>
   )

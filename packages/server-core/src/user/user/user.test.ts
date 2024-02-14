@@ -27,7 +27,7 @@ import assert from 'assert'
 import { v1 } from 'uuid'
 
 import { AvatarType, avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'

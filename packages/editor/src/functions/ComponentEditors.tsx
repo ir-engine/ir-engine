@@ -23,27 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Component } from '@etherealengine/ecs/src/ComponentFunctions'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
-import { Component } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { AmbientLightComponent } from '@etherealengine/engine/src/scene/components/AmbientLightComponent'
 import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
-import { ColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'
-import { DirectionalLightComponent } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { FogSettingsComponent } from '@etherealengine/engine/src/scene/components/FogSettingsComponent'
 import { GroundPlaneComponent } from '@etherealengine/engine/src/scene/components/GroundPlaneComponent'
-import { HemisphereLightComponent } from '@etherealengine/engine/src/scene/components/HemisphereLightComponent'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
+import { AmbientLightComponent } from '@etherealengine/spatial/src/renderer/components/AmbientLightComponent'
+import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
+import { HemisphereLightComponent } from '@etherealengine/spatial/src/renderer/components/HemisphereLightComponent'
 // import { InstancingComponent } from '@etherealengine/engine/src/scene/components/InstancingComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
-import { MeshComponent } from '@etherealengine/engine/src/scene/components/MeshComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
-import { PointLightComponent } from '@etherealengine/engine/src/scene/components/PointLightComponent'
 import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
@@ -53,18 +50,19 @@ import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/Sky
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
 import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
-import { SpotLightComponent } from '@etherealengine/engine/src/scene/components/SpotLightComponent'
 import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
-import { PersistentAnchorComponent } from '@etherealengine/engine/src/xr/XRAnchorComponents'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { PointLightComponent } from '@etherealengine/spatial/src/renderer/components/PointLightComponent'
+import { SpotLightComponent } from '@etherealengine/spatial/src/renderer/components/SpotLightComponent'
+import { PersistentAnchorComponent } from '@etherealengine/spatial/src/xr/XRAnchorComponents'
 
 // import ChairIcon from '@mui/icons-material/Chair'
 
 import AmbientLightNodeEditor from '../components/properties/AmbientLightNodeEditor'
 import { CameraPropertiesNodeEditor } from '../components/properties/CameraPropertiesNodeEditor'
-import ColliderNodeEditor from '../components/properties/ColliderNodeEditor'
 import DirectionalLightNodeEditor from '../components/properties/DirectionalLightNodeEditor'
 import EnvMapBakeNodeEditor from '../components/properties/EnvMapBakeNodeEditor'
 import EnvMapEditor from '../components/properties/EnvMapEditor'
@@ -79,8 +77,15 @@ import BehaveGraphNodeEditor from '../components/properties/BehaveGraphNodeEdito
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 
+import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
+import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
+import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
+import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
+import ColliderComponentEditor from '../components/properties/ColliderComponentEditor'
 import LinkNodeEditor from '../components/properties/LinkNodeEditor'
 import LoopAnimationNodeEditor from '../components/properties/LoopAnimationNodeEditor'
 import MediaNodeEditor from '../components/properties/MediaNodeEditor'
@@ -88,6 +93,7 @@ import { MediaSettingsEditor } from '../components/properties/MediaSettingsEdito
 import { MeshNodeEditor } from '../components/properties/MeshNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
 import MountPointNodeEditor from '../components/properties/MountPointNodeEditor'
+import ObjectGridSnapEditor from '../components/properties/ObjectGridSnapEditor'
 import ParticleSystemNodeEditor from '../components/properties/ParticleSystemNodeEditor'
 import PersistentAnchorNodeEditor from '../components/properties/PersistentAnchorNodeEditor'
 import PointLightNodeEditor from '../components/properties/PointLightNodeEditor'
@@ -96,8 +102,11 @@ import PositionalAudioNodeEditor from '../components/properties/PositionalAudioN
 import { PostProcessingSettingsEditor } from '../components/properties/PostProcessingSettingsEditor'
 import PrimitiveGeometryNodeEditor from '../components/properties/PrimitiveGeometryNodeEditor'
 import { RenderSettingsEditor } from '../components/properties/RenderSettingsEditor'
+import RigidBodyComponentEditor from '../components/properties/RigidbodyComponentEditor'
+import SDFEditor from '../components/properties/SDFEditor'
 import SceneNodeEditor from '../components/properties/SceneNodeEditor'
 import ScenePreviewCameraNodeEditor from '../components/properties/ScenePreviewCameraNodeEditor'
+import { SceneSettingsEditor } from '../components/properties/SceneSettingsEditor'
 import ShadowProperties from '../components/properties/ShadowProperties'
 import SkyboxNodeEditor from '../components/properties/SkyboxNodeEditor'
 import SpawnPointNodeEditor from '../components/properties/SpawnPointNodeEditor'
@@ -106,12 +115,14 @@ import { SplineTrackNodeEditor } from '../components/properties/SplineTrackNodeE
 import SpotLightNodeEditor from '../components/properties/SpotLightNodeEditor'
 import SystemNodeEditor from '../components/properties/SystemNodeEditor'
 import TextNodeEditor from '../components/properties/TextNodeEditor'
+import TriggerComponentEditor from '../components/properties/TriggerComponentEditor'
 import { EditorComponentType } from '../components/properties/Util'
 import { VariantNodeEditor } from '../components/properties/VariantNodeEditor'
 import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
 
 export const EntityNodeEditor = new Map<Component, EditorComponentType>()
+EntityNodeEditor.set(SceneSettingsComponent, SceneSettingsEditor)
 EntityNodeEditor.set(PostProcessingComponent, PostProcessingSettingsEditor)
 EntityNodeEditor.set(MediaSettingsComponent, MediaSettingsEditor)
 EntityNodeEditor.set(RenderSettingsComponent, RenderSettingsEditor)
@@ -120,8 +131,10 @@ EntityNodeEditor.set(CameraSettingsComponent, CameraPropertiesNodeEditor)
 EntityNodeEditor.set(DirectionalLightComponent, DirectionalLightNodeEditor)
 EntityNodeEditor.set(HemisphereLightComponent, HemisphereLightNodeEditor)
 EntityNodeEditor.set(AmbientLightComponent, AmbientLightNodeEditor)
+EntityNodeEditor.set(ObjectGridSnapComponent, ObjectGridSnapEditor)
 EntityNodeEditor.set(PointLightComponent, PointLightNodeEditor)
 EntityNodeEditor.set(SpotLightComponent, SpotLightNodeEditor)
+EntityNodeEditor.set(SDFComponent, SDFEditor)
 EntityNodeEditor.set(GroundPlaneComponent, GroundPlaneNodeEditor)
 EntityNodeEditor.set(MeshComponent, MeshNodeEditor)
 EntityNodeEditor.set(ModelComponent, ModelNodeEditor)
@@ -131,7 +144,9 @@ EntityNodeEditor.set(ParticleSystemComponent, ParticleSystemNodeEditor)
 EntityNodeEditor.set(PrimitiveGeometryComponent, PrimitiveGeometryNodeEditor)
 EntityNodeEditor.set(PortalComponent, PortalNodeEditor)
 EntityNodeEditor.set(MountPointComponent, MountPointNodeEditor)
-EntityNodeEditor.set(ColliderComponent, ColliderNodeEditor)
+EntityNodeEditor.set(RigidBodyComponent, RigidBodyComponentEditor)
+EntityNodeEditor.set(ColliderComponent, ColliderComponentEditor)
+EntityNodeEditor.set(TriggerComponent, TriggerComponentEditor)
 EntityNodeEditor.set(SceneTagComponent, SceneNodeEditor)
 EntityNodeEditor.set(ScenePreviewCameraComponent, ScenePreviewCameraNodeEditor)
 EntityNodeEditor.set(SkyboxComponent, SkyboxNodeEditor)

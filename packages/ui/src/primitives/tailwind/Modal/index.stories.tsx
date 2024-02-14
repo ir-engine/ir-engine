@@ -27,8 +27,6 @@ import React from 'react'
 
 import Component from './index'
 
-const argTypes = {}
-
 export default {
   title: 'Primitives/Tailwind/Modal',
   component: Component,
@@ -39,47 +37,16 @@ export default {
       type: 'figma',
       url: ''
     }
-  },
-  decorators: [
-    (Story, props) => (
-      <>
-        <button
-          className="btn"
-          onClick={() => {
-            if (window.globalThis[props?.args?.id]) {
-              window.globalThis[props?.args?.id]?.showModal()
-            }
-          }}
-        >
-          open modal
-        </button>
-        <Story />
-      </>
-    )
-  ],
-  argTypes
+  }
 }
 
 export const Default = {
   args: {
-    ...Component.defaultProps,
-    id: 'test_modal',
+    title: 'Default Modal Title',
     children: (
       <>
-        <h3 className="font-bold text-lg">Hello!</h3>
-        <p className="py-4">Press ESC key or click the button below to close</p>
-        <div className="modal-action">
-          {/* if there is a button in form, it will close the modal */}
-          <button className="btn">Close</button>
-        </div>
+        <h3 className="text-lg font-bold">Hello!</h3>
       </>
     )
-  }
-}
-
-export const Open = {
-  args: {
-    ...Default.args,
-    className: 'visible opacity-100'
   }
 }

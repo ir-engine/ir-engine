@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import { useComponent, useOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import {
   MediaComponent,
@@ -141,7 +141,6 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         name="Source Paths"
         prefix="Content"
         values={media.resources.value}
-        onChange={updateProperty(MediaComponent, 'resources')}
         onRelease={commitProperty(MediaComponent, 'resources')}
         label={t('editor:properties.media.paths')}
         acceptFileTypes={AllFileTypes}

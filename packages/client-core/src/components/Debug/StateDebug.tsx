@@ -22,17 +22,30 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { JSONTree } from 'react-json-tree'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { defineState, getMutableState, syncStateWithLocalStorage, useHookstate } from '@etherealengine/hyperflux'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import {
+  NO_PROXY,
+  NO_PROXY_STEALTH,
+  StateDefinitions,
+  defineState,
+  getMutableState,
+  syncStateWithLocalStorage,
+  useHookstate
+} from '@etherealengine/hyperflux'
 
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 import styles from './styles.module.scss'
 
 const labelRenderer = (data: Record<string | number, any>) => {
-  return (keyPath: (string | number)[]) => {
+  return (keyPath: (string | number)[], ...args) => {
     const key = keyPath[0]
     if (keyPath.length === 2 && typeof key === 'number') {
-      return <strong>{data[key].type}</strong>
+      return <strong>{Array.isArray(data[key].type) ? data[key].type[0] : data[key].type}</strong>
+    }
+    if (keyPath.length === 4 && typeof key === 'number') {
+      const actions = data[keyPath[2]].actions
+      return <strong>{Array.isArray(actions[key].type) ? actions[key].type[0] : actions[key].type}</strong>
     }
     return <strong>{key}</strong>
   }
@@ -49,19 +62,29 @@ const StateSearchState = defineState({
 })
 
 export function StateDebug() {
-  useHookstate(getMutableState(EngineState).frameTime).value
+  useHookstate(getMutableState(ECSState).frameTime).value
   const { t } = useTranslation()
 
   const stateSearch = useHookstate(getMutableState(StateSearchState).search)
 
   const state =
     stateSearch.value === ''
-      ? Engine.instance.store.valueMap
+      ? Engine.instance.store.stateMap
       : Object.fromEntries(
-          Object.entries(Engine.instance.store.valueMap).filter(([key]) =>
-            key.toLowerCase().includes(stateSearch.value)
-          )
+          Object.entries(Engine.instance.store.stateMap)
+            .filter(([key]) => key.toLowerCase().includes(stateSearch.value))
+            .map(([key, value]) => [key, value.get(NO_PROXY_STEALTH)])
         )
+
+  const actionHistory = [...Engine.instance.store.actions.history].sort((a, b) => a.$time - b.$time)
+  const cachedHistory = [...Engine.instance.store.actions.cached].sort((a, b) => a.$time - b.$time)
+  const eventSourcedHistory = Object.fromEntries(
+    [...StateDefinitions.entries()]
+      .filter(([name, state]) => state.receptorActionQueue)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, value]) => [key, value.receptorActionQueue!.instance])
+  )
+  const networks = useHookstate(getMutableState(NetworkState).networks).get(NO_PROXY)
 
   return (
     <>
@@ -76,18 +99,30 @@ export function StateDebug() {
         <JSONTree data={state} />
       </div>
       <div className={styles.jsonPanel}>
+        <h1>{t('common:debug.eventSourcedState')}</h1>
+        <JSONTree
+          data={eventSourcedHistory}
+          labelRenderer={labelRenderer(eventSourcedHistory)}
+          shouldExpandNodeInitially={() => false}
+        />
+      </div>
+      <div className={styles.jsonPanel}>
+        <h1>{t('common:debug.networks')}</h1>
+        <JSONTree data={networks} shouldExpandNodeInitially={() => false} />
+      </div>
+      <div className={styles.jsonPanel}>
         <h1>{t('common:debug.actionsHistory')}</h1>
         <JSONTree
-          data={Engine.instance.store.actions.history}
-          labelRenderer={labelRenderer(Engine.instance.store.actions.history)}
+          data={actionHistory}
+          labelRenderer={labelRenderer(actionHistory)}
           shouldExpandNodeInitially={() => false}
         />
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.actionsCached')}</h1>
         <JSONTree
-          data={Engine.instance.store.actions.cached}
-          labelRenderer={labelRenderer(Engine.instance.store.actions.cached)}
+          data={cachedHistory}
+          labelRenderer={labelRenderer(cachedHistory)}
           shouldExpandNodeInitially={() => false}
         />
       </div>

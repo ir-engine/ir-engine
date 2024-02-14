@@ -208,7 +208,7 @@ export interface GeometryInput {
   targets: Record<string, GLBTarget | DRACOTarget | UniformSolveTarget>
 }
 
-export type TextureFormat = 'ktx2' | 'astc/ktx2'
+export type TextureFormat = 'ktx2' | 'astc/ktx2' | 'video'
 
 export interface TextureTarget {
   /**
@@ -425,5 +425,6 @@ export const FORMAT_TO_EXTENSION: Record<AudioFileFormat | GeometryFormat | Text
   glb: '.glb',
   'uniform-solve': '.glb',
   ktx2: '.ktx2',
-  'astc/ktx2': '.ktx2'
+  'astc/ktx2': '.ktx2',
+  video: '.mp4'
 }

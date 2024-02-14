@@ -27,13 +27,9 @@ import Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
-import { State, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { AudioState } from '../../audio/AudioState'
-import { removePannerNode } from '../../audio/PositionalAudioFunctions'
-import { isClient } from '../../common/functions/getEnvironment'
-import { Entity } from '../../ecs/classes/Entity'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   defineComponent,
   getComponent,
@@ -44,19 +40,24 @@ import {
   setComponent,
   useComponent,
   useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { RendererState } from '../../renderer/RendererState'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { ObjectLayers } from '../constants/ObjectLayers'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { useTexture } from '../../assets/functions/resourceHooks'
+import { AudioState } from '../../audio/AudioState'
+import { removePannerNode } from '../../audio/PositionalAudioFunctions'
 import { PlayMode } from '../constants/PlayMode'
 import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
 import isHLS from '../functions/isHLS'
-import { setObjectLayers } from '../functions/setObjectLayers'
-import { addObjectToGroup } from './GroupComponent'
-import { NameComponent } from './NameComponent'
-import { setVisibleComponent } from './VisibleComponent'
 
 const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png'
 
@@ -481,15 +482,22 @@ export function MediaReactor() {
   )
 
   const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
+  const [audioHelperTexture, unload] = useTexture(debugEnabled.value ? AUDIO_TEXTURE_PATH : '', entity)
+
+  useEffect(() => {
+    if (!audioHelperTexture.value) return
+    return unload
+  }, [audioHelperTexture])
 
   useEffect(() => {
     if (!debugEnabled.value) return
 
     const helper = new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide }))
     helper.name = `audio-helper-${entity}`
-    AssetLoader.loadAsync(AUDIO_TEXTURE_PATH).then((AUDIO_HELPER_TEXTURE) => {
-      helper.material.map = AUDIO_HELPER_TEXTURE
-    })
+    if (audioHelperTexture.value) {
+      const texture = audioHelperTexture.get(NO_PROXY)
+      helper.material.map = texture
+    }
 
     const helperEntity = createEntity()
     addObjectToGroup(helperEntity, helper)
@@ -503,7 +511,7 @@ export function MediaReactor() {
       removeEntity(helperEntity)
       media.helperEntity.set(none)
     }
-  }, [debugEnabled])
+  }, [debugEnabled, audioHelperTexture])
 
   return null
 }
