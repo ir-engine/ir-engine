@@ -438,15 +438,25 @@ const createEventSourceQueues = (action: Required<ResolvedActionType>) => {
         receptorActionQueue.resync()
       }
 
+      let hasNewActions = false
+
       // apply each action to each matching receptor, in order
       for (const action of receptorActionQueue()) {
         for (const receptor of Object.values(definition.receptors!)) {
           try {
-            receptor.matchesAction.test(action) && receptor(action)
+            if (receptor.matchesAction.test(action)) {
+              receptor(action)
+              hasNewActions = true
+            }
           } catch (e) {
             logger.error(e)
           }
         }
+      }
+
+      // if new actions were applied, synchronously run the reactor
+      if (hasNewActions && HyperFlux.store.stateReactors[definition.name]) {
+        HyperFlux.store.stateReactors[definition.name].run(true)
       }
     }
 
