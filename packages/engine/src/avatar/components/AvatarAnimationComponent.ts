@@ -107,8 +107,6 @@ export const AvatarRigComponent = defineComponent({
       rawRig: null! as VRMHumanBones,
       /** contains ik solve data */
       ikMatrices: {} as Record<VRMHumanBoneName, Matrices>,
-      /** clone of the normalized rig that is used for the ik pass */
-      ikRig: null! as VRMHumanBones,
       helperEntity: null as Entity | null,
       /** The VRM model */
       vrm: null! as VRM,
@@ -120,7 +118,6 @@ export const AvatarRigComponent = defineComponent({
     if (!json) return
     if (matches.object.test(json.normalizedRig)) component.normalizedRig.set(json.normalizedRig)
     if (matches.object.test(json.rawRig)) component.rawRig.set(json.rawRig)
-    if (matches.object.test(json.ikRig)) component.ikRig.set(json.ikRig)
     if (matches.object.test(json.vrm)) component.vrm.set(json.vrm as VRM)
     if (matches.string.test(json.avatarURL)) component.avatarURL.set(json.avatarURL)
   },
@@ -201,24 +198,6 @@ export const AvatarRigComponent = defineComponent({
         if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
       }
     }, [rigComponent.vrm])
-
-    useEffect(() => {
-      if (!rigComponent.normalizedRig.value) return
-      const rig = getComponent(entity, AvatarRigComponent)
-      rig.normalizedRig.hips.node.updateWorldMatrix(false, true)
-      rig.ikMatrices['rightUpperArm'] = {
-        world: new Matrix4().copy(rig.normalizedRig.rightUpperArm.node.matrixWorld),
-        local: new Matrix4().copy(rig.normalizedRig.rightUpperArm.node.matrix)
-      }
-      rig.ikMatrices['rightLowerArm'] = {
-        world: new Matrix4().copy(rig.normalizedRig.rightLowerArm.node.matrixWorld),
-        local: new Matrix4().copy(rig.normalizedRig.rightLowerArm.node.matrix)
-      }
-      rig.ikMatrices['rightHand'] = {
-        world: new Matrix4().copy(rig.normalizedRig.rightHand.node.matrixWorld),
-        local: new Matrix4().copy(rig.normalizedRig.rightHand.node.matrix)
-      }
-    }, [rigComponent.normalizedRig])
 
     useEffect(() => {
       if (!locomotionAnimationState?.value) return

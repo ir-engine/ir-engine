@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRM, VRM1Meta, VRMHumanBone, VRMHumanoid } from '@pixiv/three-vrm'
-import { AnimationClip, AnimationMixer, Box3, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Box3, Matrix4, Vector3 } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
@@ -143,15 +143,15 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
 
   box.expandByObject(vrm.scene).getSize(size)
 
-  const rig = vrm.humanoid.rawHumanBones
-  rig.hips.node.getWorldPosition(hipsPos)
-  rig.head.node.getWorldPosition(headPos)
-  rig.leftFoot.node.getWorldPosition(leftFootPos)
-  rig.rightFoot.node.getWorldPosition(rightFootPos)
-  rig.leftToes && rig.leftToes.node.getWorldPosition(leftToesPos)
-  rig.leftLowerLeg.node.getWorldPosition(leftLowerLegPos)
-  rig.leftUpperLeg.node.getWorldPosition(leftUpperLegPos)
-  rig.leftEye ? rig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos).setY(headPos.y + 0.1) // fallback to rough estimation if no eye bone is present
+  const rawRig = vrm.humanoid.rawHumanBones
+  rawRig.hips.node.getWorldPosition(hipsPos)
+  rawRig.head.node.getWorldPosition(headPos)
+  rawRig.leftFoot.node.getWorldPosition(leftFootPos)
+  rawRig.rightFoot.node.getWorldPosition(rightFootPos)
+  rawRig.leftToes && rawRig.leftToes.node.getWorldPosition(leftToesPos)
+  rawRig.leftLowerLeg.node.getWorldPosition(leftLowerLegPos)
+  rawRig.leftUpperLeg.node.getWorldPosition(leftUpperLegPos)
+  rawRig.leftEye ? rawRig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos).setY(headPos.y + 0.1) // fallback to rough estimation if no eye bone is present
 
   const avatarComponent = getMutableComponent(entity, AvatarComponent)
   avatarComponent.avatarHeight.set(size.y)
@@ -163,8 +163,26 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   avatarComponent.footHeight.set(leftFootPos.y)
   avatarComponent.footGap.set(footGap.subVectors(leftFootPos, rightFootPos).length())
   // angle from ankle to toes along YZ plane
-  rig.leftToes &&
+  rawRig.leftToes &&
     avatarComponent.footAngle.set(Math.atan2(leftFootPos.z - leftToesPos.z, leftFootPos.y - leftToesPos.y))
+
+  //set ik matrices
+
+  const rig = vrm.humanoid.normalizedHumanBones
+  rig.hips.node.updateWorldMatrix(false, true)
+  const rigComponent = getComponent(entity, AvatarRigComponent)
+  rigComponent.ikMatrices['rightUpperArm'] = {
+    world: new Matrix4().copy(rig.rightUpperArm.node.matrixWorld),
+    local: new Matrix4().copy(rig.rightUpperArm.node.matrix)
+  }
+  rigComponent.ikMatrices['rightLowerArm'] = {
+    world: new Matrix4().copy(rig.rightLowerArm.node.matrixWorld),
+    local: new Matrix4().copy(rig.rightLowerArm.node.matrix)
+  }
+  rigComponent.ikMatrices['rightHand'] = {
+    world: new Matrix4().copy(rig.rightHand.node.matrixWorld),
+    local: new Matrix4().copy(rig.rightHand.node.matrix)
+  }
 }
 
 /**Kicks off avatar animation loading and setup. Called after an avatar's model asset is

@@ -54,11 +54,12 @@ import { compareDistanceToCamera } from '@etherealengine/spatial/src/transform/c
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { XRLeftHandComponent, XRRightHandComponent } from '@etherealengine/spatial/src/xr/XRComponents'
 import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
-import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
+import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
 import { AvatarHeadDecapComponent, AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
 import { IKSerialization } from '../IKSerialization'
+import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets, preloadedAnimations } from '../animation/Util'
 import { applyHandRotationFK } from '../animation/applyHandRotationFK'
@@ -140,7 +141,7 @@ const execute = () => {
     }
   }
 
-  //updateAnimationGraph(avatarAnimationEntities)
+  updateAnimationGraph(avatarAnimationEntities)
 
   for (const entity of avatarAnimationEntities) {
     const rigComponent = getComponent(entity, AvatarRigComponent)
@@ -213,28 +214,19 @@ const execute = () => {
         _hint
       )
 
-      rigComponent.ikMatrices.rightUpperArm.world.identity()
-      rigComponent.ikMatrices.rightUpperArm.world.multiplyMatrices(
-        rigComponent.normalizedRig.rightUpperArm.node.parent!.matrixWorld,
-        rigComponent.ikMatrices.rightUpperArm.local
-      )
-
       solveTwoBoneIK(
-        VRMHumanBoneName.RightUpperArm,
-        VRMHumanBoneName.RightLowerArm,
-        VRMHumanBoneName.RightHand,
+        transform.position,
+        transform.rotation,
+        rigComponent.ikMatrices.rightUpperArm!,
+        rigComponent.ikMatrices.rightLowerArm!,
+        rigComponent.ikMatrices.rightHand!,
         rightHandTransform.position,
         rightHandTransform.rotation,
-        null,
-        _hint,
-        rightHandTargetBlendWeight,
-        rightHandTargetBlendWeight,
-        1,
-        entity
+        _hint
       )
 
       //test blend code
-      normalizedRig.rightUpperArm.node.quaternion.setFromRotationMatrix(rigComponent.ikMatrices['rightUpperArm'].local)
+      normalizedRig.rightUpperArm.node.quaternion.setFromRotationMatrix(rigComponent.ikMatrices['rightUpperArm'].local) //.multiply(normalizedRig.rightUpperArm.node.parent!.getWorldQuaternion(new Quaternion()).invert())
       normalizedRig.rightLowerArm.node.quaternion.setFromRotationMatrix(rigComponent.ikMatrices['rightLowerArm'].local)
     }
 

@@ -25,9 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Bone, MathUtils, Matrix4, Mesh, Object3D, Quaternion, Vector3 } from 'three'
 
-import { Entity, getComponent } from '@etherealengine/ecs'
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
+import { Matrices } from '../components/AvatarAnimationComponent'
 
 const sqrEpsilon = 1e-8
 
@@ -67,39 +65,30 @@ const hintHelpers = {} as Record<string, Mesh>
  * @param {number} hintWeight
  */
 export function solveTwoBoneIK(
-  rootName: VRMHumanBoneName,
-  midName: VRMHumanBoneName,
-  tipName: VRMHumanBoneName,
+  fromPos: Vector3,
+  fromRot: Quaternion,
+  root: Matrices,
+  mid: Matrices,
+  tip: Matrices,
   targetPosition: Vector3, // world space
   targetRotation: Quaternion, // world space
-  rotationOffset: Quaternion | null = null,
-  hint: Vector3 | null = null,
-  targetPosWeight = 1,
-  targetRotWeight = 0,
-  hintWeight = 1,
-  entity: Entity
+  hint: Vector3 | null = null
 ) {
-  targetPos.copy(targetPosition)
+  targetPos.copy(targetPosition).sub(fromPos)
+  targetPos.applyQuaternion(fromRot.clone().invert())
   targetRot.copy(targetRotation)
 
-  const rigComponent = getComponent(entity, AvatarRigComponent)
-
-  const root = rigComponent.ikMatrices[rootName]!
-  const mid = rigComponent.ikMatrices[midName]!
-  const tip = rigComponent.ikMatrices[tipName]!
-
   rootBoneWorldPosition.setFromMatrixPosition(root.world)
-  mid.world.multiplyMatrices(root.world, mid.local)
 
+  mid.world.multiplyMatrices(root.world, mid.local)
   midBoneWorldPosition.setFromMatrixPosition(mid.world)
+
   tip.world.multiplyMatrices(mid.world, tip.local)
   tipBoneWorldPosition.setFromMatrixPosition(tip.world)
+
   rootBoneWorldQuaternion.setFromRotationMatrix(root.world)
   midBoneWorldQuaternion.setFromRotationMatrix(mid.world)
   tipBoneWorldQuaternion.setFromRotationMatrix(tip.world)
-
-  /** Apply target position weight */
-  if (targetPosWeight) targetPos.lerp(tipBoneWorldPosition, 1 - targetPosWeight)
 
   rootToMidVector.subVectors(midBoneWorldPosition, rootBoneWorldPosition)
   midToTipVector.subVectors(tipBoneWorldPosition, midBoneWorldPosition)
@@ -116,8 +105,7 @@ export function solveTwoBoneIK(
 
   const rootToTargetLength = rootToTargetVector.length()
 
-  const hasHint = hint && hintWeight > 0
-  if (hasHint) rootToHintVector.copy(hint).sub(rootBoneWorldPosition)
+  if (hint) rootToHintVector.copy(hint).sub(rootBoneWorldPosition)
 
   const oldAngle = triangleAngle(rootToTipLength, rootToMidLength, midToTipLength)
   const newAngle = triangleAngle(rootToTargetLength, rootToMidLength, midToTipLength)
@@ -136,7 +124,12 @@ export function solveTwoBoneIK(
     acNorm.copy(rootToTipVector).normalize(),
     atNorm.copy(rootToTargetVector).normalize()
   )
-  root.local.makeRotationFromQuaternion(rootBoneWorldQuaternion.premultiply(rootRot))
+
+  const newRootRotationMatrix = new Matrix4().makeRotationFromQuaternion(rootRot)
+  root.local.copy(newRootRotationMatrix)
+
+  console.log(root.local.elements)
+  //root.world.multiplyMatrices(root.world, mid.local)
   // Object3DUtils.premultiplyWorldQuaternion(rawRoot, rot)
 
   // /** Apply hint */
