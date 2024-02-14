@@ -34,10 +34,11 @@ import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/Pro
 import { ProjectBranchType, ProjectCommitType, ProjectType } from '@etherealengine/common/src/schema.type.module'
 import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { getMutableState } from '@etherealengine/hyperflux'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Label from '@etherealengine/ui/src/primitives/tailwind/Label'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
-import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
+import { ModalHeader } from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Radios from '@etherealengine/ui/src/primitives/tailwind/Radio'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
@@ -46,7 +47,19 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { CiCircleCheck, CiCircleRemove, CiWarning } from 'react-icons/ci'
 
-export default function AddEditProjectModal({ update, inputProject }: { update: boolean; inputProject?: ProjectType }) {
+export default function AddEditProjectModal({
+  update,
+  inputProject,
+  onSubmit,
+  processing,
+  submitDisabled
+}: {
+  update: boolean
+  inputProject?: ProjectType
+  onSubmit: () => void
+  submitDisabled: boolean
+  processing: boolean
+}) {
   const { t } = useTranslation()
 
   const project =
@@ -260,238 +273,260 @@ export default function AddEditProjectModal({ update, inputProject }: { update: 
   }
 
   return (
-    <Modal
-      title={update ? t('admin:components.project.updateProject') : t('admin:components.project.addProject')}
-      onClose={() => getMutableState(PopoverState).element.set(null)}
-      onSubmit={() => {}}
-      className="w-[50vw]"
-    >
-      <div className="grid gap-6">
-        <div className="grid gap-2">
-          {hasGithubProvider ? (
-            <Input
-              label={`${t('admin:components.project.destination')} (${t('admin:components.project.githubUrl')})`}
-              placeholder="https://github.com/{user}/{repo}"
-              disabled={update}
-              value={projectUpdateStatus.value?.destinationURL}
-              error={projectUpdateStatus.value?.destinationError}
-              onChange={handleChangeDestination}
-              onBlur={handleChangeDestinationRepo}
-              description={
-                !projectUpdateStatus.value?.destinationProcessing &&
-                projectUpdateStatus.value?.destinationProjectName.length > 0
-                  ? `${t('admin:components.project.destinationProjectName')}: ${projectUpdateStatus.value
-                      ?.destinationProjectName}`
-                  : undefined
-              }
-            />
+    <div className="relative max-h-full w-[50vw] max-w-2xl p-4">
+      <div className="bg-theme-primary relative rounded-lg shadow">
+        <ModalHeader
+          title={update ? t('admin:components.project.updateProject') : t('admin:components.project.addProject')}
+          onClose={() => getMutableState(PopoverState).element.set(null)}
+        />
+        <div className="w-full px-10 py-6">
+          {processing ? (
+            <LoadingCircle className="mx-auto h-1/6 w-1/6" />
           ) : (
-            <Text>{t('admin:components.project.needsGithubProvider')}</Text>
-          )}
-          {!projectUpdateStatus.value?.destinationProcessing && projectUpdateStatus.value?.destinationRepoEmpty && (
-            <Text fontSize="sm" theme="secondary">
-              {t('admin:components.project.destinationRepoEmpty')}
-            </Text>
-          )}
-          {projectUpdateStatus.value?.destinationProcessing && (
-            <div className="flex items-center gap-3">
-              <LoadingCircle className="h-6 w-6" />
-              <Text>{t('admin:components.project.destinationProcessing')}</Text>
-            </div>
-          )}
-        </div>
-
-        <div className="grid gap-2">
-          {hasGithubProvider ? (
-            <Input
-              label={`${t('admin:components.project.source')} (${t('admin:components.project.githubUrl')})`}
-              placeholder="https://github.com/{user}/{repo}"
-              disabled={update}
-              value={projectUpdateStatus.value?.sourceURL}
-              error={projectUpdateStatus.value?.sourceURLError}
-              onChange={handleChangeSource}
-              onBlur={handleChangeSourceRepo}
-              description={
-                !projectUpdateStatus.value?.destinationProcessing &&
-                projectUpdateStatus.value?.destinationProjectName.length > 0
-                  ? `${t('admin:components.project.sourceProjectName')}: ${projectUpdateStatus.value
-                      ?.destinationProjectName}`
-                  : undefined
-              }
-            />
-          ) : (
-            <Text>{t('admin:components.project.needsGithubProvider')}</Text>
-          )}
-          <div className="flex items-center gap-3">
-            <LoadingCircle className="h-6 w-6" />
-            <Text>{t('admin:components.project.destinationProcessing')}</Text>
-          </div>
-        </div>
-
-        {!projectUpdateStatus.value?.branchProcessing &&
-          projectUpdateStatus.value?.branchData &&
-          projectUpdateStatus.value?.branchData.length > 0 &&
-          projectUpdateStatus.value?.showBranchSelector && (
-            <Select
-              label={t('admin:components.project.branchData')}
-              currentValue={projectUpdateStatus.value?.selectedBranch}
-              options={branchSelectOptions}
-              error={projectUpdateStatus.value?.branchError}
-              onChange={handleChangeBranch}
-            />
-          )}
-        {projectUpdateStatus.value?.branchProcessing && (
-          <div className="flex items-center gap-3">
-            <LoadingCircle className="h-6 w-6" />
-            <Text>{t('admin:components.project.branchProcessing')}</Text>
-          </div>
-        )}
-
-        {!projectUpdateStatus.value?.commitsProcessing &&
-          projectUpdateStatus.value?.commitData &&
-          projectUpdateStatus.value?.commitData.length > 0 &&
-          projectUpdateStatus.value?.showCommitSelector && (
-            <Select
-              label={t('admin:components.project.commitData')}
-              currentValue={projectUpdateStatus.value?.selectedSHA}
-              onChange={handleCommitChange}
-              options={commitSelectOptions}
-              error={projectUpdateStatus.value?.commitError}
-              description={
-                !projectUpdateStatus.value?.commitsProcessing && projectUpdateStatus.value?.sourceProjectName.length > 0
-                  ? `${t('admin:components.project.sourceProjectName')}: ${projectUpdateStatus.value
-                      ?.sourceProjectName}`
-                  : undefined
-              }
-            />
-          )}
-        {projectUpdateStatus.value?.commitsProcessing && (
-          <div className="flex items-center gap-3">
-            <LoadingCircle className="h-6 w-6" />
-            <Text>{t('admin:components.project.commitsProcessing')}</Text>
-          </div>
-        )}
-
-        {projectUpdateStatus.value?.sourceVsDestinationProcessing && (
-          <div className="flex items-center gap-3">
-            <LoadingCircle className="h-6 w-6" />
-            <Text>{t('admin:components.project.sourceVsDestinationProcessing')}</Text>
-          </div>
-        )}
-
-        {!projectUpdateStatus.value?.branchProcessing &&
-          !projectUpdateStatus.value?.commitsProcessing &&
-          projectUpdateStatus.value?.selectedSHA &&
-          projectUpdateStatus.value?.selectedSHA.length > 0 &&
-          projectUpdateStatus.value?.commitData.length > 0 &&
-          !matchesEngineVersion && (
-            <div className="flex items-center justify-center gap-3 rounded-lg bg-[#FFFBEB] p-4 dark:bg-[#D9770633]">
-              <div>
-                <CiWarning className="h-5 w-5 bg-transparent" />
+            <div className="grid gap-6">
+              <div className="grid gap-2">
+                {hasGithubProvider ? (
+                  <Input
+                    label={`${t('admin:components.project.destination')} (${t('admin:components.project.githubUrl')})`}
+                    placeholder="https://github.com/{user}/{repo}"
+                    disabled={update}
+                    value={projectUpdateStatus.value?.destinationURL}
+                    error={projectUpdateStatus.value?.destinationError}
+                    onChange={handleChangeDestination}
+                    onBlur={handleChangeDestinationRepo}
+                    description={
+                      !projectUpdateStatus.value?.destinationProcessing &&
+                      projectUpdateStatus.value?.destinationProjectName.length > 0
+                        ? `${t('admin:components.project.destinationProjectName')}: ${projectUpdateStatus.value
+                            ?.destinationProjectName}`
+                        : undefined
+                    }
+                  />
+                ) : (
+                  <Text>{t('admin:components.project.needsGithubProvider')}</Text>
+                )}
+                {!projectUpdateStatus.value?.destinationProcessing &&
+                  projectUpdateStatus.value?.destinationRepoEmpty && (
+                    <Text fontSize="sm" theme="secondary">
+                      {t('admin:components.project.destinationRepoEmpty')}
+                    </Text>
+                  )}
+                {projectUpdateStatus.value?.destinationProcessing && (
+                  <div className="flex items-center gap-3">
+                    <LoadingCircle className="h-6 w-6" />
+                    <Text>{t('admin:components.project.destinationProcessing')}</Text>
+                  </div>
+                )}
               </div>
-              <Text>{t('admin:components.project.mismatchedProjectWarning')}</Text>
+
+              <div className="grid gap-2">
+                {hasGithubProvider ? (
+                  <Input
+                    label={`${t('admin:components.project.source')} (${t('admin:components.project.githubUrl')})`}
+                    placeholder="https://github.com/{user}/{repo}"
+                    disabled={update}
+                    value={projectUpdateStatus.value?.sourceURL}
+                    error={projectUpdateStatus.value?.sourceURLError}
+                    onChange={handleChangeSource}
+                    onBlur={handleChangeSourceRepo}
+                    description={
+                      !projectUpdateStatus.value?.destinationProcessing &&
+                      projectUpdateStatus.value?.destinationProjectName.length > 0
+                        ? `${t('admin:components.project.sourceProjectName')}: ${projectUpdateStatus.value
+                            ?.destinationProjectName}`
+                        : undefined
+                    }
+                  />
+                ) : (
+                  <Text>{t('admin:components.project.needsGithubProvider')}</Text>
+                )}
+                <div className="flex items-center gap-3">
+                  <LoadingCircle className="h-6 w-6" />
+                  <Text>{t('admin:components.project.destinationProcessing')}</Text>
+                </div>
+              </div>
+
+              {!projectUpdateStatus.value?.branchProcessing &&
+                projectUpdateStatus.value?.branchData &&
+                projectUpdateStatus.value?.branchData.length > 0 &&
+                projectUpdateStatus.value?.showBranchSelector && (
+                  <Select
+                    label={t('admin:components.project.branchData')}
+                    currentValue={projectUpdateStatus.value?.selectedBranch}
+                    options={branchSelectOptions}
+                    error={projectUpdateStatus.value?.branchError}
+                    onChange={handleChangeBranch}
+                  />
+                )}
+              {projectUpdateStatus.value?.branchProcessing && (
+                <div className="flex items-center gap-3">
+                  <LoadingCircle className="h-6 w-6" />
+                  <Text>{t('admin:components.project.branchProcessing')}</Text>
+                </div>
+              )}
+
+              {!projectUpdateStatus.value?.commitsProcessing &&
+                projectUpdateStatus.value?.commitData &&
+                projectUpdateStatus.value?.commitData.length > 0 &&
+                projectUpdateStatus.value?.showCommitSelector && (
+                  <Select
+                    label={t('admin:components.project.commitData')}
+                    currentValue={projectUpdateStatus.value?.selectedSHA}
+                    onChange={handleCommitChange}
+                    options={commitSelectOptions}
+                    error={projectUpdateStatus.value?.commitError}
+                    description={
+                      !projectUpdateStatus.value?.commitsProcessing &&
+                      projectUpdateStatus.value?.sourceProjectName.length > 0
+                        ? `${t('admin:components.project.sourceProjectName')}: ${projectUpdateStatus.value
+                            ?.sourceProjectName}`
+                        : undefined
+                    }
+                  />
+                )}
+              {projectUpdateStatus.value?.commitsProcessing && (
+                <div className="flex items-center gap-3">
+                  <LoadingCircle className="h-6 w-6" />
+                  <Text>{t('admin:components.project.commitsProcessing')}</Text>
+                </div>
+              )}
+
+              {projectUpdateStatus.value?.sourceVsDestinationProcessing && (
+                <div className="flex items-center gap-3">
+                  <LoadingCircle className="h-6 w-6" />
+                  <Text>{t('admin:components.project.sourceVsDestinationProcessing')}</Text>
+                </div>
+              )}
+
+              {!projectUpdateStatus.value?.branchProcessing &&
+                !projectUpdateStatus.value?.commitsProcessing &&
+                projectUpdateStatus.value?.selectedSHA &&
+                projectUpdateStatus.value?.selectedSHA.length > 0 &&
+                projectUpdateStatus.value?.commitData.length > 0 &&
+                !matchesEngineVersion && (
+                  <div className="flex items-center justify-center gap-3 rounded-lg bg-[#FFFBEB] p-4 dark:bg-[#D9770633]">
+                    <div>
+                      <CiWarning className="h-5 w-5 bg-transparent" />
+                    </div>
+                    <Text>{t('admin:components.project.mismatchedProjectWarning')}</Text>
+                  </div>
+                )}
+
+              {projectUpdateStatus.value?.sourceVsDestinationError.length > 0 && (
+                <Text className="text-red-400">{projectUpdateStatus.value?.sourceVsDestinationError}</Text>
+              )}
+
+              {!update && (
+                <Text
+                  className={
+                    projectUpdateStatus.value?.destinationValid
+                      ? 'text-green-400'
+                      : 'text-red-400' + ' flex items-center gap-2'
+                  }
+                >
+                  {projectUpdateStatus.value?.destinationValid && <CiCircleCheck />}
+                  {!projectUpdateStatus.value?.destinationValid && <CiCircleRemove />}
+                  {t('admin:components.project.destinationURLValid')}
+                </Text>
+              )}
+
+              {!update && (
+                <Text
+                  className={
+                    projectUpdateStatus.value?.sourceValid
+                      ? 'text-green-400'
+                      : 'text-red-400' + ' flex items-center gap-2'
+                  }
+                >
+                  {projectUpdateStatus.value?.sourceValid && <CiCircleCheck />}
+                  {!projectUpdateStatus.value?.sourceValid && <CiCircleRemove />}
+                  {t('admin:components.project.sourceURLValid')}
+                </Text>
+              )}
+
+              {!update && (
+                <Text
+                  className={
+                    projectUpdateStatus.value?.sourceProjectMatchesDestination
+                      ? 'text-green-400'
+                      : 'text-red-400' + ' flex items-center gap-2'
+                  }
+                >
+                  {projectUpdateStatus.value?.sourceProjectMatchesDestination && <CiCircleCheck />}
+                  {!projectUpdateStatus.value?.sourceProjectMatchesDestination && <CiCircleRemove />}
+                  {t('admin:components.project.sourceMatchesDestination')}
+                </Text>
+              )}
+
+              <Text>{t('admin:components.project.autoUpdate')}</Text>
+              <div className="flex w-full">
+                <div className="w-1/2">
+                  <Label className="mb-4">{t('admin:components.project.autoUpdateMode')}</Label>
+                  <Radios
+                    className="grid-flow-col"
+                    options={[
+                      { name: t('admin:components.project.prod'), value: 'prod' },
+                      { name: t('admin:components.project.dev'), value: 'dev' }
+                    ]}
+                    currentValue={projectUpdateStatus.value?.updateType === 'tag' ? 'prod' : 'dev'}
+                    onChange={(value) =>
+                      ProjectUpdateService.setUpdateType(project.name, value === 'prod' ? 'tag' : 'commit')
+                    }
+                  />
+                </div>
+                <div className="w-1/2">
+                  <Select
+                    label={t('admin:components.project.autoUpdateInterval')}
+                    options={[
+                      {
+                        value: '*/5 * * * *',
+                        name: `5 ${t('admin:components.project.minutes')}`
+                      },
+                      {
+                        value: '*/30 * * * *',
+                        name: `30 ${t('admin:components.project.minutes')}`
+                      },
+                      {
+                        value: '0 * * * *',
+                        name: `1 ${t('admin:components.project.hour')}`
+                      },
+                      {
+                        value: '0 */3 * * *',
+                        name: `3 ${t('admin:components.project.hours')}`
+                      },
+                      {
+                        value: '0 */6 * * *',
+                        name: `6 ${t('admin:components.project.hours')}`
+                      },
+                      {
+                        value: '0 */12 * * *',
+                        name: `12 ${t('admin:components.project.hours')}`
+                      },
+                      {
+                        value: '0 0 * * *',
+                        name: `1 ${t('admin:components.project.day')}`
+                      }
+                    ]}
+                    currentValue={projectUpdateStatus.value?.updateSchedule || DefaultUpdateSchedule}
+                    onChange={(value) => ProjectUpdateService.setUpdateSchedule(project.name, value)}
+                  />
+                </div>
+              </div>
             </div>
           )}
+        </div>
 
-        {projectUpdateStatus.value?.sourceVsDestinationError.length > 0 && (
-          <Text className="text-red-400">{projectUpdateStatus.value?.sourceVsDestinationError}</Text>
-        )}
-
-        {!update && (
-          <Text
-            className={
-              projectUpdateStatus.value?.destinationValid
-                ? 'text-green-400'
-                : 'text-red-400' + ' flex items-center gap-2'
-            }
-          >
-            {projectUpdateStatus.value?.destinationValid && <CiCircleCheck />}
-            {!projectUpdateStatus.value?.destinationValid && <CiCircleRemove />}
-            {t('admin:components.project.destinationURLValid')}
-          </Text>
-        )}
-
-        {!update && (
-          <Text
-            className={
-              projectUpdateStatus.value?.sourceValid ? 'text-green-400' : 'text-red-400' + ' flex items-center gap-2'
-            }
-          >
-            {projectUpdateStatus.value?.sourceValid && <CiCircleCheck />}
-            {!projectUpdateStatus.value?.sourceValid && <CiCircleRemove />}
-            {t('admin:components.project.sourceURLValid')}
-          </Text>
-        )}
-
-        {!update && (
-          <Text
-            className={
-              projectUpdateStatus.value?.sourceProjectMatchesDestination
-                ? 'text-green-400'
-                : 'text-red-400' + ' flex items-center gap-2'
-            }
-          >
-            {projectUpdateStatus.value?.sourceProjectMatchesDestination && <CiCircleCheck />}
-            {!projectUpdateStatus.value?.sourceProjectMatchesDestination && <CiCircleRemove />}
-            {t('admin:components.project.sourceMatchesDestination')}
-          </Text>
-        )}
-
-        <Text>{t('admin:components.project.autoUpdate')}</Text>
-        <div className="flex w-full">
-          <div className="w-1/2">
-            <Label className="mb-4">{t('admin:components.project.autoUpdateMode')}</Label>
-            <Radios
-              className="grid-flow-col"
-              options={[
-                { name: t('admin:components.project.prod'), value: 'prod' },
-                { name: t('admin:components.project.dev'), value: 'dev' }
-              ]}
-              currentValue={projectUpdateStatus.value?.updateType === 'tag' ? 'prod' : 'dev'}
-              onChange={(value) =>
-                ProjectUpdateService.setUpdateType(project.name, value === 'prod' ? 'tag' : 'commit')
-              }
-            />
-          </div>
-          <div className="w-1/2">
-            <Select
-              label={t('admin:components.project.autoUpdateInterval')}
-              options={[
-                {
-                  value: '*/5 * * * *',
-                  name: `5 ${t('admin:components.project.minutes')}`
-                },
-                {
-                  value: '*/30 * * * *',
-                  name: `30 ${t('admin:components.project.minutes')}`
-                },
-                {
-                  value: '0 * * * *',
-                  name: `1 ${t('admin:components.project.hour')}`
-                },
-                {
-                  value: '0 */3 * * *',
-                  name: `3 ${t('admin:components.project.hours')}`
-                },
-                {
-                  value: '0 */6 * * *',
-                  name: `6 ${t('admin:components.project.hours')}`
-                },
-                {
-                  value: '0 */12 * * *',
-                  name: `12 ${t('admin:components.project.hours')}`
-                },
-                {
-                  value: '0 0 * * *',
-                  name: `1 ${t('admin:components.project.day')}`
-                }
-              ]}
-              currentValue={projectUpdateStatus.value?.updateSchedule || DefaultUpdateSchedule}
-              onChange={(value) => ProjectUpdateService.setUpdateSchedule(project.name, value)}
-            />
-          </div>
+        <div className="border-t-theme-primary grid grid-flow-col border-t px-6 py-5">
+          <Button variant="outline" onClick={() => getMutableState(PopoverState).element.set(null)}>
+            {t('common:components.cancel')}
+          </Button>
+          {onSubmit && (
+            <Button onClick={onSubmit} disabled={submitDisabled} className="place-self-end">
+              {t('common:components.confirm')}
+            </Button>
+          )}
         </div>
       </div>
-    </Modal>
+    </div>
   )
 }

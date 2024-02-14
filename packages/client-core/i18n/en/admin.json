@@ -197,7 +197,7 @@
       "destinationRepoEmpty": "The destination repo is empty",
       "destinationURLValid": "Is Destination URL valid and accessible?",
       "sourceURLValid": "Is Source URL valid and accessible?",
-      "sourceMatchesDestination": "Does Source Project matches destination, or destination empty?",
+      "sourceMatchesDestination": "Does Source Project match destination, or destination empty?",
       "changeDestination": "Change Destination Repo",
       "copyDestination": "Copy Destination",
       "autoUpdate": "Auto Update",

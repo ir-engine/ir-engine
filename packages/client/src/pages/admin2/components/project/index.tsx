@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { ProjectUpdateState } from '@etherealengine/client-core/src/admin/services/ProjectUpdateService'
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { isDev } from '@etherealengine/common/src/config'
@@ -33,12 +35,16 @@ import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiArrowPath, HiPlus } from 'react-icons/hi2'
+import AddEditProjectModal from './AddEditProjectModal'
 import ProjectTable from './ProjectTable'
 import UpdateEngineModal from './UpdateEngineModal'
 
 export default function AdminProject() {
   const { t } = useTranslation()
   const projectState = useHookstate(getMutableState(ProjectState))
+  const modalProcessing = useHookstate(false)
+
+  const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)['tempProject']).value
 
   ProjectService.useAPIListeners()
 
@@ -81,7 +87,35 @@ export default function AdminProject() {
               ? t('admin:components.project.rebuilding')
               : t('admin:components.project.updateAndRebuild')}
           </Button>
-          <Button startIcon={<HiPlus />} size="small">
+          <Button
+            startIcon={<HiPlus />}
+            size="small"
+            onClick={() => {
+              getMutableState(PopoverState).element.set(
+                <AddEditProjectModal
+                  processing={modalProcessing.value}
+                  onSubmit={async () => {
+                    modalProcessing.set(true)
+                    await ProjectService.uploadProject({
+                      sourceURL: projectUpdateStatus.sourceURL,
+                      destinationURL: projectUpdateStatus.destinationURL,
+                      name: projectUpdateStatus.projectName,
+                      reset: true,
+                      commitSHA: projectUpdateStatus.selectedSHA,
+                      sourceBranch: projectUpdateStatus.selectedBranch,
+                      updateType: projectUpdateStatus.updateType,
+                      updateSchedule: projectUpdateStatus.updateSchedule
+                    }).catch((err) => {
+                      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+                    })
+                    modalProcessing.set(false)
+                  }}
+                  submitDisabled={projectUpdateStatus ? projectUpdateStatus.submitDisabled : true}
+                  update={false}
+                />
+              )
+            }}
+          >
             {t('admin:components.project.addProject')}
           </Button>
         </div>
