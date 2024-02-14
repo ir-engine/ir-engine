@@ -168,8 +168,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
   }, [transforming])
 
   const onBakeSelected = useCallback(async () => {
-    const selectedModelEntities: Entity[] = selectionState.selectedEntities
-      .get()
+    const selectedModelEntities: Entity[] = SelectionState.getSelectedEntities()
       .filter((entity) => typeof entity !== 'string' && hasComponent(entity, ModelComponent))
       .map((entity: Entity) => entity)
     for (const entity of selectedModelEntities) {

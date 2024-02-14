@@ -27,17 +27,15 @@ import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/Comp
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { CollisionComponent } from '@etherealengine/spatial/src/physics/components/CollisionComponent'
 import { PhysicsSystem } from '@etherealengine/spatial/src/physics/systems/PhysicsSystem'
 import { ColliderHitEvent, CollisionEvents } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
-import { CallbackComponent } from '../components/CallbackComponent'
-import { ColliderComponent } from '../components/ColliderComponent'
+import { TriggerComponent } from '../components/TriggerComponent'
 
-export const triggerEnter = (entity: Entity, otherEntity: Entity, hit: ColliderHitEvent) => {
-  const triggerEntity = hit.shapeSelf.isSensor() ? entity : otherEntity
-  const triggerComponent = getComponent(triggerEntity, ColliderComponent)
-  if (!Array.isArray(triggerComponent.triggers)) return
+export const triggerEnter = (triggerEntity: Entity, otherEntity: Entity, hit: ColliderHitEvent) => {
+  const triggerComponent = getComponent(triggerEntity, TriggerComponent)
   for (const trigger of triggerComponent.triggers) {
     if (trigger.target && !UUIDComponent.getEntityByUUID(trigger.target)) continue
     const targetEntity = trigger.target ? UUIDComponent.getEntityByUUID(trigger.target) : triggerEntity
@@ -49,10 +47,8 @@ export const triggerEnter = (entity: Entity, otherEntity: Entity, hit: ColliderH
   }
 }
 
-export const triggerExit = (entity: Entity, otherEntity: Entity, hit: ColliderHitEvent) => {
-  const triggerEntity = hit.shapeSelf.isSensor() ? entity : otherEntity
-  const triggerComponent = getComponent(triggerEntity, ColliderComponent)
-  if (!Array.isArray(triggerComponent.triggers)) return
+export const triggerExit = (triggerEntity: Entity, otherEntity: Entity, hit: ColliderHitEvent) => {
+  const triggerComponent = getComponent(triggerEntity, TriggerComponent)
   for (const trigger of triggerComponent.triggers) {
     if (trigger.target && !UUIDComponent.getEntityByUUID(trigger.target)) continue
     const targetEntity = trigger.target ? UUIDComponent.getEntityByUUID(trigger.target) : triggerEntity
@@ -64,7 +60,7 @@ export const triggerExit = (entity: Entity, otherEntity: Entity, hit: ColliderHi
   }
 }
 
-const collisionQuery = defineQuery([ColliderComponent, CollisionComponent])
+const collisionQuery = defineQuery([TriggerComponent, CollisionComponent])
 
 const execute = () => {
   for (const entity of collisionQuery()) {

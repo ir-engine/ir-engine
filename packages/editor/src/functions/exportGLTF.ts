@@ -41,7 +41,8 @@ export async function exportRelativeGLTF(entity: Entity, projectName: string, re
     relativePath,
     binary: !isGLTF,
     embedImages: !isGLTF,
-    includeCustomExtensions: true
+    includeCustomExtensions: true,
+    onlyVisible: false
   })
   const blob = isGLTF ? [JSON.stringify(gltf)] : [gltf]
   const file = new File(blob, relativePath)

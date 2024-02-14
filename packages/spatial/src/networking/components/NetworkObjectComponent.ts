@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import * as bitecs from 'bitecs'
-import { useEffect } from 'react'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
@@ -43,6 +42,7 @@ import {
   useComponent,
   useEntityContext
 } from '@etherealengine/ecs'
+import { useLayoutEffect } from 'react'
 
 /** ID of last network created. */
 let availableNetworkId = 0 as NetworkId
@@ -89,13 +89,13 @@ export const NetworkObjectComponent = defineComponent({
     const entity = useEntityContext()
     const networkObject = useComponent(entity, NetworkObjectComponent)
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (networkObject.authorityPeerID.value === Engine.instance.peerID)
         setComponent(entity, NetworkObjectAuthorityTag)
       else removeComponent(entity, NetworkObjectAuthorityTag)
     }, [networkObject.authorityPeerID])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (networkObject.ownerId.value === Engine.instance.userID) setComponent(entity, NetworkObjectOwnedTag)
       else removeComponent(entity, NetworkObjectOwnedTag)
     }, [networkObject.ownerId])

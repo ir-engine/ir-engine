@@ -26,6 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import RAPIER, { ActiveCollisionTypes, RigidBodyType, ShapeType, Vector } from '@dimforge/rapier3d-compat'
 
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { Vector3 } from 'three'
+import { CollisionGroups } from '../enums/CollisionGroups'
 
 export interface Vec3 {
   x: number
@@ -75,14 +77,63 @@ export type ColliderHitEvent = {
   totalForce: null | Vector
 }
 
+/** @deprecated */
 export type ColliderDescOptions = {
   shapeType?: ShapeType
   bodyType?: RigidBodyType // TODO: This is only required at the root node, should be removed from here?
   isTrigger?: boolean
-  removeMesh?: boolean
   friction?: number
   restitution?: number
   collisionLayer?: number
   collisionMask?: number
   activeCollisionTypes?: ActiveCollisionTypes
+}
+
+export const BodyTypes = {
+  Fixed: 'fixed' as const,
+  Dynamic: 'dynamic' as const,
+  Kinematic: 'kinematic' as const
+}
+
+export type Body = (typeof BodyTypes)[keyof typeof BodyTypes]
+
+export const Shapes = {
+  Sphere: 'sphere' as const,
+  Capsule: 'capsule' as const,
+  Cylinder: 'cylinder' as const,
+  Box: 'box' as const,
+  Plane: 'plane' as const,
+  ConvexHull: 'convex_hull' as const,
+  Mesh: 'mesh' as const,
+  Heightfield: 'heightfield' as const
+}
+
+export type Shape = (typeof Shapes)[keyof typeof Shapes]
+
+export type ColliderOptions = {
+  shape: Shape
+  mass: number
+  massCenter: Vector3
+  friction: number
+  restitution: number
+  collisionLayer: CollisionGroups
+  collisionMask: CollisionGroups
+}
+
+export const OldShapeTypes = {
+  Cuboid: 'box',
+  Ball: 'sphere',
+  Cylinder: 'cylinder',
+  Capsule: 'capsule',
+  TriMesh: 'mesh',
+  box: 'box',
+  ball: 'sphere',
+  cylinder: 'cylinder',
+  capsule: 'capsule',
+  trimesh: 'mesh',
+  [1]: 'box',
+  [0]: 'sphere',
+  [10]: 'cylinder',
+  [2]: 'capsule',
+  [6]: 'mesh'
 }

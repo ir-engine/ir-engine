@@ -357,7 +357,7 @@ export const setComponent = <C extends Component>(
   // startTransition(() => {
   Component.onSet(entity, Component.stateMap[entity]!, args as Readonly<SerializedComponentType<C>>)
   const root = Component.reactorMap.get(entity)
-  if (!root?.isRunning) root?.run()
+  root?.run(true)
   // })
 }
 

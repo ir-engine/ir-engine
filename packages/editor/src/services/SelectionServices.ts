@@ -29,29 +29,29 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SelectTagComponent } from '@etherealengine/engine/src/scene/components/SelectTagComponent'
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { useEffect } from 'react'
-import { MaterialSelectionState } from '../components/materials/MaterialLibraryState'
-import { filterParentEntities } from '../functions/filterParentEntities'
 
 export const SelectionState = defineState({
   name: 'SelectionState',
   initial: {
-    selectedEntities: [] as Entity[],
-    selectedParentEntities: [] as Entity[]
+    selectedEntities: [] as EntityUUID[]
   },
-  updateSelection: (selectedEntities: Entity[]) => {
+  updateSelection: (selectedEntities: EntityUUID[]) => {
     getMutableState(MaterialSelectionState).selectedMaterial.set(null)
     getMutableState(SelectionState).merge({
-      selectedEntities: selectedEntities,
-      selectedParentEntities: filterParentEntities(selectedEntities)
+      selectedEntities: selectedEntities
     })
   },
-  getSelectedEntity: () => {
-    const entities = getState(SelectionState).selectedEntities
-    const entity = entities[entities.length - 1]
-    return entity
+  getSelectedEntities: () => {
+    return getState(SelectionState).selectedEntities.map(UUIDComponent.getEntityByUUID)
+  },
+
+  useSelectedEntities: () => {
+    return useHookstate(getMutableState(SelectionState).selectedEntities).value.map(UUIDComponent.getEntityByUUID)
   }
 })
 
@@ -59,7 +59,7 @@ const reactor = () => {
   const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities)
 
   useEffect(() => {
-    const entities = [...selectedEntities.value]
+    const entities = [...selectedEntities.value].map(UUIDComponent.getEntityByUUID)
     for (const entity of entities) {
       if (!entityExists(entity)) continue
       setComponent(entity, SelectTagComponent)

@@ -64,7 +64,7 @@ export class PortalService implements ServiceInterface<PortalType | Paginated<Po
     }
     const scenes = (await this.app
       .service(scenePath)
-      .find({ query: { metadataOnly: false, paginate: false } })) as SceneDataType[]
+      .find({ query: { metadataOnly: false, paginate: false } })) as any as SceneDataType[]
     const sceneResult = scenes.map((scene) => parseScenePortals(scene)).flat() as PortalType[]
     return paginate === false ? sceneResult : { data: sceneResult, total: sceneResult.length, limit: 0, skip: 0 }
   }
