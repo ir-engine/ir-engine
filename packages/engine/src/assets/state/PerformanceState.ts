@@ -255,8 +255,7 @@ export const buildPerformanceState = async (renderer: EngineRenderer, onFinished
 
   if (max3DTextureSize > 16000) tier += 2
   else if (max3DTextureSize > 8000) tier += 1
-  else if (max3DTextureSize > 4000) tier += 0
-  else tier = Math.max(tier - 1, 0)
+  else if (max3DTextureSize < 4000) tier = Math.max(tier - 1, 0)
 
   performance.tier.set(tier)
   onFinished()
