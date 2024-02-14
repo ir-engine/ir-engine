@@ -26,15 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { AnimationMixer, BoxGeometry, CapsuleGeometry, CylinderGeometry, Group, Scene, SphereGeometry } from 'three'
 
-import {
-  NO_PROXY,
-  NO_PROXY_STEALTH,
-  createState,
-  getMutableState,
-  getState,
-  none,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { NO_PROXY, createState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import {
   defineComponent,
@@ -221,8 +213,7 @@ function ModelReactor(): JSX.Element {
 
   // update scene
   useEffect(() => {
-    const scene = modelComponent.scene.get(NO_PROXY_STEALTH)
-    const asset = modelComponent.asset.get(NO_PROXY_STEALTH)
+    const { scene, asset, src } = getComponent(entity, ModelComponent)
 
     if (!scene || !asset) return
 
@@ -256,7 +247,7 @@ function ModelReactor(): JSX.Element {
           addError(entity, ModelComponent, 'LOADING_ERROR', 'Error compiling model')
         })
         .finally(() => {
-          SceneAssetPendingTagComponent.removeResource(entity, modelComponent.src.value)
+          SceneAssetPendingTagComponent.removeResource(entity, src)
         })
 
     return () => {
