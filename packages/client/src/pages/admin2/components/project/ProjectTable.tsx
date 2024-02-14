@@ -44,6 +44,7 @@ import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
 import { GrEdit, GrGithub } from 'react-icons/gr'
 import AddEditProjectModal from './AddEditProjectModal'
+import ManageUserPermissionModal from './ManageUserPermissionModal'
 
 const logger = multiLogger.child({ component: 'client-core:ProjectTable' })
 
@@ -140,7 +141,7 @@ export default function ProjectTable() {
           startIcon={<IoPeopleOutline />}
           size="small"
           className="bg-[#61759f] dark:bg-[#2A3753]"
-          onClick={() => {}}
+          onClick={() => PopoverState.showPopupover(<ManageUserPermissionModal project={project} />)}
         >
           {t('admin:components.project.actions.access')}
         </Button>

@@ -32,9 +32,10 @@ export interface ToggleProps {
   label?: string
   className?: string
   onChange: (value: boolean) => void
+  disabled?: boolean
 }
 
-const Toggle = ({ className, label, value, onChange }: ToggleProps) => {
+const Toggle = ({ className, label, value, onChange, disabled }: ToggleProps) => {
   const twClassName = twMerge(
     "peer relative h-6 w-11 cursor-pointer rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-['']",
     'peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:ring-4 peer-focus:ring-blue-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800',
@@ -43,7 +44,13 @@ const Toggle = ({ className, label, value, onChange }: ToggleProps) => {
 
   return (
     <div className="flex w-full items-center gap-4">
-      <input type="checkbox" className="peer sr-only" checked={value} onChange={() => onChange(!value)} />
+      <input
+        disabled={disabled}
+        type="checkbox"
+        className="peer sr-only"
+        checked={value}
+        onChange={() => onChange(!value)}
+      />
       <div className={twClassName} onClick={() => onChange(!value)} />
       {label && <Label>{label}</Label>}
     </div>
