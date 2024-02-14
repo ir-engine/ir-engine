@@ -30,7 +30,7 @@ import {
   userApiKeyDataValidator,
   userApiKeyPatchValidator,
   userApiKeyQueryValidator
-} from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+} from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import { BadRequest } from '@feathersjs/errors'

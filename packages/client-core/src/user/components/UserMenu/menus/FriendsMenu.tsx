@@ -33,13 +33,12 @@ import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Tabs from '@etherealengine/client-core/src/common/components/Tabs'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { UserID, UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { ChannelID, ChannelType, UserID, UserName, channelPath } from '@etherealengine/common/src/schema.type.module'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState } from '@etherealengine/hyperflux'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
@@ -166,7 +165,7 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
     const layerPeers = NetworkState.worldNetwork
       ? Object.values(NetworkState.worldNetwork.peers).filter(
           (peer) =>
-            peer.peerID !== 'server' &&
+            peer.peerID !== NetworkState.worldNetwork.hostPeerID &&
             peer.userId !== userId &&
             !friendState.relationships.value.find(
               (item) => item.relatedUserId === peer.userId && item.userRelationshipType === 'friend'

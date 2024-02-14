@@ -24,18 +24,27 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Quaternion, Vector3 } from 'three'
+import { AxesHelper, Quaternion, Vector3 } from 'three'
 
-import matches from 'ts-matches'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent, useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { Engine } from '@etherealengine/ecs'
+import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { NetworkObjectComponent } from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { Types } from 'bitecs'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
 
 const EPSILON = 1e-6
+const eyeOffset = 0.2
 
 export const AvatarHeadDecapComponent = defineComponent({
   name: 'AvatarHeadDecapComponent',
@@ -43,18 +52,22 @@ export const AvatarHeadDecapComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
 
-    const headDecap = useOptionalComponent(entity, AvatarHeadDecapComponent)
-    const rig = useOptionalComponent(entity, AvatarRigComponent)
+    const headDecap = useComponent(entity, AvatarHeadDecapComponent)
+    const rig = useComponent(entity, AvatarRigComponent)
 
     useEffect(() => {
-      if (!rig?.value?.vrm?.humanoid?.rawHumanBones?.head?.node || !headDecap?.value) return
+      if (!rig.rawRig.value?.head?.node || !headDecap?.value) return
 
-      rig.value.vrm.humanoid.rawHumanBones.head.node.scale.setScalar(EPSILON)
+      rig.rawRig.value.head.node.scale.setScalar(EPSILON)
+
+      const cameraComponent = getComponent(Engine.instance.cameraEntity, FollowCameraComponent)
+      cameraComponent.offset.setZ(eyeOffset)
 
       return () => {
-        rig.value.vrm.humanoid.rawHumanBones.head.node.scale.setScalar(1)
+        rig.rawRig.value.head.node.scale.setScalar(1)
+        cameraComponent.offset.setZ(0)
       }
-    }, [headDecap, rig])
+    }, [headDecap, rig.rawRig])
 
     return null
   }
@@ -68,13 +81,24 @@ export type AvatarIKTargetsType = {
 
 export const AvatarIKTargetComponent = defineComponent({
   name: 'AvatarIKTargetComponent',
+  schema: { blendWeight: Types.f64 },
 
-  onInit(entity) {
-    return { blendWeight: 0 }
-  },
+  reactor: function () {
+    const entity = useEntityContext()
+    const debugEnabled = useHookstate(getMutableState(RendererState).avatarDebug)
 
-  onSet(entity, component, json) {
-    if (json && matches.number.test(json?.blendWeight)) component.blendWeight.set(json.blendWeight)
+    useEffect(() => {
+      if (!debugEnabled.value) return
+      const helper = new AxesHelper(0.5)
+      addObjectToGroup(entity, helper)
+      setObjectLayers(helper, ObjectLayers.AvatarHelper)
+      setComponent(entity, VisibleComponent)
+      return () => {
+        removeObjectFromGroup(entity, helper)
+      }
+    }, [debugEnabled])
+
+    return null
   }
 })
 
@@ -91,8 +115,10 @@ const quat = new Quaternion()
 type HandTargetReturn = { position: Vector3; rotation: Quaternion } | null
 export const getHandTarget = (entity: Entity, hand: XRHandedness): HandTargetReturn => {
   const networkComponent = getComponent(entity, NetworkObjectComponent)
+
   const targetEntity = NameComponent.entitiesByName[networkComponent.ownerId + '_' + hand]?.[0] // todo, how should be choose which one to use?
-  if (targetEntity) return getComponent(targetEntity, TransformComponent)
+  if (targetEntity && AvatarIKTargetComponent.blendWeight[targetEntity] > 0)
+    return getComponent(targetEntity, TransformComponent)
 
   const rig = getComponent(entity, AvatarRigComponent)
   if (!rig) return getComponent(entity, TransformComponent)
@@ -100,19 +126,19 @@ export const getHandTarget = (entity: Entity, hand: XRHandedness): HandTargetRet
   switch (hand) {
     case 'left':
       return {
-        position: rig.rig.leftHand.node.getWorldPosition(vec3),
-        rotation: rig.rig.leftHand.node.getWorldQuaternion(quat)
+        position: rig.rawRig.leftHand.node.getWorldPosition(vec3),
+        rotation: rig.rawRig.leftHand.node.getWorldQuaternion(quat)
       }
     case 'right':
       return {
-        position: rig.rig.rightHand.node.getWorldPosition(vec3),
-        rotation: rig.rig.rightHand.node.getWorldQuaternion(quat)
+        position: rig.rawRig.rightHand.node.getWorldPosition(vec3),
+        rotation: rig.rawRig.rightHand.node.getWorldQuaternion(quat)
       }
     default:
     case 'none':
       return {
-        position: rig.rig.head.node.getWorldPosition(vec3),
-        rotation: rig.rig.head.node.getWorldQuaternion(quat)
+        position: rig.rawRig.head.node.getWorldPosition(vec3),
+        rotation: rig.rawRig.head.node.getWorldQuaternion(quat)
       }
   }
 }

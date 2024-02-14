@@ -33,7 +33,6 @@
     "./packages/server/upload/**"
   ],
   "include": [
-    "./**/*.ts",
-    "./**/*.tsx"
+    "scripts/*.ts"
   ]
 }

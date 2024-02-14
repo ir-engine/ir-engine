@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
-import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import { projectPermissionPath } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
 import {
   ProjectData,
   ProjectPatch,
@@ -34,7 +34,7 @@ import {
   projectPatchValidator,
   projectPath,
   projectQueryValidator
-} from '@etherealengine/engine/src/schemas/projects/project.schema'
+} from '@etherealengine/common/src/schemas/projects/project.schema'
 import fs from 'fs'
 import path from 'path'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
@@ -42,23 +42,25 @@ import verifyScope from '../../hooks/verify-scope'
 import { projectPermissionDataResolver } from '../project-permission/project-permission.resolvers'
 
 import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
-import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
-import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
-import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import { ProjectBuildUpdateItemType } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { AvatarType, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
+import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+import { ProjectBuildUpdateItemType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
+import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
+import { routePath } from '@etherealengine/common/src/schemas/route/route.schema'
+import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
+import { AvatarType, avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import {
   GithubRepoAccessType,
   githubRepoAccessPath
-} from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
+} from '@etherealengine/common/src/schemas/user/github-repo-access.schema'
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import { copyFolderRecursiveSync } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
+import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
@@ -66,10 +68,10 @@ import { Knex } from 'knex'
 import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
 import config from '../../appconfig'
+import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import enableClientPagination from '../../hooks/enable-client-pagination'
+import isAction from '../../hooks/is-action'
 import { cleanString } from '../../util/cleanString'
-import { getDateTimeSql } from '../../util/datetime-sql'
-import { copyFolderRecursiveSync } from '../../util/fsHelperFunctions'
 import { useGit } from '../../util/gitHelperFunctions'
 import { checkAppOrgStatus, checkUserOrgWriteStatus, checkUserRepoWriteStatus } from './github-helper'
 import {
@@ -96,6 +98,12 @@ import {
 const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/template-project/`)
 
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
+
+const filterDisabledProjects = (context: HookContext<ProjectService>) => {
+  if (config.allowOutOfDateProjects) return
+  if (context.params.query) context.params.query.enabled = true
+  else context.params.query = { enabled: true }
+}
 
 /**
  * Checks whether the user has push access to the project
@@ -169,7 +177,10 @@ const ensurePushStatus = async (context: HookContext<ProjectService>) => {
       })
 
       const matchingAllowedRepos = (await context.app.service(projectPath).find({
-        query: { repositoryPath: { $in: repositoryPaths } },
+        query: {
+          action: 'admin',
+          repositoryPath: { $in: repositoryPaths }
+        },
         paginate: false
       })) as ProjectType[]
 
@@ -416,13 +427,16 @@ const createProjectPermission = async (context: HookContext<ProjectService>) => 
  * @returns
  */
 const removeLocationFromProject = async (context: HookContext<ProjectService>) => {
-  await context.app.service(locationPath).remove(null, {
+  const removingLocations = await context.app.service(locationPath).find({
     query: {
       sceneId: {
         $like: `${context.name}/%` as SceneID
       }
     }
   })
+  await Promise.all(
+    removingLocations.data.map((removingLocation) => context.app.service(locationPath).remove(removingLocation.id))
+  )
 }
 
 /**
@@ -525,6 +539,7 @@ const updateProjectJob = async (context: HookContext) => {
       await jobFinishedPromise
       const result = (await context.app.service(projectPath).find({
         query: {
+          action: 'admin',
           name: {
             $like: projectName
           }
@@ -542,64 +557,75 @@ const updateProjectJob = async (context: HookContext) => {
   }
 }
 
-export default {
-  around: {
-    all: [schemaHooks.resolveExternal(projectExternalResolver), schemaHooks.resolveResult(projectResolver)]
-  },
+export default createSkippableHooks(
+  {
+    around: {
+      all: [schemaHooks.resolveExternal(projectExternalResolver), schemaHooks.resolveResult(projectResolver)]
+    },
 
-  before: {
-    all: [() => schemaHooks.validateQuery(projectQueryValidator), schemaHooks.resolveQuery(projectQueryResolver)],
-    find: [enableClientPagination(), ensurePushStatus, addLimitToParams],
-    get: [],
-    create: [
-      iff(isProvider('external'), verifyScope('editor', 'write')),
-      () => schemaHooks.validateData(projectDataValidator),
-      schemaHooks.resolveData(projectDataResolver),
-      checkIfProjectExists,
-      checkIfNameIsValid,
-      uploadLocalProject,
-      updateCreateData
-    ],
-    update: [
-      iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-      updateProjectJob
-    ],
-    patch: [
-      iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-      () => schemaHooks.validateData(projectPatchValidator),
-      schemaHooks.resolveData(projectPatchResolver),
-      iff(isProvider('external'), linkGithubToProject)
-    ],
-    remove: [
-      iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-      getProjectName,
-      runProjectUninstallScript,
-      removeProjectFiles,
-      removeLocationFromProject,
-      removeRouteFromProject,
-      removeAvatarsFromProject,
-      removeStaticResourcesFromProject,
-      removeProjectUpdate
-    ]
-  },
+    before: {
+      all: [() => schemaHooks.validateQuery(projectQueryValidator), schemaHooks.resolveQuery(projectQueryResolver)],
+      find: [
+        enableClientPagination(),
+        iffElse(isAction('admin'), [], filterDisabledProjects),
+        discardQuery('action'),
+        ensurePushStatus,
+        addLimitToParams
+      ],
+      get: [],
+      create: [
+        iff(isProvider('external'), verifyScope('editor', 'write')),
+        () => schemaHooks.validateData(projectDataValidator),
+        schemaHooks.resolveData(projectDataResolver),
+        discardQuery('studio'),
+        checkIfProjectExists,
+        checkIfNameIsValid,
+        uploadLocalProject,
+        updateCreateData
+      ],
+      update: [
+        iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
+        updateProjectJob
+      ],
+      patch: [
+        iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
+        () => schemaHooks.validateData(projectPatchValidator),
+        schemaHooks.resolveData(projectPatchResolver),
+        iff(isProvider('external'), linkGithubToProject)
+      ],
+      remove: [
+        iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
+        discardQuery('studio'),
+        getProjectName,
+        runProjectUninstallScript,
+        removeProjectFiles,
+        removeLocationFromProject,
+        removeRouteFromProject,
+        removeAvatarsFromProject,
+        removeStaticResourcesFromProject,
+        removeProjectUpdate
+      ]
+    },
 
-  after: {
-    all: [],
-    find: [addDataToProjectResult],
-    get: [],
-    create: [createProjectPermission],
-    update: [],
-    patch: [],
-    remove: []
-  },
+    after: {
+      all: [],
+      find: [addDataToProjectResult],
+      get: [],
+      create: [createProjectPermission],
+      update: [],
+      patch: [],
+      remove: []
+    },
 
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  }
-} as any
+    error: {
+      all: [],
+      find: [],
+      get: [],
+      create: [],
+      update: [],
+      patch: [],
+      remove: []
+    }
+  },
+  ['find']
+)

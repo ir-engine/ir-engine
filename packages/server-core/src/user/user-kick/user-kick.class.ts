@@ -32,7 +32,7 @@ import {
   UserKickPatch,
   UserKickQuery,
   UserKickType
-} from '@etherealengine/engine/src/schemas/user/user-kick.schema'
+} from '@etherealengine/common/src/schemas/user/user-kick.schema'
 
 export interface UserKickParams extends KnexAdapterParams<UserKickQuery> {}
 

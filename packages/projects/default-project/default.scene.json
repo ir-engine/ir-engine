@@ -4,10 +4,6 @@
     "d32b1c4e-d08e-4fb0-9107-4c88a281ee71": {
       "components": [
         {
-          "name": "visible",
-          "props": {}
-        },
-        {
           "name": "transform",
           "props": {
             "position": {
@@ -69,8 +65,8 @@
           "name": "camera-settings",
           "props": {
             "fov": 50,
-            "cameraNearClip": 0.01,
-            "cameraFarClip": 10000,
+            "cameraNearClip": 0.1,
+            "cameraFarClip": 1000,
             "projectionType": 1,
             "minCameraDistance": 1,
             "maxCameraDistance": 50,
@@ -230,6 +226,20 @@
             "toneMappingExposure": 0.8,
             "shadowMapType": 2
           }
+        },
+        {
+          "name": "scene-settings",
+          "props": {
+            "thumbnailURL": "__$project$__/default-project/default.thumbnail.jpg",
+            "loadingScreenURL": "__$project$__/default-project/default.loadingscreen.ktx2",
+            "primaryColor": "#38620D",
+            "backgroundColor": "rgb(214, 214, 211)",
+            "alternativeColor": "#376312"
+          }
+        },
+        {
+          "name": "visible",
+          "props": true
         }
       ],
       "name": "default"
@@ -464,10 +474,6 @@
           }
         },
         {
-          "name": "visible",
-          "props": {}
-        },
-        {
           "name": "directional-light",
           "props": {
             "color": 16777215,
@@ -478,6 +484,10 @@
             "shadowRadius": 1,
             "useInCSM": true
           }
+        },
+        {
+          "name": "visible",
+          "props": true
         }
       ],
       "parent": "d32b1c4e-d08e-4fb0-9107-4c88a281ee71",

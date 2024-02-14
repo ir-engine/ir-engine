@@ -23,14 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Mesh, MeshStandardMaterial, Object3D, WebGLRenderer } from 'three'
+import { MeshStandardMaterial, Object3D, WebGLRenderer } from 'three'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import iterateObject3D from '@etherealengine/engine/src/scene/util/iterateObject3D'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { runBakingPasses } from './bake'
 import { withLightScene } from './lightScene'
-import { initializeWorkbench, LIGHTMAP_READONLY_FLAG, WorkbenchSettings } from './workbench'
+import { LIGHTMAP_READONLY_FLAG, WorkbenchSettings, initializeWorkbench } from './workbench'
+
+const meshQuery = defineQuery([MeshComponent])
 
 export async function bakeLightmaps(
   target: Object3D,
@@ -38,33 +43,36 @@ export async function bakeLightmaps(
   requestWork: () => Promise<WebGLRenderer>
 ) {
   const scene = Engine.instance.scene
-  iterateObject3D(
-    scene,
-    (child: Mesh) => {
-      child?.isMesh && Object.assign(child.userData, { [LIGHTMAP_READONLY_FLAG]: true })
-    },
-    (child) => child !== target,
-    true
-  )
-  iterateObject3D(
-    target,
-    (child: Mesh) => {
-      const materials = Array.isArray(child.material) ? child.material : [child.material]
+  const meshes = meshQuery()
+  for (const entity of meshes) {
+    const mesh = getComponent(entity, MeshComponent)
+    mesh.isMesh && Object.assign(mesh.userData, { [LIGHTMAP_READONLY_FLAG]: true })
+  }
+
+  iterateEntityNode(
+    target.entity,
+    (entity) => {
+      const mesh = getComponent(entity, MeshComponent)
+      const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
       materials.map((material: MeshStandardMaterial) => {
         if (material.lightMap) {
           material.lightMap = null
         }
       })
     },
-    (child: Mesh) => child?.isMesh ?? false
+    (entity) => hasComponent(entity, MeshComponent)
   )
+
   const workbench = await initializeWorkbench(scene, props, requestWork)
   await withLightScene(workbench, async () => {
     await runBakingPasses(workbench, requestWork)
   })
-  iterateObject3D(scene, (child) => {
-    Object.prototype.hasOwnProperty.call(child.userData, LIGHTMAP_READONLY_FLAG) &&
-      Reflect.deleteProperty(child.userData, LIGHTMAP_READONLY_FLAG)
-  })
+
+  for (const entity of meshes) {
+    const mesh = getComponent(entity, MeshComponent)
+    Object.prototype.hasOwnProperty.call(mesh.userData, LIGHTMAP_READONLY_FLAG) &&
+      Reflect.deleteProperty(mesh.userData, LIGHTMAP_READONLY_FLAG)
+  }
+
   return workbench.irradiance
 }

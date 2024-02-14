@@ -35,21 +35,21 @@ import {
   WebGLRenderTarget
 } from 'three'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { defineQuery, getComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
-import { ScreenshotSettings } from '@etherealengine/engine/src/scene/classes/ImageUtils'
-import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getState } from '@etherealengine/hyperflux'
+import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
-import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { EditorState } from '../services/EditorServices'
 import { getCanvasBlob } from './thumbnails'
 
@@ -62,7 +62,7 @@ function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: numb
   return tmpCanvas
 }
 
-const query = defineQuery([ScenePreviewCameraComponent])
+const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraComponent])
 
 const ktx2Encoder = new KTX2Encoder()
 
@@ -85,7 +85,7 @@ export async function previewScreenshot(
 ): Promise<Blob | null> {
   // Getting Scene preview camera or creating one if not exists
   if (!scenePreviewCamera) {
-    for (const entity of query()) {
+    for (const entity of scenePreviewCameraQuery()) {
       scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
     }
 
@@ -162,13 +162,13 @@ export async function previewScreenshot(
 export async function takeScreenshot(
   width: number,
   height: number,
-  format = 'ktx2' as 'png' | 'ktx2' | 'jpeg',
+  format = 'jpeg' as 'jpeg' | 'png',
   scenePreviewCamera?: PerspectiveCamera,
   hideHelpers = true
 ): Promise<Blob | null> {
   // Getting Scene preview camera or creating one if not exists
   if (!scenePreviewCamera) {
-    for (const entity of query()) {
+    for (const entity of scenePreviewCameraQuery()) {
       scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
     }
 
@@ -235,19 +235,11 @@ export async function takeScreenshot(
 
   const canvas = getResizedCanvas(EngineRenderer.instance.renderer.domElement, width, height)
 
-  let blob: Blob | null = null
-
-  if (format === 'ktx2') {
-    const imageData = canvas.getContext('2d')!.getImageData(0, 0, width, height)
-    const ktx2texture = (await ktx2Encoder.encode(imageData, {
-      ...getState(ScreenshotSettings).ktx2,
-      yFlip: true
-    })) as ArrayBuffer
-
-    blob = new Blob([ktx2texture])
-  } else {
-    blob = await getCanvasBlob(canvas, format === 'jpeg' ? 'image/jpeg' : 'image/png', format === 'jpeg' ? 0.9 : 1)
-  }
+  const imageBlob = await getCanvasBlob(
+    canvas,
+    format === 'jpeg' ? 'image/jpeg' : 'image/png',
+    format === 'jpeg' ? 0.9 : 1
+  )
 
   // restore
   EngineRenderer.instance.effectComposer.setMainCamera(getComponent(Engine.instance.cameraEntity, CameraComponent))
@@ -258,7 +250,7 @@ export async function takeScreenshot(
   scenePreviewCamera.aspect = prevAspect
   scenePreviewCamera.updateProjectionMatrix()
 
-  return blob
+  return imageBlob
 }
 
 /** @todo make size, compression & format configurable */

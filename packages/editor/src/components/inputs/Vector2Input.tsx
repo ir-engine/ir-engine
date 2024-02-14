@@ -23,12 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useState } from 'react'
+import React from 'react'
 import { Vector2 } from 'three'
 
 import LinkIcon from '@mui/icons-material/Link'
 import LinkOffIcon from '@mui/icons-material/LinkOff'
 
+import { useHookstate } from '@etherealengine/hyperflux'
 import Hidden from '../layout/Hidden'
 import NumericInput from './NumericInput'
 import { UniformButtonContainer, Vector3InputContainer, Vector3Scrubber } from './Vector3Input'
@@ -37,7 +38,7 @@ let uniqueId = 0
 
 interface Vector2InputProp {
   value?: any
-  onChange?: (value: Vector2) => void
+  onChange: (value: Vector2) => void
   onRelease?: (value: Vector2) => void
   uniformScaling?: boolean
   hideLabels?: boolean
@@ -45,35 +46,42 @@ interface Vector2InputProp {
 
 export const Vector2Input = ({ value, onChange, onRelease, uniformScaling, hideLabels, ...rest }: Vector2InputProp) => {
   const id = uniqueId++
-  const newValue = new Vector2()
-  const [uniformEnabled, setUniformEnabled] = useState(uniformScaling)
+  const uniformEnabled = useHookstate(uniformScaling)
 
   const onToggleUniform = () => {
-    setUniformEnabled(!uniformEnabled)
+    uniformEnabled.set((v) => !v)
   }
 
-  const processChange = (field, fieldValue) => {
-    if (uniformEnabled) {
-      newValue.set(fieldValue, fieldValue)
+  const processChange = (field: string, fieldValue: number) => {
+    if (uniformEnabled.value) {
+      value.set(fieldValue, fieldValue, fieldValue)
     } else {
-      const x = value ? value.x : 0
-      const y = value ? value.y : 0
-
-      newValue.x = field === 'x' ? fieldValue : x
-      newValue.y = field === 'y' ? fieldValue : y
-    }
-
-    if (typeof onChange === 'function') {
-      onChange(newValue)
+      value[field] = fieldValue
     }
   }
 
-  const onChangeX = (x) => processChange('x', x)
+  const onChangeX = (x: number) => {
+    processChange('x', x)
+    onChange(value)
+  }
 
-  const onChangeY = (y) => processChange('y', y)
+  const onChangeY = (y: number) => {
+    processChange('y', y)
+    onChange(value)
+  }
 
-  const vx = value ? value.x : 0
-  const vy = value ? value.y : 0
+  const onReleaseX = (x: number) => {
+    processChange('x', x)
+    onRelease?.(value)
+  }
+
+  const onReleaseY = (y: number) => {
+    processChange('y', y)
+    onRelease?.(value)
+  }
+
+  const vx = value.x
+  const vy = value.y
   const checkboxId = 'uniform-button-' + id
 
   return (
@@ -82,7 +90,7 @@ export const Vector2Input = ({ value, onChange, onRelease, uniformScaling, hideL
         {...rest}
         value={vx}
         onChange={onChangeX}
-        onRelease={onRelease}
+        onRelease={onReleaseX}
         prefix={
           hideLabels ? null : (
             <Vector3Scrubber {...rest} tag="div" value={vx} onChange={onChangeX} onPointerUp={onRelease} axis="x">
@@ -95,7 +103,7 @@ export const Vector2Input = ({ value, onChange, onRelease, uniformScaling, hideL
         {...rest}
         value={vy}
         onChange={onChangeY}
-        onRelease={onRelease}
+        onRelease={onReleaseY}
         prefix={
           hideLabels ? null : (
             <Vector3Scrubber {...rest} tag="div" value={vy} onChange={onChangeY} onPointerUp={onRelease} axis="y">
@@ -106,9 +114,15 @@ export const Vector2Input = ({ value, onChange, onRelease, uniformScaling, hideL
       />
       {uniformScaling && (
         <UniformButtonContainer>
-          <Hidden as="input" id={checkboxId} type="checkbox" checked={uniformEnabled} onChange={onToggleUniform} />
+          <Hidden
+            as="input"
+            id={checkboxId}
+            type="checkbox"
+            checked={uniformEnabled.value}
+            onChange={onToggleUniform}
+          />
           <label title="Uniform Scale" htmlFor={checkboxId}>
-            {uniformEnabled ? <LinkIcon /> : <LinkOffIcon />}
+            {uniformEnabled.value ? <LinkIcon /> : <LinkOffIcon />}
           </label>
         </UniformButtonContainer>
       )}

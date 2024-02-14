@@ -30,8 +30,8 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { routePath } from '@etherealengine/common/src/schema.type.module'
+import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import TableComponent from '../../common/Table'
 import { routeColumns } from '../../common/variables/route'
 import styles from '../../styles/admin.module.scss'
@@ -55,7 +55,7 @@ const RouteTable = ({ className }: Props) => {
     }) !== -1
 
   const activateCallback = (project: string, route: string, checked: boolean) => {
-    routeActivateCreate({ project, route, activate: checked })
+    routeActivateCreate({ project, route, activate: checked }).then(() => routesQuery.refetch())
   }
 
   const installedRoutes = installedRouteData

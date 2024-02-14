@@ -27,11 +27,11 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { InstanceID, InstanceQuery, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceID, InstanceQuery, InstanceType } from '@etherealengine/common/src/schemas/networking/instance.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const instanceResolver = resolve<InstanceType, HookContext>({
   location: virtual(async (instance, context) => {

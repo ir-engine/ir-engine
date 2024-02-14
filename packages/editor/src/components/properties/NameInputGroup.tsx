@@ -26,12 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getOptionalComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { getOptionalComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useHookstate } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
@@ -103,7 +103,7 @@ export const NameInputGroup: EditorComponentType = (props) => {
     <InputGroup {...{ style: { styledNameInputGroupStyle } }} name="Name" label={t('editor:properties.name.lbl-name')}>
       <StringInput
         value={tempName.value}
-        onChange={(event) => tempName.set(event?.target.value)}
+        onChange={tempName.set}
         onFocus={onFocus}
         onBlur={onBlurName}
         onKeyUp={onKeyUpName}

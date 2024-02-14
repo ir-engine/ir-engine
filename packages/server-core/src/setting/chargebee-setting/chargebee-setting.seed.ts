@@ -29,10 +29,10 @@ import { v4 } from 'uuid'
 import {
   chargebeeSettingPath,
   ChargebeeSettingType
-} from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
+} from '@etherealengine/common/src/schemas/setting/chargebee-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
-import { getDateTimeSql } from '../../util/datetime-sql'
+import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig

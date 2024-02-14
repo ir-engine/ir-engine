@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { buildStatusPath } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
+import { buildStatusPath } from '@etherealengine/common/src/schemas/cluster/build-status.schema'
 
 /**
  * @param { import("knex").Knex } knex

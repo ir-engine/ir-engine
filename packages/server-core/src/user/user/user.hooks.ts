@@ -31,20 +31,20 @@ import {
   userDataValidator,
   userPatchValidator,
   userQueryValidator
-} from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/user/user.schema'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
 import { disallow, discard, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
-import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
-import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { ScopeType, scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { userAvatarPath } from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
-import { userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
+import { userAvatarPath } from '@etherealengine/common/src/schemas/user/user-avatar.schema'
+import { userSettingPath } from '@etherealengine/common/src/schemas/user/user-setting.schema'
+import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 import { MethodNotAllowed } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
@@ -119,9 +119,9 @@ const restrictUserRemove = async (context: HookContext<UserService>) => {
   if (await checkScope(loggedInUser, 'user', 'write')) {
     const isRemovedUserAdmin =
       (
-        await context.app
-          .service(scopePath)
-          .find({ query: { userId: context.id as UserID, type: 'admin:admin' as ScopeType } })
+        await context.app.service(scopePath).find({
+          query: { userId: context.id as UserID, type: 'admin:admin' as ScopeType }
+        })
       ).total > 0
 
     if (isRemovedUserAdmin && !(await checkScope(loggedInUser, 'admin', 'admin'))) {
@@ -212,6 +212,10 @@ const updateInviteCode = async (context: HookContext<UserService>) => {
  */
 const addUpdateUserAvatar = async (context: HookContext<UserService>) => {
   const data: UserType[] = Array.isArray(context['actualData']) ? context['actualData'] : [context['actualData']]
+
+  if (data.length === 1 && !data[0].id) {
+    data[0].id = context.id as UserID
+  }
 
   for (const item of data) {
     if (item?.avatarId) {
@@ -341,6 +345,7 @@ export default createSkippableHooks(
         iff(isProvider('external'), restrictUserPatch),
         () => schemaHooks.validateData(userPatchValidator),
         schemaHooks.resolveData(userPatchResolver),
+        persistData,
         disallowNonId,
         removeUserScopes,
         addUserScopes(false),

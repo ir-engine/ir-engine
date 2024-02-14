@@ -26,21 +26,16 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { getComponent, useComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
-import {
-  getComponent,
-  useComponent,
-  useOptionalComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { getCallback } from '@etherealengine/engine/src/scene/components/CallbackComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { useState } from '@etherealengine/hyperflux'
+import { getCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 
 import AnimationIcon from '@mui/icons-material/Animation'
 
 import { AnimationComponent } from '@etherealengine/engine/src/avatar/components/AnimationComponent'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
-import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import NumericInput from '../inputs/NumericInput'
@@ -58,18 +53,19 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   const entity = props.entity
   const modelComponent = useOptionalComponent(entity, ModelComponent)
   const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
+  const animationComponent = useComponent(entity, AnimationComponent)
   const animationOptions = useState([] as { label: string; value: number }[])
 
   const errors = getEntityErrors(props.entity, ModelComponent)
 
   useEffect(() => {
     const animationComponent = getComponent(entity, AnimationComponent)
-    if (animationComponent && animationComponent.animations)
-      animationOptions.set([
-        { label: 'None', value: -1 },
-        ...animationComponent.animations.map((clip, index) => ({ label: clip.name, value: index }))
-      ])
-  }, [modelComponent?.scene, loopAnimationComponent.hasAvatarAnimations])
+    if (!animationComponent.animations.length) return
+    animationOptions.set([
+      { label: 'None', value: -1 },
+      ...animationComponent.animations.map((clip, index) => ({ label: clip.name, value: index }))
+    ])
+  }, [modelComponent?.asset, modelComponent?.convertToVRM, animationComponent.animations])
 
   const onChangePlayingAnimation = (index) => {
     commitProperties(LoopAnimationComponent, {
@@ -92,11 +88,11 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
           onChange={onChangePlayingAnimation}
         />
       </InputGroup>
-      {loopAnimationComponent.hasAvatarAnimations.value && (
+      {modelComponent?.convertToVRM.value && (
         <InputGroup name="Animation Pack" label="Animation Pack (via Mixamo Rig)">
           <ModelInput
             value={loopAnimationComponent.animationPack.value}
-            onChange={commitProperty(LoopAnimationComponent, 'animationPack')}
+            onRelease={commitProperty(LoopAnimationComponent, 'animationPack')}
           />
           {errors?.LOADING_ERROR && (
             <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
@@ -108,12 +104,6 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
           value={loopAnimationComponent.timeScale.value}
           onChange={updateProperty(LoopAnimationComponent, 'timeScale')}
           onRelease={commitProperty(LoopAnimationComponent, 'timeScale')}
-        />
-      </InputGroup>
-      <InputGroup name="Is Avatar" label={t('editor:properties.model.lbl-isAvatar')}>
-        <BooleanInput
-          value={loopAnimationComponent.hasAvatarAnimations.value}
-          onChange={commitProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
         />
       </InputGroup>
     </NodeEditor>

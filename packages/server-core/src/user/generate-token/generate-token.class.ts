@@ -27,11 +27,11 @@ import { Application } from '../../../declarations'
 
 import { Paginated, ServiceInterface } from '@feathersjs/feathers'
 
-import { GenerateTokenData, GenerateTokenQuery } from '@etherealengine/engine/src/schemas/user/generate-token.schema'
+import { GenerateTokenData, GenerateTokenQuery } from '@etherealengine/common/src/schemas/user/generate-token.schema'
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { KnexAdapterParams } from '@feathersjs/knex'
 
 export interface GenerateTokenParams extends KnexAdapterParams<GenerateTokenQuery> {

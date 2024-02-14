@@ -125,7 +125,8 @@
       "info-origin": "Sets pivot mode to the world origin (0,0,0)"
     },
     "transformSnapTool": {
-      "toggleSnapMode": "[C] Toggle Snap Mode",
+      "toggleBBoxSnap": "[B] Toggle Bounding Box Snap",
+      "toggleSnapMode": "[C] Toggle Grid Snap",
       "info-translate": "Translate objects by a unit of measurement.",
       "info-rotate": "Rotate objects by a specific degrees."
     },
@@ -178,6 +179,11 @@
     "sceneScreenshot": {
       "lbl": "Screenshot",
       "info": "Takes a screenshot of your scene at the current view."
+    },
+    "publishLocation": {
+      "title": "Publish",
+      "lbl": "Publish Location",
+      "info": "Publish location for the selected scene."
     }
   },
   "properties": {
@@ -187,6 +193,7 @@
     "lbl-preventBake": "Prevent Bake",
     "lbl-dynamicLoad": "Load Children Dynamically",
     "lbl-dynamicLoadDistance": "Distance",
+    "lbl-addComponent": "Add Component",
     "multipleNodeSelected": "Multiple Nodes of different types selected",
     "noNodeSelected": "No node selected",
     "ambientLight": {
@@ -234,6 +241,7 @@
       "lbl-synchronize": "Synchronize",
       "info-synchronize": "If true, the media will be synchronized on all the connected clients.",
       "lbl-volume": "Volume",
+      "lbl-currentTime": "Current Time",
       "lbl-isMusic": "Is Music",
       "lbl-size": "Size",
       "seektime": "Start Time"
@@ -284,7 +292,6 @@
       "name": "Collider",
       "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
       "lbl-isTrigger": "Trigger",
-      "lbl-removeMesh": "Remove Mesh",
       "lbl-shape": "Shape",
       "lbl-type": "Body Type"
     },
@@ -366,12 +373,9 @@
       "error-url": "Error Loading From URL",
       "lbl-loopAnimation": "Loop Animation",
       "lbl-animationSpeed": "Animation Speed",
-      "lbl-isAvatar": "Force Avatar Animations",
+      "lbl-convertToVRM": "Use VRM",
       "lbl-isGPUInstancing": "Is Using GPU Instancing",
-      "lbl-isEquippable": "Is Equippable",
-      "lbl-interactable": "Interactable",
-      "lbl-generateBVH": "Generate BVH",
-      "lbl-avoidCameraOcclusion": "Avoid Camera Occlusion",
+      "lbl-cameraOcclusion": "Occlude Camera",
       "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
       "lbl-name": "Name",
       "lbl-url": "Model Url",
@@ -675,12 +679,25 @@
       "info-useShadows": "Enables shadows",
       "lbl-csm": "Cascading Shadow Maps",
       "info-csm": "Enables cascading shadow maps.",
+      "lbl-csm-cascades": "Cascades",
+      "info-csm-cascades": "Smaller the size of the scene. More efficient to have less cascades.",
       "lbl-toneMapping": "Tone Mapping",
       "info-toneMapping": "Enables tone mapping on the scene renderer. Has no effect when a post processing is enabled.",
       "lbl-toneMappingExposure": "Tone Mapping Exposure",
       "info-toneMappingExposure": "Specifies the tone mapping exposure on the scene renderer. Has no effect when a post processing is enabled.",
       "lbl-shadowMapType": "Shadow Map Type",
       "info-shadowMapType": "Type of shadow map"
+    },
+    "sceneSettings": {
+      "name": "Scene Settings",
+      "description": "Customise the scene settings",
+      "lbl-thumbnail": "Thumbnail",
+      "info-thumbnail": "Change the thumbnail",
+      "generate": "Generate",
+      "save": "Save",
+      "lbl-loading": "Loading Screen",
+      "info-loading": "Change the loading screen",
+      "lbl-colors": "Colors"
     },
     "scene": {
       "name": "Scene",
@@ -807,8 +824,8 @@
       "lbl-effectType": "Loading Effect",
       "lbl-previewType": "Preview Type",
       "lbl-previewImageURL": "Preview Image URL",
-      "lbl-savedImageURL": "Saved Image URL",
-      "lbl-previewImage": "Preview Image",
+      "lbl-savedImageURL": "Saved Image",
+      "lbl-generateImage": "Generate Image",
       "lbl-saveImage": "Save Image",
       "lbl-spawnPosition": "Spawn Position",
       "lbl-spawnRotation": "Spawn Rotation",
@@ -835,6 +852,44 @@
       "description": "An object with a pose to define interactable behaviors.",
       "lbl-type": "Type",
       "lbl-dismount": "Dismount point, offsets this transform"
+    },
+    "text": {
+      "textGroup": "Text",
+      "textOpacity": "opacity",
+      "textWidth": "width",
+      "textIndent": "indent",
+      "textAlign": "align",
+      "textWrap": "wrap",
+      "textAnchor": "anchor",
+      "textDepthOffset": "depthOffset",
+      "textCurveRadius": "curveRadius",
+      "letterSpacing": "letterSpacing",
+      "lineHeightGroup": "lineHeight",
+      "lineHeight": "height",
+      "textDirection": "direction",
+      "fontGroup": "Font",
+      "fontFamily": "family",
+      "fontSize": "size",
+      "fontColor": "color",
+      "fontMaterial": "material",
+      "outlineGroup": "Outline",
+      "outlineColor": "color",
+      "outlineOpacity": "opacity",
+      "outlineWidth": "width",
+      "outlineBlur": "blur",
+      "outlineOffset": "offset",
+      "strokeGroup": "Stroke",
+      "strokeColor": "color",
+      "strokeOpacity": "opacity",
+      "strokeWidth": "width",
+      "advancedActive": "Show Advanced",
+      "advancedGroup": "Advanced",
+      "clippingActive": "clip.active",
+      "clippingMin": "clip.min",
+      "clippingMax": "clip.max",
+      "glyphResolution": "glyph.resolution",
+      "glyphDetail": "glyph.detail",
+      "gpuAccelerated": "GPU Accelerated"
     }
   },
   "projects": {
@@ -857,15 +912,18 @@
       "lbl-newProject": "New Project"
     }
   },
+  "graphPanel":{
+    "addGraph" : "Add Behave Graph"
+  },
   "layout": {
     "assetGrid": {
       "loading": "Loading...",
-      "placeObject": "Place Object",
-      "placeObjectAtOrigin": "Place Object at Origin",
       "copyURL": "Copy URL",
       "openInNewTab": "Open URL in New Tab",
       "deleteAsset": "Delete Asset",
-      "tooltip": {
+      "components": "Components",
+      "components-search": "Search Components ...",
+      "component-detail": {
         "gltf-model": "Creates objects in the hierarchy. Drag a model from the assets folder into the URL box or drag assets directly from project files into the hierarchy.",
         "volumetric": "Import volumetric files. Accepts DRCS, UVOL, or Manifest Files. Links to cloud hosting.",
         "video": "Imports a 2D plane that accepts .mp4, .mkv, .avi",
@@ -895,9 +953,12 @@
         "primitive-geometry": "Add basic Geometry to the scene",
         "link": "Add clickable Link to entity to route to different webpage",
         "dynamic-load": "Load entities dynamically"
-      }
+      },
+      "placeObject": "Place Object",
+      "placeObjectAtOrigin": "Place Object at Origin"
     },
     "filebrowser": {
+      "tab-name": "Project Files",
       "addNewFolder": "Add New Folder",
       "cutAsset": "Cut",
       "copyAsset": "Copy",
@@ -911,12 +972,41 @@
       "convert": "Convert",
       "downloadProject": "Download Project",
       "uploadAsset": "Upload Asset",
+      "search-placeholder": "Search files and folders ...",
       "fileProperties": {
         "name": "Name:",
         "type": "Type:",
         "size": "Size:",
-        "url": "URL:"
+        "url": "URL:",
+        "attribution": "Attribution:",
+        "licensing": "Licensing:",
+        "tag": "Tag:",
+        "addTag": "Add Tag",
+        "save-changes": "Save Changes"
+      },
+      "view-mode": {
+        "icons": "View: Icons",
+        "list": "View: List",
+        "settings": {
+          "name": "View Options",
+          "iconSize": "Icon Size",
+          "select-listColumns": "Select List Columns",
+          "fontSize": "Font Size"
+        }
+      },
+      "table-list": {
+        "headers": {
+          "name": "Name",
+          "type": "Type",
+          "dateModified": "Date Modified",
+          "size": "Size"
+        }
       }
+    },
+    "scene-assets": {
+      "no-category": "No category selected",
+      "search-placeholder": "Search for an asset ...",
+      "preview" : "Preview"
     }
   },
   "hierarchy": {
@@ -925,12 +1015,17 @@
     "lbl-rename": "Rename",
     "lbl-duplicate": "Duplicate",
     "lbl-group": "Group",
+    "lbl-copy": "Copy",
+    "lbl-paste": "Paste",
     "lbl-delete": "Delete",
     "lbl-expandAll": "Expand All",
     "lbl-collapseAll": "Collapse All",
     "lbl-explode": "Explode Objects",
     "lbl-addEntity": "Add Entity",
-    "issues": "Issues"
+    "issues": "Issues",
+    "copy-paste": {
+      "no-hierarchy-nodes": "No hierarchy nodes found"
+    }
   },
   "materialLibrary": {
     "lbl": "Material Library",
@@ -947,6 +1042,7 @@
     "title": "Editor",
     "lbl-confirm": "Ok",
     "lbl-cancel": "Cancel",
+    "sure-confirm": "Are you sure?",
     "exportProject": {
       "title": "Export Project",
       "lbl-confirm": "Export Project",
@@ -1006,7 +1102,10 @@
       "msg": "You can file a <1>GitHub Issue</1> or e-mail us for support at <3>{{mail}}</3>",
       "discord": "You can also find us on <1>Discord</1>"
     },
-    "confirmContentDelete": "Do you want to delete",
+    "delete": {
+      "confirm-content": "Do you want to delete {{content}}?",
+      "not-allowed-local-dev": "To prevent accidental loss of data, projects cannot be deleted from this menu in a local dev environment. Use the file system instead."
+    },
     "file": "file",
     "folder": "folder"
   },
@@ -1074,5 +1173,9 @@
   },
   "corsProxyButton": {
     "tooltip": "Use Cors Proxy Server"
+  },
+  "tabs": {
+    "scene-assets": "Assets",
+    "project-assets": "Project Assets"
   }
 }

@@ -29,7 +29,7 @@ import dotenv from 'dotenv-flow'
 import fs from 'fs'
 import knex from 'knex'
 
-import { buildStatusPath, BuildStatusType } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
+import { buildStatusPath, BuildStatusType } from '@etherealengine/common/src/schema.type.module'
 
 dotenv.config({
   path: appRootPath.path,
@@ -79,7 +79,7 @@ cli.main(async () => {
         cli.exit(1)
       } else cli.exit(0)
     } else {
-      if (/error/i.test(buildErrors) || /fail/i.test(buildErrors)) {
+      if ((/error/i.test(buildErrors) && !/'errors'/i.test(buildErrors)) || /fail/i.test(buildErrors)) {
         const combinedLogs = `Task that errored: ${options.service}\n\nError logs:\n\n${buildErrors}\n\nTask logs:\n\n${buildLogs}`
         await knexClient
           .from<BuildStatusType>(buildStatusPath)

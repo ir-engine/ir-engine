@@ -27,13 +27,13 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { AvatarType, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { AvatarType, avatarPath } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 
-import { useFind, useMutation, useSearch } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { UserName } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserName } from '@etherealengine/common/src/schema.type.module'
+import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import TableComponent from '../../common/Table'
 import { AvatarColumn, avatarColumns } from '../../common/variables/avatar'
 import styles from '../../styles/admin.module.scss'
@@ -107,6 +107,7 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
     id: el.id,
     name: el.name as string,
     user: (el.user?.name as UserName) || ('' as UserName),
+    isPublic: el.isPublic ? t('admin:components.common.yes') : t('admin:components.common.no'),
     thumbnail: (
       <img
         style={{ maxHeight: '50px' }}

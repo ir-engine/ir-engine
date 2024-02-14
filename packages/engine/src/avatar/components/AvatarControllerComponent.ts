@@ -26,10 +26,20 @@ Ethereal Engine. All Rights Reserved.
 import { Collider, KinematicCharacterController } from '@dimforge/rapier3d-compat'
 import { Vector3 } from 'three'
 
-import { matches } from '../../common/functions/MatchesUtils'
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
+import { defineComponent, getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { entityExists, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { getState } from '@etherealengine/hyperflux'
+import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+import { useEffect } from 'react'
+import { createAvatarCollider } from '../functions/spawnAvatarReceptor'
+import { AvatarComponent } from './AvatarComponent'
 
 export const AvatarControllerComponent = defineComponent({
   name: 'AvatarControllerComponent',
@@ -51,11 +61,7 @@ export const AvatarControllerComponent = defineComponent({
       /** gamepad-driven input, in the local XZ plane */
       gamepadLocalInput: new Vector3(),
       /** gamepad-driven movement, in the world XZ plane */
-      gamepadWorldMovement: new Vector3(),
-      // Below two values used to smoothly transition between
-      // walk and run speeds
-      /** @todo refactor animation system */
-      speedVelocity: 0
+      gamepadWorldMovement: new Vector3()
     }
   },
 
@@ -73,11 +79,11 @@ export const AvatarControllerComponent = defineComponent({
     if (matches.boolean.test(json.gamepadJumpActive)) component.gamepadJumpActive.set(json.gamepadJumpActive)
     if (matches.object.test(json.gamepadLocalInput)) component.gamepadLocalInput.set(json.gamepadLocalInput)
     if (matches.object.test(json.gamepadWorldMovement)) component.gamepadWorldMovement.set(json.gamepadWorldMovement)
-    if (matches.number.test(json.speedVelocity)) component.speedVelocity.set(json.speedVelocity)
   },
 
   captureMovement(capturedEntity: Entity, entity: Entity): void {
     const component = getComponent(capturedEntity, AvatarControllerComponent)
+    if (component.movementCaptured.indexOf(entity) !== -1) return
     component.movementCaptured.push(entity)
   },
 
@@ -85,5 +91,35 @@ export const AvatarControllerComponent = defineComponent({
     const component = getComponent(capturedEntity, AvatarControllerComponent)
     const index = component.movementCaptured.indexOf(entity)
     if (index !== -1) component.movementCaptured.splice(index, 1)
+  },
+
+  reactor: () => {
+    const entity = useEntityContext()
+    const avatarComponent = useComponent(entity, AvatarComponent)
+    const avatarControllerComponent = useComponent(entity, AvatarControllerComponent)
+    const uuidComponent = useComponent(entity, UUIDComponent)
+
+    useEffect(() => {
+      if ((uuidComponent.value as any as UserID) === Engine.instance.userID) {
+        Engine.instance.localClientEntity = entity
+        return () => {
+          Engine.instance.localClientEntity = UndefinedEntity
+        }
+      }
+    }, [])
+
+    useEffect(() => {
+      Physics.removeCollidersFromRigidBody(entity, getState(PhysicsState).physicsWorld)
+      const collider = createAvatarCollider(entity)
+      avatarControllerComponent.bodyCollider.set(collider)
+
+      const cameraEntity = avatarControllerComponent.cameraEntity.value
+      if (cameraEntity && entityExists(cameraEntity) && hasComponent(cameraEntity, FollowCameraComponent)) {
+        const cameraComponent = getComponent(cameraEntity, FollowCameraComponent)
+        cameraComponent.offset.set(0, avatarComponent.eyeHeight.value, 0)
+      }
+    }, [avatarComponent.avatarHeight])
+
+    return null
   }
 })

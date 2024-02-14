@@ -26,20 +26,20 @@ Ethereal Engine. All Rights Reserved.
 import {
   getAllComponents,
   getComponent,
-  getMutableComponent,
-  hasComponent
-} from '../../../../ecs/functions/ComponentFunctions'
-import { Object3DWithEntity } from '../../../../scene/components/GroupComponent'
-import { NameComponent } from '../../../../scene/components/NameComponent'
+  hasComponent,
+  serializeComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { Object3D } from 'three'
 import { SceneObjectComponent } from '../../../../scene/components/SceneObjectComponent'
-import { LocalTransformComponent, TransformComponent } from '../../../../transform/components/TransformComponent'
 import { GLTFExporterPlugin } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
 export class EEECSExporterExtension extends ExporterExtension implements GLTFExporterPlugin {
   name = 'EE_ecs'
 
-  writeNode(object: Object3DWithEntity, nodeDef: { [key: string]: any }) {
+  writeNode(object: Object3D, nodeDef: { [key: string]: any }) {
     if (!object.entity) return
     const entity = object.entity
     if (!hasComponent(entity, SceneObjectComponent)) return
@@ -51,13 +51,13 @@ export class EEECSExporterExtension extends ExporterExtension implements GLTFExp
     for (const component of components) {
       if (
         component === TransformComponent ||
-        component === LocalTransformComponent || //skip transform data as that is stored in the object3d
+        component === TransformComponent || //skip transform data as that is stored in the object3d
         !component.jsonID //skip components that don't have a jsonID
       )
         continue
-      const compData = component.toJSON(entity, getMutableComponent(entity, component))
+      const compData = serializeComponent(entity, component)
       if (!compData) continue
-      const extensionName = `EE_${component.jsonID}`
+      const extensionName = component.jsonID.startsWith('EE_') ? component.jsonID : `EE_${component.jsonID}`
       nodeDef.extensions = nodeDef.extensions ?? {}
       nodeDef.extensions[extensionName] = compData
       this.writer.extensionsUsed[extensionName] = true

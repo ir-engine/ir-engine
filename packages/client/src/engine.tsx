@@ -29,14 +29,20 @@ import { useTranslation } from 'react-i18next'
 import { API } from '@etherealengine/client-core/src/API'
 import { FullscreenContainer } from '@etherealengine/client-core/src/components/FullscreenContainer'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { initializeBrowser } from '@etherealengine/engine/src/initializeBrowser'
-import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { getMutableState } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 
-import { pipeLogs } from '@etherealengine/engine/src/common/functions/logger'
+import waitForClientAuthenticated from '@etherealengine/client-core/src/util/wait-for-client-authenticated'
+import { pipeLogs } from '@etherealengine/common/src/logger'
 import { initializei18n } from './util'
+
+const initializeLogs = async () => {
+  await waitForClientAuthenticated()
+  pipeLogs(Engine.instance.api)
+}
 
 createEngine()
 getMutableState(EngineState).publicPath.set(
@@ -46,9 +52,9 @@ getMutableState(EngineState).publicPath.set(
 initializei18n()
 initializeBrowser()
 API.createAPI()
-pipeLogs(Engine.instance.api)
+initializeLogs()
 
-export default function ({ children, tailwind = false }) {
+export default function ({ children, tailwind = false }): JSX.Element {
   const ref = createRef()
   const { t } = useTranslation()
   return !tailwind ? (

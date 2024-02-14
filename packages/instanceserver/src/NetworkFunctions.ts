@@ -28,16 +28,9 @@ import { Spark } from 'primus'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
-import checkPositionIsValid from '@etherealengine/engine/src/common/functions/checkPositionIsValid'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
-import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { EntityNetworkState } from '@etherealengine/engine/src/networking/state/EntityNetworkState'
-import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
@@ -45,18 +38,30 @@ import { localConfig } from '@etherealengine/server-core/src/config'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
+import checkPositionIsValid from '@etherealengine/spatial/src/common/functions/checkPositionIsValid'
+import { NetworkPeerFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkPeerFunctions'
+import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
+import { EntityNetworkState } from '@etherealengine/spatial/src/networking/state/EntityNetworkState'
+import { updatePeers } from '@etherealengine/spatial/src/networking/systems/OutgoingActionSystem'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
-import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { MediasoupTransportState } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
-import { instanceAuthorizedUserPath } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
-import { instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
-import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
-import { InviteCode, UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
+import {
+  identityProviderPath,
+  instanceAuthorizedUserPath,
+  instancePath,
+  InstanceType,
+  InviteCode,
+  inviteCodeLookupPath,
+  messagePath,
+  UserID,
+  userKickPath,
+  UserType
+} from '@etherealengine/common/src/schema.type.module'
+import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { MediasoupTransportState } from '@etherealengine/spatial/src/networking/systems/MediasoupTransportState'
 import { InstanceServerState } from './InstanceServerState'
 import { SocketWebRTCServerNetwork, WebRTCTransportExtension } from './SocketWebRTCServerFunctions'
 
@@ -216,13 +221,15 @@ export const handleConnectingPeer = (
     lastSeenTs: Date.now()
   })
 
-  updatePeers(network)
+  const updatePeersAction = updatePeers(network)
 
   logger.info('Connect to world from ' + userId)
 
-  const cachedActions = NetworkPeerFunctions.getCachedActionsForPeer(peerID).map((action) => {
-    return _.cloneDeep(action)
-  })
+  const cachedActions = NetworkPeerFunctions.getCachedActionsForPeer(peerID)
+    .map((action) => {
+      return _.cloneDeep(action)
+    })
+    .concat([updatePeersAction])
 
   const instanceServerState = getState(InstanceServerState)
   if (inviteCode && !instanceServerState.isMediaInstance) getUserSpawnFromInvite(network, user, inviteCode!)
@@ -262,7 +269,7 @@ const getUserSpawnFromInvite = async (
           bothOnSameInstance = true
       }
       if (bothOnSameInstance) {
-        const selfAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(user.id as UserID)
+        const selfAvatarEntity = AvatarComponent.getUserAvatarEntity(user.id as UserID)
         if (!selfAvatarEntity) {
           if (iteration >= 100) {
             logger.warn(
@@ -273,7 +280,7 @@ const getUserSpawnFromInvite = async (
           return setTimeout(() => getUserSpawnFromInvite(network, user, inviteCode, iteration + 1), 50)
         }
         const inviterUserId = inviterUser.id
-        const inviterUserAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(inviterUserId as UserID)
+        const inviterUserAvatarEntity = AvatarComponent.getUserAvatarEntity(inviterUserId as UserID)
         if (!inviterUserAvatarEntity) {
           if (iteration >= 100) {
             logger.warn(
@@ -339,8 +346,8 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerI
     logger.info(`Disconnecting user ${userId} on spark ${peerID}`)
     const recvTransport = MediasoupTransportState.getTransport(network.id, 'recv', peerID) as WebRTCTransportExtension
     const sendTransport = MediasoupTransportState.getTransport(network.id, 'send', peerID) as WebRTCTransportExtension
-    if (recvTransport) recvTransport.close()
-    if (sendTransport) sendTransport.close()
+    if (recvTransport) MediasoupTransportState.removeTransport(network.id, recvTransport.id)
+    if (sendTransport) MediasoupTransportState.removeTransport(network.id, sendTransport.id)
   } else {
     logger.warn("Spark didn't match for disconnecting client.")
   }

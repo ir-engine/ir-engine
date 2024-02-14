@@ -30,12 +30,11 @@ import React, { useEffect, useRef, useState } from 'react'
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
 import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
 import { NotificationState } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import '@etherealengine/client-core/src/util/GlobalStyle.css'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 
@@ -44,7 +43,9 @@ import { StyledEngineProvider, Theme } from '@mui/material/styles'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { useTranslation } from 'react-i18next'
 import RouterComp from '../route/public'
-import { ThemeContextProvider } from '../themes/themeContext'
+import { ThemeContextProvider } from './themeContext'
+
+import './mui.styles.scss'
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -58,7 +59,6 @@ const AppPage = ({ route }: { route: string }) => {
   const isLoggedIn = useHookstate(getMutableState(AuthState).isLoggedIn)
   const selfUser = authState.user
   const [projectComponents, setProjectComponents] = useState<Array<any> | null>(null)
-  const projectState = useHookstate(getMutableState(ProjectState))
   const notificationstate = useHookstate(getMutableState(NotificationState))
   const { t } = useTranslation()
 
@@ -72,18 +72,12 @@ const AppPage = ({ route }: { route: string }) => {
     notificationstate.snackbar.set(notistackRef.current)
   }, [notistackRef.current])
 
-  NotificationState.useNotifications()
-
   useEffect(() => {
     if (!isLoggedIn.value || projectComponents) return
     loadWebappInjection().then((result) => {
       setProjectComponents(result)
     })
   }, [isLoggedIn])
-
-  useEffect(() => {
-    if (selfUser?.id.value && projectState.updateNeeded.value) ProjectService.fetchProjects()
-  }, [selfUser?.id, projectState.updateNeeded])
 
   useEffect(() => {
     Engine.instance.userID = selfUser.id.value

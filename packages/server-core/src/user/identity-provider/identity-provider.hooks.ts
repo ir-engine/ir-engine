@@ -30,18 +30,19 @@ import {
   identityProviderPatchValidator,
   identityProviderPath,
   identityProviderQueryValidator
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { BadRequest, Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import appConfig from '../../appconfig'
 
 import { isDev } from '@etherealengine/common/src/config'
-import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
-import { scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
-import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+import { scopeTypePath } from '@etherealengine/common/src/schemas/scope/scope-type.schema'
+import { ScopeType, scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
+import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 import { random } from 'lodash'
 import { HookContext } from '../../../declarations'
 import persistData from '../../hooks/persist-data'
@@ -121,7 +122,11 @@ async function validateAuthParams(context: HookContext<IdentityProviderService>)
     throw new BadRequest('userId not found')
   }
 
-  context.existingUser = await context.app.service(userPath).get(userId)
+  try {
+    context.existingUser = await context.app.service(userPath).get(userId)
+  } catch (err) {
+    //
+  }
 }
 
 async function addIdentityProviderType(context: HookContext<IdentityProviderService>) {
@@ -147,14 +152,31 @@ async function addIdentityProviderType(context: HookContext<IdentityProviderServ
 
 async function createNewUser(context: HookContext<IdentityProviderService>) {
   const isGuest = (context.actualData as IdentityProviderType).type === 'guest'
-  const avatars = await context.app.service(avatarPath).find({ isInternal: true, query: { $limit: 1000 } })
+  const avatars = await context.app
+    .service(avatarPath)
+    .find({ isInternal: true, query: { isPublic: true, skipUser: true, $limit: 1000 } })
 
-  const newUser = await context.app.service(userPath).create({
+  let selectedAvatarId
+  while (selectedAvatarId == null) {
+    const randomId = random(avatars.data.length - 1)
+    const selectedAvatar = avatars.data[randomId]
+    try {
+      await Promise.all([
+        context.app.service(staticResourcePath).get(selectedAvatar.modelResourceId),
+        context.app.service(staticResourcePath).get(selectedAvatar.thumbnailResourceId)
+      ])
+      selectedAvatarId = selectedAvatar.id
+    } catch (err) {
+      console.log('error in getting resources')
+      avatars.data.splice(randomId, 1)
+      if (avatars.data.length < 1) throw new Error('All avatars are missing static resources')
+    }
+  }
+
+  context.existingUser = await context.app.service(userPath).create({
     isGuest,
-    avatarId: avatars.data[random(avatars.data.length - 1)].id
+    avatarId: selectedAvatarId
   })
-
-  context.existingUser = newUser
 }
 
 /* (AFTER) CREATE HOOKS */

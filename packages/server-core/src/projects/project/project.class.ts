@@ -30,24 +30,28 @@ import path from 'path'
 
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 
-import { ProjectBuildUpdateItemType } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
+import { ProjectBuildUpdateItemType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
 import {
   ProjectData,
   ProjectPatch,
   ProjectQuery,
-  ProjectType
-} from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+  ProjectType,
+  ProjectUpdateParams
+} from '@etherealengine/common/src/schemas/projects/project.schema'
+import { getDateTimeSql, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { KnexAdapterOptions, KnexAdapterParams, KnexService } from '@feathersjs/knex'
 import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { getDateTimeSql, toDateTimeSql } from '../../util/datetime-sql'
+import config from '../../appconfig'
 import {
   deleteProjectFilesInStorageProvider,
   getCommitSHADate,
+  getEnginePackageJson,
   getGitProjectData,
   getProjectConfig,
+  getProjectEnabled,
+  getProjectPackageJson,
   onProjectEvent,
   uploadLocalProjectToProvider
 } from './project-helper'
@@ -55,12 +59,6 @@ import {
 const UPDATE_JOB_TIMEOUT = 60 * 5 //5 minute timeout on project update jobs completing or failing
 
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
-
-export type ProjectUpdateParams = {
-  user?: UserType
-  isJob?: boolean
-  jobId?: string
-}
 
 export interface ProjectParams extends KnexAdapterParams<ProjectQuery>, ProjectUpdateParams {}
 
@@ -103,6 +101,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
   async _seedProject(projectName: string): Promise<any> {
     logger.warn('[Projects]: Found new locally installed project: ' + projectName)
     const projectConfig = getProjectConfig(projectName) ?? {}
+    const enabled = getProjectEnabled(projectName)
 
     const gitData = getGitProjectData(projectName)
     const { commitSHA, commitDate } = await getCommitSHADate(projectName)
@@ -110,6 +109,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     await super._create({
       id: v4(),
       name: projectName,
+      enabled,
       repositoryPath: gitData.repositoryPath,
       sourceRepo: gitData.sourceRepo,
       sourceBranch: gitData.sourceBranch,
@@ -159,12 +159,21 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
       const { commitSHA, commitDate } = await getCommitSHADate(projectName)
 
-      await super._patch(null, { commitSHA, commitDate: toDateTimeSql(commitDate) }, { query: { name: projectName } })
+      const engineVersion = getProjectPackageJson(projectName).etherealEngine?.version
+      const version = getEnginePackageJson().version
+      const enabled = config.allowOutOfDateProjects ? true : engineVersion === version
+
+      await super._patch(
+        null,
+        { enabled, commitSHA, commitDate: toDateTimeSql(commitDate) },
+        { query: { name: projectName } }
+      )
 
       promises.push(uploadLocalProjectToProvider(this.app, projectName))
     }
 
     await Promise.all(promises)
+
     await this._callOnLoad()
 
     for (const { name, id } of data) {

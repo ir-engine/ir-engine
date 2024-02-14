@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import knex, { Knex } from 'knex'
 
 import { isDev } from '@etherealengine/common/src/config'
-import { delay } from '@etherealengine/engine/src/common/functions/delay'
 import appConfig from '@etherealengine/server-core/src/appconfig'
+import { delay } from '@etherealengine/spatial/src/common/functions/delay'
 import { Application } from '../declarations'
 import multiLogger from './ServerLogger'
 import { seeder } from './seeder'
@@ -82,6 +82,10 @@ export default (app: Application): void => {
         port: parseInt(appConfig.db.port),
         database: appConfig.db.database,
         charset: 'utf8mb4'
+      },
+      pool: {
+        min: 0,
+        max: appConfig.db.pool.max
       }
     })
 

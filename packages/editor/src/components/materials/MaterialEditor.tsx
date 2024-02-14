@@ -28,21 +28,21 @@ import { Texture } from 'three'
 
 import styles from '@etherealengine/editor/src/components/layout/styles.module.scss'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
-import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
-import { LibraryEntryType } from '@etherealengine/engine/src/renderer/materials/constants/LibraryEntry'
+import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
+import { LibraryEntryType } from '@etherealengine/engine/src/scene/materials/constants/LibraryEntry'
 import {
   changeMaterialPrototype,
   entryId,
   materialFromId
-} from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { removeMaterialPlugin } from '@etherealengine/engine/src/renderer/materials/functions/MaterialPluginFunctions'
+} from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
+import { removeMaterialPlugin } from '@etherealengine/engine/src/scene/materials/functions/MaterialPluginFunctions'
 import { State, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import MaterialLibraryIcon from '@mui/icons-material/Yard'
 
 import { Box, Divider, Stack } from '@mui/material'
 
-import { materialPrototypeUnavailableComponent } from '@etherealengine/engine/src/renderer/materials/components/MaterialPrototypeComponent'
+import { materialPrototypeUnavailableComponent } from '@etherealengine/engine/src/scene/materials/components/MaterialPrototypeComponent'
 import { useTranslation } from 'react-i18next'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { Button } from '../inputs/Button'
@@ -139,12 +139,7 @@ export function MaterialEditor(props: { materialID: string }) {
   return (
     <div style={{ position: 'relative' }}>
       <InputGroup name="Name" label={t('editor:properties.mesh.material.name')}>
-        <StringInput
-          value={materialComponent.material.name.value}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-            materialComponent.material.name.set(event.target.value)
-          }
-        />
+        <StringInput value={materialComponent.material.name.value} onChange={materialComponent.material.name.set} />
       </InputGroup>
       <InputGroup name="Source" label={t('editor:properties.mesh.material.source')}>
         <div className={styles.contentContainer}>

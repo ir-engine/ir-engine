@@ -25,32 +25,34 @@ Ethereal Engine. All Rights Reserved.
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { VRM } from '@pixiv/three-vrm'
-import { EngineState } from '../../ecs/classes/EngineState'
 import {
-  defineQuery,
   getComponent,
+  getOptionalComponent,
   getOptionalMutableComponent,
   hasComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { traverseEntityNode } from '../../ecs/functions/EntityTree'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { MeshComponent } from '../../scene/components/MeshComponent'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { TransformSystem } from '@etherealengine/spatial/src/transform/TransformModule'
+import { traverseEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { VRM } from '@pixiv/three-vrm'
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { TransformSystem } from '../../transform/TransformModule'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 
-import { TweenComponent } from '../../transform/components/TweenComponent'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { TweenComponent } from '@etherealengine/spatial/src/transform/components/TweenComponent'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { LoopAnimationComponent } from '../components/LoopAnimationComponent'
+import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 
 const tweenQuery = defineQuery([TweenComponent])
 const animationQuery = defineQuery([AnimationComponent, VisibleComponent])
 const loopAnimationQuery = defineQuery([AnimationComponent, LoopAnimationComponent, ModelComponent, TransformComponent])
 
 const execute = () => {
-  const { deltaSeconds } = getState(EngineState)
+  const { deltaSeconds } = getState(ECSState)
 
   for (const entity of tweenQuery()) {
     const tween = getComponent(entity, TweenComponent)
@@ -64,9 +66,9 @@ const execute = () => {
     /** @todo for some reason, the animation clips do not apply their data to the proxified quaternions */
     if (hasComponent(entity, ModelComponent))
       traverseEntityNode(entity, (childEntity) => {
-        const mesh = getComponent(childEntity, MeshComponent)
+        const mesh = getOptionalComponent(childEntity, MeshComponent)
         if (!mesh) return
-        const rotation = getComponent(childEntity, LocalTransformComponent).rotation
+        const rotation = getComponent(childEntity, TransformComponent).rotation
         rotation.copy(mesh.quaternion)
       })
     const animationActionComponent = getOptionalMutableComponent(entity, LoopAnimationComponent)
@@ -77,9 +79,7 @@ const execute = () => {
   for (const entity of loopAnimationQuery()) {
     const model = getComponent(entity, ModelComponent)
     if (model.asset instanceof VRM) {
-      const position = getComponent(entity, TransformComponent).position
-      model.asset.update(deltaSeconds)
-      getComponent(entity, TransformComponent).position.copy(position)
+      updateVRMRetargeting(model.asset, entity)
     }
   }
 }

@@ -27,12 +27,12 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
-import { ChannelID, ChannelQuery, ChannelType } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { MessageType, messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
+import { ChannelUserType, channelUserPath } from '@etherealengine/common/src/schemas/social/channel-user.schema'
+import { ChannelID, ChannelQuery, ChannelType } from '@etherealengine/common/src/schemas/social/channel.schema'
+import { MessageType, messagePath } from '@etherealengine/common/src/schemas/social/message.schema'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { Paginated } from '@feathersjs/feathers'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const channelResolver = resolve<ChannelType, HookContext>({
   createdAt: virtual(async (channel) => fromDateTimeSql(channel.createdAt)),
@@ -42,14 +42,12 @@ export const channelResolver = resolve<ChannelType, HookContext>({
 export const channelExternalResolver = resolve<ChannelType, HookContext>({
   channelUsers: virtual(async (channel, context) => {
     if (context.method === 'find' && !context.params.query.instanceId) {
-      const channelUsers = (await context.app.service(channelUserPath).find({
+      return (await context.app.service(channelUserPath).find({
         query: {
           channelId: channel.id
         },
         paginate: false
       })) as ChannelUserType[]
-
-      return channelUsers
     }
   }),
   messages: virtual(async (channel, context) => {

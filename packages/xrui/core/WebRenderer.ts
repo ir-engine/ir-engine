@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { ResizeObserver as Polyfill } from '@juggle/resize-observer'
 
-import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 
 import { EventCallback, WebLayer } from './WebLayer'
 import { WebLayerManagerBase } from './WebLayerManagerBase'

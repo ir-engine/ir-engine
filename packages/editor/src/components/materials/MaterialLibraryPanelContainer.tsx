@@ -25,29 +25,31 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { memo, useCallback, useEffect } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { areEqual, FixedSizeList } from 'react-window'
+import { FixedSizeList, areEqual } from 'react-window'
 import { MeshBasicMaterial } from 'three'
 
 import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exportMaterialsGLTF'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
-import { LibraryEntryType } from '@etherealengine/engine/src/renderer/materials/constants/LibraryEntry'
+import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
+import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
+import { SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
+import { LibraryEntryType } from '@etherealengine/engine/src/scene/materials/constants/LibraryEntry'
 import {
   entryId,
   materialFromId,
   registerMaterial
-} from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
-import { getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
+} from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
+import { NO_PROXY, getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
 
 import { Stack } from '@mui/material'
 
+import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { uploadProjectFiles } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import styles from '../hierarchy/styles.module.scss'
 import { Button } from '../inputs/Button'
+import InputGroup from '../inputs/InputGroup'
+import StringInput from '../inputs/StringInput'
 import MaterialLibraryEntry, { MaterialLibraryEntryType } from './MaterialLibraryEntry'
-import { MaterialSelectionState } from './MaterialLibraryState'
 
 export default function MaterialLibraryPanel() {
   const editorState = useHookstate(getMutableState(EditorState))
@@ -55,14 +57,14 @@ export default function MaterialLibraryPanel() {
   const materialLibrary = useHookstate(getMutableState(MaterialLibraryState))
   const MemoMatLibEntry = memo(MaterialLibraryEntry, areEqual)
   const nodeChanges = useState(0)
-  const publicPath = getState(EngineState).publicPath
+  const srcPath = useState('/mat/material-test')
 
-  const createSrcs = useCallback(() => Object.values(materialLibrary.sources.value), [materialLibrary.sources])
+  const createSrcs = useCallback(() => Object.values(materialLibrary.sources.get(NO_PROXY)), [materialLibrary.sources])
   const srcs = useState(createSrcs())
   useEffect(srcs.set.bind({}, createSrcs), [materialLibrary.sources])
 
   const collapsedSrcs = useCallback(
-    () => new Set<string>(srcs.value.map((src) => entryId(src, LibraryEntryType.MATERIAL_SOURCE))),
+    () => new Set<string>(srcs.get(NO_PROXY).map((src) => entryId(src, LibraryEntryType.MATERIAL_SOURCE))),
     [srcs]
   )
 
@@ -101,9 +103,11 @@ export default function MaterialLibraryPanel() {
   const nodes = useState(createNodes())
 
   const onClick = useCallback((e: MouseEvent, node: MaterialLibraryEntryType) => {
-    if (!editorState.lockPropertiesPanel.get()) {
-      if (getState(MaterialLibraryState).materials[node.uuid]) selectedMaterial.set(node.uuid)
-    }
+    if (editorState.lockPropertiesPanel.get()) return
+    const material = getState(MaterialLibraryState).materials[node.uuid]
+    if (!material) return
+    selectedMaterial.set(node.uuid)
+    console.log(material)
   }, [])
 
   const onCollapse = useCallback((e: MouseEvent, node: MaterialLibraryEntryType) => {
@@ -161,15 +165,21 @@ export default function MaterialLibraryPanel() {
             >
               New
             </Button>
+            <InputGroup name="File Path" label="File Path">
+              <StringInput value={srcPath.value} onChange={srcPath.set} />
+            </InputGroup>
             <Button
               onClick={async () => {
                 const projectName = editorState.projectName.value!
                 const materials = selectedMaterial.value ? [materialFromId(selectedMaterial.value)] : []
-                const libraryName = 'material-test.gltf'
-                const path = `${publicPath}/projects/${projectName}/assets/${libraryName}`
+                let libraryName = srcPath.value
+                if (!libraryName.endsWith('.material.gltf')) {
+                  libraryName += '.material.gltf'
+                }
+                const relativePath = pathJoin('assets', libraryName)
                 const gltf = (await exportMaterialsGLTF(materials, {
                   binary: false,
-                  path
+                  relativePath
                 })!) as /*ArrayBuffer*/ { [key: string]: any }
 
                 const blob = [JSON.stringify(gltf)]

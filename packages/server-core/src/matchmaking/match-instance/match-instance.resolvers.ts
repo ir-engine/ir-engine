@@ -30,10 +30,10 @@ import { v4 } from 'uuid'
 import {
   MatchInstanceQuery,
   MatchInstanceType
-} from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
+} from '@etherealengine/common/src/schemas/matchmaking/match-instance.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const matchInstanceResolver = resolve<MatchInstanceType, HookContext>({
   createdAt: virtual(async (matchInstance) => fromDateTimeSql(matchInstance.createdAt)),

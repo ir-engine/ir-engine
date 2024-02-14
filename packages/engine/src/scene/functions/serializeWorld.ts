@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '../../ecs/classes/Entity'
-import { getAllComponents, getOptionalComponent, serializeComponent } from '../../ecs/functions/ComponentFunctions'
-import { ComponentJsonType } from '../../schemas/projects/scene.schema'
+import { ComponentJsonType } from '@etherealengine/common/src/schema.type.module'
+import { getAllComponents, getOptionalComponent, serializeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 
 export const serializeEntity = (entity: Entity) => {

@@ -23,13 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import {
-  SceneDataType,
-  SceneID,
-  SceneMetadataType,
-  scenePath
-} from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneDataType, SceneID, SceneMetadataType, scenePath } from '@etherealengine/common/src/schema.type.module'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 export const SCENE_PAGE_LIMIT = 100
@@ -53,7 +48,7 @@ export const AdminSceneService = {
   fetchAdminScenes: async () => {
     const scenes = (await Engine.instance.api
       .service(scenePath)
-      .find({ query: { paginate: false } })) as SceneDataType[]
+      .find({ query: { paginate: false } })) as any as SceneDataType[]
     getMutableState(AdminSceneState).merge({
       scenes: scenes,
       retrieving: false,
@@ -63,9 +58,9 @@ export const AdminSceneService = {
     })
   },
   fetchAdminScene: async (sceneKey: SceneID) => {
-    const scene = await Engine.instance.api
+    const scene = (await Engine.instance.api
       .service(scenePath)
-      .get(null, { query: { sceneKey: sceneKey, metadataOnly: false } })
+      .get('', { query: { sceneKey: sceneKey, metadataOnly: false } })) as SceneDataType
     getMutableState(AdminSceneState).merge({
       singleScene: scene,
       retrieving: false,

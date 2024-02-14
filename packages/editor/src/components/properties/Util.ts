@@ -23,16 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import {
-  Component,
-  SerializedComponentType,
-  updateComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { Component, SerializedComponentType, updateComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { getMutableState } from '@etherealengine/hyperflux'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorState } from '../../services/EditorServices'
@@ -64,16 +60,14 @@ export const updateProperties = <C extends Component>(
   nodes?: Entity[]
 ) => {
   const editorState = getMutableState(EditorState)
-  const selectionState = getMutableState(SelectionState)
 
   const affectedNodes = nodes
     ? nodes
     : editorState.lockPropertiesPanel.value
-    ? [UUIDComponent.entitiesByUUID[editorState.lockPropertiesPanel.value]]
-    : selectionState.selectedEntities.value
+    ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value)]
+    : SelectionState.getSelectedEntities()
   for (let i = 0; i < affectedNodes.length; i++) {
     const node = affectedNodes[i]
-    if (typeof node === 'string') continue
     updateComponent(node, component, properties)
   }
 }
@@ -94,13 +88,12 @@ export const commitProperties = <C extends Component>(
   nodes?: Entity[]
 ) => {
   const editorState = getMutableState(EditorState)
-  const selectionState = getMutableState(SelectionState)
 
   const affectedNodes = nodes
     ? nodes
     : editorState.lockPropertiesPanel.value
-    ? [UUIDComponent.entitiesByUUID[editorState.lockPropertiesPanel.value]]
-    : selectionState.selectedEntities.value
+    ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value)]
+    : SelectionState.getSelectedEntities()
 
   EditorControlFunctions.modifyProperty(affectedNodes, component, properties)
 }

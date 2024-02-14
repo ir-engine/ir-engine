@@ -28,7 +28,6 @@ import {
   AudioLoader,
   BufferAttribute,
   BufferGeometry,
-  FileLoader,
   Group,
   LOD,
   Material,
@@ -44,14 +43,18 @@ import {
   TextureLoader
 } from 'three'
 
+import { FileLoader } from '../loaders/base/FileLoader'
+
 import { getState } from '@etherealengine/hyperflux'
 
-import { isClient } from '../../common/functions/getEnvironment'
-import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { SourceType } from '../../renderer/materials/components/MaterialSource'
-import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTexture'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { isAbsolutePath } from '@etherealengine/spatial/src/common/functions/isAbsolutePath'
+import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
+import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
+import { SourceType } from '../../scene/materials/components/MaterialSource'
+import loadVideoTexture from '../../scene/materials/functions/LoadVideoTexture'
 import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
@@ -79,18 +82,10 @@ export function disposeDracoLoaderWorkers(): void {
   getState(AssetLoaderState).gltfLoader!.dracoLoader?.dispose()
 }
 
-const onUploadDropBuffer = (uuid?: string) =>
+const onUploadDropBuffer = () =>
   function (this: BufferAttribute) {
     // @ts-ignore
     this.array = new this.array.constructor(1)
-  }
-
-const onTextureUploadDropSource = (uuid?: string) =>
-  function (this: Texture) {
-    // source.data can't be null because the WebGLRenderer checks for it
-    this.source.data = { width: this.source.data.width, height: this.source.data.height, __deleted: true }
-    this.mipmaps.map((b) => delete b.data)
-    this.mipmaps = []
   }
 
 export const cleanupAllMeshData = (child: Mesh, args: LoadingArgs) => {
@@ -102,16 +97,13 @@ export const cleanupAllMeshData = (child: Mesh, args: LoadingArgs) => {
     for (const name in attributes) (attributes[name] as BufferAttribute).onUploadCallback = onUploadDropBuffer()
     if (geo.index) geo.index.onUploadCallback = onUploadDropBuffer()
   }
-  Object.entries(mat)
-    .filter(([k, v]: [keyof typeof mat, Texture]) => v?.isTexture)
-    .map(([_, v]) => (v.onUpdate = onTextureUploadDropSource()))
 }
 
 const processModelAsset = (asset: Mesh, args: LoadingArgs): void => {
   const replacedMaterials = new Map()
   const loddables = new Array<Object3D>()
 
-  asset.traverse((child: Mesh<any, Material>) => {
+  iterateObject3D(asset, (child: Mesh<any, Material>) => {
     //test for LODs within this traversal
     if (haveAnyLODs(child)) loddables.push(child)
 
@@ -223,6 +215,8 @@ const getAssetType = (assetFileName: string): AssetType => {
       return AssetType.MKV
     case 'm3u8':
       return AssetType.M3U8
+    case 'material':
+      return AssetType.MAT
     default:
       return null!
   }
@@ -236,6 +230,10 @@ const getAssetType = (assetFileName: string): AssetType => {
 const getAssetClass = (assetFileName: string): AssetClass => {
   assetFileName = assetFileName.toLowerCase()
   if (/\.(gltf|glb|vrm|fbx|obj|usdz)$/.test(assetFileName)) {
+    if (/\.(material.gltf)$/.test(assetFileName)) {
+      console.log('Material asset')
+      return AssetClass.Material
+    }
     return AssetClass.Model
   } else if (/\.(png|jpg|jpeg|tga|ktx2|dds)$/.test(assetFileName)) {
     return AssetClass.Image
@@ -271,18 +269,17 @@ const audioLoader = () => new AudioLoader()
 const tgaLoader = () => new TGALoader()
 const videoLoader = () => ({ load: loadVideoTexture })
 const ktx2Loader = () => ({
-  load: (src, onLoad) => {
-    const ktxLoader = getState(AssetLoaderState).gltfLoader!.ktx2Loader
-    if (!ktxLoader) throw new Error('KTX2Loader not yet initialized')
-    ktxLoader.load(
+  load: (src, onLoad, onProgress, onError) => {
+    const gltfLoader = getState(AssetLoaderState).gltfLoader
+    gltfLoader.ktx2Loader!.load(
       src,
       (texture) => {
         // console.log('KTX2Loader loaded texture', texture)
         texture.source.data.src = src
         onLoad(texture)
       },
-      () => {},
-      () => {}
+      onProgress,
+      onError
     )
   }
 })
@@ -330,16 +327,22 @@ const assetLoadCallback =
         asset = { scene: asset }
       } else if (assetType === AssetType.VRM) {
         asset = asset.userData.vrm
+        asset.userData = { flipped: true }
       }
 
       if (asset.scene && !asset.scene.userData) asset.scene.userData = {}
       if (asset.scene.userData) asset.scene.userData.type = assetType
       if (asset.userData) asset.userData.type = assetType
+      else asset.userData = { type: assetType }
 
       AssetLoader.processModelAsset(asset.scene, args)
       if (notGLTF) {
         registerMaterials(asset.scene, SourceType.MODEL, url)
       }
+    }
+    if (assetClass === AssetClass.Material) {
+      const material = asset as Material
+      material.userData.type = assetType
     }
     if ([AssetClass.Image, AssetClass.Video].includes(assetClass)) {
       const texture = asset as Texture
@@ -355,46 +358,78 @@ const assetLoadCallback =
 
 const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : getState(EngineState).publicPath + url)
 
-type LoadingArgs = {
+export type LoadingArgs = {
   ignoreDisposeGeometry?: boolean
-  uuid?: string
+  forceAssetType?: AssetType
   assetRoot?: Entity
 }
 
-const load = (
+const load = async (
   _url: string,
   args: LoadingArgs,
   onLoad = (response: any) => {},
   onProgress = (request: ProgressEvent) => {},
   onError = (event: ErrorEvent | Error) => {},
-  assetTypeOverride: AssetType = null!
+  signal?: AbortSignal
 ) => {
   if (!_url) {
     onError(new Error('URL is empty'))
     return
   }
-  const url = getAbsolutePath(_url)
+  let url = getAbsolutePath(_url)
 
-  const assetType = assetTypeOverride ? assetTypeOverride : AssetLoader.getAssetType(url)
+  const assetType = args.forceAssetType ? args.forceAssetType : AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
+  if (iOS && (assetType === AssetType.PNG || assetType === AssetType.JPEG)) {
+    const img = new Image()
+    img.crossOrigin = 'anonymous' //browser will yell without this
+    img.src = url
+    await img.decode() //new way to wait for image to load
+    // Initialize the canvas and it's size
+    const canvas = document.createElement('canvas') //dead dom elements? Remove after Three loads them
+    const ctx = canvas.getContext('2d')
+
+    // Set width and height
+    const originalWidth = img.width
+    const originalHeight = img.height
+
+    let resizingFactor = 1
+    if (originalWidth >= originalHeight) {
+      if (originalWidth > 1024) {
+        resizingFactor = 1024 / originalWidth
+      }
+    } else {
+      if (originalHeight > 1024) {
+        resizingFactor = 1024 / originalHeight
+      }
+    }
+
+    const canvasWidth = originalWidth * resizingFactor
+    const canvasHeight = originalHeight * resizingFactor
+
+    canvas.width = canvasWidth
+    canvas.height = canvasHeight
+
+    // Draw image and export to a data-uri
+    ctx?.drawImage(img, 0, 0, canvasWidth, canvasHeight)
+    const dataURI = canvas.toDataURL()
+
+    // Do something with the result, like overwrite original
+    url = dataURI
+  }
 
   const callback = assetLoadCallback(url, args, assetType, onLoad)
 
   try {
-    return loader.load(url, callback, onProgress, onError)
+    return loader.load(url, callback, onProgress, onError, signal)
   } catch (error) {
     onError(error)
   }
 }
 
-const loadAsync = async (
-  url: string,
-  args: LoadingArgs = {},
-  onProgress = (request: ProgressEvent) => {},
-  assetTypeOverride: AssetType = null!
-) => {
+const loadAsync = async (url: string, args: LoadingArgs = {}, onProgress = (request: ProgressEvent) => {}) => {
   return new Promise<any>((resolve, reject) => {
-    load(url, args, resolve, onProgress, reject, assetTypeOverride)
+    load(url, args, resolve, onProgress, reject)
   })
 }
 

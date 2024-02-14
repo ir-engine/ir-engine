@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { Knex } from 'knex'
 import { v4 } from 'uuid'
 
-import { coilSettingPath, CoilSettingType } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
+import { coilSettingPath, CoilSettingType } from '@etherealengine/common/src/schemas/setting/coil-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
-import { getDateTimeSql } from '../../util/datetime-sql'
+import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig

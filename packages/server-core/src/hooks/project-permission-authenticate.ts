@@ -32,13 +32,13 @@ import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubCon
 import {
   ProjectPermissionType,
   projectPermissionPath
-} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
-import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+} from '@etherealengine/common/src/schemas/projects/project-permission.schema'
+import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import { checkUserRepoWriteStatus } from '../projects/project/github-helper'
 
 export default (writeAccess) => {
@@ -56,6 +56,7 @@ export default (writeAccess) => {
     if (projectName) {
       const project = (await app.service(projectPath).find({
         query: {
+          action: 'admin',
           name: projectName,
           $limit: 1
         }

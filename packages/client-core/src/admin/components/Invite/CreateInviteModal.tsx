@@ -46,12 +46,17 @@ import Tabs from '@etherealengine/ui/src/primitives/mui/Tabs'
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { InstanceID, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { InviteData } from '@etherealengine/engine/src/schemas/social/invite.schema'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { InviteCode, UserName, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
+import {
+  InstanceID,
+  InviteCode,
+  InviteData,
+  UserName,
+  instancePath,
+  locationPath,
+  userPath
+} from '@etherealengine/common/src/schema.type.module'
+import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { InviteService } from '../../../social/services/InviteService'
 import DrawerView from '../../common/DrawerView'
@@ -89,7 +94,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
 
   const adminInstances = useFind(instancePath).data
   const adminUsers = useFind(userPath, { query: { isGuest: false } }).data
-  const adminLocations = useFind(locationPath).data
+  const adminLocations = useFind(locationPath, { query: { action: 'admin' } }).data
 
   const adminSceneState = useHookstate(getMutableState(AdminSceneState))
   const spawnPoints = adminSceneState.singleScene?.scene?.entities.value

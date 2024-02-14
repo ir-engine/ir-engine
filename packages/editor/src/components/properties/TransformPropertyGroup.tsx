@@ -25,24 +25,22 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Euler, Vector3 } from 'three'
+import { Euler, Quaternion, Vector3 } from 'three'
 
 import {
   getComponent,
   hasComponent,
   useComponent,
   useOptionalComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
-import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import {
-  LocalTransformComponent,
-  TransformComponent
-} from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { EditorHelperState } from '../../services/EditorHelperState'
 import { SelectionState } from '../../services/SelectionServices'
+import { ObjectGridSnapState } from '../../systems/ObjectGridSnapSystem'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import EulerInput from '../inputs/EulerInput'
@@ -50,6 +48,10 @@ import InputGroup from '../inputs/InputGroup'
 import Vector3Input from '../inputs/Vector3Input'
 import PropertyGroup from './PropertyGroup'
 import { EditorComponentType, commitProperty, updateProperty } from './Util'
+
+const position = new Vector3()
+const rotation = new Quaternion()
+const scale = new Vector3()
 
 /**
  * TransformPropertyGroup component is used to render editor view to customize properties.
@@ -59,49 +61,44 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
 
   useOptionalComponent(props.entity, SceneDynamicLoadTagComponent)
   const transformComponent = useComponent(props.entity, TransformComponent)
-  const localTransformComponent = useComponent(props.entity, LocalTransformComponent)
-  const useGlobalTransformComponent = useHookstate(false)
+  const transformSpace = useHookstate(getMutableState(EditorHelperState).transformSpace)
+
+  const bboxSnapState = getMutableState(ObjectGridSnapState)
+
+  transformSpace.value
+    ? transformComponent.matrixWorld.value.decompose(position, rotation, scale)
+    : transformComponent.matrix.value.decompose(position, rotation, scale)
+
+  /** Scaling only makes sense in local scale */
+  scale.copy(transformComponent.scale.value)
 
   const onRelease = () => {
-    EditorControlFunctions.commitTransformSave([props.entity])
+    if (bboxSnapState.enabled.value) {
+      bboxSnapState.apply.set(true)
+    } else {
+      EditorControlFunctions.commitTransformSave([props.entity])
+    }
   }
 
   const onChangeDynamicLoad = (value) => {
-    const nodes = getMutableState(SelectionState).selectedEntities.value
-    EditorControlFunctions.addOrRemoveComponent(nodes, SceneDynamicLoadTagComponent, value)
+    const selectedEntities = SelectionState.getSelectedEntities()
+    EditorControlFunctions.addOrRemoveComponent(selectedEntities, SceneDynamicLoadTagComponent, value)
   }
 
   const onChangePosition = (value: Vector3) => {
-    const nodes = getMutableState(SelectionState).selectedEntities.value
-    EditorControlFunctions.positionObject(nodes, [value])
-    LocalTransformComponent.stateMap[props.entity]!.set(LocalTransformComponent.valueMap[props.entity])
-
-    if (useGlobalTransformComponent.value) {
-      transformComponent.position.set(transformComponent.value.position.copy(value))
-    }
+    const selectedEntities = SelectionState.getSelectedEntities()
+    EditorControlFunctions.positionObject(selectedEntities, [value])
   }
 
   const onChangeRotation = (value: Euler) => {
-    const nodes = getMutableState(SelectionState).selectedEntities.value
-    EditorControlFunctions.rotateObject(nodes, [value])
-    LocalTransformComponent.stateMap[props.entity]!.set(LocalTransformComponent.valueMap[props.entity])
-
-    if (useGlobalTransformComponent.value) {
-      transformComponent.rotation.set(transformComponent.rotation.value.setFromEuler(value))
-    }
+    const selectedEntities = SelectionState.getSelectedEntities()
+    EditorControlFunctions.rotateObject(selectedEntities, [value])
   }
 
   const onChangeScale = (value: Vector3) => {
-    if (useGlobalTransformComponent.value) {
-      transformComponent.scale.set(transformComponent.value.scale.copy(value))
-    }
-    const nodes = getMutableState(SelectionState).selectedEntities.value
-    EditorControlFunctions.scaleObject(nodes, [value], TransformSpace.local, true)
-    LocalTransformComponent.stateMap[props.entity]!.set(LocalTransformComponent.valueMap[props.entity])
+    const selectedEntities = SelectionState.getSelectedEntities()
+    EditorControlFunctions.scaleObject(selectedEntities, [value], true)
   }
-
-  const transform =
-    useGlobalTransformComponent.value && localTransformComponent ? transformComponent : localTransformComponent
 
   return (
     <PropertyGroup name={t('editor:properties.transform.title')}>
@@ -119,18 +116,9 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           />
         )}
       </InputGroup>
-      {localTransformComponent && (
-        <InputGroup name="Use Global Transform" label={t('editor:properties.transform.lbl-useGlobalTransform')}>
-          <BooleanInput
-            disabled={!localTransformComponent}
-            value={localTransformComponent?.value && useGlobalTransformComponent.value}
-            onChange={() => useGlobalTransformComponent.set((prev) => !prev)}
-          />
-        </InputGroup>
-      )}
       <InputGroup name="Position" label={t('editor:properties.transform.lbl-position')}>
         <Vector3Input
-          value={transform.position.value}
+          value={position}
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
@@ -139,7 +127,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
         />
       </InputGroup>
       <InputGroup name="Rotation" label={t('editor:properties.transform.lbl-rotation')}>
-        <EulerInput quaternion={transform.rotation.value} onChange={onChangeRotation} unit="°" onRelease={onRelease} />
+        <EulerInput quaternion={rotation} onChange={onChangeRotation} unit="°" onRelease={onRelease} />
       </InputGroup>
       <InputGroup name="Scale" label={t('editor:properties.transform.lbl-scale')}>
         <Vector3Input
@@ -147,7 +135,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
-          value={transform.scale.value}
+          value={scale}
           onChange={onChangeScale}
           onRelease={onRelease}
         />

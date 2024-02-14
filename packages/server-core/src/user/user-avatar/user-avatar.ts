@@ -27,9 +27,9 @@ import {
   UserAvatarType,
   userAvatarMethods,
   userAvatarPath
-} from '@etherealengine/engine/src/schemas/user/user-avatar.schema'
+} from '@etherealengine/common/src/schemas/user/user-avatar.schema'
 
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Application } from '@etherealengine/server-core/declarations'
 import _ from 'lodash'
 import logger from '../../ServerLogger'
@@ -41,7 +41,7 @@ import hooks from './user-avatar.hooks'
 import {
   InstanceAttendanceType,
   instanceAttendancePath
-} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+} from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
 import { Knex } from 'knex'
 
 declare module '@etherealengine/common/declarations' {
@@ -76,7 +76,7 @@ export default (app: Application): void => {
    * This method find all users
    * @returns users
    */
-  service.publish('patched', async (data: UserAvatarType, context) => {
+  service.publish('patched', async (data: UserAvatarType) => {
     try {
       const userId = data.userId
 

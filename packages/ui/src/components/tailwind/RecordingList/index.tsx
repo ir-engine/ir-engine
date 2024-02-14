@@ -23,14 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { RecordingID, RecordingType, recordingPath } from '@etherealengine/common/src/schema.type.module'
 import { PlaybackState } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
-import {
-  RecordingID,
-  RecordingType,
-  recordingPath
-} from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { PlayIcon, PlusCircleIcon, StopIcon } from '@heroicons/react/24/solid'
 import React from 'react'
 import Icon from '../../../primitives/mui/Icon'
@@ -64,7 +60,7 @@ const RecordingsList = (props: {
     query: { $sort: { createdAt: -1 }, $limit: 10, $skip: 0 }
   })
 
-  const sortedRecordings = recording.data.sort(sortByNewest)
+  const sortedRecordings = [...recording.data].sort(sortByNewest)
 
   const RecordingItem = (props: { recording: RecordingType }) => {
     const { recording } = props
@@ -116,15 +112,15 @@ const RecordingsList = (props: {
                   })
                 }}
               >
-                <StopIcon className="block min-w-6 min-h-6" />
+                <StopIcon className="block min-h-6 min-w-6" />
               </button>
             ) : (
               <>
                 <button className="btn btn-ghost" onClick={() => startPlayback(recording.id, false)}>
-                  <PlayIcon className="block min-w-6 min-h-6" />
+                  <PlayIcon className="block min-h-6 min-w-6" />
                 </button>
                 <button style={{ pointerEvents: 'all' }} onClick={() => startPlayback(recording.id, true)}>
-                  <PlusCircleIcon className="block min-w-6 min-h-6" />
+                  <PlusCircleIcon className="block min-h-6 min-w-6" />
                 </button>
               </>
             )}
@@ -135,7 +131,7 @@ const RecordingsList = (props: {
   }
 
   return (
-    <div className="w-full aspect-video">
+    <div className="aspect-video w-full">
       <table className="table w-full">
         {/* head */}
         <thead>

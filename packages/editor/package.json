@@ -1,6 +1,6 @@
 {
   "name": "@etherealengine/editor",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "main": "lib/editor.umd.js",
   "module": "lib/editor.es.js",
   "types": "lib/index.d.ts",
@@ -20,20 +20,20 @@
     "test": "mocha --config .mocharc.js"
   },
   "resolutions": {
-    "@types/react": "18.0.28",
+    "@types/react": "18.2.0",
     "react": "18.2.0"
   },
   "peerDependencies": {
-    "@types/react": "18.0.28",
+    "@types/react": "18.2.0",
     "react": "18.2.0"
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "0.11.2",
-    "@etherealengine/client-core": "^1.5.0",
-    "@etherealengine/common": "^1.5.0",
-    "@etherealengine/engine": "^1.5.0",
-    "@etherealengine/hyperflux": "^1.5.0",
-    "@etherealengine/ui": "^1.5.0",
+    "@etherealengine/client-core": "^1.6.0",
+    "@etherealengine/common": "^1.6.0",
+    "@etherealengine/engine": "^1.6.0",
+    "@etherealengine/hyperflux": "^1.6.0",
+    "@etherealengine/ui": "^1.6.0",
     "@fortawesome/fontawesome-svg-core": "^6.3.0",
     "@fortawesome/free-solid-svg-icons": "^6.3.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
@@ -45,7 +45,7 @@
     "lodash": "4.17.21",
     "potpack": "^2.0.0",
     "rc-dock": "3.2.18",
-    "rc-slider": "10.1.1",
+    "rc-slider": "10.5.0",
     "react": "18.2.0",
     "react-color": "2.19.3",
     "react-dnd": "16.0.1",
@@ -66,8 +66,8 @@
   "devDependencies": {
     "@types/mocha": "^10.0.1",
     "@types/node": "18.15.5",
-    "@types/react": "18.0.28",
-    "@types/react-dom": "18.0.11",
+    "@types/react": "18.2.0",
+    "@types/react-dom": "18.2.0",
     "@types/react-router-dom": "5.3.3",
     "@types/three": "0.158.0",
     "@types/uuid": "^9.0.1",

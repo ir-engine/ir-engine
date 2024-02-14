@@ -35,7 +35,7 @@ import {
 
 import { ResourceID } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 
-const EXTENSION_NAME = 'EE_resourceID'
+const EXTENSION_NAME = 'EE_resourceId'
 
 interface IEEResourceID extends IProperty {
   resourceId: ResourceID

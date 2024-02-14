@@ -27,7 +27,6 @@ import React, { useCallback } from 'react'
 import { Texture, Vector2, Vector3 } from 'three'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 import {
   ApplyForceBehaviorJSON,
   ApplySequencesJSON,
@@ -51,6 +50,7 @@ import {
   WidthOverLengthBehaviorJSON
 } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { State } from '@etherealengine/hyperflux'
+import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 
 import BooleanInput from '../../inputs/BooleanInput'
 import { Button } from '../../inputs/Button'
@@ -442,7 +442,7 @@ export default function BehaviorInput({
                   <InputGroup name="Texture" label="Texture">
                     <TexturePreviewInput
                       value={sequencer.sequencer.src}
-                      onChange={onChangeSequenceTexture(sequencerScope.sequencer)}
+                      onRelease={onChangeSequenceTexture(sequencerScope.sequencer)}
                     />
                   </InputGroup>
                 </>

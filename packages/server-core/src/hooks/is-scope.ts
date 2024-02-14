@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { HookContext } from '@feathersjs/feathers'
 
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 
-import { ScopeTypeInterface, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { ScopeTypeInterface, scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { Application } from '../../declarations'
 
 export default (currentType: string, scopeToVerify: string) => {
@@ -47,9 +47,6 @@ export default (currentType: string, scopeToVerify: string) => {
       if (sc.type.split(':')[0] === currentType) result.push(sc.type.split(':')[1])
       return result
     }, [])
-    if (!currentScopes.includes(scopeToVerify)) {
-      return false
-    }
-    return true
+    return currentScopes.includes(scopeToVerify)
   }
 }

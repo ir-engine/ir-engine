@@ -27,10 +27,10 @@ import { VRMLoaderPlugin } from '@pixiv/three-vrm'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { Group } from 'three'
-import { isClient } from '../../common/functions/getEnvironment'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
 import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
 import { KTX2Loader } from '../loaders/gltf/KTX2Loader'
@@ -67,7 +67,7 @@ export const createGLTFLoader = (keepMaterials = false) => {
   loader.register((parser) => new KHRMaterialsPBRSpecularGlossinessExtension(parser))
   loader.register((parser) => new EEECSImporterExtension(parser))
   loader.register((parser) => new HubsComponentsExtension(parser))
-  loader.register((parser) => new VRMLoaderPlugin(parser, { helperRoot: new Group(), autoUpdateHumanBones: true }))
+  loader.register((parser) => new VRMLoaderPlugin(parser, { helperRoot: new Group(), autoUpdateHumanBones: false }))
   loader.register((parser) => new CachedImageLoadExtension(parser))
   if (MeshoptDecoder.useWorkers) {
     MeshoptDecoder.useWorkers(2)
@@ -79,7 +79,6 @@ export const createGLTFLoader = (keepMaterials = false) => {
     dracoLoader.setDecoderPath(getState(EngineState).publicPath + '/loader_decoders/')
     dracoLoader.setWorkerLimit(1)
     loader.setDRACOLoader(dracoLoader)
-    initializeKTX2Loader(loader)
   } else {
     const dracoLoader = new NodeDRACOLoader()
     /* @ts-ignore */

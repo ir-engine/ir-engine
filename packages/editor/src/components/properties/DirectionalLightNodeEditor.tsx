@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { DirectionalLightComponent } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
 
 import BoltIcon from '@mui/icons-material/Bolt'
 

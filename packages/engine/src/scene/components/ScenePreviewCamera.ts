@@ -28,18 +28,20 @@ import { CameraHelper, PerspectiveCamera } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { RendererState } from '../../renderer/RendererState'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
-import { addObjectToGroup } from './GroupComponent'
-import { NameComponent } from './NameComponent'
-import { setVisibleComponent } from './VisibleComponent'
+import { useExecute } from '@etherealengine/ecs'
+import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { TransformDirtyCleanupSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 
 export const ScenePreviewCameraComponent = defineComponent({
   name: 'EE_scenePreviewCamera',
@@ -70,8 +72,21 @@ export const ScenePreviewCameraComponent = defineComponent({
       const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
       cameraTransform.position.copy(transform.position)
       cameraTransform.rotation.copy(transform.rotation)
-      addObjectToGroup(entity, previewCamera.camera.value)
+      const camera = previewCamera.camera.value
+      addObjectToGroup(entity, camera)
+      return () => {
+        removeObjectFromGroup(entity, camera)
+      }
     }, [])
+
+    useExecute(
+      () => {
+        if (!TransformComponent.dirtyTransforms[entity]) return
+        const camera = getComponent(entity, ScenePreviewCameraComponent).camera
+        camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
+      },
+      { before: TransformDirtyCleanupSystem }
+    )
 
     useEffect(() => {
       engineCameraTransform.position.value.copy(previewCameraTransform.position.value)
@@ -83,9 +98,9 @@ export const ScenePreviewCameraComponent = defineComponent({
 
       const helper = new CameraHelper(previewCamera.camera.value)
       helper.name = `scene-preview-helper-${entity}`
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
       const helperEntity = createEntity()
       addObjectToGroup(helperEntity, helper)
+      setObjectLayers(helper, ObjectLayers.NodeHelper)
       setComponent(helperEntity, NameComponent, helper.name)
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
       setVisibleComponent(helperEntity, true)

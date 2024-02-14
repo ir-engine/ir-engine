@@ -112,4 +112,4 @@ function configurePrimus(config?: any, configurer?: any) {
   }
 }
 
-export = configurePrimus
+export default configurePrimus

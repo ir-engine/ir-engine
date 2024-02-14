@@ -27,15 +27,15 @@ import { t } from 'i18next'
 import React, { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
+import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import '@etherealengine/engine/src/EngineModule'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import '../EditorModule'
 import EditorContainer from '../components/EditorContainer'
 import { EditorState } from '../services/EditorServices'
@@ -59,6 +59,8 @@ export const EditorPage = () => {
   const [params] = useSearchParams()
   const projectState = useHookstate(getMutableState(ProjectState))
   const { sceneID, projectName } = useHookstate(getMutableState(EditorState))
+
+  ProjectService.useAPIListeners()
 
   useEffect(() => {
     const sceneInParams = params.get('scenePath')

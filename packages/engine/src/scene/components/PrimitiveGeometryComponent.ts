@@ -30,7 +30,6 @@ import {
   CircleGeometry,
   CylinderGeometry,
   DodecahedronGeometry,
-  Euler,
   IcosahedronGeometry,
   Mesh,
   MeshLambertMaterial,
@@ -43,15 +42,15 @@ import {
   TorusKnotGeometry
 } from 'three'
 
+import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { Geometry } from '@etherealengine/engine/src/assets/constants/Geometry'
 import { NO_PROXY, useState } from '@etherealengine/hyperflux'
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { GeometryTypeEnum } from '../constants/GeometryTypeEnum'
-import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const PrimitiveGeometryComponent = defineComponent({
   name: 'PrimitiveGeometryComponent',
@@ -91,7 +90,6 @@ function GeometryReactor() {
   const entity = useEntityContext()
   const geometryComponent = useComponent(entity, PrimitiveGeometryComponent)
   const transform = useComponent(entity, TransformComponent)
-  const material = new MeshLambertMaterial() // set material later
   const mesh = useState<Mesh>(new Mesh())
 
   function areKeysDifferentTypes(obj1: Record<string, any>, obj2: Record<string, any>): boolean {
@@ -131,12 +129,13 @@ function GeometryReactor() {
   }
   useEffect(() => {
     geometryComponent.geometry.set(new BoxGeometry()) // set default geometry
+    const material = new MeshLambertMaterial() // set material later
     mesh.set(new Mesh(geometryComponent.geometry.value, material))
     mesh.value.name = `${entity}-primitive-geometry`
     mesh.value.visible = true
     mesh.value.updateMatrixWorld(true)
-    setObjectLayers(mesh.value, ObjectLayers.Scene)
     addObjectToGroup(entity, mesh.value)
+    setObjectLayers(mesh.value, ObjectLayers.Scene)
 
     return () => {
       removeObjectFromGroup(entity, mesh.value)
@@ -145,12 +144,7 @@ function GeometryReactor() {
 
   useEffect(() => {
     if (!mesh) return
-
-    mesh.value.geometry.dispose()
     mesh.value.geometry = geometryComponent.geometry.get(NO_PROXY)
-    mesh.position.value.copy(transform.position.value)
-    mesh.rotation.value.copy(new Euler().setFromQuaternion(transform.rotation.value))
-    mesh.scale.value.copy(transform.scale.value)
   }, [geometryComponent.geometry])
 
   useEffect(() => {

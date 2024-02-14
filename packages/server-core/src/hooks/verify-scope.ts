@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { HookContext } from '@feathersjs/feathers'
 
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 
-import { ScopeTypeInterface, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { ScopeTypeInterface, scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { Forbidden, NotAuthenticated, NotFound } from '@feathersjs/errors'
 import { Application } from '../../declarations'
 
@@ -40,6 +40,7 @@ export default (currentType: string, scopeToVerify: string) => {
       query: {
         userId: loggedInUser.id
       },
+      user: loggedInUser,
       paginate: false
     })) as ScopeTypeInterface[]
     if (!scopes || scopes.length === 0) throw new NotFound('No scope available for the current user.')

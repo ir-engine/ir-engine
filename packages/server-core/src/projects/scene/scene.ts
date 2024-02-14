@@ -25,12 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { instanceActivePath } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
+import { instanceActivePath } from '@etherealengine/common/src/schemas/networking/instance-active.schema'
 import {
   InstanceAttendanceType,
   instanceAttendancePath
-} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import { SceneID, SceneUpdate, sceneMethods, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+} from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
+import { SceneID, SceneUpdate, sceneMethods, scenePath } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { Application } from '../../../declarations'
 import { ServerMode, ServerState } from '../../ServerState'
 import { SceneService } from './scene.class'
@@ -44,7 +44,7 @@ declare module '@etherealengine/common/declarations' {
 }
 
 export default (app: Application): void => {
-  app.use(scenePath, new SceneService(app), {
+  app.use(scenePath, new SceneService(), {
     // A list of all methods this service exposes externally
     methods: sceneMethods,
     // You can add additional custom events to be sent to clients here
@@ -56,7 +56,7 @@ export default (app: Application): void => {
   service.hooks(hooks)
 
   if (getState(ServerState).serverMode === ServerMode.API)
-    service.publish('updated', async (data, context) => {
+    service.publish('updated', async (data) => {
       const updatedScene = data as SceneUpdate
       const instanceActive = await app.service(instanceActivePath).find({
         query: { sceneId: updatedScene.id as SceneID }

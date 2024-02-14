@@ -25,11 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import BufferHandlerExtension from '@etherealengine/engine/src/assets/exporters/gltf/extensions/BufferHandlerExtension'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { defineActionQueue } from '@etherealengine/hyperflux'
 
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { clearModelResources, uploadProjectFiles } from '../functions/assetFunctions'
 
 const beginModelExportQueue = defineActionQueue(BufferHandlerExtension.beginModelExport.matches)

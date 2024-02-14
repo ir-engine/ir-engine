@@ -24,16 +24,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-
 module.exports = {
   failZero: false,
   parallel: false,
-  spec: [
-    '**/*.test.ts'
-  ],
   require: [
     'tests/mocha.env', // init env here
     'jsdom-global/register'
+  ],
+  spec: [
+    './**/*.test.ts',
+    './**/*.test.tsx'
   ],
   extension: [
     'ts',
@@ -43,5 +43,5 @@ module.exports = {
   exit: true,
   recursive: true,
   jobs: '1',
-  timeout: '20000'
+  timeout: '60000'
 };

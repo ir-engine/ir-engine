@@ -25,20 +25,20 @@ Ethereal Engine. All Rights Reserved.
 
 import { InstancedMesh, Mesh } from 'three'
 
-import { GenerateMeshBVHWorker } from '../../common/classes/GenerateMeshBVHWorker'
+import { GenerateMeshBVHWorker } from '@etherealengine/spatial/src/common/classes/GenerateMeshBVHWorker'
 
 const poolSize = 1
 
 const bvhWorkers: GenerateMeshBVHWorker[] = []
 const meshQueue: Mesh[] = []
 
-export function generateMeshBVH(mesh: Mesh | InstancedMesh) {
+export function generateMeshBVH(mesh: Mesh | InstancedMesh, signal: AbortSignal) {
   if (
     !mesh.isMesh ||
     (mesh as InstancedMesh).isInstancedMesh ||
     !mesh.geometry ||
     !mesh.geometry.attributes.position ||
-    (mesh.geometry as any).boundsTree
+    mesh.geometry.boundsTree
   )
     return Promise.resolve()
   if (!bvhWorkers.length) {
@@ -48,14 +48,16 @@ export function generateMeshBVH(mesh: Mesh | InstancedMesh) {
   }
 
   meshQueue.push(mesh)
-  runBVHGenerator()
+  runBVHGenerator(signal)
 
   return new Promise<void>((resolve) => {
     ;(mesh as any).resolvePromiseBVH = resolve
   })
 }
 
-function runBVHGenerator() {
+function runBVHGenerator(signal: AbortSignal) {
+  if (signal.aborted) return
+
   for (const worker of bvhWorkers) {
     if (meshQueue.length < 1) {
       break
@@ -68,8 +70,8 @@ function runBVHGenerator() {
     const mesh = meshQueue.shift() as Mesh
 
     worker.generate(mesh.geometry).then((bvh) => {
-      ;(mesh.geometry as any).boundsTree = bvh
-      runBVHGenerator()
+      mesh.geometry.boundsTree = bvh
+      runBVHGenerator(signal)
       ;(mesh as any).resolvePromiseBVH && (mesh as any).resolvePromiseBVH()
     })
   }

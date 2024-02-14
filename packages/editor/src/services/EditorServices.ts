@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { SceneID } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneID } from '@etherealengine/common/src/schema.type.module'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 import { LayoutData } from 'rc-dock'
 
@@ -41,7 +41,6 @@ export const EditorState = defineState({
     projectName: null as string | null,
     sceneName: null as string | null,
     sceneID: null as SceneID | null,
-    sceneModified: false,
     expandedNodes: {} as IExpandedNodes,
     lockPropertiesPanel: '' as EntityUUID,
     panelLayout: {} as LayoutData

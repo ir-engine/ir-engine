@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { AvatarType } from '@etherealengine/common/src/schema.type.module'
 
 export interface AvatarColumn {
-  id: 'select' | 'id' | 'name' | 'user' | 'thumbnail' | 'action'
+  id: 'select' | 'id' | 'name' | 'user' | 'isPublic' | 'thumbnail' | 'action'
   label: string | React.ReactElement
   minWidth?: number
   align?: 'right'
@@ -36,6 +36,7 @@ export const avatarColumns: AvatarColumn[] = [
   { id: 'id', label: 'Id', minWidth: 65 },
   { id: 'name', label: 'Name', minWidth: 65 },
   { id: 'user', label: 'Owner', minWidth: 65 },
+  { id: 'isPublic', label: 'Public', minWidth: 65 },
   {
     id: 'thumbnail',
     label: 'Thumbnail',

@@ -59,6 +59,7 @@ export const GraphPanelTitle = () => {
 export const GraphPanelTab: TabData = {
   id: 'graphPanel',
   closable: true,
+  cached: true,
   title: <GraphPanelTitle />,
   content: <GraphPanel />
 }

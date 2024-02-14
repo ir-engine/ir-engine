@@ -27,18 +27,14 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import {
-  AwsCloudFrontType,
-  AwsSmsType,
-  awsSettingPath
-} from '@etherealengine/engine/src/schemas/setting/aws-setting.schema'
+import { AwsCloudFrontType, AwsSmsType, awsSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import styles from '../../styles/settings.module.scss'
 
 const SMS_PROPERTIES = {

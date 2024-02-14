@@ -27,73 +27,65 @@ import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapi
 import { AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
 
-import { setTargetCameraRotation } from '../../camera/systems/CameraInputSystem'
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { SceneState } from '../../ecs/classes/Scene'
-import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
-import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
+import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { setTargetCameraRotation } from '@etherealengine/spatial/src/camera/functions/CameraFunctions'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import {
   NetworkObjectComponent,
   NetworkObjectSendPeriodicUpdatesTag
-} from '../../networking/components/NetworkObjectComponent'
-import { WorldState } from '../../networking/interfaces/WorldState'
-import { Physics } from '../../physics/classes/Physics'
-import { CollisionComponent } from '../../physics/components/CollisionComponent'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
-import { PhysicsState } from '../../physics/state/PhysicsState'
+} from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
+import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
+import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { CollisionComponent } from '@etherealengine/spatial/src/physics/components/CollisionComponent'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { AvatarCollisionMask, CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
+import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
+import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import {
+  DistanceFromCameraComponent,
+  FrustumCullCameraComponent
+} from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
 import { EnvmapComponent } from '../../scene/components/EnvmapComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { EnvMapSourceType } from '../../scene/constants/EnvMapEnum'
-import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { proxifyParentChildRelationships } from '../../scene/functions/loadGLTFModel'
 import { AnimationComponent } from '../components/AnimationComponent'
-import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
+import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 
 export const avatarRadius = 0.125
-export const defaultAvatarHeight = 1.8
-export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
 
 export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
-  const entity = UUIDComponent.entitiesByUUID[entityUUID]
+  const entity = UUIDComponent.getEntityByUUID(entityUUID)
   if (!entity) return
 
   const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
-  const isOwner = ownerID === (entityUUID as string as UserID)
 
-  if (isOwner) {
-    const existingAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(entityUUID as string as UserID)
-
-    // already spawned into the world on another device or tab
-    if (existingAvatarEntity) return
-  }
-
-  setComponent(entity, AvatarComponent, {
-    avatarHalfHeight: defaultAvatarHalfHeight,
-    avatarHeight: defaultAvatarHeight,
-    model: null
-  })
+  setComponent(entity, AvatarComponent)
 
   const userNames = getState(WorldState).userNames
   const userName = userNames[entityUUID]
   const shortId = ownerID.substring(0, 7)
   setComponent(entity, NameComponent, 'avatar-' + (userName ? shortId + ' (' + userName + ')' : shortId))
+  const obj3d = new Object3D()
+  obj3d.entity = entity
+  addObjectToGroup(entity, obj3d)
+  proxifyParentChildRelationships(obj3d)
 
   setComponent(entity, VisibleComponent, true)
 
-  setComponent(entity, BoundingBoxDynamicTag)
-  setComponent(entity, BoundingBoxComponent)
   setComponent(entity, DistanceFromCameraComponent)
   setComponent(entity, FrustumCullCameraComponent)
 
@@ -124,6 +116,9 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   setComponent(entity, ShadowComponent)
   setComponent(entity, GrabberComponent)
+  setComponent(entity, AvatarRigComponent)
+
+  setComponent(entity, EntityTreeComponent)
 }
 
 export const createAvatarCollider = (entity: Entity): Collider => {
@@ -133,12 +128,11 @@ export const createAvatarCollider = (entity: Entity): Collider => {
   const transform = getComponent(entity, TransformComponent)
   rigidBody.position.copy(transform.position)
   rigidBody.rotation.copy(transform.rotation)
-
-  const bodyColliderDesc = ColliderDesc.capsule(
-    avatarComponent.avatarHalfHeight - avatarRadius - 0.25,
-    avatarRadius
-  ).setCollisionGroups(interactionGroups)
-  bodyColliderDesc.setTranslation(0, avatarComponent.avatarHalfHeight + 0.25, 0)
+  const halfHeight = avatarComponent.avatarHeight * 0.5
+  const bodyColliderDesc = ColliderDesc.capsule(halfHeight - avatarRadius - 0.25, avatarRadius).setCollisionGroups(
+    interactionGroups
+  )
+  bodyColliderDesc.setTranslation(0, halfHeight + 0.25, 0)
 
   return Physics.createColliderAndAttachToRigidBody(
     getState(PhysicsState).physicsWorld,
@@ -157,7 +151,10 @@ const createAvatarRigidBody = (entity: Entity): RigidBody => {
 }
 
 export const createAvatarController = (entity: Entity) => {
-  createAvatarRigidBody(entity)
+  if (!hasComponent(entity, RigidBodyComponent)) {
+    createAvatarRigidBody(entity)
+  }
+
   const rigidbody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
   rigidbody.position.copy(transform.position)

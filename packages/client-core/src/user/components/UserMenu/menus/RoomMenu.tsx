@@ -34,12 +34,11 @@ import Menu from '@etherealengine/client-core/src/common/components/Menu'
 
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 
-import { requestXRSession } from '@etherealengine/engine/src/xr/XRSessionFunctions'
+import { requestXRSession } from '@etherealengine/spatial/src/xr/XRSessionFunctions'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { RoomCode } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { instancePath, RoomCode } from '@etherealengine/common/src/schema.type.module'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
 

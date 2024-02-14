@@ -26,9 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { createState } from '@hookstate/core'
 import React from 'react'
 
-import { Entity } from '../../ecs/classes/Entity'
-import { createXRUI } from '../../xrui/functions/createXRUI'
-import { useXRUIState } from '../../xrui/functions/useXRUIState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
+import { useXRUIState } from '@etherealengine/spatial/src/xrui/functions/useXRUIState'
 
 export interface ModalState {
   message: string

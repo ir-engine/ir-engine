@@ -31,13 +31,18 @@ import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/
 import styles from '@etherealengine/client-core/src/admin/styles/admin.module.scss'
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
+import '@etherealengine/client-core/src/user/UserUISystem'
 import { PopupMenuState } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
-import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
 import config from '@etherealengine/common/src/config'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import '@etherealengine/client-core/src/world/LocationModule'
+
+import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
+import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import { Box, Button } from '@mui/material'
+
+import './index.scss'
 
 const ROOT_REDIRECT = config.client.rootRedirect
 
@@ -45,14 +50,18 @@ export const HomePage = (): any => {
   const { t } = useTranslation()
   const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
   const [clientSetting] = clientSettingState?.client?.value || []
-  const openMenu = useHookstate(getMutableState(PopupMenuState).openMenu)
+  const popupMenuState = useHookstate(getMutableState(PopupMenuState))
+  const popupMenu = getState(PopupMenuState)
+  const Panel = popupMenu.openMenu ? popupMenu.menus[popupMenu.openMenu] : null
 
   useEffect(() => {
     const error = new URL(window.location.href).searchParams.get('error')
     if (error) NotificationService.dispatchNotify(error, { variant: 'error' })
-
-    openMenu.set(UserMenus.Profile)
   }, [])
+
+  useEffect(() => {
+    if (!popupMenuState.openMenu.value) popupMenuState.openMenu.set(UserMenus.Profile)
+  }, [popupMenuState.openMenu, popupMenuState.menus.keys])
 
   if (ROOT_REDIRECT && ROOT_REDIRECT.length > 0 && ROOT_REDIRECT !== 'false') {
     const redirectParsed = new URL(ROOT_REDIRECT)
@@ -128,7 +137,8 @@ export const HomePage = (): any => {
                 }
               `}
             </style>
-            {openMenu.value === UserMenus.Profile && <ProfileMenu isPopover />}
+            {Panel && <Panel {...popupMenu.params} isPopover />}
+            {popupMenu.openMenu !== UserMenus.Profile && <ProfileMenu isPopover />}
           </Box>
         </div>
         <div className="link-container">

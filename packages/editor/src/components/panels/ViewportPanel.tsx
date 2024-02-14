@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { TabData } from 'rc-dock'
 import React from 'react'
 import { useDrop } from 'react-dnd'
@@ -49,7 +49,7 @@ const ViewportDnD = () => {
       getCursorSpawnPosition(monitor.getClientOffset() as Vector2, vec3)
       EditorControlFunctions.createObjectFromSceneElement([
         { name: item!.componentJsonID },
-        { name: LocalTransformComponent.jsonID, props: { position: vec3 } }
+        { name: TransformComponent.jsonID, props: { position: vec3 } }
       ])
     }
   })

@@ -28,11 +28,11 @@ import React from 'react'
 
 import { MediaInstanceState } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { NetworkState, screenshareVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NetworkState, screenshareVideoDataChannelType } from '@etherealengine/spatial/src/networking/NetworkState'
 
-import { MediasoupMediaProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
+import { MediasoupMediaProducerConsumerState } from '@etherealengine/spatial/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import ConferenceModeParticipant from './ConferenceModeParticipant'
 import styles from './index.module.scss'
@@ -45,7 +45,7 @@ const ConferenceMode = (): JSX.Element => {
   const displayedUsers =
     network?.id && currentChannelInstanceConnection
       ? Object.values(network.peers).filter(
-          (peer) => peer.peerID !== 'server' && peer.userId !== authState.user.id.value
+          (peer) => peer.peerID !== network.hostPeerID && peer.userId !== authState.user.id.value
         ) || []
       : []
 

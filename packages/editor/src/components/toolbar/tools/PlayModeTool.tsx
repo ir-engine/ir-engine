@@ -26,24 +26,24 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { getComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
-import { FollowCameraComponent } from '@etherealengine/engine/src/camera/components/FollowCameraComponent'
-import { TargetCameraRotationComponent } from '@etherealengine/engine/src/camera/components/TargetCameraRotationComponent'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { getComponent, removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
-import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { ComputedTransformComponent } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
+import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
+import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
+import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
 
 import PauseIcon from '@mui/icons-material/Pause'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 
 import { BehaveGraphActions, graphQuery } from '@etherealengine/engine/src/behave-graph/systems/BehaveGraphSystem'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { useTranslation } from 'react-i18next'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
@@ -53,7 +53,7 @@ const PlayModeTool = () => {
 
   const isEditing = useHookstate(getMutableState(EngineState).isEditing)
   const authState = useHookstate(getMutableState(AuthState))
-  const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded).value
+  const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded).value
 
   const onTogglePlayMode = () => {
     if (Engine.instance.localClientEntity) {
@@ -82,7 +82,8 @@ const PlayModeTool = () => {
           name: authState.user.name.value
         })
 
-      getMutableState(EngineState).isEditing.set(false)
+      // todo
+      // getMutableState(EngineState).isEditing.set(false)
       // run all behave graph logic
       graphQuery().forEach((entity) => dispatchAction(BehaveGraphActions.execute({ entity })))
     }
