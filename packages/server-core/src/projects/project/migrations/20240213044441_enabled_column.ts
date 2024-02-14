@@ -23,18 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { IncomingActionSystem } from '../networking/systems/IncomingActionSystem'
-import { OutgoingActionSystem } from '../networking/systems/OutgoingActionSystem'
-import { EntityNetworkState } from './state/EntityNetworkState'
-import { IncomingNetworkSystem } from './systems/IncomingNetworkSystem'
-import { MediasoupMediaProducerConsumerState } from './systems/MediasoupMediaProducerConsumerState'
-import { OutgoingNetworkSystem } from './systems/OutgoingNetworkSystem'
+import { projectPath } from '@etherealengine/common/src/schema.type.module'
+import type { Knex } from 'knex'
 
-export {
-  EntityNetworkState,
-  IncomingNetworkSystem,
-  MediasoupMediaProducerConsumerState,
-  OutgoingNetworkSystem,
-  IncomingActionSystem,
-  OutgoingActionSystem
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const enabledColumnExists = await knex.schema.hasColumn(projectPath, 'enabled')
+  if (!enabledColumnExists) {
+    await knex.schema.alterTable(projectPath, async (table) => {
+      table.boolean('enabled').defaultTo(true)
+    })
+  }
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const enabledColumnExists = await knex.schema.hasColumn(projectPath, 'enabled')
+
+  if (enabledColumnExists) {
+    await knex.schema.alterTable(projectPath, async (table) => {
+      table.dropColumn('enabled')
+    })
+  }
 }

@@ -317,6 +317,11 @@ export const getEnginePackageJson = (): ProjectPackageJsonType => {
   return require(path.resolve(appRootPath.path, 'packages/server-core/package.json'))
 }
 
+export const getProjectEnabled = (projectName: string) => {
+  const matchesVersion = getProjectPackageJson(projectName).etherealEngine?.version === getEnginePackageJson().version
+  return config.allowOutOfDateProjects ? true : matchesVersion
+}
+
 //DO NOT REMOVE!
 //Even though an IDE may say that it's not used in the codebase, projects may use this.
 export const getProjectEnv = async (app: Application, projectName: string) => {
@@ -1509,6 +1514,8 @@ export const updateProject = async (
 
   const projectConfig = getProjectConfig(projectName) ?? {}
 
+  const enabled = getProjectEnabled(projectName)
+
   // when we have successfully re-installed the project, remove the database entry if it already exists
   const existingProjectResult = (await app.service(projectPath).find({
     query: {
@@ -1532,6 +1539,7 @@ export const updateProject = async (
         {
           id: v4(),
           name: projectName,
+          enabled,
           repositoryPath,
           needsRebuild: data.needsRebuild ? data.needsRebuild : true,
           sourceRepo: data.sourceURL,
@@ -1549,6 +1557,7 @@ export const updateProject = async (
     : await app.service(projectPath).patch(
         existingProject.id,
         {
+          enabled,
           commitSHA,
           commitDate: toDateTimeSql(commitDate),
           sourceRepo: data.sourceURL,

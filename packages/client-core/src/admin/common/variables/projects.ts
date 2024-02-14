@@ -27,6 +27,7 @@ export interface ProjectColumn {
   id:
     | 'name'
     | 'projectVersion'
+    | 'enabled'
     | 'commitSHA'
     | 'commitDate'
     | 'update'
@@ -45,6 +46,7 @@ export interface ProjectColumn {
 export const projectsColumns: ProjectColumn[] = [
   { id: 'name', label: 'Name', minWidth: 65, sortable: true },
   { id: 'projectVersion', label: 'Version', minWidth: 65, sortable: false },
+  { id: 'enabled', label: 'Enabled', minWidth: 65, sortable: true },
   { id: 'commitSHA', label: 'Commit SHA', minWidth: 100, sortable: false },
   { id: 'commitDate', label: 'Commit Date', minWidth: 100, sortable: true },
   { id: 'update', label: 'Update', minWidth: 65, align: 'center', sortable: false },
