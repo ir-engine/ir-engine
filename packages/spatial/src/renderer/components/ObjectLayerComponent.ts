@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { entityExists } from '@etherealengine/ecs'
 import {
   defineComponent,
   hasComponent,
@@ -86,6 +87,7 @@ export const ObjectLayerMaskComponent = defineComponent({
   },
 
   enableLayer(entity: Entity, layer: number) {
+    if (!entityExists(entity)) return
     if (!hasComponent(entity, ObjectLayerMaskComponent)) setComponent(entity, ObjectLayerMaskComponent)
     setComponent(entity, ObjectLayerComponents[layer])
   },
@@ -98,6 +100,7 @@ export const ObjectLayerMaskComponent = defineComponent({
   },
 
   disableLayer(entity: Entity, layer: number) {
+    if (!entityExists(entity)) return
     if (!hasComponent(entity, ObjectLayerMaskComponent)) setComponent(entity, ObjectLayerMaskComponent)
     removeComponent(entity, ObjectLayerComponents[layer])
   },

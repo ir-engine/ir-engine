@@ -134,8 +134,16 @@ const onBeforeCompile = {
       this.plugins.sort(sortPluginsByPriority)
 
       this.customProgramCacheKey = () => {
-        if (typeof this._onBeforeCompile.toString === 'function') return this._onBeforeCompile.toString()
-        else return this.onBeforeCompile.toString()
+        let result = ''
+        for (let i = 0; i < this.plugins!.length; i++) {
+          const plugin = this.plugins![i]
+          const pluginObj = plugin as PluginObjectType
+          if (typeof pluginObj.compile === 'function') result += pluginObj.compile.toString()
+          else result += plugin.toString()
+        }
+        // if (typeof this._onBeforeCompile.toString === 'function') return this._onBeforeCompile.toString()
+        // else return this.onBeforeCompile.toString()
+        return result
       }
     } else {
       console.error('Invalid type "%s" assigned to onBeforeCompile', typeof plugins)

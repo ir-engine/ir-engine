@@ -46,7 +46,7 @@ import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { CallbackComponent, StandardCallbacks, setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { VRM } from '@pixiv/three-vrm'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { useGLTF } from '../../assets/functions/resourceHooks'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { AnimationComponent } from './AnimationComponent'
@@ -214,30 +214,30 @@ export const LoopAnimationComponent = defineComponent({
       }
     }, [modelComponent?.asset])
 
+    const [gltf, unload] = useGLTF(loopAnimationComponent.animationPack.value, entity)
+
+    useEffect(() => {
+      return unload
+    }, [])
+
     useEffect(() => {
       const asset = modelComponent?.asset.get(NO_PROXY) ?? null
+      const model = gltf.get(NO_PROXY)
       if (
-        !asset?.scene ||
+        !model ||
         !animComponent ||
+        !asset?.scene ||
         !loopAnimationComponent.animationPack.value ||
         lastAnimationPack.value === loopAnimationComponent.animationPack.value
       )
         return
 
-      let aborted = false
       animComponent.mixer.time.set(0)
-      AssetLoader.loadAsync(loopAnimationComponent.animationPack.value).then((model) => {
-        if (aborted) return
-        const animations = model.animations ?? model.scene.animations
-        for (let i = 0; i < animations.length; i++) retargetAnimationClip(animations[i], model.scene)
-        lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
-        animComponent.animations.set(animations)
-      })
-
-      return () => {
-        aborted = true
-      }
-    }, [animComponent, loopAnimationComponent.animationPack, modelComponent?.scene])
+      const animations = model.animations ?? model.scene.animations
+      for (let i = 0; i < animations.length; i++) retargetAnimationClip(animations[i], model.scene)
+      lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
+      animComponent.animations.set(animations)
+    }, [gltf, animComponent, loopAnimationComponent.animationPack])
 
     return null
   }
