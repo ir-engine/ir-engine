@@ -62,13 +62,13 @@ const sideBarItems = [
 
 const AdminSidebar = () => {
   return (
-    <aside className="bg-theme-surfaceMain mx-8 w-[15vw] rounded-lg px-2 py-4">
-      <ul className="space-y-8">
+    <aside className="bg-theme-surfaceMain mx-8 min-w-[15vw] rounded-lg px-2 py-4">
+      <ul className="space-y-2">
         {sideBarItems.map((item) => (
           <li key={item.label}>
             <a
               href="#"
-              className="text-theme-secondary mx-4 my-3 flex items-center gap-3 rounded-sm hover:bg-[#212226]"
+              className="text-theme-secondary flex items-center gap-3 rounded-xl px-2 py-3 hover:bg-[#212226]"
             >
               {item.icon}
               {item.label}
@@ -76,7 +76,7 @@ const AdminSidebar = () => {
           </li>
         ))}
         <li>
-          <a href="#" className="text-theme-secondary mx-4 my-5 flex items-center gap-3 rounded-sm hover:bg-[#212226]">
+          <a href="#" className="text-theme-secondary my-2 flex items-center rounded-sm px-2 py-3 hover:bg-[#212226]">
             <HiArrowRightOnRectangle />
             Log Out
           </a>
