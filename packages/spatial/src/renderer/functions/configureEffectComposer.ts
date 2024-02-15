@@ -49,6 +49,7 @@ import { EngineState } from '../../EngineState'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { HighlightState } from '../HighlightState'
+import { PerformanceState } from '../PerformanceState'
 import { RendererState } from '../RendererState'
 import { EffectComposerWithSchema, EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
 import { EffectMap, EffectPropsSchema, Effects } from '../effects/PostProcessing'
@@ -84,8 +85,32 @@ export const configureEffectComposer = (
 
   const effects: any[] = []
 
+  const performanceTier = getState(PerformanceState).tier
+
+  let smaaPreset
+  switch (performanceTier) {
+    case 0:
+    case 1:
+    case 2:
+      smaaPreset = SMAAPreset.LOW
+      break
+    case 3:
+      smaaPreset = SMAAPreset.MEDIUM
+      break
+    case 4:
+      smaaPreset = SMAAPreset.HIGH
+      break
+    case 5:
+      smaaPreset = SMAAPreset.ULTRA
+      break
+
+    default:
+      smaaPreset = SMAAPreset.MEDIUM
+      break
+  }
+
   const smaaEffect = new SMAAEffect({
-    preset: SMAAPreset.HIGH,
+    preset: smaaPreset,
     edgeDetectionMode: EdgeDetectionMode.COLOR
   })
   composer.SMAAEffect = smaaEffect
