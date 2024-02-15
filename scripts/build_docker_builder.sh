@@ -24,9 +24,9 @@ docker buildx build \
     --load \
     --build-arg NODE_ENV=$NODE_ENV \
     -t $ECR_URL/$REPO_NAME-root:${TAG} \
-    -t $DOCR_REGISTRY/$REPO_NAME-root:latest_$STAGE \
+    -t $ECR_URL/$REPO_NAME-root:latest_$STAGE \
     -f dockerfiles/root/Dockerfile-root .
-docker push --all-tags $DOCR_REGISTRY/$REPO_NAME-root
+docker push --all-tags $ECR_URL/$REPO_NAME-root
 
 if [ $PUBLISH_DOCKERHUB == 'true' ]
 then
@@ -39,9 +39,9 @@ then
     --build-arg ECR_URL=$ECR_URL \
     --build-arg REPO_NAME=$REPO_NAME \
     --build-arg STAGE=$STAGE \
-    -t $ECR_URL/$REPO_NAME-builder:latest_$STAGE \
+    -t $ECR_URL/$-builder:latest_$STAGE \
     -t $ECR_URL/$REPO_NAME-builder:"${EEVERSION}_${TAG}" \
-    -t ${LABEL}-builder:"${EEVERSION}_${TAG}" \
+    -t ${LABEL}-builREPO_NAMEder:"${EEVERSION}_${TAG}" \
     -f dockerfiles/builder/Dockerfile-builder .
 else
   docker buildx build \
