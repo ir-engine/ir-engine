@@ -167,8 +167,8 @@ export const addClientInputListeners = (canvas = EngineRenderer.instance.rendere
     else if (buttonState[code]) buttonState[code].up = true
   }
 
-  canvas.addEventListener('keyup', onKeyEvent)
-  canvas.addEventListener('keydown', onKeyEvent)
+  document.addEventListener('keyup', onKeyEvent)
+  document.addEventListener('keydown', onKeyEvent)
 
   /** Clear mouse events */
   const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick']

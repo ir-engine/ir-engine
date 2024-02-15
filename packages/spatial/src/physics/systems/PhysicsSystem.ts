@@ -36,6 +36,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { EngineState } from '../../EngineState'
 import { NetworkState } from '../../networking/NetworkState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PhysicsSerialization } from '../PhysicsSerialization'
@@ -116,7 +117,8 @@ let drainContacts: ReturnType<typeof Physics.drainContactEventQueue>
 
 const execute = () => {
   const { physicsWorld, physicsCollisionEventQueue } = getState(PhysicsState)
-  if (!physicsWorld) return
+  const { isEditing } = getState(EngineState)
+  if (!physicsWorld || isEditing) return
 
   const allRigidBodies = allRigidBodyQuery()
 

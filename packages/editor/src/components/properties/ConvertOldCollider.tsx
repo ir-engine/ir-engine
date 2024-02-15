@@ -97,7 +97,8 @@ const detectOldColliders = (entity: Entity) => {
   let hasOldCollider = false
   let hasNewCollider = false
   iterateEntityNode(entity, (child) => {
-    const groupComponent = getComponent(child, GroupComponent)
+    const groupComponent = getOptionalComponent(child, GroupComponent)
+    if (!groupComponent) return
     const hasMetadata = groupComponent.some(
       (obj) => !!obj.userData['xrengine.collider'] || !!obj.userData['xrengine.collider.bodyType']
     )
