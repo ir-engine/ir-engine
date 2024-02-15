@@ -62,6 +62,7 @@ export interface System {
    * Defaults to 'variable'.
    */
   timeStep: number | 'variable'
+  /** @deprecated use defineState reactor instead */
   reactor?: FC
   insert?: InsertSystem
   preSystems: SystemUUID[]

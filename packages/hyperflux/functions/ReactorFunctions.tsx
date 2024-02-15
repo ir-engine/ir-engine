@@ -34,7 +34,7 @@ import { createErrorBoundary } from '@etherealengine/common/src/utils/createErro
 import { State, createHookstate } from '@hookstate/core'
 import { HyperFlux } from './StoreFunctions'
 
-const ReactorReconciler = Reconciler({
+export const ReactorReconciler = Reconciler({
   warnsIfNotActing: true,
   getPublicInstance: (instance) => instance,
   getRootHostContext: () => null,
@@ -81,6 +81,7 @@ ReactorReconciler.injectIntoDevTools({
 export type ReactorRoot = {
   fiber: any
   Reactor: React.FC
+  ReactorContainer: React.FC
   isRunning: State<boolean>
   suspended: State<boolean>
   errors: State<Error[]>
@@ -151,36 +152,48 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
     )
   }
 
+  const run = (force?: boolean) => {
+    if (reactorRoot.isRunning.value) {
+      if (force) {
+        return ReactorReconciler.flushSync(() => ReactorReconciler.updateContainer(<ReactorContainer />, fiberRoot))
+      } else {
+        return reactorRoot.promise
+      }
+    }
+    reactorRoot.isRunning.set(true)
+    return new Promise<void>((resolve) => {
+      HyperFlux.store.activeReactors.add(reactorRoot)
+      ReactorReconciler.updateContainer(<ReactorContainer />, fiberRoot, null, () => resolve())
+    })
+  }
+
+  const stop = () => {
+    if (!reactorRoot.isRunning.value) return Promise.resolve()
+    return new Promise<void>((resolve) => {
+      ReactorReconciler.updateContainer(null, fiberRoot, null, () => {
+        reactorRoot.isRunning.set(false)
+        HyperFlux.store.activeReactors.delete(reactorRoot)
+        reactorRoot.cleanupFunctions.forEach((fn) => fn())
+        reactorRoot.cleanupFunctions.clear()
+        resolve()
+      })
+    })
+  }
+
   const reactorRoot = {
     fiber: fiberRoot,
     Reactor,
     isRunning: createHookstate(false),
     errors: createHookstate([] as Error[]),
     suspended: createHookstate(false),
-    run() {
-      if (reactorRoot.isRunning.value) return Promise.resolve()
-      reactorRoot.isRunning.set(true)
-      return new Promise<void>((resolve) => {
-        HyperFlux.store.activeReactors.add(reactorRoot)
-        ReactorReconciler.updateContainer(<ReactorContainer />, fiberRoot, null, () => resolve())
-      })
-    },
-    stop() {
-      if (!reactorRoot.isRunning.value) return Promise.resolve()
-      return new Promise<void>((resolve) => {
-        ReactorReconciler.updateContainer(null, fiberRoot, null, () => {
-          reactorRoot.isRunning.set(false)
-          HyperFlux.store.activeReactors.delete(reactorRoot)
-          reactorRoot.cleanupFunctions.forEach((fn) => fn())
-          reactorRoot.cleanupFunctions.clear()
-          resolve()
-        })
-      })
-    },
-    cleanupFunctions: new Set()
+    cleanupFunctions: new Set(),
+    ReactorContainer: ReactorContainer as React.FC,
+    promise: undefined!,
+    run,
+    stop
   } as ReactorRoot
 
-  reactorRoot.run()
+  reactorRoot.promise = reactorRoot.run()
 
   return reactorRoot
 }
