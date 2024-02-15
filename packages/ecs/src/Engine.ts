@@ -65,7 +65,6 @@ export class Engine {
   store = createHyperStore({
     getDispatchId: () => Engine.instance.userID,
     getDispatchTime: () => getState(ECSState).simulationTime,
-    defaultDispatchDelay: () => getState(ECSState).simulationTimestep,
     getCurrentReactorRoot: () => getState(SystemState).activeSystemReactors.get(getState(SystemState).currentSystemUUID)
   }) as HyperStore
 
