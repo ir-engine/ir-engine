@@ -17,6 +17,9 @@ WORKDIR /app
 COPY ../../scripts/setup_helm.sh .
 RUN chmod +x setup_helm.sh && ./setup_helm.sh
 
+COPY packages/server/package.json ./packages/server/
+RUN npm install --loglevel notice --legacy-peer-deps
+
 COPY --from=builder /app ./
 
 CMD ["scripts/run-builder.sh"]
