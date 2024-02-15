@@ -27,7 +27,6 @@ import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChann
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { ChannelID, InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import {
   NO_PROXY_STEALTH,
   defineAction,
@@ -41,7 +40,6 @@ import {
 import React, { useEffect } from 'react'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
 
-import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { MediaStreamAppData, MediaTagType, NetworkState } from '../NetworkState'
 import { MediasoupTransportObjectsState } from './MediasoupTransportState'
 
@@ -290,6 +288,17 @@ export const MediasoupMediaProducerConsumerState = defineState({
         paused: action.paused
       })
     })
+  },
+
+  reactor: () => {
+    const networkIDs = useHookstate(getMutableState(MediasoupMediaProducerConsumerState))
+    return (
+      <>
+        {networkIDs.keys.map((id: InstanceID) => (
+          <NetworkReactor key={id} networkID={id} />
+        ))}
+      </>
+    )
   }
 })
 
@@ -473,20 +482,3 @@ const NetworkReactor = (props: { networkID: InstanceID }) => {
     </>
   )
 }
-
-const reactor = () => {
-  const networkIDs = useHookstate(getMutableState(MediasoupMediaProducerConsumerState))
-  return (
-    <>
-      {networkIDs.keys.map((id: InstanceID) => (
-        <NetworkReactor key={id} networkID={id} />
-      ))}
-    </>
-  )
-}
-
-export const MediasoupMediaProducerConsumerStateSystem = defineSystem({
-  uuid: 'ee.engine.network.mediasoup.MediasoupMediaProducerConsumerStateSystem',
-  insert: { after: PresentationSystemGroup },
-  reactor
-})

@@ -39,7 +39,7 @@ import {
 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
@@ -56,7 +56,7 @@ import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { useTexture } from '../../assets/functions/resourceHooks'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
@@ -121,6 +121,10 @@ export const EnvmapComponent = defineComponent({
     const component = useComponent(entity, EnvmapComponent)
     const background = useHookstate(getMutableState(SceneState).background)
     const mesh = useOptionalComponent(entity, MeshComponent)?.value as Mesh<any, any> | null
+    const [envMapTexture, unload, error] = useTexture(
+      component.envMapTextureType.value === EnvMapTextureType.Equirectangular ? component.envMapSourceURL.value : '',
+      entity
+    )
 
     useEffect(() => {
       updateEnvMapIntensity(mesh, component.envMapIntensity.value)
@@ -142,55 +146,51 @@ export const EnvmapComponent = defineComponent({
       texture.needsUpdate = true
       texture.colorSpace = SRGBColorSpace
       texture.mapping = EquirectangularReflectionMapping
-
       component.envmap.set(texture)
+      SceneAssetPendingTagComponent.removeResource(entity, EnvmapComponent.jsonID)
     }, [component.type, component.envMapSourceColor])
+
+    useEffect(() => {
+      const texture = envMapTexture.get(NO_PROXY)
+      if (!texture) return
+
+      texture.mapping = EquirectangularReflectionMapping
+      component.envmap.set(texture)
+      SceneAssetPendingTagComponent.removeResource(entity, EnvmapComponent.jsonID)
+
+      return unload
+    }, [envMapTexture])
+
+    useEffect(() => {
+      if (!error.value) return
+
+      component.envmap.set(null)
+      addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
+      SceneAssetPendingTagComponent.removeResource(entity, EnvmapComponent.jsonID)
+    }, [error])
 
     useEffect(() => {
       if (component.type.value !== EnvMapSourceType.Texture) return
 
-      switch (component.envMapTextureType.value) {
-        case EnvMapTextureType.Cubemap:
-          loadCubeMapTexture(
-            component.envMapSourceURL.value,
-            (texture: CubeTexture | undefined) => {
-              SceneAssetPendingTagComponent.removeResource(entity, EnvmapComponent.jsonID)
-              if (!texture) return
+      if (component.envMapTextureType.value == EnvMapTextureType.Cubemap) {
+        loadCubeMapTexture(
+          component.envMapSourceURL.value,
+          (texture: CubeTexture | undefined) => {
+            SceneAssetPendingTagComponent.removeResource(entity, EnvmapComponent.jsonID)
+            if (texture) {
               texture.mapping = CubeReflectionMapping
               texture.colorSpace = SRGBColorSpace
               component.envmap.set(texture)
               removeError(entity, EnvmapComponent, 'MISSING_FILE')
-            },
-            undefined,
-            (_) => {
-              component.envmap.set(null)
-              addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
-              SceneAssetPendingTagComponent.removeResource(entity, EnvmapComponent.jsonID)
             }
-          )
-          break
-
-        case EnvMapTextureType.Equirectangular:
-          AssetLoader.loadAsync(component.envMapSourceURL.value, {})
-            .then((texture) => {
-              if (texture) {
-                texture.mapping = EquirectangularReflectionMapping
-                component.envmap.set(texture)
-                removeError(entity, EnvmapComponent, 'MISSING_FILE')
-              } else {
-                component.envmap.set(null)
-                addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
-              }
-            })
-            .catch((e) => {
-              component.envmap.set(null)
-              addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
-            })
-            .finally(() => {
-              SceneAssetPendingTagComponent.removeResource(entity, EnvmapComponent.jsonID)
-            })
-        default:
-          SceneAssetPendingTagComponent.removeResource(entity, EnvmapComponent.jsonID)
+          },
+          undefined,
+          (_) => {
+            component.envmap.set(null)
+            addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
+            SceneAssetPendingTagComponent.removeResource(entity, EnvmapComponent.jsonID)
+          }
+        )
       }
     }, [component.type, component.envMapSourceURL])
 
@@ -224,27 +224,28 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
   const bakeComponent = useComponent(bakeEntity, EnvMapBakeComponent)
   const group = useComponent(envmapEntity, GroupComponent)
   const renderState = useHookstate(getMutableState(RendererState))
+  const [envMaptexture, unload, error] = useTexture(bakeComponent.envMapOrigin.value, envmapEntity)
+
+  useEffect(() => {
+    return unload
+  }, [])
 
   /** @todo add an unmount cleanup for applyBoxprojection */
   useEffect(() => {
-    AssetLoader.loadAsync(bakeComponent.envMapOrigin.value, {})
-      .then((texture) => {
-        if (texture) {
-          texture.mapping = EquirectangularReflectionMapping
-          getMutableComponent(envmapEntity, EnvmapComponent).envmap.set(texture)
-          if (bakeComponent.boxProjection.value) applyBoxProjection(bakeEntity, group.value)
-          removeError(envmapEntity, EnvmapComponent, 'MISSING_FILE')
-        } else {
-          addError(envmapEntity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
-        }
-      })
-      .catch((e) => {
-        addError(envmapEntity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
-      })
-      .finally(() => {
-        SceneAssetPendingTagComponent.removeResource(props.envmapEntity, EnvmapComponent.jsonID)
-      })
-  }, [renderState.forceBasicMaterials, bakeComponent.envMapOrigin])
+    const texture = envMaptexture.get(NO_PROXY)
+    if (!texture) return
+
+    texture.mapping = EquirectangularReflectionMapping
+    getMutableComponent(envmapEntity, EnvmapComponent).envmap.set(texture)
+    if (bakeComponent.boxProjection.value) applyBoxProjection(bakeEntity, group.value)
+    SceneAssetPendingTagComponent.removeResource(props.envmapEntity, EnvmapComponent.jsonID)
+  }, [envMaptexture])
+
+  useEffect(() => {
+    if (!error.value) return
+    addError(envmapEntity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
+    SceneAssetPendingTagComponent.removeResource(props.envmapEntity, EnvmapComponent.jsonID)
+  }, [error])
 
   return null
 }
