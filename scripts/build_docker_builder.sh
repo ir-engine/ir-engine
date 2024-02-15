@@ -25,7 +25,10 @@ mkdir -p packages/projects/projects
 cp packages/projects/default-project/package.json ./project-package-jsons/projects/default-project
 find packages/projects/projects/ -name package.json -exec bash -c 'mkdir -p ./project-package-jsons/$(dirname $1) && cp $1 ./project-package-jsons/$(dirname $1)' - '{}' \;
 
-
+Repo_URL=$ECR_URL
+REPO_NAME1=$REPO_NAME
+echo "REPO_NAME1: $REPO_NAME1"
+echo "Repo_URL: $Repo_URL"
 docker buildx build \
     --load \
     --build-arg NODE_ENV=$NODE_ENV \
