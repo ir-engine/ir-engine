@@ -29,9 +29,6 @@
   },
   "version": "1.6.0",
   "dependencies": {
-    "@behave-graph/core": "https://gitpkg.now.sh/bhouston/behave-graph/packages/core?main",
-    "@behave-graph/scene": "https://gitpkg.now.sh/bhouston/behave-graph/packages/scene?main",
-    "@behave-graph/struct": "https://gitpkg.now.sh/etherealengine/behave-graph/packages/struct?dev",
     "@dimforge/rapier3d-compat": "0.11.2",
     "@etherealengine/common": "^1.6.0",
     "@etherealengine/ecs": "^1.6.0",
