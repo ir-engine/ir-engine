@@ -255,7 +255,14 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
     } as AdminAssetUploadArgumentsType
 
     if (resourceFile) {
-      ResourceService.createOrUpdateResource(data, resourceFile)
+      try {
+        ResourceService.createOrUpdateResource(data, resourceFile)
+      } catch (error) {
+        NotificationService.dispatchNotify(
+          'Unable to upload due to insufficient storage. Please purchase additional storage and then proceed to upload.',
+          { variant: 'error' }
+        )
+      }
 
       if (mode === ResourceDrawerMode.ViewEdit) {
         editMode.set(false)
