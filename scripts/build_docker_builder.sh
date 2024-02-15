@@ -47,7 +47,7 @@ then
     --build-arg STAGE=$STAGE \
     -t $ECR_URL/$REPO_NAME-builder:latest_$STAGE \
     -t $ECR_URL/$REPO_NAME-builder:"${EEVERSION}_${TAG}" \
-    -t ${LABEL}-builREPO_NAMEder:"${EEVERSION}_${TAG}" \
+    -t ${LABEL}-builder:"${EEVERSION}_${TAG}" \
     -f dockerfiles/builder/Dockerfile-builder .
 else
   docker buildx build \
