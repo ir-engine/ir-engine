@@ -27,11 +27,12 @@ find packages/projects/projects/ -name package.json -exec bash -c 'mkdir -p ./pr
 
 
 docker buildx build \
-    --push \
+    --load \
     --build-arg NODE_ENV=$NODE_ENV \
-    -t $ECR_URL/$REPO_NAME-root:${TAG} \
-    -t $ECR_URL/$REPO_NAME-root:latest_$STAGE \
+    -t public.ecr.aws/x0k5y3h8/etherealengine-qat-root:${TAG} \
+    -t public.ecr.aws/x0k5y3h8/etherealengine-qat-root:latest_$STAGE \
     -f dockerfiles/root/Dockerfile-root .
+docker push --all-tags public.ecr.aws/x0k5y3h8/etherealengine-qat-root
 
 if [ $PUBLISH_DOCKERHUB == 'true' ]
 then
