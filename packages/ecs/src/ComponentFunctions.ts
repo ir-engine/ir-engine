@@ -415,7 +415,7 @@ export const removeComponent = async <C extends Component>(entity: Entity, compo
   component.reactorMap.delete(entity)
   // we need to wait for the reactor to stop before removing the state, otherwise
   // we can trigger errors in useEffect cleanup functions
-  if (root?.isRunning) await root?.stop()
+  if (root?.isRunning) await root.stop()
   // NOTE: we may need to perform cleanup after a timeout here in case there
   // are other reactors also referencing this state in their cleanup functions
   if (!hasComponent(entity, component)) component.stateMap[entity]?.set(none)
