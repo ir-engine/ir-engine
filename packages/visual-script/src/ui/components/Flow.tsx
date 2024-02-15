@@ -28,15 +28,15 @@ import { Background, BackgroundVariant, ReactFlow, ReactFlowProvider } from 'rea
 
 import { GraphJSON, IRegistry } from '@behave-graph/core'
 
-import { useVisualScriptRunner } from '@etherealengine/engine/src/visual-script/functions/useVisualScriptRunner'
 import { useHookstate } from '@hookstate/core'
-import { useFlowHandlers } from '../hooks/useFlowHandlers.js'
-import { useNodeSpecGenerator } from '../hooks/useNodeSpecGenerator.js'
-import { useSelectionHandler } from '../hooks/useSelectionHandler.js'
-import { useVisualScriptFlow } from '../hooks/useVisualScriptFlow.js'
-import CustomControls from './Controls.js'
-import { NodePicker } from './NodePicker.js'
-import { Examples } from './modals/LoadModal.js'
+import { useVisualScriptRunner } from '../../VisualScriptModule'
+import { useFlowHandlers } from '../hooks/useFlowHandlers'
+import { useNodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
+import { useSelectionHandler } from '../hooks/useSelectionHandler'
+import { useVisualScriptFlow } from '../hooks/useVisualScriptFlow'
+import CustomControls from './Controls'
+import { NodePicker } from './NodePicker'
+import { Examples } from './modals/LoadModal'
 
 type FlowProps = {
   initialVisualScript: GraphJSON
