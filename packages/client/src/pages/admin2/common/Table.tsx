@@ -27,6 +27,7 @@ import React, { ReactNode } from 'react'
 import { HiArrowSmallDown, HiArrowSmallUp } from 'react-icons/hi2'
 
 import { FeathersOrder, useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import Table, {
   TableBody,
   TableCell,
@@ -88,7 +89,11 @@ interface DataTableProps {
 const DataTable = ({ query, columns, rows }: DataTableProps) => {
   const [orderBy, order] = (Object.entries(query.sort)[0] as [string | number, FeathersOrder]) ?? ['', 0]
 
-  return (
+  return query.status !== 'success' ? (
+    <div className="flex h-96 w-full items-center justify-center">
+      <LoadingCircle className="flex w-1/4 items-center justify-center" />
+    </div>
+  ) : (
     <Table>
       <TableHead
         order={order}
