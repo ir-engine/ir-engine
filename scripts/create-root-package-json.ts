@@ -43,6 +43,7 @@ cli.main(async () => {
       'packages/server',
       'packages/server-core',
       'packages/spatial',
+      'packages/visual-script',
       'packages/xrui',
       'packages/projects/projects/*'
     ]
