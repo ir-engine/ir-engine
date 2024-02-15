@@ -338,10 +338,9 @@ const reactor = () => {
   useEffect(() => {
     const assets = gltfs.get(NO_PROXY)
     if (assets.length !== animations.length) return
-
     for (let i = 0; i < assets.length; i++) {
       const asset = assets[i]
-      if (asset) {
+      if (asset && !manager.loadedAnimations[animations[i]].value) {
         // delete unneeded geometry data to save memory
         asset.scene.traverse((node) => {
           delete (node as any).geometry
