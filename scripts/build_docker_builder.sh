@@ -20,6 +20,11 @@ else
   aws ecr-public describe-repositories --repository-names $REPO_NAME-builder --region us-east-1 || aws ecr-public create-repository --repository-name $REPO_NAME-builder --region us-east-1
 fi
 
+mkdir -p ./project-package-jsons/projects/default-project
+cp packages/projects/default-project/package.json ./project-package-jsons/projects/default-project
+find packages/projects/projects/ -name package.json -exec bash -c 'mkdir -p ./project-package-jsons/$(dirname $1) && cp $1 ./project-package-jsons/$(dirname $1)' - '{}' \;
+
+
 docker buildx build \
     --load \
     --build-arg NODE_ENV=$NODE_ENV \
