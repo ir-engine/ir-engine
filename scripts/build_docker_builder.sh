@@ -25,17 +25,13 @@ mkdir -p packages/projects/projects
 cp packages/projects/default-project/package.json ./project-package-jsons/projects/default-project
 find packages/projects/projects/ -name package.json -exec bash -c 'mkdir -p ./project-package-jsons/$(dirname $1) && cp $1 ./project-package-jsons/$(dirname $1)' - '{}' \;
 
-Repo_URL=$ECR_URL
-REPO_NAME1=$REPO_NAME
-echo "REPO_NAME1: $REPO_NAME1"
-echo "Repo_URL: $Repo_URL"
+
 docker buildx build \
-    --load \
+    --push \
     --build-arg NODE_ENV=$NODE_ENV \
     -t $ECR_URL/$REPO_NAME-root:${TAG} \
     -t $ECR_URL/$REPO_NAME-root:latest_$STAGE \
     -f dockerfiles/root/Dockerfile-root .
-docker push --all-tags $ECR_URL/$REPO_NAME-root
 
 if [ $PUBLISH_DOCKERHUB == 'true' ]
 then
@@ -48,7 +44,7 @@ then
     --build-arg ECR_URL=$ECR_URL \
     --build-arg REPO_NAME=$REPO_NAME \
     --build-arg STAGE=$STAGE \
-    -t $ECR_URL/$-builder:latest_$STAGE \
+    -t $ECR_URL/$REPO_NAME-builder:latest_$STAGE \
     -t $ECR_URL/$REPO_NAME-builder:"${EEVERSION}_${TAG}" \
     -t ${LABEL}-builREPO_NAMEder:"${EEVERSION}_${TAG}" \
     -f dockerfiles/builder/Dockerfile-builder .
