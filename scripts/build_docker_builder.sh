@@ -15,9 +15,11 @@ if [ $PRIVATE_ECR == "true" ]
 then
   aws ecr get-login-password --region $REGION | docker login -u AWS --password-stdin $ECR_URL
   aws ecr describe-repositories --repository-names $REPO_NAME-builder --region $REGION || aws ecr create-repository --repository-name $REPO_NAME-builder --region $REGION
+  aws ecr describe-repositories --repository-names $REPO_NAME-root --region $REGION || aws ecr create-repository --repository-name $REPO_NAME-root --region $REGION
 else
   aws ecr-public get-login-password --region us-east-1 | docker login -u AWS --password-stdin $ECR_URL
   aws ecr-public describe-repositories --repository-names $REPO_NAME-builder --region us-east-1 || aws ecr-public create-repository --repository-name $REPO_NAME-builder --region us-east-1
+  aws ecr-public describe-repositories --repository-names $REPO_NAME-root --region us-east-1 || aws ecr-public create-repository --repository-name $REPO_NAME-root --region us-east-1
 fi
 
 mkdir -p ./project-package-jsons/projects/default-project
