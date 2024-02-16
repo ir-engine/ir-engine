@@ -70,9 +70,14 @@ export const createLODVariants = async (
     ...lod.params
   }))
 
-  for (const variant of lodVariantParams) {
+  const transformMetadata = [] as Record<string, any>[]
+
+  for (const [i, variant] of lodVariantParams.entries()) {
     if (clientside) {
-      await clientSideTransformModel(variant)
+      await clientSideTransformModel(variant, (key, data) => {
+        if (!transformMetadata[i]) transformMetadata[i] = {}
+        transformMetadata[i][key] = data
+      })
     } else {
       await Engine.instance.api.service(modelTransformPath).create(variant)
     }
@@ -88,7 +93,10 @@ export const createLODVariants = async (
         .map((lod, lodIndex) =>
           lod.variantMetadata.map((metadata) => ({
             src: lod.params.dst,
-            metadata
+            metadata: {
+              ...metadata,
+              ...transformMetadata[lodIndex]
+            }
           }))
         )
         .flat(),

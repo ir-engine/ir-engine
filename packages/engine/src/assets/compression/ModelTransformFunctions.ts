@@ -37,7 +37,8 @@ import {
   Mesh,
   Node,
   Primitive,
-  Texture
+  Texture,
+  vec2
 } from '@gltf-transform/core'
 import { EXTMeshGPUInstancing, EXTMeshoptCompression, KHRTextureBasisu } from '@gltf-transform/extensions'
 import {
@@ -339,7 +340,10 @@ function hashBuffer(buffer: Uint8Array): string {
   return hash.digest('hex')
 }
 
-export async function transformModel(args: ModelTransformParameters) {
+export async function transformModel(
+  args: ModelTransformParameters,
+  onMetadata: (key: string, data: any) => void = (key, data) => {}
+) {
   const parms = args
 
   /**
@@ -707,6 +711,13 @@ export async function transformModel(args: ModelTransformParameters) {
       document.createTexture().copy(texture)
     }
   }
+
+  const textureMetadata = {} as Record<string, vec2 | null>
+  for (const texture of textures) {
+    textureMetadata[texture.getName()] = texture.getSize()
+  }
+  onMetadata('textureSizes', textureMetadata)
+
   let result
   if (['glb', 'vrm'].includes(parms.modelFormat)) {
     const data = await io.writeBinary(document)
