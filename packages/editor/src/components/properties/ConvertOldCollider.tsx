@@ -23,7 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, getComponent, getOptionalComponent, hasComponent, setComponent } from '@etherealengine/ecs'
+import {
+  Entity,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '@etherealengine/ecs'
+import { ColliderComponent as OldColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
@@ -66,6 +74,10 @@ const convert = (entity: Entity, hierarchy: boolean) => {
         !!obj.userData['isTrigger']
     )
     if (!childWithMetadata && !hierarchy) return
+
+    if (hasComponent(child, OldColliderComponent)) {
+      removeComponent(child, OldColliderComponent)
+    }
 
     const mesh = getOptionalComponent(child, MeshComponent)
     if (!mesh) return
