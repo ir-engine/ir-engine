@@ -23,12 +23,62 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { avatarPath } from '@etherealengine/common/src/schema.type.module'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import Table, {
+  TableBody,
+  TableCell,
+  TableHeadRow,
+  TableHeaderCell,
+  TableRow
+} from '@etherealengine/ui/src/primitives/tailwind/Table'
 import React from 'react'
 
 export default function Avatars() {
-  return (
-    <div>
-      <h1>This is Avatars</h1>
+  const adminAvatarQuery = useFind(avatarPath, {
+    query: {
+      action: 'admin',
+      $limit: 20,
+      $sort: {
+        name: 1
+      }
+    }
+  })
+
+  return adminAvatarQuery.status !== 'success' ? (
+    <div className="flex h-96 w-full items-center justify-center">
+      <LoadingCircle className="flex w-1/4 items-center justify-center" />
     </div>
+  ) : (
+    <Table>
+      <TableHeadRow>
+        <TableHeaderCell>id</TableHeaderCell>
+        <TableHeaderCell>Name</TableHeaderCell>
+        <TableHeaderCell>Owner</TableHeaderCell>
+        <TableHeaderCell>Public</TableHeaderCell>
+        <TableHeaderCell>Thumbnail</TableHeaderCell>
+        <TableHeaderCell>Actions</TableHeaderCell>
+      </TableHeadRow>
+      <TableBody>
+        {adminAvatarQuery.data.map((row) => (
+          <TableRow key={row.id}>
+            <TableCell>{row.id}</TableCell>
+            <TableCell>{row.name}</TableCell>
+            <TableCell>{row.user?.name || ''}</TableCell>
+            <TableCell>{row.isPublic ? 'yes' : 'no'}</TableCell>
+            <TableCell>
+              <img
+                style={{ maxHeight: '50px' }}
+                crossOrigin="anonymous"
+                src={row.thumbnailResource?.url + '?' + new Date().getTime()}
+                alt=""
+              />
+            </TableCell>
+            <TableCell>View | Delete</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   )
 }
