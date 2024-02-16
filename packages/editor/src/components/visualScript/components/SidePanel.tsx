@@ -86,13 +86,15 @@ export const SidePanel = ({
 
   return (
     <CollapsibleBlock
-      label={'Graph Utilities'}
+      label={t('editor:visualScript.sidePanel.title')}
       style={{
         display: 'flex',
         flexDirection: 'column',
         minWidth: '150px',
         backgroundColor: 'var(--panelBackground)',
-        padding: '5px'
+        paddingRight: '10px',
+        paddingTop: '5px',
+        paddingBottom: '5px'
       }}
     >
       <CollapsibleBlock label={t('editor:visualScript.sidePanel.node.name')}>
@@ -173,8 +175,8 @@ export const SidePanel = ({
         </NodeEditor>
       </CollapsibleBlock>
 
-      <CollapsibleBlock label={'Graph Variables'}>
-        <NodeEditor entity={UndefinedEntity} description={t('editor:visualScript.sidePanel.template.description')}>
+      <CollapsibleBlock label={t('editor:visualScript.sidePanel.variables.name')}>
+        <NodeEditor entity={UndefinedEntity} description={t('editor:visualScript.sidePanel.variables.description')}>
           <PaginatedList
             options={{ countPerPage: 5 }}
             list={variables}
@@ -235,7 +237,7 @@ export const SidePanel = ({
               handleAddVariable()
             }}
           >
-            {'Add Variable'}
+            {t('editor:visualScript.sidePanel.variables.add')}
           </PropertiesPanelButton>
         </NodeEditor>
       </CollapsibleBlock>

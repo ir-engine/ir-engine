@@ -195,7 +195,7 @@ export const EngineVariableUse = makeEventNodeDefinition({
       variableValueQueue.unshift(variable.get())
     }
     const systemUUID = defineSystem({
-      uuid: `behave-graph-useVariable-${read<string>('variableName')}-` + uniqueId(),
+      uuid: `visual-script-useVariable-${read<string>('variableName')}-` + uniqueId(),
       insert: { with: InputSystemGroup },
       execute: () => {
         const value = variableValueQueue.pop()

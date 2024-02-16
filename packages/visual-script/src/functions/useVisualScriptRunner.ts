@@ -92,7 +92,7 @@ export const useVisualScriptRunner = ({
 
     if (system === undefined) {
       const systemUUID = defineSystem({
-        uuid: 'behave-graph-asyncExecute' + systemCounter++,
+        uuid: 'visual-script-asyncExecute' + systemCounter++,
         execute: async () => {
           eventEmitter.tickEvent.emit()
           await engine.executeAllAsync(500)
@@ -106,12 +106,11 @@ export const useVisualScriptRunner = ({
 
     ;(async () => {
       if (eventEmitter.startEvent.listenerCount) {
-        console.log('has listener count')
         eventEmitter.startEvent.emit()
 
         await engine.executeAllAsync(5)
       } else {
-        console.log('has no listener count')
+        console.warn('No onStart Node found in graph.  Graph will not run.')
       }
     })() // start up
 

@@ -949,6 +949,7 @@
       }
     },
     "sidePanel":{
+      "title": "Graph Utilities",
       "node":{
         "name": "Nodes",
         "description": "Individual logic units connected together to create a graph"
@@ -956,13 +957,17 @@
       "template":{
         "name": "Templates",
         "description": "Reusable graphs that can be added to other graphs."
+        },
+      "variables":{
+        "name": "Variables",
+        "description": "Variables that can be used in the graph.",
+        "add": "Add Variable"
         }
-    },
+      },
     "editorPanel":{
       "makeTemplate": "Make into template"
     }
-  }
-  ,
+  },
   "layout": {
     "assetGrid": {
       "loading": "Loading...",
