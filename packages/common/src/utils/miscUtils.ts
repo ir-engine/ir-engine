@@ -142,3 +142,7 @@ export function relativePathTo(src: string, dst: string): string {
 
   return relativePathArray.join('/')
 }
+
+export const toCapitalCase = (str: string) => {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
