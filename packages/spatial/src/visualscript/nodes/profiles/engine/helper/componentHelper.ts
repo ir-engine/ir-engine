@@ -39,7 +39,8 @@ import {
   NodeCategory,
   NodeDefinition,
   makeEventNodeDefinition,
-  makeFlowNodeDefinition
+  makeFlowNodeDefinition,
+  makeFunctionNodeDefinition
 } from '@etherealengine/visual-script'
 import { uniqueId } from 'lodash'
 import { useEffect } from 'react'
@@ -139,21 +140,18 @@ export function registerComponentGetters() {
       skipped.push(componentName)
       continue
     }
-    const node = makeFlowNodeDefinition({
+    const node = makeFunctionNodeDefinition({
       typeName: `engine/component/${componentName}/get`,
       category: NodeCategory.Query,
       label: `get ${componentName}`,
       in: {
-        flow: 'flow',
         entity: 'entity'
       },
       out: {
-        flow: 'flow',
         entity: 'entity',
         ...outputsockets
       },
-      initialState: undefined,
-      triggered: ({ read, write, commit }) => {
+      exec: ({ read, write, graph }) => {
         const entity = Number.parseInt(read('entity')) as Entity
 
         const props = getComponent(entity, component)
@@ -167,7 +165,6 @@ export function registerComponentGetters() {
           }
         }
         write('entity', entity)
-        commit('flow')
       }
     })
     getters.push(node)

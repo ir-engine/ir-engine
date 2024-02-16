@@ -50,30 +50,34 @@ const initialState = (): State => ({
 
 // very 3D specific.
 const buttonStates = ['down', 'pressed', 'touched', 'up'] as Array<keyof ButtonState>
-export const OnButtonState = makeEventNodeDefinition({
-  typeName: 'engine/onButtonState',
+export const OnButton = makeEventNodeDefinition({
+  typeName: 'engine/onButton',
   category: NodeCategory.Event,
-  label: 'On Button State',
+  label: 'On Button',
   in: {
     button: (_) => {
       const choices: Choices = [
         ...Object.keys(KeyboardButton)
+          .filter((x) => !(parseInt(x) >= 0))
           .sort()
           .map((value) => ({ text: `keyboard/${value}`, value })),
         ...Object.keys(MouseButton)
+          .filter((x) => !(parseInt(x) >= 0))
           .sort()
           .map((value) => ({ text: `mouse/${value}`, value })),
         ...Object.keys(StandardGamepadButton)
+          .filter((x) => !(parseInt(x) >= 0))
           .sort()
           .map((value) => ({ text: `gamepad/${value}`, value })),
         ...Object.keys(XRStandardGamepadButton)
+          .filter((x) => !(parseInt(x) >= 0))
           .sort()
           .map((value) => ({ text: `xr-gamepad/${value}`, value }))
       ]
-      choices.unshift({ text: 'none', value: null })
       return {
         valueType: 'string',
-        choices: choices
+        choices: choices,
+        defaultValue: MouseButton.PrimaryClick
       }
     }
   },

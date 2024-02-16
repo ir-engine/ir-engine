@@ -28,20 +28,24 @@ Ethereal Engine. All Rights Reserved.
 import { IRegistry, NodeDefinition, ValueTypeMap, getNodeDescriptions, memo } from '@etherealengine/visual-script'
 import { GetSceneProperty, SetSceneProperty } from '@etherealengine/visual-script/src/profiles/ProfilesModule'
 import { getStringConversionsForValueType } from '@etherealengine/visual-script/src/profiles/registerSerializersForValueType'
-import { OnButtonState } from './events/onButtonState'
+import { OnButton } from './EngineProfileModule'
+import { OnAxis } from './events/onAxis'
 import { OnCollision } from './events/onCollision'
+import { OnExecute } from './events/onExecute'
 import { OnQuery } from './events/onQuery'
-import { registerActionDispatchers } from './helper/actionHelper'
+import { registerActionConsumers, registerActionDispatchers } from './helper/actionHelper'
 import {
   registerComponentGetters,
   registerComponentListeners,
   registerComponentSetters
 } from './helper/componentHelper'
 import { registerStateGetters, registerStateListeners, registerStateSetters } from './helper/stateHelper'
+import * as AxisNodes from './values/AxisNodes'
 import * as ComponentNodes from './values/ComponentNodes'
 import * as CustomNodes from './values/CustomNodes'
 import * as EntityNodes from './values/EntityNodes'
 import { EntityValue } from './values/EntityValue'
+import * as QueryNodes from './values/QueryNodes'
 import * as SplineNodes from './values/SplineNodes'
 import * as VolumetricNodes from './values/VolumetricNodes'
 
@@ -67,6 +71,8 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
     ...getNodeDescriptions(ComponentNodes),
     ...getNodeDescriptions(CustomNodes),
     ...getNodeDescriptions(SplineNodes),
+    ...getNodeDescriptions(QueryNodes),
+    ...getNodeDescriptions(AxisNodes),
     ...getNodeDescriptions(VolumetricNodes),
     // variables
 
@@ -75,9 +81,11 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
     // actions
 
     // events
-    OnButtonState, // click included
+    OnButton, // click included
     OnCollision,
     OnQuery,
+    OnExecute,
+    OnAxis,
     // async
     //switchScene.Description,
     ...SetSceneProperty(engineValueTypeNames),
@@ -85,12 +93,14 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
     // flow control
 
     ...getEngineStringConversions(getEngineValuesMap()),
+
     ...registerComponentSetters(),
     ...registerComponentGetters(),
     ...registerComponentListeners(),
     ...registerStateSetters(),
     ...registerStateGetters(),
     ...registerStateListeners(),
+    ...registerActionConsumers(),
     ...registerActionDispatchers()
   ]
   return Object.fromEntries(nodeDefinitions.map((nodeDefinition) => [nodeDefinition.typeName, nodeDefinition]))

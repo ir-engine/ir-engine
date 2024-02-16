@@ -23,35 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Component, ComponentMap } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Query, defineQuery, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { SystemDefinitions, SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { NodeCategory, SocketsList, makeEventNodeDefinition, sequence } from '@etherealengine/visual-script'
+import { NodeCategory, SocketsList, makeFunctionNodeDefinition, sequence } from '@behave-graph/core'
+import {
+  Component,
+  ComponentMap,
+  InputSystemGroup,
+  SystemDefinitions,
+  SystemUUID,
+  defineQuery,
+  removeQuery
+} from '@etherealengine/ecs'
+import { TransformComponent } from '@etherealengine/spatial'
 
-let systemCounter = 0
-
-type State = {
-  query: Query
-  systemUUID: SystemUUID
-}
-const initialState = (): State => ({
-  query: undefined!,
-  systemUUID: '' as SystemUUID
-})
-
-export const OnQuery = makeEventNodeDefinition({
-  typeName: 'engine/query/use',
-  category: NodeCategory.Event,
-  label: 'On Query',
+export const getQuery = makeFunctionNodeDefinition({
+  typeName: 'engine/query/get',
+  category: NodeCategory.Query,
+  label: 'get Query',
   configuration: {
     numInputs: {
       valueType: 'number',
       defaultValue: 1
     }
   },
-  in: (_) => {
+  in: (_, graphApi) => {
     const sockets: SocketsList = []
 
     const componentName = (index) => {
@@ -88,56 +82,27 @@ export const OnQuery = makeEventNodeDefinition({
 
     sockets.push({ ...type() }, { ...system() })
 
-    for (const index of sequence(1, (_.numInputs ?? OnQuery.configuration?.numInputs.defaultValue) + 1)) {
+    for (const index of sequence(1, (_.numInputs ?? getQuery.configuration?.numInputs.defaultValue) + 1)) {
       sockets.push({ ...componentName(index) })
     }
     return sockets
   },
 
   out: {
-    flow: 'flow',
-    entity: 'entity'
+    entityList: 'list'
   },
-  initialState: initialState(),
-  init: ({ read, write, commit, configuration }) => {
+  exec: ({ read, write, graph, configuration }) => {
     const type = read<string>('type')
     const system = read<SystemUUID>('system')
 
     const queryComponents: Component[] = []
-    for (const index of sequence(1, (configuration.numInputs ?? OnQuery.configuration?.numInputs.defaultValue) + 1)) {
+    for (const index of sequence(1, (configuration.numInputs ?? getQuery.configuration?.numInputs.defaultValue) + 1)) {
       const componentName = read<string>(`componentName${index}`)
       const component = ComponentMap.get(componentName)!
       queryComponents.push(component)
     }
-    const query = defineQuery(queryComponents)[type]
-    let prevQueryResult = []
-    let newQueryResult = []
-    const systemUUID = defineSystem({
-      uuid: 'visual-script-onQuery-' + systemCounter++,
-      insert: { with: system },
-      execute: () => {
-        newQueryResult = query()
-        if (newQueryResult.length === 0) return
-        if (prevQueryResult === newQueryResult) return //dont bother if same result
-        const tempResult = newQueryResult
-        for (let i = 0; i < tempResult.length; i++) {
-          console.log('DEBUG in code', tempResult[i])
-          write('entity', tempResult[i])
-          commit('flow')
-        }
-        prevQueryResult = tempResult
-      }
-    })
-    const state: State = {
-      query,
-      systemUUID
-    }
-
-    return state
-  },
-  dispose: ({ state: { query, systemUUID } }) => {
-    destroySystem(systemUUID)
+    const query = defineQuery(queryComponents)[type]()
+    write('entityList', query)
     removeQuery(query)
-    return initialState()
   }
 })

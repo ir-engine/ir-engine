@@ -23,9 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ComponentMap, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  ComponentMap,
+  defineComponent,
+  removeComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { NodeCategory, makeFlowNodeDefinition } from '@etherealengine/visual-script'
+import { Assert, NodeCategory, makeFlowNodeDefinition } from '@etherealengine/visual-script'
 
 export const addComponent = makeFlowNodeDefinition({
   typeName: 'engine/component/addComponent',
@@ -77,6 +82,50 @@ export const deleteComponent = makeFlowNodeDefinition({
     const entity = Number.parseInt(read('entity')) as Entity
     const componentName = read<string>('componentName')
     const component = ComponentMap.get(componentName)!
+    removeComponent(entity, component)
+    write('entity', entity)
+    commit('flow')
+  }
+})
+
+export const setTag = makeFlowNodeDefinition({
+  typeName: 'engine/component/tag/set',
+  category: NodeCategory.Action,
+  label: 'set Tag',
+  in: {
+    flow: 'flow',
+    entity: 'entity',
+    tagName: 'string'
+  },
+  out: { flow: 'flow', entity: 'entity', tagName: 'string' },
+  initialState: undefined,
+  triggered: ({ read, write, commit, graph: { getDependency } }) => {
+    const entity = Number.parseInt(read('entity')) as Entity
+    const tagName = read<string>('tagName')
+    const tag = defineComponent({ name: `bg-tag.${tagName}` })
+    setComponent(entity, tag)
+    write('entity', entity)
+    write('tagName', tagName)
+    commit('flow')
+  }
+})
+
+export const removeTag = makeFlowNodeDefinition({
+  typeName: 'engine/component/tag/remove',
+  category: NodeCategory.Action,
+  label: 'remove Tag',
+  in: {
+    flow: 'flow',
+    entity: 'entity',
+    tagName: 'string'
+  },
+  out: { flow: 'flow', entity: 'entity' },
+  initialState: undefined,
+  triggered: ({ read, write, commit, graph: { getDependency } }) => {
+    const entity = Number.parseInt(read('entity')) as Entity
+    const tagName = `bg-tag.${read<string>('tagName')}`
+    const component = ComponentMap.get(tagName)!
+    Assert.mustBeDefined(component, `Component ${tagName} does not exist`)
     removeComponent(entity, component)
     write('entity', entity)
     commit('flow')

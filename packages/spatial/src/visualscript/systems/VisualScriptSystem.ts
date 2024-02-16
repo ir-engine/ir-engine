@@ -41,19 +41,19 @@ import { registerEngineProfile } from '../nodes/profiles/ProfileModule'
 
 export const VisualScriptActions = {
   execute: defineAction({
-    type: 'VisualScript.EXECUTE',
+    type: 'ee.engine.VisualScript.EXECUTE',
     entity: matches.number as Validator<unknown, Entity>
   }),
   stop: defineAction({
-    type: 'VisualScript.STOP',
+    type: 'ee.engine.VisualScript.STOP',
     entity: matches.number as Validator<unknown, Entity>
   }),
   executeAll: defineAction({
-    type: 'VisualScript.EXECUTEALL',
+    type: 'ee.engine.VisualScript.EXECUTEALL',
     entity: matches.number as Validator<unknown, Entity>
   }),
   stopAll: defineAction({
-    type: 'VisualScript.STOPALL',
+    type: 'ee.engine.VisualScript.STOPALL',
     entity: matches.number as Validator<unknown, Entity>
   })
 }

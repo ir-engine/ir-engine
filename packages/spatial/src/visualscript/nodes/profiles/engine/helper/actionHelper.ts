@@ -23,8 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Action, ActionDefinitions, dispatchAction } from '@etherealengine/hyperflux'
-import { NodeCategory, NodeDefinition, makeFlowNodeDefinition } from '@etherealengine/visual-script'
+import { InputSystemGroup, SystemDefinitions, SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs'
+import {
+  Action,
+  ActionDefinitions,
+  ActionQueueHandle,
+  defineActionQueue,
+  dispatchAction,
+  removeActionQueue
+} from '@etherealengine/hyperflux'
+import {
+  NodeCategory,
+  NodeDefinition,
+  makeEventNodeDefinition,
+  makeFlowNodeDefinition
+} from '@etherealengine/visual-script'
 import { startCase } from 'lodash'
 import matches from 'ts-matches'
 import { NodetoEnginetype } from './commonHelper'
@@ -83,7 +96,7 @@ export function registerActionDispatchers() {
     const namePath = nameArray.splice(1).join('/')
 
     const node = makeFlowNodeDefinition({
-      typeName: `action/${namePath}/dispatch${dispatchName}`,
+      typeName: `action/${namePath}/${dispatchName}/dispatch`,
       category: NodeCategory.Action,
       label: `dispatch ${namePath} ${dispatchName}`,
       in: {
@@ -105,4 +118,96 @@ export function registerActionDispatchers() {
     dispatchers.push(node)
   }
   return dispatchers
+}
+
+type State = {
+  queue: ActionQueueHandle
+  systemUUID: SystemUUID
+}
+const initialState = (): State => ({
+  queue: undefined!,
+  systemUUID: '' as SystemUUID
+})
+let systemCounter = 0
+
+export function registerActionConsumers() {
+  const consumers: NodeDefinition[] = []
+  const skipped: string[] = []
+  for (const [actionType, action] of Object.entries(ActionDefinitions)) {
+    const { type, ...actionDef } = action.actionShape
+    if (skipAction.includes(actionType)) {
+      skipped.push(actionType)
+      continue
+    }
+    const outputSockets = generateActionNodeSchema(actionDef)
+    if (Object.keys(outputSockets).length === 0) {
+      skipped.push(actionType)
+      continue
+    }
+
+    const primaryType = Array.isArray(type) ? type[0] : type
+    const nameArray = primaryType.split('.')
+    const dispatchName = startCase(nameArray.pop().toLowerCase())
+    const namePath = nameArray.splice(1).join('/')
+
+    const node = makeEventNodeDefinition({
+      typeName: `action/${namePath}/${dispatchName}/consume`,
+      category: NodeCategory.Event,
+      label: `on ${namePath} ${dispatchName}`,
+      in: {
+        system: (_, graph) => {
+          const systemDefinitions = Array.from(SystemDefinitions.keys()).map((key) => key as string)
+          const groups = systemDefinitions.filter((key) => key.includes('group')).sort()
+          const nonGroups = systemDefinitions.filter((key) => !key.includes('group')).sort()
+          const choices = [...groups, ...nonGroups]
+          return {
+            key: 'system',
+            valueType: 'string',
+            choices: choices,
+            defaultValue: InputSystemGroup
+          }
+        }
+      },
+      out: { flow: 'flow', ...outputSockets },
+      initialState: initialState(),
+      init: ({ read, write, commit, graph }) => {
+        //read from the read and set dict acccordingly
+
+        const system = read<SystemUUID>('system')
+
+        const queue = defineActionQueue(ActionDefinitions[type].matches)
+        queue() // flush the queue
+        const systemUUID = defineSystem({
+          uuid: `visual-script-onAction-${dispatchName}` + systemCounter++,
+          insert: { with: system },
+          execute: () => {
+            const currQueue = queue()
+            if (currQueue.length === 0) return
+            const tempQueue = currQueue
+            for (let i = 0; i < tempQueue.length; i++) {
+              const currAction = tempQueue[i]
+              for (const [output, type] of Object.entries(outputSockets)) {
+                write(output as any, NodetoEnginetype(currAction[output], type))
+              }
+              commit('flow')
+            }
+            queue() // clear the queue
+          }
+        })
+        const state: State = {
+          queue,
+          systemUUID
+        }
+
+        return state
+      },
+      dispose: ({ state: { queue, systemUUID }, graph: { getDependency } }) => {
+        destroySystem(systemUUID)
+        removeActionQueue(queue)
+        return initialState()
+      }
+    })
+    consumers.push(node)
+  }
+  return consumers
 }

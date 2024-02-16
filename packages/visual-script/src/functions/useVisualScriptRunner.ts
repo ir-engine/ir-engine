@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { PresentationSystemGroup, SystemUUID, defineSystem, destroySystem, executeSystem } from '@etherealengine/ecs'
 import {
   Engine,
   GraphJSON,
@@ -36,6 +37,7 @@ import { useCallback, useEffect, useState } from 'react'
 /** Runs the visual script by building the execution
  * engine and triggering start on the lifecycle event emitter.
  */
+let systemCounter = 0
 export const useVisualScriptRunner = ({
   visualScriptJson,
   autoRun = false,
@@ -47,7 +49,7 @@ export const useVisualScriptRunner = ({
 }) => {
   const [engine, setEngine] = useState<Engine>()
   const [run, setRun] = useState(autoRun)
-
+  const [system, setSystem] = useState<SystemUUID>()
   const play = useCallback(() => {
     setRun(true)
   }, [])
@@ -84,35 +86,40 @@ export const useVisualScriptRunner = ({
 
   useEffect(() => {
     if (!engine || !run) return
-
     engine.executeAllSync()
-
-    let timeout: NodeJS.Timeout
 
     const eventEmitter = registry.dependencies?.ILifecycleEventEmitter as ILifecycleEventEmitter
 
-    const onTick = async () => {
-      eventEmitter.tickEvent.emit()
-
-      // eslint-disable-next-line no-await-in-loop
-      await engine.executeAllAsync(500)
-
-      timeout = setTimeout(onTick, 50)
+    if (system === undefined) {
+      const systemUUID = defineSystem({
+        uuid: 'behave-graph-asyncExecute' + systemCounter++,
+        execute: async () => {
+          eventEmitter.tickEvent.emit()
+          await engine.executeAllAsync(500)
+        },
+        insert: { after: PresentationSystemGroup }
+      })
+      setSystem(systemUUID)
+    } else {
+      executeSystem(system)
     }
 
     ;(async () => {
       if (eventEmitter.startEvent.listenerCount) {
+        console.log('has listener count')
         eventEmitter.startEvent.emit()
 
         await engine.executeAllAsync(5)
       } else {
         console.log('has no listener count')
       }
-      onTick()
     })() // start up
 
     return () => {
-      clearTimeout(timeout)
+      if (system !== undefined) {
+        destroySystem(system)
+        setSystem(undefined)
+      }
     }
   }, [engine, registry.dependencies?.ILifecycleEventEmitter, run])
 
