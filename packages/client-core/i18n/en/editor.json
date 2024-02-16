@@ -914,7 +914,11 @@
   },
   "visualScript":{
     "panel": {
+      "title": "Visual Script",
       "addVisualScript" : "Add Visual Script"
+    },
+    "picker":{
+      "title" : "Add Node"
     },
     "modal": {
       "clear": {  
@@ -943,6 +947,7 @@
         }
       }
     }
+    
   },
   "layout": {
     "assetGrid": {

@@ -26,9 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { NodeProps as FlowNodeProps, useEdges } from 'reactflow'
 
+import { NodeSpecJSON } from '@etherealengine/visual-script'
 import { faCircleMinus, faCirclePlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { NodeSpecJSON } from '../../VisualScriptModule'
 import { useChangeNodeData } from '../hooks/useChangeNodeData'
 import { useModifyNodeSocket } from '../hooks/useModifyNodeSocket'
 import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'

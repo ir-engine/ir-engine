@@ -23,16 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NodeConfigurationJSON } from '../../VisualScriptModule'
-import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
+import { NodeSpecJSON } from '@etherealengine/visual-script'
 
-export const getSocketsByNodeTypeAndHandleType = (
-  specGenerator: NodeSpecGenerator,
-  nodeType: string | undefined,
-  nodeConfiguration: NodeConfigurationJSON,
-  handleType: 'source' | 'target' | null
-) => {
-  if (nodeType === undefined) return []
-  const nodeSpec = specGenerator.getNodeSpec(nodeType, nodeConfiguration)
-  return handleType === 'source' ? nodeSpec.outputs : nodeSpec.inputs
+export type color = 'red' | 'green' | 'lime' | 'purple' | 'blue' | 'gray' | 'white'
+
+export const colors: Record<color, [string, string, string]> = {
+  red: ['#dd6b20', '#dd6b20', '#fff'],
+  green: ['#38a169', '#38a169', '#fff'],
+  lime: ['#84cc16', '#84cc16', '#2d3748'],
+  purple: ['#9f7aea', '#9f7aea', '#fff'],
+  blue: ['#22d3ee', '#22d3ee', '#fff'],
+  gray: ['#718096', '#718096', '#fff'],
+  white: ['#fff', '#fff', '#4a5568']
+}
+
+export const valueTypeColorMap: Record<string, string> = {
+  flow: 'white',
+  number: 'green',
+  float: 'green',
+  integer: 'lime',
+  boolean: 'red',
+  string: 'purple'
+}
+
+export const categoryColorMap: Record<NodeSpecJSON['category'], color> = {
+  Event: 'red',
+  Logic: 'green',
+  Variable: 'purple',
+  Query: 'purple',
+  Action: 'blue',
+  Flow: 'gray',
+  Effect: 'lime',
+  Time: 'gray',
+  None: 'gray'
 }

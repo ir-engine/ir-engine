@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Edge, Node } from 'reactflow'
 
-import { GraphJSON, NodeJSON, ValueJSON } from '../../VisualScriptModule'
+import { GraphJSON, NodeJSON, ValueJSON } from '@etherealengine/visual-script'
 import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
 
 const isNullish = (value: any): value is null | undefined => value === undefined || value === null

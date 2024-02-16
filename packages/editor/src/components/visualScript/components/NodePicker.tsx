@@ -26,9 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import React, { useState } from 'react'
 import { useReactFlow, XYPosition } from 'reactflow'
 
+import { NodeSpecJSON } from '@etherealengine/visual-script'
+import { useTranslation } from 'react-i18next'
 import { useOnPressKey } from '../hooks/useOnPressKey'
-
-import { NodeSpecJSON } from '../../VisualScriptModule'
 
 const nodePickerContainer: any = {
   position: 'absolute',
@@ -96,6 +96,7 @@ export const NodePicker: React.FC<NodePickerProps> = ({
   const [search, setSearch] = useState('')
   const instance = useReactFlow()
   useOnPressKey('Escape', onClose)
+  const { t } = useTranslation()
 
   if (!specJSON) return null
   let filtered = specJSON
@@ -119,7 +120,7 @@ export const NodePicker: React.FC<NodePickerProps> = ({
 
   return (
     <div style={{ ...nodePickerContainer, ...{ top: adjustedTop, left: adjustedLeft } }}>
-      <div style={nodePickerHeader}>Add Node</div>
+      <div style={nodePickerHeader}>{t('editor:visualScript.picker.title')}</div>
       <div>
         <input
           type="text"

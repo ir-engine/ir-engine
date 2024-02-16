@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { IQueryableRegistry } from '@etherealengine/visual-script'
 import { useMemo } from 'react'
-import { IQueryableRegistry } from '../../VisualScriptModule'
 
 export const toQueryableDefinitions = <T>(definitionsMap: { [id: string]: T }): IQueryableRegistry<T> => ({
   get: (id: string) => definitionsMap[id],

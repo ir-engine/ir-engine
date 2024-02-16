@@ -30,6 +30,7 @@ import VisualFlow from './VisualFlow'
 import VisualScriptIcon from '@mui/icons-material/AutoGraph'
 
 import { TabData } from 'rc-dock'
+import { useTranslation } from 'react-i18next'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
 import styles from '../styles.module.scss'
 
@@ -46,11 +47,12 @@ export const VisualScriptPanel = () => {
 }
 
 export const VisualScriptPanelTitle = () => {
+  const { t } = useTranslation()
   return (
     <div className={styles.dockableTab}>
       <PanelDragContainer>
         <PanelIcon as={VisualScriptIcon} size={12} />
-        <PanelTitle>Visual Script</PanelTitle>
+        <PanelTitle>{t('editor:visualScript.panel.title')}</PanelTitle>
       </PanelDragContainer>
     </div>
   )
