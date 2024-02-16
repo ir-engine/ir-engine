@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NodeCategory } from '../../Nodes/NodeDefinitions.js'
-import { NodeConfigurationDescription } from '../../Nodes/Registry/NodeDescription.js'
-import { IRegistry } from '../../Registry.js'
-import { Choices } from '../../Sockets/Socket.js'
-import { createNode, makeGraphApi } from '../Graph.js'
-import { NodeConfigurationJSON, VariableJSON } from './GraphJSON.js'
-import { ChoiceJSON, InputSocketSpecJSON, NodeSpecJSON, OutputSocketSpecJSON } from './NodeSpecJSON.js'
-import { readVariablesJSON } from './readGraphFromJSON.js'
+import { NodeCategory } from '../../Nodes/NodeDefinitions'
+import { NodeConfigurationDescription } from '../../Nodes/Registry/NodeDescription'
+import { IRegistry } from '../../Registry'
+import { Choices } from '../../Sockets/Socket'
+import { createNode, makeGraphApi } from '../Graph'
+import { NodeConfigurationJSON, VariableJSON } from './GraphJSON'
+import { ChoiceJSON, InputSocketSpecJSON, NodeSpecJSON, OutputSocketSpecJSON } from './NodeSpecJSON'
+import { readVariablesJSON } from './readGraphFromJSON'
 
 function toChoices(valueChoices: Choices | undefined): ChoiceJSON | undefined {
   return valueChoices?.map((choice) => {

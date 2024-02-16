@@ -33,6 +33,5 @@
     "../server-core/**/*",
     "../engine/**/*",
     "./**/*.ts",
-    "./**/*.tsx"
-, "../editor/src/components/visualScript/VisualScriptPanel.tsx"  ]
+    "./**/*.tsx"]
 }

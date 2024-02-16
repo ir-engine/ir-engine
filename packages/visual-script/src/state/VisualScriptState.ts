@@ -35,6 +35,7 @@ export const VisualScriptState = defineState({
   name: 'VisualScriptState',
   initial: () => {
     const registry = createBaseRegistry()
+    console.log('state start', registry.dependencies, registry.nodes, registry.values)
     return {
       registries: {
         [VisualScriptDomain.ECS]: registry
@@ -42,7 +43,7 @@ export const VisualScriptState = defineState({
     }
   },
 
-  registerProfile: (register: (registry: IRegistry) => void, registry: string) => {
-    getMutableState(VisualScriptState).registries[registry].set((current) => register(current))
+  registerProfile: (register: (registry: IRegistry) => IRegistry, domain: string) => {
+    getMutableState(VisualScriptState).registries[domain].set((current) => register(current))
   }
 })

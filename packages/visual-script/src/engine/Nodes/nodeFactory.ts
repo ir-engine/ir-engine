@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { IGraph } from '../Graphs/Graph.js'
-import { Socket } from '../Sockets/Socket.js'
-import { NodeConfiguration } from './Node.js'
+import { IGraph } from '../Graphs/Graph'
+import { Socket } from '../Sockets/Socket'
+import { NodeConfiguration } from './Node'
 import {
   INodeDefinition,
   NodeCategory,
@@ -33,8 +33,8 @@ import {
   SocketsDefinition,
   SocketsList,
   SocketsMap
-} from './NodeDefinitions.js'
-import { INode, NodeType } from './NodeInstance.js'
+} from './NodeDefinitions'
+import { INode, NodeType } from './NodeInstance'
 
 const makeSocketFromDefinition = (key: string, { valueType, defaultValue, choices }: SocketDefinition) =>
   new Socket(valueType, key as string, defaultValue, undefined, choices)

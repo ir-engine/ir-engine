@@ -23,15 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Logger } from '../../Diagnostics/Logger.js'
-import { CustomEvent } from '../../Events/CustomEvent.js'
-import { Link } from '../../Nodes/Link.js'
-import { NodeConfiguration } from '../../Nodes/Node.js'
-import { INode } from '../../Nodes/NodeInstance.js'
-import { IRegistry } from '../../Registry.js'
-import { Socket } from '../../Sockets/Socket.js'
-import { ValueTypeMap } from '../../Values/ValueTypeMap.js'
-import { Variable } from '../../Values/Variables/Variable.js'
+import { Logger } from '../../Diagnostics/Logger'
+import { CustomEvent } from '../../Events/CustomEvent'
+import { Link } from '../../Nodes/Link'
+import { NodeConfiguration } from '../../Nodes/Node'
+import { INode } from '../../Nodes/NodeInstance'
+import { IRegistry } from '../../Registry'
+import { Socket } from '../../Sockets/Socket'
+import { ValueTypeMap } from '../../Values/ValueTypeMap'
+import { Variable } from '../../Values/Variables/Variable'
 import {
   createNode,
   GraphCustomEvents,
@@ -40,8 +40,8 @@ import {
   GraphVariables,
   IGraph,
   makeGraphApi
-} from '../Graph.js'
-import { CustomEventJSON, FlowsJSON, GraphJSON, NodeJSON, NodeParametersJSON, VariableJSON } from './GraphJSON.js'
+} from '../Graph'
+import { CustomEventJSON, FlowsJSON, GraphJSON, NodeJSON, NodeParametersJSON, VariableJSON } from './GraphJSON'
 
 // Purpose:
 //  - loads a node graph

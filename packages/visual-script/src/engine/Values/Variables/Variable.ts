@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EventEmitter } from '../../Events/EventEmitter.js'
-import { Metadata } from '../../Metadata.js'
+import { EventEmitter } from '../../Events/EventEmitter'
+import { Metadata } from '../../Metadata'
 
 export class Variable {
   private value: any

@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Assert } from '../Diagnostics/Assert.js'
-import { Engine } from '../Execution/Engine.js'
-import { IGraph } from '../Graphs/Graph.js'
-import { Socket } from '../Sockets/Socket.js'
-import { Node, NodeConfiguration } from './Node.js'
-import { IEventNodeDefinition, NodeCategory } from './NodeDefinitions.js'
-import { IEventNode, INode, NodeType } from './NodeInstance.js'
-import { NodeDescription } from './Registry/NodeDescription.js'
+import { Assert } from '../Diagnostics/Assert'
+import { Engine } from '../Execution/Engine'
+import { IGraph } from '../Graphs/Graph'
+import { Socket } from '../Sockets/Socket'
+import { Node, NodeConfiguration } from './Node'
+import { IEventNodeDefinition, NodeCategory } from './NodeDefinitions'
+import { IEventNode, INode, NodeType } from './NodeInstance'
+import { NodeDescription } from './Registry/NodeDescription'
 
 // no flow inputs, always evaluated on startup
 export class EventNode extends Node<NodeType.Event> implements IEventNode {

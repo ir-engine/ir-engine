@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { IGraph, makeGraphApi } from '../Graphs/Graph.js'
-import { NodeConfiguration } from './Node.js'
-import { IFunctionNodeDefinition, IHasTriggered, SocketNames, SocketsDefinition } from './NodeDefinitions.js'
-import { makeOrGenerateSockets } from './nodeFactory.js'
-import { NodeConfigurationDescription } from './Registry/NodeDescription.js'
+import { IGraph, makeGraphApi } from '../Graphs/Graph'
+import { NodeConfiguration } from './Node'
+import { IFunctionNodeDefinition, IHasTriggered, SocketNames, SocketsDefinition } from './NodeDefinitions'
+import { makeOrGenerateSockets } from './nodeFactory'
+import { NodeConfigurationDescription } from './Registry/NodeDescription'
 
 const makeEmptyGraph = (): IGraph => {
   return makeGraphApi({

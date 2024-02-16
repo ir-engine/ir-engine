@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable no-console */
 
-import { LogSeverity } from '../../Profiles/ProfilesModule.js'
-import { EventEmitter } from '../Events/EventEmitter.js'
+import { LogSeverity } from '../../profiles/ProfilesModule'
+import { EventEmitter } from '../Events/EventEmitter'
 
 export enum LogLevel {
   Verbose = 0,

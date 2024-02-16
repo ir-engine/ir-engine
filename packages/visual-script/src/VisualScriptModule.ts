@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 export * from './engine/VisualScriptEngineModule'
 export * from './functions/createRegistry'
 export * from './functions/useVisualScriptRunner'
+export * from './profiles/ProfilesModule'
 export * from './scripts/ScriptsModule'
 export * from './state/VisualScriptState'
 export * from './ui/VisualScriptUIModule'

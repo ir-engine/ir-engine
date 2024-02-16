@@ -71,7 +71,6 @@ import GroundPlaneNodeEditor from '../components/properties/GroundPlaneNodeEdito
 import HemisphereLightNodeEditor from '../components/properties/HemisphereLightNodeEditor'
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
 // import InstancingNodeEditor from '../components/properties/InstancingNodeEditor'
-import { VisualScriptComponent } from '@etherealengine/visual-script'
 import { VisualScriptNodeEditor } from '../components/properties/VisualScriptNodeEditor'
 
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
@@ -82,6 +81,7 @@ import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/com
 import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
+import { VisualScriptComponent } from '@etherealengine/spatial'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'

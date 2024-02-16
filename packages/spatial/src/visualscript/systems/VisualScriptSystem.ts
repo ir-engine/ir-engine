@@ -34,10 +34,10 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { VisualScriptComponent } from '@etherealengine/spatial/src/visualscript/components/VisualScriptComponent'
-import { VisualScriptDomain, VisualScriptState } from '@etherealengine/visual-script'
+import { VisualScriptState } from '@etherealengine/visual-script'
 import { useEffect } from 'react'
-import { registerEngineProfile } from '../nodes/Profiles/ProfileModule'
+import { VisualScriptComponent, VisualScriptDomain } from '../VisualScriptModule'
+import { registerEngineProfile } from '../nodes/profiles/ProfileModule'
 
 export const VisualScriptActions = {
   execute: defineAction({
@@ -96,6 +96,7 @@ const reactor = () => {
 
   useEffect(() => {
     VisualScriptState.registerProfile(registerEngineProfile, VisualScriptDomain.ECS)
+    console.log('visualScriptSystem run')
   }, [])
 
   // run scripts when loaded a scene, joined a world, scene entity changed, scene data changed

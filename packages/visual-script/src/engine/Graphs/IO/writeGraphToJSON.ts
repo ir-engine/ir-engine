@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { IRegistry } from '../../Registry.js'
-import { GraphInstance } from '../Graph.js'
+import { IRegistry } from '../../Registry'
+import { GraphInstance } from '../Graph'
 import {
   CustomEventJSON,
   CustomEventParameterJSON,
@@ -34,7 +34,7 @@ import {
   NodeParameterJSON,
   ValueJSON,
   VariableJSON
-} from './GraphJSON.js'
+} from './GraphJSON'
 
 export function writeGraphToJSON(graph: GraphInstance, registry: IRegistry): GraphJSON {
   const graphJson: GraphJSON = {}

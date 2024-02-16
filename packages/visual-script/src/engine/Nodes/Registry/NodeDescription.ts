@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { IGraph } from '../../Graphs/Graph.js'
-import { IHasNodeFactory, INodeDefinition, NodeFactory } from '../NodeDefinitions.js'
-import { INode } from '../NodeInstance.js'
-import { NodeConfiguration } from './../Node.js'
-import { NodeCategory } from './NodeCategory.js'
+import { IGraph } from '../../Graphs/Graph'
+import { IHasNodeFactory, INodeDefinition, NodeFactory } from '../NodeDefinitions'
+import { INode } from '../NodeInstance'
+import { NodeConfiguration } from './../Node'
+import { NodeCategory } from './NodeCategory'
 
 export type NodeConfigurationDescription = {
   [key: string]: {

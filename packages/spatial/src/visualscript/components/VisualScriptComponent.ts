@@ -32,10 +32,9 @@ import {
   cleanStorageProviderURLs,
   parseStorageProviderURLs
 } from '@etherealengine/spatial/src/common/functions/parseSceneJSON'
-import { GraphJSON, VisualScriptState } from '@etherealengine/visual-script'
+import { GraphJSON, VisualScriptState, defaultVisualScript } from '@etherealengine/visual-script'
 import { useEffect } from 'react'
 import { useVisualScriptRunner } from '../../../../visual-script/src/functions/useVisualScriptRunner'
-import DefaultVisualScript from '../scripts/default-visual-script.json'
 
 export enum VisualScriptDomain {
   'ECS' = 'ECS'
@@ -47,7 +46,7 @@ export const VisualScriptComponent = defineComponent({
 
   onInit: (entity) => {
     const domain = VisualScriptDomain.ECS
-    const visualScript = parseStorageProviderURLs(DefaultVisualScript) as unknown as GraphJSON
+    const visualScript = parseStorageProviderURLs(defaultVisualScript) as unknown as GraphJSON
     return {
       domain: domain,
       visualScript: visualScript,

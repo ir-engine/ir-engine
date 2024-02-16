@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Socket } from '../Sockets/Socket.js'
+import { Socket } from '../Sockets/Socket'
 
 export const readInputFromSockets = <T>(inputs: Socket[], inputName: string, nodeTypeName: string) => {
   const inputSocket = inputs.find((socket) => socket.name === inputName)

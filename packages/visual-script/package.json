@@ -16,8 +16,6 @@
   "author": "Ethereal Engine",
   "license": "CPAL",
   "dependencies": {
-    "@etherealengine/common": "^1.6.0",
-    "@etherealengine/ecs": "^1.6.0",
     "@etherealengine/hyperflux": "^1.6.0",
     "@etherealengine/spatial": "^1.6.0",
     "@tweenjs/tween.js": "^18.6.4",

@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createNode, makeGraphApi } from '../../Graphs/Graph.js'
-import { IRegistry } from '../../Registry.js'
+import { createNode, makeGraphApi } from '../../Graphs/Graph'
+import { IRegistry } from '../../Registry'
 
 const nodeTypeNameRegex = /^\w+(\/\w+)*$/
 const socketNameRegex = /^\w+$/

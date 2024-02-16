@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { INode } from '../../Nodes/NodeInstance.js'
-import { GraphNodes } from '../Graph.js'
+import { INode } from '../../Nodes/NodeInstance'
+import { GraphNodes } from '../Graph'
 
 export function validateGraphAcyclic(nodes: GraphNodes): string[] {
   // apparently if you can topological sort, it is a DAG according to: https://stackoverflow.com/questions/4168/graph-serialization/4577#4577

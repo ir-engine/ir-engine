@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { IHasNodeFactory, INodeDefinition } from '../NodeDefinitions.js'
+import { IHasNodeFactory, INodeDefinition } from '../NodeDefinitions'
 
 export type NodeDefinition = IHasNodeFactory & Pick<INodeDefinition, 'typeName' | 'otherTypeNames'>
 

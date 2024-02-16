@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EEScene } from '@etherealengine/spatial/src/visualscript/nodes/Profiles/Engine/Abstractions/Drivers/eeScene'
-import { DefaultLogger, ManualLifecycleEventEmitter, registerCoreProfile } from '../Profiles/ProfilesModule'
-import { registerSceneProfile } from '../Profiles/Scene/SceneProfileModule'
-import { registerStructProfile } from '../Profiles/Struct/StructProfileModule'
+import { EEScene } from '@etherealengine/spatial'
+import { DefaultLogger, ManualLifecycleEventEmitter, registerCoreProfile } from '../profiles/ProfilesModule'
+import { registerSceneProfile } from '../profiles/scene/SceneProfileModule'
+import { registerStructProfile } from '../profiles/struct/StructProfileModule'
 
 export const createBaseRegistry = () => {
   let registry = registerCoreProfile({

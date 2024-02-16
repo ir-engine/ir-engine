@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { GraphNodes } from '../Graph.js'
+import { GraphNodes } from '../Graph'
 
 export function validateGraphLinks(nodes: GraphNodes): string[] {
   const errorList: string[] = []

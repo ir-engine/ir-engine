@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { validateNodeRegistry } from './Nodes/Validation/validateNodeRegistry.js'
-import { IRegistry } from './Registry.js'
-import { validateValueRegistry } from './Values/Validation/validateValueRegistry.js'
+import { validateNodeRegistry } from './Nodes/Validation/validateNodeRegistry'
+import { IRegistry } from './Registry'
+import { validateValueRegistry } from './Values/Validation/validateValueRegistry'
 
 export function validateRegistry(registry: IRegistry): string[] {
   const errorList: string[] = []

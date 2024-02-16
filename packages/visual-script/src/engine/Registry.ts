@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NodeDefinitionsMap } from './Nodes/Registry/NodeDefinitionsMap.js'
-import { ValueTypeMap } from './Values/ValueTypeMap.js'
+import { NodeDefinitionsMap } from './Nodes/Registry/NodeDefinitionsMap'
+import { ValueTypeMap } from './Values/ValueTypeMap'
 
 export interface IRegistry {
   readonly values: ValueTypeMap

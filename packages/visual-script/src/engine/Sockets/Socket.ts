@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Link } from '../Nodes/Link.js'
+import { Link } from '../Nodes/Link'
 
 export type Choices = string[] | { text: string; value: any }[]
 
