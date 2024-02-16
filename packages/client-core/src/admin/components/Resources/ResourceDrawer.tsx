@@ -258,10 +258,7 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
       try {
         ResourceService.createOrUpdateResource(data, resourceFile)
       } catch (error) {
-        NotificationService.dispatchNotify(
-          'Unable to upload due to insufficient storage. Please purchase additional storage and then proceed to upload.',
-          { variant: 'error' }
-        )
+        NotificationService.dispatchNotify(error.message, { variant: 'error' })
       }
 
       if (mode === ResourceDrawerMode.ViewEdit) {

@@ -289,10 +289,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
         try {
           await AvatarService.createAvatar(avatarFile, thumbnailFile, state.name.value, true)
         } catch (error) {
-          NotificationService.dispatchNotify(
-            'Unable to upload avatar model due to insufficient storage. Please purchase additional storage and then proceed to upload avatar.',
-            { variant: 'error' }
-          )
+          NotificationService.dispatchNotify(error.message, { variant: 'error' })
         }
       }
 
