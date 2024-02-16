@@ -28,7 +28,30 @@ import React, { PropsWithChildren } from 'react'
 import { categoryColorMap, colors } from '../util/colors'
 
 import { NodeCategory, NodeSpecJSON } from '../../VisualScriptModule'
-import './NodeContainer.css'
+
+const nodeContainerStyle = {
+  borderRadius: '0.25rem',
+  color: 'var(--textColor)',
+  fontSize: 'small',
+  backgroundColor: 'var(--panelBackground)',
+  minWidth: '120px'
+}
+
+const nodeTitleStyle = {
+  backgroundColor: 'var(--navbarBackground)',
+  color: 'var(--textColor)',
+  padding: '0.25rem 0.5rem',
+  borderTopLeftRadius: '0.25rem',
+  borderTopRightRadius: '0.25rem'
+}
+
+const nodeContent = {
+  display: 'flex',
+  gap: '0.5rem',
+  paddingTop: '0.5rem',
+  paddingBottom: '0.5rem',
+  borderColor: 'var(--borderStyle)'
+}
 
 type NodeProps = {
   title: string
@@ -52,11 +75,15 @@ const NodeContainer: React.FC<PropsWithChildren<NodeProps>> = ({
     color: textColor
   }
   return (
-    <div className={'node-container'} style={{ ...(selected && { outline: '2px solid #4a5568' }) }}>
-      <div className={`node-title`} style={titleStyle}>
-        {title}
-      </div>
-      <div className={`node-content`} style={{ borderColor: borderColor }}>
+    <div style={{ ...nodeContainerStyle, ...(selected && { outline: '2px solid #4a5568' }) }}>
+      <div style={{ ...nodeTitleStyle, ...titleStyle }}>{title}</div>
+      <div
+        style={{
+          flexDirection: 'column',
+          ...nodeContent,
+          ...{ borderColor: borderColor }
+        }}
+      >
         {children}
       </div>
     </div>

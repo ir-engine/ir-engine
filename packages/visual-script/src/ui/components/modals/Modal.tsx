@@ -27,7 +27,77 @@ import React, { PropsWithChildren } from 'react'
 
 import { useOnPressKey } from '../../hooks/useOnPressKey'
 
-import './Modal.css'
+/* Styles for the modal backdrop */
+const modalBackdrop: any = {
+  zIndex: '19',
+  position: 'fixed',
+  top: '0',
+  left: '0',
+  width: '100%',
+  height: '100%',
+  backgroundColor: 'var(--background)',
+  overflowY: 'auto'
+}
+
+/* Styles for the modal container */
+const modalContainer: any = {
+  zIndex: '20',
+  position: 'relative',
+  top: '2px',
+  marginLeft: 'auto',
+  marginRight: 'auto',
+  border: '1px solid var(--borderStyle)',
+  width: '24rem',
+  boxShadow: '0 2px 4px var(--background2)',
+  backgroundColor: 'var(--panelBackground)',
+  fontSize: '0.875rem',
+  borderRadius: '0.375rem',
+  color: 'var(--textColor)'
+}
+
+/* Styles for the modal header */
+const modalHeader = {
+  padding: '0.75rem',
+  borderBottom: '1px solid var(--borderStyle)'
+}
+
+/* Styles for the modal title */
+const modalTitle: any = {
+  fontSize: '1.125rem',
+  fontWeight: 'bold',
+  textAlign: 'center',
+  color: 'var(--textColor)'
+}
+
+/* Styles for the modal content */
+const modalContent: any = {
+  padding: '0.75rem',
+  color: 'var(--textColor)'
+}
+
+/* Styles for the modal actions container */
+const modalActions = {
+  display: 'flex',
+  gap: '0.75rem',
+  padding: '0.75rem',
+  borderTop: '1px solid var(--borderStyle)'
+}
+
+/* Styles for the primary and secondary action buttons */
+const modalActionBtn = {
+  color: 'var(--textColor)',
+  padding: '0.5rem 1rem',
+  width: '100%',
+  cursor: 'pointer'
+}
+
+const modalPrimaryAction = {
+  backgroundColor: 'var(--iconButtonBackground)' /* Equivalent to 'bg-teal-400' */
+}
+
+const modalSecondaryAction = {
+  backgroundColor: 'var(--iconButtonBackground)' /* Equivalent to 'bg-gray-400' */
+}
 
 export type ModalAction = {
   label: string
@@ -46,26 +116,25 @@ export const Modal: React.FC<PropsWithChildren<ModalProps>> = ({ open = false, o
 
   if (open === false) return null
 
-  const actionColors = {
-    primary: 'bg-teal-400 hover:bg-teal-500',
-    secondary: 'bg-gray-400 hover:bg-gray-500'
-  }
-
   return (
     <>
-      <div className="modal-backdrop" onClick={onClose}></div>
-      <div className="modal-container">
-        <div className="modal-header">
-          <h2 className="modal-title">{title}</h2>
+      <div style={modalBackdrop} onClick={onClose}></div>
+      <div style={modalContainer}>
+        <div style={modalHeader}>
+          <h2 style={modalTitle}>{title}</h2>
         </div>
-        <div className="modal-content">{children}</div>
-        <div className="modal-actions">
+        <div style={modalContent}>{children}</div>
+        <div style={modalActions}>
           {actions.map((action, ix) => (
             <button
               key={ix}
-              className={`modal-action-btn ${
-                ix === actions.length - 1 ? 'modal-primary-action' : 'modal-secondary-action'
-              }`}
+              style={{ ...modalActionBtn, ...(ix === actions.length - 1 ? modalPrimaryAction : modalSecondaryAction) }}
+              onMouseOver={(event) => {
+                ;(event.target as any).style.backgroundColor = 'var(--iconButtonSelectedBackground)'
+              }}
+              onMouseOut={(event) => {
+                ;(event.target as any).style.backgroundColor = 'var(--iconButtonBackground)'
+              }}
               onClick={action.onClick}
             >
               {action.label}

@@ -12,11 +12,10 @@
   width: 2px;
 }
 
-.node-picker-header {
+.node-picker-header{
   background-color: var(--tableHeaderBackground); 
   padding: 0.5rem 0.25rem; 
 }
-
 
 .node-picker-search input {
   background-color: var(--inputBackground); 

@@ -29,7 +29,47 @@ import { useReactFlow, XYPosition } from 'reactflow'
 import { useOnPressKey } from '../hooks/useOnPressKey'
 
 import { NodeSpecJSON } from '../../VisualScriptModule'
-import './NodePicker.css'
+
+const nodePickerContainer: any = {
+  position: 'absolute',
+  zIndex: '10',
+  fontSize: 'small',
+  color: 'var(--textColor)',
+  backgroundColor: 'var(--popupBackground)',
+  borderStyle: 'round',
+  borderColor: 'var(--borderStyle)'
+}
+
+/*const nodePicker::-webkit-scrollbar {
+  width: 2px;
+}*/
+
+const nodePickerHeader = {
+  backgroundColor: 'var(--tableHeaderBackground)',
+  padding: '0.5rem 0.25rem'
+}
+
+const nodePickerSearchInput = {
+  backgroundColor: 'var(--inputBackground)',
+  color: 'var(--white)',
+  width: '100%',
+  padding: '0.25rem 0.5rem'
+}
+
+/*const nodePickerInput:disabled {
+  backgroundColor: 'var(--dockBackground)' 
+}*/
+
+const nodePickerList: any = {
+  maxHeight: '12rem',
+  overflowY: 'scroll'
+}
+
+const nodePickerItem: any = {
+  padding: '0.25rem 0.5rem',
+  borderBottom: '1px solid var(--border)',
+  cursor: 'pointer'
+}
 
 export type NodePickerFilters = {
   handleType: 'source' | 'target'
@@ -78,21 +118,21 @@ export const NodePicker: React.FC<NodePickerProps> = ({
   const adjustedLeft = position.x
 
   return (
-    <div className="node-picker-container" style={{ top: adjustedTop, left: adjustedLeft }}>
-      <div className="node-picker-header">Add Node</div>
-      <div className="node-picker-search">
+    <div style={{ ...nodePickerContainer, ...{ top: adjustedTop, left: adjustedLeft } }}>
+      <div style={nodePickerHeader}>Add Node</div>
+      <div>
         <input
           type="text"
           autoFocus
           placeholder="Type to filter"
-          className="node-picker-input"
+          style={nodePickerSearchInput}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
-      <div className="node-picker-list">
+      <div style={nodePickerList}>
         {filtered.map(({ type }) => (
-          <div key={type} className="node-picker-item" onClick={() => onPickNode(type, instance.project(position))}>
+          <div key={type} style={nodePickerItem} onClick={() => onPickNode(type, instance.project(position))}>
             {type}
           </div>
         ))}
