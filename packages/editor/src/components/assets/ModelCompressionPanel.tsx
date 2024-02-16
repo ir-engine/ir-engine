@@ -46,7 +46,7 @@ import {
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
+import { Heuristic, VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { createSceneEntity } from '@etherealengine/engine/src/scene/functions/createSceneEntity'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
@@ -63,7 +63,7 @@ import { FileType } from './FileBrowser/FileBrowserContentPanel'
 export const createLODVariants = async (
   lods: LODVariantDescriptor[],
   clientside: boolean,
-  heuristic: 'DISTANCE' | 'SCENE_SCALE' | 'MANUAL' | 'DEVICE',
+  heuristic: Heuristic,
   exportCombined = false
 ) => {
   const lodVariantParams: ModelTransformParameters[] = lods.map((lod) => ({

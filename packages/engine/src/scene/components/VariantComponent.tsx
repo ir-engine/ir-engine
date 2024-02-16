@@ -47,6 +47,8 @@ export type VariantLevel = {
   metadata: Record<string, any>
 }
 
+export type Heuristic = 'DISTANCE' | 'SCENE_SCALE' | 'MANUAL' | 'DEVICE' | 'BUDGET'
+
 export const VariantComponent = defineComponent({
   name: 'EE_variant',
 
@@ -54,7 +56,7 @@ export const VariantComponent = defineComponent({
 
   onInit: (entity) => ({
     levels: [] as VariantLevel[],
-    heuristic: 'MANUAL' as 'DISTANCE' | 'SCENE_SCALE' | 'MANUAL' | 'DEVICE',
+    heuristic: 'MANUAL' as Heuristic,
     calculated: false
   }),
 
