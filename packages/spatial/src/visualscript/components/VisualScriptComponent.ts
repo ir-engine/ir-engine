@@ -34,10 +34,10 @@ import {
   cleanStorageProviderURLs,
   parseStorageProviderURLs
 } from '@etherealengine/spatial/src/common/functions/parseSceneJSON'
+import { VisualScriptState } from '@etherealengine/visual-script'
 import { useEffect } from 'react'
-import { useVisualScriptRunner } from '../functions/useVisualScriptRunner'
+import { useVisualScriptRunner } from '../../../../visual-script/src/functions/useVisualScriptRunner'
 import DefaultVisualScript from '../scripts/default-visual-script.json'
-import { VisualScriptState } from '../state/VisualScriptState'
 
 export enum VisualScriptDomain {
   'ECS' = 'ECS'
@@ -87,7 +87,7 @@ export const VisualScriptComponent = defineComponent({
     const visualScript = useComponent(entity, VisualScriptComponent)
     const visualScriptState = useHookstate(getMutableState(VisualScriptState))
 
-    const canPlay = visualScript.run && !visualScript.disabled
+    const canPlay = visualScript.run.value && !visualScript.disabled.value
     const registry = visualScriptState.registries[visualScript.domain.value].get({ noproxy: true })
     const visualScriptRunner = useVisualScriptRunner({
       visualScriptJson: visualScript.visualScript.get({ noproxy: true }),

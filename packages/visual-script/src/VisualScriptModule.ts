@@ -23,11 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export * from './components/VisualScriptComponent'
-export * from './functions/createECSRegistry'
+export * from './functions/createRegistry'
 export * from './functions/useVisualScriptRunner'
-export * from './nodes/Profiles/ProfileModule'
 export * from './scripts/ScriptsModule'
 export * from './state/VisualScriptState'
-export * from './systems/VisualScriptSystem'
 export * from './ui/VisualScriptUIModule'

@@ -23,15 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { registerEngineProfile } from '../nodes/Profiles/Engine/registerEngineProfile'
-
 import { DefaultLogger, ManualLifecycleEventEmitter, registerCoreProfile } from '@behave-graph/core'
-
 import { registerSceneProfile } from '@behave-graph/scene'
 import { registerStructProfile } from '@behave-graph/struct'
-import { EEScene } from '../nodes/Profiles/Engine/Abstractions/Drivers/eeScene'
+import { EEScene } from '@etherealengine/spatial/src/visualscript/nodes/Profiles/Engine/Abstractions/Drivers/eeScene'
 
-export const createECSRegistry = () => {
+export const createBaseRegistry = () => {
   let registry = registerCoreProfile({
     values: {},
     nodes: {},
@@ -43,7 +40,6 @@ export const createECSRegistry = () => {
   })
   registry = registerSceneProfile(registry)
   registry = registerStructProfile(registry)
-  registry = registerEngineProfile(registry)
 
   return registry
 }

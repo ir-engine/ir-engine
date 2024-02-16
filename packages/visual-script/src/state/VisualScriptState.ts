@@ -24,13 +24,25 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { IRegistry } from '@behave-graph/core'
-import { defineState } from '@etherealengine/hyperflux'
-import { VisualScriptDomain } from '../components/VisualScriptComponent'
-import { createECSRegistry } from '../functions/createECSRegistry'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { createBaseRegistry } from '../functions/createRegistry'
+
+export enum VisualScriptDomain {
+  'ECS' = 'ECS'
+}
 
 export const VisualScriptState = defineState({
   name: 'VisualScriptState',
-  initial: () => ({
-    registries: { ECS: createECSRegistry() } as Record<VisualScriptDomain, IRegistry>
-  })
+  initial: () => {
+    const registry = createBaseRegistry()
+    return {
+      registries: {
+        [VisualScriptDomain.ECS]: registry
+      } as Record<VisualScriptDomain, IRegistry>
+    }
+  },
+
+  registerProfile: (register: (registry: IRegistry) => void, registry: string) => {
+    getMutableState(VisualScriptState).registries[registry].set((current) => register(current))
+  }
 })
