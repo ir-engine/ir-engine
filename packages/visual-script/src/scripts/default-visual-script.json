@@ -17,13 +17,13 @@
       },
       "flows": {
         "flow": {
-          "nodeId": "6",
+          "nodeId": "2",
           "socket": "flow"
         }
       }
     },
     {
-      "id": "6",
+      "id": "2",
       "type": "debug/log",
       "metadata": {
         "positionX": "270.5933446233562",

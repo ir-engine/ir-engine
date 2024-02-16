@@ -76,6 +76,7 @@ export function NodetoEnginetype(value, valuetype) {
       break
     case 'string':
       return String(value)
+    case 'euler':
     case 'vec3':
     case 'vec2':
       return toVector3(value)

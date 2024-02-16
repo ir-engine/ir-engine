@@ -47,6 +47,7 @@ import * as EntityNodes from './values/EntityNodes'
 import { EntityValue } from './values/EntityValue'
 import * as QueryNodes from './values/QueryNodes'
 import * as SplineNodes from './values/SplineNodes'
+import * as VariableNodes from './values/VariableNodes'
 import * as VolumetricNodes from './values/VolumetricNodes'
 
 export const makeEngineDependencies = () => ({})
@@ -74,6 +75,7 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
     ...getNodeDescriptions(QueryNodes),
     ...getNodeDescriptions(AxisNodes),
     ...getNodeDescriptions(VolumetricNodes),
+    ...getNodeDescriptions(VariableNodes),
     // variables
 
     // complex logic

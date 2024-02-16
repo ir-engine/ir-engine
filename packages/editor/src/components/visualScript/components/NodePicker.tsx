@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useState } from 'react'
-import { useReactFlow, XYPosition } from 'reactflow'
+import { XYPosition, useReactFlow } from 'reactflow'
 
 import { NodeSpecJSON } from '@etherealengine/visual-script'
 import { useTranslation } from 'react-i18next'
@@ -85,6 +85,12 @@ type NodePickerProps = {
   specJSON: NodeSpecJSON[] | undefined
 }
 
+const pickerStyle = {
+  overflow: 'hidden',
+  width: '320px',
+  height: '180px'
+}
+
 export const NodePicker: React.FC<NodePickerProps> = ({
   flowRef,
   position,
@@ -94,6 +100,7 @@ export const NodePicker: React.FC<NodePickerProps> = ({
   specJSON
 }: NodePickerProps) => {
   const [search, setSearch] = useState('')
+
   const instance = useReactFlow()
   useOnPressKey('Escape', onClose)
   const { t } = useTranslation()
@@ -113,13 +120,14 @@ export const NodePicker: React.FC<NodePickerProps> = ({
       return node.type.toLowerCase().includes(term)
     }) || []
 
-  const bounds = flowRef.current!.getBoundingClientRect()
-  // Adjust the position to fit within the available space
-  const adjustedTop = position.y
-  const adjustedLeft = position.x
+  const paneBounds = flowRef.current!.getBoundingClientRect()
+  const width = parseInt(pickerStyle.width)
+  const height = parseInt(pickerStyle.height)
+  position.x = position.x + width > paneBounds.width ? (position.x -= width) : position.x
+  position.y = position.y + height > paneBounds.height ? (position.y -= height) : position.y
 
   return (
-    <div style={{ ...nodePickerContainer, ...{ top: adjustedTop, left: adjustedLeft } }}>
+    <div style={{ ...nodePickerContainer, ...{ top: position.y, left: position.x, ...pickerStyle } }}>
       <div style={nodePickerHeader}>{t('editor:visualScript.picker.title')}</div>
       <div>
         <input
@@ -133,7 +141,11 @@ export const NodePicker: React.FC<NodePickerProps> = ({
       </div>
       <div style={nodePickerList}>
         {filtered.map(({ type }) => (
-          <div key={type} style={nodePickerItem} onClick={() => onPickNode(type, instance.project(position))}>
+          <div
+            key={type}
+            style={nodePickerItem}
+            onClick={() => onPickNode(type, instance.screenToFlowPosition(position))}
+          >
             {type}
           </div>
         ))}

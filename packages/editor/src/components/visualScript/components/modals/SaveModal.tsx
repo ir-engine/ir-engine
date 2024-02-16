@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useMemo, useRef, useState } from 'react'
 import { useEdges, useNodes } from 'reactflow'
 
+import { VariableJSON } from '@etherealengine/visual-script'
 import { useTranslation } from 'react-i18next'
 import { NodeSpecGenerator } from '../../hooks/useNodeSpecGenerator'
 import { flowToVisual } from '../../transformers/flowToVisual'
@@ -33,11 +34,12 @@ import { Modal } from './Modal'
 
 export type SaveModalProps = {
   open?: boolean
+  variables: VariableJSON[]
   onClose: () => void
   specGenerator: NodeSpecGenerator
 }
 
-export const SaveModal: React.FC<SaveModalProps> = ({ open = false, onClose, specGenerator }) => {
+export const SaveModal: React.FC<SaveModalProps> = ({ open = false, variables, onClose, specGenerator }) => {
   const ref = useRef<HTMLTextAreaElement>(null)
   const [copied, setCopied] = useState(false)
   const { t } = useTranslation()
@@ -45,7 +47,7 @@ export const SaveModal: React.FC<SaveModalProps> = ({ open = false, onClose, spe
   const edges = useEdges()
   const nodes = useNodes()
 
-  const flow = useMemo(() => flowToVisual(nodes, edges, specGenerator), [nodes, edges, specGenerator])
+  const flow = useMemo(() => flowToVisual(nodes, edges, variables, specGenerator), [nodes, edges, specGenerator])
 
   const jsonString = JSON.stringify(flow, null, 2)
 

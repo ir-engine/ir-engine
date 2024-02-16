@@ -23,19 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { GraphJSON, NodeJSON, ValueJSON, VariableJSON } from '@etherealengine/visual-script'
 import { Edge, Node } from 'reactflow'
-
-import { GraphJSON, NodeJSON, ValueJSON } from '@etherealengine/visual-script'
 import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
 
 const isNullish = (value: any): value is null | undefined => value === undefined || value === null
 
-export const flowToVisual = (nodes: Node[], edges: Edge[], specGenerator: NodeSpecGenerator): GraphJSON => {
-  const visualScript: GraphJSON = { nodes: [], variables: [], customEvents: [] }
+export const flowToVisual = (
+  nodes: Node[],
+  edges: Edge[],
+  variables: VariableJSON[],
+  specGenerator: NodeSpecGenerator
+): GraphJSON => {
+  const visualScript: GraphJSON = { nodes: [], variables: variables, customEvents: [] }
 
   nodes.forEach((node) => {
     if (node.type === undefined) return
-
     const nodeSpec = specGenerator.getNodeSpec(node.type, node.data.configuration)
     if (nodeSpec === undefined) return
     const visualNode: NodeJSON = {
@@ -59,7 +62,16 @@ export const flowToVisual = (nodes: Node[], edges: Edge[], specGenerator: NodeSp
       }
       visualNode.parameters[key] = { value: value as string }
     })
-
+    if (node.parentNode) {
+      visualNode.metadata!.parentNode = node.parentNode
+    }
+    if (node.style) {
+      visualNode.metadata!.style = node.style as any
+    }
+    if (node.data.label) {
+      visualNode.metadata!.label = node.data.label as any
+    }
+    // check for
     edges
       .filter((edge) => edge.target === node.id)
       .forEach((edge) => {

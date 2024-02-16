@@ -56,12 +56,14 @@ type NodeProps = {
   title: string
   category?: NodeSpecJSON['category']
   selected: boolean
+  isGroup: boolean
 }
 
 const NodeContainer: React.FC<PropsWithChildren<NodeProps>> = ({
   title,
   category = NodeCategory.None,
   selected,
+  isGroup = false,
   children
 }) => {
   let colorName = categoryColorMap[category]

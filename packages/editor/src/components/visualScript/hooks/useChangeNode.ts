@@ -23,30 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useState } from 'react'
-import { NodeTypes } from 'reactflow'
+import { useCallback } from 'react'
+import { useReactFlow } from 'reactflow'
 
-import { Node } from '../components/Node'
-import { NodeSpecGenerator } from './useNodeSpecGenerator'
+export const useChangeNode = (id: string, changeConfig = false, changeValues = true) => {
+  const instance = useReactFlow()
 
-const getCustomNodeTypes = (specGenerator: NodeSpecGenerator) => {
-  return specGenerator.getNodeTypes().reduce((nodes: NodeTypes, nodeType) => {
-    nodes[nodeType] = (props) => {
-      const spec = specGenerator.getNodeSpec(nodeType, props.data.configuration)
-      return <Node spec={spec} specGenerator={specGenerator} {...props} />
-    }
-    return nodes
-  }, {})
-}
-
-export const useCustomNodeTypes = ({ specGenerator }: { specGenerator: NodeSpecGenerator | undefined }) => {
-  const [customNodeTypes, setCustomNodeTypes] = useState<NodeTypes>()
-  useEffect(() => {
-    if (!specGenerator) return
-    const customNodeTypes = getCustomNodeTypes(specGenerator)
-
-    setCustomNodeTypes(customNodeTypes)
-  }, [specGenerator])
-
-  return customNodeTypes
+  return useCallback(
+    (key: string, value: any) => {
+      instance.setNodes((nodes) =>
+        nodes.map((n) => {
+          if (n.id !== id) return n
+          const newValues = changeValues ? { [key]: value } : {}
+          const newConfig = changeConfig ? { [key]: value } : {}
+          return {
+            ...n,
+            data: {
+              ...n.data,
+              values: {
+                ...n.data.values,
+                ...newValues
+              },
+              configuration: {
+                ...n.data.configuration,
+                ...newConfig
+              }
+            }
+          }
+        })
+      )
+    },
+    [instance, id]
+  )
 }

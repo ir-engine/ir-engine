@@ -29,7 +29,7 @@ import { NodeProps as FlowNodeProps, useEdges } from 'reactflow'
 import { NodeSpecJSON } from '@etherealengine/visual-script'
 import { faCircleMinus, faCirclePlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useChangeNodeData } from '../hooks/useChangeNodeData'
+import { useChangeNode } from '../hooks/useChangeNode'
 import { useModifyNodeSocket } from '../hooks/useModifyNodeSocket'
 import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
 import { isHandleConnected } from '../util/isHandleConnected'
@@ -52,10 +52,12 @@ const getPairs = <T, U>(arr1: T[], arr2: U[]) => {
   return pairs
 }
 
-export const NodeUI: React.FC<NodeUIProps> = ({ id, data, spec, selected, specGenerator }: NodeUIProps) => {
+export const Node: React.FC<NodeUIProps> = ({ id, data, spec, selected, specGenerator }: NodeUIProps) => {
   const edges = useEdges()
-  const handleChange = useChangeNodeData(id)
-  const pairs = getPairs(spec.inputs, spec.outputs)
+  const isVariableNode = spec.configuration.find(
+    (config) => config.name === 'variableName' && config.valueType === 'string'
+  )
+  const handleChange = useChangeNode(id, isVariableNode !== undefined)
   const canAddInputs = spec.configuration.find((config) => config.name === 'numInputs' && config.valueType === 'number')
   const canAddOutputs = spec.configuration.find(
     (config) => config.name === 'numOutputs' && config.valueType === 'number'
@@ -85,9 +87,10 @@ export const NodeUI: React.FC<NodeUIProps> = ({ id, data, spec, selected, specGe
     gap: '2px',
     padding: '0 8px'
   }
-
+  const pairs = getPairs(spec.inputs, spec.outputs)
+  const label = spec.label === '' ? data.label : spec.label
   return (
-    <NodeContainer title={spec.label} category={spec.category} selected={selected}>
+    <NodeContainer title={label} category={spec.category} selected={selected} isGroup={spec.type === 'group'}>
       {pairs.map(([input, output], ix) => (
         <div key={ix} className="node-container-row" style={containerRowStyle}>
           {input && (

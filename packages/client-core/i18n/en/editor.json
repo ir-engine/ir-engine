@@ -916,6 +916,7 @@
     "panel": {
       "title": "Visual Script",
       "addVisualScript" : "Add Visual Script"
+    
     },
     "picker":{
       "title" : "Add Node"
@@ -946,9 +947,22 @@
           "begin": "Copy"
         }
       }
+    },
+    "sidePanel":{
+      "node":{
+        "name": "Nodes",
+        "description": "Individual logic units connected together to create a graph"
+        },
+      "template":{
+        "name": "Templates",
+        "description": "Reusable graphs that can be added to other graphs."
+        }
+    },
+    "editorPanel":{
+      "makeTemplate": "Make into template"
     }
-    
-  },
+  }
+  ,
   "layout": {
     "assetGrid": {
       "loading": "Loading...",

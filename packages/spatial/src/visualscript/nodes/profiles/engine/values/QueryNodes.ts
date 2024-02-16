@@ -23,17 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NodeCategory, SocketsList, makeFunctionNodeDefinition, sequence } from '@behave-graph/core'
-import {
-  Component,
-  ComponentMap,
-  InputSystemGroup,
-  SystemDefinitions,
-  SystemUUID,
-  defineQuery,
-  removeQuery
-} from '@etherealengine/ecs'
+import { Component, ComponentMap, defineQuery, removeQuery } from '@etherealengine/ecs'
 import { TransformComponent } from '@etherealengine/spatial'
+import { NodeCategory, SocketsList, makeFunctionNodeDefinition, sequence } from '@etherealengine/visual-script'
 
 export const getQuery = makeFunctionNodeDefinition({
   typeName: 'engine/query/get',
@@ -66,21 +58,9 @@ export const getQuery = makeFunctionNodeDefinition({
         defaultValue: choices[0]
       }
     }
-    const system = () => {
-      const systemDefinitions = Array.from(SystemDefinitions.keys()).map((key) => key as string)
-      const groups = systemDefinitions.filter((key) => key.includes('group')).sort()
-      const nonGroups = systemDefinitions.filter((key) => !key.includes('group')).sort()
-      const choices = [...groups, ...nonGroups]
-      return {
-        key: 'system',
-        valueType: 'string',
-        choices: choices,
-        defaultValue: InputSystemGroup
-      }
-    }
     // unsure how to get all system groups
 
-    sockets.push({ ...type() }, { ...system() })
+    sockets.push({ ...type() })
 
     for (const index of sequence(1, (_.numInputs ?? getQuery.configuration?.numInputs.defaultValue) + 1)) {
       sockets.push({ ...componentName(index) })
@@ -93,7 +73,6 @@ export const getQuery = makeFunctionNodeDefinition({
   },
   exec: ({ read, write, graph, configuration }) => {
     const type = read<string>('type')
-    const system = read<SystemUUID>('system')
 
     const queryComponents: Component[] = []
     for (const index of sequence(1, (configuration.numInputs ?? getQuery.configuration?.numInputs.defaultValue) + 1)) {

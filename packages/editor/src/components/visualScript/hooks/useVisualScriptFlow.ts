@@ -26,7 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { useCallback, useEffect, useState } from 'react'
 import { useEdgesState, useNodesState } from 'reactflow'
 
-import { GraphJSON } from '@etherealengine/visual-script'
+import { GraphJSON, VariableJSON } from '@etherealengine/visual-script'
+import { omit } from 'lodash'
 import { visualToFlow } from '../transformers/VisualToFlow'
 import { flowToVisual } from '../transformers/flowToVisual'
 import { autoLayout } from '../util/autoLayout'
@@ -53,6 +54,7 @@ export const useVisualScriptFlow = ({
   const [visualScriptJson, setStoredVisualScriptJson] = useState<GraphJSON | undefined>()
   const [nodes, setNodes, onNodesChange] = useNodesState([])
   const [edges, setEdges, onEdgesChange] = useEdgesState([])
+  const [variables, setVariables] = useState<VariableJSON[]>([])
 
   const setVisualScriptJson = useCallback(
     (visualScriptJson: GraphJSON) => {
@@ -67,8 +69,9 @@ export const useVisualScriptFlow = ({
       setNodes(nodes)
       setEdges(edges)
       setStoredVisualScriptJson(visualScriptJson)
+      setVariables(visualScriptJson.variables ?? [])
     },
-    [setEdges, setNodes]
+    [setEdges, setNodes, setVariables]
   )
 
   useEffect(() => {
@@ -79,21 +82,37 @@ export const useVisualScriptFlow = ({
   useEffect(() => {
     if (!specGenerator) return
     // when nodes and edges are updated, update the visual script json with the flow to visual behavior
-    const visualScriptJson = flowToVisual(nodes, edges, specGenerator)
+    const visualScriptJson = flowToVisual(nodes, edges, variables, specGenerator)
     setStoredVisualScriptJson(visualScriptJson)
-  }, [nodes, edges, specGenerator])
+  }, [nodes, edges, variables, specGenerator])
 
   const nodeTypes = useCustomNodeTypes({
     specGenerator
   })
 
+  const deleteNodes = (deletedNodes) => {
+    const filterNodes = nodes.map((node) => {
+      if (!node.parentNode) return node
+      const parentNode = deletedNodes.find((deletedNode) => deletedNode.id === node.parentNode)
+      if (parentNode === undefined) return node
+      const newNode = omit(node, 'parentNode')
+      newNode.position.x += parentNode.position.x
+      newNode.position.y += parentNode.position.y
+      return newNode
+    })
+    setNodes(filterNodes)
+  }
+
   return {
     nodes,
     edges,
+    variables,
+    setVariables,
     onEdgesChange,
     onNodesChange,
     setVisualScriptJson,
     visualScriptJson,
+    deleteNodes,
     nodeTypes
   }
 }

@@ -28,7 +28,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useState } from 'react'
 import { ControlButton, Controls } from 'reactflow'
 
-import { GraphJSON } from '@etherealengine/visual-script'
+import { GraphJSON, VariableJSON } from '@etherealengine/visual-script'
 import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
 import { ClearModal } from './modals/ClearModal'
 import { HelpModal } from './modals/HelpModal'
@@ -40,6 +40,7 @@ export type CustomControlsProps = {
   togglePlay: () => void
   onSaveVisualScript: (value: GraphJSON) => void
   setVisualScript: (value: GraphJSON) => void
+  variables: VariableJSON[]
   examples: Examples
   specGenerator: NodeSpecGenerator | undefined
 }
@@ -49,14 +50,9 @@ export const CustomControls: React.FC<CustomControlsProps> = ({
   togglePlay,
   setVisualScript,
   examples,
+  variables,
   specGenerator
-}: {
-  playing: boolean
-  togglePlay: () => void
-  setVisualScript: (value: GraphJSON) => void
-  examples: Examples
-  specGenerator: NodeSpecGenerator | undefined
-}) => {
+}: CustomControlsProps) => {
   const [loadModalOpen, setLoadModalOpen] = useState(false)
   const [saveModalOpen, setSaveModalOpen] = useState(false)
   const [helpModalOpen, setHelpModalOpen] = useState(false)
@@ -94,7 +90,12 @@ export const CustomControls: React.FC<CustomControlsProps> = ({
         examples={examples}
       />
       {specGenerator && (
-        <SaveModal open={saveModalOpen} specGenerator={specGenerator} onClose={() => setSaveModalOpen(false)} />
+        <SaveModal
+          open={saveModalOpen}
+          variables={variables}
+          specGenerator={specGenerator}
+          onClose={() => setSaveModalOpen(false)}
+        />
       )}
       <HelpModal open={helpModalOpen} onClose={() => setHelpModalOpen(false)} />
       <ClearModal open={clearModalOpen} onClose={() => setClearModalOpen(false)} />

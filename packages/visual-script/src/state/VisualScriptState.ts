@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 import { IRegistry } from '../VisualScriptModule'
 import { createBaseRegistry } from '../functions/createRegistry'
+import { GraphTemplate } from '../types/GraphTemplate'
 
 export enum VisualScriptDomain {
   'ECS' = 'ECS'
@@ -36,6 +37,7 @@ export const VisualScriptState = defineState({
   initial: () => {
     const registry = createBaseRegistry()
     return {
+      templates: [] as GraphTemplate[],
       registries: {
         [VisualScriptDomain.ECS]: registry
       } as Record<VisualScriptDomain, IRegistry>

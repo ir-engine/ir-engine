@@ -23,30 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useCallback } from 'react'
-import { useReactFlow } from 'reactflow'
-
-export const useChangeNodeData = (id: string) => {
-  const instance = useReactFlow()
-
-  return useCallback(
-    (key: string, value: any) => {
-      instance.setNodes((nodes) =>
-        nodes.map((n) => {
-          if (n.id !== id) return n
-          return {
-            ...n,
-            data: {
-              ...n.data,
-              values: {
-                ...n.data.values,
-                [key]: value
-              }
-            }
-          }
-        })
-      )
-    },
-    [instance, id]
-  )
-}
+Object.defineProperty(BigInt.prototype, 'toJSON', {
+  get() {
+    'use strict'
+    return () => String(this)
+  }
+})

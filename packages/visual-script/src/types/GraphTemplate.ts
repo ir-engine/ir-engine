@@ -23,30 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useState } from 'react'
-import { NodeTypes } from 'reactflow'
+import { Edge, Node } from 'reactflow'
 
-import { Node } from '../components/Node'
-import { NodeSpecGenerator } from './useNodeSpecGenerator'
-
-const getCustomNodeTypes = (specGenerator: NodeSpecGenerator) => {
-  return specGenerator.getNodeTypes().reduce((nodes: NodeTypes, nodeType) => {
-    nodes[nodeType] = (props) => {
-      const spec = specGenerator.getNodeSpec(nodeType, props.data.configuration)
-      return <Node spec={spec} specGenerator={specGenerator} {...props} />
-    }
-    return nodes
-  }, {})
-}
-
-export const useCustomNodeTypes = ({ specGenerator }: { specGenerator: NodeSpecGenerator | undefined }) => {
-  const [customNodeTypes, setCustomNodeTypes] = useState<NodeTypes>()
-  useEffect(() => {
-    if (!specGenerator) return
-    const customNodeTypes = getCustomNodeTypes(specGenerator)
-
-    setCustomNodeTypes(customNodeTypes)
-  }, [specGenerator])
-
-  return customNodeTypes
+export interface GraphTemplate {
+  id: string
+  name: string
+  nodes: Node[]
+  edges: Edge[]
 }

@@ -32,6 +32,7 @@ import { isEqual } from 'lodash'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
+import { ReactFlowProvider } from 'reactflow'
 import 'reactflow/dist/style.css'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'
@@ -50,19 +51,18 @@ export const ActiveVisualScript = (props: { entity }) => {
   const visualScriptComponent = getComponent(entity, VisualScriptComponent)
 
   return (
-    <Flow
-      initialVisualScript={visualScriptComponent.visualScript}
-      examples={{}}
-      registry={visualScriptState.registries[visualScriptComponent.domain]}
-      onChangeVisualScript={
-        (newVisualScript) => {
+    <ReactFlowProvider>
+      <Flow
+        initialVisualScript={visualScriptComponent.visualScript}
+        examples={{}}
+        registry={visualScriptState.registries[visualScriptComponent.domain]}
+        onChangeVisualScript={(newVisualScript) => {
           if (!newVisualScript) return
           if (isEqual(visualScriptComponent.visualScript, newVisualScript)) return
           commitProperty(VisualScriptComponent, 'visualScript')(newVisualScript)
-        }
-        // need this to smoothen UX
-      }
-    />
+        }}
+      />
+    </ReactFlowProvider>
   )
 }
 
