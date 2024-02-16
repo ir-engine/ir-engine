@@ -24,8 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useMemo } from 'react'
-
-import { IQueryableRegistry } from '@behave-graph/core'
+import { IQueryableRegistry } from '../../VisualScriptModule'
 
 export const toQueryableDefinitions = <T>(definitionsMap: { [id: string]: T }): IQueryableRegistry<T> => ({
   get: (id: string) => definitionsMap[id],

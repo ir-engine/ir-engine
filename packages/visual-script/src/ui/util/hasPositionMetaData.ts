@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { GraphJSON } from '@behave-graph/core'
+import { GraphJSON } from '../../VisualScriptModule'
 
 export const hasPositionMetaData = (visualScript: GraphJSON): boolean => {
   if (visualScript.nodes === undefined) return false

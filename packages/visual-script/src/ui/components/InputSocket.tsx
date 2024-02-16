@@ -28,8 +28,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React from 'react'
 import { Connection, Handle, Position, useReactFlow } from 'reactflow'
 
-import { InputSocketSpecJSON } from '@behave-graph/core'
-
+import { InputSocketSpecJSON } from '../../VisualScriptModule'
 import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
 import { colors, valueTypeColorMap } from '../util/colors'
 import { isValidConnection } from '../util/isValidConnection'

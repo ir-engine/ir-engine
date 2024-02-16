@@ -23,7 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine, GraphJSON, GraphNodes, ILifecycleEventEmitter, IRegistry, readGraphFromJSON } from '@behave-graph/core'
+import {
+  Engine,
+  GraphJSON,
+  GraphNodes,
+  ILifecycleEventEmitter,
+  IRegistry,
+  readGraphFromJSON
+} from '@etherealengine/visual-script'
 import { useCallback, useEffect, useState } from 'react'
 
 /** Runs the visual script by building the execution

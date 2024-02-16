@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NodeConfigurationJSON } from '@behave-graph/core'
+import { NodeConfigurationJSON } from '../../VisualScriptModule'
 import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
 
 export const getSocketsByNodeTypeAndHandleType = (

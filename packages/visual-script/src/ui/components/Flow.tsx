@@ -26,10 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useRef } from 'react'
 import { Background, BackgroundVariant, ReactFlow, ReactFlowProvider } from 'reactflow'
 
-import { GraphJSON, IRegistry } from '@behave-graph/core'
-
 import { useHookstate } from '@hookstate/core'
-import { useVisualScriptRunner } from '../../VisualScriptModule'
+import { GraphJSON, IRegistry, useVisualScriptRunner } from '../../VisualScriptModule'
 import { useFlowHandlers } from '../hooks/useFlowHandlers'
 import { useNodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
 import { useSelectionHandler } from '../hooks/useSelectionHandler'

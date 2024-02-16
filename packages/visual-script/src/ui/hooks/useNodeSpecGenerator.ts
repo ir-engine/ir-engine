@@ -26,14 +26,14 @@ Ethereal Engine. All Rights Reserved.
 // Generates node specs based on provided configuration,
 // and caches the results.
 
+import { useEffect, useState } from 'react'
 import {
   IRegistry,
   NodeConfigurationJSON,
   NodeSpecJSON,
   writeDefaultNodeSpecsToJSON,
   writeNodeSpecToJSON
-} from '@behave-graph/core'
-import { useEffect, useState } from 'react'
+} from '../../VisualScriptModule'
 
 export class NodeSpecGenerator {
   private specsWithoutConfig?: NodeSpecJSON[]

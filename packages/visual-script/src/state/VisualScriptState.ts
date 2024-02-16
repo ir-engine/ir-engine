@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { IRegistry } from '@behave-graph/core'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { IRegistry } from '../VisualScriptModule'
 import { createBaseRegistry } from '../functions/createRegistry'
 
 export enum VisualScriptDomain {

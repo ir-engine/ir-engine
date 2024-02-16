@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+export * from './engine/VisualScriptEngineModule'
 export * from './functions/createRegistry'
 export * from './functions/useVisualScriptRunner'
 export * from './scripts/ScriptsModule'

@@ -26,8 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useCallback, useEffect, useState } from 'react'
 import { useEdgesState, useNodesState } from 'reactflow'
 
-import { GraphJSON } from '@behave-graph/core'
-
+import { GraphJSON } from '../../VisualScriptModule'
 import { visualToFlow } from '../transformers/VisualToFlow'
 import { flowToVisual } from '../transformers/flowToVisual'
 import { autoLayout } from '../util/autoLayout'

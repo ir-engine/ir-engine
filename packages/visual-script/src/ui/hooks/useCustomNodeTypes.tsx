@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useState } from 'react'
 import { NodeTypes } from 'reactflow'
 
-import { Node } from '../components/Node'
+import { NodeUI } from '../components/Node'
 import { NodeSpecGenerator } from './useNodeSpecGenerator'
 
 const getCustomNodeTypes = (specGenerator: NodeSpecGenerator) => {
@@ -34,7 +34,7 @@ const getCustomNodeTypes = (specGenerator: NodeSpecGenerator) => {
     nodes[nodeType] = (props) => {
       const spec = specGenerator.getNodeSpec(nodeType, props.data.configuration)
 
-      return <Node spec={spec} specGenerator={specGenerator} {...props} />
+      return <NodeUI spec={spec} specGenerator={specGenerator} {...props} />
     }
     return nodes
   }, {})

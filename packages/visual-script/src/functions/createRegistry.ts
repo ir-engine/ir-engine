@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DefaultLogger, ManualLifecycleEventEmitter, registerCoreProfile } from '@behave-graph/core'
-import { registerSceneProfile } from '@behave-graph/scene'
-import { registerStructProfile } from '@behave-graph/struct'
 import { EEScene } from '@etherealengine/spatial/src/visualscript/nodes/Profiles/Engine/Abstractions/Drivers/eeScene'
+import { DefaultLogger, ManualLifecycleEventEmitter, registerCoreProfile } from '../Profiles/ProfilesModule'
+import { registerSceneProfile } from '../Profiles/Scene/SceneProfileModule'
+import { registerStructProfile } from '../Profiles/Struct/StructProfileModule'
 
 export const createBaseRegistry = () => {
   let registry = registerCoreProfile({

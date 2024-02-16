@@ -25,10 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { PropsWithChildren } from 'react'
 
-import { NodeCategory, NodeSpecJSON } from '@behave-graph/core'
-
 import { categoryColorMap, colors } from '../util/colors'
 
+import { NodeCategory, NodeSpecJSON } from '../../VisualScriptModule'
 import './NodeContainer.css'
 
 type NodeProps = {

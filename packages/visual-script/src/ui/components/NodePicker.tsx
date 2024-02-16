@@ -26,10 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import React, { useState } from 'react'
 import { useReactFlow, XYPosition } from 'reactflow'
 
-import { NodeSpecJSON } from '@behave-graph/core'
-
 import { useOnPressKey } from '../hooks/useOnPressKey.js'
 
+import { NodeSpecJSON } from '../../VisualScriptModule.js'
 import './NodePicker.css'
 
 export type NodePickerFilters = {

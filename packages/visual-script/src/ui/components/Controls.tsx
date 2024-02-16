@@ -28,8 +28,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useState } from 'react'
 import { ControlButton, Controls } from 'reactflow'
 
-import { GraphJSON } from '@behave-graph/core'
-
+import { GraphJSON } from '../../VisualScriptModule'
 import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
 import { ClearModal } from './modals/ClearModal'
 import { HelpModal } from './modals/HelpModal'

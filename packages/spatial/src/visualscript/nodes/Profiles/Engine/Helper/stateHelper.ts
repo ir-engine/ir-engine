@@ -23,11 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NodeCategory, NodeDefinition, makeEventNodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import {
+  NodeCategory,
+  NodeDefinition,
+  makeEventNodeDefinition,
+  makeFlowNodeDefinition
+} from '@etherealengine/visual-script'
 import { uniqueId } from 'lodash'
 import { useEffect } from 'react'
 import { EnginetoNodetype, NodetoEnginetype, getSocketType } from './commonHelper'

@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import matches, { Validator } from 'ts-matches'
 
-import { GraphJSON } from '@behave-graph/core'
-
 import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -34,7 +32,7 @@ import {
   cleanStorageProviderURLs,
   parseStorageProviderURLs
 } from '@etherealengine/spatial/src/common/functions/parseSceneJSON'
-import { VisualScriptState } from '@etherealengine/visual-script'
+import { GraphJSON, VisualScriptState } from '@etherealengine/visual-script'
 import { useEffect } from 'react'
 import { useVisualScriptRunner } from '../../../../visual-script/src/functions/useVisualScriptRunner'
 import DefaultVisualScript from '../scripts/default-visual-script.json'

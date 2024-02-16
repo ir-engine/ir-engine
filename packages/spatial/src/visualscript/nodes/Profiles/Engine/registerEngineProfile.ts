@@ -24,15 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 /* eslint-disable max-len */
-import {
-  IRegistry,
-  NodeDefinition,
-  ValueTypeMap,
-  getNodeDescriptions,
-  getStringConversionsForValueType,
-  memo
-} from '@behave-graph/core'
-import { GetSceneProperty, SetSceneProperty } from '@behave-graph/scene'
+
+import { IRegistry, NodeDefinition, ValueTypeMap, getNodeDescriptions, memo } from '@etherealengine/visual-script'
+import { GetSceneProperty, SetSceneProperty } from '@etherealengine/visual-script/src/Profiles/ProfilesModule'
+import { getStringConversionsForValueType } from '@etherealengine/visual-script/src/Profiles/registerSerializersForValueType'
 import { OnButtonState } from './Events/onButtonState'
 import { OnCollision } from './Events/onCollision'
 import { OnQuery } from './Events/onQuery'

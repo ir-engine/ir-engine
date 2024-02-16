@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NodeSpecJSON } from '@behave-graph/core'
 import React from 'react'
 import { NodeProps as FlowNodeProps, useEdges } from 'reactflow'
 
 import { faCircleMinus, faCirclePlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { NodeSpecJSON } from '../../VisualScriptModule'
 import { useChangeNodeData } from '../hooks/useChangeNodeData'
 import { useModifyNodeSocket } from '../hooks/useModifyNodeSocket'
 import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
@@ -37,7 +37,7 @@ import InputSocket from './InputSocket'
 import NodeContainer from './NodeContainer'
 import OutputSocket from './OutputSocket'
 
-type NodeProps = FlowNodeProps & {
+type NodeUIProps = FlowNodeProps & {
   spec: NodeSpecJSON
   specGenerator: NodeSpecGenerator
 }
@@ -52,7 +52,7 @@ const getPairs = <T, U>(arr1: T[], arr2: U[]) => {
   return pairs
 }
 
-export const Node: React.FC<NodeProps> = ({ id, data, spec, selected, specGenerator }: NodeProps) => {
+export const NodeUI: React.FC<NodeUIProps> = ({ id, data, spec, selected, specGenerator }: NodeUIProps) => {
   const edges = useEdges()
   const handleChange = useChangeNodeData(id)
   const pairs = getPairs(spec.inputs, spec.outputs)
