@@ -65,8 +65,7 @@ const hintHelpers = {} as Record<string, Mesh>
  * @param {number} hintWeight
  */
 export function solveTwoBoneIK(
-  fromPos: Vector3,
-  fromRot: Quaternion,
+  parentMatrix: Matrix4,
   root: Matrices,
   mid: Matrices,
   tip: Matrices,
@@ -74,12 +73,10 @@ export function solveTwoBoneIK(
   targetRotation: Quaternion, // world space
   hint: Vector3 | null = null
 ) {
-  //bad. this needs to be in world space
-  //root bone needs to be in world space rather than target pos being in root bone space
   targetPos.copy(targetPosition)
-  //targetPos.sub(fromPos).applyQuaternion(fromRot.clone().invert())
   targetRot.copy(targetRotation)
 
+  root.world.multiplyMatrices(parentMatrix, root.local)
   rootBoneWorldPosition.setFromMatrixPosition(root.world)
 
   mid.world.multiplyMatrices(root.world, mid.local)
@@ -87,10 +84,6 @@ export function solveTwoBoneIK(
 
   tip.world.multiplyMatrices(mid.world, tip.local)
   tipBoneWorldPosition.setFromMatrixPosition(tip.world)
-
-  rootBoneWorldQuaternion.setFromRotationMatrix(root.world)
-  midBoneWorldQuaternion.setFromRotationMatrix(mid.world)
-  tipBoneWorldQuaternion.setFromRotationMatrix(tip.world)
 
   rootToMidVector.subVectors(midBoneWorldPosition, rootBoneWorldPosition)
   midToTipVector.subVectors(tipBoneWorldPosition, midBoneWorldPosition)
@@ -116,22 +109,23 @@ export function solveTwoBoneIK(
   rotAxis.crossVectors(rootToMidVector, midToTipVector)
 
   const midRot = new Quaternion().setFromAxisAngle(rotAxis.normalize(), rotAngle)
-  mid.local.multiply(new Matrix4().makeRotationFromQuaternion(midRot.multiply(rootBoneWorldQuaternion.invert())))
+  const midWorldRot = getWorldQuaternion(mid.world, new Quaternion())
+  midWorldRot.premultiply(midRot)
+  worldQuaternionToLocal(midWorldRot, root.world)
+  mid.local.compose(new Vector3().setFromMatrixPosition(mid.local), midWorldRot, new Vector3(1, 1, 1))
   mid.world.multiplyMatrices(root.world, mid.local)
   tip.world.multiplyMatrices(mid.world, tip.local)
-  tipBoneWorldPosition.setFromMatrixPosition(tip.world)
 
-  rootToTipVector.subVectors(tipBoneWorldPosition, rootBoneWorldPosition)
   const rootRot = new Quaternion().setFromUnitVectors(
     acNorm.copy(rootToTipVector).normalize(),
     atNorm.copy(rootToTargetVector).normalize()
   )
 
-  const newRootRotationMatrix = new Matrix4().makeRotationFromQuaternion(rootRot)
-  root.local.copy(newRootRotationMatrix)
+  const rootWorldRot = getWorldQuaternion(root.world, new Quaternion())
+  rootWorldRot.premultiply(rootRot)
+  worldQuaternionToLocal(rootWorldRot, parentMatrix)
+  root.local.compose(new Vector3().setFromMatrixPosition(root.local), rootWorldRot, new Vector3(1, 1, 1))
 
-  console.log(root.local.elements)
-  //root.world.multiplyMatrices(root.world, mid.local)
   // Object3DUtils.premultiplyWorldQuaternion(rawRoot, rot)
 
   // /** Apply hint */
@@ -171,13 +165,55 @@ export function solveTwoBoneIK(
   // if (rotationOffset != undefined) rawTip.quaternion.premultiply(rotationOffset)
 }
 
+const _v1 = new Vector3()
+const _m1 = new Matrix4()
+const getWorldQuaternion = (matrix: Matrix4, outQuaternion: Quaternion): Quaternion => {
+  const te = matrix.elements
+
+  let sx = _v1.set(te[0], te[1], te[2]).length()
+  const sy = _v1.set(te[4], te[5], te[6]).length()
+  const sz = _v1.set(te[8], te[9], te[10]).length()
+
+  // if determine is negative, we need to invert one scale
+  const det = matrix.determinant()
+  if (det < 0) sx = -sx
+
+  // scale the rotation part
+  _m1.copy(matrix)
+
+  const invSX = 1 / sx
+  const invSY = 1 / sy
+  const invSZ = 1 / sz
+
+  _m1.elements[0] *= invSX
+  _m1.elements[1] *= invSX
+  _m1.elements[2] *= invSX
+
+  _m1.elements[4] *= invSY
+  _m1.elements[5] *= invSY
+  _m1.elements[6] *= invSY
+
+  _m1.elements[8] *= invSZ
+  _m1.elements[9] *= invSZ
+  _m1.elements[10] *= invSZ
+
+  outQuaternion.setFromRotationMatrix(_m1)
+
+  return outQuaternion
+}
+
+const _quat = new Quaternion()
+const worldQuaternionToLocal = (quaternion: Quaternion, parent: Matrix4 | null): Quaternion => {
+  if (!parent) return quaternion
+  const parentQuatInverse = getWorldQuaternion(parent, _quat).invert()
+  quaternion.premultiply(parentQuatInverse)
+  return quaternion
+}
+
 const targetPos = new Vector3(),
   rootBoneWorldPosition = new Vector3(),
   midBoneWorldPosition = new Vector3(),
   tipBoneWorldPosition = new Vector3(),
-  rootBoneWorldQuaternion = new Quaternion(),
-  midBoneWorldQuaternion = new Quaternion(),
-  tipBoneWorldQuaternion = new Quaternion(),
   rotAxis = new Vector3(),
   rootToMidVector = new Vector3(),
   midToTipVector = new Vector3(),
