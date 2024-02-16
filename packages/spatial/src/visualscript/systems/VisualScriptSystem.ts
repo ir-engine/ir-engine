@@ -96,7 +96,6 @@ const reactor = () => {
 
   useEffect(() => {
     VisualScriptState.registerProfile(registerEngineProfile, VisualScriptDomain.ECS)
-    console.log('visualScriptSystem run')
   }, [])
 
   // run scripts when loaded a scene, joined a world, scene entity changed, scene data changed

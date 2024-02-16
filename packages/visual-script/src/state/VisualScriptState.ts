@@ -35,7 +35,6 @@ export const VisualScriptState = defineState({
   name: 'VisualScriptState',
   initial: () => {
     const registry = createBaseRegistry()
-    console.log('state start', registry.dependencies, registry.nodes, registry.values)
     return {
       registries: {
         [VisualScriptDomain.ECS]: registry
