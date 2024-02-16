@@ -4,7 +4,8 @@ ARG STAGE
 FROM public.ecr.aws/x0k5y3h8/etherealengine-qat-root:latest_${STAGE} as builder
 
 COPY . .
-
+COPY packages/server/package.json ./packages/server/
+RUN npm install --loglevel notice --legacy-peer-deps
 CMD ["scripts/strip-engine.sh"]
 
 # copy then compile the code
@@ -17,8 +18,6 @@ WORKDIR /app
 COPY ../../scripts/setup_helm.sh .
 RUN chmod +x setup_helm.sh && ./setup_helm.sh
 
-COPY packages/server/package.json ./packages/server/
-RUN npm install --loglevel notice --legacy-peer-deps
 
 COPY --from=builder /app ./
 
