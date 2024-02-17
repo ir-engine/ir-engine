@@ -832,5 +832,17 @@ export async function transformModel(
 
     console.log('Handled gltf file')
   }
+
+  let totalVertexCount = 0
+  const meshes = root.listMeshes()
+  for (const mesh of meshes) {
+    const primitives = mesh.listPrimitives()
+    for (const primitive of primitives) {
+      const indices = primitive.getIndices()
+      if (indices) totalVertexCount += indices.getCount()
+    }
+  }
+  onMetadata('vertexCount', totalVertexCount)
+
   return result
 }
