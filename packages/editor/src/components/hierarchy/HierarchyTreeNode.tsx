@@ -55,6 +55,7 @@ import { addMediaNode } from '../../functions/addMediaNode'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { SelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
+import TransformPropertyGroup from '../properties/TransformPropertyGroup'
 import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
 import NodeIssuesIcon from './NodeIssuesIcon'
 import styles from './styles.module.scss'
@@ -281,9 +282,9 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const icons = entityExists(node.entity)
     ? getAllComponents(node.entity)
         .map((c) => getState(ComponentEditorsState)[c.name]?.iconComponent)
-        .filter((c) => !!c)
+        .filter((icon) => !!icon)
     : []
-  const IconComponent = icons.length ? icons[0] : null
+  const IconComponent = icons.length ? icons[icons.length - 1] : TransformPropertyGroup.iconComponent
   const renaming = data.renamingNode && data.renamingNode.entity === node.entity
   const marginLeft = node.depth > 0 ? node.depth * 8 + 20 : 0
 
