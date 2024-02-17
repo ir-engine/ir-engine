@@ -45,7 +45,7 @@ import { SystemComponent } from '@etherealengine/engine/src/scene/components/Sys
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
-import { useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { AmbientLightComponent } from '@etherealengine/spatial/src/renderer/components/AmbientLightComponent'
 import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
@@ -78,7 +78,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { PrimitiveGeometryComponent } from '../../../../engine/src/scene/components/PrimitiveGeometryComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
-import { EntityNodeEditor } from '../../functions/ComponentEditors'
+import { ComponentEditorsState } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'
 import { usePopoverContextClose } from './PopoverContext'
@@ -90,48 +90,54 @@ export type SceneElementType = {
   type: typeof ItemTypes.Component
 }
 
-export const ComponentShelfCategories: Record<string, Component[]> = {
-  Files: [ModelComponent, VolumetricComponent, PositionalAudioComponent, VideoComponent, ImageComponent],
-  'Scene Composition': [
-    PrimitiveGeometryComponent,
-    GroundPlaneComponent,
-    GroupComponent,
-    VariantComponent,
-    SceneDynamicLoadTagComponent,
-    ObjectGridSnapComponent
-  ],
-  Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
-  Interaction: [SpawnPointComponent, PortalComponent, LinkComponent, MountPointComponent],
-  Lighting: [
-    AmbientLightComponent,
-    PointLightComponent,
-    SpotLightComponent,
-    DirectionalLightComponent,
-    HemisphereLightComponent
-  ],
-  FX: [
-    LoopAnimationComponent,
-    ShadowComponent,
-    ParticleSystemComponent,
-    EnvmapComponent,
-    SDFComponent,
-    PostProcessingComponent
-  ],
-  Scripting: [SystemComponent, BehaveGraphComponent],
-  Settings: [SceneSettingsComponent, RenderSettingsComponent, MediaSettingsComponent, CameraSettingsComponent],
-  Misc: [
-    EnvMapBakeComponent,
-    ScenePreviewCameraComponent,
-    SkyboxComponent,
-    SplineTrackComponent,
-    SplineComponent,
-    TextComponent
-  ]
-}
+export const ComponentShelfCategoriesState = defineState({
+  name: 'ee.editor.ComponentShelfCategories',
+  initial: () => {
+    return {
+      Files: [ModelComponent, VolumetricComponent, PositionalAudioComponent, VideoComponent, ImageComponent],
+      'Scene Composition': [
+        PrimitiveGeometryComponent,
+        GroundPlaneComponent,
+        GroupComponent,
+        VariantComponent,
+        SceneDynamicLoadTagComponent,
+        ObjectGridSnapComponent
+      ],
+      Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
+      Interaction: [SpawnPointComponent, PortalComponent, LinkComponent, MountPointComponent],
+      Lighting: [
+        AmbientLightComponent,
+        PointLightComponent,
+        SpotLightComponent,
+        DirectionalLightComponent,
+        HemisphereLightComponent
+      ],
+      FX: [
+        LoopAnimationComponent,
+        ShadowComponent,
+        ParticleSystemComponent,
+        EnvmapComponent,
+        SDFComponent,
+        PostProcessingComponent
+      ],
+      Scripting: [SystemComponent, BehaveGraphComponent],
+      Settings: [SceneSettingsComponent, RenderSettingsComponent, MediaSettingsComponent, CameraSettingsComponent],
+      Misc: [
+        EnvMapBakeComponent,
+        ScenePreviewCameraComponent,
+        SkyboxComponent,
+        SplineTrackComponent,
+        SplineComponent,
+        TextComponent
+      ]
+    } as Record<string, Component[]>
+  }
+})
 
 const ComponentListItem = ({ item }: { item: Component }) => {
   const { t } = useTranslation()
-  const Icon = EntityNodeEditor.get(item)?.iconComponent || PlaceHolderIcon
+  useHookstate(getMutableState(ComponentEditorsState).keys).value // ensure reactively updates new components
+  const Icon = getState(ComponentEditorsState)[item.name]?.iconComponent ?? PlaceHolderIcon
   const handleClosePopover = usePopoverContextClose()
 
   return (
@@ -199,14 +205,16 @@ const SceneElementListItem = ({
   )
 }
 
-const filterComponentShelfCategories = (search: string) => {
+const useComponentShelfCategories = (search: string) => {
+  useHookstate(getMutableState(ComponentShelfCategoriesState)).value
+
   if (!search) {
-    return Object.entries(ComponentShelfCategories)
+    return Object.entries(getState(ComponentShelfCategoriesState))
   }
 
   const searchRegExp = new RegExp(search, 'gi')
 
-  return Object.entries(ComponentShelfCategories)
+  return Object.entries(getState(ComponentShelfCategoriesState))
     .map(([category, items]) => {
       const filteredItems = items.filter((item) => item.name.match(searchRegExp)?.length)
       return [category, filteredItems] as [string, Component[]]
@@ -218,6 +226,8 @@ export function ElementList() {
   const { t } = useTranslation()
   const search = useHookstate({ local: '', query: '' })
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const shelves = useComponentShelfCategories(search.query.value)
 
   const onSearch = (text: string) => {
     search.local.set(text)
@@ -244,7 +254,7 @@ export function ElementList() {
         </div>
       }
     >
-      {filterComponentShelfCategories(search.query.value).map(([category, items]) => (
+      {shelves.map(([category, items]) => (
         <SceneElementListItem
           key={category}
           categoryTitle={category}
