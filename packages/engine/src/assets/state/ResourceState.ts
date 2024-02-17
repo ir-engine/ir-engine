@@ -44,23 +44,13 @@ export enum ResourceStatus {
 }
 
 export enum ResourceType {
-  GLTF,
-  Texture,
-  Geometry,
-  Material,
-  ECSData,
-  Audio,
-  Unknown
-}
-
-const resourceTypeName = {
-  [ResourceType.GLTF]: 'GLTF',
-  [ResourceType.Texture]: 'Texture',
-  [ResourceType.Geometry]: 'Geometry',
-  [ResourceType.Material]: 'Material',
-  [ResourceType.ECSData]: 'ECSData',
-  [ResourceType.Audio]: 'Audio',
-  [ResourceType.Unknown]: 'Unknown'
+  GLTF = 'GLTF',
+  Texture = 'Texture',
+  Geometry = 'Geometry',
+  Material = 'Material',
+  ECSData = 'ECSData',
+  Audio = 'Audio',
+  Unknown = 'Unknown'
 }
 
 export type AssetType = GLTF | Texture | CompressedTexture | Geometry | Material
@@ -85,11 +75,11 @@ type Resource = {
   type: ResourceType
   references: Entity[]
   asset?: AssetType
-  assetRefs: string[]
+  assetRefs?: Record<ResourceType, string[]>
   metadata: Metadata
 }
 
-const debug = false
+const debug = true
 const debugLog = debug
   ? (message?: any, ...optionalParams: any[]) => {
       console.log(message)
@@ -160,12 +150,7 @@ const onItemLoadedFor = <T extends AssetType>(url: string, resourceType: Resourc
   }
 
   debugLog(
-    'ResourceManager:loadedFor loading asset of type ' +
-      resourceTypeName[resourceType] +
-      ' with ID: ' +
-      id +
-      ' for asset at url: ' +
-      url
+    'ResourceManager:loadedFor loading asset of type ' + resourceType + ' with ID: ' + id + ' for asset at url: ' + url
   )
 
   if (!referencedAssets[id].value) {
@@ -182,7 +167,6 @@ const onItemLoadedFor = <T extends AssetType>(url: string, resourceType: Resourc
         type: resourceType,
         references: [],
         asset: asset,
-        assetRefs: [],
         metadata: {}
       }
     })
@@ -191,7 +175,11 @@ const onItemLoadedFor = <T extends AssetType>(url: string, resourceType: Resourc
     callbacks.onLoad(asset, resources[id])
   }
 
-  resources[url].assetRefs.merge([id])
+  if (!resources[url].assetRefs.value)
+    resources[url].assetRefs.set({ [resourceType]: [id] } as Record<ResourceType, string[]>)
+  else if (!resources[url].assetRefs[resourceType].value) resources[url].assetRefs.merge({ [resourceType]: [id] })
+  else resources[url].assetRefs[resourceType].merge([id])
+
   referencedAssets[id].merge([url])
 }
 
@@ -216,7 +204,8 @@ const getCurrentVertCountOfResources = () => {
   const resources = getState(ResourceState).resources
   for (const key in resources) {
     const resource = resources[key]
-    if ((resource.metadata as GLTFMetadata).verts) verts += (resource.metadata as GLTFMetadata).verts
+    if (resource.type != ResourceType.GLTF && (resource.metadata as GLTFMetadata).verts)
+      verts += (resource.metadata as GLTFMetadata).verts
   }
 
   return verts
@@ -232,7 +221,19 @@ const getRendererInfo = () => {
 const Callbacks = {
   [ResourceType.GLTF]: {
     onStart: (resource: State<Resource>) => {},
-    onLoad: (response: GLTF, resource: State<Resource>) => {},
+    onLoad: (response: GLTF, resource: State<Resource>) => {
+      const geometryIDs = resource.assetRefs[ResourceType.Geometry]
+      if (geometryIDs && geometryIDs.value) {
+        const resources = getMutableState(ResourceState).nested('resources')
+        let vertexCount = 0
+        for (const geoID of geometryIDs.value) {
+          const resource = resources[geoID].value
+          const verts = (resource.metadata as GLTFMetadata).verts
+          if (verts) vertexCount += verts
+        }
+        resource.metadata.merge({ verts: vertexCount })
+      }
+    },
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {
       resource.metadata.size.set(request.total)
     },
@@ -320,8 +321,7 @@ const load = <T extends AssetType>(
         status: ResourceStatus.Unloaded,
         type: resourceType,
         references: [entity],
-        metadata: {},
-        assetRefs: []
+        metadata: {}
       }
     })
   } else {
@@ -339,6 +339,7 @@ const load = <T extends AssetType>(
       resource.status.set(ResourceStatus.Loaded)
       resource.asset.set(response)
       callbacks.onLoad(response, resource)
+      debugLog('ResourceManager:load Loaded resource: ' + url + ' for entity: ' + entity)
       onLoad(response)
     },
     (request) => {
@@ -383,18 +384,24 @@ const removeReferencedResources = (resource: State<Resource>) => {
   const resourceState = getMutableState(ResourceState)
   const referencedAssets = resourceState.nested('referencedAssets')
 
-  for (const ref of resource.assetRefs.value) {
-    referencedAssets[ref].set((refs) => {
-      const index = refs.indexOf(resource.id.value)
-      if (index > -1) {
-        refs.splice(index, 1)
-      }
-      return refs
-    })
+  if (!resource.assetRefs.value) return
 
-    if (referencedAssets[ref].length == 0) {
-      removeResource(ref)
-      referencedAssets[ref].set(none)
+  for (const resourceType in ResourceType) {
+    const assetRefs = resource.assetRefs[resourceType as ResourceType]
+    if (!assetRefs.value) continue
+    for (const ref of assetRefs.value) {
+      referencedAssets[ref].set((refs) => {
+        const index = refs.indexOf(resource.id.value)
+        if (index > -1) {
+          refs.splice(index, 1)
+        }
+        return refs
+      })
+
+      if (referencedAssets[ref].length == 0) {
+        removeResource(ref)
+        referencedAssets[ref].set(none)
+      }
     }
   }
 }
@@ -408,9 +415,7 @@ const removeResource = (id: string) => {
   }
 
   const resource = resources[id]
-  debugLog(
-    'ResourceManager:removeResource: Removing ' + resourceTypeName[resource.type.value] + ' resource with ID: ' + id
-  )
+  debugLog('ResourceManager:removeResource: Removing ' + resource.type.value + ' resource with ID: ' + id)
   Cache.remove(id)
   removeReferencedResources(resource)
 
