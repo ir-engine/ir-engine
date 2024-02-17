@@ -66,6 +66,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
   RigidBodyComponent,
+  RigidBodyFixedTagComponent,
   RigidBodyKinematicPositionBasedTagComponent,
   RigidBodyKinematicVelocityBasedTagComponent,
   getTagComponentForRigidBody
@@ -130,10 +131,13 @@ function createRigidBody(
   const RigidBodyTypeTagComponent = getTagComponentForRigidBody(body.bodyType())
   setComponent(entity, RigidBodyTypeTagComponent, true)
 
-  body.setTranslation(position, true)
-  body.setRotation(rotation, true)
-  body.setLinvel(V_000, true)
-  body.setAngvel(V_000, true)
+  body.setTranslation(position, false)
+  body.setRotation(rotation, false)
+  body.setLinvel(V_000, false)
+  body.setAngvel(V_000, false)
+
+  if (RigidBodyTypeTagComponent === RigidBodyFixedTagComponent) body.sleep()
+
   rigidBody.previousPosition.copy(position)
   rigidBody.previousRotation.copy(rotation)
   if (

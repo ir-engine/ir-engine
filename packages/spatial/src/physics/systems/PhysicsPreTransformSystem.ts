@@ -30,7 +30,6 @@ import { Quaternion, Vector3 } from 'three'
 import { TransformComponent, TransformSystem } from '../../SpatialModule'
 import { V_000, V_111 } from '../../common/constants/MathConstants'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
-import { composeMatrix } from '../../transform/components/TransformComponent'
 import { isDirty } from '../../transform/systems/TransformSystem'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 
@@ -82,6 +81,9 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   transform.matrixWorld.compose(position, rotation, V_111)
 
   TransformComponent.dirtyTransforms[entity] = false
+
+  for (const child of getComponent(entity, EntityTreeComponent).children)
+    TransformComponent.dirtyTransforms[child] = true
 }
 
 const position = new Vector3()
@@ -122,12 +124,63 @@ export const copyTransformToRigidBody = (entity: Entity) => {
       rotation.w
 
   const rigidbody = getComponent(entity, RigidBodyComponent)
-  rigidbody.body.setTranslation(rigidbody.position, true)
-  rigidbody.body.setRotation(rigidbody.rotation, true)
-  rigidbody.body.setLinvel(V_000, true)
-  rigidbody.body.setAngvel(V_000, true)
+  rigidbody.body.setTranslation(rigidbody.position, false)
+  rigidbody.body.setRotation(rigidbody.rotation, false)
+  rigidbody.body.setLinvel(V_000, false)
+  rigidbody.body.setAngvel(V_000, false)
 
   TransformComponent.dirtyTransforms[entity] = false
+
+  for (const child of getComponent(entity, EntityTreeComponent).children)
+    TransformComponent.dirtyTransforms[child] = true
+}
+
+export const copyLocalTransformToRigidBody = (entity: Entity) => {
+  RigidBodyComponent.position.x[entity] =
+    RigidBodyComponent.previousPosition.x[entity] =
+    RigidBodyComponent.targetKinematicPosition.x[entity] =
+      TransformComponent.position.x[entity]
+
+  RigidBodyComponent.position.y[entity] =
+    RigidBodyComponent.previousPosition.y[entity] =
+    RigidBodyComponent.targetKinematicPosition.y[entity] =
+      TransformComponent.position.y[entity]
+
+  RigidBodyComponent.position.z[entity] =
+    RigidBodyComponent.previousPosition.z[entity] =
+    RigidBodyComponent.targetKinematicPosition.z[entity] =
+      TransformComponent.position.z[entity]
+
+  RigidBodyComponent.rotation.x[entity] =
+    RigidBodyComponent.previousRotation.x[entity] =
+    RigidBodyComponent.targetKinematicRotation.x[entity] =
+      TransformComponent.rotation.x[entity]
+
+  RigidBodyComponent.rotation.y[entity] =
+    RigidBodyComponent.previousRotation.y[entity] =
+    RigidBodyComponent.targetKinematicRotation.y[entity] =
+      TransformComponent.rotation.y[entity]
+
+  RigidBodyComponent.rotation.z[entity] =
+    RigidBodyComponent.previousRotation.z[entity] =
+    RigidBodyComponent.targetKinematicRotation.z[entity] =
+      TransformComponent.rotation.z[entity]
+
+  RigidBodyComponent.rotation.w[entity] =
+    RigidBodyComponent.previousRotation.w[entity] =
+    RigidBodyComponent.targetKinematicRotation.w[entity] =
+      TransformComponent.rotation.w[entity]
+
+  const rigidbody = getComponent(entity, RigidBodyComponent)
+  rigidbody.body.setTranslation(rigidbody.position, false)
+  rigidbody.body.setRotation(rigidbody.rotation, false)
+  rigidbody.body.setLinvel(V_000, false)
+  rigidbody.body.setAngvel(V_000, false)
+
+  TransformComponent.dirtyTransforms[entity] = false
+
+  for (const child of getComponent(entity, EntityTreeComponent).children)
+    TransformComponent.dirtyTransforms[child] = true
 }
 
 const rigidbodyQuery = defineQuery([TransformComponent, RigidBodyComponent])
@@ -155,9 +208,6 @@ export const execute = () => {
   for (const entity of awakeCleanRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
 
   for (const entity of awakeCleanRigidbodyEntities) {
-    const transform = getComponent(entity, TransformComponent)
-    composeMatrix(entity)
-    transform.matrixWorld.copy(transform.matrix)
     TransformComponent.dirtyTransforms[entity] = false
     if (hasComponent(entity, EntityTreeComponent)) {
       const children = getComponent(entity, EntityTreeComponent).children
