@@ -63,7 +63,6 @@ import { V_000 } from '../../common/constants/MathConstants'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { iterateEntityNode } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
   RigidBodyComponent,
@@ -109,11 +108,18 @@ function createRigidBody(
   rigidBodyDesc: RigidBodyDesc,
   colliderDesc: ColliderDesc[] = []
 ) {
-  computeTransformMatrix(entity)
-  getComponent(entity, TransformComponent).matrixWorld.decompose(position, rotation, scale)
+  // computeTransformMatrix(entity)
+  const transform = getComponent(entity, TransformComponent)
+  transform.matrixWorld.decompose(position, rotation, scale)
+  transform.position.copy(position)
+  transform.rotation.copy(rotation)
+
+  TransformComponent.dirtyTransforms[entity] = false
 
   rigidBodyDesc.translation = position
   rigidBodyDesc.rotation = rotation
+
+  // console.log('createRigidBody', entity, position.x, position.y, position.z)
 
   const body = world.createRigidBody(rigidBodyDesc)
   colliderDesc.forEach((desc) => world.createCollider(desc, body))

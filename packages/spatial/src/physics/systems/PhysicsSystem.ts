@@ -38,6 +38,7 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { NetworkState } from '../../networking/NetworkState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { isDirty } from '../../transform/systems/TransformSystem'
 import { PhysicsSerialization } from '../PhysicsSerialization'
 import { Physics } from '../classes/Physics'
 import { CollisionComponent } from '../components/CollisionComponent'
@@ -49,6 +50,7 @@ import {
 } from '../components/RigidBodyComponent'
 import { PhysicsState } from '../state/PhysicsState'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
+import { copyTransformToRigidBody } from './PhysicsPreTransformSystem'
 
 export function smoothPositionBasedKinematicBody(entity: Entity, dt: number, substep: number) {
   const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
@@ -119,6 +121,11 @@ const execute = () => {
   if (!physicsWorld) return
 
   const allRigidBodies = allRigidBodyQuery()
+
+  const dirtyKinematicRigidbodyEntities = allRigidBodies.filter(isDirty)
+
+  // if rigidbody transforms have been dirtied, teleport the rigidbody to the transform
+  for (const entity of dirtyKinematicRigidbodyEntities) copyTransformToRigidBody(entity)
 
   for (const entity of allRigidBodies) {
     const rigidBody = getComponent(entity, RigidBodyComponent)

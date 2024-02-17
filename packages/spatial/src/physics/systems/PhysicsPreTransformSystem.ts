@@ -23,18 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, defineQuery, defineSystem, getComponent } from '@etherealengine/ecs'
+import { Entity, defineQuery, defineSystem, getComponent, hasComponent } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { getState } from '@etherealengine/hyperflux'
-import { Not } from 'bitecs'
 import { TransformComponent, TransformSystem } from '../../SpatialModule'
 import { V_000 } from '../../common/constants/MathConstants'
+import { EntityTreeComponent } from '../../transform/components/EntityTree'
+import { composeMatrix } from '../../transform/components/TransformComponent'
 import { isDirty } from '../../transform/systems/TransformSystem'
-import {
-  RigidBodyComponent,
-  RigidBodyDynamicTagComponent,
-  RigidBodyFixedTagComponent
-} from '../components/RigidBodyComponent'
+import { RigidBodyComponent } from '../components/RigidBodyComponent'
 
 export const teleportRigidbody = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
@@ -120,15 +117,9 @@ export const copyTransformToRigidBody = (entity: Entity) => {
 }
 
 const rigidbodyQuery = defineQuery([TransformComponent, RigidBodyComponent])
-const kinematicRigidbodyQuery = defineQuery([
-  TransformComponent,
-  RigidBodyComponent,
-  Not(RigidBodyFixedTagComponent),
-  Not(RigidBodyDynamicTagComponent)
-])
 
 const filterAwakeCleanRigidbodies = (entity: Entity) =>
-  !getComponent(entity, RigidBodyComponent).body.isSleeping() && !isDirty(entity)
+  !isDirty(entity) && !getComponent(entity, RigidBodyComponent).body.isSleeping()
 
 export const execute = () => {
   const ecsState = getState(ECSState)
@@ -137,18 +128,23 @@ export const execute = () => {
    * Update entity transforms
    */
   const allRigidbodyEntities = rigidbodyQuery()
-  const kinematicRigidbodyEntities = kinematicRigidbodyQuery()
   const awakeCleanRigidbodyEntities = allRigidbodyEntities.filter(filterAwakeCleanRigidbodies)
-  const dirtyKinematicRigidbodyEntities = kinematicRigidbodyEntities.filter(isDirty)
-  // const dirtyRigidbodyEntities = allRigidbodyEntities.filter(isDirty)
-
-  // if rigidbody transforms have been dirtied, teleport the rigidbody to the transform
-  for (const entity of dirtyKinematicRigidbodyEntities) copyTransformToRigidBody(entity)
 
   // lerp awake clean rigidbody entities (and make their transforms dirty)
   const simulationRemainder = ecsState.frameTime - ecsState.simulationTime
   const alpha = Math.min(simulationRemainder / ecsState.simulationTimestep, 1)
   for (const entity of awakeCleanRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
+
+  for (const entity of awakeCleanRigidbodyEntities) {
+    const transform = getComponent(entity, TransformComponent)
+    composeMatrix(entity)
+    transform.matrixWorld.copy(transform.matrix)
+    TransformComponent.dirtyTransforms[entity] = false
+    if (hasComponent(entity, EntityTreeComponent)) {
+      const children = getComponent(entity, EntityTreeComponent).children
+      for (const child of children) TransformComponent.dirtyTransforms[child] = true
+    }
+  }
 }
 
 export const PhysicsPreTransformSystem = defineSystem({
