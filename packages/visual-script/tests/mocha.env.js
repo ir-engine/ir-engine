@@ -24,23 +24,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-module.exports = {
-  failZero: false,
-  parallel: false,
-  require: [
-    'tests/mocha.env', // init env here
-    'jsdom-global/register'
-  ],
-  spec: [
-    './**/*.test.ts'
-  ],
-  extension: [
-    'ts',
-    'tsx'
-  ],
-  bail: true,
-  exit: true,
-  recursive: true,
-  jobs: '1',
-  timeout: '60000'
-};
+process.env.APP_ENV = 'test'
+process.env.NODE_ENV = 'test'
+process.env.NODE_TLS_REJECT_UNAUTHORIZED='0'
+process.env.IS_REACT_ACT_ENVIRONMENT = true
+
+require("ts-node").register({
+  project: './tsconfig.json',
+  files: true,
+  swc: true
+})
+
+require("fix-esm").register()

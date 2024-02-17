@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -23,24 +22,3 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
-module.exports = {
-  failZero: false,
-  parallel: false,
-  require: [
-    'tests/mocha.env', // init env here
-    'jsdom-global/register'
-  ],
-  spec: [
-    './**/*.test.ts'
-  ],
-  extension: [
-    'ts',
-    'tsx'
-  ],
-  bail: true,
-  exit: true,
-  recursive: true,
-  jobs: '1',
-  timeout: '60000'
-};
