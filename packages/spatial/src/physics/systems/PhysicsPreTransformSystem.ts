@@ -128,11 +128,16 @@ export const execute = () => {
    * Update entity transforms
    */
   const allRigidbodyEntities = rigidbodyQuery()
-  const awakeCleanRigidbodyEntities = allRigidbodyEntities.filter(filterAwakeCleanRigidbodies)
+  const dirtyRigidbodyEntities = allRigidbodyEntities.filter(isDirty)
+
+  // if rigidbody transforms have been dirtied, teleport the rigidbody to the transform
+  for (const entity of dirtyRigidbodyEntities) copyTransformToRigidBody(entity)
 
   // lerp awake clean rigidbody entities (and make their transforms dirty)
   const simulationRemainder = ecsState.frameTime - ecsState.simulationTime
   const alpha = Math.min(simulationRemainder / ecsState.simulationTimestep, 1)
+
+  const awakeCleanRigidbodyEntities = allRigidbodyEntities.filter(filterAwakeCleanRigidbodies)
   for (const entity of awakeCleanRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
 
   for (const entity of awakeCleanRigidbodyEntities) {
