@@ -26,8 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { Entity, defineQuery, defineSystem, getComponent, hasComponent } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { getState } from '@etherealengine/hyperflux'
+import { Quaternion, Vector3 } from 'three'
 import { TransformComponent, TransformSystem } from '../../SpatialModule'
-import { V_000 } from '../../common/constants/MathConstants'
+import { V_000, V_111 } from '../../common/constants/MathConstants'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { composeMatrix } from '../../transform/components/TransformComponent'
 import { isDirty } from '../../transform/systems/TransformSystem'
@@ -69,51 +70,64 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   const rotationZ = RigidBodyComponent.rotation.z[entity]
   const rotationW = RigidBodyComponent.rotation.w[entity]
 
-  TransformComponent.position.x[entity] = positionX * alpha + previousPositionX * (1 - alpha)
-  TransformComponent.position.y[entity] = positionY * alpha + previousPositionY * (1 - alpha)
-  TransformComponent.position.z[entity] = positionZ * alpha + previousPositionZ * (1 - alpha)
-  TransformComponent.rotation.x[entity] = rotationX * alpha + previousRotationX * (1 - alpha)
-  TransformComponent.rotation.y[entity] = rotationY * alpha + previousRotationY * (1 - alpha)
-  TransformComponent.rotation.z[entity] = rotationZ * alpha + previousRotationZ * (1 - alpha)
-  TransformComponent.rotation.w[entity] = rotationW * alpha + previousRotationW * (1 - alpha)
+  position.x = positionX * alpha + previousPositionX * (1 - alpha)
+  position.y = positionY * alpha + previousPositionY * (1 - alpha)
+  position.z = positionZ * alpha + previousPositionZ * (1 - alpha)
+  rotation.x = rotationX * alpha + previousRotationX * (1 - alpha)
+  rotation.y = rotationY * alpha + previousRotationY * (1 - alpha)
+  rotation.z = rotationZ * alpha + previousRotationZ * (1 - alpha)
+  rotation.w = rotationW * alpha + previousRotationW * (1 - alpha)
 
-  TransformComponent.dirtyTransforms[entity] = true
+  const transform = getComponent(entity, TransformComponent)
+  transform.matrixWorld.compose(position, rotation, V_111)
+
+  TransformComponent.dirtyTransforms[entity] = false
 }
 
+const position = new Vector3()
+const rotation = new Quaternion()
+const scale = new Vector3()
+
 export const copyTransformToRigidBody = (entity: Entity) => {
+  const transform = getComponent(entity, TransformComponent)
+  transform.matrixWorld.decompose(position, rotation, scale)
+
   RigidBodyComponent.position.x[entity] =
     RigidBodyComponent.previousPosition.x[entity] =
     RigidBodyComponent.targetKinematicPosition.x[entity] =
-      TransformComponent.position.x[entity]
+      position.x
   RigidBodyComponent.position.y[entity] =
     RigidBodyComponent.previousPosition.y[entity] =
     RigidBodyComponent.targetKinematicPosition.y[entity] =
-      TransformComponent.position.y[entity]
+      position.y
   RigidBodyComponent.position.z[entity] =
     RigidBodyComponent.previousPosition.z[entity] =
     RigidBodyComponent.targetKinematicPosition.z[entity] =
-      TransformComponent.position.z[entity]
+      position.z
   RigidBodyComponent.rotation.x[entity] =
     RigidBodyComponent.previousRotation.x[entity] =
     RigidBodyComponent.targetKinematicRotation.x[entity] =
-      TransformComponent.rotation.x[entity]
+      rotation.x
   RigidBodyComponent.rotation.y[entity] =
     RigidBodyComponent.previousRotation.y[entity] =
     RigidBodyComponent.targetKinematicRotation.y[entity] =
-      TransformComponent.rotation.y[entity]
+      rotation.y
   RigidBodyComponent.rotation.z[entity] =
     RigidBodyComponent.previousRotation.z[entity] =
     RigidBodyComponent.targetKinematicRotation.z[entity] =
-      TransformComponent.rotation.z[entity]
+      rotation.z
   RigidBodyComponent.rotation.w[entity] =
     RigidBodyComponent.previousRotation.w[entity] =
     RigidBodyComponent.targetKinematicRotation.w[entity] =
-      TransformComponent.rotation.w[entity]
+      rotation.w
+
   const rigidbody = getComponent(entity, RigidBodyComponent)
   rigidbody.body.setTranslation(rigidbody.position, true)
   rigidbody.body.setRotation(rigidbody.rotation, true)
-  rigidbody.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
-  rigidbody.body.setAngvel({ x: 0, y: 0, z: 0 }, true)
+  rigidbody.body.setLinvel(V_000, true)
+  rigidbody.body.setAngvel(V_000, true)
+
+  TransformComponent.dirtyTransforms[entity] = false
 }
 
 const rigidbodyQuery = defineQuery([TransformComponent, RigidBodyComponent])
