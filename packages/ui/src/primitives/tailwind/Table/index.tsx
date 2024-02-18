@@ -28,7 +28,7 @@ import { GoChevronLeft, GoChevronRight } from 'react-icons/go'
 import { HiFastForward, HiRewind } from 'react-icons/hi'
 import { twMerge } from 'tailwind-merge'
 
-export interface TableCellProps extends React.HTMLAttributes<HTMLTableCellElement> {
+interface TableCellProps extends React.HTMLAttributes<HTMLTableCellElement> {
   className?: string
   children?: ReactNode
 }
@@ -78,12 +78,12 @@ const TableCell = ({ className, children, ...props }: TableCellProps) => {
   )
 }
 
-export interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {
+interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   className?: string
   children?: ReactNode
 }
 const TableRow = ({ className, children, ...props }: TableRowProps) => {
-  const twClassName = twMerge('even:bg-theme-surfaceMain odd:bg-gray-100 odd:dark:bg-[#212226]')
+  const twClassName = twMerge('even:bg-theme-surfaceMain odd:bg-gray-100 odd:dark:bg-[#212226]', className)
   return (
     <tr className={twClassName} {...props}>
       {children}
@@ -91,7 +91,7 @@ const TableRow = ({ className, children, ...props }: TableRowProps) => {
   )
 }
 
-export interface TableSectionProps extends React.HTMLAttributes<HTMLTableSectionElement> {
+interface TableSectionProps extends React.HTMLAttributes<HTMLTableSectionElement> {
   className?: string
   children?: ReactNode
 }
@@ -104,17 +104,26 @@ const TableBody = ({ className, children, ...props }: TableSectionProps) => {
   )
 }
 
-export interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
+interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
   className?: string
   children?: ReactNode
 }
 
 const Table = ({ className, children }: TableProps) => {
-  const twClassName = twMerge('block w-full border-collapse overflow-x-auto rounded-md text-sm', className)
-  return <table className={twClassName}>{children}</table>
+  const twClassName = twMerge('min-w-full border-collapse overflow-x-auto rounded-md text-sm', className)
+  return (
+    <div className="flex flex-col">
+      <div className="overflow-x-auto">
+        <div className=" inline-block min-w-full align-middle">
+          <div className="overflow-hidden">
+            <table className={twClassName}>{children}</table>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
-/**`page` has to be in 1-based indexing */
 const TablePagination = ({
   className,
   steps = 3,
@@ -182,10 +191,6 @@ const TablePagination = ({
               </button>
             </li>
           </ul>
-          {/* <span className="text-sm font-normal text-gray-500 dark:text-gray-400 mb-4 md:mb-0 block w-full md:inline md:w-auto">
-        Showing <span className="font-semibold text-gray-900 dark:text-white">1-10</span> of{' '}
-        <span className="font-semibold text-gray-900 dark:text-white">1000</span>
-      </span> */}
         </td>
       </tr>
     </tfoot>
