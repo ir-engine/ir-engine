@@ -346,7 +346,9 @@ export default function AddEditProjectModal({
                   <Text>{t('admin:components.project.needsGithubProvider')}</Text>
                 )}
                 <div className="flex items-center gap-3">
-                  <LoadingCircle className="h-6 w-6" />
+                  <div>
+                    <LoadingCircle className="h-6 w-6" />
+                  </div>
                   <Text>{t('admin:components.project.destinationProcessing')}</Text>
                 </div>
               </div>

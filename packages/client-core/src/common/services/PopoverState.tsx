@@ -36,7 +36,7 @@ export const PopoverState = defineState({
 
   /**shows a popupover. if a previous popover was already present, the `element` popover will be current showed */
   showPopupover: (element: JSX.Element) => {
-    getMutableState(PopoverState).elements.set((prevElements) => [...prevElements, element])
+    getMutableState(PopoverState).elements.merge([element])
   },
   /**close the current popover. if a previous popover was present, the previous one will be shown */
   hidePopupover: () => {
