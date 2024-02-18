@@ -387,6 +387,14 @@
       }
     },
     "avatar": {
+      "columns": {
+        "id": "Id",
+        "name": "Name",
+        "user": "Owner",
+        "isPublic": "Public",
+        "thumbnail": "Thumbnail",
+        "action": "Action"
+      },
       "source": "Source",
       "file": "File",
       "url": "Url",
