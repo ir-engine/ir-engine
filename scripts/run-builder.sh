@@ -43,8 +43,6 @@ else
   aws ecr-public get-login-password --region us-east-1 | docker login -u AWS --password-stdin $ECR_URL
 fi
 
-npm install -g cli @aws-sdk/client-s3
-
 if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "s3" ]
 then
   npx cross-env ts-node --swc scripts/get-deletable-client-files.ts

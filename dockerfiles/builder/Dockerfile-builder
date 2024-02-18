@@ -4,8 +4,12 @@ ARG STAGE
 FROM public.ecr.aws/x0k5y3h8/etherealengine-qat-root:latest_${STAGE} as builder
 
 COPY . .
+
+# This installation was initially part of the root Dockerfile, but it was moved here to avoid getting it replicated across rest of the
+# services unnecessarily.
 COPY packages/server/package.json ./packages/server/
 RUN npm install --loglevel notice --legacy-peer-deps
+
 CMD ["scripts/strip-engine.sh"]
 
 # copy then compile the code
@@ -15,6 +19,7 @@ ENV APP_ENV=production
 FROM node:18-buster-slim as runner
 WORKDIR /app
 
+# This commands runs the setup_helm.sh script to install helm and relevent installations
 COPY ../../scripts/setup_helm.sh .
 RUN chmod +x setup_helm.sh && ./setup_helm.sh
 

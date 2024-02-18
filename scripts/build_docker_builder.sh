@@ -27,7 +27,6 @@ mkdir -p packages/projects/projects
 cp packages/projects/default-project/package.json ./project-package-jsons/projects/default-project
 find packages/projects/projects/ -name package.json -exec bash -c 'mkdir -p ./project-package-jsons/$(dirname $1) && cp $1 ./project-package-jsons/$(dirname $1)' - '{}' \;
 
-
 docker buildx build \
     --load \
     --build-arg NODE_ENV=$NODE_ENV \
