@@ -1,7 +1,7 @@
 ARG ECR_URL
 ARG REPO_NAME
 ARG STAGE
-FROM public.ecr.aws/x0k5y3h8/etherealengine-qat-root:latest_${STAGE} as builder
+FROM $ECR_URL/$REPO_NAME-root:latest_${STAGE} as builder
 
 COPY . .
 
