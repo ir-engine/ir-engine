@@ -28,7 +28,6 @@ import {
   AnimationAction,
   AnimationActionLoopStyles,
   AnimationBlendMode,
-  AnimationMixer,
   LoopRepeat,
   NormalAnimationBlendMode
 } from 'three'
@@ -36,18 +35,21 @@ import {
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   defineComponent,
+  getAllComponents,
   getComponent,
+  getOptionalComponent,
   hasComponent,
-  setComponent,
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { CallbackComponent, StandardCallbacks, setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
+import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
 import { VRM } from '@pixiv/three-vrm'
 import { useGLTF } from '../../assets/functions/resourceHooks'
 import { ModelComponent } from '../../scene/components/ModelComponent'
+import { SceneAssetPendingTagComponent } from '../../scene/components/SceneAssetPendingTagComponent'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { AnimationComponent } from './AnimationComponent'
 
@@ -119,9 +121,13 @@ export const LoopAnimationComponent = defineComponent({
     const modelComponent = useOptionalComponent(entity, ModelComponent)
     const animComponent = useOptionalComponent(entity, AnimationComponent)
     const lastAnimationPack = useHookstate('')
-
+    const pendingComponent = useOptionalComponent(entity, SceneAssetPendingTagComponent)
     useEffect(() => {
-      if (!animComponent?.animations?.value) return
+      console.log(pendingComponent?.value)
+      if (!animComponent?.animations?.value || pendingComponent?.value) return
+      console.log(modelComponent?.asset.value?.scene.children[0].name)
+      console.log(getOptionalComponent(entity, Object3DComponent)?.children.length)
+      console.log(getAllComponents(entity))
       const clip = animComponent.animations.value[loopAnimationComponent.activeClipIndex.value]
       const asset = modelComponent?.asset.get(NO_PROXY) ?? null
       if (!modelComponent || !asset?.scene || !clip) {
@@ -141,7 +147,7 @@ export const LoopAnimationComponent = defineComponent({
       } catch (e) {
         console.warn('Failed to bind animation in LoopAnimationComponent', entity, e)
       }
-    }, [animComponent?.animations, loopAnimationComponent.activeClipIndex, modelComponent?.asset])
+    }, [pendingComponent, animComponent?.animations, loopAnimationComponent.activeClipIndex, modelComponent?.asset])
 
     useEffect(() => {
       if (loopAnimationComponent._action.value?.isRunning()) {
@@ -206,12 +212,6 @@ export const LoopAnimationComponent = defineComponent({
       const asset = modelComponent?.asset.get(NO_PROXY) ?? null
       if (!asset?.scene) return
       const model = getComponent(entity, ModelComponent)
-
-      if (!hasComponent(entity, AnimationComponent)) {
-        setComponent(entity, AnimationComponent, {
-          mixer: new AnimationMixer(model.asset!.scene)
-        })
-      }
     }, [modelComponent?.asset])
 
     const [gltf, unload] = useGLTF(loopAnimationComponent.animationPack.value, entity)

@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@etherealengine/ecs'
+import { defineComponent, getComponent } from '@etherealengine/ecs'
 import { Object3D } from 'three'
+import { NameComponent } from '../../common/NameComponent'
 
 export const Object3DComponent = defineComponent({
   name: 'Object3D Component',
@@ -33,6 +34,7 @@ export const Object3DComponent = defineComponent({
   onInit: (entity) => null! as Object3D,
   onSet: (entity, component, object3d: Object3D) => {
     if (!object3d || !object3d.isObject3D) throw new Error('Object3DComponent: Invalid object3d')
+    object3d.name = getComponent(entity, NameComponent)
     component.set(object3d)
   }
 })

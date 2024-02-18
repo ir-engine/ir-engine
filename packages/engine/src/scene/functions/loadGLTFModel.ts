@@ -143,6 +143,13 @@ export const parseObjectComponentsFromGLTF = (
 
 export const parseGLTFModel = (entity: Entity, scene: Scene) => {
   const model = getComponent(entity, ModelComponent)
+  // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
+  if (scene.animations?.length) {
+    setComponent(entity, AnimationComponent, {
+      mixer: new AnimationMixer(scene),
+      animations: scene.animations
+    })
+  }
   setComponent(entity, MeshBVHComponent)
 
   scene.updateMatrixWorld(true)
@@ -159,14 +166,6 @@ export const parseGLTFModel = (entity: Entity, scene: Scene) => {
       const uuid = obj.uuid as EntityUUID
       const eJson = generateEntityJsonFromObject(entity, obj, entityJson[uuid])
       entityJson[uuid] = eJson
-    })
-  }
-
-  // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
-  if (scene.animations?.length) {
-    setComponent(entity, AnimationComponent, {
-      mixer: new AnimationMixer(scene),
-      animations: scene.animations
     })
   }
 
