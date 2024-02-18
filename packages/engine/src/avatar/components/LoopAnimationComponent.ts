@@ -35,9 +35,7 @@ import {
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   defineComponent,
-  getAllComponents,
   getComponent,
-  getOptionalComponent,
   hasComponent,
   useComponent,
   useOptionalComponent
@@ -45,7 +43,6 @@ import {
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { CallbackComponent, StandardCallbacks, setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
-import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
 import { VRM } from '@pixiv/three-vrm'
 import { useGLTF } from '../../assets/functions/resourceHooks'
 import { ModelComponent } from '../../scene/components/ModelComponent'
@@ -123,11 +120,7 @@ export const LoopAnimationComponent = defineComponent({
     const lastAnimationPack = useHookstate('')
     const pendingComponent = useOptionalComponent(entity, SceneAssetPendingTagComponent)
     useEffect(() => {
-      console.log(pendingComponent?.value)
       if (!animComponent?.animations?.value || pendingComponent?.value) return
-      console.log(modelComponent?.asset.value?.scene.children[0].name)
-      console.log(getOptionalComponent(entity, Object3DComponent)?.children.length)
-      console.log(getAllComponents(entity))
       const clip = animComponent.animations.value[loopAnimationComponent.activeClipIndex.value]
       const asset = modelComponent?.asset.get(NO_PROXY) ?? null
       if (!modelComponent || !asset?.scene || !clip) {
