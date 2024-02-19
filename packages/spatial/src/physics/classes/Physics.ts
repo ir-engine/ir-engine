@@ -108,18 +108,13 @@ function createRigidBody(
   rigidBodyDesc: RigidBodyDesc,
   colliderDesc: ColliderDesc[] = []
 ) {
-  // computeTransformMatrix(entity)
   const transform = getComponent(entity, TransformComponent)
   transform.matrixWorld.decompose(position, rotation, scale)
-  transform.position.copy(position)
-  transform.rotation.copy(rotation)
 
   TransformComponent.dirtyTransforms[entity] = false
 
   rigidBodyDesc.translation = position
   rigidBodyDesc.rotation = rotation
-
-  // console.log('createRigidBody', entity, position.x, position.y, position.z)
 
   const body = world.createRigidBody(rigidBodyDesc)
   colliderDesc.forEach((desc) => world.createCollider(desc, body))
