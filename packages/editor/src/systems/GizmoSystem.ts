@@ -23,23 +23,54 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
+import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
+import { useEffect } from 'react'
+import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
+import { TransformGizmoControlledComponent } from '../classes/TransformGizmoControlledComponent'
+import { controlUpdate, gizmoUpdate, planeUpdate } from '../functions/gizmoHelper'
+import { SelectionState } from '../services/SelectionServices'
 
-const gizmoQuery = defineQuery([TransformGizmoComponent])
+const sceneQuery = defineQuery([SceneObjectComponent])
+const controlQuery = defineQuery([TransformGizmoControlComponent])
 
 const execute = () => {
-  for (const entity of gizmoQuery()) {
-    const gizmo = getComponent(entity, TransformGizmoComponent)
-    gizmo.updateMatrixWorld()
+  for (const gizmoEntity of controlQuery()) {
+    const gizmoControlComponent = getComponent(gizmoEntity, TransformGizmoControlComponent)
+    if (!gizmoControlComponent.enabled) return
+
+    if (!gizmoControlComponent.visualEntity) return
+    gizmoUpdate(gizmoEntity)
+    if (!gizmoControlComponent.planeEntity) return
+    planeUpdate(gizmoEntity)
+    controlUpdate(gizmoEntity)
   }
+}
+
+const reactor = () => {
+  const selectedEntities = SelectionState.useSelectedEntities()
+
+  for (const entity of sceneQuery()) {
+    if (!hasComponent(entity, TransformGizmoControlledComponent)) continue
+    removeComponent(entity, TransformGizmoControlledComponent)
+  }
+
+  useEffect(() => {
+    if (!selectedEntities) return
+    const lastSelection = selectedEntities[selectedEntities.length - 1]
+    if (!lastSelection) return
+    setComponent(lastSelection, TransformGizmoControlledComponent)
+  }, [selectedEntities])
+
+  return null
 }
 
 export const GizmoSystem = defineSystem({
   uuid: 'ee.editor.GizmoSystem',
-  insert: { before: PresentationSystemGroup },
-  execute
+  insert: { with: AnimationSystemGroup },
+  execute,
+  reactor
 })
