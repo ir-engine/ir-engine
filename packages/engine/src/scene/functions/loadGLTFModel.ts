@@ -142,7 +142,6 @@ export const parseObjectComponentsFromGLTF = (
 
 export const parseGLTFModel = (entity: Entity, scene: Scene) => {
   const model = getComponent(entity, ModelComponent)
-  // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
   setComponent(entity, MeshBVHComponent)
 
   scene.updateMatrixWorld(true)
