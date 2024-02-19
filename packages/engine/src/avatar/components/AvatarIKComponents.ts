@@ -41,6 +41,7 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { Types } from 'bitecs'
+import { ModelComponent } from '../../scene/components/ModelComponent'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
 
 const EPSILON = 1e-6
@@ -54,6 +55,7 @@ export const AvatarHeadDecapComponent = defineComponent({
 
     const headDecap = useComponent(entity, AvatarHeadDecapComponent)
     const rig = useComponent(entity, AvatarRigComponent)
+    const model = useComponent(entity, ModelComponent)
 
     useEffect(() => {
       if (!rig.rawRig.value?.head?.node || !headDecap?.value) return
@@ -67,7 +69,7 @@ export const AvatarHeadDecapComponent = defineComponent({
         rig.rawRig.value.head.node.scale.setScalar(1)
         cameraComponent.offset.setZ(0)
       }
-    }, [headDecap, rig.rawRig])
+    }, [headDecap, model.scene])
 
     return null
   }
