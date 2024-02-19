@@ -38,6 +38,7 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import ThreeDRotationIcon from '@mui/icons-material/ThreeDRotation'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorHelperState } from '../../services/EditorHelperState'
 import { SelectionState } from '../../services/SelectionServices'
@@ -142,5 +143,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
     </PropertyGroup>
   )
 }
+
+TransformPropertyGroup.iconComponent = ThreeDRotationIcon
 
 export default TransformPropertyGroup

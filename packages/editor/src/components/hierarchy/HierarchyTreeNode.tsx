@@ -44,17 +44,18 @@ import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 
 import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { useHookstate } from '@hookstate/core'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
-import { EntityNodeEditor } from '../../functions/ComponentEditors'
+import { ComponentEditorsState } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { SelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
+import TransformPropertyGroup from '../properties/TransformPropertyGroup'
 import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
 import NodeIssuesIcon from './NodeIssuesIcon'
 import styles from './styles.module.scss'
@@ -278,12 +279,12 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
 
-  const editors = entityExists(node.entity)
+  const icons = entityExists(node.entity)
     ? getAllComponents(node.entity)
-        .map((c) => EntityNodeEditor.get(c)!)
-        .filter((c) => !!c)
+        .map((c) => getState(ComponentEditorsState)[c.name]?.iconComponent)
+        .filter((icon) => !!icon)
     : []
-  const IconComponent = editors.reduce((acc, c) => c.iconComponent || acc, null)
+  const IconComponent = icons.length ? icons[icons.length - 1] : TransformPropertyGroup.iconComponent
   const renaming = data.renamingNode && data.renamingNode.entity === node.entity
   const marginLeft = node.depth > 0 ? node.depth * 8 + 20 : 0
 
