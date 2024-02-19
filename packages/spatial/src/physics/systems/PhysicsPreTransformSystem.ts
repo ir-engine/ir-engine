@@ -120,8 +120,6 @@ export const copyTransformToRigidBody = (entity: Entity) => {
     rotation.copy(transform.rotation)
   }
 
-  console.log('copyTransformToRigidBody', entity, position, rotation)
-
   RigidBodyComponent.position.x[entity] =
     RigidBodyComponent.previousPosition.x[entity] =
     RigidBodyComponent.targetKinematicPosition.x[entity] =
