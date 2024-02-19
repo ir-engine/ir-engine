@@ -52,12 +52,10 @@ export default class EEECSImporterExtension extends ImporterExtension implements
       // CURRENT ECS EXTENSION FORMAT //
       const ecsExtensions: Record<string, any> = nodeDef.extensions ?? {}
       const componentJson: ComponentJsonType[] = []
-      for (const extensionName of Object.keys(ecsExtensions)) {
-        const jsonID = /^EE_(.*)$/.exec(extensionName)?.[1]
-        if (!jsonID) continue
+      for (const jsonID of Object.keys(ecsExtensions)) {
         const component = ComponentJSONIDMap.get(jsonID)
         if (!component) continue
-        const compData = ecsExtensions[extensionName]
+        const compData = ecsExtensions[jsonID]
         const parsedComponent: ComponentJsonType = {
           name: jsonID,
           props: {
