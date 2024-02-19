@@ -239,7 +239,7 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
     return () => {
       producerObject.close()
     }
-  }, [transportState, producerObjectState])
+  }, [transportState.value, producerObjectState.value])
 
   return null
 }
