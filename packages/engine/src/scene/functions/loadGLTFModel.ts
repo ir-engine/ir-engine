@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AnimationMixer, Bone, InstancedMesh, Mesh, Object3D, Scene, SkinnedMesh } from 'three'
+import { Bone, InstancedMesh, Mesh, Object3D, Scene, SkinnedMesh } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJsonType, EntityJsonType } from '@etherealengine/common/src/schema.type.module'
@@ -50,7 +50,6 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { FrustumCullCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { BoneComponent } from '../../avatar/components/BoneComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
@@ -144,12 +143,6 @@ export const parseObjectComponentsFromGLTF = (
 export const parseGLTFModel = (entity: Entity, scene: Scene) => {
   const model = getComponent(entity, ModelComponent)
   // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
-  if (scene.animations?.length) {
-    setComponent(entity, AnimationComponent, {
-      mixer: new AnimationMixer(scene),
-      animations: scene.animations
-    })
-  }
   setComponent(entity, MeshBVHComponent)
 
   scene.updateMatrixWorld(true)

@@ -46,7 +46,6 @@ import { CallbackComponent, StandardCallbacks, setCallback } from '@etherealengi
 import { VRM } from '@pixiv/three-vrm'
 import { useGLTF } from '../../assets/functions/resourceHooks'
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import { SceneAssetPendingTagComponent } from '../../scene/components/SceneAssetPendingTagComponent'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { AnimationComponent } from './AnimationComponent'
 
@@ -117,10 +116,10 @@ export const LoopAnimationComponent = defineComponent({
     const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
     const modelComponent = useOptionalComponent(entity, ModelComponent)
     const animComponent = useOptionalComponent(entity, AnimationComponent)
+
     const lastAnimationPack = useHookstate('')
-    const pendingComponent = useOptionalComponent(entity, SceneAssetPendingTagComponent)
     useEffect(() => {
-      if (!animComponent?.animations?.value || pendingComponent?.value) return
+      if (!animComponent?.animations?.value) return
       const clip = animComponent.animations.value[loopAnimationComponent.activeClipIndex.value]
       const asset = modelComponent?.asset.get(NO_PROXY) ?? null
       if (!modelComponent || !asset?.scene || !clip) {
@@ -140,7 +139,7 @@ export const LoopAnimationComponent = defineComponent({
       } catch (e) {
         console.warn('Failed to bind animation in LoopAnimationComponent', entity, e)
       }
-    }, [pendingComponent, animComponent?.animations, loopAnimationComponent.activeClipIndex, modelComponent?.asset])
+    }, [loopAnimationComponent.activeClipIndex, modelComponent?.asset, animComponent?.animations])
 
     useEffect(() => {
       if (loopAnimationComponent._action.value?.isRunning()) {

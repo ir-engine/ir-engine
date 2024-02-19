@@ -250,6 +250,13 @@ function ModelReactor(): JSX.Element {
           SceneAssetPendingTagComponent.removeResource(entity, src)
         })
 
+    if ((asset as GLTF).animations.length) scene.animations = (asset as GLTF).animations
+    if (scene.animations?.length) {
+      setComponent(entity, AnimationComponent, {
+        mixer: new AnimationMixer(scene),
+        animations: scene.animations
+      })
+    }
     return () => {
       getMutableState(SceneState).scenes[uuid].set(none)
     }
