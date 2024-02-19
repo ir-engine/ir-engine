@@ -89,7 +89,7 @@ export function smoothVelocityBasedKinematicBody(entity: Entity, dt: number, sub
   } else {
     const alpha = smootheLerpAlpha(rigidbodyComponent.targetKinematicLerpMultiplier, dt)
     rigidbodyComponent.position.lerp(rigidbodyComponent.targetKinematicPosition, alpha)
-    rigidbodyComponent.rotation.slerp(rigidbodyComponent.targetKinematicRotation, alpha)
+    rigidbodyComponent.rotation.fastSlerp(rigidbodyComponent.targetKinematicRotation, alpha)
   }
   if (!rigidbodyComponent.body) return
   /** @todo implement proper velocity based kinematic movement */
