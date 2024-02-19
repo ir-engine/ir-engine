@@ -56,7 +56,6 @@ import { ComponentJsonType, SceneID } from '@etherealengine/common/src/schema.ty
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { EditorHelperState } from '../services/EditorHelperState'
@@ -327,18 +326,6 @@ const positionObject = (
     const entity = nodes[i]
     const pos = positions[i] ?? positions[0]
 
-    if (hasComponent(entity, RigidBodyComponent)) {
-      const rigidbody = getComponent(entity, RigidBodyComponent)
-      if (addToPosition) {
-        rigidbody.position.add(pos)
-      } else {
-        rigidbody.position.copy(pos)
-      }
-      rigidbody.previousPosition.copy(rigidbody.position)
-      rigidbody.body.setTranslation(rigidbody.position, true)
-      rigidbody.body.wakeUp()
-    }
-
     const transform = getComponent(entity, TransformComponent)
 
     if (space === TransformSpace.local) {
@@ -363,11 +350,6 @@ const positionObject = (
       transform.position.copy(tempVector)
     }
 
-    if (hasComponent(entity, RigidBodyComponent)) {
-      TransformComponent.dirtyTransforms[entity] = false
-      continue
-    }
-
     updateComponent(entity, TransformComponent, { position: transform.position })
 
     iterateEntityNode(entity, (entity) => {
@@ -385,14 +367,6 @@ const rotateObject = (nodes: Entity[], rotations: Euler[], space = getState(Edit
     const entity = nodes[i]
 
     T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
-
-    if (hasComponent(entity, RigidBodyComponent)) {
-      const rigidbody = getComponent(entity, RigidBodyComponent)
-      rigidbody.rotation.copy(T_QUAT_1)
-      rigidbody.previousRotation.copy(rigidbody.rotation)
-      rigidbody.body.setTranslation(rigidbody.rotation, true)
-      rigidbody.body.wakeUp()
-    }
 
     const transform = getComponent(entity, TransformComponent)
 
@@ -412,11 +386,6 @@ const rotateObject = (nodes: Entity[], rotations: Euler[], space = getState(Edit
       transform.rotation.copy(newLocalQuaternion)
     }
 
-    if (hasComponent(entity, RigidBodyComponent)) {
-      TransformComponent.dirtyTransforms[entity] = false
-      continue
-    }
-
     updateComponent(entity, TransformComponent, { rotation: transform.rotation })
 
     iterateEntityNode(entity, (entity) => {
@@ -434,7 +403,6 @@ const rotateAround = (entities: Entity[], axis: Vector3, angle: number, pivot: V
   const rotationMatrix = new Matrix4().makeRotationAxis(axis, angle)
 
   for (const entity of entities) {
-    /** @todo add rigidbody support */
     const transform = getComponent(entity, TransformComponent)
     const entityTreeComponent = getComponent(entity, EntityTreeComponent)
     const parentTransform = entityTreeComponent.parentEntity

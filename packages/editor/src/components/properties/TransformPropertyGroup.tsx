@@ -37,9 +37,7 @@ import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/c
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
-import { useExecute } from '@etherealengine/ecs'
-import { TransformSystem } from '@etherealengine/spatial'
-import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorHelperState } from '../../services/EditorHelperState'
 import { SelectionState } from '../../services/SelectionServices'
@@ -52,6 +50,10 @@ import Vector3Input from '../inputs/Vector3Input'
 import PropertyGroup from './PropertyGroup'
 import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
+const position = new Vector3()
+const rotation = new Quaternion()
+const scale = new Vector3()
+
 /**
  * TransformPropertyGroup component is used to render editor view to customize properties.
  */
@@ -62,33 +64,12 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const transformComponent = useComponent(props.entity, TransformComponent)
   const transformSpace = useHookstate(getMutableState(EditorHelperState).transformSpace)
 
-  const bboxSnapState = getMutableState(ObjectGridSnapState)
-
-  const temp = useHookstate({
-    position: new Vector3(),
-    rotation: new Quaternion(),
-    scale: new Vector3()
-  })
-
-  useExecute(
-    () => {
-      const position = new Vector3()
-      const rotation = new Quaternion()
-      const scale = new Vector3()
-
-      transformSpace.value === 'world' || hasComponent(props.entity, RigidBodyComponent)
-        ? transformComponent.matrixWorld.value.decompose(position, rotation, scale)
-        : transformComponent.matrix.value.decompose(position, rotation, scale)
-
-      /** Scaling only makes sense in local scale */
-      scale.copy(transformComponent.scale.value)
-
-      temp.set({ position, rotation, scale })
-    },
-    { after: TransformSystem }
-  )
+  transformSpace.value === TransformSpace.world
+    ? transformComponent.matrixWorld.value.decompose(position, rotation, scale)
+    : transformComponent.matrix.value.decompose(position, rotation, scale)
 
   const onRelease = () => {
+    const bboxSnapState = getMutableState(ObjectGridSnapState)
     if (bboxSnapState.enabled.value) {
       bboxSnapState.apply.set(true)
     } else {
@@ -115,8 +96,6 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
     const selectedEntities = SelectionState.getSelectedEntities()
     EditorControlFunctions.scaleObject(selectedEntities, [value], true)
   }
-
-  const { position, rotation, scale } = temp.value
 
   return (
     <PropertyGroup name={t('editor:properties.transform.title')}>
