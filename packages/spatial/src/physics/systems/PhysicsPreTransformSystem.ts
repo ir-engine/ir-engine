@@ -135,54 +135,6 @@ export const copyTransformToRigidBody = (entity: Entity) => {
     TransformComponent.dirtyTransforms[child] = true
 }
 
-export const copyLocalTransformToRigidBody = (entity: Entity) => {
-  RigidBodyComponent.position.x[entity] =
-    RigidBodyComponent.previousPosition.x[entity] =
-    RigidBodyComponent.targetKinematicPosition.x[entity] =
-      TransformComponent.position.x[entity]
-
-  RigidBodyComponent.position.y[entity] =
-    RigidBodyComponent.previousPosition.y[entity] =
-    RigidBodyComponent.targetKinematicPosition.y[entity] =
-      TransformComponent.position.y[entity]
-
-  RigidBodyComponent.position.z[entity] =
-    RigidBodyComponent.previousPosition.z[entity] =
-    RigidBodyComponent.targetKinematicPosition.z[entity] =
-      TransformComponent.position.z[entity]
-
-  RigidBodyComponent.rotation.x[entity] =
-    RigidBodyComponent.previousRotation.x[entity] =
-    RigidBodyComponent.targetKinematicRotation.x[entity] =
-      TransformComponent.rotation.x[entity]
-
-  RigidBodyComponent.rotation.y[entity] =
-    RigidBodyComponent.previousRotation.y[entity] =
-    RigidBodyComponent.targetKinematicRotation.y[entity] =
-      TransformComponent.rotation.y[entity]
-
-  RigidBodyComponent.rotation.z[entity] =
-    RigidBodyComponent.previousRotation.z[entity] =
-    RigidBodyComponent.targetKinematicRotation.z[entity] =
-      TransformComponent.rotation.z[entity]
-
-  RigidBodyComponent.rotation.w[entity] =
-    RigidBodyComponent.previousRotation.w[entity] =
-    RigidBodyComponent.targetKinematicRotation.w[entity] =
-      TransformComponent.rotation.w[entity]
-
-  const rigidbody = getComponent(entity, RigidBodyComponent)
-  rigidbody.body.setTranslation(rigidbody.position, false)
-  rigidbody.body.setRotation(rigidbody.rotation, false)
-  rigidbody.body.setLinvel(V_000, false)
-  rigidbody.body.setAngvel(V_000, false)
-
-  TransformComponent.dirtyTransforms[entity] = false
-
-  for (const child of getComponent(entity, EntityTreeComponent).children)
-    TransformComponent.dirtyTransforms[child] = true
-}
-
 const rigidbodyQuery = defineQuery([TransformComponent, RigidBodyComponent])
 
 const filterAwakeCleanRigidbodies = (entity: Entity) =>

@@ -68,6 +68,8 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
     ? transformComponent.matrixWorld.value.decompose(position, rotation, scale)
     : transformComponent.matrix.value.decompose(position, rotation, scale)
 
+  scale.copy(transformComponent.scale.value)
+
   const onRelease = () => {
     const bboxSnapState = getMutableState(ObjectGridSnapState)
     if (bboxSnapState.enabled.value) {
