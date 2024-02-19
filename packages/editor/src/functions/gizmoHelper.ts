@@ -434,7 +434,7 @@ export function planeUpdate(gizmoEntity) {
   }
 }
 
-export function controlUpdate(gizmoEntity) {
+export function controlUpdate(gizmoEntity: Entity) {
   const gizmoControl = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
   if (gizmoControl === undefined) return
   if (gizmoControl.controlledEntities.value.length > 1 && gizmoControl.pivotEntity.value == undefined) return // need pivot Entity if more than one entity is controlled
@@ -453,7 +453,7 @@ export function controlUpdate(gizmoEntity) {
 
   _parentScale.copy(getComponent(parentEntity!, TransformComponent).scale)
 
-  const currentMatrix = getComponent(targetEntity, TransformComponent).matrix
+  const currentMatrix = getComponent(targetEntity, TransformComponent).matrixWorld
   currentMatrix.decompose(_worldPosition, _worldQuaternion, _worldScale)
   gizmoControl.worldPosition.set(_worldPosition)
   gizmoControl.worldQuaternion.set(_worldQuaternion)
