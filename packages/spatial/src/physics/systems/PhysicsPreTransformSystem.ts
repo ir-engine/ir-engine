@@ -23,7 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, defineQuery, defineSystem, getComponent, hasComponent } from '@etherealengine/ecs'
+import {
+  Entity,
+  defineQuery,
+  defineSystem,
+  getComponent,
+  getOptionalComponent,
+  hasComponent
+} from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { getState } from '@etherealengine/hyperflux'
 import { Matrix4, Quaternion, Vector3 } from 'three'
@@ -84,17 +91,36 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   rotation.w = rotationW * alpha + previousRotationW * (1 - alpha)
 
   const transform = getComponent(entity, TransformComponent)
-  transform.matrixWorld.compose(position, rotation, V_111)
 
-  TransformComponent.dirtyTransforms[entity] = false
+  const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
+  if (parentEntity) {
+    // if the entity has a parent, we need to use the world space
+    transform.matrixWorld.compose(position, rotation, V_111)
 
-  for (const child of getComponent(entity, EntityTreeComponent).children)
-    TransformComponent.dirtyTransforms[child] = true
+    TransformComponent.dirtyTransforms[entity] = false
+
+    for (const child of getComponent(entity, EntityTreeComponent).children)
+      TransformComponent.dirtyTransforms[child] = true
+  } else {
+    // otherwise, we can use the local space (for things like avatars)
+    transform.position.copy(position)
+    transform.rotation.copy(rotation)
+  }
 }
 
 export const copyTransformToRigidBody = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
-  transform.matrixWorld.decompose(position, rotation, scale)
+  const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
+  if (parentEntity) {
+    // if the entity has a parent, we need to use the world space
+    transform.matrixWorld.decompose(position, rotation, scale)
+  } else {
+    // otherwise, we can use the local space (for things like avatars)
+    position.copy(transform.position)
+    rotation.copy(transform.rotation)
+  }
+
+  console.log('copyTransformToRigidBody', entity, position, rotation)
 
   RigidBodyComponent.position.x[entity] =
     RigidBodyComponent.previousPosition.x[entity] =
