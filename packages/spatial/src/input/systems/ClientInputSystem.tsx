@@ -338,8 +338,8 @@ export const addClientInputListeners = (canvas = EngineRenderer.instance.rendere
     window.removeEventListener('gamepadconnected', addGamepad)
     window.removeEventListener('gamepaddisconnected', removeGamepad)
 
-    canvas.removeEventListener('keyup', onKeyEvent)
-    canvas.removeEventListener('keydown', onKeyEvent)
+    document.removeEventListener('keyup', onKeyEvent)
+    document.removeEventListener('keydown', onKeyEvent)
 
     canvas.removeEventListener('focus', clearKeyState)
     canvas.removeEventListener('blur', clearKeyState)
