@@ -138,15 +138,15 @@ export const TransformGizmoControlledComponent = defineComponent({
       ).pivotEntity
       if (pivot === UndefinedEntity) return
 
-      let newPosition = getComponent(pivot, TransformComponent).position
-      const selectedTransform = getComponent(controlledEntities[controlledEntities.length - 1], TransformComponent)
+      const newPosition = new Vector3()
+      TransformComponent.getWorldPosition(pivot, newPosition)
 
       switch (editorHelperState.transformPivot.value) {
         case TransformPivot.Origin:
-          newPosition = new Vector3(0, 0, 0)
+          newPosition.setScalar(0)
           break
         case TransformPivot.Selection:
-          newPosition = selectedTransform.position
+          TransformComponent.getWorldPosition(controlledEntities[controlledEntities.length - 1], newPosition)
           break
         case TransformPivot.Center:
         case TransformPivot.Bottom:
