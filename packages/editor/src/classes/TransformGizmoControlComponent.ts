@@ -23,16 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  Entity,
-  PresentationSystemGroup,
-  UndefinedEntity,
-  defineComponent,
-  getOptionalComponent,
-  useComponent,
-  useEntityContext,
-  useExecute
-} from '@etherealengine/ecs'
+import { Entity, UndefinedEntity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
 import {
   SnapMode,
   TransformAxisType,
@@ -50,15 +41,7 @@ import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/Obj
 import { useEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry, Quaternion, Vector3 } from 'three'
 import { degToRad } from 'three/src/math/MathUtils'
-import {
-  controlUpdate,
-  gizmoUpdate,
-  onPointerDown,
-  onPointerHover,
-  onPointerMove,
-  onPointerUp,
-  planeUpdate
-} from '../functions/gizmoHelper'
+import { onPointerDown, onPointerHover, onPointerMove, onPointerUp } from '../functions/gizmoHelper'
 import { EditorHelperState } from '../services/EditorHelperState'
 
 export const TransformGizmoControlComponent = defineComponent({
@@ -132,21 +115,6 @@ export const TransformGizmoControlComponent = defineComponent({
 
     //temp variables
     const editorHelperState = useHookstate(getMutableState(EditorHelperState))
-
-    useExecute(
-      () => {
-        const gizmoControlComponent = getOptionalComponent(gizmoEntity, TransformGizmoControlComponent)
-        if (gizmoControlComponent === undefined) return
-        if (!gizmoControlComponent.enabled) return
-
-        if (!gizmoControlComponent.visualEntity) return
-        gizmoUpdate(gizmoEntity)
-        if (!gizmoControlComponent.planeEntity) return
-        planeUpdate(gizmoEntity)
-        controlUpdate(gizmoEntity)
-      },
-      { with: PresentationSystemGroup }
-    )
 
     useEffect(() => {
       const plane = new Mesh(
