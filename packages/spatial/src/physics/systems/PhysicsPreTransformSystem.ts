@@ -26,11 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { Entity, defineQuery, defineSystem, getComponent, hasComponent } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { getState } from '@etherealengine/hyperflux'
-import { Quaternion, Vector3 } from 'three'
+import { Matrix4, Quaternion, Vector3 } from 'three'
 import { TransformComponent, TransformSystem } from '../../SpatialModule'
 import { V_000, V_111 } from '../../common/constants/MathConstants'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
-import { isDirty } from '../../transform/systems/TransformSystem'
+import { computeTransformMatrix, isDirty } from '../../transform/systems/TransformSystem'
+import { ColliderComponent } from '../components/ColliderComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 
 export const teleportRigidbody = (entity: Entity) => {
@@ -46,6 +47,11 @@ export const teleportRigidbody = (entity: Entity) => {
   rigidBody.previousRotation.copy(transform.rotation)
   rigidBody.rotation.copy(transform.rotation)
 }
+
+const position = new Vector3()
+const rotation = new Quaternion()
+const scale = new Vector3()
+const mat4 = new Matrix4()
 
 export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   /*
@@ -85,10 +91,6 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   for (const child of getComponent(entity, EntityTreeComponent).children)
     TransformComponent.dirtyTransforms[child] = true
 }
-
-const position = new Vector3()
-const rotation = new Quaternion()
-const scale = new Vector3()
 
 export const copyTransformToRigidBody = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
@@ -135,7 +137,22 @@ export const copyTransformToRigidBody = (entity: Entity) => {
     TransformComponent.dirtyTransforms[child] = true
 }
 
+const copyTransformToCollider = (entity: Entity) => {
+  const collider = getComponent(entity, ColliderComponent).collider
+  if (!collider) return
+
+  const transform = getComponent(entity, TransformComponent)
+
+  computeTransformMatrix(entity)
+
+  mat4.copy(transform.matrixWorld).decompose(position, rotation, scale)
+
+  collider.setTranslation(position)
+  collider.setRotation(rotation)
+}
+
 const rigidbodyQuery = defineQuery([TransformComponent, RigidBodyComponent])
+const colliderQuery = defineQuery([TransformComponent, ColliderComponent])
 
 const filterAwakeCleanRigidbodies = (entity: Entity) =>
   !isDirty(entity) && !getComponent(entity, RigidBodyComponent).body.isSleeping()
@@ -148,9 +165,13 @@ export const execute = () => {
    */
   const allRigidbodyEntities = rigidbodyQuery()
   const dirtyRigidbodyEntities = allRigidbodyEntities.filter(isDirty)
+  const dirtyColliderEntities = colliderQuery().filter(isDirty)
 
   // if rigidbody transforms have been dirtied, teleport the rigidbody to the transform
   for (const entity of dirtyRigidbodyEntities) copyTransformToRigidBody(entity)
+
+  // if collider transforms have been dirtied, update them
+  for (const entity of dirtyColliderEntities) copyTransformToCollider(entity)
 
   // lerp awake clean rigidbody entities (and make their transforms dirty)
   const simulationRemainder = ecsState.frameTime - ecsState.simulationTime
