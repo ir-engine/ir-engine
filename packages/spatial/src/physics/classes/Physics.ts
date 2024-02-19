@@ -63,7 +63,6 @@ import { V_000 } from '../../common/constants/MathConstants'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { iterateEntityNode } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
   RigidBodyComponent,
@@ -109,11 +108,18 @@ function createRigidBody(
   rigidBodyDesc: RigidBodyDesc,
   colliderDesc: ColliderDesc[] = []
 ) {
-  computeTransformMatrix(entity)
-  getComponent(entity, TransformComponent).matrixWorld.decompose(position, rotation, scale)
+  // computeTransformMatrix(entity)
+  const transform = getComponent(entity, TransformComponent)
+  transform.matrixWorld.decompose(position, rotation, scale)
+  transform.position.copy(position)
+  transform.rotation.copy(rotation)
+
+  TransformComponent.dirtyTransforms[entity] = false
 
   rigidBodyDesc.translation = position
   rigidBodyDesc.rotation = rotation
+
+  // console.log('createRigidBody', entity, position.x, position.y, position.z)
 
   const body = world.createRigidBody(rigidBodyDesc)
   colliderDesc.forEach((desc) => world.createCollider(desc, body))
@@ -124,10 +130,11 @@ function createRigidBody(
   const RigidBodyTypeTagComponent = getTagComponentForRigidBody(body.bodyType())
   setComponent(entity, RigidBodyTypeTagComponent, true)
 
-  body.setTranslation(position, true)
-  body.setRotation(rotation, true)
-  body.setLinvel(V_000, true)
-  body.setAngvel(V_000, true)
+  body.setTranslation(position, false)
+  body.setRotation(rotation, false)
+  body.setLinvel(V_000, false)
+  body.setAngvel(V_000, false)
+
   rigidBody.previousPosition.copy(position)
   rigidBody.previousRotation.copy(rotation)
   if (
