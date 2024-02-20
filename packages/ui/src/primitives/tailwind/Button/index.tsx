@@ -64,10 +64,10 @@ const Button = ({
   ...props
 }: ButtonProps): JSX.Element => {
   const twClassName = twMerge(
-    'flex items-center justify-start',
+    'flex items-center justify-between',
     'font-medium text-white',
     'transition ease-in-out',
-    'inline-flex items-center ',
+    'inline-flex items-center justify-center',
     'disabled:cursor-not-allowed',
     sizes[size],
     variants[variant],
