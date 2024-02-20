@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Entity } from '@etherealengine/ecs'
 import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { PerformanceState } from '@etherealengine/spatial/src/renderer/PerformanceState'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { Cache, CompressedTexture, DefaultLoadingManager, LoadingManager, Material, Texture } from 'three'
 import { SourceType } from '../../scene/materials/components/MaterialSource'
@@ -199,6 +200,17 @@ const getCurrentSizeOfResources = () => {
   return size
 }
 
+const getBufferSizeOfResources = () => {
+  let size = 0
+  const resources = getState(ResourceState).resources
+  for (const key in resources) {
+    const resource = resources[key]
+    if (resource.type == ResourceType.Texture && resource.metadata.size) size += resource.metadata.size
+  }
+
+  return size
+}
+
 const getCurrentVertCountOfResources = () => {
   let verts = 0
   const resources = getState(ResourceState).resources
@@ -303,6 +315,18 @@ const Callbacks = {
   }
 }
 
+const checkBudgets = () => {
+  const performanceState = getState(PerformanceState)
+  const maxVerts = performanceState.budgets.maxVerticies
+  const maxBuffer = performanceState.budgets.maxBufferSize
+  const currVerts = getCurrentVertCountOfResources()
+  const currBuff = getBufferSizeOfResources()
+  if (currVerts > maxVerts)
+    console.warn('ResourceState:GLTF:onLoad Exceeded vertex budget, budget: ' + maxVerts + ', loaded: ' + currVerts)
+  if (currBuff > maxBuffer)
+    console.warn('ResourceState:GLTF:onLoad Exceeded buffer budget, budget: ' + maxBuffer + ', loaded: ' + currBuff)
+}
+
 const load = <T extends AssetType>(
   url: string,
   resourceType: ResourceType,
@@ -341,6 +365,7 @@ const load = <T extends AssetType>(
       resource.asset.set(response)
       callbacks.onLoad(response, resource)
       debugLog('ResourceManager:load Loaded resource: ' + url + ' for entity: ' + entity)
+      checkBudgets()
       onLoad(response)
     },
     (request) => {

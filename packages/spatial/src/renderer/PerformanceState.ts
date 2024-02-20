@@ -54,7 +54,7 @@ export const PerformanceState = defineState({
     budgets: {
       maxTextureSize: 0,
       max3DTextureSize: 0,
-      maxRenderBufferSize: 0,
+      maxBufferSize: 0,
       maxIndices: 0,
       maxVerticies: 0
     },
@@ -279,9 +279,14 @@ export const buildPerformanceState = async (renderer: EngineRenderer, onFinished
   performanceState.budgets.set({
     maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
     max3DTextureSize: max3DTextureSize,
-    maxRenderBufferSize: gl.getParameter(gl.MAX_RENDERBUFFER_SIZE),
-    maxIndices: gl.getParameter(gl.MAX_ELEMENTS_INDICES),
-    maxVerticies: gl.getParameter(gl.MAX_ELEMENTS_VERTICES)
+    maxBufferSize:
+      window.screen.availWidth *
+      window.screen.availHeight *
+      window.devicePixelRatio *
+      window.devicePixelRatio *
+      gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS),
+    maxIndices: gl.getParameter(gl.MAX_ELEMENTS_INDICES) * 2,
+    maxVerticies: gl.getParameter(gl.MAX_ELEMENTS_VERTICES) * 2
   })
 
   if (max3DTextureSize > 16000) tier += 2
