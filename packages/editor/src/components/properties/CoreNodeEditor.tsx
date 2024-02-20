@@ -111,9 +111,9 @@ export const CoreNodeEditor = (props: { entity: Entity }) => {
       </div>
       <div style={nameInputGroupContainerStyle}>
         <NameInputGroup entity={props.entity} />
-        <ConvertOldCollider entity={props.entity} />
         {!hasComponent(props.entity, SceneTagComponent) && (
           <>
+            <ConvertOldCollider entity={props.entity} />
             <InputGroup
               name="Visible"
               label={t('editor:properties.lbl-visible')}
@@ -121,9 +121,9 @@ export const CoreNodeEditor = (props: { entity: Entity }) => {
             >
               <BooleanInput value={hasComponent(props.entity, VisibleComponent)} onChange={setVisible} />
             </InputGroup>
+            <TransformPropertyGroup entity={props.entity} />
           </>
         )}
-        <TransformPropertyGroup entity={props.entity} />
       </div>
     </div>
   )
