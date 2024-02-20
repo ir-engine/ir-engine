@@ -126,33 +126,33 @@ export function solveTwoBoneIK(
   worldQuaternionToLocal(rootWorldRot, parentMatrix)
   root.local.compose(new Vector3().setFromMatrixPosition(root.local), rootWorldRot, new Vector3(1, 1, 1))
 
-  // Object3DUtils.premultiplyWorldQuaternion(rawRoot, rot)
+  /** Apply hint */
+  if (hint) {
+    if (rootToTipLength > 0) {
+      mid.world.multiplyMatrices(root.world, mid.local)
+      tip.world.multiplyMatrices(mid.world, tip.local)
+      root.world.multiplyMatrices(parentMatrix, root.local)
+      //do we need to update the root world matrix? probably not
+      //rawRoot.quaternion.identity()
+      midBoneWorldPosition.setFromMatrixPosition(mid.world)
+      tipBoneWorldPosition.setFromMatrixPosition(tip.world)
+      //rootBoneWorldPosition.setFromMatrixPosition(root.world)
+      rootToMidVector.subVectors(midBoneWorldPosition, rootBoneWorldPosition)
+      rootToTipVector.subVectors(tipBoneWorldPosition, rootBoneWorldPosition)
 
-  // /** Apply hint */
-  // if (hasHint) {
-  //   if (rootToTipLength > 0) {
-  //     Object3DUtils.updateParentsMatrixWorld(rawTip, 2)
-  //     rawRoot.quaternion.identity()
-  //     midBoneWorldPosition.setFromMatrixPosition(rawMid.matrixWorld)
-  //     tipBoneWorldPosition.setFromMatrixPosition(rawTip.matrixWorld)
-  //     rootToMidVector.subVectors(midBoneWorldPosition, rootBoneWorldPosition)
-  //     rootToTipVector.subVectors(tipBoneWorldPosition, rootBoneWorldPosition)
+      acNorm.copy(rootToTipVector).divideScalar(rootToTipLength)
+      abProj.copy(rootToMidVector).addScaledVector(acNorm, -rootToMidVector.dot(acNorm)) // Prependicular component of vector projection
+      ahProj.copy(rootToHintVector).addScaledVector(acNorm, -rootToHintVector.dot(acNorm))
 
-  //     acNorm.copy(rootToTipVector).divideScalar(rootToTipLength)
-  //     abProj.copy(rootToMidVector).addScaledVector(acNorm, -rootToMidVector.dot(acNorm)) // Prependicular component of vector projection
-  //     ahProj.copy(rootToHintVector).addScaledVector(acNorm, -rootToHintVector.dot(acNorm))
-
-  //     if (ahProj.lengthSq() > 0) {
-  //       rot.setFromUnitVectors(abProj, ahProj)
-  //       if (hintWeight > 0) {
-  //         rot.x *= hintWeight
-  //         rot.y *= hintWeight
-  //         rot.z *= hintWeight
-  //         Object3DUtils.premultiplyWorldQuaternion(rawRoot, rot)
-  //       }
-  //     }
-  //   }
-  // }
+      if (ahProj.lengthSq() > 0) {
+        rot.setFromUnitVectors(abProj, ahProj)
+        const rootWorldRot = getWorldQuaternion(root.world, new Quaternion())
+        rootWorldRot.premultiply(rot)
+        worldQuaternionToLocal(rootWorldRot, parentMatrix)
+        root.local.compose(new Vector3().setFromMatrixPosition(root.local), rootWorldRot, new Vector3(1, 1, 1))
+      }
+    }
+  }
   /** Apply tip rotation */
   // Object3DUtils.getWorldQuaternion(rawTip, rawTip.quaternion)
   // /** Apply target rotation weight */
