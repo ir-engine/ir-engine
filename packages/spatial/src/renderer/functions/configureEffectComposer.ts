@@ -34,7 +34,6 @@ import {
   OutlineEffect,
   RenderPass,
   SMAAEffect,
-  SMAAPreset,
   TextureEffect
 } from 'postprocessing'
 import { VelocityDepthNormalPass } from 'realism-effects'
@@ -85,30 +84,7 @@ export const configureEffectComposer = (
 
   const effects: any[] = []
 
-  const performanceTier = getState(PerformanceState).tier
-
-  let smaaPreset
-  switch (performanceTier) {
-    case 0:
-    case 1:
-    case 2:
-      smaaPreset = SMAAPreset.LOW
-      break
-    case 3:
-      smaaPreset = SMAAPreset.MEDIUM
-      break
-    case 4:
-      smaaPreset = SMAAPreset.HIGH
-      break
-    case 5:
-      smaaPreset = SMAAPreset.ULTRA
-      break
-
-    default:
-      smaaPreset = SMAAPreset.MEDIUM
-      break
-  }
-
+  const smaaPreset = getState(PerformanceState).smaaPreset
   const smaaEffect = new SMAAEffect({
     preset: smaaPreset,
     edgeDetectionMode: EdgeDetectionMode.COLOR

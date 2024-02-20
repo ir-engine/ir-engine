@@ -53,6 +53,7 @@ import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlug
 import { ObjectLayers } from '../renderer/constants/ObjectLayers'
 import { WebXRManager, createWebXRManager } from '../xr/WebXRManager'
 import { XRState } from '../xr/XRState'
+import { PerformanceState } from './PerformanceState'
 import { RendererState } from './RendererState'
 import WebGL from './THREE.WebGL'
 import { EffectMapType, defaultPostProcessingSchema } from './effects/PostProcessing'
@@ -318,6 +319,7 @@ const reactor = () => {
   const postprocessing = useHookstate(getMutableState(PostProcessingSettingsState))
   const xrState = useHookstate(getMutableState(XRState))
   const sdfState = useHookstate(getMutableState(SDFSettingsState))
+  const performanceState = useHookstate(getMutableState(PerformanceState))
 
   useEffect(() => {
     EngineRenderer.instance.renderer.toneMapping = renderSettings.toneMapping.value
@@ -334,7 +336,13 @@ const reactor = () => {
 
   useEffect(() => {
     configureEffectComposer()
-  }, [postprocessing.enabled, postprocessing.effects, sdfState.enabled, engineRendererSettings.usePostProcessing])
+  }, [
+    postprocessing.enabled,
+    postprocessing.effects,
+    sdfState.enabled,
+    engineRendererSettings.usePostProcessing,
+    performanceState.smaaPreset
+  ])
 
   useEffect(() => {
     EngineRenderer.instance.scaleFactor =

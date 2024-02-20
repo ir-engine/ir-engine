@@ -28,6 +28,8 @@ import { defineState, getMutableState } from '@etherealengine/hyperflux'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { getGPUTier } from 'detect-gpu'
+import { SMAAPreset } from 'postprocessing'
+import { useEffect } from 'react'
 import {
   AddEquation,
   BufferAttribute,
@@ -47,7 +49,7 @@ export const PerformanceState = defineState({
   name: 'PerformanceState',
   initial: () => ({
     tier: 0,
-    // Distinct from isMobile, VR headsets have mobile GPUs, but not mobile browsers
+    smaaPreset: SMAAPreset.MEDIUM,
     isMobileGPU: false as boolean | undefined,
     budgets: {
       maxTextureSize: 0,
@@ -61,7 +63,36 @@ export const PerformanceState = defineState({
       textureRenderMs: 0,
       alphaRenderMs: 0
     }
-  })
+  }),
+  reactor: () => {
+    const performanceState = getMutableState(PerformanceState)
+    useEffect(() => {
+      const performanceTier = performanceState.tier.value
+      let smaaPreset
+      switch (performanceTier) {
+        case 0:
+        case 1:
+        case 2:
+          smaaPreset = SMAAPreset.LOW
+          break
+        case 3:
+          smaaPreset = SMAAPreset.MEDIUM
+          break
+        case 4:
+          smaaPreset = SMAAPreset.HIGH
+          break
+        case 5:
+          smaaPreset = SMAAPreset.ULTRA
+          break
+
+        default:
+          smaaPreset = SMAAPreset.MEDIUM
+          break
+      }
+
+      performanceState.smaaPreset.set(smaaPreset)
+    }, [performanceState.tier])
+  }
 })
 
 const checkRender = (renderer: EngineRenderer, scene: Scene, onFinished: (ms: number) => void) => {
@@ -148,7 +179,7 @@ const createTriangle = (): Mesh => {
 
 const triangleCount = isMobile ? 1250 : 5000
 const checkMeshRender = (renderer: EngineRenderer, onFinished: () => void) => {
-  const profilerState = getMutableState(PerformanceState)
+  const performanceState = getMutableState(PerformanceState)
   const scene = new Scene()
   const meshes = [] as Mesh[]
   for (let i = 0; i < triangleCount; i++) {
@@ -158,7 +189,7 @@ const checkMeshRender = (renderer: EngineRenderer, onFinished: () => void) => {
   }
 
   checkRender(renderer, scene, (renderTime) => {
-    profilerState.render.meshRenderMs.set(renderTime)
+    performanceState.render.meshRenderMs.set(renderTime)
 
     for (const mesh of meshes) {
       mesh.geometry.dispose()
@@ -189,14 +220,14 @@ const createPlane = (r = 255, g = 255, b = 255, a = 1): Mesh => {
 }
 
 const chechTextureRender = (renderer: EngineRenderer, onFinished: () => void) => {
-  const profilerState = getMutableState(PerformanceState)
+  const performanceState = getMutableState(PerformanceState)
   const scene = new Scene()
 
   const mesh = createPlane()
   scene.add(mesh)
 
   checkRender(renderer, scene, (renderTime) => {
-    profilerState.render.textureRenderMs.set(renderTime)
+    performanceState.render.textureRenderMs.set(renderTime)
 
     mesh.geometry.dispose()
     ;(mesh.material as MeshBasicMaterial).dispose()
@@ -207,7 +238,7 @@ const chechTextureRender = (renderer: EngineRenderer, onFinished: () => void) =>
 }
 
 const chechAlphaRender = (renderer: EngineRenderer, onFinished: () => void) => {
-  const profilerState = getMutableState(PerformanceState)
+  const performanceState = getMutableState(PerformanceState)
   const scene = new Scene()
 
   const mesh = createPlane(0, 0, 255, 0.5)
@@ -224,7 +255,7 @@ const chechAlphaRender = (renderer: EngineRenderer, onFinished: () => void) => {
   scene.add(alphaMesh)
 
   checkRender(renderer, scene, (renderTime) => {
-    profilerState.render.alphaRenderMs.set(renderTime)
+    performanceState.render.alphaRenderMs.set(renderTime)
 
     mesh.geometry.dispose()
     ;(mesh.material as MeshBasicMaterial).dispose()
@@ -238,14 +269,14 @@ const chechAlphaRender = (renderer: EngineRenderer, onFinished: () => void) => {
 }
 
 export const buildPerformanceState = async (renderer: EngineRenderer, onFinished: () => void) => {
-  const performance = getMutableState(PerformanceState)
+  const performanceState = getMutableState(PerformanceState)
   const gpuTier = await getGPUTier()
   let tier = gpuTier.tier
-  performance.isMobileGPU.set(gpuTier.isMobile)
+  performanceState.isMobileGPU.set(gpuTier.isMobile)
 
   const gl = renderer.renderContext as WebGL2RenderingContext
   const max3DTextureSize = gl.getParameter(gl.MAX_3D_TEXTURE_SIZE)
-  performance.budgets.set({
+  performanceState.budgets.set({
     maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
     max3DTextureSize: max3DTextureSize,
     maxRenderBufferSize: gl.getParameter(gl.MAX_RENDERBUFFER_SIZE),
@@ -257,14 +288,14 @@ export const buildPerformanceState = async (renderer: EngineRenderer, onFinished
   else if (max3DTextureSize > 8000) tier += 1
   else if (max3DTextureSize < 4000) tier = Math.max(tier - 1, 0)
 
-  performance.tier.set(tier)
+  performanceState.tier.set(tier)
   onFinished()
 
   // TODO runtime performance checking
   // checkMeshRender(renderer, () => {
   //   chechTextureRender(renderer, () => {
   //     chechAlphaRender(renderer, () => {
-  //       console.log(JSON.stringify(profilerState.value))
+  //       console.log(JSON.stringify(performanceState.value))
   //       onFinished()
   //     })
   //   })
