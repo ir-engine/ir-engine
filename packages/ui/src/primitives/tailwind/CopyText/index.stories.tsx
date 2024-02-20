@@ -22,37 +22,22 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import CopyText from './index'
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { useHookstate } from '@etherealengine/hyperflux'
-import React from 'react'
-
-// todo move this to core engine
-const ClickawayListener = (props: { children: JSX.Element }) => {
-  const childOver = useHookstate(false)
-  return (
-    <div
-      className="fixed inset-0 bg-gray-800 bg-opacity-50"
-      onClick={() => {
-        if (childOver.value) return
-        PopoverState.hidePopupover()
-      }}
-    >
-      <div
-        className="z-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform"
-        onMouseEnter={() => childOver.set(true)}
-        onMouseLeave={() => childOver.set(false)}
-      >
-        {props.children}
-      </div>
-    </div>
-  )
+export default {
+  title: 'Primitives/Tailwind/CopyText',
+  component: CopyText,
+  parameters: {
+    componentSubtitle: 'CopyText',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  }
 }
 
-ClickawayListener.displayName = 'ClickawayListener'
-
-ClickawayListener.defaultProps = {
-  children: null
+export const Default = {
+  args: {
+    text: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nobis voluptate natus eos error vel quam voluptates quo reprehenderit? Nemo, eaque fuga quaerat molestiae ipsa dolorem deleniti vel velit repudiandae itaque accusantium dolor? Adipisci aliquid quam dolores? Earum maxime necessitatibus doloremque iure! Dolore aspernatur impedit inventore vel laboriosam, at nesciunt fuga?'
+  }
 }
-
-export default ClickawayListener

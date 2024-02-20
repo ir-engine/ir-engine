@@ -23,37 +23,34 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { InputHTMLAttributes } from 'react'
+import React from 'react'
 import { HiXCircle } from 'react-icons/hi'
 import { twMerge } from 'tailwind-merge'
 import Label from '../Label'
 
-export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
-  value: string | number
+export interface SelectProps extends React.HTMLAttributes<HTMLSelectElement> {
   label?: string
   inputClassName?: string
-  description?: string
-  type?: InputHTMLAttributes<HTMLInputElement>['type']
-  onChange: InputHTMLAttributes<HTMLInputElement>['onChange']
   error?: string
-  disabled?: boolean
+  description?: string
+  currentValue: any
+  options: { name: string; value: any }[]
+  onChange: (value: any) => void
 }
 
-const Input = ({
+const Select = ({
   inputClassName,
   label,
-  type = 'text',
   error,
   description,
-  value,
-  itemType,
+  currentValue,
+  options,
   onChange,
-  disabled,
   ...props
-}: InputProps) => {
+}: SelectProps) => {
   const twInputClassname = twMerge(
-    'text-base font-normal tracking-tight',
-    'textshadow-sm border-theme-primary flex h-9 w-full rounded-lg border bg-transparent px-3.5 py-5 transition-colors',
+    'p-2.5 text-base font-normal',
+    'textshadow-sm border-theme-primary w-full rounded-lg border bg-transparent transition-colors',
     'file:border-0 file:bg-transparent file:text-sm file:font-medium',
     'placeholder:text-muted-foreground focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50',
     inputClassName
@@ -62,14 +59,18 @@ const Input = ({
   return (
     <div className="flex w-full flex-col items-center gap-2">
       {label && <Label className="self-stretch">{label}</Label>}
-      <input
-        disabled={disabled}
-        type={type}
+      <select
         className={twInputClassname}
-        value={value}
-        onChange={onChange}
+        value={currentValue}
+        onChange={(event) => onChange(event.target.value)}
         {...props}
-      />
+      >
+        {options.map(({ name, value }) => (
+          <option key={name} value={value}>
+            {name}
+          </option>
+        ))}
+      </select>
       {description && <p className="text-theme-secondary self-stretch text-xs">{description}</p>}
       {error && (
         <p className="text-[#E11D48 text-sm">
@@ -80,4 +81,4 @@ const Input = ({
   )
 }
 
-export default Input
+export default Select

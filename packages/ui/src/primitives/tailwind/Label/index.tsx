@@ -23,36 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { useHookstate } from '@etherealengine/hyperflux'
 import React from 'react'
+import { twMerge } from 'tailwind-merge'
 
-// todo move this to core engine
-const ClickawayListener = (props: { children: JSX.Element }) => {
-  const childOver = useHookstate(false)
+export interface LabelProps extends React.HtmlHTMLAttributes<HTMLLabelElement> {
+  className?: string
+}
+
+const Label = ({ className, children }: LabelProps) => {
   return (
-    <div
-      className="fixed inset-0 bg-gray-800 bg-opacity-50"
-      onClick={() => {
-        if (childOver.value) return
-        PopoverState.hidePopupover()
-      }}
+    <label
+      className={twMerge(
+        'text-theme-secondary inline-block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+        className
+      )}
     >
-      <div
-        className="z-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform"
-        onMouseEnter={() => childOver.set(true)}
-        onMouseLeave={() => childOver.set(false)}
-      >
-        {props.children}
-      </div>
-    </div>
+      {children}
+    </label>
   )
 }
 
-ClickawayListener.displayName = 'ClickawayListener'
-
-ClickawayListener.defaultProps = {
-  children: null
-}
-
-export default ClickawayListener
+export default Label

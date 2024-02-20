@@ -22,37 +22,38 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { useHookstate } from '@etherealengine/hyperflux'
+import { ArgTypes } from '@storybook/react'
 import React from 'react'
+import Button from '../Button'
+import ToolTip from './index'
 
-// todo move this to core engine
-const ClickawayListener = (props: { children: JSX.Element }) => {
-  const childOver = useHookstate(false)
+const argTypes: ArgTypes = {}
+
+const ToolTipStory = (title) => {
   return (
-    <div
-      className="fixed inset-0 bg-gray-800 bg-opacity-50"
-      onClick={() => {
-        if (childOver.value) return
-        PopoverState.hidePopupover()
-      }}
-    >
-      <div
-        className="z-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform"
-        onMouseEnter={() => childOver.set(true)}
-        onMouseLeave={() => childOver.set(false)}
-      >
-        {props.children}
-      </div>
+    <div className="flex h-screen items-center justify-center">
+      <ToolTip title={title} direction="top">
+        <Button title="Submit" />
+      </ToolTip>
     </div>
   )
 }
 
-ClickawayListener.displayName = 'ClickawayListener'
-
-ClickawayListener.defaultProps = {
-  children: null
+export default {
+  title: 'Primitives/Tailwind/ToolTip',
+  component: ToolTipStory,
+  parameters: {
+    componentSubtitle: 'Button',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
 }
 
-export default ClickawayListener
+export const Default = {
+  args: {
+    title: 'Tooltip info'
+  }
+}

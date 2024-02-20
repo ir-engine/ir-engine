@@ -23,36 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { useHookstate } from '@etherealengine/hyperflux'
 import React from 'react'
+import { twMerge } from 'tailwind-merge'
+import Label from '../Label'
 
-// todo move this to core engine
-const ClickawayListener = (props: { children: JSX.Element }) => {
-  const childOver = useHookstate(false)
+export interface CheckboxProps {
+  value: boolean
+  label?: string
+  className?: string
+  onChange: (value: boolean) => void
+}
+
+const Checkbox = ({ className, label, value, onChange }: CheckboxProps) => {
+  const twClassName = twMerge(
+    'h-4 w-4 rounded',
+    'border-gray-300 bg-gray-100 text-[#375DAF] focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600',
+    className
+  )
+
   return (
-    <div
-      className="fixed inset-0 bg-gray-800 bg-opacity-50"
-      onClick={() => {
-        if (childOver.value) return
-        PopoverState.hidePopupover()
-      }}
-    >
-      <div
-        className="z-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform"
-        onMouseEnter={() => childOver.set(true)}
-        onMouseLeave={() => childOver.set(false)}
-      >
-        {props.children}
-      </div>
+    <div className="flex w-full items-center gap-4">
+      <input type="checkbox" className={twClassName} checked={value} onChange={() => onChange(!value)} />
+      {label && <Label className="self-stretch">{label}</Label>}
     </div>
   )
 }
 
-ClickawayListener.displayName = 'ClickawayListener'
-
-ClickawayListener.defaultProps = {
-  children: null
-}
-
-export default ClickawayListener
+export default Checkbox

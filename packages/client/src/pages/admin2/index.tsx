@@ -23,36 +23,41 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { useHookstate } from '@etherealengine/hyperflux'
-import React from 'react'
+import { t } from 'i18next'
+import React, { Suspense } from 'react'
+import { Route, Routes } from 'react-router-dom'
 
-// todo move this to core engine
-const ClickawayListener = (props: { children: JSX.Element }) => {
-  const childOver = useHookstate(false)
+import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+
+import { useEngineInjection } from '@etherealengine/client-core/src/components/World/EngineHooks'
+import Admin from './admin'
+
+const LocationRoutes = () => {
+  const projectsLoaded = useEngineInjection()
+
+  if (!projectsLoaded)
+    return (
+      <LoadingCircle
+        className="flex h-1/4 w-1/4 items-center justify-center"
+        message={t('common:loader.loadingProjects')}
+      />
+    )
+
   return (
-    <div
-      className="fixed inset-0 bg-gray-800 bg-opacity-50"
-      onClick={() => {
-        if (childOver.value) return
-        PopoverState.hidePopupover()
-      }}
+    <Suspense
+      fallback={
+        <LoadingCircle
+          className="flex h-1/4 w-1/4 items-center justify-center"
+          message={t('common:loader.loadingLocation')}
+        />
+      }
     >
-      <div
-        className="z-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform"
-        onMouseEnter={() => childOver.set(true)}
-        onMouseLeave={() => childOver.set(false)}
-      >
-        {props.children}
-      </div>
-    </div>
+      <Routes>
+        <Route path=":locationName" element={<Admin />} />
+        <Route path="/" element={<Admin />} />
+      </Routes>
+    </Suspense>
   )
 }
 
-ClickawayListener.displayName = 'ClickawayListener'
-
-ClickawayListener.defaultProps = {
-  children: null
-}
-
-export default ClickawayListener
+export default LocationRoutes

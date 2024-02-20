@@ -23,36 +23,49 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { useHookstate } from '@etherealengine/hyperflux'
 import React from 'react'
+import { IoMdCopy } from 'react-icons/io'
+import { twMerge } from 'tailwind-merge'
+import Button from '../Button'
 
-// todo move this to core engine
-const ClickawayListener = (props: { children: JSX.Element }) => {
-  const childOver = useHookstate(false)
+export interface CopyTextProps extends React.HTMLAttributes<HTMLTextAreaElement> {
+  text: string
+  className?: string
+}
+
+const Text = ({ text, className }: CopyTextProps) => {
+  const twClasses = twMerge(
+    'relative max-h-60 w-full resize-none rounded-md border border-[#2b2c30] p-4 focus-visible:outline-none',
+    className
+  )
+
+  const copyText = () => {
+    navigator.clipboard.writeText(text)
+  }
+
   return (
-    <div
-      className="fixed inset-0 bg-gray-800 bg-opacity-50"
-      onClick={() => {
-        if (childOver.value) return
-        PopoverState.hidePopupover()
-      }}
-    >
-      <div
-        className="z-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform"
-        onMouseEnter={() => childOver.set(true)}
-        onMouseLeave={() => childOver.set(false)}
+    <div>
+      <textarea
+        readOnly
+        className={twClasses}
+        style={{
+          minHeight: 'fit-content' // min-h-fit is not working
+        }}
       >
-        {props.children}
-      </div>
+        {text}
+      </textarea>
+      <Button
+        size="small"
+        onClick={copyText}
+        className="absolute"
+        style={{
+          top: '1.5rem',
+          right: '1.5rem' // top-6, right-6 classes are not working
+        }}
+        startIcon={<IoMdCopy />}
+      />
     </div>
   )
 }
 
-ClickawayListener.displayName = 'ClickawayListener'
-
-ClickawayListener.defaultProps = {
-  children: null
-}
-
-export default ClickawayListener
+export default Text
