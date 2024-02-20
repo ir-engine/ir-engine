@@ -1762,49 +1762,47 @@ export const uploadLocalProjectToProvider = async (
           const hash = createStaticResourceHash(fileResult, { mimeType: contentType, assetURL: key })
           if (existingContentSet.has(resourceKey(key, hash))) {
             logger.info(`Skipping upload of static resource of class ${thisFileClass}: "${key}"`)
-          } else if (existingKeySet.has(key)) {
-            logger.info(`Updating static resource of class ${thisFileClass}: "${key}"`)
-            await app.service(staticResourcePath).patch(
-              null,
-              {
+          } else {
+            if (existingKeySet.has(key)) {
+              logger.info(`Updating static resource of class ${thisFileClass}: "${key}"`)
+              await app.service(staticResourcePath).patch(
+                null,
+                {
+                  hash,
+                  url,
+                  mimeType: contentType,
+                  tags: [thisFileClass]
+                },
+                {
+                  query: {
+                    key,
+                    project: projectName
+                  }
+                }
+              )
+            } else {
+              logger.info(`Creating static resource of class ${thisFileClass}: "${key}"`)
+              await app.service(staticResourcePath).create({
+                key: `projects/${projectName}${filePathRelative}`,
+                project: projectName,
                 hash,
                 url,
                 mimeType: contentType,
                 tags: [thisFileClass]
-              },
-              {
-                query: {
-                  key,
-                  project: projectName
-                }
-              }
-            )
-          }
-          {
-            await app.service(staticResourcePath).create({
-              key: `projects/${projectName}${filePathRelative}`,
-              project: projectName,
-              hash,
-              url,
-              mimeType: contentType,
-              tags: [thisFileClass]
-            })
+              })
+            }
             logger.info(`Uploaded static resource of class ${thisFileClass}: "${key}"`)
           }
         }
       }
       results.push(getCachedURL(`projects/${projectName}${filePathRelative}`, cacheDomain))
-      console.log('pushed to results', getCachedURL(`projects/${projectName}${filePathRelative}`, cacheDomain))
     } catch (e) {
       logger.error(e)
       results.push(null)
     }
   }
-  console.log('Finished uploading all file for project', projectName)
   if (!hasResourceDB) {
-    console.log('Making projectResource for', projectName)
     await app.service(projectResourcesPath).create({ project: projectName })
-    console.log('finish')
   }
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" ended at "${new Date()}".`)
   return results.filter((success) => !!success) as string[]
