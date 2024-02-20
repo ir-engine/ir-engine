@@ -23,36 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { useHookstate } from '@etherealengine/hyperflux'
-import React from 'react'
+import { t } from 'i18next'
+import { ITableHeadCell } from '../Table'
 
-// todo move this to core engine
-const ClickawayListener = (props: { children: JSX.Element }) => {
-  const childOver = useHookstate(false)
-  return (
-    <div
-      className="fixed inset-0 bg-gray-800 bg-opacity-50"
-      onClick={() => {
-        if (childOver.value) return
-        PopoverState.hidePopupover()
-      }}
-    >
-      <div
-        className="z-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform"
-        onMouseEnter={() => childOver.set(true)}
-        onMouseLeave={() => childOver.set(false)}
-      >
-        {props.children}
-      </div>
-    </div>
-  )
+type IdType = 'name' | 'projectVersion' | 'commitSHA' | 'commitDate' | 'actions'
+
+export type ProjectRowType = Record<IdType, string | JSX.Element | undefined>
+
+interface IProjectColumn extends ITableHeadCell {
+  id: IdType
 }
 
-ClickawayListener.displayName = 'ClickawayListener'
-
-ClickawayListener.defaultProps = {
-  children: null
-}
-
-export default ClickawayListener
+export const projectsColumns: IProjectColumn[] = [
+  { id: 'name', sortable: true, label: t('admin:components.project.columns.name') },
+  { id: 'projectVersion', label: t('admin:components.project.columns.projectVersion') },
+  { id: 'commitSHA', label: t('admin:components.project.columns.commitSHA') },
+  { id: 'commitDate', sortable: true, label: t('admin:components.project.columns.commitDate') },
+  { id: 'actions', label: t('admin:components.project.columns.actions') }
+]

@@ -23,36 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { useHookstate } from '@etherealengine/hyperflux'
-import React from 'react'
+import Component from './index'
 
-// todo move this to core engine
-const ClickawayListener = (props: { children: JSX.Element }) => {
-  const childOver = useHookstate(false)
-  return (
-    <div
-      className="fixed inset-0 bg-gray-800 bg-opacity-50"
-      onClick={() => {
-        if (childOver.value) return
-        PopoverState.hidePopupover()
-      }}
-    >
-      <div
-        className="z-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform"
-        onMouseEnter={() => childOver.set(true)}
-        onMouseLeave={() => childOver.set(false)}
-      >
-        {props.children}
-      </div>
-    </div>
-  )
+export default {
+  title: 'Primitives/Tailwind/Checkbox',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'Checkbox',
+    jest: 'Checkbox.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  }
 }
 
-ClickawayListener.displayName = 'ClickawayListener'
-
-ClickawayListener.defaultProps = {
-  children: null
+export const Unchecked = {
+  args: {
+    label: 'Checkbox Example',
+    value: false,
+    onChange: () => {}
+  }
 }
 
-export default ClickawayListener
+export const Checked = {
+  args: {
+    label: 'Checkbox Checked Example',
+    value: true,
+    onChange: () => {}
+  }
+}

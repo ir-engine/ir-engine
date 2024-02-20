@@ -22,37 +22,33 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import { ArgTypes } from '@storybook/react'
+import CalloutText from './index'
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { useHookstate } from '@etherealengine/hyperflux'
-import React from 'react'
-
-// todo move this to core engine
-const ClickawayListener = (props: { children: JSX.Element }) => {
-  const childOver = useHookstate(false)
-  return (
-    <div
-      className="fixed inset-0 bg-gray-800 bg-opacity-50"
-      onClick={() => {
-        if (childOver.value) return
-        PopoverState.hidePopupover()
-      }}
-    >
-      <div
-        className="z-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform"
-        onMouseEnter={() => childOver.set(true)}
-        onMouseLeave={() => childOver.set(false)}
-      >
-        {props.children}
-      </div>
-    </div>
-  )
+const argTypes: ArgTypes = {
+  variant: {
+    control: 'select',
+    options: ['info', 'error', 'success', 'warning']
+  }
 }
 
-ClickawayListener.displayName = 'ClickawayListener'
-
-ClickawayListener.defaultProps = {
-  children: null
+export default {
+  title: 'Primitives/Tailwind/CalloutText',
+  component: CalloutText,
+  parameters: {
+    componentSubtitle: 'CalloutText',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
 }
 
-export default ClickawayListener
+export const Default = {
+  args: {
+    variant: 'info',
+    children:
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nec purus feugiat, molestie ipsum et, consequat nibh.'
+  }
+}
