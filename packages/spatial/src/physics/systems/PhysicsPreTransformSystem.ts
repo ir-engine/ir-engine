@@ -159,8 +159,9 @@ export const copyTransformToRigidBody = (entity: Entity) => {
 
   TransformComponent.dirtyTransforms[entity] = false
 
-  for (const child of getComponent(entity, EntityTreeComponent).children)
-    TransformComponent.dirtyTransforms[child] = true
+  if (hasComponent(entity, EntityTreeComponent))
+    for (const child of getComponent(entity, EntityTreeComponent).children)
+      TransformComponent.dirtyTransforms[child] = true
 }
 
 const copyTransformToCollider = (entity: Entity) => {
