@@ -124,7 +124,7 @@ function createBBoxGridHelper(matrixWorld: Matrix4, bbox: Box3, density: number)
 
 export const ObjectGridSnapComponent = defineComponent({
   name: 'Object Grid Snap Component',
-  jsonID: 'object-grid-snap',
+  jsonID: 'EE_object-grid-snap',
 
   onInit: (entity) => {
     return {

@@ -35,7 +35,7 @@ import { useEffect } from 'react'
 
 export const SceneDynamicLoadTagComponent = defineComponent({
   name: 'SceneDynamicLoadTagComponent',
-  jsonID: 'dynamic-load',
+  jsonID: 'EE_dynamic-load',
 
   onInit(entity) {
     return {

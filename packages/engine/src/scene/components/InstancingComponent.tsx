@@ -29,7 +29,7 @@ import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
 export const InstancingComponent = defineComponent({
   name: 'EE_instancing',
-  jsonID: 'instancing',
+  jsonID: 'EE_instancing',
   onInit: (entity) => ({
     instanceMatrix: new InstancedBufferAttribute(new Float32Array(16), 16)
   }),

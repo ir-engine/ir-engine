@@ -29,7 +29,7 @@ import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
 export const MeshComponent = defineComponent({
   name: 'Mesh Component',
-  jsonID: 'mesh',
+  jsonID: 'EE_mesh',
 
   onInit: (entity) => null! as Mesh,
 

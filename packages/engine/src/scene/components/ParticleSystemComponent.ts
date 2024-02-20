@@ -764,7 +764,7 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ExpandedSystemJSON = {
 
 export const ParticleSystemComponent = defineComponent({
   name: 'EE_ParticleSystem',
-  jsonID: 'particle-system',
+  jsonID: 'EE_particle-system',
   onInit: (entity) => {
     return {
       systemParameters: DEFAULT_PARTICLE_SYSTEM_PARAMETERS,

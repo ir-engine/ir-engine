@@ -33,7 +33,7 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const AmbientLightComponent = defineComponent({
   name: 'AmbientLightComponent',
-  jsonID: 'ambient-light',
+  jsonID: 'EE_ambient-light',
 
   onInit: (entity) => {
     const light = new AmbientLight()

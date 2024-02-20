@@ -74,7 +74,7 @@ const entitiesInModelHierarchy = {} as Record<Entity, Entity[]>
 
 export const ModelComponent = defineComponent({
   name: 'Model Component',
-  jsonID: 'gltf-model',
+  jsonID: 'EE_gltf-model',
 
   onInit: (entity) => {
     return {

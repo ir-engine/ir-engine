@@ -27,7 +27,7 @@ import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
 export const SystemComponent = defineComponent({
   name: 'SystemComponent',
-  jsonID: 'system',
+  jsonID: 'EE_system',
 
   onInit(entity) {
     return {

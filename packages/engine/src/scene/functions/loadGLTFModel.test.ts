@@ -63,7 +63,7 @@ describe.skip('loadGLTFModel', () => {
     const mockComponentData = { src: '' } as any
     const CustomComponent = defineComponent({
       name: 'CustomComponent',
-      jsonID: 'custom-component',
+      jsonID: 'EE_custom-component',
       onInit(entity) {
         return {
           val: 0
