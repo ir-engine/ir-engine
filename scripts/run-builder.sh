@@ -17,7 +17,7 @@ npx cross-env ts-node --swc scripts/check-db-exists.ts
 npm run prepare-database
 npm run create-build-status
 BUILDER_RUN=$(tail -1 builder-run.txt)
-npx ts-node --swc --transpile-only scripts/install-projects.js >project-install-build-logs.txt 2>project-install-build-error.txt || npm run record-build-error -- --service=project-install
+NODE_OPTIONS="--max-old-space-size=4096" npx ts-node --swc --transpile-only scripts/install-projects.js >project-install-build-logs.txt 2>project-install-build-error.txt || npm run record-build-error -- --service=project-install
 test -s project-install-build-error.txt && npm run record-build-error -- --service=project-install
 npx cross-env ts-node --swc scripts/create-root-package-json.ts
 mv package.json package.jsonmoved

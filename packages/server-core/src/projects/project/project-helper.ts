@@ -1794,13 +1794,17 @@ export const uploadLocalProjectToProvider = async (
         }
       }
       results.push(getCachedURL(`projects/${projectName}${filePathRelative}`, cacheDomain))
+      console.log('pushed to results', getCachedURL(`projects/${projectName}${filePathRelative}`, cacheDomain))
     } catch (e) {
       logger.error(e)
       results.push(null)
     }
   }
+  console.log('Finished uploading all file for project', projectName)
   if (!hasResourceDB) {
+    console.log('Making projectResource for', projectName)
     await app.service(projectResourcesPath).create({ project: projectName })
+    console.log('finish')
   }
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" ended at "${new Date()}".`)
   return results.filter((success) => !!success) as string[]
