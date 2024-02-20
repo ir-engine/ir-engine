@@ -28,13 +28,13 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useAllComponents, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { Popover } from '@mui/material'
-import { EntityNodeEditor } from '../../functions/ComponentEditors'
+import { ComponentEditorsState } from '../../functions/ComponentEditors'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import { PropertiesPanelButton } from '../inputs/Button'
@@ -46,7 +46,7 @@ import { PopoverContext } from './PopoverContext'
 const EntityComponentEditor = (props: { entity; component; multiEdit }) => {
   const { entity, component, multiEdit } = props
   const componentMounted = useOptionalComponent(entity, component)
-  const Editor = EntityNodeEditor.get(component)!
+  const Editor = getState(ComponentEditorsState)[component.name]!
   if (!componentMounted) return null
   // nodeEntity is used as key here to signal to React when the entity has changed,
   // and to prevent state from being recycled between editor instances, which
@@ -60,8 +60,8 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
   const { t } = useTranslation()
 
   const entity = UUIDComponent.getEntityByUUID(entityUUID)
-
-  const components = useAllComponents(entity).filter((c) => EntityNodeEditor.has(c))
+  useHookstate(getMutableState(ComponentEditorsState).keys).value
+  const components = useAllComponents(entity).filter((c) => !!getState(ComponentEditorsState)[c.name])
 
   const open = !!anchorEl.value
 
