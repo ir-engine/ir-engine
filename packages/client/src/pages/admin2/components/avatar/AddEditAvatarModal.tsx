@@ -24,17 +24,70 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { AvatarService } from '@etherealengine/client-core/src/user/services/AvatarService'
 import { AvatarType } from '@etherealengine/common/src/schema.type.module'
+import { AssetsPreviewPanel } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
+import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
+import { NO_PROXY } from '@etherealengine/hyperflux'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import DragNDrop from '@etherealengine/ui/src/primitives/tailwind/DragNDrop'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import { useHookstate } from '@hookstate/core'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) {
   const { t } = useTranslation()
   const avatarName = useHookstate(avatar?.name || '')
   const avatarUrl = useHookstate(avatar?.modelResource?.url || '')
+  const previewPanelRef = React.useRef()
+
+  const avatarAssets = useHookstate({
+    modelURL: avatar?.modelResource?.url || '',
+    thumbnailURL: avatar?.thumbnailResource?.url || '',
+    model: undefined as File | undefined,
+    thumbnail: undefined as File | undefined
+  })
+
+  const handleSubmit = async () => {
+    if (avatarAssets.model.value && avatarAssets.thumbnail.value) {
+      if (avatar?.id) {
+        try {
+          await AvatarService.patchAvatar(
+            avatar,
+            avatar.name,
+            true,
+            avatarAssets.model.value,
+            avatarAssets.thumbnail.value
+          )
+          PopoverState.hidePopupover()
+        } catch (e) {
+          console.error('Error updating avatar', e)
+        }
+      } else {
+        try {
+          await AvatarService.createAvatar(
+            avatarAssets.model.value,
+            avatarAssets.thumbnail.value,
+            avatarName.value,
+            true
+          )
+          PopoverState.hidePopupover()
+        } catch (e) {
+          console.error('Error creating avatar', e)
+        }
+      }
+    }
+  }
+
+  useEffect(() => {
+    ;(previewPanelRef as any).current?.onSelectionChanged({
+      name: avatarAssets.model.value!.name,
+      resourceUrl: URL.createObjectURL(avatarAssets.model.get(NO_PROXY)!),
+      contentType: 'model/glb'
+    })
+  }, [avatarAssets.model.value])
 
   return (
     <Modal
@@ -57,6 +110,37 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
           onChange={(event) => avatarUrl.set(event.target.value)}
         />
       </div>
+      <DragNDrop
+        onDropEvent={(files) => {
+          avatarAssets.model.set(files[0])
+        }}
+        acceptedDropTypes={ItemTypes.Models}
+        className="mt-5 h-64"
+      >
+        {avatarAssets.model.value ? <AssetsPreviewPanel ref={previewPanelRef} /> : 'Upload avatar model'}
+      </DragNDrop>
+
+      <DragNDrop
+        onDropEvent={(files) => {
+          avatarAssets.thumbnail.set(files[0])
+        }}
+        acceptedDropTypes={ItemTypes.Images}
+        className="mt-5 h-64"
+      >
+        {avatarAssets.thumbnail.value ? (
+          <img
+            className="max-h-full max-w-full"
+            src={URL.createObjectURL(avatarAssets.thumbnail.value)}
+            alt="thumbnail"
+          />
+        ) : (
+          'Upload avatar thumbnail'
+        )}
+      </DragNDrop>
+
+      <Button onClick={handleSubmit} disabled={!avatarAssets.model.value || !avatarAssets.thumbnail.value}>
+        Submit
+      </Button>
     </Modal>
   )
 }

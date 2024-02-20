@@ -37,7 +37,7 @@ export interface DragNDropProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const DragNDrop = ({ className, children, acceptedDropTypes, onDropEvent, ...props }: DragNDropProps) => {
   const twClassName = twMerge(
-    'bg-primary flex items-center justify-center rounded-md border-2 border-dashed border-gray-300 p-4 dark:hover:bg-slate-800',
+    'bg-secondary flex items-center justify-center rounded-md border-2 border-dashed border-gray-300 p-4 dark:hover:bg-slate-800',
     className
   )
   console.log('Supported Item Types: ', acceptedDropTypes)
@@ -63,7 +63,7 @@ const DragNDrop = ({ className, children, acceptedDropTypes, onDropEvent, ...pro
   )
   return (
     <div className={twClassName} {...props} ref={drop}>
-      <label htmlFor="dropzone-file" className="flex h-full w-full cursor-pointer items-center justify-center">
+      <label className="flex h-full w-full cursor-pointer items-center justify-center">
         {children}
         <input
           onChange={(event) => {
@@ -72,7 +72,6 @@ const DragNDrop = ({ className, children, acceptedDropTypes, onDropEvent, ...pro
               onDropEvent(Array.from(event.target.files))
             }
           }}
-          id="dropzone-file"
           type="file"
           className="hidden"
         />

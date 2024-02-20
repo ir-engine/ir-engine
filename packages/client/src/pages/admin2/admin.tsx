@@ -79,7 +79,7 @@ const AdminSidebar = () => {
             <Button
               fullWidth
               onClick={() => currentPage.set(index)}
-              className="bg-theme-surfaceMain text-theme-secondary flex items-center rounded-xl px-2 py-3 hover:bg-[#212226]"
+              className="bg-theme-surfaceMain text-theme-secondary flex items-center justify-start rounded-xl px-2 py-3 hover:bg-[#212226]"
               startIcon={item.icon}
             >
               {item.label}
