@@ -212,6 +212,7 @@ const getCurrentVertCountOfResources = () => {
 }
 
 const getRendererInfo = () => {
+  if (!EngineRenderer.instance || !EngineRenderer.instance.renderer) return {}
   return {
     memory: EngineRenderer.instance.renderer.info.memory,
     programCount: EngineRenderer.instance.renderer.info.programs?.length
