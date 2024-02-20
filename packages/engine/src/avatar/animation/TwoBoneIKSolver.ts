@@ -132,8 +132,7 @@ export function solveTwoBoneIK(
       mid.world.multiplyMatrices(root.world, mid.local)
       tip.world.multiplyMatrices(mid.world, tip.local)
       root.world.multiplyMatrices(parentMatrix, root.local)
-      //do we need to update the root world matrix? probably not
-      //rawRoot.quaternion.identity()
+
       midBoneWorldPosition.setFromMatrixPosition(mid.world)
       tipBoneWorldPosition.setFromMatrixPosition(tip.world)
       //rootBoneWorldPosition.setFromMatrixPosition(root.world)
