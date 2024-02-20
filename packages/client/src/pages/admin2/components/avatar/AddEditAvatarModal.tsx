@@ -24,33 +24,39 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
+import { AvatarType } from '@etherealengine/common/src/schema.type.module'
+import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
+import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
+import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiPlus } from 'react-icons/hi2'
-import AddEditAvatarModal from './AddEditAvatarModal'
-import AvatarTable from './AvatarTable'
 
-export default function Avatars() {
+export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) {
   const { t } = useTranslation()
+  const avatarName = useHookstate(avatar?.name || '')
+  const avatarUrl = useHookstate(avatar?.modelResource?.url || '')
 
   return (
-    <>
-      <div className="relative mb-6">
-        <Text fontSize="xl">{t('admin:components.avatar.avatars')}</Text>
-        <Button
-          startIcon={<HiPlus />}
-          size="small"
-          className="absolute right-0"
-          onClick={() => {
-            PopoverState.showPopupover(<AddEditAvatarModal />)
-          }}
-        >
-          {t('admin:components.project.addProject')}
-        </Button>
+    <Modal
+      title={avatar?.id ? t('admin:components.avatar.update') : t('admin:components.avatar.add')}
+      className="w-[50vw]"
+      onSubmit={() => {}}
+      onClose={() => {
+        PopoverState.hidePopupover()
+      }}
+    >
+      <div className="grid gap-6">
+        <Input
+          label={t('admin:components.common.name')}
+          value={avatarName.value}
+          onChange={(event) => avatarName.set(event.target.value)}
+        />
+        <Input
+          label={t('admin:components.avatar.avatarUrl')}
+          value={avatarUrl.value}
+          onChange={(event) => avatarUrl.set(event.target.value)}
+        />
       </div>
-      <AvatarTable search="" />
-    </>
+    </Modal>
   )
 }

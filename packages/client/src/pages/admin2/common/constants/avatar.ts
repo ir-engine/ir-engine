@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { t } from 'i18next'
 import { ITableHeadCell } from '../Table'
 
-type IdType = 'select' | 'id' | 'name' | 'user' | 'isPublic' | 'thumbnail' | 'action'
+type IdType = 'id' | 'name' | 'user' | 'isPublic' | 'thumbnail' | 'action'
 
 export type AvatarRowType = Record<IdType, string | JSX.Element | undefined>
 

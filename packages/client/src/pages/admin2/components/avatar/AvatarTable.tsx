@@ -28,13 +28,43 @@ import { useTranslation } from 'react-i18next'
 
 import { AvatarID, AvatarType, avatarPath } from '@etherealengine/common/src/schema.type.module'
 
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { UserName } from '@etherealengine/common/src/schema.type.module'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import AvatarImage from '@etherealengine/ui/src/primitives/tailwind/AvatarImage'
+import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
+import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 import { useHookstate } from '@hookstate/core'
+import { HiPencil, HiTrash } from 'react-icons/hi2'
 import DataTable from '../../common/Table'
 import { AvatarRowType, avatarColumns } from '../../common/constants/avatar'
+import AddEditAvatarModal from './AddEditAvatarModal'
+
+const RemoveAvatarModal = ({ avatar }: { avatar: AvatarType }) => {
+  const { t } = useTranslation()
+  const adminAvatarRemove = useMutation(avatarPath).remove
+  const modalProcessing = useHookstate(false)
+
+  return (
+    <Modal
+      title={t('admin:components.avatar.remove')}
+      onSubmit={() => {
+        modalProcessing.set(true)
+        adminAvatarRemove(avatar.id)
+      }}
+      onClose={!modalProcessing.value ? () => PopoverState.hidePopupover() : undefined}
+      hideFooter={modalProcessing.value}
+    >
+      {modalProcessing.value ? (
+        <LoadingCircle className="h-[10vh]" />
+      ) : (
+        <Text>{`${t('admin:components.avatar.confirmAvatarDelete')} '${avatar.name}'?`}</Text>
+      )}
+    </Modal>
+  )
+}
 
 export default function AvatarTable({ search }: { search: string }) {
   const { t } = useTranslation()
@@ -77,13 +107,29 @@ export default function AvatarTable({ search }: { search: string }) {
 
   const createRows = (rows: readonly AvatarType[]): AvatarRowType[] =>
     rows.map((row) => ({
-      select: <>todo</>,
       id: row.id,
       name: row.name,
       user: (row.user?.name || '') as UserName,
       isPublic: <IsPublicToggle id={row.id} isPublic={row.isPublic} />,
       thumbnail: <AvatarImage src={row.thumbnailResource?.url + '?' + new Date().getTime()} className="mx-auto" />,
-      action: ''
+      action: (
+        <div className="flex items-center justify-around">
+          <button
+            title={t('admin:components.common.view')}
+            className="border-theme-primary grid h-8 w-8 rounded-full border"
+            onClick={() => PopoverState.showPopupover(<AddEditAvatarModal avatar={row} />)}
+          >
+            <HiPencil className="place-self-center text-[#0D9488]" />
+          </button>
+          <button
+            title={t('admin:components.common.delete')}
+            className="border-theme-primary grid h-8 w-8 rounded-full border"
+            onClick={() => PopoverState.showPopupover(<RemoveAvatarModal avatar={row} />)}
+          >
+            <HiTrash className="place-self-center text-[#E11D48] dark:text-[#FB7185]" />
+          </button>
+        </div>
+      )
     }))
 
   return <DataTable query={adminAvatarQuery} columns={avatarColumns} rows={createRows(adminAvatarQuery.data)} />
