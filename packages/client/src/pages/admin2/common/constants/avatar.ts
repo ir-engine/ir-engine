@@ -41,7 +41,8 @@ export const avatarColumns: IAvatarColumn[] = [
   { id: 'isPublic', label: t('admin:components.avatar.columns.isPublic') },
   {
     id: 'thumbnail',
-    label: t('admin:components.avatar.columns.thumbnail')
+    label: t('admin:components.avatar.columns.thumbnail'),
+    className: 'text-center'
   },
   {
     id: 'action',

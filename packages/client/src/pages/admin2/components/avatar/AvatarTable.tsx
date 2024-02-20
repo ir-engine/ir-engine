@@ -26,11 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AvatarType, avatarPath } from '@etherealengine/common/src/schema.type.module'
+import { AvatarID, AvatarType, avatarPath } from '@etherealengine/common/src/schema.type.module'
 
 import { UserName } from '@etherealengine/common/src/schema.type.module'
-import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import AvatarImage from '@etherealengine/ui/src/primitives/tailwind/AvatarImage'
+import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
+import { useHookstate } from '@hookstate/core'
 import DataTable from '../../common/Table'
 import { AvatarRowType, avatarColumns } from '../../common/constants/avatar'
 
@@ -45,6 +47,7 @@ export default function AvatarTable({ search }: { search: string }) {
       }
     }
   })
+  const adminAvatarPatch = useMutation(avatarPath).patch
 
   useSearch(
     adminAvatarQuery,
@@ -56,14 +59,30 @@ export default function AvatarTable({ search }: { search: string }) {
     search
   )
 
+  const IsPublicToggle = ({ id, isPublic }: { id: AvatarID; isPublic: boolean }) => {
+    const disabled = useHookstate(false)
+    return (
+      <Toggle
+        value={isPublic}
+        onChange={(value) => {
+          disabled.set(true)
+          adminAvatarPatch(id, { isPublic: value })
+            .then(() => adminAvatarQuery.refetch())
+            .catch(() => disabled.set(false))
+        }}
+        disabled={disabled.value}
+      />
+    )
+  }
+
   const createRows = (rows: readonly AvatarType[]): AvatarRowType[] =>
     rows.map((row) => ({
       select: <>todo</>,
       id: row.id,
       name: row.name,
       user: (row.user?.name || '') as UserName,
-      isPublic: row.isPublic ? t('admin:components.common.yes') : t('admin:components.common.no'),
-      thumbnail: <AvatarImage src={row.thumbnailResource?.url + '?' + new Date().getTime()} />,
+      isPublic: <IsPublicToggle id={row.id} isPublic={row.isPublic} />,
+      thumbnail: <AvatarImage src={row.thumbnailResource?.url + '?' + new Date().getTime()} className="mx-auto" />,
       action: ''
     }))
 
