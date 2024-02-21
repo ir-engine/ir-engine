@@ -25,7 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { Bone, MathUtils, Matrix4, Mesh, Object3D, Quaternion, Vector3 } from 'three'
 
-import { Matrices } from '../components/AvatarAnimationComponent'
+import { Entity, getComponent } from '@etherealengine/ecs'
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { AvatarRigComponent, Matrices } from '../components/AvatarAnimationComponent'
 
 const sqrEpsilon = 1e-8
 
@@ -130,7 +132,6 @@ export function solveTwoBoneIK(
 
       midBoneWorldPosition.setFromMatrixPosition(mid.world)
       tipBoneWorldPosition.setFromMatrixPosition(tip.world)
-      //rootBoneWorldPosition.setFromMatrixPosition(root.world)
       rootToMidVector.subVectors(midBoneWorldPosition, rootBoneWorldPosition)
       rootToTipVector.subVectors(tipBoneWorldPosition, rootBoneWorldPosition)
       rootToHintVector.copy(hint).sub(rootBoneWorldPosition)
@@ -221,3 +222,16 @@ const targetPos = new Vector3(),
   ahProj = new Vector3(),
   targetRot = new Quaternion(),
   rotation = new Quaternion()
+
+const nodeQuaternion = new Quaternion()
+export const blendIKChain = (entity: Entity, bones: VRMHumanBoneName[], weight) => {
+  const rigComponent = getComponent(entity, AvatarRigComponent)
+  for (const bone of bones) {
+    const boneMatrices = rigComponent.ikMatrices[bone]
+    if (boneMatrices) {
+      const node = rigComponent.vrm.humanoid.getNormalizedBoneNode(bone)
+      nodeQuaternion.setFromRotationMatrix(boneMatrices.local)
+      node?.quaternion.slerp(nodeQuaternion, weight)
+    }
+  }
+}

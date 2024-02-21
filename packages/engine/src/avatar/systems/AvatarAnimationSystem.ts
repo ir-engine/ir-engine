@@ -70,7 +70,7 @@ import { AvatarHeadDecapComponent, AvatarIKTargetComponent } from '.././componen
 import { AnimationState } from '../AnimationManager'
 import { IKSerialization } from '../IKSerialization'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
-import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
+import { blendIKChain, solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets, preloadedAnimations } from '../animation/Util'
 import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { getArmIKHint } from '../animation/getArmIKHint'
@@ -237,8 +237,7 @@ const execute = () => {
       )
 
       //test blend code
-      normalizedRig.rightUpperArm.node.quaternion.setFromRotationMatrix(rigComponent.ikMatrices['rightUpperArm'].local)
-      normalizedRig.rightLowerArm.node.quaternion.setFromRotationMatrix(rigComponent.ikMatrices['rightLowerArm'].local)
+      blendIKChain(entity, ['rightUpperArm', 'rightLowerArm', 'rightHand'], rightHandTargetBlendWeight)
     }
 
     if (leftHandTargetBlendWeight && leftHandTransform) {
