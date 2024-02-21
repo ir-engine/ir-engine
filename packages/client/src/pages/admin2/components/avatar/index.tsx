@@ -25,32 +25,59 @@ Ethereal Engine. All Rights Reserved.
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import React from 'react'
+import { useHookstate } from '@hookstate/core'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiPlus } from 'react-icons/hi2'
+import { HiMagnifyingGlass, HiPlus } from 'react-icons/hi2'
 import AddEditAvatarModal from './AddEditAvatarModal'
 import AvatarTable from './AvatarTable'
 
 export default function Avatars() {
   const { t } = useTranslation()
+  const search = useHookstate({ local: '', query: '' })
+  const debouncedSearchQueryRef = useRef<ReturnType<typeof setTimeout>>()
+
+  useEffect(() => clearTimeout(debouncedSearchQueryRef.current), [])
 
   return (
     <>
-      <div className="relative mb-6">
-        <Text fontSize="xl">{t('admin:components.avatar.avatars')}</Text>
-        <Button
-          startIcon={<HiPlus />}
-          size="small"
-          className="absolute right-0"
-          onClick={() => {
-            PopoverState.showPopupover(<AddEditAvatarModal />)
-          }}
-        >
-          {t('admin:components.project.addProject')}
-        </Button>
+      <div>
+        <Text fontSize="xl" className="mb-6">
+          {t('admin:components.avatar.avatars')}
+        </Text>
+        <div className="mb-4 flex justify-between">
+          <Input
+            placeholder={t('common:components.search')}
+            value={search.local.value}
+            onChange={(event) => {
+              search.local.set(event.target.value)
+
+              if (debouncedSearchQueryRef) {
+                clearTimeout(debouncedSearchQueryRef.current)
+              }
+
+              debouncedSearchQueryRef.current = setTimeout(() => {
+                search.query.set(event.target.value)
+              }, 100)
+            }}
+            className="dark:bg-[#1A1B1E]"
+            containerClassname="w-1/5 block"
+            icon={<HiMagnifyingGlass />}
+          />
+          <Button
+            startIcon={<HiPlus />}
+            size="small"
+            onClick={() => {
+              PopoverState.showPopupover(<AddEditAvatarModal />)
+            }}
+          >
+            {t('admin:components.project.addProject')}
+          </Button>
+        </div>
       </div>
-      <AvatarTable search="" />
+      <AvatarTable search={search.query.value} />
     </>
   )
 }
