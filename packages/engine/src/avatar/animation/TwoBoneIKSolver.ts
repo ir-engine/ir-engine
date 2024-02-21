@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Bone, MathUtils, Matrix4, Mesh, Object3D, Quaternion, Vector3 } from 'three'
 
+import { V_111 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { Matrices } from '../components/AvatarAnimationComponent'
 
 const sqrEpsilon = 1e-8
@@ -106,20 +107,23 @@ export function solveTwoBoneIK(
 
   rotAxis.crossVectors(rootToMidVector, midToTipVector)
 
-  rotation.setFromAxisAngle(rotAxis.normalize(), rotAngle)
+  worldBoneRotation.setFromAxisAngle(rotAxis.normalize(), rotAngle)
   const midWorldRot = getWorldQuaternion(mid.world, new Quaternion())
-  midWorldRot.premultiply(rotation)
+  midWorldRot.premultiply(worldBoneRotation)
   worldQuaternionToLocal(midWorldRot, root.world)
-  mid.local.compose(new Vector3().setFromMatrixPosition(mid.local), midWorldRot, new Vector3(1, 1, 1))
+  mid.local.compose(position.setFromMatrixPosition(mid.local), midWorldRot, V_111)
   mid.world.multiplyMatrices(root.world, mid.local)
   tip.world.multiplyMatrices(mid.world, tip.local)
 
-  rotation.setFromUnitVectors(acNorm.copy(rootToTipVector).normalize(), atNorm.copy(rootToTargetVector).normalize())
+  worldBoneRotation.setFromUnitVectors(
+    acNorm.copy(rootToTipVector).normalize(),
+    atNorm.copy(rootToTargetVector).normalize()
+  )
 
   const rootWorldRot = getWorldQuaternion(root.world, new Quaternion())
-  rootWorldRot.premultiply(rotation)
+  rootWorldRot.premultiply(worldBoneRotation)
   worldQuaternionToLocal(rootWorldRot, parentMatrix)
-  root.local.compose(new Vector3().setFromMatrixPosition(root.local), rootWorldRot, new Vector3(1, 1, 1))
+  root.local.compose(position.setFromMatrixPosition(root.local), rootWorldRot, V_111)
 
   /** Apply hint */
   if (hint) {
@@ -130,7 +134,7 @@ export function solveTwoBoneIK(
 
       midBoneWorldPosition.setFromMatrixPosition(mid.world)
       tipBoneWorldPosition.setFromMatrixPosition(tip.world)
-      //rootBoneWorldPosition.setFromMatrixPosition(root.world)
+
       rootToMidVector.subVectors(midBoneWorldPosition, rootBoneWorldPosition)
       rootToTipVector.subVectors(tipBoneWorldPosition, rootBoneWorldPosition)
       rootToHintVector.copy(hint).sub(rootBoneWorldPosition)
@@ -140,11 +144,11 @@ export function solveTwoBoneIK(
       ahProj.copy(rootToHintVector).addScaledVector(acNorm, -rootToHintVector.dot(acNorm))
 
       if (ahProj.lengthSq() > 0) {
-        rotation.setFromUnitVectors(abProj, ahProj)
+        worldBoneRotation.setFromUnitVectors(abProj, ahProj)
         const rootWorldRot = getWorldQuaternion(root.world, new Quaternion())
-        rootWorldRot.premultiply(rotation)
+        rootWorldRot.premultiply(worldBoneRotation)
         worldQuaternionToLocal(rootWorldRot, parentMatrix)
-        root.local.compose(new Vector3().setFromMatrixPosition(root.local), rootWorldRot, new Vector3(1, 1, 1))
+        root.local.compose(position.setFromMatrixPosition(root.local), rootWorldRot, V_111)
       }
     }
   }
@@ -209,6 +213,7 @@ const targetPos = new Vector3(),
   rootBoneWorldPosition = new Vector3(),
   midBoneWorldPosition = new Vector3(),
   tipBoneWorldPosition = new Vector3(),
+  worldBoneRotation = new Quaternion(),
   rotAxis = new Vector3(),
   rootToMidVector = new Vector3(),
   midToTipVector = new Vector3(),
@@ -220,4 +225,4 @@ const targetPos = new Vector3(),
   abProj = new Vector3(),
   ahProj = new Vector3(),
   targetRot = new Quaternion(),
-  rotation = new Quaternion()
+  position = new Vector3()
