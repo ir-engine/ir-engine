@@ -211,16 +211,12 @@ function createColliderDesc(entity: Entity, rootEntity: Entity, colliderDescOpti
 
   const scale = TransformComponent.getWorldScale(entity, new Vector3())
 
-  if (mesh?.geometry?.type === 'BoxGeometry') {
-    scale.multiplyScalar(0.5)
-  }
-
   let colliderDesc: ColliderDesc
 
   switch (shape as ShapeType) {
     case ShapeType.Cuboid:
       if (colliderDescOptions.shape === 'plane') colliderDesc = ColliderDesc.cuboid(10000, 0.001, 10000)
-      else colliderDesc = ColliderDesc.cuboid(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
+      else colliderDesc = ColliderDesc.cuboid(Math.abs(scale.x * 0.5), Math.abs(scale.y * 0.5), Math.abs(scale.z * 0.5))
       break
 
     case ShapeType.Ball:
