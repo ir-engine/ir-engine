@@ -46,7 +46,6 @@ import '@etherealengine/client/src/themes/base.css'
 import '@etherealengine/client/src/themes/components.css'
 import '@etherealengine/client/src/themes/utilities.css'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
-import 'daisyui/dist/full.css'
 import 'tailwindcss/tailwind.css'
 
 // import { useLocation } from 'react-router-dom'
@@ -121,7 +120,7 @@ const decorators = [
     // const engineState = useHookstate(getMutableState(EngineState))
 
     return (
-      <div className="w-full h-full container mx-auto">
+      <div className="container mx-auto h-full w-full">
         <Story />
         {projectComponents}
       </div>

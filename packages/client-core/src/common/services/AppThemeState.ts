@@ -30,6 +30,7 @@ import { defineState, getMutableState, getState, useHookstate } from '@ethereale
 import { AdminClientSettingsState } from '../../admin/services/Setting/ClientSettingService'
 import { AuthState } from '../../user/services/AuthService'
 
+/** @deprected this is the thene for mui pages, it will be replaced with ThemeService / ThemeState */
 export const AppThemeState = defineState({
   name: 'AppThemeState',
   initial: () => ({

@@ -32,7 +32,7 @@ const poolSize = 1
 const bvhWorkers: GenerateMeshBVHWorker[] = []
 const meshQueue: Mesh[] = []
 
-export function generateMeshBVH(mesh: Mesh | InstancedMesh) {
+export function generateMeshBVH(mesh: Mesh | InstancedMesh, signal: AbortSignal) {
   if (
     !mesh.isMesh ||
     (mesh as InstancedMesh).isInstancedMesh ||
@@ -48,14 +48,16 @@ export function generateMeshBVH(mesh: Mesh | InstancedMesh) {
   }
 
   meshQueue.push(mesh)
-  runBVHGenerator()
+  runBVHGenerator(signal)
 
   return new Promise<void>((resolve) => {
     ;(mesh as any).resolvePromiseBVH = resolve
   })
 }
 
-function runBVHGenerator() {
+function runBVHGenerator(signal: AbortSignal) {
+  if (signal.aborted) return
+
   for (const worker of bvhWorkers) {
     if (meshQueue.length < 1) {
       break
@@ -69,7 +71,7 @@ function runBVHGenerator() {
 
     worker.generate(mesh.geometry).then((bvh) => {
       mesh.geometry.boundsTree = bvh
-      runBVHGenerator()
+      runBVHGenerator(signal)
       ;(mesh as any).resolvePromiseBVH && (mesh as any).resolvePromiseBVH()
     })
   }

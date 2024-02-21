@@ -55,7 +55,7 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
-import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import { useGLTF, useTexture } from '../../assets/functions/resourceHooks'
 import getFirstMesh from '../util/meshUtils'
 
 export const ParticleState = defineState({
@@ -802,6 +802,61 @@ export const ParticleSystemComponent = defineComponent({
     const component = componentState.value
     const batchRenderer = useHookstate(getMutableState(ParticleState).batchRenderer)
 
+    const [geoDependency, unloadGeo] = useGLTF(component.systemParameters.instancingGeometry!, entity, {}, (url) => {
+      metadata.geometries.nested(url).set(none)
+    })
+    const [shapeMesh, unloadMesh] = useGLTF(component.systemParameters.shape.mesh!, entity, {}, (url) => {
+      metadata.geometries.nested(url).set(none)
+    })
+    const [textureState, unloadTexture] = useTexture(component.systemParameters.texture!, entity, {}, (url) => {
+      metadata.textures.nested(url).set(none)
+      dudMaterial.map.set(none)
+    })
+
+    const metadata = useHookstate({ textures: {}, geometries: {}, materials: {} } as ParticleSystemMetadata)
+    const dudMaterial = useHookstate(
+      new MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: component.systemParameters.transparent ?? true,
+        blending: component.systemParameters.blending as Blending
+      })
+    )
+
+    useEffect(() => {
+      //add dud material
+      componentState.systemParameters.material.set('dud')
+      metadata.materials.nested('dud').set(dudMaterial.get(NO_PROXY))
+
+      return () => {
+        unloadGeo()
+        unloadMesh()
+        unloadTexture()
+      }
+    }, [])
+
+    useEffect(() => {
+      if (!geoDependency.value || !geoDependency.value.scene) return
+
+      const scene = geoDependency.value.scene
+      const geo = getFirstMesh(scene)?.geometry
+      !!geo && metadata.geometries.nested(component.systemParameters.instancingGeometry!).set(geo)
+    }, [geoDependency])
+
+    useEffect(() => {
+      if (!shapeMesh.value || !shapeMesh.value.scene) return
+
+      const scene = shapeMesh.value.scene
+      const mesh = getFirstMesh(scene)
+      mesh && metadata.geometries.nested(component.systemParameters.shape.mesh!).set(mesh.geometry)
+    }, [shapeMesh])
+
+    useEffect(() => {
+      const texture = textureState.get(NO_PROXY)
+      if (!texture) return
+      metadata.textures.nested(component.systemParameters.texture!).set(texture)
+      dudMaterial.map.set(texture)
+    }, [textureState])
+
     useEffect(() => {
       if (component.system) {
         const emitterAsObj3D = component.system.emitter as unknown as Object3D
@@ -842,59 +897,18 @@ export const ParticleSystemComponent = defineComponent({
         component.systemParameters.texture &&
         AssetLoader.getAssetClass(component.systemParameters.texture) === AssetClass.Image
 
-      const loadDependencies: Promise<any>[] = []
-      const metadata: ParticleSystemMetadata = { textures: {}, geometries: {}, materials: {} }
+      const loadedEmissionGeo = (doLoadEmissionGeo && shapeMesh.value) || !doLoadEmissionGeo
+      const loadedInstanceGeo = (doLoadInstancingGeo && geoDependency.value) || !doLoadInstancingGeo
+      const loadedTexture = (doLoadTexture && textureState.value) || !doLoadTexture
 
-      //add dud material
-      componentState.systemParameters.material.set('dud')
-      const dudMaterial = new MeshBasicMaterial({
-        color: 0xffffff,
-        transparent: component.systemParameters.transparent ?? true,
-        blending: component.systemParameters.blending as Blending
-      })
-      metadata.materials['dud'] = dudMaterial
+      if (loadedEmissionGeo && loadedInstanceGeo && loadedTexture) {
+        const processedParms = JSON.parse(JSON.stringify(component.systemParameters)) as ExpandedSystemJSON
 
-      const processedParms = JSON.parse(JSON.stringify(component.systemParameters)) as ExpandedSystemJSON
-
-      function loadGeoDependency(src: string) {
-        return new Promise((resolve) => {
-          AssetLoader.load(src, {}, ({ scene }: GLTF) => {
-            const geo = getFirstMesh(scene)?.geometry
-            !!geo && (metadata.geometries[src] = geo)
-            resolve(null)
-          })
-        })
+        componentState._loadIndex.set(componentState._loadIndex.value + 1)
+        const currentIndex = componentState._loadIndex.value
+        currentIndex === componentState._loadIndex.value && initParticleSystem(processedParms, metadata.value)
       }
 
-      doLoadEmissionGeo &&
-        loadDependencies.push(
-          new Promise((resolve) => {
-            AssetLoader.load(component.systemParameters.shape.mesh!, {}, ({ scene }: GLTF) => {
-              const mesh = getFirstMesh(scene)
-              mesh && (metadata.geometries[component.systemParameters.shape.mesh!] = mesh.geometry)
-              resolve(null)
-            })
-          })
-        )
-
-      doLoadInstancingGeo && loadDependencies.push(loadGeoDependency(component.systemParameters.instancingGeometry!))
-
-      doLoadTexture &&
-        loadDependencies.push(
-          new Promise((resolve) => {
-            AssetLoader.load(component.systemParameters.texture!, {}, (texture: Texture) => {
-              metadata.textures[component.systemParameters.texture!] = texture
-              dudMaterial.map = texture
-              resolve(null)
-            })
-          })
-        )
-
-      componentState._loadIndex.set(componentState._loadIndex.value + 1)
-      const currentIndex = componentState._loadIndex.value
-      Promise.all(loadDependencies).then(() => {
-        currentIndex === componentState._loadIndex.value && initParticleSystem(processedParms, metadata)
-      })
       return () => {
         if (component.system) {
           const index = batchRenderer.value.systemToBatchIndex.get(component.system)
@@ -906,9 +920,16 @@ export const ParticleSystemComponent = defineComponent({
             if (typeof value?.dispose === 'function') value.dispose()
           }
           batch.dispose()
+          batchRenderer.value.systemToBatchIndex.clear()
+          for (let i = 0; i < batchRenderer.value.batches.length; i++) {
+            for (const system of batchRenderer.value.batches[i].systems) {
+              batchRenderer.value.systemToBatchIndex.set(system, i)
+            }
+          }
         }
       }
-    }, [componentState._refresh])
+    }, [geoDependency, shapeMesh, textureState, componentState._refresh])
+
     return null
   }
 })

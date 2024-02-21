@@ -37,7 +37,8 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 
 import Dialog from '@mui/material/Dialog'
 
-import { scenePath } from '@etherealengine/common/src/schema.type.module'
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { SceneDataType, scenePath } from '@etherealengine/common/src/schema.type.module'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SceneServices, SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
@@ -48,6 +49,7 @@ import { onNewScene, saveScene, setSceneInState } from '../functions/sceneFuncti
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
+import { SelectionState } from '../services/SelectionServices'
 import './EditorContainer.css'
 import AssetDropZone from './assets/AssetDropZone'
 import { ProjectBrowserPanelTab } from './assets/ProjectBrowserPanel'
@@ -162,7 +164,7 @@ const onCloseProject = () => {
 
 const onSaveAs = async () => {
   const { projectName, sceneName } = getState(EditorState)
-  const { sceneLoaded, sceneModified } = useHookstate(getMutableState(SceneState))
+  const { sceneLoaded, sceneModified } = getState(SceneState)
 
   // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
   if (!sceneLoaded) {
@@ -172,7 +174,7 @@ const onSaveAs = async () => {
 
   const abortController = new AbortController()
   try {
-    if (sceneName || sceneModified.value) {
+    if (sceneName || sceneModified) {
       const result: { name: string } | void = await new Promise((resolve) => {
         DialogState.setDialog(
           <SaveNewSceneDialog initialName={Engine.instance.scene.name} onConfirm={resolve} onCancel={resolve} />
@@ -181,10 +183,10 @@ const onSaveAs = async () => {
       DialogState.setDialog(null)
       if (result?.name && projectName) {
         await saveScene(projectName, result.name, abortController.signal)
-        sceneModified.set(false)
-        const newSceneData = await Engine.instance.api
+        getMutableState(SceneState).sceneModified.set(false)
+        const newSceneData = (await Engine.instance.api
           .service(scenePath)
-          .get(null, { query: { project: projectName, name: result.name, metadataOnly: true } })
+          .get('', { query: { project: projectName, name: result.name, metadataOnly: true } })) as SceneDataType
         setSceneInState(newSceneData.scenePath)
       }
     }
@@ -199,7 +201,13 @@ const onSaveAs = async () => {
 const onImportAsset = async () => {
   const { projectName } = getState(EditorState)
 
-  if (projectName) await inputFileWithAddToScene({ projectName })
+  if (projectName) {
+    try {
+      await inputFileWithAddToScene({ projectName })
+    } catch (err) {
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+    }
+  }
 }
 
 const onSaveScene = async () => {
@@ -405,6 +413,12 @@ const EditorContainer = () => {
   useEffect(() => {
     if (!sceneID.value) return
     return SceneServices.setCurrentScene(sceneID.value)
+  }, [sceneID])
+
+  useEffect(() => {
+    return () => {
+      getMutableState(SelectionState).selectedEntities.set([])
+    }
   }, [sceneID])
 
   useEffect(() => {

@@ -34,12 +34,11 @@ import {
   Quaternion,
   Raycaster,
   Sphere,
-  Texture,
   Vector3
 } from 'three'
 
 import config from '@etherealengine/common/src/config'
-import { defineState, getMutableState, getState, hookstate, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, defineState, getMutableState, getState, hookstate, useHookstate } from '@etherealengine/hyperflux'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
@@ -85,7 +84,7 @@ import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { XRLightProbeState } from '@etherealengine/spatial/src/xr/XRLightProbeSystem'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { useTexture } from '../../assets/functions/resourceHooks'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { useMeshOrModel } from '../components/ModelComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
@@ -114,6 +113,7 @@ const raycasterPosition = new Vector3()
 
 const EntityCSMReactor = (props: { entity: Entity }) => {
   const activeLightEntity = props.entity
+  const renderSettings = useHookstate(getMutableState(RenderSettingsState))
 
   const directionalLightComponent = useComponent(activeLightEntity, DirectionalLightComponent)
   const shadowMapResolution = useHookstate(getMutableState(RendererState).shadowMapResolution)
@@ -128,14 +128,15 @@ const EntityCSMReactor = (props: { entity: Entity }) => {
         light: directionalLight,
         shadowBias: directionalLightComponent.shadowBias.value,
         maxFar: directionalLightComponent.cameraFar.value,
-        lightIntensity: directionalLightComponent.intensity.value
+        lightIntensity: directionalLightComponent.intensity.value,
+        cascades: renderSettings.cascades.value
       })
     )
     return () => {
       getState(RendererState).csm?.dispose()
       getMutableState(RendererState).csm.set(null)
     }
-  }, [directionalLightComponent.useInCSM])
+  }, [directionalLightComponent.useInCSM, renderSettings.cascades])
 
   /** Must run after scene object system to ensure source light is not lit */
   useExecute(
@@ -412,15 +413,22 @@ const reactor = () => {
 
   const useShadows = useShadowsEnabled()
 
+  const [shadowTexture, unload] = useTexture(
+    `${config.client.fileServer}/projects/default-project/assets/drop-shadow.png`
+  )
+
   useEffect(() => {
-    AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/assets/drop-shadow.png`).then(
-      (texture: Texture) => {
-        shadowMaterial.map = texture
-        shadowMaterial.needsUpdate = true
-        shadowState.set(shadowMaterial)
-      }
-    )
+    return unload
   }, [])
+
+  useEffect(() => {
+    const texture = shadowTexture.get(NO_PROXY)
+    if (!texture) return
+
+    shadowMaterial.map = texture
+    shadowMaterial.needsUpdate = true
+    shadowState.set(shadowMaterial)
+  }, [shadowTexture])
 
   EngineRenderer.instance.renderer.shadowMap.enabled = EngineRenderer.instance.renderer.shadowMap.autoUpdate =
     useShadows

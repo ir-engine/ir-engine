@@ -26,13 +26,22 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import {
+  NO_PROXY,
+  defineState,
+  getMutableState,
+  getState,
+  none,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
 
+import config from '@etherealengine/common/src/config'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   getComponent,
   getOptionalComponent,
+  hasComponent,
   removeComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -51,19 +60,23 @@ import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/componen
 import { TransformSystem } from '@etherealengine/spatial/src/transform/TransformModule'
 import { compareDistanceToCamera } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { XRLeftHandComponent, XRRightHandComponent } from '@etherealengine/spatial/src/xr/XRComponents'
 import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
+import { useBatchGLTF } from '../../assets/functions/resourceHooks'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
 import { AvatarHeadDecapComponent, AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
+import { AnimationState } from '../AnimationManager'
 import { IKSerialization } from '../IKSerialization'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets, preloadedAnimations } from '../animation/Util'
+import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { getArmIKHint } from '../animation/getArmIKHint'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
-import { loadBundledAnimations } from '../functions/avatarFunctions'
+import { retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 import { LocalAvatarState } from '../state/AvatarState'
 import { AnimationSystem } from './AnimationSystem'
@@ -286,16 +299,64 @@ const execute = () => {
         leftFootTargetBlendWeight
       )
     }
+
+    if (hasComponent(entity, XRRightHandComponent)) {
+      applyHandRotationFK(rigComponent.vrm, 'right', getComponent(entity, XRRightHandComponent).rotations)
+    }
+
+    if (hasComponent(entity, XRLeftHandComponent)) {
+      applyHandRotationFK(rigComponent.vrm, 'left', getComponent(entity, XRLeftHandComponent).rotations)
+    }
+
     updateVRMRetargeting(rigComponent.vrm, entity)
+
+    /** temporary hack for normalized bones to work with ik solves */
+    if (headTargetBlendWeight)
+      for (const boneName of VRMHumanBoneList) {
+        if (normalizedRig[boneName]) {
+          if (boneName == 'hips') normalizedRig[boneName]!.node.matrixWorld.copy(transform.matrixWorld)
+          else normalizedRig[boneName]!.node.updateMatrixWorld()
+        }
+      }
   }
 }
 
 const reactor = () => {
-  useEffect(() => {
-    if (isClient) {
-      loadBundledAnimations([preloadedAnimations.locomotion, preloadedAnimations.emotes])
-    }
+  /**loads animation bundles. assumes the bundle is a glb */
+  const animations = [preloadedAnimations.locomotion, preloadedAnimations.emotes]
+  const [gltfs, unload] = useBatchGLTF(
+    animations.map((animationFile) => {
+      return `${config.client.fileServer}/projects/default-project/assets/animations/${animationFile}.glb`
+    })
+  )
+  const manager = useMutableState(AnimationState)
 
+  useEffect(() => {
+    return unload
+  }, [])
+
+  useEffect(() => {
+    const assets = gltfs.get(NO_PROXY)
+    if (assets.length !== animations.length) return
+    for (let i = 0; i < assets.length; i++) {
+      const asset = assets[i]
+      if (asset && !manager.loadedAnimations[animations[i]].value) {
+        // delete unneeded geometry data to save memory
+        asset.scene.traverse((node) => {
+          delete (node as any).geometry
+          delete (node as any).material
+        })
+        for (let i = 0; i < asset.animations.length; i++) {
+          retargetAnimationClip(asset.animations[i], asset.scene)
+        }
+        //ensure animations are always placed in the scene
+        asset.scene.animations = asset.animations
+        manager.loadedAnimations[animations[i]].set(asset)
+      }
+    }
+  }, [gltfs])
+
+  useEffect(() => {
     const networkState = getMutableState(NetworkState)
 
     networkState.networkSchema[IKSerialization.ID].set({

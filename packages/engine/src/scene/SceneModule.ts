@@ -31,7 +31,6 @@ import { NoiseOffsetSystem } from '../scene/materials/constants/plugins/NoiseOff
 import { MaterialLibrarySystem } from '../scene/materials/systems/MaterialLibrarySystem'
 import { CameraSettingsComponent } from './components/CameraSettingsComponent'
 import { CloudComponent } from './components/CloudComponent'
-import { ColliderComponent } from './components/ColliderComponent'
 import { EnvMapBakeComponent } from './components/EnvMapBakeComponent'
 import { EnvmapComponent } from './components/EnvmapComponent'
 import { FogSettingsComponent } from './components/FogSettingsComponent'
@@ -71,7 +70,6 @@ import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
 import { SceneObjectDynamicLoadSystem } from './systems/SceneObjectDynamicLoadSystem'
 import { SceneObjectSystem } from './systems/SceneObjectSystem'
 import { ShadowSystem } from './systems/ShadowSystem'
-import { TriggerSystem } from './systems/TriggerSystem'
 import { VariantSystem } from './systems/VariantSystem'
 
 /** This const MUST be kept here, to ensure all components definitions are loaded by the time the scene loading occurs */
@@ -81,7 +79,6 @@ export const SceneComponents = [
   GrabbableComponent,
   CameraSettingsComponent,
   CloudComponent,
-  ColliderComponent,
   EnvMapBakeComponent,
   EnvmapComponent,
   FogSettingsComponent,
@@ -129,6 +126,5 @@ export {
   SceneObjectSystem,
   SDFSystem,
   ShadowSystem,
-  TriggerSystem,
   VariantSystem
 }

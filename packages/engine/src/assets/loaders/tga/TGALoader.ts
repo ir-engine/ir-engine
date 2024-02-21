@@ -23,7 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { FileLoader, Loader, Texture } from 'three'
+import { Texture } from 'three'
+import { FileLoader } from '../base/FileLoader'
+import { Loader } from '../base/Loader'
 
 declare const OffscreenCanvas: {
   prototype: any
@@ -37,7 +39,8 @@ export class TGALoader extends Loader {
     url: string,
     onLoad?: (texture: Texture) => void,
     onProgress?: (event: ProgressEvent) => void,
-    onError?: (event: ErrorEvent) => void
+    onError?: (event: ErrorEvent) => void,
+    signal?: AbortSignal
   ): Texture {
     const texture = new Texture()
 
@@ -56,7 +59,8 @@ export class TGALoader extends Loader {
         }
       },
       onProgress,
-      onError
+      onError,
+      signal
     )
 
     return texture

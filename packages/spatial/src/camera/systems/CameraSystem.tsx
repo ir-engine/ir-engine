@@ -49,6 +49,7 @@ import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectLayerComponents } from '../../renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import {
   ComputedTransformComponent,
@@ -117,7 +118,7 @@ export const updateCameraTargetRotation = (cameraEntity: Entity) => {
   followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
 }
 
-const cameraLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Camera], MeshComponent])
+const cameraLayerQuery = defineQuery([VisibleComponent, ObjectLayerComponents[ObjectLayers.Camera], MeshComponent])
 
 export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
   const followCamera = getComponent(cameraEntity, FollowCameraComponent)
@@ -184,7 +185,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   let maxDistance = followCamera.zoomLevel
   let isInsideWall = false
 
-  targetPosition.copy(targetTransform.position).add(followCamera.offset)
+  targetPosition.copy(followCamera.offset).applyQuaternion(targetTransform.rotation).add(targetTransform.position)
 
   // Run only if not in first person mode
   if (followCamera.raycastProps.enabled && followCamera.zoomLevel >= followCamera.minDistance) {
@@ -196,7 +197,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   const newZoomDistance = Math.min(followCamera.zoomLevel, maxDistance)
 
   // Zoom smoothing
-  let smoothingSpeed = isInsideWall ? 0.1 : 0.3
+  const smoothingSpeed = isInsideWall ? 0.1 : 0.3
   const deltaSeconds = getState(ECSState).deltaSeconds
 
   followCamera.distance = smoothDamp(

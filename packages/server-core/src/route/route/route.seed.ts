@@ -63,6 +63,10 @@ export async function seed(knex: Knex): Promise<void> {
       },
       {
         project: 'default-project',
+        route: '/xadm'
+      },
+      {
+        project: 'default-project',
         route: '/chat'
       }
     ].map(async (item) => ({

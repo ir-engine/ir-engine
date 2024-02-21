@@ -35,7 +35,6 @@ import {
 	ColorManagement,
 	DirectionalLight,
 	DoubleSide,
-	FileLoader,
 	FrontSide,
 	Group,
 	ImageBitmapLoader,
@@ -53,7 +52,6 @@ import {
 	LinearMipmapLinearFilter,
 	LinearMipmapNearestFilter,
 	LinearSRGBColorSpace,
-	Loader,
 	LoaderUtils,
 	Material,
 	MathUtils,
@@ -92,6 +90,11 @@ import {
 	SRGBColorSpace,
 	InstancedBufferAttribute
 } from 'three';
+
+import { FileLoader } from '../base/FileLoader';
+import { Loader } from '../base/Loader';
+
+import { ResourceType } from "../../state/ResourceState"
 
 /**
  * @param {BufferGeometry} geometry
@@ -307,7 +310,7 @@ class GLTFLoader extends Loader {
 
 	}
 
-	load( url, onLoad, onProgress, onError ) {
+	load( url, onLoad, onProgress, onError, signal ) {
 
 		const scope = this;
 
@@ -374,7 +377,7 @@ class GLTFLoader extends Loader {
 
 			}
 
-		}, onProgress, _onError );
+		}, onProgress, _onError, signal );
 
 	}
 
@@ -3310,6 +3313,9 @@ class GLTFParser {
 
 			parser.associations.set( texture, { textures: textureIndex } );
 
+			if(parser.fileLoader.manager.itemEndFor) 
+				parser.fileLoader.manager.itemEndFor(parser.options.url, ResourceType.Texture, texture.source.uuid, texture)
+
 			return texture;
 
 		} ).catch( function (error) {
@@ -3724,6 +3730,9 @@ class GLTFParser {
 			parser.associations.set( material, { materials: materialIndex } );
 
 			if ( materialDef.extensions ) addUnknownExtensionsToUserData( extensions, material, materialDef );
+
+			if(parser.fileLoader.manager.itemEndFor) 
+				parser.fileLoader.manager.itemEndFor(parser.options.url, ResourceType.Material, material.uuid, material)
 
 			return material;
 
@@ -4795,6 +4804,10 @@ function addPrimitiveAttributes( geometry, primitiveDef, parser ) {
 	computeBounds( geometry, primitiveDef, parser );
 
 	return Promise.all( pending ).then( function () {
+
+		if(parser.fileLoader.manager.itemEndFor) 
+			parser.fileLoader.manager.itemEndFor(parser.options.url, ResourceType.Geometry, geometry.uuid, geometry)
+
 
 		return primitiveDef.targets !== undefined
 			? addMorphTargets( geometry, primitiveDef.targets, parser )

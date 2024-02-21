@@ -52,6 +52,7 @@ export const projectSchema = Type.Object(
       format: 'uuid'
     }),
     name: Type.String(),
+    enabled: Type.Boolean(),
     thumbnail: Type.Optional(Type.String()),
     repositoryPath: Type.String(),
     version: Type.Optional(Type.String()),
@@ -96,6 +97,7 @@ export interface ProjectPatch extends Static<typeof projectPatchSchema> {}
 export const projectQueryProperties = Type.Pick(projectSchema, [
   'id',
   'name',
+  'enabled',
   'thumbnail',
   'repositoryPath',
   'version',

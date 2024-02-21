@@ -40,7 +40,6 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
@@ -62,7 +61,7 @@ import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { LocalAvatarState } from '../state/AvatarState'
-import { bindAnimationClipFromMixamo, retargetAnimationClip } from './retargetMixamoRig'
+import { bindAnimationClipFromMixamo } from './retargetMixamoRig'
 
 declare module '@pixiv/three-vrm/types/VRM' {
   export interface VRM {
@@ -94,7 +93,6 @@ export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
       scene: model.scene,
       meta: { name: model.scene.children[0].name } as VRM1Meta
     })
-    scene.add(vrm.humanoid.normalizedHumanBonesRoot)
     if (!vrm.userData) vrm.userData = {}
     return vrm
   }
@@ -152,7 +150,7 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   rig.leftToes && rig.leftToes.node.getWorldPosition(leftToesPos)
   rig.leftLowerLeg.node.getWorldPosition(leftLowerLegPos)
   rig.leftUpperLeg.node.getWorldPosition(leftUpperLegPos)
-  rig.leftEye ? rig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos)
+  rig.leftEye ? rig.leftEye?.node.getWorldPosition(eyePos) : eyePos.copy(headPos).setY(headPos.y + 0.1) // fallback to rough estimation if no eye bone is present
 
   const avatarComponent = getMutableComponent(entity, AvatarComponent)
   avatarComponent.avatarHeight.set(size.y)
@@ -205,32 +203,8 @@ export const retargetAvatarAnimations = (entity: Entity) => {
   }
   setComponent(entity, AnimationComponent, {
     animations: animations,
-    mixer: new AnimationMixer(rigComponent.normalizedRig.hips.node)
+    mixer: new AnimationMixer(rigComponent.vrm.humanoid.normalizedHumanBonesRoot)
   })
-}
-
-/**loads animation bundles. assumes the bundle is a glb */
-export const loadBundledAnimations = (animationFiles: string[]) => {
-  const manager = getMutableState(AnimationState)
-
-  //preload animations
-  for (const animationFile of animationFiles) {
-    AssetLoader.loadAsync(
-      `${config.client.fileServer}/projects/default-project/assets/animations/${animationFile}.glb`
-    ).then((asset: GLTF) => {
-      // delete unneeded geometry data to save memory
-      asset.scene.traverse((node) => {
-        delete (node as any).geometry
-        delete (node as any).material
-      })
-      for (let i = 0; i < asset.animations.length; i++) {
-        retargetAnimationClip(asset.animations[i], asset.scene)
-      }
-      //ensure animations are always placed in the scene
-      asset.scene.animations = asset.animations
-      manager.loadedAnimations[animationFile].set(asset)
-    })
-  }
 }
 
 /**

@@ -56,7 +56,6 @@ import { ComponentJsonType, SceneID } from '@etherealengine/common/src/schema.ty
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { EditorHelperState } from '../services/EditorHelperState'
@@ -353,10 +352,10 @@ const positionObject = (
 
     updateComponent(entity, TransformComponent, { position: transform.position })
 
-    if (hasComponent(entity, RigidBodyComponent)) {
-      getComponent(entity, RigidBodyComponent).position.copy(transform.position)
-      getComponent(entity, RigidBodyComponent).body.setTranslation(transform.position, true)
-    }
+    iterateEntityNode(entity, (entity) => {
+      computeTransformMatrix(entity)
+      TransformComponent.dirtyTransforms[entity] = true
+    })
   }
 }
 
@@ -367,13 +366,12 @@ const rotateObject = (nodes: Entity[], rotations: Euler[], space = getState(Edit
   for (let i = 0; i < nodes.length; i++) {
     const entity = nodes[i]
 
-    const transform = getComponent(entity, TransformComponent)
-
     T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
 
+    const transform = getComponent(entity, TransformComponent)
+
     if (space === TransformSpace.local) {
-      updateComponent(entity, TransformComponent, { rotation: T_QUAT_1 })
-      computeTransformMatrix(entity)
+      transform.rotation.copy(T_QUAT_1)
     } else {
       const entityTreeComponent = getComponent(entity, EntityTreeComponent)
       const parentTransform = entityTreeComponent.parentEntity
@@ -390,10 +388,10 @@ const rotateObject = (nodes: Entity[], rotations: Euler[], space = getState(Edit
 
     updateComponent(entity, TransformComponent, { rotation: transform.rotation })
 
-    if (hasComponent(entity, RigidBodyComponent)) {
-      getComponent(entity, RigidBodyComponent).rotation.copy(transform.rotation)
-      getComponent(entity, RigidBodyComponent).body.setRotation(transform.rotation, true)
-    }
+    iterateEntityNode(entity, (entity) => {
+      computeTransformMatrix(entity)
+      TransformComponent.dirtyTransforms[entity] = true
+    })
   }
 }
 
@@ -420,11 +418,6 @@ const rotateAround = (entities: Entity[], axis: Vector3, angle: number, pivot: V
       .decompose(transform.position, transform.rotation, transform.scale)
 
     updateComponent(entity, TransformComponent, { rotation: transform.rotation })
-
-    if (hasComponent(entity, RigidBodyComponent)) {
-      getComponent(entity, RigidBodyComponent).rotation.copy(transform.rotation)
-      getComponent(entity, RigidBodyComponent).body.setRotation(transform.rotation, true)
-    }
   }
 }
 
@@ -451,7 +444,7 @@ const scaleObject = (entities: Entity[], scales: Vector3[], overrideScale = fals
   }
 }
 
-const reparentObject = (entities: Entity[], before?: Entity | null, parent?: Entity | null, updateSelection = true) => {
+const reparentObject = (entities: Entity[], before?: Entity | null, parent?: Entity | null) => {
   parent = parent ?? SceneState.getRootEntity(getState(SceneState).activeScene!)
   //cancelGrabOrPlacement()
 
@@ -491,10 +484,6 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent?: Ent
         }
       }
     }
-  }
-
-  if (updateSelection) {
-    EditorControlFunctions.replaceSelection(entities)
   }
 
   dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
@@ -589,7 +578,7 @@ const removeObject = (entities: Entity[]) => {
   dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
 }
 
-const replaceSelection = (entities: Entity[]) => {
+const replaceSelection = (entities: EntityUUID[]) => {
   const current = getMutableState(SelectionState).selectedEntities.value
 
   if (entities.length === current.length) {
@@ -604,15 +593,13 @@ const replaceSelection = (entities: Entity[]) => {
   }
 
   const newSnapshot = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
-  newSnapshot.selectedEntities = entities
-    .map((node) => getComponent(node, UUIDComponent))
-    .filter(Boolean) as EntityUUID[]
+  newSnapshot.selectedEntities = entities.filter(Boolean) as EntityUUID[]
 
   SelectionState.updateSelection(entities)
   // dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
 }
 
-const toggleSelection = (entities: Entity[]) => {
+const toggleSelection = (entities: EntityUUID[]) => {
   const selectedEntities = getMutableState(SelectionState).selectedEntities.value.slice(0)
 
   for (let i = 0; i < entities.length; i++) {
@@ -627,15 +614,13 @@ const toggleSelection = (entities: Entity[]) => {
   }
 
   const newSnapshot = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
-  newSnapshot.selectedEntities = selectedEntities
-    .map((node) => getComponent(node, UUIDComponent))
-    .filter(Boolean) as EntityUUID[]
+  newSnapshot.selectedEntities = selectedEntities.filter(Boolean) as EntityUUID[]
 
   SelectionState.updateSelection(entities)
   // dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
 }
 
-const addToSelection = (entities: Entity[]) => {
+const addToSelection = (entities: EntityUUID[]) => {
   const selectedEntities = getMutableState(SelectionState).selectedEntities.value.slice(0)
 
   for (let i = 0; i < entities.length; i++) {
@@ -645,9 +630,7 @@ const addToSelection = (entities: Entity[]) => {
   }
 
   const newSnapshot = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
-  newSnapshot.selectedEntities = selectedEntities
-    .map((node) => getComponent(node, UUIDComponent))
-    .filter(Boolean) as EntityUUID[]
+  newSnapshot.selectedEntities = selectedEntities.filter(Boolean) as EntityUUID[]
 
   SelectionState.updateSelection(entities)
   // dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))

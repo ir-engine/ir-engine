@@ -23,8 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { FileLoader, Loader, LoadingManager, ShapePath } from 'three'
+import { LoadingManager, ShapePath } from 'three'
 
+import { FileLoader } from '../loaders/base/FileLoader'
+import { Loader } from '../loaders/base/Loader'
 export class FontLoader extends Loader {
   constructor(manager?: LoadingManager) {
     super(manager)

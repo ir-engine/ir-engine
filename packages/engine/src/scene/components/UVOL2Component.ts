@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { usePrevious } from '@etherealengine/common/src/utils/usePrevious'
 import {
   defineComponent,
@@ -48,14 +49,17 @@ import {
   CompressedTexture,
   Group,
   InterleavedBufferAttribute,
+  LinearFilter,
   Material,
   Matrix3,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
+  SRGBColorSpace,
   ShaderLib,
   ShaderMaterial,
   SphereGeometry,
+  Texture,
   UniformsLib,
   UniformsUtils,
   Vector2
@@ -113,11 +117,14 @@ export const calculatePriority = (manifest: PlayerManifest) => {
     occlusion: [] as string[]
   }
 
+  let useVideoTexture = false
+
   const textureTypes = Object.keys(manifest.texture)
   for (let i = 0; i < textureTypes.length; i++) {
     const textureType = textureTypes[i] as TextureType
     const currentTextureTargets = Object.keys(manifest.texture[textureType]!.targets)
     const supportedTextures = [] as string[]
+    const videoTextures = [] as string[]
     currentTextureTargets.forEach((target) => {
       const targetData = manifest.texture[textureType]!.targets[target]
       if (isMobile || isMobileXRHeadset) {
@@ -130,10 +137,19 @@ export const calculatePriority = (manifest: PlayerManifest) => {
           supportedTextures.push(target)
         }
       }
+      if (targetData.format === 'video') {
+        videoTextures.push(target)
+      }
     })
     if (supportedTextures.length === 0) {
       // No supported textures, fallback to all textures
       supportedTextures.push(...currentTextureTargets)
+    }
+
+    if (videoTextures.length > 0 && isClient && !isMobile && !isMobileXRHeadset) {
+      supportedTextures.length = 0
+      useVideoTexture = true
+      supportedTextures.push(...videoTextures)
     }
 
     supportedTextures.sort((a, b) => {
@@ -150,7 +166,12 @@ export const calculatePriority = (manifest: PlayerManifest) => {
     textureTargets[textureType] = supportedTextures
   }
 
-  return [manifest, geometryTargets, textureTargets] as [PlayerManifest, string[], typeof textureTargets]
+  return [manifest, geometryTargets, textureTargets, useVideoTexture] as [
+    PlayerManifest,
+    string[],
+    typeof textureTargets,
+    boolean
+  ]
 }
 
 const getDefines = (manifest: PlayerManifest) => {
@@ -201,6 +222,7 @@ export const UVOL2Component = defineComponent({
       canPlay: false,
       manifestPath: '',
       data: {} as PlayerManifest,
+      useVideoTexture: true,
       hasAudio: false,
       bufferedUntil: 0,
       geometryInfo: {
@@ -306,8 +328,10 @@ export const UVOL2Component = defineComponent({
 
     if (!checkBuffered(component.geometryInfo.buffered, start, end)) return false
 
-    for (const textureType of component.textureInfo.textureTypes)
-      if (!checkBuffered(component.textureInfo[textureType].buffered, start, end)) return false
+    if (!component.useVideoTexture) {
+      for (const textureType of component.textureInfo.textureTypes)
+        if (!checkBuffered(component.textureInfo[textureType].buffered, start, end)) return false
+    }
 
     return true
   },
@@ -341,7 +365,6 @@ const loadTextureAsync = (url: string, repeat: Vector2, offset: Vector2) => {
         texture.repeat.copy(repeat)
         texture.offset.copy(offset)
         texture.updateMatrix()
-        // EngineRenderer.instance.renderer.initTexture(texture)
         resolve(texture)
       },
       undefined,
@@ -379,6 +402,7 @@ const resolvePath = (
   if (target !== undefined) {
     resolvedPath = resolvedPath.replace('[target]', target)
   }
+  index = index ?? 0
   if (index !== undefined) {
     const padLength = countHashes(resolvedPath)
     const paddedString = '[' + '#'.repeat(padLength) + ']'
@@ -426,7 +450,19 @@ function UVOL2Reactor() {
 
   const mediaElement = getMutableComponent(entity, MediaElementComponent).value
   const audioContext = getState(AudioState).audioContext
-  const audio = mediaElement.element
+  const media = mediaElement.element
+
+  const videoTexture = useMemo(() => {
+    const texture = new Texture(media)
+    texture.generateMipmaps = false
+    texture.minFilter = LinearFilter
+    texture.magFilter = LinearFilter
+    ;(texture as any).isVideoTexture = true
+    ;(texture as any).update = () => {}
+    texture.colorSpace = SRGBColorSpace
+    texture.flipY = false
+    return texture
+  }, [])
 
   const geometryBuffer = useMemo(
     () => new Map<string, (Mesh<BufferGeometry, Material> | BufferGeometry | KeyframeAttribute)[]>(),
@@ -542,11 +578,17 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       setComponent(entity, UVOLDissolveComponent)
     }
 
-    const [sortedManifest, sortedGeometryTargets, sortedTextureTargets] = calculatePriority(
+    const [sortedManifest, sortedGeometryTargets, sortedTextureTargets, useVideoTexture] = calculatePriority(
       component.data.get({ noproxy: true })
     )
     component.data.set(sortedManifest)
     component.geometryInfo.targets.set(sortedGeometryTargets)
+    component.useVideoTexture.set(useVideoTexture)
+    if (useVideoTexture) {
+      volumetric.useLoadingEffect.set(false)
+    } else {
+      volumetric.useLoadingEffect.set(true)
+    }
 
     const textureTypes = Object.keys(sortedManifest.texture) as TextureType[]
     component.textureInfo.textureTypes.set(textureTypes)
@@ -594,17 +636,63 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
     if (sortedManifest.audio) {
       component.hasAudio.set(true)
-      audio.src = resolvePath(sortedManifest.audio.path, component.manifestPath.value, sortedManifest.audio.formats[0])
-      audio.playbackRate = sortedManifest.audio.playbackRate
+      media.src = resolvePath(sortedManifest.audio.path, component.manifestPath.value, sortedManifest.audio.formats[0])
+      media.playbackRate = sortedManifest.audio.playbackRate
+    }
+
+    if (useVideoTexture) {
+      const target = sortedTextureTargets.baseColor[0]
+      media.src = resolvePath(
+        component.data.texture.baseColor.value.path,
+        component.manifestPath.value,
+        'video',
+        target,
+        undefined,
+        'baseColor'
+      )
+      // media.src = 'https://localhost:8642/projects/default-project/ubx_kimberly_bird_t2_2k_std_30fps.mp4'
+      media.preload = 'auto'
+      media.addEventListener('loadeddata', () => {
+        component.firstTextureFrameLoaded.set(true)
+      })
+      media.addEventListener('canplaythrough', () => {
+        component.initialTextureBuffersLoaded.set(true)
+      })
+      ;(material as ShaderMaterial).uniforms.map.value = videoTexture
+
+      // @ts-ignore
+      ;(material as ShaderMaterial).map = videoTexture
+      ;(material as ShaderMaterial).needsUpdate = true
     }
 
     volumetric.currentTrackInfo.currentTime.set(volumetric.currentTrackInfo.mediaStartTime.value)
     volumetric.currentTrackInfo.duration.set(sortedManifest.duration)
+
+    if (isClient && !isMobile && !isMobileXRHeadset) {
+      // Client's device is desktop.
+      // Fetch the highest quality textures & geometry
+
+      const targetsCount = component.geometryInfo.targets.value.length
+      component.geometryInfo.merge({
+        userTarget: targetsCount - 1,
+        currentTarget: targetsCount - 1
+      })
+
+      component.textureInfo.textureTypes.value.forEach((textureType) => {
+        const targetsCount = component.textureInfo[textureType].targets.value.length
+        component.textureInfo[textureType].merge({
+          currentTarget: targetsCount - 1,
+          userTarget: targetsCount - 1
+        })
+      })
+    }
+
     const intervalId = setInterval(bufferLoop, 500)
     bufferLoop() // calling now because setInterval will call after 1 second
 
     return () => {
       removeObjectFromGroup(entity, group)
+      media.pause()
       clearInterval(intervalId)
       for (const textureType in textureBuffer) {
         const currentTextureBuffer = textureBuffer.get(textureType)
@@ -639,11 +727,17 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         }
       }
       mesh.geometry.dispose()
-      audio.src = ''
+      media.src = ''
     }
   }, [])
 
   const engineState = getState(EngineState)
+
+  useEffect(() => {
+    if (component.useVideoTexture.value || volumetric.hasAudio.value) {
+      media.playbackRate = volumetric.currentTrackInfo.playbackRate.value
+    }
+  }, [volumetric.currentTrackInfo.playbackRate])
 
   useEffect(() => {
     if (!shadow) return
@@ -1027,8 +1121,10 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
   const bufferLoop = () => {
     fetchGeometry()
-    for (let i = 0; i < component.textureInfo.textureTypes.value.length; i++) {
-      fetchTextures(component.textureInfo.textureTypes[i].value)
+    if (!component.useVideoTexture.value) {
+      for (let i = 0; i < component.textureInfo.textureTypes.value.length; i++) {
+        fetchTextures(component.textureInfo.textureTypes[i].value)
+      }
     }
   }
 
@@ -1044,7 +1140,9 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       return
     }
     updateGeometry(volumetric.currentTrackInfo.currentTime.value)
-    updateAllTextures(volumetric.currentTrackInfo.currentTime.value)
+    if (!component.useVideoTexture.value) {
+      updateAllTextures(volumetric.currentTrackInfo.currentTime.value)
+    }
 
     if (volumetric.useLoadingEffect.value) {
       component.loadingEffectStarted.set(true)
@@ -1078,9 +1176,8 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       // Reset the loading effect's material
       mesh.material = material
       mesh.material.needsUpdate = true
-
-      if (component.hasAudio.value) {
-        handleAutoplay(audioContext, audio, volumetric)
+      if (component.hasAudio.value || component.useVideoTexture.value) {
+        handleAutoplay(audioContext, media, volumetric)
       } else {
         volumetric.paused.set(false)
       }
@@ -1095,8 +1192,8 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   useEffect(() => {
     if (volumetric.paused.value) {
       component.canPlay.set(false)
-      if (component.hasAudio.value) {
-        audio.pause()
+      if (component.hasAudio.value || component.useVideoTexture.value) {
+        media.pause()
       }
       return
     }
@@ -1110,8 +1207,8 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       mesh.material = material
       mesh.material.needsUpdate = true
     }
-    if (component.hasAudio.value) {
-      handleAutoplay(audioContext, audio, volumetric)
+    if (component.hasAudio.value || component.useVideoTexture.value) {
+      handleAutoplay(audioContext, media, volumetric)
     }
     component.canPlay.set(true)
   }, [volumetric.paused])
@@ -1551,6 +1648,9 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       ) {
         isWaitingNow = true
       }
+      if ((component.useVideoTexture.value || volumetric.hasAudio.value) && media.readyState < 3) {
+        isWaitingNow = true
+      }
 
       if (!isWaiting.current && !isWaitingNow) {
         // Continue
@@ -1570,14 +1670,14 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
 
     let _currentTime = -1
-    if (component.data.value.audio) {
-      _currentTime = audio.currentTime
+    if (component.data.value.audio || component.useVideoTexture.value) {
+      _currentTime = media.currentTime
     } else {
       _currentTime =
         volumetric.currentTrackInfo.mediaStartTime.value +
         (ecsState.elapsedSeconds - volumetric.currentTrackInfo.playbackStartDate.value)
+      _currentTime *= volumetric.currentTrackInfo.playbackRate.value
     }
-    _currentTime *= volumetric.currentTrackInfo.playbackRate.value
 
     startTransition(() => {
       volumetric.currentTrackInfo.currentTime.set(_currentTime)
@@ -1608,7 +1708,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       component.bufferedUntil.set(_bufferedUntil)
     })
 
-    if (volumetric.currentTrackInfo.currentTime.value > component.data.value.duration || audio.ended) {
+    if (volumetric.currentTrackInfo.currentTime.value > component.data.value.duration || media.ended) {
       if (component.data.deletePreviousBuffers.value === false && volumetric.playMode.value === PlayMode.loop) {
         volumetric.currentTrackInfo.currentTime.set(0)
         volumetric.currentTrackInfo.playbackStartDate.set(ecsState.elapsedSeconds)
@@ -1619,7 +1719,20 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
 
     updateGeometry(volumetric.currentTrackInfo.currentTime.value)
-    updateAllTextures(volumetric.currentTrackInfo.currentTime.value)
+
+    if (!component.useVideoTexture.value) {
+      updateAllTextures(volumetric.currentTrackInfo.currentTime.value)
+    } else {
+      videoTexture.colorSpace = SRGBColorSpace
+      if (!videoTexture.repeat.equals(repeat) || !videoTexture.offset.equals(offset)) {
+        videoTexture.repeat.copy(repeat)
+        videoTexture.offset.copy(offset)
+        videoTexture.updateMatrix()
+        ;(mesh.material as ShaderMaterial).uniforms.mapTransform.value.copy(videoTexture.matrix)
+      }
+    }
+
+    videoTexture.needsUpdate = true
   }
 
   useExecute(update, {
