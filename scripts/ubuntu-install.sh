@@ -24,6 +24,9 @@ set -e
 #   Continues installing docker-desktop after the user has downloaded the file and presses enter.
 # - Clones EE's main repository (@important does NOT use --depth=1)
 # - Installs all npm dependencies for the engine
+#
+# @howto The script can be run with this oneliner command:
+#        wget https://github.com/path/to/this/file.sh && bash -i file.sh
 
 Prefix="EE"
 # @description Shorthand that echoes the given info message with a prefix added before it. Accepts varargs.
