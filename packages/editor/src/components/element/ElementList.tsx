@@ -29,6 +29,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Component } from '@etherealengine/ecs/src/ComponentFunctions'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
+import { AudioAnalysisComponent } from '@etherealengine/engine/src/scene/components/AudioAnalysisComponent'
 import { ColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { GroundPlaneComponent } from '@etherealengine/engine/src/scene/components/GroundPlaneComponent'
@@ -89,7 +90,14 @@ export type SceneElementType = {
 }
 
 export const ComponentShelfCategories: Record<string, Component[]> = {
-  Files: [ModelComponent, VolumetricComponent, PositionalAudioComponent, VideoComponent, ImageComponent],
+  Files: [
+    ModelComponent,
+    VolumetricComponent,
+    PositionalAudioComponent,
+    AudioAnalysisComponent,
+    VideoComponent,
+    ImageComponent
+  ],
   'Scene Composition': [
     PrimitiveGeometryComponent,
     GroundPlaneComponent,

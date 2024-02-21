@@ -929,6 +929,7 @@
         "video": "Imports a 2D plane that accepts .mp4, .mkv, .avi",
         "variant": "Add model variant for level of detail",
         "audio": "Import audio clips, .mp3, .flac, .ogg, .wav, .m4a",
+        "audio-analyzer": "Analyze audio frequency",
         "image": "Imports an image into the scene",
         "ground-plane": "Create collision ground plane.",
         "group": "Collection of models or assets.",
