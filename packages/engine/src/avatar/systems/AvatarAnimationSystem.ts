@@ -237,7 +237,7 @@ const execute = () => {
       )
 
       //test blend code
-      normalizedRig.rightUpperArm.node.quaternion.setFromRotationMatrix(rigComponent.ikMatrices['rightUpperArm'].local) //.premultiply(rawRig.rightUpperArm.node.parent!.getWorldQuaternion(new Quaternion()))
+      normalizedRig.rightUpperArm.node.quaternion.setFromRotationMatrix(rigComponent.ikMatrices['rightUpperArm'].local)
       normalizedRig.rightLowerArm.node.quaternion.setFromRotationMatrix(rigComponent.ikMatrices['rightLowerArm'].local)
     }
 

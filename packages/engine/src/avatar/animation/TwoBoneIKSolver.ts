@@ -100,29 +100,24 @@ export function solveTwoBoneIK(
 
   const rootToTargetLength = rootToTargetVector.length()
 
-  if (hint) rootToHintVector.copy(hint).sub(rootBoneWorldPosition)
-
   const oldAngle = triangleAngle(rootToTipLength, rootToMidLength, midToTipLength)
   const newAngle = triangleAngle(rootToTargetLength, rootToMidLength, midToTipLength)
   const rotAngle = oldAngle - newAngle
 
   rotAxis.crossVectors(rootToMidVector, midToTipVector)
 
-  const midRot = new Quaternion().setFromAxisAngle(rotAxis.normalize(), rotAngle)
+  rotation.setFromAxisAngle(rotAxis.normalize(), rotAngle)
   const midWorldRot = getWorldQuaternion(mid.world, new Quaternion())
-  midWorldRot.premultiply(midRot)
+  midWorldRot.premultiply(rotation)
   worldQuaternionToLocal(midWorldRot, root.world)
   mid.local.compose(new Vector3().setFromMatrixPosition(mid.local), midWorldRot, new Vector3(1, 1, 1))
   mid.world.multiplyMatrices(root.world, mid.local)
   tip.world.multiplyMatrices(mid.world, tip.local)
 
-  const rootRot = new Quaternion().setFromUnitVectors(
-    acNorm.copy(rootToTipVector).normalize(),
-    atNorm.copy(rootToTargetVector).normalize()
-  )
+  rotation.setFromUnitVectors(acNorm.copy(rootToTipVector).normalize(), atNorm.copy(rootToTargetVector).normalize())
 
   const rootWorldRot = getWorldQuaternion(root.world, new Quaternion())
-  rootWorldRot.premultiply(rootRot)
+  rootWorldRot.premultiply(rotation)
   worldQuaternionToLocal(rootWorldRot, parentMatrix)
   root.local.compose(new Vector3().setFromMatrixPosition(root.local), rootWorldRot, new Vector3(1, 1, 1))
 
@@ -138,15 +133,16 @@ export function solveTwoBoneIK(
       //rootBoneWorldPosition.setFromMatrixPosition(root.world)
       rootToMidVector.subVectors(midBoneWorldPosition, rootBoneWorldPosition)
       rootToTipVector.subVectors(tipBoneWorldPosition, rootBoneWorldPosition)
+      rootToHintVector.copy(hint).sub(rootBoneWorldPosition)
 
       acNorm.copy(rootToTipVector).divideScalar(rootToTipLength)
       abProj.copy(rootToMidVector).addScaledVector(acNorm, -rootToMidVector.dot(acNorm)) // Prependicular component of vector projection
       ahProj.copy(rootToHintVector).addScaledVector(acNorm, -rootToHintVector.dot(acNorm))
 
       if (ahProj.lengthSq() > 0) {
-        rot.setFromUnitVectors(abProj, ahProj)
+        rotation.setFromUnitVectors(abProj, ahProj)
         const rootWorldRot = getWorldQuaternion(root.world, new Quaternion())
-        rootWorldRot.premultiply(rot)
+        rootWorldRot.premultiply(rotation)
         worldQuaternionToLocal(rootWorldRot, parentMatrix)
         root.local.compose(new Vector3().setFromMatrixPosition(root.local), rootWorldRot, new Vector3(1, 1, 1))
       }
@@ -224,4 +220,4 @@ const targetPos = new Vector3(),
   abProj = new Vector3(),
   ahProj = new Vector3(),
   targetRot = new Quaternion(),
-  rot = new Quaternion()
+  rotation = new Quaternion()
