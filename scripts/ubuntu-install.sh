@@ -1,4 +1,4 @@
-#!/bin/bash -i
+#!/bin/bash
 # @important Development Warning:
 # - The primary target user of this script is a non-technical user that is running EE for their first time.
 # - The script will fail at the first error to not confuse its user  `set -e`.
