@@ -2,8 +2,14 @@
 # @important Development Warning:
 # - The primary target user of this script is a non-technical user that is running EE for their first time.
 # - The script will fail at the first error to not confuse its user  `set -e`.
+# - Activating `set -u` will break because sourcing the default ubuntu `~/.bashrc` file will immediately stop the script with an error.
 # - This script must be run from an interactive shell with `bash -i`
-# - Activating `set -u` will break because sourcing the default ubuntu `~/.bashrc` file will stop the script.
+#   @todo Solve not needing an interactive shell. Explanation of the problem:
+#         The currently running shell won't understand that `nvm` was already sourced and it exists,
+#         as it is sourced on the script-spawned shell by the nvm installer, but not in the shell that called the script.
+#         The script will call for `nvm` in the caller shell, but it won't exist without first stopping the script.
+#   @todo (tied to the above) The script needs to be downloaded and then run. It cannot be piped to `wget` or `curl` as a oneliner.
+#         The script requires an interactive shell, and piping with an interactive shell lead to very unexpected results during QA testing.
 set -e
 
 # @fileoverview
@@ -20,14 +26,10 @@ set -e
 # - Installs all npm dependencies for the engine
 
 Prefix="EE"
-# @description Shorthand that echoes the given info message with a prefix added before it
-info () {
-  echo "$Prefix: $1"
-}
-# @description Shorthand that echoes the given warning message with a prefix added before it
-warn () {
-  echo "[$Prefix : WARNING] $1"
-}
+# @description Shorthand that echoes the given info message with a prefix added before it. Accepts varargs.
+info () { echo "$Prefix: " $@ ; }
+# @description Shorthand that echoes the given warning message with a prefix added before it. Accepts varargs.
+warn () { echo "[$Prefix : WARNING] " $@ ; }
 
 # Crash on non-Ubuntu distributions
 if [[ $(lsb_release -si) -ne "Ubuntu" ]] ; then
