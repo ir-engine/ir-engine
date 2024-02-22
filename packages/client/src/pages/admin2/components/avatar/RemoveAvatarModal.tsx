@@ -43,7 +43,7 @@ export default function RemoveAvatarModal({ avatar }: { avatar: AvatarType }) {
       title={t('admin:components.avatar.remove')}
       onSubmit={() => {
         modalProcessing.set(true)
-        adminAvatarRemove(avatar.id)
+        adminAvatarRemove(avatar.id).then(() => PopoverState.hidePopupover())
       }}
       onClose={!modalProcessing.value ? () => PopoverState.hidePopupover() : undefined}
       hideFooter={modalProcessing.value}
