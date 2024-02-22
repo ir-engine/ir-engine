@@ -36,6 +36,7 @@ import { processFileName } from '@etherealengine/common/src/utils/processFileNam
 import { Engine } from '@etherealengine/ecs'
 import { ModelFormat } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { getBasePath, modelResourcesPath } from '@etherealengine/engine/src/assets/functions/pathResolver'
+import { Heuristic } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { getState } from '@etherealengine/hyperflux'
 import { ImportSettingsState } from '../components/assets/ImportSettingsPanel'
 import { createLODVariants } from '../components/assets/ModelCompressionPanel'
@@ -88,7 +89,7 @@ export const inputFileWithAddToScene = async ({
 
                     lod.params.modelFormat = fileType[1] as ModelFormat
                   }
-                  await createLODVariants(LODSettings, true, 'DEVICE', true)
+                  await createLODVariants(LODSettings, true, Heuristic.BUDGET, true)
                 }
               }
             }

@@ -134,6 +134,7 @@ export type ModelTransformParameters = ExtractedImageTransformParameters & {
   }
 
   simplifyRatio: number
+  simplifyErrorThreshold: number
 
   modelFormat: ModelFormat
 
@@ -199,6 +200,7 @@ export const DefaultModelTransformParameters: ModelTransformParameters = {
   textureCompressionQuality: 128,
   maxTextureSize: 1024,
   simplifyRatio: 1.0,
+  simplifyErrorThreshold: 0.001,
   resources: {
     geometries: [],
     images: []

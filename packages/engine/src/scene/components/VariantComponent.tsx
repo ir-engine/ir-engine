@@ -47,7 +47,13 @@ export type VariantLevel = {
   metadata: Record<string, any>
 }
 
-export type Heuristic = 'DISTANCE' | 'SCENE_SCALE' | 'MANUAL' | 'DEVICE' | 'BUDGET'
+export enum Heuristic {
+  DISTANCE = 'DISTANCE',
+  SCENE_SCALE = 'SCENE_SCALE',
+  MANUAL = 'MANUAL',
+  DEVICE = 'DEVICE',
+  BUDGET = 'BUDGET'
+}
 
 export const VariantComponent = defineComponent({
   name: 'EE_variant',
@@ -56,7 +62,7 @@ export const VariantComponent = defineComponent({
 
   onInit: (entity) => ({
     levels: [] as VariantLevel[],
-    heuristic: 'MANUAL' as Heuristic,
+    heuristic: Heuristic.MANUAL,
     calculated: false
   }),
 
@@ -100,7 +106,7 @@ function VariantReactor(): ReactElement {
   const meshComponent = getOptionalComponent(entity, MeshComponent)
 
   useEffect(() => {
-    if (variantComponent.heuristic.value === 'DISTANCE' && meshComponent) {
+    if (variantComponent.heuristic.value === Heuristic.DISTANCE && meshComponent) {
       meshComponent.removeFromParent()
     }
   }, [meshComponent])
@@ -120,7 +126,7 @@ const VariantLevelReactor = React.memo(({ entity, level }: { level: number; enti
 
   useEffect(() => {
     //if the variant heuristic is set to Distance, add the DistanceFromCameraComponent
-    if (variantComponent.heuristic.value === 'DISTANCE') {
+    if (variantComponent.heuristic.value === Heuristic.DISTANCE) {
       setComponent(entity, DistanceFromCameraComponent)
       variantLevel.metadata['minDistance'].value === undefined && variantLevel.metadata['minDistance'].set(0)
       variantLevel.metadata['maxDistance'].value === undefined && variantLevel.metadata['maxDistance'].set(0)

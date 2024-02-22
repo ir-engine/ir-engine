@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { VariantComponent, VariantLevel } from '@etherealengine/engine/src/scene/components/VariantComponent'
+import { Heuristic, VariantComponent, VariantLevel } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { State } from '@etherealengine/hyperflux'
 
 import DeblurIcon from '@mui/icons-material/Deblur'
@@ -48,6 +48,13 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
   const entity = props.entity
   const variantComponent = useComponent(entity, VariantComponent)
 
+  if (variantComponent.heuristic.value === Heuristic.BUDGET) {
+    for (let i = 0; i < variantComponent.levels.length; i++) {
+      if (variantComponent.levels[i].metadata['useDistance'].value === undefined)
+        variantComponent.levels[i].metadata.merge({ useDistance: false })
+    }
+  }
+
   return (
     <NodeEditor
       name={t('editor:properties.variant.name')}
@@ -60,11 +67,11 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
             value={variantComponent.heuristic.value}
             onChange={commitProperty(VariantComponent, 'heuristic')}
             options={[
-              { value: 'DISTANCE', label: t('editor:properties.variant.heuristic-distance') },
-              { value: 'SCENE_SCALE', label: t('editor:properties.variant.heuristic-sceneScale') },
-              { value: 'MANUAL', label: t('editor:properties.variant.heuristic-manual') },
-              { value: 'DEVICE', label: t('editor:properties.variant.heuristic-device') },
-              { value: 'BUDGET', label: t('editor:properties.variant.heuristic-budget') }
+              { value: Heuristic.DISTANCE, label: t('editor:properties.variant.heuristic-distance') },
+              { value: Heuristic.SCENE_SCALE, label: t('editor:properties.variant.heuristic-sceneScale') },
+              { value: Heuristic.MANUAL, label: t('editor:properties.variant.heuristic-manual') },
+              { value: Heuristic.DEVICE, label: t('editor:properties.variant.heuristic-device') },
+              { value: Heuristic.BUDGET, label: t('editor:properties.variant.heuristic-budget') }
             ]}
           />
         </InputGroup>
@@ -91,15 +98,13 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
             return (
               <div className="m-2 bg-gray-900">
                 <div style={{ margin: '2em' }}>
-                  {variantComponent.heuristic.value !== 'BUDGET' && (
-                    <InputGroup name="src" label={t('editor:properties.variant.src')}>
-                      <ModelInput
-                        value={level.src.value}
-                        onRelease={commitProperty(VariantComponent, `levels.${index}.src` as any)}
-                      />
-                    </InputGroup>
-                  )}
-                  {variantComponent.heuristic.value === 'DEVICE' && (
+                  <InputGroup name="src" label={t('editor:properties.variant.src')}>
+                    <ModelInput
+                      value={level.src.value}
+                      onRelease={commitProperty(VariantComponent, `levels.${index}.src` as any)}
+                    />
+                  </InputGroup>
+                  {variantComponent.heuristic.value === Heuristic.DEVICE && (
                     <>
                       <InputGroup name="device" label={t('editor:properties.variant.device')}>
                         <SelectInput
@@ -114,7 +119,7 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
                       </InputGroup>
                     </>
                   )}
-                  {variantComponent.heuristic.value === 'DISTANCE' && (
+                  {variantComponent.heuristic.value === Heuristic.DISTANCE && (
                     <>
                       <InputGroup name="minDistance" label={t('editor:properties.variant.minDistance')}>
                         <NumericInput
@@ -130,7 +135,7 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
                       </InputGroup>
                     </>
                   )}
-                  {variantComponent.heuristic.value === 'BUDGET' && (
+                  {variantComponent.heuristic.value === Heuristic.BUDGET && (
                     <>
                       <InputGroup name="Cast Shadow" label={t('editor:properties.variant.useDistance')}>
                         <BooleanInput

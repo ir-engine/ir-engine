@@ -24,7 +24,7 @@ import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { pathResolver } from '../../../assets/functions/pathResolver'
 import { InstancingComponent } from '../../components/InstancingComponent'
 import { ModelComponent } from '../../components/ModelComponent'
-import { VariantComponent, VariantLevel } from '../../components/VariantComponent'
+import { Heuristic, VariantComponent, VariantLevel } from '../../components/VariantComponent'
 import getFirstMesh from '../../util/meshUtils'
 
 /*
@@ -57,14 +57,14 @@ function getModelVariant(
   variantComponent: ComponentType<typeof VariantComponent>,
   modelComponent: ComponentType<typeof ModelComponent>
 ): string | null {
-  if (variantComponent.heuristic === 'DEVICE') {
+  if (variantComponent.heuristic === Heuristic.DEVICE) {
     const targetDevice = isMobile || isMobileXRHeadset ? 'MOBILE' : 'DESKTOP'
     //get model src to mobile variant src
     const deviceVariant = variantComponent.levels.find((level) => level.metadata['device'] === targetDevice)
     const modelRelativePath = pathResolver().exec(modelComponent.src)?.[2]
     const deviceRelativePath = deviceVariant ? pathResolver().exec(deviceVariant.src)?.[2] : ''
     if (deviceVariant && modelRelativePath !== deviceRelativePath) return deviceVariant.src
-  } else if (variantComponent.heuristic === 'DISTANCE') {
+  } else if (variantComponent.heuristic === Heuristic.DISTANCE) {
     const distance = DistanceFromCameraComponent.squaredDistance[entity]
     for (let i = 0; i < variantComponent.levels.length; i++) {
       const level = variantComponent.levels[i]
@@ -80,7 +80,7 @@ function getModelVariant(
 }
 
 function getMeshVariant(entity: Entity, variantComponent: ComponentType<typeof VariantComponent>): string | null {
-  if (variantComponent.heuristic === 'DEVICE') {
+  if (variantComponent.heuristic === Heuristic.DEVICE) {
     const targetDevice = isMobileXRHeadset ? 'XR' : isMobile ? 'MOBILE' : 'DESKTOP'
     //get model src to mobile variant src
     const deviceVariant = variantComponent.levels.find((level) => level.metadata['device'] === targetDevice)
@@ -137,7 +137,7 @@ export function setInstancedMeshVariant(entity: Entity) {
   const meshComponent = getComponent(entity, MeshComponent)
   const instancingComponent = getComponent(entity, InstancingComponent)
   const transformComponent = getComponent(entity, TransformComponent)
-  if (variantComponent.heuristic === 'DEVICE') {
+  if (variantComponent.heuristic === Heuristic.DEVICE) {
     const targetDevice = isMobileXRHeadset ? 'XR' : isMobile ? 'MOBILE' : 'DESKTOP'
     //set model src to mobile variant src
     const deviceVariant = variantComponent.levels.find((level) => level.metadata['device'] === targetDevice)
@@ -148,7 +148,7 @@ export function setInstancedMeshVariant(entity: Entity) {
       meshComponent.geometry = mesh.geometry
       meshComponent.material = mesh.material
     })
-  } else if (variantComponent.heuristic === 'DISTANCE') {
+  } else if (variantComponent.heuristic === Heuristic.DISTANCE) {
     const referencedVariants: VariantLevel[] = []
     const variantIndices: number[] = []
     const cameraPosition = getComponent(Engine.instance.cameraEntity, TransformComponent).position

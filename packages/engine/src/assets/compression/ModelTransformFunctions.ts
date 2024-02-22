@@ -518,8 +518,11 @@ export async function transformModel(
 
   if (args.simplifyRatio < 1) {
     const simplifyTransforms = [] as Transform[]
+    //gltfTransform documentation recommends doing a weld before simply
     if (!args.weld.enabled) simplifyTransforms.push(weld({ tolerance: 0.0001 }))
-    simplifyTransforms.push(simplify({ simplifier: MeshoptSimplifier, ratio: args.simplifyRatio, error: 0.001 }))
+    simplifyTransforms.push(
+      simplify({ simplifier: MeshoptSimplifier, ratio: args.simplifyRatio, error: args.simplifyErrorThreshold })
+    )
     await document.transform(...simplifyTransforms)
   }
 

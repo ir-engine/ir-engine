@@ -70,7 +70,6 @@ export const createLODVariants = async (
   }))
 
   const transformMetadata = [] as Record<string, any>[]
-
   for (const [i, variant] of lodVariantParams.entries()) {
     if (clientside) {
       await clientSideTransformModel(variant, (key, data) => {
@@ -88,17 +87,15 @@ export const createLODVariants = async (
     const variant = createSceneEntity('LOD Variant', result)
     setComponent(variant, ModelComponent)
     setComponent(variant, VariantComponent, {
-      levels: lods
-        .map((lod, lodIndex) =>
-          lod.variantMetadata.map((metadata) => ({
-            src: lod.params.dst,
-            metadata: {
-              ...metadata,
-              ...transformMetadata[lodIndex]
-            }
-          }))
-        )
-        .flat(),
+      levels: lods.map((lod, lodIndex) => {
+        return {
+          src: lod.params.dst,
+          metadata: {
+            ...lod.variantMetadata,
+            ...transformMetadata[lodIndex]
+          }
+        }
+      }),
       heuristic
     })
 
@@ -176,7 +173,7 @@ export default function ModelCompressionPanel({
     const clientside = isClientside
     const exportCombined = isIntegratedPrefab
 
-    const heuristic = 'BUDGET'
+    const heuristic = Heuristic.BUDGET
     await createLODVariants(lods.value, clientside, heuristic, exportCombined)
 
     const [_, directoryToRefresh, __] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
@@ -221,7 +218,7 @@ export default function ModelCompressionPanel({
       {
         params: params,
         suffix: suffix,
-        variantMetadata: []
+        variantMetadata: {}
       }
     ])
     setSelectedLODIndex(lods.length - 1)

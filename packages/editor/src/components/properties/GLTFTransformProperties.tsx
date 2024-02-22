@@ -240,6 +240,14 @@ export default function GLTFTransformProperties({
           max={1.0}
           min={0.0}
         />
+        <NumericInputGroup
+          name="Simplify Error Threshold"
+          label={t('editor:properties.model.transform.simplifyErrorThreshold')}
+          value={transformParms.simplifyErrorThreshold.value}
+          onChange={onChangeTransformParm(transformParms.simplifyErrorThreshold)}
+          max={1.0}
+          min={0.0}
+        />
         <InputGroup name="Flip Y" label={t('editor:properties.model.transform.flipY')}>
           <BooleanInput value={transformParms.flipY.value} onChange={onChangeTransformParm(transformParms.flipY)} />
         </InputGroup>
