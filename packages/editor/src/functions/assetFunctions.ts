@@ -54,7 +54,7 @@ export const inputFileWithAddToScene = async ({
   projectName?: string
   directoryPath?: string
 }): Promise<null> =>
-  new Promise((resolve) => {
+  new Promise((resolve, reject) => {
     const el = document.createElement('input')
     el.type = 'file'
     el.multiple = true
@@ -63,54 +63,60 @@ export const inputFileWithAddToScene = async ({
     el.style.display = 'none'
 
     el.onchange = async () => {
-      let uploadedURLs: string[] = []
-      if (el.files && el.files.length > 0) {
-        const files = Array.from(el.files)
-        if (projectName) {
-          uploadedURLs = (await Promise.all(uploadProjectFiles(projectName, files, true).promises)).map((url) => url[0])
-          for (const url of uploadedURLs) {
-            if (url.endsWith('.gltf') || url.endsWith('.glb') || url.endsWith('.wrm')) {
-              const importSettings = getState(ImportSettingsState)
-              if (importSettings.LODsEnabled) {
-                const LODSettings = [...importSettings.selectedLODS]
-                for (const lod of LODSettings) {
-                  const fileName = url.match(/\/([^\/]+)\.\w+$/)!
-                  const fileType = url.match(/\.(\w+)$/)!
-                  const dst = fileName[1] + '-' + lod.suffix + `.${fileType[1]}`
-                  const newDst = dst.replace(/\s/g, '').toLowerCase()
-                  lod.params.src = url
+      try {
+        let uploadedURLs: string[] = []
+        if (el.files && el.files.length > 0) {
+          const files = Array.from(el.files)
+          if (projectName) {
+            uploadedURLs = (await Promise.all(uploadProjectFiles(projectName, files, true).promises)).map(
+              (url) => url[0]
+            )
+            for (const url of uploadedURLs) {
+              if (url.endsWith('.gltf') || url.endsWith('.glb') || url.endsWith('.wrm')) {
+                const importSettings = getState(ImportSettingsState)
+                if (importSettings.LODsEnabled) {
+                  const LODSettings = [...importSettings.selectedLODS]
+                  for (const lod of LODSettings) {
+                    const fileName = url.match(/\/([^\/]+)\.\w+$/)!
+                    const fileType = url.match(/\.(\w+)$/)!
+                    const dst = fileName[1] + '-' + lod.suffix + `.${fileType[1]}`
+                    const newDst = dst.replace(/\s/g, '').toLowerCase()
+                    lod.params.src = url
 
-                  const path = `${getBasePath(url)}${importSettings.LODFolder}${newDst}`
-                  lod.params.dst = path
+                    const path = `${getBasePath(url)}${importSettings.LODFolder}${newDst}`
+                    lod.params.dst = path
 
-                  lod.params.modelFormat = fileType[1] as ModelFormat
+                    lod.params.modelFormat = fileType[1] as ModelFormat
+                  }
+                  await createLODVariants(LODSettings, true, 'DEVICE', true)
                 }
-                await createLODVariants(LODSettings, true, 'DEVICE', true)
               }
             }
-          }
-        } else if (directoryPath) {
-          uploadedURLs = await Promise.all(
-            files.map(
-              (file) =>
-                uploadToFeathersService(fileBrowserUploadPath, [file], {
-                  fileName: file.name,
-                  path: directoryPath,
-                  contentType: ''
-                }).promise
+          } else if (directoryPath) {
+            uploadedURLs = await Promise.all(
+              files.map(
+                (file) =>
+                  uploadToFeathersService(fileBrowserUploadPath, [file], {
+                    fileName: file.name,
+                    path: directoryPath,
+                    contentType: ''
+                  }).promise
+              )
             )
+          }
+
+          await Promise.all(uploadedURLs.filter((url) => /\.zip$/.test(url)).map(extractZip)).then(() =>
+            logger.info('zip files extracted')
           )
+
+          // if (projectName) {
+          //   uploadedURLs.forEach((url) => addMediaNode(url))
+          // }
+
+          resolve(null)
         }
-
-        await Promise.all(uploadedURLs.filter((url) => /\.zip$/.test(url)).map(extractZip)).then(() =>
-          logger.info('zip files extracted')
-        )
-
-        // if (projectName) {
-        //   uploadedURLs.forEach((url) => addMediaNode(url))
-        // }
-
-        resolve(null)
+      } catch (err) {
+        reject(err)
       }
     }
 
