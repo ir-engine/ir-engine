@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM, VRM1Meta, VRMHumanBone, VRMHumanBoneName, VRMHumanoid } from '@pixiv/three-vrm'
+import { VRM, VRM1Meta, VRMHumanBone, VRMHumanBoneList, VRMHumanoid } from '@pixiv/three-vrm'
 import { AnimationClip, AnimationMixer, Box3, Matrix4, Vector3 } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
@@ -169,17 +169,15 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   const rig = vrm.humanoid.normalizedHumanBones
   rig.hips.node.updateWorldMatrix(false, true)
   const rigComponent = getComponent(entity, AvatarRigComponent)
-  for (const bone of [
-    VRMHumanBoneName.LeftUpperArm,
-    VRMHumanBoneName.LeftLowerArm,
-    VRMHumanBoneName.LeftHand,
-    VRMHumanBoneName.RightUpperArm,
-    VRMHumanBoneName.RightLowerArm,
-    VRMHumanBoneName.RightHand
-  ]) {
+  //get list of bone names for arms and legs
+  const boneNames = VRMHumanBoneList.filter(
+    (bone) => bone.includes('Arm') || bone.includes('Leg') || bone.includes('Foot') || bone.includes('Hand')
+  )
+  console.log(boneNames)
+  for (const bone of boneNames) {
     rigComponent.ikMatrices[bone] = {
-      world: new Matrix4().copy(rig[bone].node.matrixWorld),
-      local: new Matrix4().copy(rig[bone].node.matrix)
+      world: new Matrix4().copy(rig[bone]!.node.matrixWorld),
+      local: new Matrix4().copy(rig[bone]!.node.matrix)
     }
   }
 }

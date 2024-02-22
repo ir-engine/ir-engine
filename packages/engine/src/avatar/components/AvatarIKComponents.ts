@@ -69,7 +69,7 @@ export const AvatarHeadDecapComponent = defineComponent({
         rig.rawRig.value.head.node.scale.setScalar(1)
         cameraComponent.offset.setZ(0)
       }
-    }, [headDecap, model.scene])
+    }, [headDecap, model.asset])
 
     return null
   }
