@@ -225,9 +225,7 @@ const execute = () => {
       )
 
       solveTwoBoneIK(
-        rigComponent.normalizedRig.hips.node.matrixWorld
-          .clone()
-          .setPosition(rawRig.rightUpperArm.node.getWorldPosition(new Vector3())),
+        rigComponent.normalizedRig.rightUpperArm.node.parent!.matrixWorld,
         rigComponent.ikMatrices.rightUpperArm!,
         rigComponent.ikMatrices.rightLowerArm!,
         rigComponent.ikMatrices.rightHand!,
