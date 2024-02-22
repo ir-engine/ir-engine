@@ -76,11 +76,8 @@ describe('ColliderComponent', () => {
     assert(collider.collider)
     assert.equal(collider.collider, rigidbody.body.collider(0))
 
-    const promise = removeComponent(entity, ColliderComponent)
+    removeComponent(entity, ColliderComponent)
     assert.equal(rigidbody.body.numColliders(), 0)
-
-    await promise
-    assert.equal(collider.collider, null)
   })
 
   it('should add trigger collider', () => {

@@ -61,16 +61,14 @@ export const ColliderComponent = defineComponent({
   },
 
   onSet(entity, component, json) {
-    if (!json) return
-
-    if (typeof json.shape === 'string') component.shape.set(json.shape)
-    if (typeof json.mass === 'number') component.mass.set(json.mass)
-    if (typeof json.massCenter === 'object')
+    if (typeof json?.shape === 'string') component.shape.set(json.shape)
+    if (typeof json?.mass === 'number') component.mass.set(json.mass)
+    if (typeof json?.massCenter === 'object')
       component.massCenter.set(new Vector3(json.massCenter.x, json.massCenter.y, json.massCenter.z))
-    if (typeof json.friction === 'number') component.friction.set(json.friction)
-    if (typeof json.restitution === 'number') component.restitution.set(json.restitution)
-    if (typeof json.collisionLayer === 'number') component.collisionLayer.set(json.collisionLayer)
-    if (typeof json.collisionMask === 'number') component.collisionMask.set(json.collisionMask)
+    if (typeof json?.friction === 'number') component.friction.set(json.friction)
+    if (typeof json?.restitution === 'number') component.restitution.set(json.restitution)
+    if (typeof json?.collisionLayer === 'number') component.collisionLayer.set(json.collisionLayer)
+    if (typeof json?.collisionMask === 'number') component.collisionMask.set(json.collisionMask)
 
     let rigidbodyEntity = UndefinedEntity
     if (hasComponent(entity, RigidBodyComponent)) {

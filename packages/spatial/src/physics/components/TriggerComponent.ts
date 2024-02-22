@@ -25,8 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { defineComponent, getOptionalComponent } from '@etherealengine/ecs'
-import { NO_PROXY } from '@etherealengine/hyperflux'
+import { NO_PROXY, getState } from '@etherealengine/hyperflux'
 import matches from 'ts-matches'
+import { PhysicsState } from '../state/PhysicsState'
 import { ColliderComponent } from './ColliderComponent'
 
 export const TriggerComponent = defineComponent({
@@ -53,27 +54,27 @@ export const TriggerComponent = defineComponent({
   },
 
   onSet(entity, component, json) {
-    if (!json) return
-
-    // backwards compatibility
-    const onEnter = (json as any).onEnter ?? null
-    const onExit = (json as any).onExit ?? null
-    const target = (json as any).target ?? null
-    if (!!onEnter || !!onExit || !!target) {
-      component.triggers.set([{ onEnter, onExit, target }])
-    } else if (typeof json.triggers === 'object') {
-      if (
-        matches
-          .arrayOf(
-            matches.shape({
-              onEnter: matches.nill.orParser(matches.string),
-              onExit: matches.nill.orParser(matches.string),
-              target: matches.nill.orParser(matches.string)
-            })
-          )
-          .test(json.triggers)
-      ) {
-        component.triggers.set(json.triggers)
+    if (json) {
+      // backwards compatibility
+      const onEnter = (json as any).onEnter ?? null
+      const onExit = (json as any).onExit ?? null
+      const target = (json as any).target ?? null
+      if (!!onEnter || !!onExit || !!target) {
+        component.triggers.set([{ onEnter, onExit, target }])
+      } else if (typeof json.triggers === 'object') {
+        if (
+          matches
+            .arrayOf(
+              matches.shape({
+                onEnter: matches.nill.orParser(matches.string),
+                onExit: matches.nill.orParser(matches.string),
+                target: matches.nill.orParser(matches.string)
+              })
+            )
+            .test(json.triggers)
+        ) {
+          component.triggers.set(json.triggers)
+        }
       }
     }
 
@@ -86,7 +87,8 @@ export const TriggerComponent = defineComponent({
   onRemove(entity, component) {
     const collider = getOptionalComponent(entity, ColliderComponent)?.collider
     if (!collider) return
-    collider.setSensor(false)
+    const physicsWorld = getState(PhysicsState).physicsWorld
+    if (physicsWorld.getCollider(collider.handle)) collider.setSensor(false)
   },
 
   toJSON(entity, component) {
