@@ -48,3 +48,17 @@ export function insertAfterString(source: string, searchTerm: string, addition: 
     '\n'
   )
 }
+
+/**
+ * Converts a string to title case
+ * Reference: https://stackoverflow.com/a/196991
+ * @param source
+ * @param searchTerm
+ * @param addition
+ * @returns
+ */
+export function toTitleCase(source: string) {
+  return source.replace(/\w\S*/g, function (txt) {
+    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+  })
+}
