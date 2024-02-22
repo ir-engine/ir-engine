@@ -32,39 +32,13 @@ import { PopoverState } from '@etherealengine/client-core/src/common/services/Po
 import { UserName } from '@etherealengine/common/src/schema.type.module'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import AvatarImage from '@etherealengine/ui/src/primitives/tailwind/AvatarImage'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
-import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
-import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 import { useHookstate } from '@hookstate/core'
 import { HiPencil, HiTrash } from 'react-icons/hi2'
 import DataTable from '../../common/Table'
 import { AvatarRowType, avatarColumns } from '../../common/constants/avatar'
 import AddEditAvatarModal from './AddEditAvatarModal'
-
-const RemoveAvatarModal = ({ avatar }: { avatar: AvatarType }) => {
-  const { t } = useTranslation()
-  const adminAvatarRemove = useMutation(avatarPath).remove
-  const modalProcessing = useHookstate(false)
-
-  return (
-    <Modal
-      title={t('admin:components.avatar.remove')}
-      onSubmit={() => {
-        modalProcessing.set(true)
-        adminAvatarRemove(avatar.id)
-      }}
-      onClose={!modalProcessing.value ? () => PopoverState.hidePopupover() : undefined}
-      hideFooter={modalProcessing.value}
-    >
-      {modalProcessing.value ? (
-        <LoadingCircle className="h-[10vh]" />
-      ) : (
-        <Text>{`${t('admin:components.avatar.confirmAvatarDelete')} '${avatar.name}'?`}</Text>
-      )}
-    </Modal>
-  )
-}
+import RemoveAvatarModal from './RemoveAvatarModal'
 
 export default function AvatarTable({ search }: { search: string }) {
   const { t } = useTranslation()
