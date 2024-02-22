@@ -28,6 +28,7 @@ FROM ${ECR_URL}/${REPO_NAME}-root:latest_${STAGE} as clientBuilder
 # Create app directory
 WORKDIR /app
 
+COPY project-package-jsons ./
 COPY package.json .
 COPY packages/client/package.json ./packages/client/
 COPY packages/client-core/package.json ./packages/client-core/

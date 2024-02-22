@@ -43,6 +43,10 @@ else
   aws ecr-public get-login-password --region us-east-1 | docker login -u AWS --password-stdin $ECR_URL
 fi
 
+mkdir -p ./project-package-jsons/projects/default-project
+cp packages/projects/default-project/package.json ./project-package-jsons/projects/default-project
+find packages/projects/projects/ -name package.json -exec bash -c 'mkdir -p ./project-package-jsons/$(dirname $1) && cp $1 ./project-package-jsons/$(dirname $1)' - '{}' \;
+
 if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "s3" ]
 then
   npx cross-env ts-node --swc scripts/get-deletable-client-files.ts
