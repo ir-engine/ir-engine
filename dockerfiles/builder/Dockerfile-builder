@@ -5,11 +5,6 @@ FROM $ECR_URL/$REPO_NAME-root:latest_${STAGE} as builder
 
 COPY . .
 
-# This installation was initially part of the root Dockerfile, but it was moved here to avoid getting it replicated across rest of the
-# services unnecessarily.
-COPY packages/server/package.json ./packages/server/
-RUN npm install --loglevel notice --legacy-peer-deps
-
 CMD ["scripts/strip-engine.sh"]
 
 # copy then compile the code
