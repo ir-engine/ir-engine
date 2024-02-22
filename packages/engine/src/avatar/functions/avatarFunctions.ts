@@ -173,7 +173,6 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   const boneNames = VRMHumanBoneList.filter(
     (bone) => bone.includes('Arm') || bone.includes('Leg') || bone.includes('Foot') || bone.includes('Hand')
   )
-  console.log(boneNames)
   for (const bone of boneNames) {
     rigComponent.ikMatrices[bone] = {
       world: new Matrix4().copy(rig[bone]!.node.matrixWorld),
