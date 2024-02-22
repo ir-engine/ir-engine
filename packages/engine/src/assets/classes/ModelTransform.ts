@@ -133,6 +133,8 @@ export type ModelTransformParameters = ExtractedImageTransformParameters & {
     options: DracoOptions
   }
 
+  simplifyRatio: number
+
   modelFormat: ModelFormat
 
   resources: ResourceTransforms
@@ -196,6 +198,7 @@ export const DefaultModelTransformParameters: ModelTransformParameters = {
   mipmap: true,
   textureCompressionQuality: 128,
   maxTextureSize: 1024,
+  simplifyRatio: 1.0,
   resources: {
     geometries: [],
     images: []

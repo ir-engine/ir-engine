@@ -28,7 +28,7 @@ import React, { useEffect, useState } from 'react'
 
 import Button from '@etherealengine/client-core/src/common/components/Button'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import { none, State, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
@@ -53,9 +53,8 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import exportGLTF from '../../functions/exportGLTF'
 
 import { removeEntityNodeRecursively } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { Box, ListItemButton, ListItemText, MenuItem, Modal, PopoverPosition } from '@mui/material'
-import { LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
-import { ContextMenu } from '../layout/ContextMenu'
+import { Box, ListItemButton, ListItemText, Modal } from '@mui/material'
+import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
 import { List, ListItem } from '../layout/List'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 import { FileType } from './FileBrowser/FileBrowserContentPanel'
@@ -121,7 +120,6 @@ export default function ModelCompressionPanel({
   const [isClientside, setIsClientSide] = useState<boolean>(true)
   const [isIntegratedPrefab, setIsIntegratedPrefab] = useState<boolean>(true)
   const [selectedLODIndex, setSelectedLODIndex] = useState<number>(0)
-  const [variantSelectedLODIndex, setVariantSelectedLODIndex] = useState<number>(0)
   const [modalOpen, setModalOpen] = useState<boolean>(false)
   const [selectedPreset, setSelectedPreset] = useState<ModelTransformParameters>(defaultParams)
   const [presetList, setPresetList] = useState<LODVariantDescriptor[]>(LODList)
@@ -149,18 +147,20 @@ export default function ModelCompressionPanel({
   }
 
   const confirmPreset = () => {
-    const lastSuffix = lods[selectedLODIndex].suffix.value
-    const nextSuffix = `-${selectedPreset.dst.replace(/\s/g, '').toLowerCase()}`
-    lods[selectedLODIndex].suffix.set(nextSuffix)
+    const lod = lods[selectedLODIndex].get(NO_PROXY)
+    const src = lod.params.src
+    const dst = lod.params.dst
+    const modelFormat = lod.params.modelFormat
+    const uri = lod.params.resourceUri
 
-    const params = lods[selectedLODIndex].params
-    let newDST = params.dst.value
-    if (lastSuffix != null) {
-      newDST = newDST.replace(new RegExp(lastSuffix + '$'), '')
-    }
-    newDST += nextSuffix
-    params.dst.set(newDST)
-    params.maxTextureSize.set(selectedPreset.maxTextureSize)
+    const presetParams = JSON.parse(JSON.stringify(selectedPreset)) as ModelTransformParameters
+    presetParams.src = src
+    presetParams.dst = dst
+    presetParams.modelFormat = modelFormat
+    presetParams.resourceUri = uri
+
+    lods[selectedLODIndex].params.set(presetParams)
+
     setModalOpen(false)
   }
 
@@ -176,7 +176,7 @@ export default function ModelCompressionPanel({
     const clientside = isClientside
     const exportCombined = isIntegratedPrefab
 
-    const heuristic = 'DEVICE'
+    const heuristic = 'BUDGET'
     await createLODVariants(lods.value, clientside, heuristic, exportCombined)
 
     const [_, directoryToRefresh, __] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
@@ -193,84 +193,46 @@ export default function ModelCompressionPanel({
     const fullSrc = fileProperties.url.value
     const fileName = fullSrc.split('/').pop()!.split('.').shift()!
 
-    const defaultLODParams: ModelTransformParameters = {
-      ...defaultParams,
-      src: fullSrc,
-      modelFormat: fileProperties.url.value.endsWith('.gltf')
+    const defaults = defaultLODs.map((defaultLOD) => {
+      const lod = JSON.parse(JSON.stringify(defaultLOD)) as LODVariantDescriptor
+      lod.params.src = fullSrc
+      lod.params.dst = fileName + lod.suffix
+      lod.params.modelFormat = fileProperties.url.value.endsWith('.gltf')
         ? 'gltf'
         : fileProperties.url.value.endsWith('.vrm')
         ? 'vrm'
         : 'glb'
-    }
+      lod.params.resourceUri = fullSrc
+      return lod
+    })
 
-    lods.set(
-      ['Desktop - Medium', 'Mobile - Low', 'XR - Medium']
-        .map((dst) => LODList.find((preset) => preset.params.dst === dst)!)
-        .map((preset): LODVariantDescriptor => {
-          const suffix = `-${preset.params.dst.replace(/\s/g, '').toLowerCase()}`
-          return {
-            params: {
-              ...defaultLODParams,
-              dst: fileName + suffix,
-              maxTextureSize: preset.params.maxTextureSize
-            },
-            suffix,
-            variantMetadata: [variantMetadataPresets.get(preset.params.dst.split(' ')[0].toUpperCase()!)!]
-          }
-        })
-    )
+    lods.set(defaults)
   }, [fileProperties.url])
 
   const handleLODSelect = (index) => {
-    setSelectedLODIndex(index)
-  }
-
-  const handleLODDelete = (index) => {
-    lods[index].set(none)
-    setSelectedLODIndex(Math.min(selectedLODIndex, lods.length - 1))
+    setSelectedLODIndex(Math.min(index, lods.length - 1))
   }
 
   const handleLODAdd = () => {
+    const params = JSON.parse(JSON.stringify(lods[selectedLODIndex].params.value)) as ModelTransformParameters
+    const suffix = '-LOD' + lods.length
+    params.dst = params.dst.replace(lods[selectedLODIndex].suffix.value, suffix)
     lods.merge([
       {
-        params: JSON.parse(JSON.stringify(lods[selectedLODIndex].params.value)),
-        suffix: lods[selectedLODIndex].suffix.value,
+        params: params,
+        suffix: suffix,
         variantMetadata: []
       }
     ])
     setSelectedLODIndex(lods.length - 1)
   }
 
-  const handleVariantMetadataDelete = (lodIndex, metadataIndex) => {
-    lods[lodIndex].variantMetadata[metadataIndex].set(none)
-  }
-
-  const handleVariantMetadataAdd = (lodIndex, variantMetadata: Record<string, any>) => {
-    lods[lodIndex].variantMetadata.merge([variantMetadata])
-  }
-
-  const variantMetadataPresets: Map<string, Record<string, any>> = new Map([
-    ['DESKTOP', { device: 'DESKTOP' }],
-    ['XR', { device: 'XR' }],
-    ['MOBILE', { device: 'MOBILE' }]
-  ])
-
-  const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const open = Boolean(anchorEl)
-
-  const showVariantMetadataMenu = (event, lodIndex) => {
-    setVariantSelectedLODIndex(lodIndex)
-    setAnchorEl(event.currentTarget)
-    setAnchorPosition({
-      left: event.clientX + 2,
-      top: event.clientY - 6
+  const handleLodRemove = () => {
+    lods.set((lods) => {
+      lods.pop()
+      return lods
     })
-  }
-
-  const handleClose = () => {
-    setAnchorEl(null)
-    setAnchorPosition(undefined)
+    setSelectedLODIndex(Math.min(selectedLODIndex, lods.length - 1))
   }
 
   return (
@@ -298,66 +260,27 @@ export default function ModelCompressionPanel({
             <div className={styles.headerContainer}>LOD Levels</div>
             <List>
               {lods.map((lod, lodIndex) => (
-                <ListItem>
+                <ListItem key={lodIndex}>
                   <ListItemButton
                     style={{
                       display: 'flex',
-                      flexDirection: 'column',
+                      flexDirection: 'row',
                       alignItems: 'start'
                     }}
                     selected={selectedLODIndex === lodIndex}
                     onClick={() => handleLODSelect(lodIndex)}
                   >
-                    <ListItemText
-                      primary={`LOD Level ${lodIndex}`}
-                      secondary={lod.params.dst.value}
-                      style={{ color: 'white' }}
-                    />
-                    <List>
-                      {lod.variantMetadata.map((metadata, metadataIndex) => (
-                        <ListItem>
-                          <ListItemButton>
-                            {' '}
-                            <ListItemText
-                              style={{ fontSize: '0.5rem' }}
-                              primary={Object.entries(metadata.value)
-                                .map((a) => a.join(': '))
-                                .join(', ')}
-                            />
-                          </ListItemButton>
-                          <IconButton
-                            onClick={() => handleVariantMetadataDelete(lodIndex, metadataIndex)}
-                            icon={<Icon type="Close" style={{ color: 'var(--iconButtonColor)' }} />}
-                          ></IconButton>
-                        </ListItem>
-                      ))}
-                    </List>
-                    <IconButton
-                      onClick={(event) => showVariantMetadataMenu(event, lodIndex)}
-                      icon={<Icon type="Add" style={{ color: 'var(--iconButtonColor)' }} />}
-                    ></IconButton>
+                    <ListItemText primary={`LOD Level ${lodIndex}`} style={{ color: 'white' }} />
+                    {lods.length > 1 && lodIndex == lods.length - 1 && (
+                      <IconButton
+                        onClick={handleLodRemove}
+                        icon={<Icon type="Close" style={{ color: 'var(--iconButtonColor)' }} />}
+                      ></IconButton>
+                    )}
                   </ListItemButton>
-                  {lods.length > 1 && (
-                    <IconButton
-                      onClick={() => handleLODDelete(lodIndex)}
-                      icon={<Icon type="Delete" style={{ color: 'var(--iconButtonColor)' }} />}
-                    ></IconButton>
-                  )}
                 </ListItem>
               ))}
             </List>
-            <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
-              {Array.from(variantMetadataPresets.entries()).map(([label, value]) => (
-                <MenuItem
-                  onClick={() => {
-                    handleVariantMetadataAdd(variantSelectedLODIndex, value)
-                    handleClose()
-                  }}
-                >
-                  {label}
-                </MenuItem>
-              ))}
-            </ContextMenu>
             <div>
               <IconButton
                 onClick={() => handleLODAdd()}
@@ -401,7 +324,7 @@ export default function ModelCompressionPanel({
           <Box display="flex" alignItems="center">
             <List>
               {presetList.map((lodItem: LODVariantDescriptor, idx) => (
-                <Box>
+                <Box key={idx}>
                   <ListItemButton className={styles.presetButton} onClick={() => applyPreset(lodItem.params)}>
                     <ListItemText>{lodItem.params.dst}</ListItemText>
                   </ListItemButton>

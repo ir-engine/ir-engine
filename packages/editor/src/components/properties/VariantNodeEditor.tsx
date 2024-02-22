@@ -33,6 +33,7 @@ import { State } from '@etherealengine/hyperflux'
 
 import DeblurIcon from '@mui/icons-material/Deblur'
 
+import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
@@ -62,7 +63,8 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
               { value: 'DISTANCE', label: t('editor:properties.variant.heuristic-distance') },
               { value: 'SCENE_SCALE', label: t('editor:properties.variant.heuristic-sceneScale') },
               { value: 'MANUAL', label: t('editor:properties.variant.heuristic-manual') },
-              { value: 'DEVICE', label: t('editor:properties.variant.heuristic-device') }
+              { value: 'DEVICE', label: t('editor:properties.variant.heuristic-device') },
+              { value: 'BUDGET', label: t('editor:properties.variant.heuristic-budget') }
             ]}
           />
         </InputGroup>
@@ -89,12 +91,14 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
             return (
               <div className="m-2 bg-gray-900">
                 <div style={{ margin: '2em' }}>
-                  <InputGroup name="src" label={t('editor:properties.variant.src')}>
-                    <ModelInput
-                      value={level.src.value}
-                      onRelease={commitProperty(VariantComponent, `levels.${index}.src` as any)}
-                    />
-                  </InputGroup>
+                  {variantComponent.heuristic.value !== 'BUDGET' && (
+                    <InputGroup name="src" label={t('editor:properties.variant.src')}>
+                      <ModelInput
+                        value={level.src.value}
+                        onRelease={commitProperty(VariantComponent, `levels.${index}.src` as any)}
+                      />
+                    </InputGroup>
+                  )}
                   {variantComponent.heuristic.value === 'DEVICE' && (
                     <>
                       <InputGroup name="device" label={t('editor:properties.variant.device')}>
@@ -124,6 +128,32 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
                           onChange={commitProperty(VariantComponent, `levels.${index}.metadata.maxDistance` as any)}
                         />
                       </InputGroup>
+                    </>
+                  )}
+                  {variantComponent.heuristic.value === 'BUDGET' && (
+                    <>
+                      <InputGroup name="Cast Shadow" label={t('editor:properties.variant.useDistance')}>
+                        <BooleanInput
+                          value={level.metadata['useDistance'].value}
+                          onChange={commitProperty(VariantComponent, `levels.${index}.metadata.useDistance` as any)}
+                        />
+                      </InputGroup>
+                      {level.metadata['useDistance'].value && (
+                        <>
+                          <InputGroup name="minDistance" label={t('editor:properties.variant.minDistance')}>
+                            <NumericInput
+                              value={level.metadata['minDistance'].value}
+                              onChange={commitProperty(VariantComponent, `levels.${index}.metadata.minDistance` as any)}
+                            />
+                          </InputGroup>
+                          <InputGroup name="maxDistance" label={t('editor:properties.variant.maxDistance')}>
+                            <NumericInput
+                              value={level.metadata['maxDistance'].value}
+                              onChange={commitProperty(VariantComponent, `levels.${index}.metadata.maxDistance` as any)}
+                            />
+                          </InputGroup>
+                        </>
+                      )}
                     </>
                   )}
                 </div>

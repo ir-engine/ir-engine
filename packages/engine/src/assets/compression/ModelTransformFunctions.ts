@@ -38,6 +38,7 @@ import {
   Node,
   Primitive,
   Texture,
+  Transform,
   vec2
 } from '@gltf-transform/core'
 import { EXTMeshGPUInstancing, EXTMeshoptCompression, KHRTextureBasisu } from '@gltf-transform/extensions'
@@ -50,12 +51,13 @@ import {
   partition,
   prune,
   reorder,
+  simplify,
   textureResize,
   TextureResizeOptions,
   weld
 } from '@gltf-transform/functions'
 import { createHash } from 'crypto'
-import { MeshoptEncoder } from 'meshoptimizer'
+import { MeshoptEncoder, MeshoptSimplifier } from 'meshoptimizer'
 import { LoaderUtils, MathUtils } from 'three'
 
 import { fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
@@ -512,6 +514,13 @@ export async function transformModel(
   /* PROCESS MESHES */
   if (args.weld.enabled) {
     await document.transform(weld({ tolerance: args.weld.tolerance }))
+  }
+
+  if (args.simplifyRatio < 1) {
+    const simplifyTransforms = [] as Transform[]
+    if (!args.weld.enabled) simplifyTransforms.push(weld({ tolerance: 0.0001 }))
+    simplifyTransforms.push(simplify({ simplifier: MeshoptSimplifier, ratio: args.simplifyRatio, error: 0.001 }))
+    await document.transform(...simplifyTransforms)
   }
 
   if (args.reorder) {

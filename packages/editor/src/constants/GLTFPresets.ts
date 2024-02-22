@@ -121,31 +121,31 @@ export const defaultLODs: LODVariantDescriptor[] = [
   {
     params: {
       ...defaultParams,
-      src: 'Desktop - Medium',
-      dst: 'Desktop - Medium',
+      src: '-LOD0',
+      dst: '-LOD0',
       maxTextureSize: 2048
     },
-    suffix: 'desktop-medium',
-    variantMetadata: [{ device: 'DESKTOP' }]
+    suffix: '-LOD0',
+    variantMetadata: []
   },
   {
     params: {
       ...defaultParams,
-      src: 'Mobile - Low',
-      dst: 'Mobile - Low',
-      maxTextureSize: 512
-    },
-    suffix: 'mobile-low',
-    variantMetadata: [{ device: 'MOBILE' }]
-  },
-  {
-    params: {
-      ...defaultParams,
-      src: 'XR - Medium',
-      dst: 'XR - Medium',
+      src: '-LOD1',
+      dst: '-LOD1',
       maxTextureSize: 1024
     },
-    suffix: 'xr-medium',
-    variantMetadata: [{ device: 'XR' }]
+    suffix: '-LOD1',
+    variantMetadata: []
+  },
+  {
+    params: {
+      ...defaultParams,
+      src: '-LOD2',
+      dst: '-LOD2',
+      maxTextureSize: 512
+    },
+    suffix: '-LOD2',
+    variantMetadata: []
   }
 ]
