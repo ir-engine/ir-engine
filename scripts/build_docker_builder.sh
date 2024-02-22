@@ -23,12 +23,13 @@ else
 fi
 
 docker buildx build \
-    --load \
+    --push \
+    --cache-to type=registry,mode=max,image-manifest=true,ref=$ECR_URL/$REPO_NAME-root:latest_${STAGE}_cache \
+    --cache-from type=registry,ref=$ECR_URL/$REPO_NAME-root:latest_${STAGE}_cache \
     --build-arg NODE_ENV=$NODE_ENV \
     -t $ECR_URL/$REPO_NAME-root:${TAG} \
     -t $ECR_URL/$REPO_NAME-root:latest_$STAGE \
     -f dockerfiles/root/Dockerfile-root .
-docker push --all-tags $ECR_URL/$REPO_NAME-root
 
 if [ $PUBLISH_DOCKERHUB == 'true' ]
 then
