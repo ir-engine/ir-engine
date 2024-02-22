@@ -57,6 +57,7 @@ import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
@@ -503,11 +504,11 @@ const execute = () => {
       // only heuristic is scene objects when in the editor
       if (getState(EngineState).isEditor) {
         raycaster.set(inputRaycast.origin, inputRaycast.direction)
+        raycaster.layers.enable(ObjectLayers.TransformGizmo) // needed for input with transform gizmo
         const objects = inputObjects()
           .map((eid) => getComponent(eid, GroupComponent))
           .flat()
         const hits = raycaster.intersectObjects<Object3D>(objects, true).sort((a, b) => a.distance - b.distance)
-
         if (hits.length && hits[0].distance < hitDistance) {
           const object = hits[0].object
           const parentObject = Object3DUtils.findAncestor(object, (obj) => obj.parent === Engine.instance.scene)
