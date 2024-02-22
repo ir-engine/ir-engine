@@ -226,7 +226,6 @@ const targetPos = new Vector3(),
   abProj = new Vector3(),
   ahProj = new Vector3(),
   targetRot = new Quaternion(),
-  rotation = new Quaternion(),
   position = new Vector3()
 
 const nodeQuaternion = new Quaternion()

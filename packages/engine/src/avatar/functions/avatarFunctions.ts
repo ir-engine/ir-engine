@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM, VRM1Meta, VRMHumanBone, VRMHumanoid } from '@pixiv/three-vrm'
+import { VRM, VRM1Meta, VRMHumanBone, VRMHumanBoneName, VRMHumanoid } from '@pixiv/three-vrm'
 import { AnimationClip, AnimationMixer, Box3, Matrix4, Vector3 } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
@@ -165,22 +165,22 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
   rawRig.leftToes &&
     avatarComponent.footAngle.set(Math.atan2(leftFootPos.z - leftToesPos.z, leftFootPos.y - leftToesPos.y))
 
-  //set ik matrices
-
+  //set ik matrices for blending into normalized rig
   const rig = vrm.humanoid.normalizedHumanBones
   rig.hips.node.updateWorldMatrix(false, true)
   const rigComponent = getComponent(entity, AvatarRigComponent)
-  rigComponent.ikMatrices['rightUpperArm'] = {
-    world: new Matrix4().copy(rig.rightUpperArm.node.matrixWorld),
-    local: new Matrix4().copy(rig.rightUpperArm.node.matrix)
-  }
-  rigComponent.ikMatrices['rightLowerArm'] = {
-    world: new Matrix4().copy(rig.rightLowerArm.node.matrixWorld),
-    local: new Matrix4().copy(rig.rightLowerArm.node.matrix)
-  }
-  rigComponent.ikMatrices['rightHand'] = {
-    world: new Matrix4().copy(rig.rightHand.node.matrixWorld),
-    local: new Matrix4().copy(rig.rightHand.node.matrix)
+  for (const bone of [
+    VRMHumanBoneName.LeftUpperArm,
+    VRMHumanBoneName.LeftLowerArm,
+    VRMHumanBoneName.LeftHand,
+    VRMHumanBoneName.RightUpperArm,
+    VRMHumanBoneName.RightLowerArm,
+    VRMHumanBoneName.RightHand
+  ]) {
+    rigComponent.ikMatrices[bone] = {
+      world: new Matrix4().copy(rig[bone].node.matrixWorld),
+      local: new Matrix4().copy(rig[bone].node.matrix)
+    }
   }
 }
 

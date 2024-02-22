@@ -225,9 +225,9 @@ const execute = () => {
       )
 
       solveTwoBoneIK(
-        rigComponent.normalizedRig.hips.node.matrixWorld.setPosition(
-          rawRig.rightUpperArm.node.getWorldPosition(new Vector3())
-        ),
+        rigComponent.normalizedRig.hips.node.matrixWorld
+          .clone()
+          .setPosition(rawRig.rightUpperArm.node.getWorldPosition(new Vector3())),
         rigComponent.ikMatrices.rightUpperArm!,
         rigComponent.ikMatrices.rightLowerArm!,
         rigComponent.ikMatrices.rightHand!,
@@ -249,20 +249,21 @@ const execute = () => {
         'left',
         _hint
       )
-      // solveTwoBoneIK(
-      //   VRMHumanBoneName.LeftUpperArm,
-      //   VRMHumanBoneName.LeftLowerArm,
-      //   VRMHumanBoneName.LeftHand,
-      //   rigComponent.vrm,
-      //   leftHandTransform.position,
-      //   leftHandTransform.rotation,
-      //   null,
-      //   _hint,
-      //   leftHandTargetBlendWeight,
-      //   leftHandTargetBlendWeight,
-      //   1,
-      //   entity
-      // )
+
+      solveTwoBoneIK(
+        rigComponent.normalizedRig.hips.node.matrixWorld.setPosition(
+          rawRig.leftUpperArm.node.getWorldPosition(new Vector3())
+        ),
+        rigComponent.ikMatrices.leftUpperArm!,
+        rigComponent.ikMatrices.leftLowerArm!,
+        rigComponent.ikMatrices.leftHand!,
+        leftHandTransform.position,
+        leftHandTransform.rotation,
+        _hint
+      )
+
+      //test blend code
+      blendIKChain(entity, ['leftUpperArm', 'leftLowerArm', 'leftHand'], leftHandTargetBlendWeight)
     }
 
     if (rightFootTargetBlendWeight && rightFootTransform) {
