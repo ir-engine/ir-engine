@@ -52,7 +52,6 @@ import {
 
 import {
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -64,16 +63,13 @@ import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { iterateEntityNode } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
-import {
-  RigidBodyComponent,
-  RigidBodyKinematicPositionBasedTagComponent,
-  RigidBodyKinematicVelocityBasedTagComponent,
-  getTagComponentForRigidBody
-} from '../components/RigidBodyComponent'
+import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { TriggerComponent } from '../components/TriggerComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 import {
+  Body,
+  BodyTypes,
   ColliderDescOptions,
   ColliderOptions,
   CollisionEvents,
@@ -102,12 +98,7 @@ const position = new Vector3()
 const rotation = new Quaternion()
 const scale = new Vector3()
 
-function createRigidBody(
-  entity: Entity,
-  world: World,
-  rigidBodyDesc: RigidBodyDesc,
-  colliderDesc: ColliderDesc[] = []
-) {
+function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyDesc) {
   const transform = getComponent(entity, TransformComponent)
   transform.matrixWorld.decompose(position, rotation, scale)
 
@@ -117,13 +108,8 @@ function createRigidBody(
   rigidBodyDesc.rotation = rotation
 
   const body = world.createRigidBody(rigidBodyDesc)
-  colliderDesc.forEach((desc) => world.createCollider(desc, body))
 
-  setComponent(entity, RigidBodyComponent)
-  getMutableComponent(entity, RigidBodyComponent).body.set(body)
   const rigidBody = getComponent(entity, RigidBodyComponent)
-  const RigidBodyTypeTagComponent = getTagComponentForRigidBody(body.bodyType())
-  setComponent(entity, RigidBodyTypeTagComponent, true)
 
   body.setTranslation(position, false)
   body.setRotation(rotation, false)
@@ -132,13 +118,8 @@ function createRigidBody(
 
   rigidBody.previousPosition.copy(position)
   rigidBody.previousRotation.copy(rotation)
-  if (
-    RigidBodyTypeTagComponent === RigidBodyKinematicPositionBasedTagComponent ||
-    RigidBodyTypeTagComponent === RigidBodyKinematicVelocityBasedTagComponent
-  ) {
-    rigidBody.targetKinematicPosition.copy(position)
-    rigidBody.targetKinematicRotation.copy(rotation)
-  }
+  rigidBody.targetKinematicPosition.copy(position)
+  rigidBody.targetKinematicRotation.copy(rotation)
   rigidBody.position.copy(position)
   rigidBody.rotation.copy(rotation)
   rigidBody.linearVelocity.copy(V_000)
@@ -324,27 +305,27 @@ function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptio
       ? RigidBodyType[colliderDescOptions.bodyType]
       : colliderDescOptions.bodyType
 
-  let rigidBodyDesc: RigidBodyDesc = undefined!
+  let type: Body
   switch (rigidBodyType) {
-    case RigidBodyType.Dynamic:
     default:
-      rigidBodyDesc = RigidBodyDesc.dynamic()
+    case RigidBodyType.Fixed:
+      type = BodyTypes.Fixed
       break
 
-    case RigidBodyType.Fixed:
-      rigidBodyDesc = RigidBodyDesc.fixed()
+    case RigidBodyType.Dynamic:
+      type = BodyTypes.Dynamic
       break
 
     case RigidBodyType.KinematicPositionBased:
-      rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
-      break
-
     case RigidBodyType.KinematicVelocityBased:
-      rigidBodyDesc = RigidBodyDesc.kinematicVelocityBased()
+      type = BodyTypes.Kinematic
       break
   }
 
-  Physics.createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
+  setComponent(entity, RigidBodyComponent, { type })
+
+  const body = getComponent(entity, RigidBodyComponent).body
+  colliderDescs.forEach((desc) => world.createCollider(desc, body))
 
   return meshesToRemove
 }
@@ -385,17 +366,25 @@ function removeRigidBody(entity: Entity, world: World) {
   removeComponent(entity, RigidBodyComponent)
 }
 
-function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {
-  const rigidBody = getComponent(entity, RigidBodyComponent).body
-  if (newType === rigidBody.bodyType()) return
-  const currentRigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())
+const setRigidBodyType = (entity: Entity, type: Body) => {
+  let typeEnum: RigidBodyType = undefined!
+  switch (type) {
+    case BodyTypes.Fixed:
+    default:
+      typeEnum = RigidBodyType.Fixed
+      break
 
-  removeComponent(entity, currentRigidBodyTypeTagComponent)
+    case BodyTypes.Dynamic:
+      typeEnum = RigidBodyType.Dynamic
+      break
 
-  rigidBody.setBodyType(newType, false)
+    case BodyTypes.Kinematic:
+      typeEnum = RigidBodyType.KinematicPositionBased
+      break
+  }
 
-  const newRigidBodyComponent = getTagComponentForRigidBody(rigidBody.bodyType())
-  setComponent(entity, newRigidBodyComponent, true)
+  const rigidbody = getComponent(entity, RigidBodyComponent)
+  rigidbody.body.setBodyType(typeEnum, false)
 }
 
 export type RaycastArgs = {
@@ -581,7 +570,7 @@ export const Physics = {
   createColliderAndAttachToRigidBody,
   removeCollidersFromRigidBody,
   removeRigidBody,
-  changeRigidbodyType,
+  setRigidBodyType,
   castRay,
   castRayFromCamera,
   castShape,

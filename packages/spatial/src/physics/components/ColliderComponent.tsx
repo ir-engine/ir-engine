@@ -29,13 +29,10 @@ import {
   UndefinedEntity,
   defineComponent,
   getComponent,
-  hasComponent,
-  useComponent,
-  useEntityContext,
-  useOptionalComponent
+  getMutableComponent,
+  hasComponent
 } from '@etherealengine/ecs'
-import { getState, useHookstate } from '@etherealengine/hyperflux'
-import React, { useLayoutEffect } from 'react'
+import { getState } from '@etherealengine/hyperflux'
 import { Vector3 } from 'three'
 import { traverseEntityNodeParent } from '../../transform/components/EntityTree'
 import { Physics } from '../classes/Physics'
@@ -74,6 +71,19 @@ export const ColliderComponent = defineComponent({
     if (typeof json.restitution === 'number') component.restitution.set(json.restitution)
     if (typeof json.collisionLayer === 'number') component.collisionLayer.set(json.collisionLayer)
     if (typeof json.collisionMask === 'number') component.collisionMask.set(json.collisionMask)
+
+    let rigidbodyEntity = UndefinedEntity
+    if (hasComponent(entity, RigidBodyComponent)) {
+      rigidbodyEntity = entity
+    }
+    traverseEntityNodeParent(entity, (parentEntity) => {
+      if (hasComponent(parentEntity, RigidBodyComponent)) {
+        rigidbodyEntity = parentEntity
+      }
+    })
+    if (!rigidbodyEntity) return
+
+    addColliderToAncestorRigidbody(entity, rigidbodyEntity)
   },
 
   toJSON(entity, component) {
@@ -93,9 +103,7 @@ export const ColliderComponent = defineComponent({
       const physicsWorld = getState(PhysicsState).physicsWorld
       physicsWorld.removeCollider(component.collider.value, false)
     }
-  },
-
-  reactor: ColliderComponentReactor
+  }
 })
 
 export const supportedColliderShapes = [
@@ -108,65 +116,14 @@ export const supportedColliderShapes = [
   // Shapes.Heightfield
 ]
 
-function ColliderComponentReactor() {
-  const entity = useEntityContext()
-  const rigidbodyEntity = useHookstate(UndefinedEntity)
+export const addColliderToAncestorRigidbody = (entity: Entity, rigidbodyEntity: Entity) => {
+  const colliderDesc = Physics.createColliderDesc(entity, rigidbodyEntity, getComponent(entity, ColliderComponent))
+  const rigidbody = getComponent(rigidbodyEntity, RigidBodyComponent).body
 
-  /** @todo we may need to use a useHierarchyComponent sort of thing here */
-  useLayoutEffect(() => {
-    let parentRigidbodyEntity = UndefinedEntity
-    if (hasComponent(entity, RigidBodyComponent)) {
-      parentRigidbodyEntity = entity
-    }
-    traverseEntityNodeParent(entity, (parentEntity) => {
-      if (hasComponent(parentEntity, RigidBodyComponent)) {
-        parentRigidbodyEntity = parentEntity
-      }
-    })
-    rigidbodyEntity.set(parentRigidbodyEntity)
-  }, [])
+  const physicsWorld = getState(PhysicsState).physicsWorld
+  const collider = physicsWorld.createCollider(colliderDesc, rigidbody)
 
-  return rigidbodyEntity.value ? (
-    <ColliderComponentRigidbodyReactor
-      entity={entity}
-      rigidbodyEntity={rigidbodyEntity.value}
-      key={rigidbodyEntity.value}
-    />
-  ) : null
-}
+  getMutableComponent(entity, ColliderComponent).collider.set(collider)
 
-function ColliderComponentRigidbodyReactor(props: { entity: Entity; rigidbodyEntity: Entity }) {
-  const rigidbodyComponent = useComponent(props.rigidbodyEntity, RigidBodyComponent)
-  const isTrigger = !!useOptionalComponent(props.entity, TriggerComponent)
-  const colliderComponent = useComponent(props.entity, ColliderComponent)
-
-  useLayoutEffect(() => {
-    if (!rigidbodyComponent.body.value) return
-
-    const colliderDesc = Physics.createColliderDesc(
-      props.entity,
-      props.rigidbodyEntity,
-      getComponent(props.entity, ColliderComponent)
-    )
-    const rigidbody = rigidbodyComponent.body.value
-
-    const physicsWorld = getState(PhysicsState).physicsWorld
-    const collider = physicsWorld.createCollider(colliderDesc, rigidbody)
-    colliderComponent.collider.set(collider)
-
-    return () => {
-      colliderComponent.collider.set(null)
-      physicsWorld.removeCollider(collider, false)
-    }
-  }, [rigidbodyComponent.body])
-
-  useLayoutEffect(() => {
-    if (!colliderComponent.collider.value) return
-
-    const collider = colliderComponent.collider.value
-
-    collider.setSensor(isTrigger)
-  }, [colliderComponent.collider, isTrigger])
-
-  return null
+  collider.setSensor(hasComponent(entity, TriggerComponent))
 }

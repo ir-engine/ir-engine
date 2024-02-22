@@ -24,9 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineComponent } from '@etherealengine/ecs'
+import { defineComponent, getOptionalComponent } from '@etherealengine/ecs'
 import { NO_PROXY } from '@etherealengine/hyperflux'
 import matches from 'ts-matches'
+import { ColliderComponent } from './ColliderComponent'
 
 export const TriggerComponent = defineComponent({
   name: 'TriggerComponent',
@@ -75,6 +76,17 @@ export const TriggerComponent = defineComponent({
         component.triggers.set(json.triggers)
       }
     }
+
+    const collider = getOptionalComponent(entity, ColliderComponent)?.collider
+    if (!collider) return
+
+    collider.setSensor(true)
+  },
+
+  onRemove(entity, component) {
+    const collider = getOptionalComponent(entity, ColliderComponent)?.collider
+    if (!collider) return
+    collider.setSensor(false)
   },
 
   toJSON(entity, component) {

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ColliderDesc, RigidBodyDesc, RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
+import { ColliderDesc, RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
@@ -33,7 +33,6 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import {
   defineComponent,
   getComponent,
-  getOptionalComponent,
   hasComponent,
   setComponent,
   useComponent,
@@ -47,6 +46,7 @@ import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { CollisionGroups, DefaultCollisionMask } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+import { Body, BodyTypes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
@@ -200,40 +200,24 @@ export const ColliderComponent = defineComponent({
             cleanupAllMeshData(mesh, {})
           }
       } else {
-        const rigidbodyTypeChanged =
-          !hasComponent(entity, RigidBodyComponent) ||
-          colliderComponent.bodyType.value !== getComponent(entity, RigidBodyComponent).body.bodyType()
-
-        if (rigidbodyTypeChanged) {
-          const rigidbody = getOptionalComponent(entity, RigidBodyComponent)?.body
-          /**
-           * If rigidbody exists, simply change it's type
-           */
-          if (rigidbody) {
-            Physics.changeRigidbodyType(entity, colliderComponent.bodyType.value)
-          } else {
-            /**
-             * If rigidbody does not exist, create one
-             */
-            let bodyDesc: RigidBodyDesc
-            switch (colliderComponent.bodyType.value) {
-              case RigidBodyType.Dynamic:
-                bodyDesc = RigidBodyDesc.dynamic()
-                break
-              case RigidBodyType.KinematicPositionBased:
-                bodyDesc = RigidBodyDesc.kinematicPositionBased()
-                break
-              case RigidBodyType.KinematicVelocityBased:
-                bodyDesc = RigidBodyDesc.kinematicVelocityBased()
-                break
-              default:
-              case RigidBodyType.Fixed:
-                bodyDesc = RigidBodyDesc.fixed()
-                break
-            }
-            Physics.createRigidBody(entity, physicsWorld, bodyDesc, [])
-          }
+        /**
+         * If rigidbody does not exist, create one
+         */
+        let type: Body
+        switch (colliderComponent.bodyType.value) {
+          default:
+          case RigidBodyType.Fixed:
+            type = BodyTypes.Fixed
+            break
+          case RigidBodyType.Dynamic:
+            type = BodyTypes.Dynamic
+            break
+          case RigidBodyType.KinematicPositionBased:
+          case RigidBodyType.KinematicVelocityBased:
+            type = BodyTypes.Kinematic
+            break
         }
+        setComponent(entity, RigidBodyComponent, { type })
 
         const rigidbody = getComponent(entity, RigidBodyComponent)
 

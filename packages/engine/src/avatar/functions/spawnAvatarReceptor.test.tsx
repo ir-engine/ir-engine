@@ -42,7 +42,7 @@ import { NetworkPeerFunctions } from '@etherealengine/spatial/src/networking/fun
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import {
   RigidBodyComponent,
-  RigidBodyKinematicPositionBasedTagComponent
+  RigidBodyKinematicTagComponent
 } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
@@ -105,7 +105,7 @@ describe('spawnAvatarReceptor', () => {
     assert(hasComponent(entity, AvatarAnimationComponent))
     assert(hasComponent(entity, AvatarControllerComponent))
     assert(hasComponent(entity, RigidBodyComponent))
-    assert(hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent))
+    assert(hasComponent(entity, RigidBodyKinematicTagComponent))
 
     unmount()
   })

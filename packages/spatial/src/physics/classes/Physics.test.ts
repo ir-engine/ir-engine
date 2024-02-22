@@ -23,14 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  ActiveCollisionTypes,
-  ActiveEvents,
-  ColliderDesc,
-  RigidBodyDesc,
-  RigidBodyType,
-  ShapeType
-} from '@dimforge/rapier3d-compat'
+import { ActiveCollisionTypes, ActiveEvents, ColliderDesc, RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 import assert from 'assert'
 import { Vector3 } from 'three'
 
@@ -52,7 +45,7 @@ import {
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { PhysicsState } from '../state/PhysicsState'
-import { ColliderDescOptions, CollisionEvents, SceneQueryType } from '../types/PhysicsTypes'
+import { BodyTypes, ColliderDescOptions, CollisionEvents, SceneQueryType } from '../types/PhysicsTypes'
 import { Physics } from './Physics'
 
 export const boxDynamicConfig = {
@@ -93,10 +86,11 @@ describe('Physics', () => {
     const entity = createEntity()
     setComponent(entity, TransformComponent)
 
-    const rigidBodyDesc = RigidBodyDesc.dynamic()
     const colliderDesc = ColliderDesc.ball(1)
 
-    const rigidBody = Physics.createRigidBody(entity, physicsWorld, rigidBodyDesc, [colliderDesc])
+    setComponent(entity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+    const rigidBody = getComponent(entity, RigidBodyComponent).body
+    physicsWorld.createCollider(colliderDesc, rigidBody)
 
     assert.deepEqual(physicsWorld.bodies.len(), 1)
     assert.deepEqual(physicsWorld.colliders.len(), 1)
@@ -117,11 +111,12 @@ describe('Physics', () => {
 
     setComponent(entity, TransformComponent)
 
-    const rigidBodyDesc = RigidBodyDesc.fixed()
     const colliderDesc = ColliderDesc.ball(1)
 
-    const rigidBody = Physics.createRigidBody(entity, physicsWorld, rigidBodyDesc, [colliderDesc])
-    const rigidBodyComponent = getTagComponentForRigidBody(rigidBody.bodyType())
+    setComponent(entity, RigidBodyComponent, { type: BodyTypes.Fixed })
+    const rigidBody = getComponent(entity, RigidBodyComponent).body
+    physicsWorld.createCollider(colliderDesc, rigidBody)
+    const rigidBodyComponent = getTagComponentForRigidBody(getComponent(entity, RigidBodyComponent).type)
 
     assert.deepEqual(rigidBodyComponent, RigidBodyFixedTagComponent)
   })
@@ -200,19 +195,17 @@ describe('Physics', () => {
     const entity = createEntity()
     setComponent(entity, TransformComponent)
 
-    const rigidBodyDesc = RigidBodyDesc.dynamic()
     const colliderDesc = ColliderDesc.ball(1)
 
-    const rigidBody = Physics.createRigidBody(entity, physicsWorld, rigidBodyDesc, [colliderDesc])
+    setComponent(entity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+    const rigidBody = getComponent(entity, RigidBodyComponent).body
+    physicsWorld.createCollider(colliderDesc, rigidBody)
 
     assert.deepEqual(physicsWorld.bodies.len(), 1)
     assert.deepEqual(rigidBody.bodyType(), RigidBodyType.Dynamic)
-    assert.deepEqual(hasComponent(entity, RigidBodyDynamicTagComponent), true)
 
-    Physics.changeRigidbodyType(entity, RigidBodyType.Fixed)
+    Physics.setRigidBodyType(entity, BodyTypes.Fixed)
     assert.deepEqual(rigidBody.bodyType(), RigidBodyType.Fixed)
-    assert.deepEqual(hasComponent(entity, RigidBodyDynamicTagComponent), false)
-    assert.deepEqual(hasComponent(entity, RigidBodyFixedTagComponent), true)
   })
 
   it('should create accurate InteractionGroups', async () => {
@@ -230,12 +223,13 @@ describe('Physics', () => {
     setComponent(entity, TransformComponent, { position: new Vector3(10, 0, 0) })
     computeTransformMatrix(entity)
 
-    const rigidBodyDesc = RigidBodyDesc.dynamic()
     const colliderDesc = ColliderDesc.cylinder(5, 5).setCollisionGroups(
       getInteractionGroups(CollisionGroups.Default, CollisionGroups.Default)
     )
 
-    const rigidBody = Physics.createRigidBody(entity, physicsWorld, rigidBodyDesc, [colliderDesc])
+    setComponent(entity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+    const rigidBody = getComponent(entity, RigidBodyComponent).body
+    physicsWorld.createCollider(colliderDesc, rigidBody)
 
     physicsWorld.step()
 
@@ -269,14 +263,18 @@ describe('Physics', () => {
     const collisionEventQueue = Physics.createCollisionEventQueue()
     const drainCollisions = Physics.drainCollisionEventQueue(physicsWorld)
 
-    const rigidBodyDesc = RigidBodyDesc.dynamic()
     const colliderDesc = ColliderDesc.ball(1)
       .setCollisionGroups(getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask))
       .setActiveCollisionTypes(ActiveCollisionTypes.ALL)
       .setActiveEvents(ActiveEvents.COLLISION_EVENTS)
 
-    const rigidBody1 = Physics.createRigidBody(entity1, physicsWorld, rigidBodyDesc, [colliderDesc])
-    const rigidBody2 = Physics.createRigidBody(entity2, physicsWorld, rigidBodyDesc, [colliderDesc])
+    setComponent(entity1, RigidBodyComponent, { type: BodyTypes.Dynamic })
+    const rigidBody1 = getComponent(entity1, RigidBodyComponent).body
+    physicsWorld.createCollider(colliderDesc, rigidBody1)
+
+    setComponent(entity2, RigidBodyComponent, { type: BodyTypes.Dynamic })
+    const rigidBody2 = getComponent(entity2, RigidBodyComponent).body
+    physicsWorld.createCollider(colliderDesc, rigidBody2)
 
     physicsWorld.step(collisionEventQueue)
     collisionEventQueue.drainCollisionEvents(drainCollisions)
@@ -326,15 +324,19 @@ describe('Physics', () => {
     const collisionEventQueue = Physics.createCollisionEventQueue()
     const drainCollisions = Physics.drainCollisionEventQueue(physicsWorld)
 
-    const rigidBodyDesc = RigidBodyDesc.dynamic()
     const colliderDesc = ColliderDesc.ball(1)
       .setCollisionGroups(getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask))
       .setActiveCollisionTypes(ActiveCollisionTypes.ALL)
       .setActiveEvents(ActiveEvents.COLLISION_EVENTS)
       .setSensor(true)
 
-    const rigidBody1 = Physics.createRigidBody(entity1, physicsWorld, rigidBodyDesc, [colliderDesc])
-    const rigidBody2 = Physics.createRigidBody(entity2, physicsWorld, rigidBodyDesc, [colliderDesc])
+    setComponent(entity1, RigidBodyComponent, { type: BodyTypes.Dynamic })
+    const rigidBody1 = getComponent(entity1, RigidBodyComponent).body
+    physicsWorld.createCollider(colliderDesc, rigidBody1)
+
+    setComponent(entity2, RigidBodyComponent, { type: BodyTypes.Dynamic })
+    const rigidBody2 = getComponent(entity2, RigidBodyComponent).body
+    physicsWorld.createCollider(colliderDesc, rigidBody2)
 
     physicsWorld.step(collisionEventQueue)
     collisionEventQueue.drainCollisionEvents(drainCollisions)
