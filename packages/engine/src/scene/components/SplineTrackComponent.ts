@@ -50,7 +50,7 @@ const _point1Vector = new Vector3()
 
 export const SplineTrackComponent = defineComponent({
   name: 'SplineTrackComponent',
-  jsonID: 'spline-track',
+  jsonID: 'EE_spline_track',
 
   onInit: (entity) => {
     return {

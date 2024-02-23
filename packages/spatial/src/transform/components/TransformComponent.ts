@@ -55,7 +55,7 @@ export const TransformSchema = {
 
 export const TransformComponent = defineComponent({
   name: 'TransformComponent',
-  jsonID: 'transform',
+  jsonID: 'EE_transform',
   schema: TransformSchema,
 
   onInit: (entity) => {

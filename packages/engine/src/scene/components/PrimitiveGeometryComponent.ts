@@ -55,7 +55,7 @@ import { GeometryTypeEnum } from '../constants/GeometryTypeEnum'
 
 export const PrimitiveGeometryComponent = defineComponent({
   name: 'PrimitiveGeometryComponent',
-  jsonID: 'primitive-geometry',
+  jsonID: 'EE_primitive_geometry',
 
   onInit: (entity) => {
     return {

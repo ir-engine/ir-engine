@@ -272,10 +272,16 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   }
 
   const findColliderData = (obj: Object3D) => {
-    if (Object.keys(obj.userData).find((key) => key.startsWith('xrengine.collider'))) {
+    if (
+      Object.keys(obj.userData).find(
+        (key) => key.startsWith('xrengine.collider') || key.startsWith('xrengine.EE_collider')
+      )
+    ) {
       return true
     } else if (obj.parent) {
-      return Object.keys(obj.parent.userData).some((key) => key.startsWith('xrengine.collider'))
+      return Object.keys(obj.parent.userData).some(
+        (key) => key.startsWith('xrengine.collider') || key.startsWith('xrengine.EE_collider')
+      )
     }
     return false
   }
