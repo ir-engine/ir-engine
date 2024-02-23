@@ -57,7 +57,7 @@ export class EEECSExporterExtension extends ExporterExtension implements GLTFExp
         continue
       const compData = serializeComponent(entity, component)
       if (!compData) continue
-      const extensionName = component.jsonID.startsWith('EE_') ? component.jsonID : `EE_${component.jsonID}`
+      const extensionName = component.jsonID
       nodeDef.extensions = nodeDef.extensions ?? {}
       nodeDef.extensions[extensionName] = compData
       this.writer.extensionsUsed[extensionName] = true
