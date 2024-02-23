@@ -136,14 +136,19 @@ export const TransformGizmoControlComponent = defineComponent({
         const pickerInputSourceEntity = getComponent(visualComponent.picker[TransformMode.translate], InputComponent)
           .inputSources[0]
         const planeInputSourceEntity = getComponent(gizmoControlComponent.planeEntity, InputComponent).inputSources[0]
-        if (pickerInputSourceEntity === undefined && planeInputSourceEntity === undefined) return
-
+        if (pickerInputSourceEntity === undefined && planeInputSourceEntity === undefined) {
+          onPointerUp(gizmoControlEntity)
+          return
+        }
         onPointerHover(gizmoControlEntity)
 
         const pickerButtons = getOptionalComponent(pickerInputSourceEntity, InputSourceComponent)?.buttons
         const planeButtons = getOptionalComponent(planeInputSourceEntity, InputSourceComponent)?.buttons
 
-        if (!pickerButtons && !planeButtons) return
+        if (!pickerButtons && !planeButtons) {
+          onPointerUp(gizmoControlEntity)
+          return
+        }
 
         if (!pickerButtons?.PrimaryClick?.touched && !planeButtons?.PrimaryClick?.touched) return
 
