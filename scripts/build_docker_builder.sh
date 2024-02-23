@@ -24,11 +24,11 @@ fi
 
 docker buildx build \
     --push \
-    --cache-to type=registry,mode=max,image-manifest=true,ref=$ECR_URL/$REPO_NAME-root:latest_${STAGE}_cache \
-    --cache-from type=registry,ref=$ECR_URL/$REPO_NAME-root:latest_${STAGE}_cache \
+    --cache-to type=registry,mode=max,image-manifest=true,ref=public.ecr.aws/x0k5y3h8/etherealengine-qat-root:latest_${STAGE}_cache \
+    --cache-from type=registry,ref=public.ecr.aws/x0k5y3h8/etherealengine-qat-root:latest_${STAGE}_cache \
     --build-arg NODE_ENV=$NODE_ENV \
-    -t $ECR_URL/$REPO_NAME-root:${TAG} \
-    -t $ECR_URL/$REPO_NAME-root:latest_$STAGE \
+    -t public.ecr.aws/x0k5y3h8/etherealengine-qat-root:${TAG} \
+    -t public.ecr.aws/x0k5y3h8/etherealengine-qatE-root:latest_$STAGE \
     -f dockerfiles/root/Dockerfile-root .
 
 if [ $PUBLISH_DOCKERHUB == 'true' ]
