@@ -27,7 +27,13 @@ import { useEffect } from 'react'
 import { AxesHelper, Quaternion, Vector3 } from 'three'
 
 import { Engine } from '@etherealengine/ecs'
-import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  getOptionalComponent,
+  setComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -122,8 +128,8 @@ export const getHandTarget = (entity: Entity, hand: XRHandedness): HandTargetRet
   if (targetEntity && AvatarIKTargetComponent.blendWeight[targetEntity] > 0)
     return getComponent(targetEntity, TransformComponent)
 
-  const rig = getComponent(entity, AvatarRigComponent)
-  if (!rig) return getComponent(entity, TransformComponent)
+  const rig = getOptionalComponent(entity, AvatarRigComponent)
+  if (!rig?.rawRig) return getComponent(entity, TransformComponent)
 
   switch (hand) {
     case 'left':

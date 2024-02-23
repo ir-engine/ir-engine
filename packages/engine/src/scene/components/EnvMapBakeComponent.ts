@@ -58,7 +58,7 @@ import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
 
 export const EnvMapBakeComponent = defineComponent({
   name: 'EnvMapBakeComponent',
-  jsonID: 'envmapbake',
+  jsonID: 'EE_envmapbake',
 
   onInit: (entity) => {
     return {

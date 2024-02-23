@@ -33,7 +33,7 @@ import { CameraSettingsState } from '@etherealengine/spatial/src/camera/CameraSc
 
 export const CameraSettingsComponent = defineComponent({
   name: 'CameraSettingsComponent',
-  jsonID: 'camera-settings',
+  jsonID: 'EE_camera_settings',
 
   onInit(entity): typeof CameraSettingsState._TYPE {
     return typeof CameraSettingsState.initial === 'function'
