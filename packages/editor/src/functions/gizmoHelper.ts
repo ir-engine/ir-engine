@@ -783,7 +783,8 @@ function pointerMove(pointer, gizmoEntity) {
       space,
       gizmoControlComponent.translationSnap.value
     )
-    setComponent(entity, TransformComponent, { position: newPosition })
+    EditorControlFunctions.positionObject([entity], [newPosition])
+    //setComponent(entity, TransformComponent, { position: newPosition })
     if (
       gizmoControlComponent.controlledEntities.value.length > 1 &&
       gizmoControlComponent.pivotEntity.value !== UndefinedEntity
@@ -798,7 +799,8 @@ function pointerMove(pointer, gizmoEntity) {
           gizmoControlComponent.translationSnap.value,
           true
         )
-        setComponent(cEntity, TransformComponent, { position: newPosition })
+        EditorControlFunctions.positionObject([cEntity], [newPosition])
+        //setComponent(cEntity, TransformComponent, { position: newPosition })
       }
     }
   } else if (mode === TransformMode.scale) {
@@ -809,7 +811,8 @@ function pointerMove(pointer, gizmoEntity) {
       axis,
       gizmoControlComponent.scaleSnap.value
     )
-    setComponent(entity, TransformComponent, { scale: newScale })
+    EditorControlFunctions.scaleObject([entity], [newScale], true)
+    //setComponent(entity, TransformComponent, { scale: newScale })
     if (
       gizmoControlComponent.controlledEntities.value.length > 1 &&
       gizmoControlComponent.pivotEntity.value !== UndefinedEntity
@@ -826,12 +829,16 @@ function pointerMove(pointer, gizmoEntity) {
         const newPosition = getComponent(cEntity, TransformComponent).position
         const newDistance = _positionMultiStart[cEntity].clone().sub(_positionStart.clone()).multiply(_tempVector2)
         newPosition.copy(newDistance.add(_positionStart))
-        setComponent(cEntity, TransformComponent, { position: newPosition, scale: newScale })
+        EditorControlFunctions.scaleObject([cEntity], [newScale], true)
+        EditorControlFunctions.positionObject([cEntity], [newPosition])
+        //setComponent(cEntity, TransformComponent, { position: newPosition, scale: newScale })
       }
     }
   } else if (mode === TransformMode.rotate) {
     const newRotation = applyRotation(entity, gizmoControlComponent, axis, space)
-    setComponent(entity, TransformComponent, { rotation: newRotation })
+    const euler = new Euler().setFromQuaternion(newRotation, 'XYZ')
+    EditorControlFunctions.rotateObject([entity], [euler])
+    //setComponent(entity, TransformComponent, { rotation: newRotation })
     if (
       gizmoControlComponent.controlledEntities.value.length > 1 &&
       gizmoControlComponent.pivotEntity.value !== UndefinedEntity
@@ -857,11 +864,10 @@ function pointerMove(pointer, gizmoEntity) {
           originToPivotMatrix,
           rotationMatrix
         )
-        setComponent(cEntity, TransformComponent, {
-          position: newPosition,
-          rotation: newRotation,
-          scale: newScale
-        })
+        EditorControlFunctions.positionObject([cEntity], [newPosition])
+        const euler = new Euler().setFromQuaternion(newRotation, 'XYZ')
+        EditorControlFunctions.rotateObject([cEntity], [euler])
+        EditorControlFunctions.scaleObject([cEntity], [newScale], true)
       }
     }
   }
