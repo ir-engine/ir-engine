@@ -23,37 +23,98 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { Heuristic, VariantComponent, VariantLevel } from '@etherealengine/engine/src/scene/components/VariantComponent'
-import { State } from '@etherealengine/hyperflux'
+import { State, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import DeblurIcon from '@mui/icons-material/Deblur'
 
+import { ResourceManager, ResourceState, ResourceType } from '@etherealengine/engine/src/assets/state/ResourceState'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import NumericInput from '../inputs/NumericInput'
 import SelectInput from '../inputs/SelectInput'
+import Center from '../layout/Center'
 import PaginatedList from '../layout/PaginatedList'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, commitProperties, commitProperty } from './Util'
+
+const buildBudgetVariantMetadata = (
+  levels: VariantLevel[],
+  index: number,
+  callback: (index: number, maxTextureSize: number, vertexCount: number) => void
+) => {
+  const src = levels[index].src
+  ResourceManager.load(
+    src,
+    ResourceType.GLTF,
+    UndefinedEntity,
+    {},
+    () => {
+      const metadata = getState(ResourceState).resources[src].metadata as { verts: number; textureWidths: number[] }
+      const maxTextureSize = metadata.textureWidths ? Math.max(...metadata.textureWidths) : 0
+      const verts = metadata.verts
+      callback(index, maxTextureSize, verts)
+      ResourceManager.unload(src, UndefinedEntity)
+      if (index < levels.length - 1) buildBudgetVariantMetadata(levels, index + 1, callback)
+    },
+    () => {},
+    (error) => {
+      console.warn(
+        `VariantNodeEditor:buildBudgetVariantMetadata: error loading ${src} to build variant metadata`,
+        error
+      )
+      callback(levels.length - 1, 0, 0)
+    },
+    new AbortController().signal
+  )
+}
 
 export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
   const { t } = useTranslation()
   const entity = props.entity
   const variantComponent = useComponent(entity, VariantComponent)
+  const buildingMetadata = useHookstate(false)
 
-  if (variantComponent.heuristic.value === Heuristic.BUDGET) {
-    for (let i = 0; i < variantComponent.levels.length; i++) {
-      if (variantComponent.levels[i].metadata['useDistance'].value === undefined)
-        variantComponent.levels[i].metadata.merge({ useDistance: false })
+  useEffect(() => {
+    if (variantComponent.heuristic.value === Heuristic.BUDGET) {
+      let updateMetadata = false
+      for (let i = 0; i < variantComponent.levels.length; i++) {
+        const level = variantComponent.levels[i]
+        const metadata = level.metadata
+        if (metadata['useDistance'].value === undefined) metadata.merge({ useDistance: false })
+        if (level.src.value) {
+          if (
+            metadata['maxTextureSize'].value === undefined ||
+            metadata['vertexCount'].value === undefined ||
+            metadata['vertexCount'].value === 0
+          )
+            updateMetadata = true
+        }
+      }
+
+      if (updateMetadata && !buildingMetadata.value) {
+        buildingMetadata.set(true)
+        buildBudgetVariantMetadata(
+          variantComponent.levels.value,
+          0,
+          (index: number, maxTextureSize: number, vertexCount: number) => {
+            variantComponent.levels[index].metadata.merge({
+              maxTextureSize: maxTextureSize,
+              vertexCount: vertexCount
+            })
+            if (index == variantComponent.levels.length - 1) buildingMetadata.set(false)
+          }
+        )
+      }
     }
-  }
+  })
 
   return (
     <NodeEditor
@@ -137,12 +198,24 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
                   )}
                   {variantComponent.heuristic.value === Heuristic.BUDGET && (
                     <>
-                      <InputGroup name="Cast Shadow" label={t('editor:properties.variant.useDistance')}>
-                        <BooleanInput
-                          value={level.metadata['useDistance'].value}
-                          onChange={commitProperty(VariantComponent, `levels.${index}.metadata.useDistance` as any)}
-                        />
-                      </InputGroup>
+                      {level.metadata['maxTextureSize'].value !== undefined && (
+                        <Center>{`${t('editor:properties.variant.textureSize')} ${
+                          level.metadata['maxTextureSize'].value
+                        }`}</Center>
+                      )}
+                      {level.metadata['vertexCount'].value !== undefined && (
+                        <Center>{`${t('editor:properties.variant.vertexCount')} ${
+                          level.metadata['vertexCount'].value
+                        }`}</Center>
+                      )}
+                      {level.metadata['useDistance'].value !== undefined && (
+                        <InputGroup name="Cast Shadow" label={t('editor:properties.variant.useDistance')}>
+                          <BooleanInput
+                            value={level.metadata['useDistance'].value}
+                            onChange={commitProperty(VariantComponent, `levels.${index}.metadata.useDistance` as any)}
+                          />
+                        </InputGroup>
+                      )}
                       {level.metadata['useDistance'].value && (
                         <>
                           <InputGroup name="minDistance" label={t('editor:properties.variant.minDistance')}>

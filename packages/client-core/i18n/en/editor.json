@@ -352,6 +352,8 @@
       "heuristic-device": "Device",
       "heuristic-budget": "Budget",
       "useDistance": "Use Distance",
+      "textureSize": "Texture Size: ",
+      "vertexCount": "Vertices: ",
       "minDistance": "Minimum Distance",
       "maxDistance": "Maximum Distance",
       "src": "Source"

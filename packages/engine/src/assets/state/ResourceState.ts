@@ -62,9 +62,11 @@ type BaseMetadata = {
 
 type GLTFMetadata = {
   verts: number
+  textureWidths: number[]
 } & BaseMetadata
 
 type TexutreMetadata = {
+  textureWidth: number
   onGPU: boolean
 } & BaseMetadata
 
@@ -132,13 +134,15 @@ const onItemStart = (url: string) => {
 
 const onStart = (url: string, loaded: number, total: number) => {}
 const onLoad = () => {
-  const totalSize = getCurrentSizeOfResources()
-  const totalVerts = getCurrentVertCountOfResources()
-  debugLog('Loaded: ' + totalSize + ' bytes of resources')
-  debugLog(totalVerts + ' Vertices')
+  if (debug) {
+    const totalSize = getCurrentSizeOfResources()
+    const totalVerts = getCurrentVertCountOfResources()
+    debugLog('Loaded: ' + totalSize + ' bytes of resources')
+    debugLog(totalVerts + ' Vertices')
 
-  //@ts-ignore
-  if (debug) window.resources = getState(ResourceState)
+    //@ts-ignore
+    window.resources = getState(ResourceState)
+  }
 }
 
 const onItemLoadedFor = <T extends AssetType>(url: string, resourceType: ResourceType, id: string, asset: T) => {
@@ -235,16 +239,27 @@ const Callbacks = {
   [ResourceType.GLTF]: {
     onStart: (resource: State<Resource>) => {},
     onLoad: (response: GLTF, resource: State<Resource>) => {
+      const resources = getMutableState(ResourceState).nested('resources')
       const geometryIDs = resource.assetRefs[ResourceType.Geometry]
+      const metadata = resource.metadata as State<GLTFMetadata>
       if (geometryIDs && geometryIDs.value) {
-        const resources = getMutableState(ResourceState).nested('resources')
         let vertexCount = 0
         for (const geoID of geometryIDs.value) {
-          const resource = resources[geoID].value
-          const verts = (resource.metadata as GLTFMetadata).verts
+          const geoResource = resources[geoID].value
+          const verts = (geoResource.metadata as GLTFMetadata).verts
           if (verts) vertexCount += verts
         }
-        resource.metadata.merge({ verts: vertexCount })
+        metadata.merge({ verts: vertexCount })
+      }
+      const textureIDs = resource.assetRefs[ResourceType.Texture]
+      if (textureIDs && textureIDs.value) {
+        const textureWidths = [] as number[]
+        for (const textureID of textureIDs.value) {
+          const texResource = resources[textureID].value
+          const textureWidth = (texResource.metadata as TexutreMetadata).textureWidth
+          if (textureWidth) textureWidths.push(textureWidth)
+        }
+        metadata.textureWidths.set(textureWidths)
       }
     },
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {
@@ -276,6 +291,8 @@ const Callbacks = {
         const size = width * height * 4
         resource.metadata.size.set(size)
       }
+
+      resource.metadata.merge({ textureWidth: response.image.width })
     },
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {}
@@ -303,6 +320,12 @@ const Callbacks = {
       }
       resource.metadata.size.set(size)
     },
+    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
+    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {}
+  },
+  [ResourceType.Unknown]: {
+    onStart: (resource: State<Resource>) => {},
+    onLoad: (response: Material, resource: State<Resource>) => {},
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {}
   }
@@ -339,6 +362,7 @@ const load = <T extends AssetType>(
 ) => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
+  let callbacks = Callbacks[resourceType]
   if (!resources[url].value) {
     resources.merge({
       [url]: {
@@ -350,11 +374,12 @@ const load = <T extends AssetType>(
       }
     })
   } else {
+    //No need for callbacks if the asset has already been loaded
+    callbacks = Callbacks[ResourceType.Unknown]
     resources[url].references.merge([entity])
   }
 
   const resource = resources[url]
-  const callbacks = Callbacks[resourceType]
   callbacks.onStart(resource)
   debugLog('ResourceManager:load Loading resource: ' + url + ' for entity: ' + entity)
   AssetLoader.load(
@@ -376,6 +401,7 @@ const load = <T extends AssetType>(
       resource.status.set(ResourceStatus.Error)
       callbacks.onError(error, resource)
       onError(error)
+      unload(url, entity)
     },
     signal
   )

@@ -38,8 +38,7 @@ import {
   Node,
   Primitive,
   Texture,
-  Transform,
-  vec2
+  Transform
 } from '@gltf-transform/core'
 import { EXTMeshGPUInstancing, EXTMeshoptCompression, KHRTextureBasisu } from '@gltf-transform/extensions'
 import {
@@ -724,11 +723,12 @@ export async function transformModel(
     }
   }
 
-  const textureMetadata = {} as Record<string, vec2 | null>
+  let maxTextureSize = 0
   for (const texture of textures) {
-    textureMetadata[texture.getName()] = texture.getSize()
+    const size = texture.getSize()
+    if (size && size[0] > maxTextureSize) maxTextureSize = size[0]
   }
-  onMetadata('textureSizes', textureMetadata)
+  onMetadata('maxTextureSize', maxTextureSize)
 
   let result
   if (['glb', 'vrm'].includes(parms.modelFormat)) {

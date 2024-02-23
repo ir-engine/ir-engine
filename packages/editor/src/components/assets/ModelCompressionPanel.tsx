@@ -54,6 +54,7 @@ import exportGLTF from '../../functions/exportGLTF'
 
 import { removeEntityNodeRecursively } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { Box, ListItemButton, ListItemText, Modal } from '@mui/material'
+import { LoaderUtils } from 'three'
 import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
 import { List, ListItem } from '../layout/List'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
@@ -82,14 +83,17 @@ export const createLODVariants = async (
   }
 
   if (exportCombined) {
+    const modelSrc = `${LoaderUtils.extractUrlBase(lods[0].params.src)}${lods[0].params.dst}.${
+      lods[0].params.modelFormat
+    }`
     const result = createSceneEntity('container')
     setComponent(result, ModelComponent)
     const variant = createSceneEntity('LOD Variant', result)
-    setComponent(variant, ModelComponent)
+    setComponent(variant, ModelComponent, { src: modelSrc })
     setComponent(variant, VariantComponent, {
       levels: lods.map((lod, lodIndex) => {
         return {
-          src: lod.params.dst,
+          src: `${LoaderUtils.extractUrlBase(lod.params.src)}${lod.params.dst}.${lod.params.modelFormat}`,
           metadata: {
             ...lod.variantMetadata,
             ...transformMetadata[lodIndex]
@@ -194,12 +198,8 @@ export default function ModelCompressionPanel({
       const lod = JSON.parse(JSON.stringify(defaultLOD)) as LODVariantDescriptor
       lod.params.src = fullSrc
       lod.params.dst = fileName + lod.suffix
-      lod.params.modelFormat = fileProperties.url.value.endsWith('.gltf')
-        ? 'gltf'
-        : fileProperties.url.value.endsWith('.vrm')
-        ? 'vrm'
-        : 'glb'
-      lod.params.resourceUri = fullSrc
+      lod.params.modelFormat = fullSrc.endsWith('.gltf') ? 'gltf' : fullSrc.endsWith('.vrm') ? 'vrm' : 'glb'
+      lod.params.resourceUri = ''
       return lod
     })
 
