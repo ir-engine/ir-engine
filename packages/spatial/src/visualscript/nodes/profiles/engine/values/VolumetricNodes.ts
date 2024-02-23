@@ -35,7 +35,7 @@ import { Tween } from '@tweenjs/tween.js'
  * playVolumetric: Play / pause volumetric video
  */
 export const playVolumetric = makeFlowNodeDefinition({
-  typeName: 'engine/playVolumetric',
+  typeName: 'engine/media/volumetric/playVolumetric',
   category: NodeCategory.Action,
   label: 'Play Volumetric',
   in: {
@@ -58,7 +58,7 @@ export const playVolumetric = makeFlowNodeDefinition({
  * setVolumetricTime: Set volumetric video time
  */
 export const setVolumetricTime = makeFlowNodeDefinition({
-  typeName: 'engine/setVolumetricTime',
+  typeName: 'engine/media/volumetric/setVolumetricTime',
   category: NodeCategory.Action,
   label: 'Set Volumetric Time',
   in: {
@@ -81,7 +81,7 @@ export const setVolumetricTime = makeFlowNodeDefinition({
  * fadeVolumetricVolume: fade in/out volumetric audio volume
  */
 export const fadeVolumetricAudioVolume = makeFlowNodeDefinition({
-  typeName: 'engine/fadeVolumetricVolume',
+  typeName: 'engine/media/volumetric/fadeVolumetricVolume',
   category: NodeCategory.Effect,
   label: 'Fade Volumetric Volume',
   in: {

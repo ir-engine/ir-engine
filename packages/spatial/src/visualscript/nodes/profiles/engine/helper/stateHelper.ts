@@ -70,7 +70,7 @@ export function registerStateSetters() {
       continue
     }
     const node = makeFlowNodeDefinition({
-      typeName: `engine/state/set${stateName}`,
+      typeName: `engine/state/${stateName}/set`,
       category: NodeCategory.Action,
       label: `set ${stateName}`,
       in: {
@@ -107,7 +107,7 @@ export function registerStateGetters() {
       continue
     }
     const node = makeFlowNodeDefinition({
-      typeName: `engine/state/get${stateName}`,
+      typeName: `engine/state/${stateName}/get`,
       category: NodeCategory.Query,
       label: `get ${stateName}`,
       in: {
