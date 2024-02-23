@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
+import { twMerge } from 'tailwind-merge'
 
 export const Radio = ({
   name,
@@ -57,14 +58,16 @@ export const Radio = ({
 const Radios = ({
   currentValue,
   options,
-  onChange
+  onChange,
+  className
 }: {
   currentValue: any
   options: { name: string; value: any }[]
   onChange: (value: any) => void
+  className?: string
 }) => {
   return (
-    <div className="grid gap-6">
+    <div className={twMerge('grid gap-6', className)}>
       {options.map(({ name, value }) => (
         <Radio
           key={name}

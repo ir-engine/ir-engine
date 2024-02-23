@@ -56,7 +56,6 @@ import { ComponentJsonType, SceneID } from '@etherealengine/common/src/schema.ty
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { EditorHelperState } from '../services/EditorHelperState'
@@ -353,10 +352,10 @@ const positionObject = (
 
     updateComponent(entity, TransformComponent, { position: transform.position })
 
-    if (hasComponent(entity, RigidBodyComponent)) {
-      getComponent(entity, RigidBodyComponent).position.copy(transform.position)
-      getComponent(entity, RigidBodyComponent).body.setTranslation(transform.position, true)
-    }
+    iterateEntityNode(entity, (entity) => {
+      computeTransformMatrix(entity)
+      TransformComponent.dirtyTransforms[entity] = true
+    })
   }
 }
 
@@ -367,13 +366,12 @@ const rotateObject = (nodes: Entity[], rotations: Euler[], space = getState(Edit
   for (let i = 0; i < nodes.length; i++) {
     const entity = nodes[i]
 
-    const transform = getComponent(entity, TransformComponent)
-
     T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
 
+    const transform = getComponent(entity, TransformComponent)
+
     if (space === TransformSpace.local) {
-      updateComponent(entity, TransformComponent, { rotation: T_QUAT_1 })
-      computeTransformMatrix(entity)
+      transform.rotation.copy(T_QUAT_1)
     } else {
       const entityTreeComponent = getComponent(entity, EntityTreeComponent)
       const parentTransform = entityTreeComponent.parentEntity
@@ -390,10 +388,10 @@ const rotateObject = (nodes: Entity[], rotations: Euler[], space = getState(Edit
 
     updateComponent(entity, TransformComponent, { rotation: transform.rotation })
 
-    if (hasComponent(entity, RigidBodyComponent)) {
-      getComponent(entity, RigidBodyComponent).rotation.copy(transform.rotation)
-      getComponent(entity, RigidBodyComponent).body.setRotation(transform.rotation, true)
-    }
+    iterateEntityNode(entity, (entity) => {
+      computeTransformMatrix(entity)
+      TransformComponent.dirtyTransforms[entity] = true
+    })
   }
 }
 
@@ -420,11 +418,6 @@ const rotateAround = (entities: Entity[], axis: Vector3, angle: number, pivot: V
       .decompose(transform.position, transform.rotation, transform.scale)
 
     updateComponent(entity, TransformComponent, { rotation: transform.rotation })
-
-    if (hasComponent(entity, RigidBodyComponent)) {
-      getComponent(entity, RigidBodyComponent).rotation.copy(transform.rotation)
-      getComponent(entity, RigidBodyComponent).body.setRotation(transform.rotation, true)
-    }
   }
 }
 

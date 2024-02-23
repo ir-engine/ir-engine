@@ -85,7 +85,7 @@ export const PortalState = defineState({
 
 export const PortalComponent = defineComponent({
   name: 'PortalComponent',
-  jsonID: 'portal',
+  jsonID: 'EE_portal',
 
   onInit: (entity) => {
     return {

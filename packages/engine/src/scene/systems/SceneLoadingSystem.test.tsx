@@ -48,6 +48,7 @@ import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { FogSettingsComponent } from '../components/FogSettingsComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
+import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { SceneLoadingSystem } from './SceneLoadingSystem'
 
 const NODE_TLS_REJECT_UNAUTHORIZED = process.env.NODE_TLS_REJECT_UNAUTHORIZED
@@ -249,7 +250,7 @@ describe('SceneLoadingSystem', () => {
     )
     const fog = getComponent(child2_1Entity, FogSettingsComponent)
     const originalfogData = testScene.scene.entities['child_2_1'].components.filter(
-      (component) => component.name === 'fog'
+      (component) => component.name === FogSettingsComponent.jsonID
     )[0]
     assert.deepStrictEqual(fog, originalfogData.props, 'fog component does not match')
 
@@ -262,7 +263,7 @@ describe('SceneLoadingSystem', () => {
     getMutableState(PhysicsState).physicsWorld.set({} as any)
     // its easier to just add the component to the scene and remove it at the end
     const dynamicLoadJson = {
-      name: 'dynamic-load',
+      name: SceneDynamicLoadTagComponent.jsonID,
       props: {
         mode: 'distance',
         distance: 2,
@@ -312,7 +313,7 @@ describe('SceneLoadingSystem', () => {
     console.log('DEBUG', child1Entity)
     assert.equal(child1Entity, UndefinedEntity, 'child_1 entity found')
     testScene.scene.entities['child_0'].components = testScene.scene.entities['child_0'].components.filter(
-      (component) => component.name !== 'dynamic-load'
+      (component) => component.name !== SceneDynamicLoadTagComponent.jsonID
     )
 
     unmount()
@@ -325,7 +326,7 @@ describe('SceneLoadingSystem', () => {
 
     // its easier to just add the component to the scene and remove it at the end
     const dynamicLoadJson = {
-      name: 'dynamic-load',
+      name: SceneDynamicLoadTagComponent.jsonID,
       props: {
         mode: 'distance',
         distance: 2,
@@ -449,7 +450,7 @@ describe('SceneLoadingSystem', () => {
       'child_2_1 entity does not have parentEntity as child_2 entity'
     )
     testScene.scene.entities['child_0'].components = testScene.scene.entities['child_0'].components.filter(
-      (component) => component.name !== 'dynamic-load'
+      (component) => component.name !== SceneDynamicLoadTagComponent.jsonID
     )
     unmount()
   })

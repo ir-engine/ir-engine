@@ -73,8 +73,8 @@ import { SourceComponent } from './SourceComponent'
 const entitiesInModelHierarchy = {} as Record<Entity, Entity[]>
 
 export const ModelComponent = defineComponent({
-  name: 'Model Component',
-  jsonID: 'gltf-model',
+  name: 'ModelComponent',
+  jsonID: 'EE_model',
 
   onInit: (entity) => {
     return {

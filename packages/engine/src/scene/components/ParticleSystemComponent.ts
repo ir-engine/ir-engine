@@ -763,8 +763,8 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ExpandedSystemJSON = {
 }
 
 export const ParticleSystemComponent = defineComponent({
-  name: 'EE_ParticleSystem',
-  jsonID: 'particle-system',
+  name: 'ParticleSystemComponent',
+  jsonID: 'EE_particle_system',
   onInit: (entity) => {
     return {
       systemParameters: DEFAULT_PARTICLE_SYSTEM_PARAMETERS,
@@ -920,6 +920,12 @@ export const ParticleSystemComponent = defineComponent({
             if (typeof value?.dispose === 'function') value.dispose()
           }
           batch.dispose()
+          batchRenderer.value.systemToBatchIndex.clear()
+          for (let i = 0; i < batchRenderer.value.batches.length; i++) {
+            for (const system of batchRenderer.value.batches[i].systems) {
+              batchRenderer.value.systemToBatchIndex.set(system, i)
+            }
+          }
         }
       }
     }, [geoDependency, shapeMesh, textureState, componentState._refresh])

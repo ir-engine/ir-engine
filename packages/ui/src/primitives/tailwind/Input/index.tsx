@@ -24,24 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { InputHTMLAttributes } from 'react'
+import { HiXCircle } from 'react-icons/hi'
 import { twMerge } from 'tailwind-merge'
-
-export interface LabelProps extends React.HtmlHTMLAttributes<HTMLLabelElement> {
-  className?: string
-}
-
-const Label = ({ className, children }: LabelProps) => {
-  return (
-    <label
-      className={twMerge(
-        'text-theme-secondary text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
-        className
-      )}
-    >
-      {children}
-    </label>
-  )
-}
+import Label from '../Label'
 
 export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   value: string | number
@@ -50,21 +35,25 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   description?: string
   type?: InputHTMLAttributes<HTMLInputElement>['type']
   onChange: InputHTMLAttributes<HTMLInputElement>['onChange']
+  error?: string
+  disabled?: boolean
 }
 
 const Input = ({
   inputClassName,
   label,
   type = 'text',
+  error,
   description,
   value,
   itemType,
   onChange,
+  disabled,
   ...props
 }: InputProps) => {
   const twInputClassname = twMerge(
     'text-base font-normal tracking-tight',
-    'textshadow-sm flex h-9 w-full rounded-lg border bg-transparent px-3.5 py-5 transition-colors',
+    'textshadow-sm border-theme-primary flex h-9 w-full rounded-lg border bg-transparent px-3.5 py-5 transition-colors',
     'file:border-0 file:bg-transparent file:text-sm file:font-medium',
     'placeholder:text-muted-foreground focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50',
     inputClassName
@@ -73,8 +62,20 @@ const Input = ({
   return (
     <div className="flex w-full flex-col items-center gap-2">
       {label && <Label className="self-stretch">{label}</Label>}
-      <input type={type} className={twInputClassname} value={value} onChange={onChange} {...props} />
-      {description && <p className="text-theme-secondary text-muted-foreground self-stretch text-xs">{description}</p>}
+      <input
+        disabled={disabled}
+        type={type}
+        className={twInputClassname}
+        value={value}
+        onChange={onChange}
+        {...props}
+      />
+      {description && <p className="text-theme-secondary self-stretch text-xs">{description}</p>}
+      {error && (
+        <p className="text-[#E11D48 text-sm">
+          <HiXCircle className="mr-2.5" /> {error}
+        </p>
+      )}
     </div>
   )
 }

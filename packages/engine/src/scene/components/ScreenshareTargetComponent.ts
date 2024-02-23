@@ -27,6 +27,6 @@ import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
 export const ScreenshareTargetComponent = defineComponent({
   name: 'ScreenshareTargetComponent',
-  jsonID: 'screensharetarget',
+  jsonID: 'EE_screenshare_target',
   toJSON: () => true
 })

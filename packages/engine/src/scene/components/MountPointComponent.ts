@@ -48,7 +48,7 @@ export type MountPointTypes = (typeof MountPoint)[keyof typeof MountPoint]
 
 export const MountPointComponent = defineComponent({
   name: 'MountPointComponent',
-  jsonID: 'mount-point',
+  jsonID: 'EE_mount_point',
 
   onInit: (entity) => {
     return {

@@ -33,7 +33,7 @@ import { UpdatableCallback, UpdatableComponent } from './UpdatableComponent'
 
 export const WaterComponent = defineComponent({
   name: 'WaterComponent',
-  jsonID: 'water',
+  jsonID: 'EE_water',
 
   onInit(entity) {
     const water = new Water()

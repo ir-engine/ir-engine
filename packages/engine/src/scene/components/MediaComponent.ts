@@ -125,8 +125,8 @@ export const MediaElementComponent = defineComponent({
 })
 
 export const MediaComponent = defineComponent({
-  name: 'EE_media',
-  jsonID: 'media',
+  name: 'MediaComponent',
+  jsonID: 'EE_media',
 
   onInit: (entity) => {
     return {

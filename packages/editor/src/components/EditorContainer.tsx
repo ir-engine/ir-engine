@@ -37,6 +37,7 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 
 import Dialog from '@mui/material/Dialog'
 
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { SceneDataType, scenePath } from '@etherealengine/common/src/schema.type.module'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SceneServices, SceneState } from '@etherealengine/engine/src/scene/Scene'
@@ -200,7 +201,13 @@ const onSaveAs = async () => {
 const onImportAsset = async () => {
   const { projectName } = getState(EditorState)
 
-  if (projectName) await inputFileWithAddToScene({ projectName })
+  if (projectName) {
+    try {
+      await inputFileWithAddToScene({ projectName })
+    } catch (err) {
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+    }
+  }
 }
 
 const onSaveScene = async () => {

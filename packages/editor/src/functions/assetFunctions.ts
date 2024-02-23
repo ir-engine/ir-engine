@@ -51,7 +51,7 @@ export const inputFileWithAddToScene = async ({
   projectName?: string
   directoryPath?: string
 }): Promise<null> =>
-  new Promise((resolve) => {
+  new Promise((resolve, reject) => {
     const el = document.createElement('input')
     el.type = 'file'
     el.multiple = true
@@ -60,33 +60,39 @@ export const inputFileWithAddToScene = async ({
     el.style.display = 'none'
 
     el.onchange = async () => {
-      let uploadedURLs: string[] = []
-      if (el.files && el.files.length > 0) {
-        const files = Array.from(el.files)
-        if (projectName) {
-          uploadedURLs = (await Promise.all(uploadProjectFiles(projectName, files, true).promises)).map((url) => url[0])
-        } else if (directoryPath) {
-          uploadedURLs = await Promise.all(
-            files.map(
-              (file) =>
-                uploadToFeathersService(fileBrowserUploadPath, [file], {
-                  fileName: file.name,
-                  path: directoryPath,
-                  contentType: ''
-                }).promise
+      try {
+        let uploadedURLs: string[] = []
+        if (el.files && el.files.length > 0) {
+          const files = Array.from(el.files)
+          if (projectName) {
+            uploadedURLs = (await Promise.all(uploadProjectFiles(projectName, files, true).promises)).map(
+              (url) => url[0]
             )
+          } else if (directoryPath) {
+            uploadedURLs = await Promise.all(
+              files.map(
+                (file) =>
+                  uploadToFeathersService(fileBrowserUploadPath, [file], {
+                    fileName: file.name,
+                    path: directoryPath,
+                    contentType: ''
+                  }).promise
+              )
+            )
+          }
+
+          await Promise.all(uploadedURLs.filter((url) => /\.zip$/.test(url)).map(extractZip)).then(() =>
+            logger.info('zip files extracted')
           )
+
+          // if (projectName) {
+          //   uploadedURLs.forEach((url) => addMediaNode(url))
+          // }
+
+          resolve(null)
         }
-
-        await Promise.all(uploadedURLs.filter((url) => /\.zip$/.test(url)).map(extractZip)).then(() =>
-          logger.info('zip files extracted')
-        )
-
-        // if (projectName) {
-        //   uploadedURLs.forEach((url) => addMediaNode(url))
-        // }
-
-        resolve(null)
+      } catch (err) {
+        reject(err)
       }
     }
 
