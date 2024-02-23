@@ -37,14 +37,8 @@ import {
   LocationType,
   SceneID
 } from '@etherealengine/common/src/schema.type.module'
+import { toCapitalCase } from '@etherealengine/common/src/utils/miscUtils'
 import { Application } from '@etherealengine/server-core/declarations'
-
-function toCapitalCase(str: string) {
-  return str
-    .split(' ')
-    .map((w) => w[0].toUpperCase() + w.substr(1).toLowerCase())
-    .join(' ')
-}
 
 export const createLocations = async (app: Application, projectName: string) => {
   return Promise.all(
