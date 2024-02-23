@@ -23,27 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { EntityJsonType } from '@etherealengine/common/src/schema.type.module'
+import { ComponentJSONIDMap } from '@etherealengine/ecs'
 
-export const SystemComponent = defineComponent({
-  name: 'SystemComponent',
-  jsonID: 'EE_system',
+/**
+ * If the entity has old components, migrate them to the new format
+ * - will destructively lose information if there is a mismatch in the schema
+ * @param entityJSON
+ */
+export const migrateOldComponents = (entityJSON: EntityJsonType) => {
+  for (const component of entityJSON.components) {
+    if (component.name.startsWith('EE_') || component.name === 'collider') continue
 
-  onInit(entity) {
-    return {
-      filePath: ''
-    }
-  },
+    const oldComponent = ComponentJSONIDMap.has('EE_' + component.name)
+    if (!oldComponent) continue
 
-  onSet(entity, component, json) {
-    if (!json) return
-
-    if (typeof json.filePath === 'string') component.filePath.set(json.filePath)
-  },
-
-  toJSON(entity, component) {
-    return {
-      filePath: component.filePath.value
-    }
+    console.log('Migrating old component', component.name, 'to EE_' + component.name)
+    component.name = 'EE_' + component.name
   }
-})
+}

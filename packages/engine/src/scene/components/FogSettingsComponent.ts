@@ -33,7 +33,7 @@ import { FogSettingState } from '../FogState'
 
 export const FogSettingsComponent = defineComponent({
   name: 'FogSettingsComponent',
-  jsonID: 'fog',
+  jsonID: 'EE_fog',
 
   onInit(entity): typeof FogSettingState._TYPE {
     return typeof FogSettingState.initial === 'function'

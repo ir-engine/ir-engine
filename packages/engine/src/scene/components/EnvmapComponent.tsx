@@ -68,7 +68,7 @@ const tempColor = new Color()
 
 export const EnvmapComponent = defineComponent({
   name: 'EnvmapComponent',
-  jsonID: 'envmap',
+  jsonID: 'EE_envmap',
   onInit: (entity) => {
     return {
       type: EnvMapSourceType.None as (typeof EnvMapSourceType)[keyof typeof EnvMapSourceType],
