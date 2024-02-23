@@ -9,7 +9,7 @@
       "name": "Child 0",
       "components": [
         {
-          "name": "transform",
+          "name": "EE_transform",
           "props": {
             "position": { "x": 0, "y": 0, "z": 0 },
             "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
@@ -17,7 +17,7 @@
           }
         },
         {
-          "name": "gltf-model",
+          "name": "EE_model",
           "props": {
             "src": "/packages/projects/default-project/assets/collisioncube.glb",
             "generateBVH": false,
@@ -31,7 +31,7 @@
       "name": "Child 1",
       "components": [
         {
-          "name": "transform",
+          "name": "EE_transform",
           "props": { "position": { "x": 1, "y": 0, "z": 0 }, "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 }, "scale": { "x": 1, "y": 1, "z": 1 } }
         }
       ],
@@ -41,7 +41,7 @@
       "name": "Child 2",
       "components": [
         {
-          "name": "transform",
+          "name": "EE_transform",
           "props": { "position": { "x": 0, "y": 1, "z": 0 }, "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 }, "scale": { "x": 1, "y": 1, "z": 1 } }
         }
       ],
@@ -51,7 +51,7 @@
       "name": "Child 3",
       "components": [
         {
-          "name": "transform",
+          "name": "EE_transform",
           "props": { "position": { "x": 0, "y": 0, "z": 1 }, "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 }, "scale": { "x": 1, "y": 1, "z": 1 } }
         }
       ],
@@ -61,7 +61,7 @@
       "name": "Child 4",
       "components": [
         {
-          "name": "transform",
+          "name": "EE_transform",
           "props": { "position": { "x": 2, "y": 0, "z": 0 }, "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 }, "scale": { "x": 1, "y": 1, "z": 1 } }
         }
       ],
@@ -71,7 +71,7 @@
       "name": "Child 5",
       "components": [
         {
-          "name": "transform",
+          "name": "EE_transform",
           "props": { "position": { "x": 0, "y": 2, "z": 0 }, "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 }, "scale": { "x": 1, "y": 1, "z": 1 } }
         }
       ],
@@ -81,12 +81,12 @@
       "name": "Child 2 _ 1",
       "components": [
         {
-          "name": "transform",
+          "name": "EE_transform",
           "props": { "position": { "x": 0, "y": 0, "z": 2 }, "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 }, "scale": { "x": 1, "y": 1, "z": 1 }
           }
         },
         {
-          "name": "fog",
+          "name": "EE_fog",
           "props": {
             "type": "linear",
             "color": "#FFFFFF",

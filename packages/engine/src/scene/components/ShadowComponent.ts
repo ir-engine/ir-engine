@@ -28,7 +28,7 @@ import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUti
 
 export const ShadowComponent = defineComponent({
   name: 'ShadowComponent',
-  jsonID: 'shadow',
+  jsonID: 'EE_shadow',
 
   onInit: (entity) => {
     return {

@@ -44,7 +44,7 @@ export type CloudComponentType = {
 
 export const CloudComponent = defineComponent({
   name: 'CloudComponent',
-  jsonID: 'cloud',
+  jsonID: 'EE_cloud',
   onInit: () => {
     return {
       texture: `${config.client.fileServer}/projects/default-project/assets/cloud.png`,

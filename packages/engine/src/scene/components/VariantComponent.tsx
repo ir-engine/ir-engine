@@ -50,7 +50,7 @@ export type VariantLevel = {
 export const VariantComponent = defineComponent({
   name: 'EE_variant',
 
-  jsonID: 'variant',
+  jsonID: 'EE_variant',
 
   onInit: (entity) => ({
     levels: [] as VariantLevel[],

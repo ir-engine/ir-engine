@@ -51,7 +51,7 @@ import { SceneObjectComponent } from './SceneObjectComponent'
 
 export const GroundPlaneComponent = defineComponent({
   name: 'GroundPlaneComponent',
-  jsonID: 'ground-plane',
+  jsonID: 'EE_ground_plane',
 
   onInit(entity) {
     return {
