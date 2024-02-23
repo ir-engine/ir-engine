@@ -154,15 +154,8 @@ export function solveTwoBoneIK(
     }
   }
   /** Apply tip rotation */
-  // Object3DUtils.getWorldQuaternion(rawTip, rawTip.quaternion)
-  // /** Apply target rotation weight */
-  // if (targetRotWeight === 1) {
-  //   rawTip.quaternion.copy(targetRot)
-  // } else if (targetRotWeight > 0) {
-  //   rawTip.quaternion.fastSlerp(targetRot, targetRotWeight)
-  // }
-  // Object3DUtils.worldQuaternionToLocal(rawTip.quaternion, rawMid)
-  // if (rotationOffset != undefined) rawTip.quaternion.premultiply(rotationOffset)
+  worldQuaternionToLocal(targetRot, mid.world)
+  tip.local.compose(position.setFromMatrixPosition(tip.local), targetRot, V_111)
 }
 
 const _v1 = new Vector3()
