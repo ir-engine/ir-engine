@@ -30,15 +30,18 @@ export const Radio = ({
   name,
   value,
   onChange,
-  selected
+  selected,
+  className
 }: {
   name: string
   value: string | number
   onChange: React.ChangeEventHandler<HTMLInputElement>
   selected: boolean
+  className?: string
 }) => {
+  const twClassname = twMerge('flex items-center', className)
   return (
-    <div className="flex items-center">
+    <div className={twClassname}>
       <input
         type="radio"
         checked={selected}
@@ -59,15 +62,17 @@ const Radios = ({
   currentValue,
   options,
   onChange,
-  className
+  className,
+  horizantal
 }: {
   currentValue: any
   options: { name: string; value: any }[]
   onChange: (value: any) => void
   className?: string
+  horizantal?: boolean
 }) => {
   return (
-    <div className={twMerge('grid gap-6', className)}>
+    <div className={twMerge(horizantal ? 'flex' : 'grid gap-6', className)}>
       {options.map(({ name, value }) => (
         <Radio
           key={name}
@@ -75,6 +80,7 @@ const Radios = ({
           name={name}
           value={value}
           onChange={(event) => onChange(event.target.value)}
+          className={horizantal ? 'mx-2' : ''}
         />
       ))}
     </div>

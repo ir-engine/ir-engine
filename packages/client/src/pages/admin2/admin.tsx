@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { ThemeState } from '@etherealengine/client-core/src/common/services/ThemeService'
 import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
+import '@etherealengine/engine/src/EngineModule'
 import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'

@@ -68,7 +68,7 @@ const Input = ({
   return (
     <div className={twContainerClassname}>
       {label && <Label className="self-stretch">{label}</Label>}
-      <div className="relative">
+      <div className="relative w-full">
         {icon && <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5">{icon}</div>}
         <input disabled={disabled} type={type} className={twClassname} value={value} onChange={onChange} {...props} />
       </div>

@@ -28,51 +28,80 @@ import { AvatarService } from '@etherealengine/client-core/src/user/services/Ava
 import { AvatarType } from '@etherealengine/common/src/schema.type.module'
 import { AssetsPreviewPanel } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
 import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
-import '@etherealengine/engine/src/EngineModule'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import DragNDrop from '@etherealengine/ui/src/primitives/tailwind/DragNDrop'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
+import Radio from '@etherealengine/ui/src/primitives/tailwind/Radio'
 import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { HiArrowPath } from 'react-icons/hi2'
 
 export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) {
   const { t } = useTranslation()
-  const avatarName = useHookstate(avatar?.name || '')
-  const avatarUrl = useHookstate(avatar?.modelResource?.url || '')
   const previewPanelRef = React.useRef()
 
   const avatarAssets = useHookstate({
+    source: 'url',
+    name: avatar?.name || '',
     modelURL: avatar?.modelResource?.url || '',
     thumbnailURL: avatar?.thumbnailResource?.url || '',
     model: undefined as File | undefined,
     thumbnail: undefined as File | undefined
   })
 
+  const isAvatarSet = useHookstate(
+    !!(avatarAssets.source.value === 'file' ? avatarAssets.model.value : avatarAssets.modelURL.value)
+  )
+  const isThumbnailSet = useHookstate(
+    !!(avatarAssets.source.value === 'file' ? avatarAssets.thumbnail.value : avatarAssets.thumbnailURL.value)
+  )
+
+  useEffect(() => {
+    if (avatarAssets.source.value === 'url') {
+      isAvatarSet.set(!!avatarAssets.modelURL.value)
+      isThumbnailSet.set(!!avatarAssets.thumbnailURL.value)
+    } else {
+      isAvatarSet.set(!!avatarAssets.model.value)
+      isThumbnailSet.set(!!avatarAssets.thumbnail.value)
+    }
+  }, [
+    avatarAssets.source,
+    avatarAssets.model,
+    avatarAssets.modelURL,
+    avatarAssets.thumbnail,
+    avatarAssets.thumbnailURL
+  ])
+
   const handleSubmit = async () => {
-    if (avatarAssets.model.value && avatarAssets.thumbnail.value) {
+    let avatarFile: File | undefined = undefined
+    let avatarThumbnail: File | undefined = undefined
+
+    if (avatarAssets.source.value === 'file') {
+      avatarFile = avatarAssets.model.value
+      avatarThumbnail = avatarAssets.thumbnail.value
+    } else {
+      const modelName = avatarAssets.modelURL.value.split('/').pop()!
+      const avatarData = await fetch(avatarAssets.modelURL.value)
+      avatarFile = new File([await avatarData.blob()], modelName)
+
+      const thumbnailData = await fetch(avatarAssets.thumbnailURL.value)
+      const thumbnailName = avatarAssets.thumbnailURL.value.split('/').pop()!
+      avatarThumbnail = new File([await thumbnailData.blob()], thumbnailName)
+    }
+
+    if (avatarFile && avatarThumbnail) {
       if (avatar?.id) {
         try {
-          await AvatarService.patchAvatar(
-            avatar,
-            avatar.name,
-            true,
-            avatarAssets.model.value,
-            avatarAssets.thumbnail.value
-          )
+          await AvatarService.patchAvatar(avatar, avatarAssets.name.value, true, avatarFile, avatarThumbnail)
           PopoverState.hidePopupover()
         } catch (e) {
           console.error('Error updating avatar', e)
         }
       } else {
         try {
-          await AvatarService.createAvatar(
-            avatarAssets.model.value,
-            avatarAssets.thumbnail.value,
-            avatarName.value,
-            true
-          )
+          await AvatarService.createAvatar(avatarFile, avatarThumbnail, avatarAssets.name.value, true)
           PopoverState.hidePopupover()
         } catch (e) {
           console.error('Error creating avatar', e)
@@ -82,12 +111,54 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
   }
 
   useEffect(() => {
+    console.log('setting model preview')
+    if (!avatarAssets.model.value || avatarAssets.source.value !== 'file') {
+      console.log('early exit model preview')
+      return
+    }
+    const modelType = avatarAssets.model.value.name.split('.').pop()
+
     ;(previewPanelRef as any).current?.onSelectionChanged({
       name: avatarAssets.model.value!.name,
-      resourceUrl: URL.createObjectURL(avatarAssets.model.value!) + '#' + avatarAssets.model.value!.name,
+      resourceUrl: URL.createObjectURL(avatarAssets.model.value) + '#' + avatarAssets.model.value.name,
+      contentType: `model/${modelType}`
+    })
+  }, [avatarAssets.model])
+
+  useEffect(() => {
+    if (!avatarAssets.modelURL.value || avatarAssets.source.value !== 'url') return
+    const modelName = avatarAssets.modelURL.value.split('/').pop()
+    const modelType = avatarAssets.modelURL.value.split('.').pop()
+    if (!modelName || !modelType) return
+    ;(previewPanelRef as any).current?.onSelectionChanged({
+      name: modelName,
+      resourceUrl: avatarAssets.modelURL.value,
+      contentType: `model/${modelType}`
+    })
+  }, [avatarAssets.modelURL])
+
+  const clearAvatar = () => {
+    if (avatarAssets.source.value === 'file') {
+      avatarAssets.model.set(undefined)
+    } else {
+      avatarAssets.modelURL.set('')
+    }
+    ;(previewPanelRef as any).current?.onSelectionChanged({
+      name: '',
+      resourceUrl: '',
       contentType: 'model/glb'
     })
-  }, [avatarAssets.model.value])
+  }
+
+  const clearThumbnail = () => {
+    if (avatarAssets.source.value === 'file') {
+      avatarAssets.thumbnail.set(undefined)
+    } else {
+      avatarAssets.thumbnailURL.set('')
+    }
+  }
+
+  console.log('isavatarset: ', isAvatarSet.value)
 
   return (
     <Modal
@@ -101,44 +172,91 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
       <div className="grid gap-6">
         <Input
           label={t('admin:components.common.name')}
-          value={avatarName.value}
-          onChange={(event) => avatarName.set(event.target.value)}
+          value={avatarAssets.name.value}
+          onChange={(event) => avatarAssets.name.set(event.target.value)}
         />
-        <Input
-          label={t('admin:components.avatar.avatarUrl')}
-          value={avatarUrl.value}
-          onChange={(event) => avatarUrl.set(event.target.value)}
+        <Radio
+          currentValue={avatarAssets.source.value}
+          options={[
+            { name: 'URL', value: 'url' },
+            { name: 'File', value: 'file' }
+          ]}
+          onChange={(value) => avatarAssets.source.set(value)}
+          horizantal={true}
         />
+        {avatarAssets.source.value === 'url' && (
+          <Input
+            label={t('admin:components.avatar.avatarUrl')}
+            value={avatarAssets.modelURL.value}
+            onChange={(event) => avatarAssets.modelURL.set(event.target.value)}
+            spellCheck={false}
+          />
+        )}
       </div>
       <DragNDrop
         onDropEvent={(files) => {
           avatarAssets.model.set(files[0])
         }}
         acceptedDropTypes={ItemTypes.Models}
-        className="mt-5 h-64"
+        className="relative mt-5 h-64"
+        acceptInput={!isAvatarSet.value && avatarAssets.source.value === 'file'}
+        externalChildren={
+          <Button startIcon={<HiArrowPath />} onClick={clearAvatar} className="absolute left-2 top-2">
+            Replace avatar
+          </Button>
+        }
       >
-        {avatarAssets.model.value ? <AssetsPreviewPanel ref={previewPanelRef} /> : 'Upload avatar model'}
+        <AssetsPreviewPanel
+          ref={previewPanelRef}
+          previewPanelProps={{
+            style: {
+              width: isAvatarSet.value ? '100%' : '0'
+            }
+          }}
+        />
+        {!isAvatarSet.value && <span className="z-20 w-full text-center">Upload avatar model</span>}
       </DragNDrop>
 
+      {avatarAssets.source.value === 'url' && (
+        <Input
+          containerClassname="mt-4"
+          label={t('admin:components.avatar.thumbnailUrl')}
+          value={avatarAssets.thumbnailURL.value}
+          onChange={(event) => avatarAssets.thumbnailURL.set(event.target.value)}
+          spellCheck={false}
+        />
+      )}
       <DragNDrop
         onDropEvent={(files) => {
           avatarAssets.thumbnail.set(files[0])
         }}
         acceptedDropTypes={ItemTypes.Images}
-        className="mt-5 h-64"
+        className="relative mt-5 h-64"
+        acceptInput={!isThumbnailSet.value && avatarAssets.source.value === 'file'}
+        externalChildren={
+          <Button startIcon={<HiArrowPath />} onClick={clearThumbnail} className="absolute left-2 top-2">
+            Replace thumbnail
+          </Button>
+        }
       >
-        {avatarAssets.thumbnail.value ? (
+        {isThumbnailSet.value ? (
           <img
-            className="max-h-full max-w-full"
-            src={URL.createObjectURL(avatarAssets.thumbnail.value)}
+            className="mx-auto max-h-full max-w-full"
+            src={
+              avatarAssets.source.value === 'url'
+                ? avatarAssets.thumbnailURL.value
+                : avatarAssets.thumbnail.value
+                ? URL.createObjectURL(avatarAssets.thumbnail.value)
+                : ''
+            }
             alt="thumbnail"
           />
         ) : (
-          'Upload avatar thumbnail'
+          <span className="w-full text-center">Upload avatar thumbnail</span>
         )}
       </DragNDrop>
 
-      <Button onClick={handleSubmit} disabled={!avatarAssets.model.value || !avatarAssets.thumbnail.value}>
+      <Button className="mt-3" onClick={handleSubmit}>
         Submit
       </Button>
     </Modal>
