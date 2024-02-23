@@ -26,14 +26,18 @@ Ethereal Engine. All Rights Reserved.
 import { RigidBody, RigidBodyDesc, RigidBodyType } from '@dimforge/rapier3d-compat'
 import { Types } from 'bitecs'
 
+import { useEntityContext } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
   removeComponent,
-  setComponent
+  setComponent,
+  useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { getState } from '@etherealengine/hyperflux'
+import { useLayoutEffect } from 'react'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Physics } from '../classes/Physics'
 import { PhysicsState } from '../state/PhysicsState'
@@ -78,38 +82,9 @@ export const RigidBodyComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
 
-    /** backwards compatibility for manually creating rigidbodies */
-    if (typeof json.body === 'object') {
-      if (component.body.value !== null) throw new Error('RigidBodyComponent already initialized ' + entity)
-      component.body.set(json.body)
-    } else {
-      if (typeof json.type === 'string') {
-        component.type.set(json.type)
-
-        if (component.body.value !== null) {
-          setRigidBodyType(entity, json.type)
-          return
-        }
-
-        let rigidBodyDesc: RigidBodyDesc = undefined!
-        switch (component.type.value) {
-          case 'fixed':
-          default:
-            rigidBodyDesc = RigidBodyDesc.fixed()
-            break
-
-          case 'dynamic':
-            rigidBodyDesc = RigidBodyDesc.dynamic()
-            break
-
-          case 'kinematic':
-            rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
-            break
-        }
-
-        const world = getState(PhysicsState).physicsWorld
-        Physics.createRigidBody(entity, world, rigidBodyDesc)
-      }
+    console.trace('\n\n\n\n onSet \n\n\n\n', entity, getState(ECSState).elapsedSeconds, Date.now())
+    if (typeof json.type === 'string') {
+      component.type.set(json.type)
     }
   },
 
@@ -119,16 +94,48 @@ export const RigidBodyComponent = defineComponent({
     }
   },
 
-  onRemove: (entity, component) => {
-    const world = getState(PhysicsState).physicsWorld
-    const rigidBody = component.body.value
-    if (rigidBody) {
-      const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())
-      if (world.bodies.contains(rigidBody.handle)) {
-        world.removeRigidBody(rigidBody)
+  onRemove: (entity, component) => {},
+
+  reactor: function () {
+    const entity = useEntityContext()
+    const component = useComponent(entity, RigidBodyComponent)
+
+    useLayoutEffect(() => {
+      let rigidBodyDesc: RigidBodyDesc = undefined!
+      switch (component.type.value) {
+        case 'fixed':
+        default:
+          rigidBodyDesc = RigidBodyDesc.fixed()
+          break
+
+        case 'dynamic':
+          rigidBodyDesc = RigidBodyDesc.dynamic()
+          break
+
+        case 'kinematic':
+          rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
+          break
       }
-      removeComponent(entity, RigidBodyTypeTagComponent)
-    }
+
+      console.trace('\n\n\n\n useEffect \n\n\n\n', entity, getState(ECSState).elapsedSeconds, Date.now())
+
+      const world = getState(PhysicsState).physicsWorld
+      const rigidBody = Physics.createRigidBody(entity, world, rigidBodyDesc)
+      component.body.set(rigidBody)
+
+      return () => {
+        const world = getState(PhysicsState).physicsWorld
+        if (rigidBody) {
+          const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())
+          if (world.bodies.contains(rigidBody.handle)) {
+            world.removeRigidBody(rigidBody)
+          }
+          removeComponent(entity, RigidBodyTypeTagComponent)
+        }
+      }
+    }, [])
+
+    return null
   }
 })
 

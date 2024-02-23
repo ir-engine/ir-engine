@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
+import { Collider, ColliderDesc } from '@dimforge/rapier3d-compat'
 import { AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { getState } from '@etherealengine/hyperflux'
 
-import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
@@ -47,6 +47,7 @@ import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/componen
 import { AvatarCollisionMask, CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+import { BodyTypes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import {
@@ -105,10 +106,11 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
     locomotion: new Vector3()
   })
 
+  createAvatarRigidBody(entity)
+
   if (ownerID === Engine.instance.userID) {
     createAvatarController(entity)
   } else {
-    createAvatarRigidBody(entity)
     createAvatarCollider(entity)
   }
 
@@ -141,20 +143,14 @@ export const createAvatarCollider = (entity: Entity): Collider => {
   )
 }
 
-const createAvatarRigidBody = (entity: Entity): RigidBody => {
-  const rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
-  const rigidBody = Physics.createRigidBody(entity, getState(PhysicsState).physicsWorld, rigidBodyDesc, [])
-  rigidBody.lockRotations(true, false)
-  rigidBody.setEnabledRotations(false, true, false, false)
-
-  return rigidBody
+const createAvatarRigidBody = (entity: Entity) => {
+  setComponent(entity, RigidBodyComponent, { type: BodyTypes.Kinematic })
+  const body = getComponent(entity, RigidBodyComponent).body
+  body.lockRotations(true, false)
+  body.setEnabledRotations(false, true, false, false)
 }
 
 export const createAvatarController = (entity: Entity) => {
-  if (!hasComponent(entity, RigidBodyComponent)) {
-    createAvatarRigidBody(entity)
-  }
-
   const rigidbody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
   rigidbody.position.copy(transform.position)

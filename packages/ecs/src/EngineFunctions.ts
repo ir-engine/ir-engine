@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 /** Functions to provide engine level functionalities. */
 
 import logger from '@etherealengine/common/src/logger'
-import { HyperFlux, getMutableState, getState } from '@etherealengine/hyperflux'
+import { HyperFlux, ReactorReconciler, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { ECSState } from './ECSState'
 import { SystemUUID, executeSystem } from './SystemFunctions'
@@ -43,28 +43,30 @@ const TimerConfig = {
  * @param elapsedTime the current frame time in milliseconds (DOMHighResTimeStamp) relative to performance.timeOrigin
  */
 export const executeSystems = (elapsedTime: number) => {
-  const ecsState = getMutableState(ECSState)
-  ecsState.frameTime.set(performance.timeOrigin + elapsedTime)
+  ReactorReconciler.flushSync(() => {
+    const ecsState = getMutableState(ECSState)
+    ecsState.frameTime.set(performance.timeOrigin + elapsedTime)
 
-  const start = nowMilliseconds()
-  const incomingActions = [...HyperFlux.store.actions.incoming]
+    const start = nowMilliseconds()
+    const incomingActions = [...HyperFlux.store.actions.incoming]
 
-  const elapsedSeconds = elapsedTime / 1000
-  ecsState.deltaSeconds.set(
-    Math.max(0.001, Math.min(TimerConfig.MAX_DELTA_SECONDS, elapsedSeconds - ecsState.elapsedSeconds.value))
-  )
-  ecsState.elapsedSeconds.set(elapsedSeconds)
+    const elapsedSeconds = elapsedTime / 1000
+    ecsState.deltaSeconds.set(
+      Math.max(0.001, Math.min(TimerConfig.MAX_DELTA_SECONDS, elapsedSeconds - ecsState.elapsedSeconds.value))
+    )
+    ecsState.elapsedSeconds.set(elapsedSeconds)
 
-  executeSystem(InputSystemGroup)
-  executeFixedSystem(SimulationSystemGroup)
-  executeSystem(AnimationSystemGroup)
-  executeSystem(PresentationSystemGroup)
+    executeSystem(InputSystemGroup)
+    executeFixedSystem(SimulationSystemGroup)
+    executeSystem(AnimationSystemGroup)
+    executeSystem(PresentationSystemGroup)
 
-  const end = nowMilliseconds()
-  const duration = end - start
-  if (duration > 150) {
-    logger.warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: %o`, incomingActions)
-  }
+    const end = nowMilliseconds()
+    const duration = end - start
+    if (duration > 150) {
+      logger.warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: %o`, incomingActions)
+    }
+  })
 }
 
 /**
@@ -92,9 +94,10 @@ export const executeFixedSystem = (systemUUID: SystemUUID) => {
   }
 
   let timeout = timeUsed > maxMilliseconds
-  let updatesLimitReached = false
+  // let updatesLimitReached = false
 
-  while (simulationDelay > simulationTimestep && !timeout && !updatesLimitReached) {
+  while (simulationDelay > simulationTimestep && !timeout) {
+    // && !updatesLimitReached) {
     ecsState.simulationTime.set((t) => Math.floor((t + simulationTimestep) / simulationTimestep) * simulationTimestep)
 
     executeSystem(systemUUID)

@@ -52,7 +52,6 @@ import {
 
 import {
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -64,12 +63,7 @@ import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { iterateEntityNode } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
-import {
-  RigidBodyComponent,
-  RigidBodyKinematicPositionBasedTagComponent,
-  RigidBodyKinematicVelocityBasedTagComponent,
-  getTagComponentForRigidBody
-} from '../components/RigidBodyComponent'
+import { RigidBodyComponent, getTagComponentForRigidBody } from '../components/RigidBodyComponent'
 import { TriggerComponent } from '../components/TriggerComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
@@ -119,8 +113,6 @@ function createRigidBody(
   const body = world.createRigidBody(rigidBodyDesc)
   colliderDesc.forEach((desc) => world.createCollider(desc, body))
 
-  setComponent(entity, RigidBodyComponent)
-  getMutableComponent(entity, RigidBodyComponent).body.set(body)
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const RigidBodyTypeTagComponent = getTagComponentForRigidBody(body.bodyType())
   setComponent(entity, RigidBodyTypeTagComponent, true)
@@ -132,13 +124,8 @@ function createRigidBody(
 
   rigidBody.previousPosition.copy(position)
   rigidBody.previousRotation.copy(rotation)
-  if (
-    RigidBodyTypeTagComponent === RigidBodyKinematicPositionBasedTagComponent ||
-    RigidBodyTypeTagComponent === RigidBodyKinematicVelocityBasedTagComponent
-  ) {
-    rigidBody.targetKinematicPosition.copy(position)
-    rigidBody.targetKinematicRotation.copy(rotation)
-  }
+  rigidBody.targetKinematicPosition.copy(position)
+  rigidBody.targetKinematicRotation.copy(rotation)
   rigidBody.position.copy(position)
   rigidBody.rotation.copy(rotation)
   rigidBody.linearVelocity.copy(V_000)
