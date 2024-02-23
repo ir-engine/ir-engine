@@ -53,7 +53,7 @@ import { AnimationComponent } from './AnimationComponent'
 
 export const LoopAnimationComponent = defineComponent({
   name: 'LoopAnimationComponent',
-  jsonID: 'EE_loop-animation',
+  jsonID: 'EE_loop_animation',
 
   onInit: (entity) => {
     return {

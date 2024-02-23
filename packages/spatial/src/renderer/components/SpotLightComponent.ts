@@ -53,7 +53,7 @@ import { setVisibleComponent } from './VisibleComponent'
 
 export const SpotLightComponent = defineComponent({
   name: 'SpotLightComponent',
-  jsonID: 'EE_spot-light',
+  jsonID: 'EE_spot_light',
 
   onInit: (entity) => {
     const light = new SpotLight()

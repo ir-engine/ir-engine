@@ -105,7 +105,7 @@ type DirectionalLightHelper = {
 
 export const DirectionalLightComponent = defineComponent({
   name: 'DirectionalLightComponent',
-  jsonID: 'EE_directional-light',
+  jsonID: 'EE_directional_light',
 
   onInit: (entity) => {
     const light = new DirectionalLight()

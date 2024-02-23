@@ -27,7 +27,7 @@ import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
 export const SceneSettingsComponent = defineComponent({
   name: 'SceneSettingsComponent',
-  jsonID: 'EE_scene-settings',
+  jsonID: 'EE_scene_settings',
 
   onInit() {
     return {

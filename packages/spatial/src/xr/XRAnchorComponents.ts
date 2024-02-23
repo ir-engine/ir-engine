@@ -52,7 +52,7 @@ import { XRState } from './XRState'
  */
 export const PersistentAnchorComponent = defineComponent({
   name: 'PersistentAnchorComponent',
-  jsonID: 'EE_persistent-anchor',
+  jsonID: 'EE_persistent_anchor',
 
   /**
    * Set default initialization values
