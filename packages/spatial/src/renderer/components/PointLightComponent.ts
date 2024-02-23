@@ -44,7 +44,7 @@ import { setVisibleComponent } from './VisibleComponent'
 
 export const PointLightComponent = defineComponent({
   name: 'PointLightComponent',
-  jsonID: 'point-light',
+  jsonID: 'EE_point_light',
 
   onInit: (entity) => {
     const light = new PointLight()

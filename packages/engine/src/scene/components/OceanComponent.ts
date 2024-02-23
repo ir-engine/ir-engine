@@ -33,7 +33,7 @@ import { UpdatableCallback } from './UpdatableComponent'
 
 export const OceanComponent = defineComponent({
   name: 'OceanComponent',
-  jsonID: 'ocean',
+  jsonID: 'EE_ocean',
   onInit: () => {
     return {
       ocean: null! as Ocean,

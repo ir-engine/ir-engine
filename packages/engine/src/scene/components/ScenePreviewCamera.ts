@@ -45,7 +45,7 @@ import { TransformDirtyCleanupSystem } from '@etherealengine/spatial/src/transfo
 
 export const ScenePreviewCameraComponent = defineComponent({
   name: 'EE_scenePreviewCamera',
-  jsonID: 'scene-preview-camera',
+  jsonID: 'EE_scene_preview_camera',
 
   onInit: (entity) => {
     const camera = new PerspectiveCamera(80, 16 / 9, 0.2, 8000)

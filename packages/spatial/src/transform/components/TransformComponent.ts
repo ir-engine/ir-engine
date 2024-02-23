@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Types } from 'bitecs'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { defineComponent, getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineComponent, getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { isZero } from '../../common/functions/MathFunctions'
@@ -55,7 +55,7 @@ export const TransformSchema = {
 
 export const TransformComponent = defineComponent({
   name: 'TransformComponent',
-  jsonID: 'transform',
+  jsonID: 'EE_transform',
   schema: TransformSchema,
 
   onInit: (entity) => {
@@ -85,6 +85,17 @@ export const TransformComponent = defineComponent({
     if (json?.position) component.position.value.copy(json.position)
     if (rotation) component.rotation.value.copy(rotation)
     if (json?.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
+
+    const transform = getComponent(entity, TransformComponent)
+    composeMatrix(entity)
+    const entityTree = getOptionalComponent(entity, EntityTreeComponent)
+    const parentEntity = entityTree?.parentEntity
+    if (parentEntity) {
+      const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
+      if (parentTransform) transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
+    } else {
+      transform.matrixWorld.copy(transform.matrix)
+    }
   },
 
   toJSON: (entity, component) => {

@@ -27,7 +27,13 @@ import { useEffect } from 'react'
 import { AxesHelper, Quaternion, Vector3 } from 'three'
 
 import { Engine } from '@etherealengine/ecs'
-import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  getOptionalComponent,
+  setComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -41,6 +47,7 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { Types } from 'bitecs'
+import { ModelComponent } from '../../scene/components/ModelComponent'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
 
 const EPSILON = 1e-6
@@ -54,6 +61,7 @@ export const AvatarHeadDecapComponent = defineComponent({
 
     const headDecap = useComponent(entity, AvatarHeadDecapComponent)
     const rig = useComponent(entity, AvatarRigComponent)
+    const model = useComponent(entity, ModelComponent)
 
     useEffect(() => {
       if (!rig.rawRig.value?.head?.node || !headDecap?.value) return
@@ -67,7 +75,7 @@ export const AvatarHeadDecapComponent = defineComponent({
         rig.rawRig.value.head.node.scale.setScalar(1)
         cameraComponent.offset.setZ(0)
       }
-    }, [headDecap, rig.rawRig])
+    }, [headDecap, model.scene])
 
     return null
   }
@@ -120,8 +128,8 @@ export const getHandTarget = (entity: Entity, hand: XRHandedness): HandTargetRet
   if (targetEntity && AvatarIKTargetComponent.blendWeight[targetEntity] > 0)
     return getComponent(targetEntity, TransformComponent)
 
-  const rig = getComponent(entity, AvatarRigComponent)
-  if (!rig) return getComponent(entity, TransformComponent)
+  const rig = getOptionalComponent(entity, AvatarRigComponent)
+  if (!rig?.rawRig) return getComponent(entity, TransformComponent)
 
   switch (hand) {
     case 'left':

@@ -74,7 +74,7 @@ export type ImageResource = {
 
 export const ImageComponent = defineComponent({
   name: 'EE_image',
-  jsonID: 'image',
+  jsonID: 'EE_image',
 
   onInit: (entity) => {
     return {

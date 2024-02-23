@@ -255,7 +255,11 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
     } as AdminAssetUploadArgumentsType
 
     if (resourceFile) {
-      ResourceService.createOrUpdateResource(data, resourceFile)
+      try {
+        ResourceService.createOrUpdateResource(data, resourceFile)
+      } catch (error) {
+        NotificationService.dispatchNotify(error.message, { variant: 'error' })
+      }
 
       if (mode === ResourceDrawerMode.ViewEdit) {
         editMode.set(false)

@@ -60,6 +60,7 @@ import { useEffect } from 'react'
 import matches, { Validator } from 'ts-matches'
 import { SourceComponent } from './components/SourceComponent'
 import { migrateOldColliders } from './functions/migrateOldColliders'
+import { migrateOldComponents } from './functions/migrateOldComponents'
 import { serializeEntity } from './functions/serializeWorld'
 
 export interface SceneSnapshotInterface {
@@ -138,10 +139,12 @@ export const SceneState = defineState({
     const data: SceneJsonType = sceneData.scene
 
     /** migrate collider components only for the 'active scene' */
-    if (getState(SceneState).activeScene === sceneID)
+    if (getState(SceneState).activeScene === sceneID) {
       for (const [uuid, entityJson] of Object.entries(data.entities)) {
         migrateOldColliders(entityJson)
+        migrateOldComponents(entityJson)
       }
+    }
 
     getMutableState(SceneState).scenes[sceneID].set({
       metadata,
