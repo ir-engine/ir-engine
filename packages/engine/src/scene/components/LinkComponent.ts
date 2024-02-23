@@ -126,7 +126,7 @@ export const LinkState = defineState({
 
 export const LinkComponent = defineComponent({
   name: 'LinkComponent',
-  jsonID: 'link',
+  jsonID: 'EE_link',
 
   onInit: (entity) => {
     return {

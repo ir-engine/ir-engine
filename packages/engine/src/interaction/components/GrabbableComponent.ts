@@ -32,7 +32,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
  */
 export const GrabbableComponent = defineComponent({
   name: 'GrabbableComponent',
-  jsonID: 'equippable', // TODO: rename to grabbable
+  jsonID: 'EE_grabbable', // TODO: rename to grabbable
   toJSON: () => true
 })
 
