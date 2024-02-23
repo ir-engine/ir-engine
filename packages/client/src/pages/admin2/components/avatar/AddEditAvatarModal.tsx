@@ -28,7 +28,7 @@ import { AvatarService } from '@etherealengine/client-core/src/user/services/Ava
 import { AvatarType } from '@etherealengine/common/src/schema.type.module'
 import { AssetsPreviewPanel } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
 import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
-import { NO_PROXY } from '@etherealengine/hyperflux'
+import '@etherealengine/engine/src/EngineModule'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import DragNDrop from '@etherealengine/ui/src/primitives/tailwind/DragNDrop'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
@@ -84,7 +84,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
   useEffect(() => {
     ;(previewPanelRef as any).current?.onSelectionChanged({
       name: avatarAssets.model.value!.name,
-      resourceUrl: URL.createObjectURL(avatarAssets.model.get(NO_PROXY)!),
+      resourceUrl: URL.createObjectURL(avatarAssets.model.value!) + '#' + avatarAssets.model.value!.name,
       contentType: 'model/glb'
     })
   }, [avatarAssets.model.value])
