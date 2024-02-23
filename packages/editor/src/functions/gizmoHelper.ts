@@ -784,7 +784,6 @@ function pointerMove(pointer, gizmoEntity) {
       gizmoControlComponent.translationSnap.value
     )
     EditorControlFunctions.positionObject([entity], [newPosition])
-    //setComponent(entity, TransformComponent, { position: newPosition })
     if (
       gizmoControlComponent.controlledEntities.value.length > 1 &&
       gizmoControlComponent.pivotEntity.value !== UndefinedEntity
@@ -800,7 +799,6 @@ function pointerMove(pointer, gizmoEntity) {
           true
         )
         EditorControlFunctions.positionObject([cEntity], [newPosition])
-        //setComponent(cEntity, TransformComponent, { position: newPosition })
       }
     }
   } else if (mode === TransformMode.scale) {
@@ -812,7 +810,6 @@ function pointerMove(pointer, gizmoEntity) {
       gizmoControlComponent.scaleSnap.value
     )
     EditorControlFunctions.scaleObject([entity], [newScale], true)
-    //setComponent(entity, TransformComponent, { scale: newScale })
     if (
       gizmoControlComponent.controlledEntities.value.length > 1 &&
       gizmoControlComponent.pivotEntity.value !== UndefinedEntity
@@ -831,14 +828,11 @@ function pointerMove(pointer, gizmoEntity) {
         newPosition.copy(newDistance.add(_positionStart))
         EditorControlFunctions.scaleObject([cEntity], [newScale], true)
         EditorControlFunctions.positionObject([cEntity], [newPosition])
-        //setComponent(cEntity, TransformComponent, { position: newPosition, scale: newScale })
       }
     }
   } else if (mode === TransformMode.rotate) {
     const newRotation = applyRotation(entity, gizmoControlComponent, axis, space)
-    const euler = new Euler().setFromQuaternion(newRotation, 'XYZ')
-    EditorControlFunctions.rotateObject([entity], [euler])
-    //setComponent(entity, TransformComponent, { rotation: newRotation })
+    EditorControlFunctions.rotateObject([entity], [_tempEuler.setFromQuaternion(newRotation, 'XYZ')])
     if (
       gizmoControlComponent.controlledEntities.value.length > 1 &&
       gizmoControlComponent.pivotEntity.value !== UndefinedEntity
@@ -865,8 +859,7 @@ function pointerMove(pointer, gizmoEntity) {
           rotationMatrix
         )
         EditorControlFunctions.positionObject([cEntity], [newPosition])
-        const euler = new Euler().setFromQuaternion(newRotation, 'XYZ')
-        EditorControlFunctions.rotateObject([cEntity], [euler])
+        EditorControlFunctions.rotateObject([cEntity], [_tempEuler.setFromQuaternion(newRotation, 'XYZ')])
         EditorControlFunctions.scaleObject([cEntity], [newScale], true)
       }
     }
