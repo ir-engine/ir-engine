@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { AnimationMixer, BoxGeometry, CapsuleGeometry, CylinderGeometry, Group, Scene, SphereGeometry } from 'three'
 
-import { NO_PROXY, createState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, createState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import {
   defineComponent,
@@ -66,7 +66,6 @@ import { getModelSceneID } from '../functions/loaders/ModelFunctions'
 import { EnvmapComponent } from './EnvmapComponent'
 import { ObjectGridSnapComponent } from './ObjectGridSnapComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { SceneObjectComponent } from './SceneObjectComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { SourceComponent } from './SourceComponent'
 
@@ -106,15 +105,18 @@ export const ModelComponent = defineComponent({
 
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
+     * - REPLACED with Component.resources & resolveComponentResource
      */
-    if (
-      !getState(SceneState).sceneLoaded &&
-      hasComponent(entity, SceneObjectComponent) &&
-      component.src.value &&
-      !component.scene.value
-    )
-      SceneAssetPendingTagComponent.addResource(entity, component.src.value)
+    // if (
+    //   !getState(SceneState).sceneLoaded &&
+    //   hasComponent(entity, SceneObjectComponent) &&
+    //   component.src.value &&
+    //   !component.scene.value
+    // )
+    //   SceneAssetPendingTagComponent.addResource(entity, component.src.value)
   },
+
+  resources: ['src'],
 
   errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
 

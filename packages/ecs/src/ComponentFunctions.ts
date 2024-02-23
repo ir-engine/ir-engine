@@ -124,6 +124,11 @@ export interface ComponentPartial<
   /** @todo Explain ComponentPartial.onRemove(...) */
   onRemove?: (entity: Entity, component: State<ComponentType>) => void | Promise<void>
   /**
+   * @description
+   * An array of strings that represent the possible async tasks that the component can perform.
+   */
+  resources?: Array<keyof ComponentType>
+  /**
    * @summary Defines the {@link React.FC} async logic of the {@link Component} type.
    * @notes Any side-effects that depend on the component's data should be defined here.
    * @description
@@ -160,6 +165,8 @@ export interface Component<
   toJSON: (entity: Entity, component: State<ComponentType>) => JSON
   onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove: (entity: Entity, component: State<ComponentType>) => void
+  resources?: Array<keyof ComponentType>
+  pendingResources: State<Array<keyof ComponentType>>
   reactor?: HookableFunction<React.FC>
   reactorMap: Map<Entity, ReactorRoot>
   stateMap: Record<Entity, State<ComponentType> | undefined>
@@ -228,6 +235,8 @@ export const defineComponent = <
   Component.onSet = (entity, component, json) => {}
   Component.onRemove = () => {}
   Component.toJSON = (entity, component) => null!
+  Component.resources = []
+  Component.pendingResources = hookstate([])
   Component.errors = []
   Object.assign(Component, def)
   if (Component.reactor) Object.defineProperty(Component.reactor, 'name', { value: `Internal${Component.name}Reactor` })
@@ -354,10 +363,16 @@ export const setComponent = <C extends Component>(
       Component.reactorMap.set(entity, root)
     }
   }
+  if (Component.resources)
+    for (const key of Component.resources) {
+      if (args && !!args[key]) {
+        Component.pendingResources.merge([key])
+      }
+    }
   // startTransition(() => {
   Component.onSet(entity, Component.stateMap[entity]!, args as Readonly<SerializedComponentType<C>>)
   const root = Component.reactorMap.get(entity)
-  root?.run(true)
+  root?.run()
   // })
 }
 
@@ -551,4 +566,17 @@ export const getAllComponentsOfType = <C extends Component<any>>(component: C): 
   return entities.map((e) => {
     return getComponent(e, component)!
   })
+}
+
+export const resolveComponentResource = async <C extends Component>(
+  entity: Entity,
+  component: C,
+  resource: keyof Component<C>
+) => {
+  const comp = getMutableComponent(entity, component) as State<Component<C>>
+  if (!comp) return
+  const pendingResource = comp.pendingResources.value[resource]
+  if (pendingResource) {
+    comp.pendingResources[resource].set(none)
+  }
 }
