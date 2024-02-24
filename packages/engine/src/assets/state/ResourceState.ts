@@ -220,7 +220,7 @@ const getCurrentVertCountOfResources = () => {
   const resources = getState(ResourceState).resources
   for (const key in resources) {
     const resource = resources[key]
-    if (resource.type != ResourceType.GLTF && (resource.metadata as GLTFMetadata).verts)
+    if (resource.type == ResourceType.GLTF && (resource.metadata as GLTFMetadata).verts)
       verts += (resource.metadata as GLTFMetadata).verts
   }
 
@@ -425,16 +425,17 @@ const unload = (url: string, entity: Entity) => {
     return entities
   })
 
+  removeReferencedResources(resource)
   if (resource.references.length == 0) {
-    debugLog('Before Removing Resources', debug && JSON.stringify(getRendererInfo()))
+    if (debug) debugLog('Before Removing Resources: ' + JSON.stringify(getRendererInfo()))
     removeResource(url)
-    debugLog('After Removing Resources', debug && JSON.stringify(getRendererInfo()))
+    if (debug) debugLog('After Removing Resources: ' + JSON.stringify(getRendererInfo()))
   }
 }
 
 const removeReferencedResources = (resource: State<Resource>) => {
   const resourceState = getMutableState(ResourceState)
-  const referencedAssets = resourceState.nested('referencedAssets')
+  const referencedAssets = resourceState.referencedAssets
 
   if (!resource.assetRefs.value) return
 
@@ -469,7 +470,6 @@ const removeResource = (id: string) => {
   const resource = resources[id]
   debugLog('ResourceManager:removeResource: Removing ' + resource.type.value + ' resource with ID: ' + id)
   Cache.remove(id)
-  removeReferencedResources(resource)
 
   const asset = resource.asset.get(NO_PROXY)
   if (asset) {

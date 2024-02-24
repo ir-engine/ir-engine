@@ -63,6 +63,7 @@ export const VariantComponent = defineComponent({
   onInit: (entity) => ({
     levels: [] as VariantLevel[],
     heuristic: Heuristic.MANUAL,
+    useDistance: false,
     calculated: false
   }),
 
@@ -84,6 +85,7 @@ export const VariantComponent = defineComponent({
       component.levels.set(json.levels)
     }
     if (typeof json.calculated === 'boolean') component.calculated.set(json.calculated)
+    if (typeof json.useDistance === 'boolean') component.useDistance.set(json.useDistance)
   },
 
   toJSON: (entity, component) => ({
@@ -126,7 +128,10 @@ const VariantLevelReactor = React.memo(({ entity, level }: { level: number; enti
 
   useEffect(() => {
     //if the variant heuristic is set to Distance, add the DistanceFromCameraComponent
-    if (variantComponent.heuristic.value === Heuristic.DISTANCE) {
+    if (
+      variantComponent.heuristic.value === Heuristic.DISTANCE ||
+      (variantComponent.heuristic.value === Heuristic.BUDGET && variantComponent.useDistance.value)
+    ) {
       setComponent(entity, DistanceFromCameraComponent)
       variantLevel.metadata['minDistance'].value === undefined && variantLevel.metadata['minDistance'].set(0)
       variantLevel.metadata['maxDistance'].value === undefined && variantLevel.metadata['maxDistance'].set(0)

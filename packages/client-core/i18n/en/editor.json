@@ -354,6 +354,7 @@
       "useDistance": "Use Distance",
       "textureSize": "Texture Size: ",
       "vertexCount": "Vertices: ",
+      "preview": "Preview",
       "minDistance": "Minimum Distance",
       "maxDistance": "Maximum Distance",
       "src": "Source"

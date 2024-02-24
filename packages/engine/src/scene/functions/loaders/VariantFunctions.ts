@@ -64,7 +64,10 @@ function getModelVariant(
     const modelRelativePath = pathResolver().exec(modelComponent.src)?.[2]
     const deviceRelativePath = deviceVariant ? pathResolver().exec(deviceVariant.src)?.[2] : ''
     if (deviceVariant && modelRelativePath !== deviceRelativePath) return deviceVariant.src
-  } else if (variantComponent.heuristic === Heuristic.DISTANCE) {
+  } else if (
+    variantComponent.heuristic === Heuristic.DISTANCE ||
+    (variantComponent.heuristic === Heuristic.BUDGET && variantComponent.useDistance)
+  ) {
     const distance = DistanceFromCameraComponent.squaredDistance[entity]
     for (let i = 0; i < variantComponent.levels.length; i++) {
       const level = variantComponent.levels[i]
