@@ -31,6 +31,7 @@ import {
   defineAction,
   defineActionQueue,
   defineState,
+  dispatchAction,
   getMutableState,
   getState,
   none,
@@ -60,12 +61,25 @@ import { useEffect } from 'react'
 import matches, { Validator } from 'ts-matches'
 import { SourceComponent } from './components/SourceComponent'
 import { migrateOldColliders } from './functions/migrateOldColliders'
-import { migrateOldComponents } from './functions/migrateOldComponents'
 import { serializeEntity } from './functions/serializeWorld'
+import { SceneLoadingReactor } from './systems/SceneLoadingSystem'
 
 export interface SceneSnapshotInterface {
   data: SceneJsonType
   selectedEntities: Array<EntityUUID>
+}
+
+export const SceneActions = {
+  loadScene: defineAction({
+    type: 'ee.scene.LOAD_SCENE' as const,
+    sceneID: matches.string as Validator<unknown, SceneID>,
+    sceneData: matches.object as Validator<unknown, SceneDataType>
+  }),
+
+  unloadScene: defineAction({
+    type: 'ee.scene.UNLOAD_SCENE' as const,
+    sceneID: matches.string as Validator<unknown, SceneID>
+  })
 }
 
 export const SceneState = defineState({
@@ -134,30 +148,14 @@ export const SceneState = defineState({
     return index
   },
 
+  /** @deprecated - use dispatchAction(SceneActions.loadScene()) instead */
   loadScene: (sceneID: SceneID, sceneData: SceneDataType) => {
-    const metadata: SceneMetadataType = sceneData
-    const data: SceneJsonType = sceneData.scene
-
-    /** migrate collider components only for the 'active scene' */
-    if (getState(SceneState).activeScene === sceneID) {
-      for (const [uuid, entityJson] of Object.entries(data.entities)) {
-        migrateOldColliders(entityJson)
-        migrateOldComponents(entityJson)
-      }
-    }
-
-    getMutableState(SceneState).scenes[sceneID].set({
-      metadata,
-      snapshots: [{ data, selectedEntities: [] }],
-      index: 0
-    })
+    dispatchAction(SceneActions.loadScene({ sceneID, sceneData }))
   },
 
+  /** @deprecated - use dispatchAction(SceneActions.unloadScene()) instead */
   unloadScene: (sceneID: SceneID) => {
-    getMutableState(SceneState).scenes[sceneID].set(none)
-    if (getState(SceneState).activeScene === sceneID) {
-      getMutableState(SceneState).activeScene.set(null)
-    }
+    dispatchAction(SceneActions.unloadScene({ sceneID }))
   },
 
   getRootEntity: (sceneID?: SceneID) => {
@@ -236,7 +234,38 @@ export const SceneState = defineState({
     }
     // if (snapshot.selectedEntities)
     //   SelectionState.updateSelection(snapshot.selectedEntities.map((uuid) => UUIDComponent.getEntityByUUID(uuid) ?? uuid))
-  }
+  },
+
+  receptors: {
+    onLoadScene: SceneActions.loadScene.receive((action) => {
+      const { sceneID, sceneData } = action
+      const metadata: SceneMetadataType = sceneData
+      const data: SceneJsonType = sceneData.scene
+
+      /** migrate collider components only for the 'active scene' */
+      if (getState(SceneState).activeScene === sceneID) {
+        for (const [uuid, entityJson] of Object.entries(data.entities)) {
+          migrateOldColliders(entityJson)
+        }
+      }
+
+      getMutableState(SceneState).scenes[sceneID].set({
+        metadata,
+        snapshots: [{ data, selectedEntities: [] }],
+        index: 0
+      })
+    }),
+
+    unloadScene: SceneActions.unloadScene.receive((action) => {
+      const { sceneID } = action
+      getMutableState(SceneState).scenes[sceneID].set(none)
+      if (getState(SceneState).activeScene === sceneID) {
+        getMutableState(SceneState).activeScene.set(null)
+      }
+    })
+  },
+
+  reactor: SceneLoadingReactor
 })
 
 export const SceneServices = {
@@ -244,13 +273,13 @@ export const SceneServices = {
     Engine.instance.api
       .service(scenePath)
       .get('' as SceneID, { query: { sceneKey: sceneID } })
-      .then((sceneData) => {
+      .then((sceneData: SceneDataType) => {
         getMutableState(SceneState).activeScene.set(sceneID)
-        SceneState.loadScene(sceneID, sceneData as SceneDataType)
+        dispatchAction(SceneActions.loadScene({ sceneID, sceneData }))
       })
 
     return () => {
-      SceneState.unloadScene(sceneID)
+      dispatchAction(SceneActions.unloadScene({ sceneID }))
     }
   }
 }
@@ -340,7 +369,12 @@ const reactor = () => {
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
 
   useEffect(() => {
-    if (!activeScene.value || getState(SceneState).scenes[activeScene.value].snapshots.length) return
+    if (
+      !activeScene.value ||
+      !getState(SceneState).scenes[activeScene.value] ||
+      getState(SceneState).scenes[activeScene.value].snapshots.length
+    )
+      return
     SceneState.resetHistory(activeScene.value)
   }, [activeScene])
 

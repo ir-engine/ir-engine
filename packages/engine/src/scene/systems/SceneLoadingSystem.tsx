@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import { useLayoutEffect } from 'react'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import {
@@ -37,13 +37,7 @@ import {
 } from '@etherealengine/hyperflux'
 import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
-import {
-  ComponentJsonType,
-  EntityJsonType,
-  SceneDataType,
-  SceneID,
-  scenePath
-} from '@etherealengine/common/src/schema.type.module'
+import { ComponentJsonType, EntityJsonType, SceneID } from '@etherealengine/common/src/schema.type.module'
 import {
   ComponentJSONIDMap,
   getComponent,
@@ -52,7 +46,6 @@ import {
   setComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { entityExists, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { QueryReactor, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
@@ -83,7 +76,7 @@ import { SceneTagComponent } from '../components/SceneTagComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 
-const reactor = () => {
+export const SceneLoadingReactor = () => {
   const scenes = useHookstate(getMutableState(SceneState).scenes)
   const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
   const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
@@ -91,7 +84,7 @@ const reactor = () => {
 
   const physicsWorld = useHookstate(getMutableState(PhysicsState).physicsWorld)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!getState(SceneState).sceneLoading) return
 
     const values = Object.values(assetLoadingState.value)
@@ -136,7 +129,7 @@ const reactor = () => {
 const NetworkedSceneObjectReactor = () => {
   const entity = useEntityContext()
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!entityExists(entity)) return
     const uuid = getComponent(entity, UUIDComponent)
     const transform = getComponent(entity, TransformComponent)
@@ -165,7 +158,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
   const systemsLoaded = useHookstate([] as SystemImportType[])
   const isActiveScene = useHookstate(getMutableState(SceneState).activeScene).value === props.sceneID
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const scene = getState(SceneState).scenes[props.sceneID]
     const { project } = scene.metadata
     const data = scene.snapshots[scene.index].data
@@ -183,30 +176,9 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
         ready.set(true)
       }
     })
-
-    if (!isActiveScene) return
-
-    const sceneUpdatedListener = async () => {
-      const [projectName, sceneName] = props.sceneID.split('/')
-      const sceneData = (await Engine.instance.api
-        .service(scenePath)
-        .get('', { query: { project: projectName, name: sceneName } })) as SceneDataType
-      SceneState.loadScene(props.sceneID, sceneData)
-    }
-    // for testing
-    // window.addEventListener('keydown', (ev) => {
-    //   if (ev.code === 'KeyN') sceneUpdatedListener()
-    // })
-
-    Engine.instance.api.service(scenePath).on('updated', sceneUpdatedListener)
-
-    return () => {
-      // the ? is for testing
-      Engine.instance?.api.service(scenePath).off('updated', sceneUpdatedListener)
-    }
   }, [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     ready.set(true)
     const systems = [...systemsLoaded.value]
     return () => {
@@ -243,7 +215,7 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
   const entityState = SceneState.useScene(props.sceneID).entities[props.entityUUID]
   const selfEntity = useHookstate(UndefinedEntity)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const entity = UUIDComponent.getOrCreateEntityByUUID(props.entityUUID)
     setComponent(entity, NameComponent, entityState.name.value)
     setComponent(entity, VisibleComponent, true)
@@ -313,7 +285,7 @@ const EntityChildLoadReactor = (props: {
   const parentLoaded = !!useOptionalComponent(parentEntity, UUIDComponent)
   const dynamicParentState = useOptionalComponent(parentEntity, SceneDynamicLoadTagComponent)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // ensure parent has been deserialized before checking if dynamically loaded
     if (!parentLoaded) return
 
@@ -347,13 +319,13 @@ const EntityChildLoadReactor = (props: {
     }
   }, [dynamicParentState?.loaded, parentLoaded])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const entity = UUIDComponent.getEntityByUUID(props.entityUUID)
     if (!entity) return
     setComponent(entity, NameComponent, entityJSONState.name.value)
   }, [entityJSONState.name, selfEntity])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const entity = UUIDComponent.getEntityByUUID(props.entityUUID)
     if (!entity) return
     const uuid = props.entityUUID
@@ -388,7 +360,7 @@ const ComponentLoadReactor = (props: {
 }) => {
   const componentState = props.componentJSONState
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!componentState?.value) return
     const entity = UUIDComponent.getEntityByUUID(props.entityUUID)
     const component = componentState.get(NO_PROXY)
@@ -399,7 +371,7 @@ const ComponentLoadReactor = (props: {
     }
   }, [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     /** @todo this is a hack fix for variants */
     if (!getState(EngineState).isEditing) return
     if (!componentState?.value) return
@@ -437,6 +409,5 @@ const loadComponents = (entity: Entity, components: ComponentJsonType[]) => {
 
 export const SceneLoadingSystem = defineSystem({
   uuid: 'ee.engine.scene.SceneLoadingSystem',
-  insert: { after: PresentationSystemGroup },
-  reactor
+  insert: { after: PresentationSystemGroup }
 })

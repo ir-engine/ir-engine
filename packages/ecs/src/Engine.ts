@@ -112,17 +112,13 @@ export async function destroyEngine() {
   /** Remove all entities */
   const entities = getAllEntities(HyperFlux.store) as Entity[]
 
-  const entityPromises = [] as Promise<void>[]
-
-  for (const entity of entities) if (entity) entityPromises.push(...removeEntity(entity))
-
-  await Promise.all(entityPromises)
+  for (const entity of entities) removeEntity(entity)
 
   for (const query of getState(SystemState).reactiveQueryStates) {
     removeQuery(query.query)
   }
 
-  await disposeStore()
+  disposeStore()
 
   /** @todo include in next bitecs update */
   // bitecs.deleteWorld(Engine.instance)

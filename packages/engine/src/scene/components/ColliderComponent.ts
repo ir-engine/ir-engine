@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ColliderDesc, RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
-import { useEffect } from 'react'
+import { useLayoutEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
 import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -34,6 +34,7 @@ import {
   defineComponent,
   getComponent,
   hasComponent,
+  removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -168,7 +169,7 @@ export const ColliderComponent = defineComponent({
     const groupComponent = useOptionalComponent(entity, GroupComponent)
     const modelHierarchy = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       SceneAssetPendingTagComponent.removeResource(entity, ColliderComponent.jsonID)
 
       const isMeshCollider = [ShapeType.TriMesh, ShapeType.ConvexPolyhedron].includes(colliderComponent.shapeType.value)
@@ -177,9 +178,7 @@ export const ColliderComponent = defineComponent({
       if (isLoadedFromGLTF?.value || isMeshCollider) {
         const colliderComponent = getComponent(entity, ColliderComponent)
 
-        if (hasComponent(entity, RigidBodyComponent)) {
-          Physics.removeRigidBody(entity, physicsWorld)
-        }
+        removeComponent(entity, RigidBodyComponent)
 
         iterateEntityNode(entity, computeTransformMatrix)
         if (hasComponent(entity, GroupComponent)) {

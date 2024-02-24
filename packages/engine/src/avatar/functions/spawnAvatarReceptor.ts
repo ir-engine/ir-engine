@@ -106,7 +106,12 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
     locomotion: new Vector3()
   })
 
-  createAvatarRigidBody(entity)
+  setComponent(entity, RigidBodyComponent, {
+    type: BodyTypes.Kinematic,
+    allowRolling: false,
+    enabledRotations: [false, true, false]
+  })
+  setComponent(entity, CollisionComponent)
 
   if (ownerID === Engine.instance.userID) {
     createAvatarController(entity)
@@ -127,9 +132,6 @@ export const createAvatarCollider = (entity: Entity): Collider => {
   const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
   const avatarComponent = getComponent(entity, AvatarComponent)
   const rigidBody = getComponent(entity, RigidBodyComponent)
-  const transform = getComponent(entity, TransformComponent)
-  rigidBody.position.copy(transform.position)
-  rigidBody.rotation.copy(transform.rotation)
   const halfHeight = avatarComponent.avatarHeight * 0.5
   const bodyColliderDesc = ColliderDesc.capsule(halfHeight - avatarRadius - 0.25, avatarRadius).setCollisionGroups(
     interactionGroups
@@ -143,20 +145,8 @@ export const createAvatarCollider = (entity: Entity): Collider => {
   )
 }
 
-const createAvatarRigidBody = (entity: Entity) => {
-  setComponent(entity, RigidBodyComponent, { type: BodyTypes.Kinematic })
-  const body = getComponent(entity, RigidBodyComponent).body
-  body.lockRotations(true, false)
-  body.setEnabledRotations(false, true, false, false)
-}
-
 export const createAvatarController = (entity: Entity) => {
-  const rigidbody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
-  rigidbody.position.copy(transform.position)
-  rigidbody.rotation.copy(transform.rotation)
-  rigidbody.targetKinematicPosition.copy(transform.position)
-  rigidbody.targetKinematicRotation.copy(transform.rotation)
 
   const avatarForward = new Vector3(0, 0, 1).applyQuaternion(transform.rotation)
   const cameraForward = new Vector3(0, 0, -1)
@@ -169,6 +159,4 @@ export const createAvatarController = (entity: Entity) => {
     bodyCollider: createAvatarCollider(entity),
     controller: Physics.createCharacterController(getState(PhysicsState).physicsWorld, {})
   })
-
-  setComponent(entity, CollisionComponent)
 }

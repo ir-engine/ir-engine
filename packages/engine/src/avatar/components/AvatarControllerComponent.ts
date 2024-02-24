@@ -35,7 +35,6 @@ import { getState } from '@etherealengine/hyperflux'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { useEffect } from 'react'
 import { createAvatarCollider } from '../functions/spawnAvatarReceptor'
@@ -109,7 +108,7 @@ export const AvatarControllerComponent = defineComponent({
     }, [])
 
     useEffect(() => {
-      Physics.removeCollidersFromRigidBody(entity, getState(PhysicsState).physicsWorld)
+      getState(PhysicsState).physicsWorld.removeCollider(avatarControllerComponent.bodyCollider.value, false)
       const collider = createAvatarCollider(entity)
       avatarControllerComponent.bodyCollider.set(collider)
 
