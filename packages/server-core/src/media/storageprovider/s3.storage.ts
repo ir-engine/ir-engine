@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   CloudFrontClient,
   CreateFunctionCommand,
+  CreateFunctionCommandOutput,
   CreateInvalidationCommand,
   DescribeFunctionCommand,
   FunctionRuntime,
@@ -34,8 +35,10 @@ import {
   ListFunctionsCommand,
   ListFunctionsCommandInput,
   PublishFunctionCommand,
+  PublishFunctionCommandOutput,
   UpdateDistributionCommand,
-  UpdateFunctionCommand
+  UpdateFunctionCommand,
+  UpdateFunctionCommandOutput
 } from '@aws-sdk/client-cloudfront'
 import {
   AbortMultipartUploadCommand,
@@ -163,7 +166,7 @@ export class S3Provider implements StorageProviderInterface {
 
   originURLs = [this.cacheDomain]
 
-  private bucketAssetURL =
+  public bucketAssetURL =
     config.server.storageProvider === 's3'
       ? config.aws.s3.endpoint
         ? `${config.aws.s3.endpoint}/${this.bucket}`
@@ -300,7 +303,6 @@ export class S3Provider implements StorageProviderInterface {
     if (!data.Key) return
     // key should not contain '/' at the begining
     const key = data.Key[0] === '/' ? data.Key.substring(1) : data.Key
-
     const args = params.isDirectory
       ? {
           ACL: ObjectCannedACL.public_read,
@@ -420,7 +422,11 @@ export class S3Provider implements StorageProviderInterface {
   async createInvalidation(invalidationItems: string[]) {
     if (!invalidationItems || invalidationItems.length === 0) return
     // for non-standard s3 setups, we don't use cloudfront
-    if (config.server.storageProvider !== 's3' || config.aws.s3.s3DevMode === 'local') return
+    if (
+      (config.server.storageProvider !== 's3' && config.server.storageProvider !== 's3-do') ||
+      config.aws.s3.s3DevMode === 'local'
+    )
+      return
     const params = {
       DistributionId: config.aws.cloudfront.distributionId,
       InvalidationBatch: {
@@ -438,7 +444,11 @@ export class S3Provider implements StorageProviderInterface {
   }
 
   async getOriginURLs(): Promise<string[]> {
-    if (config.server.storageProvider !== 's3' || config.aws.s3.s3DevMode === 'local') return [this.cacheDomain]
+    if (
+      (config.server.storageProvider !== 's3-do' && config.server.storageProvider !== 's3') ||
+      config.aws.s3.s3DevMode === 'local'
+    )
+      return [this.cacheDomain]
     const getDistributionParams = {
       Id: config.aws.cloudfront.distributionId
     }
@@ -449,7 +459,7 @@ export class S3Provider implements StorageProviderInterface {
   }
 
   async listFunctions(marker: string | null, functions: FunctionSummary[]): Promise<FunctionSummary[]> {
-    if (config.server.storageProvider !== 's3') return []
+    if (config.server.storageProvider !== 's3-do' && config.server.storageProvider !== 's3-do') return []
     const params: ListFunctionsCommandInput = {
       MaxItems: MAX_ITEMS
     }
@@ -505,7 +515,7 @@ export class S3Provider implements StorageProviderInterface {
     )
   }
 
-  async createFunction(functionName: string, routes: string[]) {
+  async createFunction(functionName: string, routes: string[]): Promise<CreateFunctionCommandOutput | undefined> {
     const code = this.getFunctionCode(routes)
     const params = {
       Name: functionName,
@@ -554,7 +564,7 @@ export class S3Provider implements StorageProviderInterface {
     }
   }
 
-  async publishFunction(functionName: string) {
+  async publishFunction(functionName: string): Promise<PublishFunctionCommandOutput | undefined> {
     const functionDetailsParams = {
       Name: functionName
     }
@@ -568,7 +578,7 @@ export class S3Provider implements StorageProviderInterface {
     return await this.cloudfront.send(command)
   }
 
-  async updateFunction(functionName: string, routes: string[]) {
+  async updateFunction(functionName: string, routes: string[]): Promise<UpdateFunctionCommandOutput | undefined> {
     const code = this.getFunctionCode(routes)
     const functionDetailsParams = {
       Name: functionName

@@ -941,7 +941,9 @@ export async function getProjectUpdateJobBody(
     app
   )
 
-  const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
+  const pod = apiPods.pods[0]
+  const image = pod.containers.find((container) => container.name === 'etherealengine')!.image
+  const imagePullSecrets = pod.imagePullSecrets
 
   const command = [
     'npx',
@@ -999,6 +1001,7 @@ export async function getProjectUpdateJobBody(
           }
         },
         spec: {
+          imagePullSecrets,
           serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
           containers: [
             {
@@ -1033,7 +1036,9 @@ export async function getProjectPushJobBody(
     app
   )
 
-  const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
+  const pod = apiPods.pods[0]
+  const image = pod.containers.find((container) => container.name === 'etherealengine')!.image
+  const imagePullSecrets = pod.imagePullSecrets
 
   const command = [
     'npx',
@@ -1079,6 +1084,7 @@ export async function getProjectPushJobBody(
           }
         },
         spec: {
+          imagePullSecrets,
           serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
           containers: [
             {
@@ -1098,7 +1104,7 @@ export async function getProjectPushJobBody(
   }
 }
 
-export const getCronJobBody = (project: ProjectType, image: string): object => {
+export const getCronJobBody = (project: ProjectType, image: string, imagePullSecrets?): object => {
   return {
     metadata: {
       name: `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
@@ -1128,6 +1134,7 @@ export const getCronJobBody = (project: ProjectType, image: string): object => {
               }
             },
             spec: {
+              imagePullSecrets: imagePullSecrets || [],
               serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
               containers: [
                 {
@@ -1171,7 +1178,9 @@ export async function getDirectoryArchiveJobBody(
     app
   )
 
-  const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
+  const pod = apiPods.pods[0]
+  const image = pod.containers.find((container) => container.name === 'etherealengine')!.image
+  const imagePullSecrets = pod.imagePullSecrets
 
   const command = [
     'npx',
@@ -1207,6 +1216,7 @@ export async function getDirectoryArchiveJobBody(
           }
         },
         spec: {
+          imagePullSecrets,
           serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
           containers: [
             {
@@ -1244,7 +1254,9 @@ export const createOrUpdateProjectUpdateJob = async (app: Application, projectNa
     app
   )
 
-  const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
+  const pod = apiPods.pods[0]
+  const image = pod.containers.find((container) => container.name === 'etherealengine')!.image
+  const imagePullSecrets = pod.imagePullSecrets
 
   const k8BatchClient = getState(ServerState).k8BatchClient
 
@@ -1253,7 +1265,7 @@ export const createOrUpdateProjectUpdateJob = async (app: Application, projectNa
       await k8BatchClient.patchNamespacedCronJob(
         `${process.env.RELEASE_NAME}-${projectName}-auto-update`,
         'default',
-        getCronJobBody(project, image),
+        getCronJobBody(project, image, imagePullSecrets),
         undefined,
         undefined,
         undefined,
@@ -1267,7 +1279,7 @@ export const createOrUpdateProjectUpdateJob = async (app: Application, projectNa
       )
     } catch (err) {
       logger.error('Could not find cronjob %o', err)
-      await k8BatchClient.createNamespacedCronJob('default', getCronJobBody(project, image))
+      await k8BatchClient.createNamespacedCronJob('default', getCronJobBody(project, image, imagePullSecrets))
     }
   }
 }

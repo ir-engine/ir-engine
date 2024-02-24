@@ -108,7 +108,7 @@ export const updateAppConfig = async (): Promise<void> => {
     .select()
     .from<AuthenticationSettingDatabaseType>(authenticationSettingPath)
     .then(([dbAuthentication]) => {
-      const dbAuthenticationConfig = authenticationDbToSchema(dbAuthentication)
+      let dbAuthenticationConfig = dbAuthentication ? authenticationDbToSchema(dbAuthentication) : undefined
       if (dbAuthenticationConfig) {
         const authStrategies = ['jwt']
         for (let authStrategy of dbAuthenticationConfig.authStrategies) {
@@ -134,7 +134,7 @@ export const updateAppConfig = async (): Promise<void> => {
     .select()
     .from<AwsSettingDatabaseType>(awsSettingPath)
     .then(([dbAws]) => {
-      const dbAwsConfig = awsDbToSchema(dbAws)
+      const dbAwsConfig = dbAws ? awsDbToSchema(dbAws) : undefined
       if (dbAwsConfig) {
         appConfig.aws = {
           ...appConfig.aws,
@@ -183,7 +183,7 @@ export const updateAppConfig = async (): Promise<void> => {
     .select()
     .from<ClientSettingDatabaseType>(clientSettingPath)
     .then(([dbClient]) => {
-      const dbClientConfig = clientDbToSchema(dbClient)
+      const dbClientConfig = dbClient ? clientDbToSchema(dbClient) : undefined
       if (dbClientConfig) {
         appConfig.client = {
           ...appConfig.client,
@@ -255,7 +255,7 @@ export const updateAppConfig = async (): Promise<void> => {
     .select()
     .from<ServerSettingDatabaseType>(serverSettingPath)
     .then(([dbServer]) => {
-      const dbServerConfig = serverDbToSchema(dbServer)
+      const dbServerConfig = dbServer ? serverDbToSchema(dbServer) : undefined
       if (dbServerConfig) {
         appConfig.server = {
           ...appConfig.server,

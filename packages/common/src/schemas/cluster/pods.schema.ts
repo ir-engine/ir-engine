@@ -60,7 +60,8 @@ export const serverPodInfoSchema = Type.Object(
         format: 'uuid'
       })
     ),
-    currentUsers: Type.Optional(Type.Number())
+    currentUsers: Type.Optional(Type.Number()),
+    imagePullSecrets: Type.Optional(Type.Array(Type.Object({ name: Type.String()})))
   },
   { $id: 'ServerPodInfo', additionalProperties: false }
 )

@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import config from '../../appconfig'
 import IPFSStorage from './ipfs.storage'
 import LocalStorage from './local.storage'
+import S3DOStorage from './s3-do.storage'
 import S3Storage from './s3.storage'
 import { StorageProviderInterface } from './storageprovider.interface'
 
@@ -58,9 +59,18 @@ export const createIPFSStorageProvider = async () => {
 }
 
 export const createDefaultStorageProvider = () => {
-  const StorageProvider =
-    config.server.storageProvider !== 's3' && config.server.storageProvider !== 'ipfs' ? LocalStorage : S3Storage
+  let StorageProvider
+
+  if (config.server.storageProvider === 's3-do') {
+    StorageProvider = S3DOStorage
+  } else if (config.server.storageProvider !== 's3' && config.server.storageProvider !== 'ipfs') {
+    StorageProvider = LocalStorage
+  } else {
+    StorageProvider = S3Storage
+  }
+
   const provider = createStorageProvider(StorageProvider)
   providers['default'] = provider
+  console.log('provider', provider)
   return provider
 }
