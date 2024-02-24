@@ -149,7 +149,7 @@ function ColliderComponentRigidbodyReactor(props: { entity: Entity; rigidbodyEnt
     colliderComponent.collider.set(collider)
 
     return () => {
-      if (entityExists(props.entity)) {
+      if (entityExists(props.entity) && hasComponent(props.entity, ColliderComponent)) {
         colliderComponent.collider.set(null)
       }
       physicsWorld.removeCollider(collider, false)
