@@ -31,7 +31,6 @@ import {
   defineAction,
   defineActionQueue,
   defineState,
-  dispatchAction,
   getMutableState,
   getState,
   none,
@@ -62,24 +61,10 @@ import matches, { Validator } from 'ts-matches'
 import { SourceComponent } from './components/SourceComponent'
 import { migrateOldColliders } from './functions/migrateOldColliders'
 import { serializeEntity } from './functions/serializeWorld'
-import { SceneLoadingReactor } from './systems/SceneLoadingSystem'
 
 export interface SceneSnapshotInterface {
   data: SceneJsonType
   selectedEntities: Array<EntityUUID>
-}
-
-export const SceneActions = {
-  loadScene: defineAction({
-    type: 'ee.scene.LOAD_SCENE' as const,
-    sceneID: matches.string as Validator<unknown, SceneID>,
-    sceneData: matches.object as Validator<unknown, SceneDataType>
-  }),
-
-  unloadScene: defineAction({
-    type: 'ee.scene.UNLOAD_SCENE' as const,
-    sceneID: matches.string as Validator<unknown, SceneID>
-  })
 }
 
 export const SceneState = defineState({
@@ -148,14 +133,29 @@ export const SceneState = defineState({
     return index
   },
 
-  /** @deprecated - use dispatchAction(SceneActions.loadScene()) instead */
   loadScene: (sceneID: SceneID, sceneData: SceneDataType) => {
-    dispatchAction(SceneActions.loadScene({ sceneID, sceneData }))
+    const metadata: SceneMetadataType = sceneData
+    const data: SceneJsonType = sceneData.scene
+
+    /** migrate collider components only for the 'active scene' */
+    if (getState(SceneState).activeScene === sceneID) {
+      for (const [uuid, entityJson] of Object.entries(data.entities)) {
+        migrateOldColliders(entityJson)
+      }
+    }
+
+    getMutableState(SceneState).scenes[sceneID].set({
+      metadata,
+      snapshots: [{ data, selectedEntities: [] }],
+      index: 0
+    })
   },
 
-  /** @deprecated - use dispatchAction(SceneActions.unloadScene()) instead */
   unloadScene: (sceneID: SceneID) => {
-    dispatchAction(SceneActions.unloadScene({ sceneID }))
+    getMutableState(SceneState).scenes[sceneID].set(none)
+    if (getState(SceneState).activeScene === sceneID) {
+      getMutableState(SceneState).activeScene.set(null)
+    }
   },
 
   getRootEntity: (sceneID?: SceneID) => {
@@ -228,44 +228,11 @@ export const SceneState = defineState({
     const snapshot = state.snapshots[state.index]
 
     if (snapshot.data) {
-      getMutableState(SceneState).merge({
-        sceneLoading: true
-      })
+      getMutableState(SceneState).sceneLoading.set(true)
     }
     // if (snapshot.selectedEntities)
     //   SelectionState.updateSelection(snapshot.selectedEntities.map((uuid) => UUIDComponent.getEntityByUUID(uuid) ?? uuid))
-  },
-
-  receptors: {
-    onLoadScene: SceneActions.loadScene.receive((action) => {
-      const { sceneID, sceneData } = action
-      const metadata: SceneMetadataType = sceneData
-      const data: SceneJsonType = sceneData.scene
-
-      /** migrate collider components only for the 'active scene' */
-      if (getState(SceneState).activeScene === sceneID) {
-        for (const [uuid, entityJson] of Object.entries(data.entities)) {
-          migrateOldColliders(entityJson)
-        }
-      }
-
-      getMutableState(SceneState).scenes[sceneID].set({
-        metadata,
-        snapshots: [{ data, selectedEntities: [] }],
-        index: 0
-      })
-    }),
-
-    unloadScene: SceneActions.unloadScene.receive((action) => {
-      const { sceneID } = action
-      getMutableState(SceneState).scenes[sceneID].set(none)
-      if (getState(SceneState).activeScene === sceneID) {
-        getMutableState(SceneState).activeScene.set(null)
-      }
-    })
-  },
-
-  reactor: SceneLoadingReactor
+  }
 })
 
 export const SceneServices = {
@@ -275,11 +242,11 @@ export const SceneServices = {
       .get('' as SceneID, { query: { sceneKey: sceneID } })
       .then((sceneData: SceneDataType) => {
         getMutableState(SceneState).activeScene.set(sceneID)
-        dispatchAction(SceneActions.loadScene({ sceneID, sceneData }))
+        SceneState.loadScene(sceneID, sceneData)
       })
 
     return () => {
-      dispatchAction(SceneActions.unloadScene({ sceneID }))
+      SceneState.unloadScene(sceneID)
     }
   }
 }

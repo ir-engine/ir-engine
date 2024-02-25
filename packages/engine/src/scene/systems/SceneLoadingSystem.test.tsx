@@ -29,8 +29,9 @@ import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFun
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { SceneActions, SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { ReactorReconciler, applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { SystemState } from '@etherealengine/ecs/src/SystemState'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { ReactorReconciler, getMutableState, getState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
@@ -47,6 +48,7 @@ import { FogSettingsComponent } from '../components/FogSettingsComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
+import { SceneLoadingSystem } from './SceneLoadingSystem'
 
 const NODE_TLS_REJECT_UNAUTHORIZED = process.env.NODE_TLS_REJECT_UNAUTHORIZED
 const modelLink = '/packages/projects/default-project/assets/collisioncube.glb'
@@ -93,10 +95,8 @@ describe('SceneLoadingSystem', () => {
     getMutableState(SceneState).activeScene.set(testID)
 
     // init
-    ReactorReconciler.flushSync(() => {
-      dispatchAction(SceneActions.loadScene({ sceneID: testID, sceneData: testScene }))
-      applyIncomingActions()
-    })
+    SceneState.loadScene(testID, testScene)
+    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
 
     // assertions
     const rootEntity = SceneState.getRootEntity(testID)
@@ -203,10 +203,8 @@ describe('SceneLoadingSystem', () => {
     getMutableState(SceneState).activeScene.set(testID)
 
     // init
-    ReactorReconciler.flushSync(() => {
-      dispatchAction(SceneActions.loadScene({ sceneID: testID, sceneData: testScene }))
-      applyIncomingActions()
-    })
+    SceneState.loadScene(testID, testScene)
+    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
 
     // assertions
     const rootEntity = SceneState.getRootEntity(testID)
@@ -254,10 +252,8 @@ describe('SceneLoadingSystem', () => {
     // load scene
 
     // init
-    ReactorReconciler.flushSync(() => {
-      dispatchAction(SceneActions.loadScene({ sceneID: testID, sceneData: testScene }))
-      applyIncomingActions()
-    })
+    SceneState.loadScene(testID, testScene)
+    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
 
     // assertions
     const rootEntity = SceneState.getRootEntity(testID)
@@ -312,10 +308,8 @@ describe('SceneLoadingSystem', () => {
     // load scene
 
     // init
-    ReactorReconciler.flushSync(() => {
-      dispatchAction(SceneActions.loadScene({ sceneID: testID, sceneData: testScene }))
-      applyIncomingActions()
-    })
+    SceneState.loadScene(testID, testScene)
+    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
 
     // assertions
     const rootEntity = SceneState.getRootEntity(testID)
@@ -425,10 +419,8 @@ describe('SceneLoadingSystem', () => {
   it('will load sub-scene from model component', async () => {
     getMutableState(SceneState).activeScene.set(testID)
 
-    ReactorReconciler.flushSync(() => {
-      dispatchAction(SceneActions.loadScene({ sceneID: testID, sceneData: testScene }))
-      applyIncomingActions()
-    })
+    SceneState.loadScene(testID, testScene)
+    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
 
     // assertions
     const rootEntity = SceneState.getRootEntity(testID)
@@ -502,10 +494,8 @@ describe('SceneLoadingSystem', () => {
     getMutableState(SceneState).activeScene.set(testID)
 
     // init
-    ReactorReconciler.flushSync(() => {
-      dispatchAction(SceneActions.loadScene({ sceneID: testID, sceneData: testScene }))
-      applyIncomingActions()
-    })
+    SceneState.loadScene(testID, testScene)
+    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
 
     // load scene
     // force re-render

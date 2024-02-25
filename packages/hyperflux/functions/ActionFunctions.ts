@@ -533,7 +533,6 @@ export const applyIncomingActions = () => {
   const now = HyperFlux.store.getDispatchTime()
   for (const action of [...incoming]) {
     _forwardIfNecessary(action)
-    console.log('action time', action.$time, 'now', now)
     if (action.$time <= now) _applyIncomingAction(action)
   }
 

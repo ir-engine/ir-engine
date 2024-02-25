@@ -38,6 +38,7 @@ import {
 import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
 import { ComponentJsonType, EntityJsonType, SceneID } from '@etherealengine/common/src/schema.type.module'
+import { PresentationSystemGroup } from '@etherealengine/ecs'
 import {
   ComponentJSONIDMap,
   getComponent,
@@ -49,7 +50,7 @@ import {
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { entityExists, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { QueryReactor, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -161,24 +162,19 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     const scene = getState(SceneState).scenes[props.sceneID]
     const { project } = scene.metadata
     const data = scene.snapshots[scene.index].data
-    getSystemsFromSceneData(project, data).then((systems) => {
-      // wait to set scene loading state until systems are loaded
-      if (isActiveScene)
-        getMutableState(SceneState).merge({
-          sceneLoading: true,
-          sceneLoaded: false
-        })
-
-      if (systems.length) {
-        systemsLoaded.set(systems)
-      } else {
-        ready.set(true)
-      }
+    const systemPromises = getSystemsFromSceneData(project, data)
+    if (!systemPromises) {
+      ready.set(true)
+      return
+    }
+    systemPromises.then((systems) => {
+      systemsLoaded.set(systems)
+      ready.set(true)
     })
   }, [])
 
   useLayoutEffect(() => {
-    ready.set(true)
+    if (!systemsLoaded.length) return
     const systems = [...systemsLoaded.value]
     return () => {
       for (const system of systems) {
@@ -186,8 +182,6 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
       }
     }
   }, [systemsLoaded.length])
-
-  console.trace(props, entities.value, rootUUID, getMutableState(SceneState).activeScene.value, props.sceneID)
 
   return (
     <>
@@ -215,8 +209,6 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
 const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) => {
   const entityState = SceneState.useScene(props.sceneID).entities[props.entityUUID]
   const selfEntity = useHookstate(UndefinedEntity)
-
-  console.trace(props, entityState)
 
   useLayoutEffect(() => {
     const entity = UUIDComponent.getOrCreateEntityByUUID(props.entityUUID)
@@ -257,8 +249,6 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
 const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) => {
   const entityState = SceneState.useScene(props.sceneID).entities[props.entityUUID]
   const parentEntity = UUIDComponent.useEntityByUUID(entityState.value.parent!)
-
-  // console.trace(props, entityState, parentEntity)
   return (
     <>
       {parentEntity ? (
@@ -410,3 +400,9 @@ const loadComponents = (entity: Entity, components: ComponentJsonType[]) => {
     }
   }
 }
+
+export const SceneLoadingSystem = defineSystem({
+  uuid: 'ee.engine.scene.SceneLoadingSystem',
+  insert: { after: PresentationSystemGroup },
+  reactor: SceneLoadingReactor
+})

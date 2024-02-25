@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { AnimationMixer, BoxGeometry, CapsuleGeometry, CylinderGeometry, Group, Scene, SphereGeometry } from 'three'
 
-import { NO_PROXY, createState, dispatchAction, getState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, createState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import {
   defineComponent,
@@ -43,7 +43,7 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { SceneActions, SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
@@ -223,22 +223,17 @@ function ModelReactor(): JSX.Element {
     const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene)
     const uuid = getModelSceneID(entity)
 
-    dispatchAction(
-      SceneActions.loadScene({
-        sceneID: uuid,
-        sceneData: {
-          scene: {
-            entities: loadedJsonHierarchy,
-            root: getComponent(entity, UUIDComponent),
-            version: 0
-          },
-          scenePath: uuid,
-          name: '',
-          project: '',
-          thumbnailUrl: ''
-        }
-      })
-    )
+    SceneState.loadScene(uuid, {
+      scene: {
+        entities: loadedJsonHierarchy,
+        root: getComponent(entity, UUIDComponent),
+        version: 0
+      },
+      scenePath: uuid,
+      name: '',
+      project: '',
+      thumbnailUrl: ''
+    })
 
     if (!hasComponent(entity, AvatarRigComponent)) {
       //if this is not an avatar, add bbox snap
@@ -256,7 +251,7 @@ function ModelReactor(): JSX.Element {
         })
 
     return () => {
-      dispatchAction(SceneActions.unloadScene({ sceneID: uuid }))
+      SceneState.unloadScene(uuid)
     }
   }, [modelComponent.scene])
 

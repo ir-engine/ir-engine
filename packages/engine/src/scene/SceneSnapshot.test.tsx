@@ -29,12 +29,7 @@ import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFun
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
-import {
-  SceneActions,
-  SceneSnapshotAction,
-  SceneSnapshotSystem,
-  SceneState
-} from '@etherealengine/engine/src/scene/Scene'
+import { SceneSnapshotAction, SceneSnapshotSystem, SceneState } from '@etherealengine/engine/src/scene/Scene'
 import {
   ReactorReconciler,
   applyIncomingActions,
@@ -50,9 +45,12 @@ import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsS
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import assert from 'assert'
 
+import { defineQuery } from '@etherealengine/ecs'
+import { SystemState } from '@etherealengine/ecs/src/SystemState'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { EditorControlFunctions } from '../../../editor/src/functions/EditorControlFunctions'
 import testSceneJson from '../../tests/assets/SceneLoadingTest.scene.json'
+import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
 
 const testScene = {
   name: '',
@@ -100,9 +98,15 @@ describe('Snapshots', () => {
   it('create snapshot', async () => {
     getMutableState(SceneState).activeScene.set(testID)
 
+    console.log('a', getState(SceneState), getMutableState(SceneState).value)
+
     // init
-    dispatchAction(SceneActions.loadScene({ sceneID: testID, sceneData: testScene }))
-    ReactorReconciler.flushSync(() => applyIncomingActions())
+    SceneState.loadScene(testID, testScene)
+    applyIncomingActions()
+    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
+    console.log('b', getState(SceneState), getMutableState(SceneState).value)
+    const query = defineQuery([UUIDComponent])
+    console.log('c', query())
 
     // assertions
     const rootEntity = SceneState.getRootEntity(testID)
@@ -219,7 +223,8 @@ describe('Snapshots', () => {
 
     dispatchAction(SceneSnapshotAction.createSnapshot(expectedSnapshot))
 
-    ReactorReconciler.flushSync(() => applyIncomingActions())
+    applyIncomingActions()
+    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
 
     SystemDefinitions.get(SceneSnapshotSystem)!.execute()
 
@@ -231,8 +236,9 @@ describe('Snapshots', () => {
     getMutableState(SceneState).activeScene.set(testID)
 
     // init
-    dispatchAction(SceneActions.loadScene({ sceneID: testID, sceneData: testScene }))
-    ReactorReconciler.flushSync(() => applyIncomingActions())
+    SceneState.loadScene(testID, testScene)
+    applyIncomingActions()
+    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
 
     // assertions
     const rootEntity = SceneState.getRootEntity(testID)
@@ -337,8 +343,9 @@ describe('Snapshots', () => {
     const oldSnap = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
     EditorControlFunctions.removeObject([child2_1Entity])
 
-    ReactorReconciler.flushSync(() => applyIncomingActions())
+    applyIncomingActions()
     SystemDefinitions.get(SceneSnapshotSystem)!.execute()
+    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
 
     assert.equal(
       UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID),
@@ -347,8 +354,9 @@ describe('Snapshots', () => {
     )
 
     dispatchAction(SceneSnapshotAction.undo({ count: 1, sceneID: getState(SceneState).activeScene! }))
-    ReactorReconciler.flushSync(() => applyIncomingActions())
+    applyIncomingActions()
     SystemDefinitions.get(SceneSnapshotSystem)!.execute()
+    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
 
     // wait again
     const undoSnap = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
@@ -361,8 +369,9 @@ describe('Snapshots', () => {
     getMutableState(SceneState).activeScene.set(testID)
 
     // init
-    dispatchAction(SceneActions.loadScene({ sceneID: testID, sceneData: testScene }))
-    ReactorReconciler.flushSync(() => applyIncomingActions())
+    SceneState.loadScene(testID, testScene)
+    applyIncomingActions()
+    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
 
     // assertions
     const rootEntity = SceneState.getRootEntity(testID)
@@ -467,8 +476,9 @@ describe('Snapshots', () => {
 
     const oldSnap = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
     EditorControlFunctions.removeObject([child2_1Entity])
-    ReactorReconciler.flushSync(() => applyIncomingActions())
+    applyIncomingActions()
     SystemDefinitions.get(SceneSnapshotSystem)!.execute()
+    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
 
     // wait somehow
     const newSnap = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
@@ -480,16 +490,18 @@ describe('Snapshots', () => {
     )
 
     dispatchAction(SceneSnapshotAction.undo({ count: 1, sceneID: getState(SceneState).activeScene! }))
-    ReactorReconciler.flushSync(() => applyIncomingActions())
+    applyIncomingActions()
     SystemDefinitions.get(SceneSnapshotSystem)!.execute()
+    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
 
     // wait again
     const undoSnap = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
     assert.deepStrictEqual(oldSnap, undoSnap, 'undo Snapshots do not match')
 
     dispatchAction(SceneSnapshotAction.redo({ count: 1, sceneID: getState(SceneState).activeScene! }))
-    ReactorReconciler.flushSync(() => applyIncomingActions())
+    applyIncomingActions()
     SystemDefinitions.get(SceneSnapshotSystem)!.execute()
+    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
 
     const redoSnap = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
 
