@@ -31,13 +31,10 @@ import { defineComponent, getComponent, hasComponent, useComponent } from '@ethe
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { entityExists, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getState } from '@etherealengine/hyperflux'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { useEffect } from 'react'
-import { createAvatarCollider } from '../functions/spawnAvatarReceptor'
 import { AvatarComponent } from './AvatarComponent'
 
 export const AvatarControllerComponent = defineComponent({
@@ -108,9 +105,10 @@ export const AvatarControllerComponent = defineComponent({
     }, [])
 
     useEffect(() => {
-      getState(PhysicsState).physicsWorld.removeCollider(avatarControllerComponent.bodyCollider.value, false)
-      const collider = createAvatarCollider(entity)
-      avatarControllerComponent.bodyCollider.set(collider)
+      /** @todo fix this */
+      // getState(PhysicsState).physicsWorld.removeCollider(avatarControllerComponent.bodyCollider.value, false)
+      // const collider = createAvatarCollider(entity)
+      // avatarControllerComponent.bodyCollider.set(collider)
 
       const cameraEntity = avatarControllerComponent.cameraEntity.value
       if (cameraEntity && entityExists(cameraEntity) && hasComponent(cameraEntity, FollowCameraComponent)) {

@@ -165,11 +165,19 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     const systemPromises = getSystemsFromSceneData(project, data)
     if (!systemPromises) {
       ready.set(true)
+      getMutableState(SceneState).merge({
+        sceneLoading: true,
+        sceneLoaded: false
+      })
       return
     }
     systemPromises.then((systems) => {
       systemsLoaded.set(systems)
       ready.set(true)
+      getMutableState(SceneState).merge({
+        sceneLoading: true,
+        sceneLoaded: false
+      })
     })
   }, [])
 
@@ -195,7 +203,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
             />
           ) : (
             <EntityLoadReactor
-              key={entityUUID + ' ' + data.parent}
+              key={props.sceneID + ' ' + entityUUID + ' ' + data.parent + ' ' + data.index}
               sceneID={props.sceneID}
               entityUUID={entityUUID as EntityUUID}
             />
