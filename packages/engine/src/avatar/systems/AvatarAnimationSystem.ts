@@ -62,7 +62,6 @@ import { compareDistanceToCamera } from '@etherealengine/spatial/src/transform/c
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { XRLeftHandComponent, XRRightHandComponent } from '@etherealengine/spatial/src/xr/XRComponents'
 import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
-import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { useBatchGLTF } from '../../assets/functions/resourceHooks'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
@@ -186,7 +185,20 @@ const execute = () => {
 
     const transform = getComponent(entity, TransformComponent)
 
+    /** place normalized rig in world space */
     const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
+    normalizedRig.hips.node.traverse((node) => {
+      node.scale.setScalar(1)
+      node.updateMatrix()
+      if (node.name === normalizedRig.hips.node.name) return
+
+      node.updateMatrixWorld()
+    })
+    normalizedRig.hips.node.matrixWorld.multiplyMatrices(transform.matrixWorld, normalizedRig.hips.node.matrix)
+    normalizedRig.hips.node.matrixWorld.elements[13] = rawRig.hips.node.matrixWorld.elements[13]
+    normalizedRig.hips.node.matrixWorld.elements[14] = rawRig.hips.node.matrixWorld.elements[14]
+    normalizedRig.hips.node.matrixWorld.elements[15] = rawRig.hips.node.matrixWorld.elements[15]
+
     if (headTargetBlendWeight) {
       const headTransform = getComponent(head, TransformComponent)
       normalizedRig.hips.node.position.set(
@@ -225,7 +237,9 @@ const execute = () => {
       )
 
       solveTwoBoneIK(
-        rigComponent.normalizedRig.rightUpperArm.node.parent!.matrixWorld,
+        normalizedRig.rightUpperArm.node.parent!.matrixWorld.setPosition(
+          normalizedRig.rightUpperArm.node.getWorldPosition(_vector3)
+        ),
         rigComponent.ikMatrices.rightUpperArm!,
         rigComponent.ikMatrices.rightLowerArm!,
         rigComponent.ikMatrices.rightHand!,
@@ -248,7 +262,9 @@ const execute = () => {
       )
 
       solveTwoBoneIK(
-        rigComponent.normalizedRig.leftUpperArm.node.parent!.matrixWorld,
+        normalizedRig.leftUpperArm.node.parent!.matrixWorld.setPosition(
+          normalizedRig.leftUpperArm.node.getWorldPosition(_vector3)
+        ),
         rigComponent.ikMatrices.leftUpperArm!,
         rigComponent.ikMatrices.leftLowerArm!,
         rigComponent.ikMatrices.leftHand!,
@@ -267,7 +283,7 @@ const execute = () => {
         .add(transform.position)
 
       solveTwoBoneIK(
-        rigComponent.normalizedRig.hips.node.matrixWorld,
+        normalizedRig.hips.node.matrixWorld,
         rigComponent.ikMatrices.rightUpperLeg!,
         rigComponent.ikMatrices.rightLowerLeg!,
         rigComponent.ikMatrices.rightFoot!,
@@ -286,7 +302,7 @@ const execute = () => {
         .add(transform.position)
 
       solveTwoBoneIK(
-        rigComponent.normalizedRig.hips.node.matrixWorld,
+        normalizedRig.hips.node.matrixWorld,
         rigComponent.ikMatrices.leftUpperLeg!,
         rigComponent.ikMatrices.leftLowerLeg!,
         rigComponent.ikMatrices.leftFoot!,
@@ -307,19 +323,6 @@ const execute = () => {
     }
 
     updateVRMRetargeting(rigComponent.vrm, entity)
-
-    /** temporary hack for normalized bones to work with ik solves */
-    if (headTargetBlendWeight)
-      for (const boneName of VRMHumanBoneList) {
-        if (normalizedRig[boneName]) {
-          normalizedRig[boneName]!.node.scale.setScalar(1)
-          if (boneName == 'hips')
-            normalizedRig[boneName]!.node.matrixWorld.copy(transform.matrixWorld).setPosition(
-              rawRig.hips.node.getWorldPosition(new Vector3())
-            )
-          else normalizedRig[boneName]!.node.updateMatrixWorld()
-        }
-      }
   }
 }
 
@@ -404,7 +407,7 @@ const reactor = () => {
 
 export const AvatarAnimationSystem = defineSystem({
   uuid: 'ee.engine.AvatarAnimationSystem',
-  insert: { after: AnimationSystem },
+  insert: { before: AnimationSystem },
   execute,
   reactor
 })

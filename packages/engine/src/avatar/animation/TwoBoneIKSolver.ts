@@ -224,6 +224,7 @@ const targetPos = new Vector3(),
 const nodeQuaternion = new Quaternion()
 export const blendIKChain = (entity: Entity, bones: VRMHumanBoneName[], weight) => {
   const rigComponent = getComponent(entity, AvatarRigComponent)
+
   for (const bone of bones) {
     const boneMatrices = rigComponent.ikMatrices[bone]
     if (boneMatrices) {
