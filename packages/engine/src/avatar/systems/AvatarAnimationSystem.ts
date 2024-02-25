@@ -237,9 +237,7 @@ const execute = () => {
       )
 
       solveTwoBoneIK(
-        normalizedRig.rightUpperArm.node.parent!.matrixWorld.setPosition(
-          normalizedRig.rightUpperArm.node.getWorldPosition(_vector3)
-        ),
+        normalizedRig.rightUpperArm.node.parent!.matrixWorld,
         rigComponent.ikMatrices.rightUpperArm!,
         rigComponent.ikMatrices.rightLowerArm!,
         rigComponent.ikMatrices.rightHand!,
@@ -262,9 +260,7 @@ const execute = () => {
       )
 
       solveTwoBoneIK(
-        normalizedRig.leftUpperArm.node.parent!.matrixWorld.setPosition(
-          normalizedRig.leftUpperArm.node.getWorldPosition(_vector3)
-        ),
+        normalizedRig.leftUpperArm.node.parent!.matrixWorld,
         rigComponent.ikMatrices.leftUpperArm!,
         rigComponent.ikMatrices.leftLowerArm!,
         rigComponent.ikMatrices.leftHand!,
