@@ -45,7 +45,6 @@ import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsS
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import assert from 'assert'
 
-import { defineQuery } from '@etherealengine/ecs'
 import { SystemState } from '@etherealengine/ecs/src/SystemState'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { EditorControlFunctions } from '../../../editor/src/functions/EditorControlFunctions'
@@ -98,15 +97,10 @@ describe('Snapshots', () => {
   it('create snapshot', async () => {
     getMutableState(SceneState).activeScene.set(testID)
 
-    console.log('a', getState(SceneState), getMutableState(SceneState).value)
-
     // init
     SceneState.loadScene(testID, testScene)
     applyIncomingActions()
     ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
-    console.log('b', getState(SceneState), getMutableState(SceneState).value)
-    const query = defineQuery([UUIDComponent])
-    console.log('c', query())
 
     // assertions
     const rootEntity = SceneState.getRootEntity(testID)
