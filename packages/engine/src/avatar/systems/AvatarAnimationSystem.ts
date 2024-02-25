@@ -403,7 +403,7 @@ const reactor = () => {
 
 export const AvatarAnimationSystem = defineSystem({
   uuid: 'ee.engine.AvatarAnimationSystem',
-  insert: { before: AnimationSystem },
+  insert: { after: AnimationSystem },
   execute,
   reactor
 })

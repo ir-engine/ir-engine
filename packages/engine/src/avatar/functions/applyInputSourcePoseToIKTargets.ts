@@ -138,8 +138,8 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
   if (ikTargetHead) AvatarIKTargetComponent.blendWeight[ikTargetHead] = 0
   if (ikTargetLeftHand) AvatarIKTargetComponent.blendWeight[ikTargetLeftHand] = 0
   if (ikTargetRightHand) AvatarIKTargetComponent.blendWeight[ikTargetRightHand] = 0
-  if (ikTargetLeftFoot) AvatarIKTargetComponent.blendWeight[ikTargetLeftFoot] = 1
-  if (ikTargetRightFoot) AvatarIKTargetComponent.blendWeight[ikTargetRightFoot] = 1
+  if (ikTargetLeftFoot) AvatarIKTargetComponent.blendWeight[ikTargetLeftFoot] = 0
+  if (ikTargetRightFoot) AvatarIKTargetComponent.blendWeight[ikTargetRightFoot] = 0
 
   const isInXR = xrFrame && referenceSpace
   if (!isInXR) {
