@@ -146,11 +146,9 @@ export function createHyperStore(options: {
 }
 
 export const disposeStore = (store = HyperFlux.store) => {
-  ReactorReconciler.flushSync(() => {
-    for (const reactor of store.activeReactors) {
-      reactor.stop()
-    }
-  })
+  for (const reactor of store.activeReactors) {
+    ReactorReconciler.flushSync(() => reactor.stop())
+  }
   /** @todo this causes errors in tests */
   // bitecs.deleteWorld(store)
 }

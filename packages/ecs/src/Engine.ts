@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { UserID } from '@etherealengine/common/src/schema.type.module'
 import * as Hyperflux from '@etherealengine/hyperflux'
-import { createHyperStore, getState } from '@etherealengine/hyperflux'
+import { ReactorReconciler, createHyperStore, getState } from '@etherealengine/hyperflux'
 import { HyperFlux, HyperStore, disposeStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 import * as bitECS from 'bitecs'
 
@@ -112,7 +112,9 @@ export async function destroyEngine() {
   /** Remove all entities */
   const entities = getAllEntities(HyperFlux.store) as Entity[]
 
-  for (const entity of entities) removeEntity(entity)
+  ReactorReconciler.flushSync(() => {
+    for (const entity of entities) removeEntity(entity)
+  })
 
   for (const query of getState(SystemState).reactiveQueryStates) {
     removeQuery(query.query)

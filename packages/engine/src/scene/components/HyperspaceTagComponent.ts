@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import config from '@etherealengine/common/src/config'
+import { PresentationSystemGroup } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -68,7 +69,6 @@ import {
 } from 'three'
 import { useTexture } from '../../assets/functions/resourceHooks'
 import { teleportAvatar } from '../../avatar/functions/moveAvatar'
-import { SceneLoadingSystem } from '../SceneModule'
 import { PortalComponent, PortalEffects, PortalState } from './PortalComponent'
 
 export const HyperspacePortalEffect = 'Hyperspace'
@@ -277,7 +277,7 @@ export const HyperspaceTagComponent = defineComponent({
           camera.updateProjectionMatrix()
         }
       },
-      { with: SceneLoadingSystem }
+      { after: PresentationSystemGroup }
     )
 
     return null

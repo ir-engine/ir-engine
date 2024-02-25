@@ -27,7 +27,13 @@ import { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import {
+  ReactorReconciler,
+  applyIncomingActions,
+  dispatchAction,
+  getMutableState,
+  getState
+} from '@etherealengine/hyperflux'
 
 import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -108,7 +114,7 @@ describe('moveAvatar function tests', () => {
       })
     )
 
-    applyIncomingActions()
+    ReactorReconciler.flushSync(() => applyIncomingActions())
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
     const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
@@ -148,7 +154,7 @@ describe('moveAvatar function tests', () => {
       })
     )
 
-    applyIncomingActions()
+    ReactorReconciler.flushSync(() => applyIncomingActions())
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
     const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
@@ -190,7 +196,7 @@ describe('moveAvatar function tests', () => {
       })
     )
 
-    applyIncomingActions()
+    ReactorReconciler.flushSync(() => applyIncomingActions())
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
     const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
@@ -229,7 +235,7 @@ describe('moveAvatar function tests', () => {
       })
     )
 
-    applyIncomingActions()
+    ReactorReconciler.flushSync(() => applyIncomingActions())
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
     const entity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)

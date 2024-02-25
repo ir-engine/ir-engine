@@ -29,6 +29,7 @@ import { GrabbableComponent } from '../interaction/components/GrabbableComponent
 import { MountPointSystem } from '../interaction/systems/MountPointSystem'
 import { NoiseOffsetSystem } from '../scene/materials/constants/plugins/NoiseOffsetPlugin'
 import { MaterialLibrarySystem } from '../scene/materials/systems/MaterialLibrarySystem'
+import './Scene'
 import { CameraSettingsComponent } from './components/CameraSettingsComponent'
 import { CloudComponent } from './components/CloudComponent'
 import { EnvMapBakeComponent } from './components/EnvMapBakeComponent'
@@ -66,7 +67,6 @@ import { FogSystem } from './systems/FogSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
 import { PortalSystem } from './systems/PortalSystem'
 import { SDFSystem } from './systems/SDFSystem'
-import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
 import { SceneObjectDynamicLoadSystem } from './systems/SceneObjectDynamicLoadSystem'
 import { SceneObjectSystem } from './systems/SceneObjectSystem'
 import { ShadowSystem } from './systems/ShadowSystem'
@@ -121,7 +121,6 @@ export {
   NoiseOffsetSystem,
   ParticleSystem,
   PortalSystem,
-  SceneLoadingSystem,
   SceneObjectDynamicLoadSystem,
   SceneObjectSystem,
   SDFSystem,

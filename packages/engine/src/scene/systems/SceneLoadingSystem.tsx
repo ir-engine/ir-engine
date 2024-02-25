@@ -49,8 +49,7 @@ import {
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { entityExists, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { QueryReactor, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -188,6 +187,8 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     }
   }, [systemsLoaded.length])
 
+  console.trace(props, entities.value, rootUUID, getMutableState(SceneState).activeScene.value, props.sceneID)
+
   return (
     <>
       {ready.value &&
@@ -214,6 +215,8 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
 const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) => {
   const entityState = SceneState.useScene(props.sceneID).entities[props.entityUUID]
   const selfEntity = useHookstate(UndefinedEntity)
+
+  console.trace(props, entityState)
 
   useLayoutEffect(() => {
     const entity = UUIDComponent.getOrCreateEntityByUUID(props.entityUUID)
@@ -255,6 +258,7 @@ const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) 
   const entityState = SceneState.useScene(props.sceneID).entities[props.entityUUID]
   const parentEntity = UUIDComponent.useEntityByUUID(entityState.value.parent!)
 
+  // console.trace(props, entityState, parentEntity)
   return (
     <>
       {parentEntity ? (
@@ -406,8 +410,3 @@ const loadComponents = (entity: Entity, components: ComponentJsonType[]) => {
     }
   }
 }
-
-export const SceneLoadingSystem = defineSystem({
-  uuid: 'ee.engine.scene.SceneLoadingSystem',
-  insert: { after: PresentationSystemGroup }
-})
