@@ -120,11 +120,11 @@ const execute = () => {
   physicsWorld.timestep = timestep
   // const smoothnessMultiplier = 50
   // const smoothAlpha = smoothnessMultiplier * timestep
-  const kinematicPositionEntities = kinematicQuery()
+  const kinematicEntities = kinematicQuery()
   for (let i = 0; i < physicsSubsteps; i++) {
     // smooth kinematic pose changes
     const substep = (i + 1) / physicsSubsteps
-    for (const entity of kinematicPositionEntities) smoothKinematicBody(entity, timestep, substep)
+    for (const entity of kinematicEntities) smoothKinematicBody(entity, timestep, substep)
     physicsWorld.step(physicsCollisionEventQueue)
     physicsCollisionEventQueue.drainCollisionEvents(drainCollisions)
     physicsCollisionEventQueue.drainContactForceEvents(drainContacts)
