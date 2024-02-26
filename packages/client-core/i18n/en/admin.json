@@ -68,6 +68,7 @@
       "no": "No",
       "all": "All",
       "refresh": "Refresh",
+      "name": "Name",
       "fillRequiredFields": "Please fill all required field",
       "fixErrorFields": "Please fix all errors"
     },
@@ -387,9 +388,22 @@
       }
     },
     "avatar": {
+      "columns": {
+        "id": "Id",
+        "name": "Name",
+        "user": "Owner",
+        "isPublic": "Public",
+        "thumbnail": "Thumbnail",
+        "action": "Action"
+      },
+      "avatars": "Avatars",
       "source": "Source",
       "file": "File",
       "url": "Url",
+      "add": "Add Avatar",
+      "update": "Update Avatar",
+      "view": "View Avatar",
+      "remove": "Remove Avatar",
       "avatarPreview": "Avatar Preview",
       "thumbnailPreview": "Thumbnail Preview",
       "avatarUrl": "Avatar URL",
