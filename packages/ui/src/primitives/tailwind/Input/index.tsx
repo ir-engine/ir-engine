@@ -58,6 +58,7 @@ const Input = ({
     'text-base font-normal tracking-tight',
     'textshadow-sm border-theme-primary flex h-9 w-full rounded-lg border bg-transparent px-3.5 py-5 transition-colors',
     'file:border-0 file:bg-transparent file:text-sm file:font-medium',
+    'dark:[color-scheme:dark]',
     'placeholder:text-muted-foreground focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50',
     icon ? 'ps-10' : undefined,
     className
@@ -74,8 +75,8 @@ const Input = ({
       </div>
       {description && <p className="text-theme-secondary self-stretch text-xs">{description}</p>}
       {error && (
-        <p className="text-[#E11D48 text-sm">
-          <HiXCircle className="mr-2.5" /> {error}
+        <p className="inline-flex items-center gap-2.5 self-start text-sm text-[#E11D48]">
+          <HiXCircle /> {error}
         </p>
       )}
     </div>

@@ -30,16 +30,17 @@ import Label from '../Label'
 
 export interface SelectProps extends React.HTMLAttributes<HTMLSelectElement> {
   label?: string
-  inputClassName?: string
+  containerClassName?: string
   error?: string
   description?: string
   currentValue: any
-  options: { name: string; value: any }[]
+  options: { name: string; value: any; disabled?: boolean }[]
   onChange: (value: any) => void
 }
 
 const Select = ({
-  inputClassName,
+  className,
+  containerClassName,
   label,
   error,
   description,
@@ -48,33 +49,33 @@ const Select = ({
   onChange,
   ...props
 }: SelectProps) => {
-  const twInputClassname = twMerge(
-    'p-2.5 text-base font-normal',
+  const twClassName = twMerge(
+    'text-theme-secondary p-2.5 text-base font-normal',
     'textshadow-sm border-theme-primary w-full rounded-lg border bg-transparent transition-colors',
     'file:border-0 file:bg-transparent file:text-sm file:font-medium',
     'placeholder:text-muted-foreground focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50',
-    inputClassName
+    className
   )
 
   return (
-    <div className="flex w-full flex-col items-center gap-2">
+    <div className={twMerge('flex w-full flex-col items-center gap-2', containerClassName)}>
       {label && <Label className="self-stretch">{label}</Label>}
       <select
-        className={twInputClassname}
+        className={twClassName}
         value={currentValue}
         onChange={(event) => onChange(event.target.value)}
         {...props}
       >
-        {options.map(({ name, value }) => (
-          <option key={name} value={value}>
+        {options.map(({ name, value, disabled }) => (
+          <option key={name} value={value} disabled={disabled}>
             {name}
           </option>
         ))}
       </select>
       {description && <p className="text-theme-secondary self-stretch text-xs">{description}</p>}
       {error && (
-        <p className="text-[#E11D48 text-sm">
-          <HiXCircle className="mr-2.5" /> {error}
+        <p className="inline-flex items-center gap-2.5 self-start text-sm text-[#E11D48]">
+          <HiXCircle /> {error}
         </p>
       )}
     </div>
