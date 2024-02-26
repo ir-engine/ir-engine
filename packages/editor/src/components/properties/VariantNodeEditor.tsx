@@ -97,8 +97,6 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
   const modelComponent = useComponent(entity, ModelComponent)
   const previewIndex = useHookstate(0)
 
-  useEffect(() => {}, [])
-
   const setPreview = (index: number) => {
     previewIndex.set(index)
     modelComponent.src.set(variantComponent.levels[index].src.value)

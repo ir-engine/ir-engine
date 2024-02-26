@@ -89,6 +89,13 @@ export const VariantComponent = defineComponent({
         )
         .test(json.levels)
     ) {
+      if (component.heuristic.value === Heuristic.BUDGET) {
+        json.levels = json.levels.sort((left, right) => {
+          const leftVertexCount = left.metadata['vertexCount'] ? (left.metadata['vertexCount'] as number) : 0
+          const rightVertexCount = right.metadata['vertexCount'] ? (right.metadata['vertexCount'] as number) : 0
+          return rightVertexCount - leftVertexCount
+        })
+      }
       component.levels.set(json.levels)
     }
     if (typeof json.calculated === 'boolean') component.calculated.set(json.calculated)
@@ -102,7 +109,8 @@ export const VariantComponent = defineComponent({
         metadata: level.metadata
       }
     }),
-    heuristic: component.heuristic.value
+    heuristic: component.heuristic.value,
+    useDistance: component.useDistance.value
   }),
 
   reactor: VariantReactor
