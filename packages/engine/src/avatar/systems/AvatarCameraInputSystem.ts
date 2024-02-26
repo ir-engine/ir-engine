@@ -50,7 +50,6 @@ import { handleCameraZoom, setTargetCameraRotation } from '@etherealengine/spati
 import { switchCameraMode } from '@etherealengine/spatial/src/camera/functions/switchCameraMode'
 import { CameraMode } from '@etherealengine/spatial/src/camera/types/CameraMode'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
-import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
 
 const avatarControllerQuery = defineQuery([AvatarControllerComponent])
 
@@ -107,11 +106,6 @@ let accumulator = 0
 
 const throttleHandleCameraZoom = throttle(handleCameraZoom, 30, { leading: true, trailing: false })
 let capturedInputSource: Entity | undefined = undefined
-const lastPointerPosition = new Vector2()
-const pointerMovement = new Vector2()
-
-const pointers = defineQuery([InputPointerComponent])
-
 const execute = () => {
   if (getState(XRState).xrFrame) return
 
@@ -125,13 +119,14 @@ const execute = () => {
 
   const avatarControllerEntities = avatarControllerQuery()
 
-  let inputPointerEntity = pointers()[0]
-  if (!inputPointerEntity && capturedInputSource) {
-    inputPointerEntity = capturedInputSource
+  let inputSourceEntity = InputSourceComponent.nonCapturedInputSourceQuery()[0]
+  if (!inputSourceEntity && capturedInputSource) {
+    inputSourceEntity = capturedInputSource
   }
 
-  const inputSource = getOptionalComponent(inputPointerEntity, InputSourceComponent)
-  const inputPointer = getOptionalComponent(inputPointerEntity, InputPointerComponent)
+  const inputState = getState(InputState)
+
+  const inputSource = getOptionalComponent(inputSourceEntity, InputSourceComponent)
 
   const keys = inputSource?.buttons
 
@@ -139,14 +134,9 @@ const execute = () => {
   if (keys?.KeyF?.down) onKeyF()
   if (keys?.KeyC?.down) onKeyC()
 
-  if (!inputPointer) return
-
-  const inputState = getState(InputState)
-  pointerMovement.subVectors(inputPointer.position, lastPointerPosition)
-  lastPointerPosition.copy(inputPointer.position)
-
+  const pointerState = getState(InputState).pointerState
   const mouseMoved = isMobile
-    ? pointerMovement.lengthSq() > 0 && keys?.PrimaryClick?.pressed
+    ? pointerState.movement.lengthSq() > 0 && keys?.PrimaryClick?.pressed
     : keys?.PrimaryClick?.pressed
 
   for (const entity of avatarControllerEntities) {
@@ -159,11 +149,16 @@ const execute = () => {
       getOptionalComponent(cameraEntity, FollowCameraComponent)
     if (!target) continue
 
-    if (!lastMouseMoved && mouseMoved) lastLookDelta.set(inputPointer.position.x, inputPointer.position.y)
+    if (!lastMouseMoved && mouseMoved) lastLookDelta.set(pointerState.position.x, pointerState.position.y)
 
-    const [x, z] = getThumbstickOrThumbpadAxes(inputSource.source, inputState.preferredHand)
-    target.theta -= x * 2
-    target.phi += z * 2
+    if (
+      (inputSource.source.gamepad?.mapping === 'standard' || inputSource.source.gamepad?.mapping === '') &&
+      inputSource.source.handedness === 'none'
+    ) {
+      const [x, z] = getThumbstickOrThumbpadAxes(inputSource.source, inputState.preferredHand)
+      target.theta -= x * 2
+      target.phi += z * 2
+    }
 
     const keyDelta = (keys?.ArrowLeft ? 1 : 0) + (keys?.ArrowRight ? -1 : 0)
     target.theta += 100 * deltaSeconds * keyDelta
@@ -172,15 +167,15 @@ const execute = () => {
     if (mouseMoved) {
       setTargetCameraRotation(
         cameraEntity,
-        target.phi - (inputPointer.position.y - lastLookDelta.y) * cameraSettings.cameraRotationSpeed,
-        target.theta - (inputPointer.position.x - lastLookDelta.x) * cameraSettings.cameraRotationSpeed,
+        target.phi - (pointerState.position.y - lastLookDelta.y) * cameraSettings.cameraRotationSpeed,
+        target.theta - (pointerState.position.x - lastLookDelta.x) * cameraSettings.cameraRotationSpeed,
         0.1
       )
     }
     if (keys?.PrimaryClick?.pressed) {
       if (accumulator > INPUT_CAPTURE_DELAY) {
         InputSourceComponent.captureButtons(cameraEntity)
-        capturedInputSource = inputPointerEntity
+        capturedInputSource = inputSourceEntity
         accumulator = 0
       }
     } else {
@@ -188,10 +183,10 @@ const execute = () => {
       capturedInputSource = undefined
       accumulator = 0
     }
-    throttleHandleCameraZoom(cameraEntity, inputState.scroll.y)
+    throttleHandleCameraZoom(cameraEntity, pointerState.scroll.y)
   }
 
-  lastLookDelta.set(inputPointer.position.x, inputPointer.position.y)
+  lastLookDelta.set(pointerState.position.x, pointerState.position.y)
 
   lastMouseMoved = !!mouseMoved
 }

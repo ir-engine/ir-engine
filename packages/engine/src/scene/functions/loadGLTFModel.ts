@@ -176,14 +176,6 @@ export const parseGLTFModel = (entity: Entity, scene: Scene) => {
 export const proxifyParentChildRelationships = (obj: Object3D) => {
   const objEntity = obj.entity
   Object.defineProperties(obj, {
-    matrixWorld: {
-      get() {
-        return getComponent(objEntity, TransformComponent).matrixWorld
-      },
-      set(value) {
-        throw new Error('Cannot set matrixWorld of proxified object')
-      }
-    },
     parent: {
       get() {
         if (EngineRenderer.instance?.rendering) return null
@@ -193,7 +185,6 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
             Engine.instance.scene
           return result ?? null
         }
-        return Engine.instance.scene
       },
       set(value) {
         throw new Error('Cannot set parent of proxified object')

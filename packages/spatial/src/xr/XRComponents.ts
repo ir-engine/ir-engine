@@ -27,13 +27,11 @@ import { useEffect } from 'react'
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { Engine, UndefinedEntity } from '@etherealengine/ecs'
 import { defineComponent, setComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import type { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { EntityTreeComponent } from '../transform/components/EntityTree'
+import { matches } from '../common/functions/MatchesUtils'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { ReferenceSpace, XRState } from './XRState'
+import { XRState } from './XRState'
 
 /** Maps each XR Joint to it's parent joint */
 export const XRJointParentMap = {
@@ -92,51 +90,6 @@ export const XRJointAvatarBoneMap = {
   // 'pinky-finger-tip': ''
 } as Record<XRHandJoint, string> // BoneName without the handedness
 
-export const VRMHandsToXRJointMap = {
-  leftWrist: 'wrist',
-  leftThumbMetacarpal: 'thumb-metacarpal',
-  leftThumbProximal: 'thumb-phalanx-proximal',
-  leftThumbIntermediate: 'thumb-phalanx-distal',
-  leftThumbDistal: 'thumb-tip',
-  leftIndexProximal: 'index-finger-phalanx-proximal',
-  leftIndexIntermediate: 'index-finger-phalanx-intermediate',
-  leftIndexDistal: 'index-finger-phalanx-distal',
-  leftIndexTip: 'index-finger-tip',
-  leftMiddleProximal: 'middle-finger-phalanx-proximal',
-  leftMiddleIntermediate: 'middle-finger-phalanx-intermediate',
-  leftMiddleDistal: 'middle-finger-phalanx-distal',
-  leftMiddleTip: 'middle-finger-tip',
-  leftRingProximal: 'ring-finger-phalanx-proximal',
-  leftRingIntermediate: 'ring-finger-phalanx-intermediate',
-  leftRingDistal: 'ring-finger-phalanx-distal',
-  leftRingTip: 'ring-finger-tip',
-  leftLittleProximal: 'pinky-finger-phalanx-proximal',
-  leftLittleIntermediate: 'pinky-finger-phalanx-intermediate',
-  leftLittleDistal: 'pinky-finger-phalanx-distal',
-  leftLittleTip: 'pinky-finger-tip',
-  rightWrist: 'wrist',
-  rightThumbMetacarpal: 'thumb-metacarpal',
-  rightThumbProximal: 'thumb-phalanx-proximal',
-  rightThumbIntermediate: 'thumb-phalanx-distal',
-  rightThumbDistal: 'thumb-tip',
-  rightIndexProximal: 'index-finger-phalanx-proximal',
-  rightIndexIntermediate: 'index-finger-phalanx-intermediate',
-  rightIndexDistal: 'index-finger-phalanx-distal',
-  rightIndexTip: 'index-finger-tip',
-  rightMiddleProximal: 'middle-finger-phalanx-proximal',
-  rightMiddleIntermediate: 'middle-finger-phalanx-intermediate',
-  rightMiddleDistal: 'middle-finger-phalanx-distal',
-  rightMiddleTip: 'middle-finger-tip',
-  rightRingProximal: 'ring-finger-phalanx-proximal',
-  rightRingIntermediate: 'ring-finger-phalanx-intermediate',
-  rightRingDistal: 'ring-finger-phalanx-distal',
-  rightRingTip: 'ring-finger-tip',
-  rightLittleProximal: 'pinky-finger-phalanx-proximal',
-  rightLittleIntermediate: 'pinky-finger-phalanx-intermediate',
-  rightLittleDistal: 'pinky-finger-phalanx-distal',
-  rightLittleTip: 'pinky-finger-tip'
-} as Partial<Record<VRMHumanBoneName, XRHandJoint>>
-
 export const XRJointBones = [
   'wrist',
   'thumb-metacarpal',
@@ -165,16 +118,36 @@ export const XRJointBones = [
   'pinky-finger-tip'
 ] as XRHandJoint[]
 
-export const XRHandJointToIndexMap = XRJointBones.reduce(
-  (map, joint, index) => {
-    map[joint] = index
-    return map
-  },
-  {} as Record<XRHandJoint, number>
-)
+export const XRLeftHandComponent = defineComponent({
+  name: 'XRLeftHandComponent',
 
-export const XRHandComponent = defineComponent({
-  name: 'XRHandComponent'
+  onInit: (entity) => {
+    return {
+      hand: null! as XRHand,
+      rotations: new Float32Array(4 * 19)
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (matches.object.test(json.hand)) component.hand.set(json.hand)
+  }
+})
+
+export const XRRightHandComponent = defineComponent({
+  name: 'XRRightHandComponent',
+
+  onInit: (entity) => {
+    return {
+      hand: null! as XRHand,
+      rotations: new Float32Array(4 * 19)
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (matches.object.test(json.hand)) component.hand.set(json.hand)
+  }
 })
 
 export const XRHitTestComponent = defineComponent({
@@ -264,27 +237,11 @@ export const XRSpaceComponent = defineComponent({
   name: 'XRSpace',
 
   onInit: (entity) => {
-    return {
-      space: null! as XRSpace,
-      baseSpace: null! as XRSpace
-    }
+    return null! as XRSpace
   },
 
-  onSet: (entity, component, args: { space: XRSpace; baseSpace: XRSpace }) => {
-    component.space.set(args.space)
-    component.baseSpace.set(args.baseSpace)
-
-    let parentEntity = UndefinedEntity
-    switch (args.baseSpace) {
-      case ReferenceSpace.localFloor:
-        parentEntity = Engine.instance.originEntity
-        break
-      case ReferenceSpace.viewer:
-        parentEntity = Engine.instance.cameraEntity
-        break
-    }
-
-    setComponent(entity, EntityTreeComponent, { parentEntity })
+  onSet: (entity, component, space: XRSpace) => {
+    component.set(space)
     setComponent(entity, TransformComponent)
   }
 })

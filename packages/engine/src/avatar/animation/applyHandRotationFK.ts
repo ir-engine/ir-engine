@@ -23,22 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Vector2 } from 'three'
+import { XRJointAvatarBoneMap } from '@etherealengine/spatial/src/xr/XRComponents'
+import { VRM, VRMHumanBoneName } from '@pixiv/three-vrm'
 
-export const InputPointerComponent = defineComponent({
-  name: 'InputPointerComponent',
-
-  onInit: () => {
-    return {
-      pointerId: -1 as number,
-      position: new Vector2(),
-      lastPosition: new Vector2(),
-      movement: new Vector2()
-    }
-  },
-
-  onSet(entity, component, args: { pointerId: number }) {
-    component.pointerId.set(args.pointerId)
+export const applyHandRotationFK = (vrm: VRM, handedness: 'left' | 'right', rotations: Float32Array) => {
+  const bones = Object.values(XRJointAvatarBoneMap)
+  for (let i = 0; i < bones.length; i++) {
+    const label = bones[i]
+    const boneName = `${handedness}${label}` as VRMHumanBoneName
+    const bone = vrm.humanoid.getNormalizedBone(boneName)
+    if (!bone?.node) continue
+    bone.node.quaternion.fromArray(rotations, i * 4)
   }
-})
+}

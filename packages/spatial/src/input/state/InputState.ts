@@ -33,9 +33,16 @@ export const InputState = defineState({
   name: 'InputState',
   initial: () => ({
     preferredHand: 'right' as 'left' | 'right',
+    inputSources: [] as XRInputSourceArray,
     /** A screenspace raycaster for the pointer */
     pointerScreenRaycaster: new Raycaster(),
-    scroll: new Vector2()
+    pointerState: {
+      position: new Vector2(),
+      lastPosition: new Vector2(),
+      movement: new Vector2(),
+      scroll: new Vector2(),
+      lastScroll: new Vector2()
+    }
   }),
   onCreate: (store, state) => {
     syncStateWithLocalStorage(InputState, ['preferredHand'])
@@ -53,9 +60,9 @@ export const InputState = defineState({
     for (const inputSourceEntity of inputSourceQuery()) {
       const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
       const source = inputSourceComponent.source
-      if (source?.handedness === 'none') continue
-      if (!offhand && avatarInputSettings.preferredHand == source?.handedness) return source
-      if (offhand && avatarInputSettings.preferredHand !== source?.handedness) return source
+      if (source.handedness === 'none') continue
+      if (!offhand && avatarInputSettings.preferredHand == source.handedness) return source
+      if (offhand && avatarInputSettings.preferredHand !== source.handedness) return source
     }
   }
 })
