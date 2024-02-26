@@ -47,6 +47,7 @@ const assetHeadingStyles = {
 
 interface Props {
   hideHeading?: boolean
+  previewPanelProps?: any
 }
 
 type ResourceProps = {
@@ -62,7 +63,7 @@ export type AssetSelectionChangePropsType = ResourceProps & {
 /**
  * Used to see the Preview of the Asset in the FileBrowser Panel
  */
-export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref) => {
+export const AssetsPreviewPanel = React.forwardRef(({ hideHeading, previewPanelProps, ...props }: Props, ref) => {
   useImperativeHandle(ref, () => ({ onSelectionChanged }))
   const previewPanel = useHookstate({
     PreviewSource: null as ((props: { resourceProps: ResourceProps }) => JSX.Element) | null,
@@ -177,7 +178,7 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
             `${previewPanel.resourceProps.name.value} (${previewPanel.resourceProps.size.value})`}
         </div>
       )}
-      {PreviewSource && <PreviewSource resourceProps={previewPanel.resourceProps.value} />}
+      {PreviewSource && <PreviewSource resourceProps={previewPanel.resourceProps.value} {...previewPanelProps} />}
     </>
   )
 })
