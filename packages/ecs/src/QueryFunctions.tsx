@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
-import { HyperFlux, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { HyperFlux, NO_PROXY_STEALTH, getMutableState, startReactor, useHookstate } from '@etherealengine/hyperflux'
 import * as bitECS from 'bitecs'
 import React, { ErrorInfo, FC, Suspense, memo, useEffect, useLayoutEffect, useMemo } from 'react'
 import { Component, useOptionalComponent } from './ComponentFunctions'
@@ -67,7 +67,7 @@ export const ReactiveQuerySystem = defineSystem({
   uuid: 'ee.hyperflux.ReactiveQuerySystem',
   insert: { after: PresentationSystemGroup },
   execute: () => {
-    for (const { query, result } of getState(SystemState).reactiveQueryStates) {
+    for (const { query, result } of getMutableState(SystemState).reactiveQueryStates.get(NO_PROXY_STEALTH)) {
       const entitiesAdded = query.enter().length
       const entitiesRemoved = query.exit().length
       if (entitiesAdded || entitiesRemoved) {
@@ -92,10 +92,10 @@ export function useQuery(components: QueryComponents) {
     const query = defineQuery(components)
     result.set(query())
     const queryState = { query, result, components }
-    getState(SystemState).reactiveQueryStates.add(queryState)
+    getMutableState(SystemState).reactiveQueryStates.get(NO_PROXY_STEALTH).add(queryState)
     return () => {
       removeQuery(query)
-      getState(SystemState).reactiveQueryStates.delete(queryState)
+      getMutableState(SystemState).reactiveQueryStates.get(NO_PROXY_STEALTH).delete(queryState)
     }
   }, [])
 
