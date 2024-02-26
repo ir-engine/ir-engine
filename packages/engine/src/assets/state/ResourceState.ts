@@ -443,17 +443,19 @@ const removeReferencedResources = (resource: State<Resource>) => {
     const assetRefs = resource.assetRefs[resourceType as ResourceType]
     if (!assetRefs.value) continue
     for (const ref of assetRefs.value) {
-      referencedAssets[ref].set((refs) => {
-        const index = refs.indexOf(resource.id.value)
-        if (index > -1) {
-          refs.splice(index, 1)
-        }
-        return refs
-      })
+      if (referencedAssets[ref].value) {
+        referencedAssets[ref].set((refs) => {
+          const index = refs.indexOf(resource.id.value)
+          if (index > -1) {
+            refs.splice(index, 1)
+          }
+          return refs
+        })
 
-      if (referencedAssets[ref].length == 0) {
-        removeResource(ref)
-        referencedAssets[ref].set(none)
+        if (referencedAssets[ref].length == 0) {
+          removeResource(ref)
+          referencedAssets[ref].set(none)
+        }
       }
     }
   }
