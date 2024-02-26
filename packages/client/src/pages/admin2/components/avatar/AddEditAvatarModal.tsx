@@ -182,7 +182,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
             { name: 'File', value: 'file' }
           ]}
           onChange={(value) => avatarAssets.source.set(value)}
-          horizantal={true}
+          className="grid-flow-col"
         />
         {avatarAssets.source.value === 'url' && (
           <Input
@@ -214,7 +214,11 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
             }
           }}
         />
-        {!isAvatarSet.value && <span className="z-20 w-full text-center">Upload avatar model</span>}
+        {!isAvatarSet.value && (
+          <span className="z-20 w-full text-center">
+            {avatarAssets.source.value === 'file' ? 'Upload avatar model' : 'Enter Avatar URL to preview'}
+          </span>
+        )}
       </DragNDrop>
 
       {avatarAssets.source.value === 'url' && (
@@ -252,7 +256,9 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
             alt="thumbnail"
           />
         ) : (
-          <span className="w-full text-center">Upload avatar thumbnail</span>
+          <span className="w-full text-center">
+            {avatarAssets.source.value === 'file' ? 'Upload thumbnail' : 'Enter thumbnail URL to preview'}
+          </span>
         )}
       </DragNDrop>
 

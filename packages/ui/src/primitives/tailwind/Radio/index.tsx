@@ -62,8 +62,7 @@ const Radios = ({
   currentValue,
   options,
   onChange,
-  className,
-  horizantal
+  className
 }: {
   currentValue: any
   options: { name: string; value: any }[]
@@ -72,7 +71,7 @@ const Radios = ({
   horizantal?: boolean
 }) => {
   return (
-    <div className={twMerge(horizantal ? 'flex' : 'grid gap-6', className)}>
+    <div className={twMerge('grid gap-6', className)}>
       {options.map(({ name, value }) => (
         <Radio
           key={name}
@@ -80,7 +79,6 @@ const Radios = ({
           name={name}
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className={horizantal ? 'mx-2' : ''}
         />
       ))}
     </div>
