@@ -24,7 +24,7 @@ import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { pathResolver } from '../../../assets/functions/pathResolver'
 import { InstancingComponent } from '../../components/InstancingComponent'
 import { ModelComponent } from '../../components/ModelComponent'
-import { Heuristic, VariantComponent, VariantLevel } from '../../components/VariantComponent'
+import { Heuristic, VariantComponent, VariantLevel, distanceBased } from '../../components/VariantComponent'
 import getFirstMesh from '../../util/meshUtils'
 
 /*
@@ -64,10 +64,7 @@ function getModelVariant(
     const modelRelativePath = pathResolver().exec(modelComponent.src)?.[2]
     const deviceRelativePath = deviceVariant ? pathResolver().exec(deviceVariant.src)?.[2] : ''
     if (deviceVariant && modelRelativePath !== deviceRelativePath) return deviceVariant.src
-  } else if (
-    variantComponent.heuristic === Heuristic.DISTANCE ||
-    (variantComponent.heuristic === Heuristic.BUDGET && variantComponent.useDistance)
-  ) {
+  } else if (distanceBased(variantComponent)) {
     const distance = DistanceFromCameraComponent.squaredDistance[entity]
     for (let i = 0; i < variantComponent.levels.length; i++) {
       const level = variantComponent.levels[i]

@@ -27,6 +27,7 @@ import React, { ReactElement, useEffect } from 'react'
 import matches from 'ts-matches'
 
 import {
+  ComponentType,
   defineComponent,
   getOptionalComponent,
   hasComponent,
@@ -55,9 +56,15 @@ export enum Heuristic {
   BUDGET = 'BUDGET'
 }
 
+export const distanceBased = (variantComponent: ComponentType<typeof VariantComponent>): boolean => {
+  return (
+    variantComponent.heuristic === Heuristic.DISTANCE ||
+    (variantComponent.heuristic === Heuristic.BUDGET && variantComponent.useDistance)
+  )
+}
+
 export const VariantComponent = defineComponent({
   name: 'EE_variant',
-
   jsonID: 'EE_variant',
 
   onInit: (entity) => ({
@@ -108,7 +115,7 @@ function VariantReactor(): ReactElement {
   const meshComponent = getOptionalComponent(entity, MeshComponent)
 
   useEffect(() => {
-    if (variantComponent.heuristic.value === Heuristic.DISTANCE && meshComponent) {
+    if (distanceBased(variantComponent.value) && meshComponent) {
       meshComponent.removeFromParent()
     }
   }, [meshComponent])
@@ -128,10 +135,7 @@ const VariantLevelReactor = React.memo(({ entity, level }: { level: number; enti
 
   useEffect(() => {
     //if the variant heuristic is set to Distance, add the DistanceFromCameraComponent
-    if (
-      variantComponent.heuristic.value === Heuristic.DISTANCE ||
-      (variantComponent.heuristic.value === Heuristic.BUDGET && variantComponent.useDistance.value)
-    ) {
+    if (distanceBased(variantComponent.value)) {
       setComponent(entity, DistanceFromCameraComponent)
       variantLevel.metadata['minDistance'].value === undefined && variantLevel.metadata['minDistance'].set(0)
       variantLevel.metadata['maxDistance'].value === undefined && variantLevel.metadata['maxDistance'].set(0)
