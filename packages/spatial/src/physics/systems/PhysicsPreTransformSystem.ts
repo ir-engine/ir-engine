@@ -35,7 +35,7 @@ import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { getState } from '@etherealengine/hyperflux'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 import { TransformComponent, TransformSystem } from '../../SpatialModule'
-import { V_000, V_111 } from '../../common/constants/MathConstants'
+import { V_000 } from '../../common/constants/MathConstants'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { computeTransformMatrix, isDirty } from '../../transform/systems/TransformSystem'
 import { ColliderComponent } from '../components/ColliderComponent'
@@ -94,8 +94,10 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
 
   const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
   if (parentEntity) {
+    // todo: figure out proper scale support
+    const scale = getComponent(entity, TransformComponent).scale
     // if the entity has a parent, we need to use the world space
-    transform.matrixWorld.compose(position, rotation, V_111)
+    transform.matrixWorld.compose(position, rotation, scale)
 
     TransformComponent.dirtyTransforms[entity] = false
 
@@ -157,8 +159,9 @@ export const copyTransformToRigidBody = (entity: Entity) => {
 
   TransformComponent.dirtyTransforms[entity] = false
 
-  for (const child of getComponent(entity, EntityTreeComponent).children)
-    TransformComponent.dirtyTransforms[child] = true
+  if (hasComponent(entity, EntityTreeComponent))
+    for (const child of getComponent(entity, EntityTreeComponent).children)
+      TransformComponent.dirtyTransforms[child] = true
 }
 
 const copyTransformToCollider = (entity: Entity) => {

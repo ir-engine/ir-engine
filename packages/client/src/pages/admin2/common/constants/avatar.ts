@@ -23,27 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { t } from 'i18next'
+import { ITableHeadCell } from '../Table'
 
-export const SystemComponent = defineComponent({
-  name: 'SystemComponent',
-  jsonID: 'EE_system',
+type IdType = 'id' | 'name' | 'user' | 'isPublic' | 'thumbnail' | 'action'
 
-  onInit(entity) {
-    return {
-      filePath: ''
-    }
+export type AvatarRowType = Record<IdType, string | JSX.Element | undefined>
+
+interface IAvatarColumn extends ITableHeadCell {
+  id: IdType
+}
+
+export const avatarColumns: IAvatarColumn[] = [
+  { id: 'id', label: t('admin:components.avatar.columns.id') },
+  { id: 'name', label: t('admin:components.avatar.columns.name') },
+  { id: 'user', label: t('admin:components.avatar.columns.user') },
+  { id: 'isPublic', label: t('admin:components.avatar.columns.isPublic') },
+  {
+    id: 'thumbnail',
+    label: t('admin:components.avatar.columns.thumbnail'),
+    className: 'text-center'
   },
-
-  onSet(entity, component, json) {
-    if (!json) return
-
-    if (typeof json.filePath === 'string') component.filePath.set(json.filePath)
-  },
-
-  toJSON(entity, component) {
-    return {
-      filePath: component.filePath.value
-    }
+  {
+    id: 'action',
+    label: t('admin:components.avatar.columns.action')
   }
-})
+]
