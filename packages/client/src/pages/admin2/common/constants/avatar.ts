@@ -23,18 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { ProjectConfigInterface } from './ProjectConfigInterface'
+import { t } from 'i18next'
+import { ITableHeadCell } from '../Table'
 
-const configs = {} as Record<string, ProjectConfigInterface>
+type IdType = 'id' | 'name' | 'user' | 'isPublic' | 'thumbnail' | 'action'
 
-export const loadConfigForProject = async (project: string): Promise<ProjectConfigInterface | null> => {
-  try {
-    if (configs[project]) return configs[project]
-    const projectConfig = (await import(`./projects/${project}/xrengine.config.ts`)).default as ProjectConfigInterface
-    configs[project] = projectConfig
-    return projectConfig
-  } catch (e) {
-    console.log(`Failed to import config for project ${project} with reason ${e}`)
-    return null!
-  }
+export type AvatarRowType = Record<IdType, string | JSX.Element | undefined>
+
+interface IAvatarColumn extends ITableHeadCell {
+  id: IdType
 }
+
+export const avatarColumns: IAvatarColumn[] = [
+  { id: 'id', label: t('admin:components.avatar.columns.id') },
+  { id: 'name', label: t('admin:components.avatar.columns.name') },
+  { id: 'user', label: t('admin:components.avatar.columns.user') },
+  { id: 'isPublic', label: t('admin:components.avatar.columns.isPublic') },
+  {
+    id: 'thumbnail',
+    label: t('admin:components.avatar.columns.thumbnail'),
+    className: 'text-center'
+  },
+  {
+    id: 'action',
+    label: t('admin:components.avatar.columns.action')
+  }
+]
