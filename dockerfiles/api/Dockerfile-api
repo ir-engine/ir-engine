@@ -7,6 +7,7 @@ FROM ${ECR_URL}/${REPO_NAME}-root:latest_${STAGE} as builder
 WORKDIR /app
 
 COPY project-package-jsons ./
+COPY packages/server/package.json ./packages/server/
 
 ARG NODE_ENV
 RUN npm install --loglevel notice --legacy-peer-deps --production
