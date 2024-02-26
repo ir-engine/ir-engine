@@ -31,16 +31,18 @@ import Label from '../Label'
 export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   value: string | number
   label?: string
-  inputClassName?: string
+  containerClassname?: string
   description?: string
   type?: InputHTMLAttributes<HTMLInputElement>['type']
   onChange: InputHTMLAttributes<HTMLInputElement>['onChange']
   error?: string
   disabled?: boolean
+  icon?: JSX.Element
 }
 
 const Input = ({
-  inputClassName,
+  className,
+  containerClassname,
   label,
   type = 'text',
   error,
@@ -49,27 +51,27 @@ const Input = ({
   itemType,
   onChange,
   disabled,
+  icon,
   ...props
 }: InputProps) => {
-  const twInputClassname = twMerge(
+  const twClassname = twMerge(
     'text-base font-normal tracking-tight',
     'textshadow-sm border-theme-primary flex h-9 w-full rounded-lg border bg-transparent px-3.5 py-5 transition-colors',
     'file:border-0 file:bg-transparent file:text-sm file:font-medium',
     'placeholder:text-muted-foreground focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50',
-    inputClassName
+    icon ? 'ps-10' : undefined,
+    className
   )
 
+  const twContainerClassname = twMerge('flex w-full flex-col items-center gap-2', containerClassname)
+
   return (
-    <div className="flex w-full flex-col items-center gap-2">
+    <div className={twContainerClassname}>
       {label && <Label className="self-stretch">{label}</Label>}
-      <input
-        disabled={disabled}
-        type={type}
-        className={twInputClassname}
-        value={value}
-        onChange={onChange}
-        {...props}
-      />
+      <div className="relative w-full">
+        {icon && <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5">{icon}</div>}
+        <input disabled={disabled} type={type} className={twClassname} value={value} onChange={onChange} {...props} />
+      </div>
       {description && <p className="text-theme-secondary self-stretch text-xs">{description}</p>}
       {error && (
         <p className="text-[#E11D48 text-sm">
