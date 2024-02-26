@@ -41,7 +41,6 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import {
   getComponent,
   getOptionalComponent,
-  hasComponent,
   removeComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -60,7 +59,7 @@ import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/componen
 import { TransformSystem } from '@etherealengine/spatial/src/transform/TransformModule'
 import { compareDistanceToCamera } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { XRLeftHandComponent, XRRightHandComponent } from '@etherealengine/spatial/src/xr/XRComponents'
+import { XRHandComponent } from '@etherealengine/spatial/src/xr/XRComponents'
 import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { useBatchGLTF } from '../../assets/functions/resourceHooks'
@@ -72,7 +71,7 @@ import { IKSerialization } from '../IKSerialization'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets, preloadedAnimations } from '../animation/Util'
-import { applyHandRotationFK } from '../animation/applyHandRotationFK'
+import { applyXRHandPoses } from '../animation/applyXRHandPoses'
 import { getArmIKHint } from '../animation/getArmIKHint'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
@@ -100,6 +99,7 @@ export const AvatarAnimationState = defineState({
 
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
 const avatarComponentQuery = defineQuery([AvatarComponent])
+const hands = defineQuery([XRHandComponent])
 
 const _quat = new Quaternion()
 const _quat2 = new Quaternion()
@@ -300,13 +300,15 @@ const execute = () => {
       )
     }
 
-    if (hasComponent(entity, XRRightHandComponent)) {
-      applyHandRotationFK(rigComponent.vrm, 'right', getComponent(entity, XRRightHandComponent).rotations)
-    }
+    // if (hasComponent(entity, XRRightHandComponent)) {
+    //   applyXRHandPoses(rigComponent.vrm, 'right', getComponent(entity, XRRightHandComponent).rotations)
+    // }
 
-    if (hasComponent(entity, XRLeftHandComponent)) {
-      applyHandRotationFK(rigComponent.vrm, 'left', getComponent(entity, XRLeftHandComponent).rotations)
-    }
+    // if (hasComponent(entity, XRHandComponent)) {
+    //   applyXRHandPoses(rigComponent.vrm, 'left', getComponent(entity, XRHandComponent).rotations)
+    // }
+
+    for (const eid of hands()) applyXRHandPoses(rigComponent.vrm, eid)
 
     updateVRMRetargeting(rigComponent.vrm, entity)
 

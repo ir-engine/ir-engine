@@ -23,35 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Vector2 } from 'three'
 
-export const enum AvatarAxesControlScheme {
-  Move = 'AvatarControlScheme_Move',
-  Teleport = 'AvatarControlScheme_Teleport'
-}
+export const InputPointerComponent = defineComponent({
+  name: 'InputPointerComponent',
 
-export const enum AvatarControllerType {
-  None = 'AvatarControllerType_None',
-  XRHands = 'AvatarControllerType_XRHands',
-  OculusQuest = 'AvatarControllerType_OculusQuest'
-}
+  onInit: () => {
+    return {
+      pointerId: -1 as number,
+      position: new Vector2(),
+      lastPosition: new Vector2(),
+      movement: new Vector2()
+    }
+  },
 
-export const AvatarInputSettingsState = defineState({
-  name: 'AvatarInputSettingsState',
-  initial: () => ({
-    controlType: AvatarControllerType.None,
-    leftAxesControlScheme: AvatarAxesControlScheme.Move,
-    rightAxesControlScheme: AvatarAxesControlScheme.Teleport,
-    invertRotationAndMoveSticks: true,
-    showAvatar: true
-  }),
-  onCreate: (store, state) => {
-    syncStateWithLocalStorage(AvatarInputSettingsState, [
-      'controlType',
-      'leftAxesControlScheme',
-      'rightAxesControlScheme',
-      'invertRotationAndMoveSticks',
-      'showAvatar'
-    ])
+  onSet(entity, component, args: { pointerId: number }) {
+    component.pointerId.set(args.pointerId)
   }
 })

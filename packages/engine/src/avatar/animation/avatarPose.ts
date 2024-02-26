@@ -35,7 +35,7 @@ import {
   Vector4
 } from 'three'
 
-import { BoneStructure } from '../AvatarBoneMatching'
+import { MixamoBoneStructure } from '../AvatarBoneMatching'
 
 const baseNormal = new Vector3()
 const skinIndex = new Vector4()
@@ -49,7 +49,7 @@ const matrix3 = new Matrix3()
  * @param rig
  * @returns
  */
-export function isSkeletonInTPose(rig: BoneStructure) {
+export function isSkeletonInTPose(rig: MixamoBoneStructure) {
   const vec1 = new Vector3()
   const vec2 = new Vector3()
 
@@ -99,7 +99,7 @@ const conformArmToTpose = (
  *
  * @param rig
  */
-export function makeTPose(rig: BoneStructure) {
+export function makeTPose(rig: MixamoBoneStructure) {
   /**
    * @todo add complete rig t-pose compliance here #7264
    * should we use the retargeting source skeleton as a reference?

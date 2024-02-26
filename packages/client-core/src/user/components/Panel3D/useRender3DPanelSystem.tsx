@@ -48,7 +48,7 @@ import {
 } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
-import { addClientInputListeners } from '@etherealengine/spatial/src/input/systems/ClientInputSystem'
+// import { addClientInputListeners } from '@etherealengine/spatial/src/input/systems/ClientInputSystem'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import {
   ObjectLayerComponents,
@@ -141,7 +141,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
       const canvas = rendererState.renderers[id].value.domElement
       canvas.id = id
       canvas.tabIndex = 1
-      addClientInputListeners(rendererState.renderers[id].domElement.value)
+      // addClientInputListeners(rendererState.renderers[id].domElement.value)
       rendererState.ids.set([...rendererState.ids.value, id])
     }
 

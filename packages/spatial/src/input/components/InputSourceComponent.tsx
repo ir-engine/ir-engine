@@ -30,6 +30,7 @@ import { defineState, getMutableState, none, useHookstate } from '@etherealengin
 
 import {
   defineComponent,
+  getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -40,7 +41,10 @@ import {
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { XRSpaceComponent } from '../../xr/XRComponents'
+import { Raycaster } from 'three'
+import { TransformComponent } from '../../SpatialModule'
+import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
+import { ReferenceSpace } from '../../xr/XRState'
 import { ButtonStateMap } from '../state/ButtonState'
 import { InputComponent } from './InputComponent'
 
@@ -67,22 +71,69 @@ export const InputSourceComponent = defineComponent({
 
   onInit: () => {
     return {
-      source: null! as XRInputSource,
+      source: {} as XRInputSource,
       buttons: {} as Readonly<ButtonStateMap>,
+      raycaster: new Raycaster(),
       // internals
       assignedButtonEntity: UndefinedEntity as Entity,
       assignedAxesEntity: UndefinedEntity as Entity
     }
   },
 
-  onSet: (entity, component, args: { source: XRInputSource }) => {
-    const { source } = args
+  onSet: (entity, component, args: { source?: XRInputSource; gamepad?: Gamepad }) => {
+    const source =
+      args.source ??
+      ({
+        handedness: 'none',
+        targetRayMode: 'screen',
+        targetRaySpace: {} as XRSpace,
+        gripSpace: undefined,
+        gamepad:
+          args.gamepad ??
+          ({
+            axes: [0, 0, 0, 0],
+            buttons: [],
+            connected: true,
+            hapticActuators: [],
+            id: 'emulated-gamepad-' + entity,
+            index: 0,
+            mapping: 'standard',
+            timestamp: performance.now(),
+            vibrationActuator: null
+          } as Gamepad),
+        profiles: [],
+        hand: undefined
+      } as XRInputSource)
+
     component.source.set(source)
-    InputSourceComponent.entitiesByInputSource.set(args.source, entity)
-    setComponent(entity, XRSpaceComponent, source.targetRaySpace)
+
+    // if we have a real input source, we should add the XRSpaceComponent
+    if (args.source?.targetRaySpace) {
+      InputSourceComponent.entitiesByInputSource.set(args.source, entity)
+      const space = args.source.targetRaySpace
+      const baseSpace =
+        args.source.targetRayMode === 'tracked-pointer' ? ReferenceSpace.localFloor : ReferenceSpace.viewer
+      if (!baseSpace) throw new Error('Base space not found')
+      setComponent(entity, XRSpaceComponent, { space, baseSpace })
+    }
+
+    if (source.hand) {
+      setComponent(entity, XRHandComponent)
+    }
+
+    setComponent(entity, TransformComponent)
   },
 
-  entitiesByInputSource: new WeakMap<XRInputSource>(),
+  getMergedButtons(inputSourceEntities: Entity[]) {
+    return Object.assign(
+      {} as ButtonStateMap,
+      ...inputSourceEntities.map((eid) => {
+        return getComponent(eid, InputSourceComponent).buttons
+      })
+    ) as ButtonStateMap
+  },
+
+  entitiesByInputSource: new WeakMap<XRInputSource, Entity>(),
 
   captureButtons: (targetEntity: Entity, handedness = handednesses) => {
     const state = getMutableState(InputSourceCaptureState)
