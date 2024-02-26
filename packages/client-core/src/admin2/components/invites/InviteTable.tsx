@@ -30,10 +30,10 @@ import { InviteType, invitePath } from '@etherealengine/common/src/schema.type.m
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { UserName } from '@etherealengine/common/src/schema.type.module'
+import { State } from '@etherealengine/hyperflux'
 import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
-import { State } from '@hookstate/core'
 import DataTable from '../../common/Table'
 import { InviteRowType, inviteColumns } from '../../common/constants/invite'
 import AddEditInviteModal from './AddEditInviteModal'

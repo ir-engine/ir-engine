@@ -37,7 +37,7 @@ import {
   userPath
 } from '@etherealengine/common/src/schema.type.module'
 import { convertDateTimeSqlToLocal, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
@@ -45,7 +45,6 @@ import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCir
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Radios from '@etherealengine/ui/src/primitives/tailwind/Radio'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
-import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 

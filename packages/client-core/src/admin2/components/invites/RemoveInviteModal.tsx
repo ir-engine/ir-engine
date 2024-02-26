@@ -25,11 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { InviteType, UserName, invitePath } from '@etherealengine/common/src/schema.type.module'
+import { useHookstate } from '@etherealengine/hyperflux'
 import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
