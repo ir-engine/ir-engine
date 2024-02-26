@@ -46,6 +46,7 @@ import {
 } from 'react-icons/hi2'
 import { RiSendPlaneFill } from 'react-icons/ri'
 import Avatars from './components/avatar'
+import AdminInvites from './components/invites'
 import AdminProject from './components/project'
 
 const sideBarItems = [
@@ -58,7 +59,7 @@ const sideBarItems = [
   { label: 'Plugins', icon: <HiSquaresPlus />, component: AdminProject },
   // {label: 'Teams', icon: <HiUsers />},
   { label: 'Users', icon: <HiUser />, component: AdminProject },
-  { label: 'Invites', icon: <RiSendPlaneFill />, component: AdminProject },
+  { label: 'Invites', icon: <RiSendPlaneFill />, component: AdminInvites },
   { label: 'Recordings', icon: <HiPlay />, component: AdminProject },
   { label: 'Files', icon: <HiFolder />, component: AdminProject },
   { label: 'Settings', icon: <HiCog8Tooth />, component: AdminProject }

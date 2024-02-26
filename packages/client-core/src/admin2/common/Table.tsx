@@ -39,7 +39,7 @@ import Table, {
 
 export interface ITableHeadCell {
   id: string | number
-  label: string
+  label: string | JSX.Element
   sortable?: boolean
   className?: string
 }
@@ -105,7 +105,9 @@ const DataTable = ({ query, columns, rows }: DataTableProps) => {
         {rows.map((row, rowIdx) => (
           <TableRow key={typeof row['id'] === 'string' ? row['id'] : rowIdx}>
             {columns.map((column, columnIdx) => (
-              <TableCell key={columnIdx}>{row[column.id]}</TableCell>
+              <TableCell key={columnIdx} className={column.className}>
+                {row[column.id]}
+              </TableCell>
             ))}
           </TableRow>
         ))}
