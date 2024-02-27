@@ -40,6 +40,7 @@ import RAPIER, {
   World
 } from '@dimforge/rapier3d-compat'
 import {
+  Box3,
   BufferAttribute,
   Matrix4,
   Mesh,
@@ -160,6 +161,8 @@ function applyDescToCollider(
 function createColliderDesc(entity: Entity, rootEntity: Entity, colliderDescOptions: ColliderOptions) {
   const mesh = getOptionalComponent(entity, MeshComponent)
 
+  console.log('colliderDescOptions', colliderDescOptions)
+
   let shape =
     typeof colliderDescOptions.shape === 'string' ? ShapeType[colliderDescOptions.shape] : colliderDescOptions.shape
 
@@ -189,16 +192,24 @@ function createColliderDesc(entity: Entity, rootEntity: Entity, colliderDescOpti
 
   const scale = TransformComponent.getWorldScale(entity, new Vector3())
 
-  if (mesh?.geometry?.type === 'BoxGeometry') {
-    scale.multiplyScalar(0.5)
-  }
-
   let colliderDesc: ColliderDesc
 
   switch (shape as ShapeType) {
     case ShapeType.Cuboid:
       if (colliderDescOptions.shape === 'plane') colliderDesc = ColliderDesc.cuboid(10000, 0.001, 10000)
-      else colliderDesc = ColliderDesc.cuboid(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
+      else {
+        if (mesh) {
+          // if we have a mesh, we want to make sure it uses the geometry itself to calculate the size
+          const _buff = mesh.geometry.clone()
+          const box = new Box3().setFromBufferAttribute(_buff.attributes.position as BufferAttribute)
+          const size = new Vector3()
+          box.getSize(size)
+          size.multiply(scale).multiplyScalar(0.5)
+          colliderDesc = ColliderDesc.cuboid(Math.abs(size.x), Math.abs(size.y), Math.abs(size.z))
+        } else {
+          colliderDesc = ColliderDesc.cuboid(Math.abs(scale.x * 0.5), Math.abs(scale.y * 0.5), Math.abs(scale.z * 0.5))
+        }
+      }
       break
 
     case ShapeType.Ball:
