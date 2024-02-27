@@ -83,7 +83,7 @@ export const ModelComponent = defineComponent({
       /** optional, only for bone matchable avatars */
       convertToVRM: false as boolean,
       // internal
-      scene: null as Scene | null,
+      scene: null as Group | null,
       asset: null as VRM | GLTF | null
     }
   },
@@ -111,7 +111,7 @@ export const ModelComponent = defineComponent({
       !getState(SceneState).sceneLoaded &&
       hasComponent(entity, SceneObjectComponent) &&
       component.src.value &&
-      !component.scene.value
+      !component.asset.value
     )
       SceneAssetPendingTagComponent.addResource(entity, component.src.value)
   },
@@ -165,7 +165,15 @@ function ModelReactor(): JSX.Element {
 
   useEffect(() => {
     const loadedAsset = gltf.get(NO_PROXY)
-    if (!loadedAsset) return
+    if (!loadedAsset) {
+      if (!hasComponent(entity, GroupComponent)) {
+        const obj3d = new Group()
+        obj3d.entity = entity
+        addObjectToGroup(entity, obj3d)
+        proxifyParentChildRelationships(obj3d)
+      }
+      return
+    }
 
     if (typeof loadedAsset !== 'object') {
       addError(entity, ModelComponent, 'INVALID_SOURCE', 'Invalid URL')
@@ -183,13 +191,6 @@ function ModelReactor(): JSX.Element {
         mixer: new AnimationMixer(boneMatchedAsset.humanoid.normalizedHumanBonesRoot)
       })
 
-    if (!hasComponent(entity, GroupComponent)) {
-      const obj3d = new Group()
-      obj3d.entity = entity
-      addObjectToGroup(entity, obj3d)
-      proxifyParentChildRelationships(obj3d)
-    }
-
     modelComponent.asset.set(boneMatchedAsset)
   }, [gltf])
 
@@ -203,11 +204,9 @@ function ModelReactor(): JSX.Element {
 
     removeError(entity, ModelComponent, 'INVALID_SOURCE')
     removeError(entity, ModelComponent, 'LOADING_ERROR')
-    const sceneObj = group[0] as Scene
+    const sceneObj = group[0] as Group
 
     sceneObj.userData.src = model.src
-    sceneObj.userData.sceneID = getModelSceneID(entity)
-    //sceneObj.userData.type === 'glb' && delete asset.scene.userData.type
     modelComponent.scene.set(sceneObj)
   }, [modelComponent.asset])
 
