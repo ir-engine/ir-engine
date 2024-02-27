@@ -25,6 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { ThemeState } from '@etherealengine/client-core/src/common/services/ThemeService'
 import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
+import '@etherealengine/engine/src/EngineModule'
+import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
 import React, { useEffect } from 'react'
 import {
@@ -42,44 +45,55 @@ import {
   HiUserCircle
 } from 'react-icons/hi2'
 import { RiSendPlaneFill } from 'react-icons/ri'
+import Avatars from './components/avatar'
 import AdminProject from './components/project'
 
 const sideBarItems = [
-  { label: 'Dashboard', icon: <HiOutlineHome /> },
-  { label: 'Projects', icon: <HiOutlineTableCells /> },
-  { label: 'Location', icon: <HiOutlineMapPin /> },
-  { label: 'Instances', icon: <HiCube /> },
-  { label: 'Servers', icon: <HiServer /> },
-  { label: 'Avatars', icon: <HiUserCircle /> },
-  { label: 'Plugins', icon: <HiSquaresPlus /> },
+  { label: 'Dashboard', icon: <HiOutlineHome />, component: AdminProject },
+  { label: 'Projects', icon: <HiOutlineTableCells />, component: AdminProject },
+  { label: 'Location', icon: <HiOutlineMapPin />, component: AdminProject },
+  { label: 'Instances', icon: <HiCube />, component: AdminProject },
+  { label: 'Servers', icon: <HiServer />, component: AdminProject },
+  { label: 'Avatars', icon: <HiUserCircle />, component: Avatars },
+  { label: 'Plugins', icon: <HiSquaresPlus />, component: AdminProject },
   // {label: 'Teams', icon: <HiUsers />},
-  { label: 'Users', icon: <HiUser /> },
-  { label: 'Invites', icon: <RiSendPlaneFill /> },
-  { label: 'Recordings', icon: <HiPlay /> },
-  { label: 'Files', icon: <HiFolder /> },
-  { label: 'Settings', icon: <HiCog8Tooth /> }
+  { label: 'Users', icon: <HiUser />, component: AdminProject },
+  { label: 'Invites', icon: <RiSendPlaneFill />, component: AdminProject },
+  { label: 'Recordings', icon: <HiPlay />, component: AdminProject },
+  { label: 'Files', icon: <HiFolder />, component: AdminProject },
+  { label: 'Settings', icon: <HiCog8Tooth />, component: AdminProject }
 ]
 
+const CurrentPageState = defineState({
+  name: 'eepro.multitenancy.AdminPageState',
+  initial: 0
+})
+
 const AdminSidebar = () => {
+  const currentPage = useHookstate(getMutableState(CurrentPageState))
+
   return (
-    <aside className="bg-theme-surfaceMain mx-8 min-w-[15vw] rounded-lg px-2 py-4">
+    <aside className="bg-theme-surfaceMain mx-8 min-w-[25vw] rounded-lg px-2 py-4 md:min-w-[20vw] lg:min-w-[15vw]">
       <ul className="space-y-2">
-        {sideBarItems.map((item) => (
-          <li key={item.label}>
-            <a
-              href="#"
-              className="text-theme-secondary flex items-center gap-3 rounded-xl px-2 py-3 hover:bg-[#212226]"
+        {sideBarItems.map((item, index) => (
+          <li key={index}>
+            <Button
+              fullWidth
+              onClick={() => currentPage.set(index)}
+              className="bg-theme-surfaceMain text-theme-secondary flex items-center justify-start rounded-xl px-2 py-3 hover:bg-[#212226]"
+              startIcon={item.icon}
             >
-              {item.icon}
               {item.label}
-            </a>
+            </Button>
           </li>
         ))}
         <li>
-          <a href="#" className="text-theme-secondary my-2 flex items-center rounded-sm px-2 py-3 hover:bg-[#212226]">
-            <HiArrowRightOnRectangle />
+          <Button
+            className="bg-theme-surfaceMain text-theme-secondary my-2 flex items-center rounded-sm px-2 py-3 hover:bg-[#212226]"
+            startIcon={<HiArrowRightOnRectangle />}
+          >
             Log Out
-          </a>
+          </Button>
         </li>
       </ul>
     </aside>
@@ -91,6 +105,10 @@ const Admin = () => {
   useEffect(() => {
     ThemeState.setTheme('dark')
   }, [])
+
+  const currentPage = useHookstate(getMutableState(CurrentPageState))
+  const PageComponent = sideBarItems[currentPage.value].component
+
   return (
     <main className="pointer-events-auto mt-6 flex gap-1.5">
       {/* only for multitenancy
@@ -106,7 +124,7 @@ const Admin = () => {
       </nav>  */}
       <AdminSidebar />
       <div className="w-[80%]">
-        <AdminProject />
+        <PageComponent />
       </div>
       <PopupMenu />
     </main>

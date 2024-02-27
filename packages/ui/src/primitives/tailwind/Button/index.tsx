@@ -80,7 +80,7 @@ const Button = ({
   return (
     <button role="button" disabled={disabled} className={twClassName} {...props}>
       {StartIcon && <span className="mx-1">{StartIcon}</span>}
-      {children && <span className={twMerge('mx-1', fullWidth ? 'mx-auto' : '')}> {children}</span>}
+      {children && <span className={twMerge('mx-1', fullWidth ? 'mx-1' : '')}> {children}</span>}
       {EndIcon && <span className="mx-1">{EndIcon}</span>}
     </button>
   )

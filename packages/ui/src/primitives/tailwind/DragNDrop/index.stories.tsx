@@ -22,19 +22,26 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import { ArgTypes } from '@storybook/react'
+import DragNDrop from './index'
 
-import type { ProjectConfigInterface } from './ProjectConfigInterface'
+const argTypes: ArgTypes = {}
 
-const configs = {} as Record<string, ProjectConfigInterface>
+export default {
+  title: 'Primitives/Tailwind/DragNDrop',
+  component: DragNDrop,
+  parameters: {
+    componentSubtitle: 'DragNDrop',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
+}
 
-export const loadConfigForProject = async (project: string): Promise<ProjectConfigInterface | null> => {
-  try {
-    if (configs[project]) return configs[project]
-    const projectConfig = (await import(`./projects/${project}/xrengine.config.ts`)).default as ProjectConfigInterface
-    configs[project] = projectConfig
-    return projectConfig
-  } catch (e) {
-    console.log(`Failed to import config for project ${project} with reason ${e}`)
-    return null!
+export const Default = {
+  args: {
+    className: ''
   }
 }
