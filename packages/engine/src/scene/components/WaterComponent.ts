@@ -23,17 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { useEffect } from 'react'
-import { defineComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { Water } from '../classes/Water'
-import { setCallback } from './CallbackComponent'
-import { addObjectToGroup } from './GroupComponent'
 import { UpdatableCallback, UpdatableComponent } from './UpdatableComponent'
 
 export const WaterComponent = defineComponent({
   name: 'WaterComponent',
-  jsonID: 'water',
+  jsonID: 'EE_water',
 
   onInit(entity) {
     const water = new Water()

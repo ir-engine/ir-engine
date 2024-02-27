@@ -27,24 +27,24 @@ import assert from 'assert'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { SceneDataType, SceneID, SceneJsonType, UserID } from '@etherealengine/common/src/schema.type.module'
-import { EventDispatcher } from '@etherealengine/engine/src/common/classes/EventDispatcher'
-import { Engine, destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { SceneSnapshotSystem, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { SystemDefinitions } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { createEngine } from '@etherealengine/engine/src/initializeEngine'
-import { PhysicsState } from '@etherealengine/engine/src/physics/state/PhysicsState'
-import { SceneLoadingSystem } from '@etherealengine/engine/src/scene/SceneModule'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
+import { SceneSnapshotSystem, SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { FogType } from '@etherealengine/engine/src/scene/constants/FogType'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { SceneLoadingSystem } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
 import testSceneJson from '@etherealengine/engine/tests/assets/SceneLoadingTest.scene.json'
 import { applyIncomingActions, getMutableState } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { EventDispatcher } from '@etherealengine/spatial/src/common/classes/EventDispatcher'
+import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { act, render } from '@testing-library/react'
 import React from 'react'
 import { FogSettingsComponent } from '../../../engine/src/scene/components/FogSettingsComponent'
@@ -83,8 +83,10 @@ describe('EditorControlFunctions', () => {
       }
     }
   })
-  const LoadReactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
-  const loadTag = <LoadReactor />
+
+  const SceneReactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
+  const sceneTag = <SceneReactor />
+
   describe('modifyProperty', () => {
     beforeEach(() => {
       SceneState.loadScene(testID, testScene)
@@ -98,9 +100,10 @@ describe('EditorControlFunctions', () => {
       // load scene
       // force re-render
       // assertions
-      const { rerender, unmount } = render(loadTag)
 
-      await act(() => rerender(loadTag))
+      const { rerender, unmount } = render(sceneTag)
+      await act(() => rerender(sceneTag))
+
       const rootEntity = SceneState.getRootEntity(testID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
@@ -136,12 +139,10 @@ describe('EditorControlFunctions', () => {
       EditorControlFunctions.modifyProperty([child2_1Entity], FogSettingsComponent, prop)
       applyIncomingActions()
       SystemDefinitions.get(SceneSnapshotSystem)!.execute()
-      await act(() => rerender(loadTag)) // reload scene after snapshot
+      await act(() => rerender(sceneTag))
 
       const newComponent = getComponent(child2_1Entity, FogSettingsComponent)
       assert.deepStrictEqual(newComponent, prop)
-
-      unmount()
     })
   })
 
@@ -158,9 +159,10 @@ describe('EditorControlFunctions', () => {
       // load scene
       // force re-render
       // assertions
-      const { rerender, unmount } = render(loadTag)
 
-      await act(() => rerender(loadTag))
+      const { rerender, unmount } = render(sceneTag)
+      await act(() => rerender(sceneTag))
+
       const rootEntity = SceneState.getRootEntity(testID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
@@ -186,7 +188,7 @@ describe('EditorControlFunctions', () => {
       EditorControlFunctions.duplicateObject([child0Entity])
       applyIncomingActions()
       SystemDefinitions.get(SceneSnapshotSystem)!.execute()
-      await act(() => rerender(loadTag)) // reload scene after snapshot
+      await act(() => rerender(sceneTag))
 
       assert(rootEntity, 'root entity not found')
       assert.equal(
@@ -194,7 +196,6 @@ describe('EditorControlFunctions', () => {
         2,
         'root entity does not have duplicated children'
       )
-      unmount()
     })
   })
 
@@ -208,9 +209,9 @@ describe('EditorControlFunctions', () => {
     })
 
     it('creates components from given ID', async () => {
-      const { rerender, unmount } = render(loadTag)
+      const { rerender, unmount } = render(sceneTag)
+      await act(() => rerender(sceneTag))
 
-      await act(() => rerender(loadTag))
       const rootEntity = SceneState.getRootEntity(testID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
@@ -253,20 +254,18 @@ describe('EditorControlFunctions', () => {
       )
       applyIncomingActions()
       SystemDefinitions.get(SceneSnapshotSystem)!.execute()
-      await act(() => rerender(loadTag)) // reload scene after snapshot
+      await act(() => rerender(sceneTag))
 
       assert(getComponent(child2_1Entity, EntityTreeComponent).children.length > 0)
       const entity = getComponent(child2_1Entity, EntityTreeComponent).children[0]
       assert(hasComponent(entity, ShadowComponent), 'created entity does not have ShadowComponent')
       assert(hasComponent(entity, TransformComponent), 'created entity does not have LocalTransformComponent')
-
-      unmount()
     })
 
     it('places created entity before passed entity', async () => {
-      const { rerender, unmount } = render(loadTag)
+      const { rerender, unmount } = render(sceneTag)
+      await act(() => rerender(sceneTag))
 
-      await act(() => rerender(loadTag))
       const rootEntity = SceneState.getRootEntity(testID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
@@ -331,7 +330,7 @@ describe('EditorControlFunctions', () => {
       ) // so it wll be between, child3 and child2_1
       applyIncomingActions()
       SystemDefinitions.get(SceneSnapshotSystem)!.execute()
-      await act(() => rerender(loadTag)) // reload scene after snapshot
+      await act(() => rerender(sceneTag))
 
       const newChildren = getComponent(child2Entity, EntityTreeComponent).children
       assert.notEqual(newChildren, child2Children)
@@ -340,13 +339,12 @@ describe('EditorControlFunctions', () => {
       )[0]
       const expectedOrder = [child3Entity, newEntity, child2_1Entity]
       assert.deepStrictEqual(newChildren, expectedOrder, 'new entity is not between child3 and child2_1')
-      unmount()
     })
 
     it('creates unique name for each newly created objects', async () => {
-      const { rerender, unmount } = render(loadTag)
+      const { rerender, unmount } = render(sceneTag)
+      await act(() => rerender(sceneTag))
 
-      await act(() => rerender(loadTag))
       const rootEntity = SceneState.getRootEntity(testID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
@@ -389,7 +387,7 @@ describe('EditorControlFunctions', () => {
       )
       applyIncomingActions()
       SystemDefinitions.get(SceneSnapshotSystem)!.execute()
-      await act(() => rerender(loadTag)) // reload scene after snapshot
+      await act(() => rerender(sceneTag))
       const newChild1 = getComponent(child2_1Entity, EntityTreeComponent).children[
         getComponent(child2_1Entity, EntityTreeComponent).children.length - 1
       ]
@@ -400,7 +398,7 @@ describe('EditorControlFunctions', () => {
       )
       applyIncomingActions()
       SystemDefinitions.get(SceneSnapshotSystem)!.execute()
-      await act(() => rerender(loadTag)) // reload scene after snapshot
+      await act(() => rerender(sceneTag))
       const newChild2 = getComponent(child2_1Entity, EntityTreeComponent).children[
         getComponent(child2_1Entity, EntityTreeComponent).children.length - 1
       ]
@@ -411,7 +409,7 @@ describe('EditorControlFunctions', () => {
       )
       applyIncomingActions()
       SystemDefinitions.get(SceneSnapshotSystem)!.execute()
-      await act(() => rerender(loadTag)) // reload scene after snapshot
+      await act(() => rerender(sceneTag))
       const newChild3 = getComponent(child2_1Entity, EntityTreeComponent).children[
         getComponent(child2_1Entity, EntityTreeComponent).children.length - 1
       ]
@@ -425,8 +423,6 @@ describe('EditorControlFunctions', () => {
       //assert.notEqual(getComponent(newChild1,NameComponent), getComponent(newChild2,NameComponent))
       //assert.notEqual(getComponent(newChild2,NameComponent), getComponent(newChild3,NameComponent))
       //assert.notEqual(getComponent(newChild1,NameComponent), getComponent(newChild3,NameComponent))
-
-      unmount()
     })
   })
 
@@ -440,9 +436,9 @@ describe('EditorControlFunctions', () => {
     })
 
     it('will execute command', async () => {
-      const { rerender, unmount } = render(loadTag)
+      const { rerender, unmount } = render(sceneTag)
+      await act(() => rerender(sceneTag))
 
-      await act(() => rerender(loadTag))
       const rootEntity = SceneState.getRootEntity(testID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
@@ -547,7 +543,7 @@ describe('EditorControlFunctions', () => {
       EditorControlFunctions.groupObjects(nodes)
       applyIncomingActions()
       SystemDefinitions.get(SceneSnapshotSystem)!.execute()
-      await act(() => rerender(loadTag)) // reload scene after snapshot
+      await act(() => rerender(sceneTag))
 
       const newEntitesUUID = Object.keys(UUIDComponent.entitiesByUUIDState).map((x) => x as EntityUUID)
 
@@ -561,7 +557,6 @@ describe('EditorControlFunctions', () => {
       for (const node of newGroupChldren) {
         assert(getComponent(node, EntityTreeComponent).parentEntity === groupEntity)
       }
-      unmount()
     })
   })
 
@@ -575,9 +570,9 @@ describe('EditorControlFunctions', () => {
     })
 
     it('Removes given nodes', async () => {
-      const { rerender, unmount } = render(loadTag)
+      const { rerender, unmount } = render(sceneTag)
+      await act(() => rerender(sceneTag))
 
-      await act(() => rerender(loadTag))
       const rootEntity = SceneState.getRootEntity(testID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
@@ -603,18 +598,17 @@ describe('EditorControlFunctions', () => {
       EditorControlFunctions.removeObject(nodes)
       applyIncomingActions()
       SystemDefinitions.get(SceneSnapshotSystem)!.execute()
-      await act(() => rerender(loadTag)) // reload scene after snapshot
+      await act(() => rerender(sceneTag))
 
       nodes.forEach((node: Entity) => {
         assert(!hasComponent(node, EntityTreeComponent))
       })
-      unmount()
     })
 
     it('will not remove root node', async () => {
-      const { rerender, unmount } = render(loadTag)
+      const { rerender, unmount } = render(sceneTag)
+      await act(() => rerender(sceneTag))
 
-      await act(() => rerender(loadTag))
       const rootEntity = SceneState.getRootEntity(testID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
@@ -629,13 +623,11 @@ describe('EditorControlFunctions', () => {
       EditorControlFunctions.removeObject(nodes)
       applyIncomingActions()
       SystemDefinitions.get(SceneSnapshotSystem)!.execute()
-      await act(() => rerender(loadTag)) // reload scene after snapshot
+      await act(() => rerender(sceneTag))
 
       nodes.forEach((node: Entity) => {
         assert(hasComponent(node, EntityTreeComponent))
       })
-
-      unmount()
     })
   })
 })

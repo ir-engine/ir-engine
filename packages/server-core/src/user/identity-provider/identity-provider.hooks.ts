@@ -42,7 +42,7 @@ import { scopeTypePath } from '@etherealengine/common/src/schemas/scope/scope-ty
 import { ScopeType, scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
+import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 import { random } from 'lodash'
 import { HookContext } from '../../../declarations'
 import persistData from '../../hooks/persist-data'

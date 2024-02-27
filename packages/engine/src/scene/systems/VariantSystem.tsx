@@ -25,17 +25,19 @@ Ethereal Engine. All Rights Reserved.
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { PresentationSystemGroup } from '@etherealengine/ecs'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { Not } from 'bitecs'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
-import { MeshComponent } from '../components/MeshComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { VariantComponent } from '../components/VariantComponent'
 import { setInstancedMeshVariant, setMeshVariant, setModelVariant } from '../functions/loaders/VariantFunctions'
-import { SceneLoadingSystem } from './SceneLoadingSystem'
 
 const updateFrequency = 0.1
 let lastUpdate = 0
@@ -51,10 +53,12 @@ const instancedMeshVariantQuery = defineQuery([
 
 function execute() {
   const engineState = getState(EngineState)
-  if (!engineState.sceneLoaded || engineState.isEditing) return
+  if (!getState(SceneState).sceneLoaded || engineState.isEditing) return
 
-  if (engineState.elapsedSeconds - lastUpdate < updateFrequency) return
-  lastUpdate = engineState.elapsedSeconds
+  const ecsState = getState(ECSState)
+
+  if (ecsState.elapsedSeconds - lastUpdate < updateFrequency) return
+  lastUpdate = ecsState.elapsedSeconds
 
   for (const entity of modelVariantQuery()) {
     setModelVariant(entity)
@@ -69,6 +73,6 @@ function execute() {
 
 export const VariantSystem = defineSystem({
   uuid: 'ee.engine.scene.VariantSystem',
-  insert: { with: SceneLoadingSystem },
+  insert: { after: PresentationSystemGroup },
   execute
 })

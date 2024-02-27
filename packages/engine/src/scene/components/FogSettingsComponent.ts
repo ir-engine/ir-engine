@@ -27,13 +27,13 @@ import { useEffect } from 'react'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { FogSettingState } from '../FogState'
 
 export const FogSettingsComponent = defineComponent({
   name: 'FogSettingsComponent',
-  jsonID: 'fog',
+  jsonID: 'EE_fog',
 
   onInit(entity): typeof FogSettingState._TYPE {
     return typeof FogSettingState.initial === 'function'

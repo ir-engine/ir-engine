@@ -31,17 +31,17 @@ import {
   setComponent,
   useComponent,
   useOptionalComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
-import { PositionalAudioHelper } from '../../debug/PositionalAudioHelper'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { RendererState } from '../../renderer/RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { AudioNodeGroups, MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
 import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { PositionalAudioHelper } from './PositionalAudioHelper'
 
 export interface PositionalAudioInterface {
   refDistance: number
@@ -56,7 +56,7 @@ export interface PositionalAudioInterface {
 export const PositionalAudioComponent = defineComponent({
   name: 'EE_positionalAudio',
 
-  jsonID: 'audio',
+  jsonID: 'EE_audio',
 
   onInit: (entity) => {
     return {

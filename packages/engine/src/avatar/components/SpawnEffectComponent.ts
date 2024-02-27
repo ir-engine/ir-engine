@@ -25,31 +25,31 @@ Ethereal Engine. All Rights Reserved.
 
 import { AdditiveBlending, DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry, Vector3 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
-import { Easing, Tween } from '@tweenjs/tween.js'
-import { useEffect } from 'react'
-import { ObjectDirection } from '../../common/constants/Axis3D'
-import { V_010, V_100 } from '../../common/constants/MathConstants'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
   getMutableComponent,
   removeComponent,
   setComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { Physics, RaycastArgs } from '../../physics/classes/Physics'
-import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
-import { PhysicsState } from '../../physics/state/PhysicsState'
-import { SceneQueryType } from '../../physics/types/PhysicsTypes'
-import { addObjectToGroup } from '../../scene/components/GroupComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { VisibleComponent, setVisibleComponent } from '../../scene/components/VisibleComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { TweenComponent } from '../../transform/components/TweenComponent'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { getState } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { ObjectDirection } from '@etherealengine/spatial/src/common/constants/Axis3D'
+import { V_010, V_100 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { Physics, RaycastArgs } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { AvatarCollisionMask, CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
+import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
+import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { TweenComponent } from '@etherealengine/spatial/src/transform/components/TweenComponent'
+import { Easing, Tween } from '@tweenjs/tween.js'
+import { useEffect } from 'react'
 
 export const SpawnEffectComponent = defineComponent({
   name: 'SpawnEffectComponent',

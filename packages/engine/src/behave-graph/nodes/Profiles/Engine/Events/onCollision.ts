@@ -24,13 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, makeEventNodeDefinition } from '@behave-graph/core'
-import { Entity } from '../../../../../ecs/classes/Entity'
-import { getComponent, removeComponent } from '../../../../../ecs/functions/ComponentFunctions'
-import { Query, defineQuery, removeQuery } from '../../../../../ecs/functions/QueryFunctions'
-import { SystemUUID, defineSystem } from '../../../../../ecs/functions/SystemFunctions'
-import { PhysicsSystem } from '../../../../../physics/PhysicsModule'
-import { CollisionComponent } from '../../../../../physics/components/CollisionComponent'
-import { NameComponent } from '../../../../../scene/components/NameComponent'
+import { getComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { Query, defineQuery, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { SystemUUID, defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { PhysicsSystem } from '@etherealengine/spatial/src/physics/PhysicsModule'
+import { CollisionComponent } from '@etherealengine/spatial/src/physics/components/CollisionComponent'
 
 let systemCounter = 0
 

@@ -26,17 +26,18 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { SRGBColorSpace } from 'three'
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { QueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import React from 'react'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { isClient } from '../../common/functions/getEnvironment'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { QueryReactor, defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { GroupComponent } from '../../scene/components/GroupComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { useTexture } from '../../assets/functions/resourceHooks'
+import { AnimationState } from '../AnimationManager'
 import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { SpawnEffectComponent } from '../components/SpawnEffectComponent'
@@ -54,7 +55,7 @@ const growQuery = defineQuery([SpawnEffectComponent])
 const dissolveQuery = defineQuery([AvatarDissolveComponent])
 
 const execute = () => {
-  const delta = getState(EngineState).deltaSeconds
+  const delta = getState(ECSState).deltaSeconds
 
   for (const entity of growQuery()) {
     TransformComponent.dirtyTransforms[entity] = true
@@ -109,27 +110,41 @@ const reactor = () => {
 
   const assetsReady = useHookstate(false)
 
+  const [itemLight, lightUnload] = useTexture('/static/itemLight.png')
+  const [itemPlate, plateUnload] = useTexture('/static/itemPlate.png')
+
+  useEffect(() => {
+    const texture = itemLight.value
+    if (!texture) return
+
+    texture.colorSpace = SRGBColorSpace
+    texture.needsUpdate = true
+    SpawnEffectComponent.lightMesh.material.map = texture
+    return lightUnload
+  }, [itemLight])
+
+  useEffect(() => {
+    const texture = itemPlate.value
+    if (!texture) return
+
+    texture.colorSpace = SRGBColorSpace
+    texture.needsUpdate = true
+    SpawnEffectComponent.plateMesh.material.map = texture
+    return plateUnload
+  }, [itemPlate])
+
+  useEffect(() => {
+    if (itemLight.value && itemPlate.value) assetsReady.set(true)
+  }, [itemLight, itemPlate])
+
   useEffect(() => {
     SpawnEffectComponent.lightMesh.geometry.computeBoundingSphere()
     SpawnEffectComponent.plateMesh.geometry.computeBoundingSphere()
     SpawnEffectComponent.lightMesh.name = 'light_obj'
     SpawnEffectComponent.plateMesh.name = 'plate_obj'
-
-    AssetLoader.loadAsync('/static/itemLight.png').then((texture) => {
-      texture.colorSpace = SRGBColorSpace
-      texture.needsUpdate = true
-      SpawnEffectComponent.lightMesh.material.map = texture
-    })
-
-    AssetLoader.loadAsync('/static/itemPlate.png').then((texture) => {
-      texture.colorSpace = SRGBColorSpace
-      texture.needsUpdate = true
-      SpawnEffectComponent.plateMesh.material.map = texture
-      assetsReady.set(true)
-    })
   }, [])
 
-  const loadingEffect = useHookstate(getMutableState(EngineState).avatarLoadingEffect)
+  const loadingEffect = useHookstate(getMutableState(AnimationState).avatarLoadingEffect)
 
   if (!loadingEffect.value || !assetsReady.value) return null
 

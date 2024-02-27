@@ -27,8 +27,8 @@ import assert from 'assert'
 import fs from 'fs'
 import path from 'path/posix'
 
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { createEngine } from '@etherealengine/engine/src/initializeEngine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { copyRecursiveSync, getIncrementalName } from './FileUtil'
 import { projectsRootFolder } from './file-browser/file-browser.class'
 import LocalStorage from './storageprovider/local.storage'
@@ -162,6 +162,6 @@ describe('FileUtil functions', () => {
   after(() => {
     fs.rmSync(PROJECT_PATH, { force: true, recursive: true })
     fs.rmSync(STORAGE_PATH, { force: true, recursive: true })
-    destroyEngine()
+    return destroyEngine()
   })
 })

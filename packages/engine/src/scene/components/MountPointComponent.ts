@@ -28,17 +28,18 @@ import { ArrowHelper, Vector3 } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { matches, matchesVector3 } from '../../common/functions/MatchesUtils'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { RendererState } from '../../renderer/RendererState'
-import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
-import { addObjectToGroup } from './GroupComponent'
-import { NameComponent } from './NameComponent'
-import { setVisibleComponent } from './VisibleComponent'
+import { defineComponent, hasComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { matches, matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { SpawnPointComponent } from './SpawnPointComponent'
 
 export const MountPoint = {
   seat: 'seat' as const
@@ -48,7 +49,7 @@ export type MountPointTypes = (typeof MountPoint)[keyof typeof MountPoint]
 
 export const MountPointComponent = defineComponent({
   name: 'MountPointComponent',
-  jsonID: 'mount-point',
+  jsonID: 'EE_mount_point',
 
   onInit: (entity) => {
     return {
@@ -92,6 +93,7 @@ export const MountPointComponent = defineComponent({
 
       return () => {
         removeEntity(helperEntity)
+        if (!hasComponent(entity, SpawnPointComponent)) return
         mountPoint.helperEntity.set(none)
       }
     }, [debugEnabled])

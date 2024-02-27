@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable"
-    ],
+    "lib": ["esnext", "dom", "dom.iterable"],
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -20,18 +16,13 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "jsx": "react",
-    "isolatedModules": false,
+    "isolatedModules": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
     "declaration": true,
     "outDir": "./lib",
-    "types": [
-      "vite/client",
-      "mocha",
-      "@pixiv/three-vrm",
-      "@pixiv/types-vrmc-vrm-1.0"
-    ],
+    "types": ["vite/client", "mocha"]
   },
   "exclude": [
     "../projects/projects/**",
@@ -40,6 +31,7 @@
   "include": [
     "../../__global.d.ts",
     "../server-core/**/*",
+    "../engine/**/*",
     "./**/*.ts",
     "./**/*.tsx"
   ]

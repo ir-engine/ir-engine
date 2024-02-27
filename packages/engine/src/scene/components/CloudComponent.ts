@@ -27,7 +27,7 @@ import { Color, Vector2, Vector3 } from 'three'
 
 import { config } from '@etherealengine/common/src/config'
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Clouds } from '../classes/Clouds'
 
 export type CloudComponentType = {
@@ -44,7 +44,7 @@ export type CloudComponentType = {
 
 export const CloudComponent = defineComponent({
   name: 'CloudComponent',
-  jsonID: 'cloud',
+  jsonID: 'EE_cloud',
   onInit: () => {
     return {
       texture: `${config.client.fileServer}/projects/default-project/assets/cloud.png`,

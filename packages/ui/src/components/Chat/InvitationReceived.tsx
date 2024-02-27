@@ -39,27 +39,27 @@ export const InvitationReceived = () => {
   ]
 
   return (
-    <div className="w-[460px] h-[86%] bg-[#15171B]">
-      <div className="flex flex-wrap gap-1 mt-2">
+    <div className="h-[86%] w-[460px] bg-[#15171B]">
+      <div className="mt-2 flex flex-wrap gap-1">
         {InviteReceived.map((item) => {
           return (
-            <div className="rounded-[10px] bg-[#15171B] w-[450px] h-[45px] flex flex-wrap mt-1 ml-4">
-              <div className="rounded-full ml-4 my-2 bg-[#26282B] w-[30px] h-[30px] justify-between">
-                <img className="max-w-full w-[13.64px] mx-2 h-[28.64px] overflow-hidden" alt="" src={UserIcon} />
+            <div className="ml-4 mt-1 flex h-[45px] w-[450px] flex-wrap rounded-[10px] bg-[#15171B]">
+              <div className="my-2 ml-4 h-[30px] w-[30px] justify-between rounded-full bg-[#26282B]">
+                <img className="mx-2 h-[28.64px] w-[13.64px] max-w-full overflow-hidden" alt="" src={UserIcon} />
               </div>
-              <div className="justify-items-start ml-1">
-                <p className="text-[12px] w-[120px] font-bold text-white mt-[9px] justify-items-start">{item.name}</p>
-                <p className="text-[8px] w-[80px]  font-normal text-white justify-items-start">{item.date}</p>
+              <div className="ml-1 justify-items-start">
+                <p className="mt-[9px] w-[120px] justify-items-start text-[12px] font-bold text-white">{item.name}</p>
+                <p className="w-[80px] justify-items-start  text-[8px] font-normal text-white">{item.date}</p>
               </div>
-              <div className="ml-[175px] flex flex-wrap gap-3 mt-1">
-                <div className="rounded-full  my-2 bg-[#26282B] w-[24px] h-[24px] justify-between">
+              <div className="ml-[175px] mt-1 flex flex-wrap gap-3">
+                <div className="my-2  h-[24px] w-[24px] justify-between rounded-full bg-[#26282B]">
                   <button className="m-0 w-[30px] ">
-                    <ImCross className="w-[13px] h-[12px] ml-[6.1px] mx-1 mt-[6px] fill-[#DD3333] overflow-hidden" />
+                    <ImCross className="mx-1 ml-[6.1px] mt-[6px] h-[12px] w-[13px] overflow-hidden fill-[#DD3333]" />
                   </button>
                 </div>
-                <div className="rounded-full  my-2 bg-[#26282B] w-[24px] h-[24px] justify-between">
+                <div className="my-2  h-[24px] w-[24px] justify-between rounded-full bg-[#26282B]">
                   <button className="m-0 w-[30px] ">
-                    <TiTick className="w-[24px] h-[24px] ml-[0px] mx-1  fill-[#57C290] overflow-hidden" />
+                    <TiTick className="mx-1 ml-[0px] h-[24px] w-[24px]  overflow-hidden fill-[#57C290]" />
                   </button>
                 </div>
               </div>

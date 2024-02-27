@@ -23,27 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import { useLayoutEffect } from 'react'
 import { CameraHelper, PerspectiveCamera } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { RendererState } from '../../renderer/RendererState'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
-import { NameComponent } from './NameComponent'
-import { setVisibleComponent } from './VisibleComponent'
+import { useExecute } from '@etherealengine/ecs'
+import {
+  defineComponent,
+  getComponent,
+  hasComponent,
+  setComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { TransformDirtyCleanupSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 
 export const ScenePreviewCameraComponent = defineComponent({
   name: 'EE_scenePreviewCamera',
-  jsonID: 'scene-preview-camera',
+  jsonID: 'EE_scene_preview_camera',
 
   onInit: (entity) => {
     const camera = new PerspectiveCamera(80, 16 / 9, 0.2, 8000)
@@ -65,7 +73,7 @@ export const ScenePreviewCameraComponent = defineComponent({
     const previewCameraTransform = useComponent(entity, TransformComponent)
     const engineCameraTransform = useComponent(Engine.instance.cameraEntity, TransformComponent)
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       const transform = getComponent(entity, TransformComponent)
       const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
       cameraTransform.position.copy(transform.position)
@@ -77,12 +85,21 @@ export const ScenePreviewCameraComponent = defineComponent({
       }
     }, [])
 
-    useEffect(() => {
+    useExecute(
+      () => {
+        if (!TransformComponent.dirtyTransforms[entity]) return
+        const camera = getComponent(entity, ScenePreviewCameraComponent).camera
+        camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
+      },
+      { before: TransformDirtyCleanupSystem }
+    )
+
+    useLayoutEffect(() => {
       engineCameraTransform.position.value.copy(previewCameraTransform.position.value)
       engineCameraTransform.rotation.value.copy(previewCameraTransform.rotation.value)
     }, [previewCameraTransform])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (!debugEnabled.value) return
 
       const helper = new CameraHelper(previewCamera.camera.value)
@@ -97,6 +114,7 @@ export const ScenePreviewCameraComponent = defineComponent({
 
       return () => {
         removeEntity(helperEntity)
+        if (!hasComponent(entity, ScenePreviewCameraComponent)) return
         previewCamera.helperEntity.set(none)
       }
     }, [debugEnabled])

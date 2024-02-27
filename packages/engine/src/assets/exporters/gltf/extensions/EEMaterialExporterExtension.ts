@@ -28,8 +28,8 @@ import { CubeTexture, Material, Texture } from 'three'
 import { getState } from '@etherealengine/hyperflux'
 
 import matches from 'ts-matches'
-import { MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
-import { materialToDefaultArgs } from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
+import { MaterialLibraryState } from '../../../../scene/materials/MaterialLibrary'
+import { materialToDefaultArgs } from '../../../../scene/materials/functions/MaterialLibraryFunctions'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 

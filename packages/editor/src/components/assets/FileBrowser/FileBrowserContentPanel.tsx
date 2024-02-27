@@ -59,7 +59,7 @@ import VideocamIcon from '@mui/icons-material/Videocam'
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { Breadcrumbs, Link, Popover, TablePagination } from '@mui/material'
@@ -68,8 +68,8 @@ import InputSlider from '@etherealengine/client-core/src/common/components/Input
 import { archiverPath, fileBrowserUploadPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
@@ -261,12 +261,16 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             // file is directory
             await FileBrowserService.addNewFolder(`${path}${file.name}`)
           } else {
-            const name = processFileName(file.name)
-            await uploadToFeathersService(fileBrowserUploadPath, [file], {
-              fileName: name,
-              path,
-              contentType: file.type
-            }).promise
+            try {
+              const name = processFileName(file.name)
+              await uploadToFeathersService(fileBrowserUploadPath, [file], {
+                fileName: name,
+                path,
+                contentType: file.type
+              }).promise
+            } catch (err) {
+              NotificationService.dispatchNotify(err.message, { variant: 'error' })
+            }
           }
         })
       )
@@ -632,8 +636,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         {showUploadAndDownloadButtons && (
           <ToolButton
             tooltip={t('editor:layout.filebrowser.uploadAsset')}
-            onClick={() => {
-              inputFileWithAddToScene({ directoryPath: selectedDirectory.value }).then(refreshDirectory)
+            onClick={async () => {
+              await inputFileWithAddToScene({ directoryPath: selectedDirectory.value })
+                .then(refreshDirectory)
+                .catch((err) => {
+                  NotificationService.dispatchNotify(err.message, { variant: 'error' })
+                })
             }}
             icon={AddIcon}
             id="uploadAsset"

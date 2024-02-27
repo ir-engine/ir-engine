@@ -44,11 +44,10 @@ import {
   WebGLRenderTarget
 } from 'three'
 
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
+import { insertAfterString, insertBeforeString } from '@etherealengine/spatial/src/common/functions/string'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { OBCType } from '../../common/constants/OBCTypes'
-import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
-import { insertAfterString, insertBeforeString } from '../../common/functions/string'
-import { Entity } from '../../ecs/classes/Entity'
 import { OceanComponent } from '../components/OceanComponent'
 import { addError, removeError } from '../functions/ErrorFunctions'
 
@@ -214,7 +213,7 @@ export class Ocean extends Mesh<PlaneGeometry, MeshPhongMaterial> {
     material.needsUpdate = true
 
     addOBCPlugin(material, {
-      id: OBCType.OCEAN,
+      id: 'ee.scene.OceanPlugin',
       compile: (shader) => {
         const viewportSize = new Vector2(window.innerWidth, window.innerHeight)
 

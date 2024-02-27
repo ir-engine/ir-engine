@@ -24,7 +24,32 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import config from '@etherealengine/common/src/config'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { PresentationSystemGroup } from '@etherealengine/ecs'
+import {
+  defineComponent,
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { NO_PROXY, getMutableState, getState } from '@etherealengine/hyperflux'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { ObjectDirection } from '@etherealengine/spatial/src/common/constants/Axis3D'
+import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
+import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { EntityTreeComponent, destroyEntityTree } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { useEffect } from 'react'
 import {
   AmbientLight,
@@ -42,33 +67,9 @@ import {
   TubeGeometry,
   Vector3
 } from 'three'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { useTexture } from '../../assets/functions/resourceHooks'
 import { teleportAvatar } from '../../avatar/functions/moveAvatar'
-import { CameraComponent } from '../../camera/components/CameraComponent'
-import { ObjectDirection } from '../../common/constants/Axis3D'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import {
-  defineComponent,
-  getComponent,
-  getMutableComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent, destroyEntityTree } from '../../ecs/functions/EntityTree'
-import { useExecute } from '../../ecs/functions/SystemFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { createTransitionState } from '../../xrui/functions/createTransitionState'
-import { SceneLoadingSystem } from '../SceneModule'
-import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
-import { GroupComponent, addObjectToGroup } from './GroupComponent'
-import { NameComponent } from './NameComponent'
 import { PortalComponent, PortalEffects, PortalState } from './PortalComponent'
-import { VisibleComponent } from './VisibleComponent'
 
 export const HyperspacePortalEffect = 'Hyperspace'
 
@@ -171,12 +172,6 @@ export const HyperspaceTagComponent = defineComponent({
     addObjectToGroup(hyperspaceEffectEntity, hyperspaceEffect)
     setObjectLayers(hyperspaceEffect, ObjectLayers.Portal)
 
-    AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/assets/galaxyTexture.jpg`).then(
-      (texture) => {
-        hyperspaceEffect.texture = texture
-      }
-    )
-
     getComponent(hyperspaceEffectEntity, TransformComponent).scale.set(10, 10, 10)
     setComponent(hyperspaceEffectEntity, EntityTreeComponent, { parentEntity: entity })
     setComponent(hyperspaceEffectEntity, VisibleComponent)
@@ -209,6 +204,18 @@ export const HyperspaceTagComponent = defineComponent({
     const hyperspaceEffect = getComponent(hyperspaceEffectEntity, GroupComponent)[0] as any as PortalEffect
     const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    const [galaxyTexture, unload] = useTexture(
+      `${config.client.fileServer}/projects/default-project/assets/galaxyTexture.jpg`,
+      entity
+    )
+
+    useEffect(() => {
+      const texture = galaxyTexture.get(NO_PROXY)
+      if (!texture) return
+
+      hyperspaceEffect.texture = texture
+      return unload
+    }, [galaxyTexture])
 
     useEffect(() => {
       // TODO: add BPCEM of old and new scenes and fade them in and out too
@@ -227,16 +234,16 @@ export const HyperspaceTagComponent = defineComponent({
     useExecute(
       () => {
         if (!hasComponent(entity, HyperspaceTagComponent)) return
-        const engineState = getState(EngineState)
-        const sceneLoaded = engineState.sceneLoaded
+        const ecsState = getState(ECSState)
+        const sceneLoaded = getState(SceneState).sceneLoaded
 
         if (sceneLoaded && transition.alpha >= 1 && transition.state === 'IN') {
           transition.setState('OUT')
           camera.layers.enable(ObjectLayers.Scene)
         }
 
-        transition.update(engineState.deltaSeconds, (opacity) => {
-          hyperspaceEffect.update(engineState.deltaSeconds)
+        transition.update(ecsState.deltaSeconds, (opacity) => {
+          hyperspaceEffect.update(ecsState.deltaSeconds)
           hyperspaceEffect.tubeMaterial.opacity = opacity
         })
 
@@ -266,11 +273,11 @@ export const HyperspaceTagComponent = defineComponent({
         getComponent(hyperspaceEffectEntity, TransformComponent).position.copy(cameraTransform.position)
 
         if (camera.zoom > 0.75) {
-          camera.zoom -= engineState.deltaSeconds
+          camera.zoom -= ecsState.deltaSeconds
           camera.updateProjectionMatrix()
         }
       },
-      { with: SceneLoadingSystem }
+      { after: PresentationSystemGroup }
     )
 
     return null

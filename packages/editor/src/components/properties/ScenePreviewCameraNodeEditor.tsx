@@ -27,14 +27,14 @@ import { debounce } from 'lodash'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
-import { computeTransformMatrix } from '@etherealengine/engine/src/transform/systems/TransformSystem'
+import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { previewScreenshot } from '../../functions/takeScreenshot'
 import { PropertiesPanelButton } from '../inputs/Button'

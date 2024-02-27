@@ -28,20 +28,24 @@ import {
   getOptionalComponent,
   useComponent,
   useOptionalComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { useEffect } from 'react'
-import { InstancedMesh, LineBasicMaterial, Mesh, Object3D, SkinnedMesh } from 'three'
-import { MeshBVHVisualizer } from 'three-mesh-bvh'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { RendererState } from '../../renderer/RendererState'
-import { ObjectLayers } from '../constants/ObjectLayers'
+import { BufferGeometry, InstancedMesh, LineBasicMaterial, Mesh, Object3D, SkinnedMesh } from 'three'
+import { MeshBVHHelper, acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
-import { MeshComponent } from './MeshComponent'
 import { ModelComponent } from './ModelComponent'
-import { ObjectLayerMaskComponent } from './ObjectLayerComponent'
-import { VisibleComponent } from './VisibleComponent'
+
+Mesh.prototype.raycast = acceleratedRaycast
+BufferGeometry.prototype['disposeBoundsTree'] = disposeBoundsTree
+BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
 
 const edgeMaterial = new LineBasicMaterial({
   color: 0x00ff88,
@@ -50,8 +54,13 @@ const edgeMaterial = new LineBasicMaterial({
   depthWrite: false
 })
 
-function ValidMeshForBVH(mesh: Mesh): boolean {
-  return mesh && mesh.isMesh && !(mesh as InstancedMesh).isInstancedMesh && !(mesh as SkinnedMesh).isSkinnedMesh
+function ValidMeshForBVH(mesh: Mesh | undefined): boolean {
+  return (
+    mesh !== undefined &&
+    mesh.isMesh &&
+    !(mesh as InstancedMesh).isInstancedMesh &&
+    !(mesh as SkinnedMesh).isSkinnedMesh
+  )
 }
 
 export const MeshBVHComponent = defineComponent({
@@ -59,21 +68,17 @@ export const MeshBVHComponent = defineComponent({
 
   onInit(entity) {
     return {
-      generated: false,
-      visualizers: null as Object3D[] | null
+      generated: false
     }
   },
 
   onSet(entity, component, json) {
     if (!json) return
-
-    if (json.visualizers) component.visualizers.set(json.visualizers)
   },
 
   toJSON(entity, component) {
     return {
-      generated: component.generated.value,
-      visualizers: component.visualizers.value
+      generated: component.generated.value
     }
   },
 
@@ -84,23 +89,33 @@ export const MeshBVHComponent = defineComponent({
     const visible = useOptionalComponent(entity, VisibleComponent)
     const model = useComponent(entity, ModelComponent)
     const childEntities = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
+    const abortControllerState = useHookstate(new AbortController())
 
     useEffect(() => {
-      let aborted = false
+      const abortController = abortControllerState.get(NO_PROXY)
+
+      return () => {
+        abortController.abort()
+      }
+    }, [])
+
+    useEffect(() => {
       if (!component.generated.value && visible?.value) {
+        const abortController = abortControllerState.get(NO_PROXY)
         const entities = childEntities.value
+        const cameraOcclusion = model.cameraOcclusion.get(NO_PROXY)
         let toGenerate = 0
         for (const currEntity of entities) {
           const mesh = getOptionalComponent(currEntity, MeshComponent)
-          if (ValidMeshForBVH(mesh!)) {
+          if (ValidMeshForBVH(mesh)) {
             toGenerate += 1
-            generateMeshBVH(mesh!).then(() => {
-              if (!aborted) {
+            generateMeshBVH(mesh!, abortController.signal).then(() => {
+              if (!abortController.signal.aborted) {
                 toGenerate -= 1
                 if (toGenerate == 0) {
                   component.generated.set(true)
                 }
-                if (model.cameraOcclusion) {
+                if (cameraOcclusion) {
                   ObjectLayerMaskComponent.enableLayers(currEntity, ObjectLayers.Camera)
                 }
               }
@@ -108,46 +123,35 @@ export const MeshBVHComponent = defineComponent({
           }
         }
       }
-
-      return () => {
-        aborted = true
-      }
     }, [visible, childEntities])
 
     useEffect(() => {
       if (!component.generated.value) return
 
-      const remove = () => {
-        if (component.visualizers.value) {
-          for (const visualizer of component.visualizers.value) {
-            removeObjectFromGroup(visualizer.entity, visualizer)
-          }
-        }
-        component.visualizers.set(null)
-      }
-
-      if (debug.value && !component.visualizers.value) {
-        component.visualizers.set([])
+      const visualizers = [] as Object3D[]
+      if (debug.value) {
         const entities = childEntities.value
         for (const currEntity of entities) {
           const mesh = getOptionalComponent(currEntity, MeshComponent)
           if (ValidMeshForBVH(mesh!)) {
-            const meshBVHVisualizer = new MeshBVHVisualizer(mesh!)
+            const meshBVHVisualizer = new MeshBVHHelper(mesh!)
             meshBVHVisualizer.edgeMaterial = edgeMaterial
             meshBVHVisualizer.depth = 20
             meshBVHVisualizer.displayParents = false
             meshBVHVisualizer.update()
 
             addObjectToGroup(currEntity, meshBVHVisualizer)
-            component.visualizers.merge([meshBVHVisualizer])
+            visualizers.push(meshBVHVisualizer)
           }
         }
-      } else if (!debug.value) {
-        remove()
       }
 
       return () => {
-        remove()
+        if (visualizers) {
+          for (const visualizer of visualizers) {
+            removeObjectFromGroup(visualizer.entity, visualizer)
+          }
+        }
       }
     }, [component.generated, debug])
 

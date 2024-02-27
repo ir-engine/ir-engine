@@ -23,224 +23,100 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Bone, Euler, Quaternion, Vector3 } from 'three'
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { Q_Y_180 } from '../../common/constants/MathConstants'
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRHand, XRLeftHandComponent, XRRightHandComponent } from '../../xr/XRComponents'
-import { ReferenceSpace, XRControlsState, XRState } from '../../xr/XRState'
-import { BoneStructure } from '../AvatarBoneMatching'
+import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { Q_Y_180 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import {
+  XRJointAvatarBoneMap,
+  XRJointBones,
+  XRJointParentMap,
+  XRLeftHandComponent,
+  XRRightHandComponent
+} from '@etherealengine/spatial/src/xr/XRComponents'
+import { ReferenceSpace, XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
 
-/**
- * Returns the bone name for a given XRHandJoint
- * - Gracefully degrades to fewer bones if the rig doesn't have them
- *
- * @param joint
- * @param rig
- */
-export const getBoneNameFromXRHand = (side: XRHandedness, joint: XRHandJoint, rig: BoneStructure): Bone | undefined => {
-  const handedness = side.slice(0, 1).toUpperCase() + side.slice(1)
+const matrixWorld = new Matrix4()
+const parentMatrixWorld = new Matrix4()
+const localMatrix = new Matrix4()
+const quat = new Quaternion()
 
-  if (joint.includes('wrist')) return rig[`${handedness}Hand`]
-
-  if (joint.includes('thumb')) {
-    const thumbCount = [
-      rig[`${handedness}HandThumb1`],
-      rig[`${handedness}HandThumb2`],
-      rig[`${handedness}HandThumb3`],
-      rig[`${handedness}HandThumb4`]
-    ].filter((bone) => bone).length
-
-    if (!thumbCount) return
-    if (thumbCount === 1) return rig[`${handedness}HandThumb1`]
-    if (thumbCount === 2)
-      return joint === 'thumb-tip' || joint === 'thumb-phalanx-distal'
-        ? rig[`${handedness}HandThumb2`]
-        : rig[`${handedness}HandThumb1`]
-
-    switch (joint) {
-      case 'thumb-metacarpal':
-        return rig[`${handedness}HandThumb${thumbCount - 3}`]
-      case 'thumb-phalanx-proximal':
-        return rig[`${handedness}HandThumb${thumbCount - 2}`]
-      case 'thumb-phalanx-distal':
-        return rig[`${handedness}HandThumb${thumbCount - 1}`]
-      case 'thumb-tip':
-        return rig[`${handedness}HandThumb${thumbCount}`]
-    }
-  }
-
-  if (joint.includes('index')) {
-    const indexFingerCount = [
-      rig[`${handedness}HandIndex1`],
-      rig[`${handedness}HandIndex2`],
-      rig[`${handedness}HandIndex3`],
-      rig[`${handedness}HandIndex4`],
-      rig[`${handedness}HandIndex5`]
-    ].filter((bone) => bone).length
-
-    if (!indexFingerCount) return
-    if (indexFingerCount === 1) return rig[`${handedness}HandIndex1`]
-    if (indexFingerCount === 2)
-      return joint === 'index-finger-tip' || joint === 'index-finger-phalanx-distal'
-        ? rig[`${handedness}HandIndex2`]
-        : rig[`${handedness}HandIndex1`]
-
-    switch (joint) {
-      case 'index-finger-metacarpal':
-        return rig[`${handedness}HandIndex${indexFingerCount - 4}`]
-      case 'index-finger-phalanx-proximal':
-        return rig[`${handedness}HandIndex${indexFingerCount - 3}`]
-      case 'index-finger-phalanx-intermediate':
-        return rig[`${handedness}HandIndex${indexFingerCount - 2}`]
-      case 'index-finger-phalanx-distal':
-        return rig[`${handedness}HandIndex${indexFingerCount - 1}`]
-      case 'index-finger-tip':
-        return rig[`${handedness}HandIndex${indexFingerCount}`]
-    }
-  }
-
-  if (joint.includes('middle')) {
-    const middleFingerCount = [
-      rig[`${handedness}HandMiddle1`],
-      rig[`${handedness}HandMiddle2`],
-      rig[`${handedness}HandMiddle3`],
-      rig[`${handedness}HandMiddle4`],
-      rig[`${handedness}HandMiddle5`]
-    ].filter((bone) => bone).length
-
-    if (!middleFingerCount) return
-    if (middleFingerCount === 1) return rig[`${handedness}HandMiddle1`]
-    if (middleFingerCount === 2)
-      return joint === 'middle-finger-tip' || joint === 'middle-finger-phalanx-distal'
-        ? rig[`${handedness}HandMiddle2`]
-        : rig[`${handedness}HandMiddle1`]
-
-    switch (joint) {
-      case 'middle-finger-metacarpal':
-        return rig[`${handedness}HandMiddle${middleFingerCount - 4}`]
-      case 'middle-finger-phalanx-proximal':
-        return rig[`${handedness}HandMiddle${middleFingerCount - 3}`]
-      case 'middle-finger-phalanx-intermediate':
-        return rig[`${handedness}HandMiddle${middleFingerCount - 2}`]
-      case 'middle-finger-phalanx-distal':
-        return rig[`${handedness}HandMiddle${middleFingerCount - 1}`]
-      case 'middle-finger-tip':
-        return rig[`${handedness}HandMiddle${middleFingerCount}`]
-    }
-  }
-
-  if (joint.includes('ring')) {
-    const ringFingerCount = [
-      rig[`${handedness}HandRing1`],
-      rig[`${handedness}HandRing2`],
-      rig[`${handedness}HandRing3`],
-      rig[`${handedness}HandRing4`],
-      rig[`${handedness}HandRing5`]
-    ].filter((bone) => bone).length
-
-    if (!ringFingerCount) return
-    if (ringFingerCount === 1) return rig[`${handedness}HandRing1`]
-    if (ringFingerCount === 2)
-      return joint === 'ring-finger-tip' || joint === 'ring-finger-phalanx-distal'
-        ? rig[`${handedness}HandRing2`]
-        : rig[`${handedness}HandRing1`]
-
-    switch (joint) {
-      case 'ring-finger-metacarpal':
-        return rig[`${handedness}HandRing${ringFingerCount - 4}`]
-      case 'ring-finger-phalanx-proximal':
-        return rig[`${handedness}HandRing${ringFingerCount - 3}`]
-      case 'ring-finger-phalanx-intermediate':
-        return rig[`${handedness}HandRing${ringFingerCount - 2}`]
-      case 'ring-finger-phalanx-distal':
-        return rig[`${handedness}HandRing${ringFingerCount - 1}`]
-      case 'ring-finger-tip':
-        return rig[`${handedness}HandRing${ringFingerCount}`]
-    }
-  }
-
-  if (joint.includes('pinky')) {
-    const pinkyFingerCount = [
-      rig[`${handedness}HandPinky1`],
-      rig[`${handedness}HandPinky2`],
-      rig[`${handedness}HandPinky3`],
-      rig[`${handedness}HandPinky4`],
-      rig[`${handedness}HandPinky5`]
-    ].filter((bone) => bone).length
-
-    if (!pinkyFingerCount) return
-    if (pinkyFingerCount === 1) return rig[`${handedness}HandPinky1`]
-    if (pinkyFingerCount === 2)
-      return joint === 'pinky-finger-tip' || joint === 'pinky-finger-phalanx-distal'
-        ? rig[`${handedness}HandPinky2`]
-        : rig[`${handedness}HandPinky1`]
-
-    switch (joint) {
-      case 'pinky-finger-metacarpal':
-        return rig[`${handedness}HandPinky${pinkyFingerCount - 4}`]
-      case 'pinky-finger-phalanx-proximal':
-        return rig[`${handedness}HandPinky${pinkyFingerCount - 3}`]
-      case 'pinky-finger-phalanx-intermediate':
-        return rig[`${handedness}HandPinky${pinkyFingerCount - 2}`]
-      case 'pinky-finger-phalanx-distal':
-        return rig[`${handedness}HandPinky${pinkyFingerCount - 1}`]
-      case 'pinky-finger-tip':
-        return rig[`${handedness}HandPinky${pinkyFingerCount}`]
-    }
+declare global {
+  interface XRFrame {
+    fillPoses?: (poses: Iterable<XRJointSpace>, baseSpace: XRSpace, output: Float32Array) => void
+    fillJointRadii?: (joints: Iterable<XRJointSpace>, output: Float32Array) => void
   }
 }
 
+const helpers = {}
+/**
+ * Gets world space pose for each joint in the hand and stores the rotation in an XRHandComponent in local space
+ * @param inputSource
+ * @param entity
+ */
 const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
-  const rig = getComponent(entity, AvatarRigComponent)
-
-  /*  const hand = inputSource.hand as any as XRHand
-  const rig = getComponent(entity, AvatarRigComponent)
-  const referenceSpace = ReferenceSpace.origin!
+  const hand = inputSource.hand!
   const xrFrame = getState(XRState).xrFrame!
-  const poses1 = new Float32Array(16 * 25)
+  const poses = new Float32Array(16 * 25)
 
-  xrFrame.fillPoses!(hand.values(), referenceSpace, poses1)
+  xrFrame.fillPoses!(hand.values(), inputSource.gripSpace!, poses)
 
-  for (let i = 0; i < XRJointBones.length; i++) {
+  const component = inputSource.handedness === 'right' ? XRRightHandComponent : XRLeftHandComponent
+  const rotations = getComponent(entity, component).rotations
+
+  // const wristMatrix = new Matrix4().fromArray(
+  //   xrFrame.getPose(inputSource.gripSpace!, ReferenceSpace.origin!)!.transform.matrix
+  // )
+
+  // start at 1 as we can skip wrist
+  for (let i = 1; i < 25; i++) {
     const joint = XRJointBones[i]
 
-    if (joint === 'wrist') continue
-    const bone = getBoneNameFromXRHand(inputSource.handedness, joint, rig.rig)
-    if (bone) {
-      matrixWorld.fromArray(poses1, i * 16)
+    if (joint.includes('tip')) continue
 
-      matrix.multiplyMatrices(mat4.copy(bone.parent!.matrixWorld).invert(), matrixWorld)
+    const parentJoint = XRJointParentMap[joint]
 
-      offsetMatrix.identity()
-      //Needs branching code to account for joint offsets / misalignment in the current avatar rig
-      if (joint.startsWith('thumb-')) {
-        offsetMatrix.makeRotationY(thumbOffsetRadians)
-        matrix.multiply(offsetMatrix)
-      } else {
-        offsetMatrix.makeRotationX(thumbOffsetRadians)
-        matrix.multiply(offsetMatrix)
-      }
+    if (!parentJoint) continue
 
-      matrix.decompose(emptyVec, bone.quaternion, emptyVec)
-    }
+    // if (!helpers[inputSource.handedness + joint]) {
+    //   helpers[inputSource.handedness + joint] = new AxesHelper(0.05)
+    //   helpers[inputSource.handedness + joint].name = inputSource.handedness + joint + ' helper'
+    //   Engine.instance.scene.add(helpers[inputSource.handedness + joint])
+    // }
+    // helpers[inputSource.handedness + joint].matrixWorld.copy(matrixWorld).premultiply(wristMatrix)
+
+    const parentIndex = XRJointBones.indexOf(parentJoint)
+
+    // get local space rotation
+    parentMatrixWorld.fromArray(poses, parentIndex * 16).invert()
+    matrixWorld.fromArray(poses, i * 16)
+    localMatrix.multiplyMatrices(matrixWorld, parentMatrixWorld)
+
+    quat.setFromRotationMatrix(localMatrix)
+    if (joint === 'thumb-metacarpal')
+      quat.multiply(inputSource.handedness == 'right' ? rightControllerOffset : leftControllerOffset)
+
+    quat.invert()
+
+    const boneIndex = Object.keys(XRJointAvatarBoneMap).indexOf(joint)
+
+    quat.toArray(rotations, boneIndex * 4)
   }
-*/
 }
 
-//set offsets so hands align with controllers. Multiplying two quaternions because gimbal lock in euler angles prevents setting the offset in one quaternion
+//set offsets so hands align with controllers.
 export const leftControllerOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI / 2, 0))
 export const rightControllerOffset = new Quaternion().setFromEuler(new Euler(0, -Math.PI / 2, 0))
 

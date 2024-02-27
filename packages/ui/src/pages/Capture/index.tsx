@@ -33,13 +33,13 @@ import { useScrubbableVideo } from '@etherealengine/client-core/src/hooks/useScr
 
 import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { useLocationSpawnAvatarWithDespawn } from '@etherealengine/client-core/src/components/World/EngineHooks'
-import { MediaStreamService, MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
+import { MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
 import {
   SocketWebRTCClientNetwork,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import {
   ECSRecordingActions,
   PlaybackState,
@@ -51,17 +51,12 @@ import { useWorldNetwork } from '@etherealengine/client-core/src/common/services
 import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { RecordingID, StaticResourceType, recordingPath } from '@etherealengine/common/src/schema.type.module'
-import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SceneServices } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   MotionCaptureFunctions,
   MotionCaptureResults,
   mocapDataChannelType
 } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
+import { SceneServices, SceneState } from '@etherealengine/engine/src/scene/Scene'
 import {
   defineState,
   dispatchAction,
@@ -69,7 +64,10 @@ import {
   getState,
   syncStateWithLocalStorage
 } from '@etherealengine/hyperflux'
-import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
+import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { throttle } from '@etherealengine/spatial/src/common/functions/FunctionHelpers'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import Header from '@etherealengine/ui/src/components/tailwind/Header'
 import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
@@ -77,7 +75,7 @@ import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
 import { NormalizedLandmarkList, Options, POSE_CONNECTIONS, Pose } from '@mediapipe/pose'
 import ReactSlider from 'react-slider'
-import Toolbar from '../../components/tailwind/mocap/Toolbar'
+import Button from '../../primitives/tailwind/Button'
 /**
  * Start playback of a recording
  * - If we are streaming data, close the data producer
@@ -168,7 +166,7 @@ const CaptureMode = () => {
     } else {
       RecordingState.requestRecording({
         user: { Avatar: true },
-        peers: { [Engine.instance.peerID]: { Audio: true, Video: true, Mocap: true } }
+        peers: { [Engine.instance.store.peerID]: { Audio: true, Video: true, Mocap: true } }
       })
     }
   }
@@ -282,35 +280,50 @@ const CaptureMode = () => {
   const recordingStatus = getRecordingStatus()
 
   return (
-    <div className="w-full container mx-auto pointer-events-auto max-w-[1024px]">
-      <div className="w-full h-auto px-2">
-        <div className="w-full h-auto relative aspect-video overflow-hidden">
-          <div className="absolute w-full h-full top-0 left-0 flex items-center bg-black">
+    <div className="container pointer-events-auto m-4 mx-auto w-full max-w-[1024px]">
+      <div className="h-auto w-full px-2">
+        <div className="relative aspect-video h-auto w-full overflow-hidden">
+          <div className="absolute left-0 top-0 flex h-full w-full items-center bg-black">
             <Video
               ref={videoRef}
-              className={twMerge('w-full h-auto opacity-100', !displaySettings?.showVideo && 'opacity-0')}
+              className={twMerge('h-auto w-full opacity-100', !displaySettings?.showVideo && 'opacity-0')}
             />
           </div>
-          <div
-            className="object-contain absolute top-0 left-0 z-1 min-w-full h-auto"
-            style={{ objectFit: 'contain', top: '0px' }}
-          >
+          <div className="z-1 absolute left-0 top-0 h-auto min-w-full object-contain">
             <Canvas ref={canvasRef} />
           </div>
-          <button
+          <Button
+            className="z-2 container absolute left-0 top-0 m-0 mx-auto h-full w-full bg-transparent p-0"
             onClick={() => {
               if (mediaNetworkState?.connected?.value) toggleWebcamPaused()
             }}
-            className="absolute btn btn-ghost bg-none h-full w-full container mx-auto m-0 p-0 top-0 left-0 z-2"
           >
-            {videoStatus === 'ready' && <h1>Enable Camera</h1>}
-            {videoStatus === 'loading' && <h1>Loading...</h1>}
-          </button>
+            <a>{!videoStream.value ? 'CLICK TO ENABLE VIDEO' : ''}</a>
+          </Button>
         </div>
       </div>
-      <div className="w-full h-auto relative aspect-video overflow-hidden">
-        <div className="w-full container mx-auto">
-          <Toolbar
+      <div className="relative aspect-video h-auto w-full overflow-hidden">
+        <div className="container mx-auto w-full">
+          <Button
+            className="font=[lato] padding-[10px] m-2 h-[60px] w-[220px] rounded-full bg-[#292D3E] text-center text-sm font-bold shadow-md"
+            title="Toggle Detection"
+            onClick={() => {
+              detectingStatus.set(detectingStatus.value === 'active' ? 'inactive' : 'active')
+            }}
+          >
+            <a className="text-xl normal-case">
+              {detectingStatus.value === 'active' ? 'STOP DETECTING' : 'START DETECTING'}
+            </a>
+          </Button>
+          <Button
+            aria-disabled={recordingStatus === 'starting'}
+            className="font=[lato] padding-[10px] m-2 h-[60px] w-[220px] rounded-full bg-[#292D3E] text-center text-sm font-bold shadow-md"
+            title="Toggle Recording"
+            onClick={onToggleRecording}
+          >
+            <a className="text-xl normal-case">{recordingStatus === 'active' ? 'STOP RECORDING' : 'START RECORDING'}</a>
+          </Button>
+          {/* <Toolbar
             className="w-full"
             videoStatus={videoStatus}
             detectingStatus={detectingStatus.value}
@@ -322,14 +335,14 @@ const CaptureMode = () => {
             isRecording={!!recordingID.value}
             recordingStatus={recordingStatus}
             cycleCamera={MediaStreamService.cycleCamera}
-          />
+          /> */}
         </div>
       </div>
     </div>
   )
 }
 
-const drawPoseToCanvas = (
+export const drawPoseToCanvas = (
   canvasCtxRef: React.MutableRefObject<CanvasRenderingContext2D | undefined>,
   canvasRef: RefObject<HTMLCanvasElement>,
   poseLandmarks: NormalizedLandmarkList
@@ -341,15 +354,18 @@ const drawPoseToCanvas = (
   canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
   canvasCtxRef.current.globalCompositeOperation = 'source-over'
 
+  const lineWidth = canvasRef.current.width * 0.004
+  const radius = canvasRef.current.width * 0.002
+
   // Pose Connections
   drawConnectors(canvasCtxRef.current, poseLandmarks, POSE_CONNECTIONS, {
     color: '#fff',
-    lineWidth: 4
+    lineWidth: lineWidth
   })
   // Pose Landmarks
   drawLandmarks(canvasCtxRef.current, poseLandmarks, {
     color: '#fff',
-    radius: 2
+    radius: radius
   })
 
   // // Left Hand Connections
@@ -450,16 +466,16 @@ const VideoPlayback = (props: {
   }, [currentTimeSeconds])
 
   return (
-    <div className="aspect-[4/3] w-auto h-full">
-      <div className="aspect-[4/3] top-0 left-0 items-center bg-black">
+    <div className="aspect-[4/3] h-full w-auto">
+      <div className="left-0 top-0 aspect-[4/3] items-center bg-black">
         <Video
           ref={videoRef}
           src={videoSrc}
           controls={false}
-          className={twMerge('aspect-[4/3] w-full h-auto opacity-100')}
+          className={twMerge('aspect-[4/3] h-auto w-full opacity-100')}
         />
       </div>
-      <div className="aspect-[4/3] absolute top-0 left-0 z-1 w-auto h-auto pointer-events-none">
+      <div className="z-1 pointer-events-none absolute left-0 top-0 aspect-[4/3] h-auto w-auto">
         <Canvas ref={canvasRef} />
       </div>
     </div>
@@ -475,8 +491,6 @@ const EngineCanvas = () => {
     const canvas = EngineRenderer.instance.renderer.domElement
     ref.current.appendChild(canvas)
 
-    const parent = canvas.parentElement!
-
     EngineRenderer.instance.needsResize = true
 
     // return () => {
@@ -486,8 +500,8 @@ const EngineCanvas = () => {
   }, [ref])
 
   return (
-    <div className="relative w-auto h-full aspect-[2/3]">
-      <div ref={ref} className="w-full h-full" />
+    <div className="relative aspect-[2/3] h-full w-auto">
+      <div ref={ref} className="h-full w-full" />
     </div>
   )
 }
@@ -503,19 +517,19 @@ export const PlaybackControls = (props: { durationSeconds: number }) => {
 
   const { durationSeconds } = props
   return (
-    <div className="w-full h-full flex flex-row">
+    <div className="flex h-full w-full flex-row">
       <div className="relative aspect-video overflow-hidden">
-        <button
-          className="w-auto h-4 btn btn-ghost container z-2"
+        <Button
+          className="z-2 container h-[40px] w-auto"
           onClick={() => {
             playing.set(!playing.value)
           }}
         >
           {playing.value ? 'Pause' : 'Play'}
-        </button>
+        </Button>
       </div>
       <ReactSlider
-        className="w-full h-4 my-2 bg-gray-300 rounded-lg cursor-pointer"
+        className="my-2 h-4 w-full cursor-pointer rounded-lg bg-gray-300"
         min={0}
         value={playing.value ? currentTime.value : undefined}
         max={durationSeconds}
@@ -525,7 +539,7 @@ export const PlaybackControls = (props: { durationSeconds: number }) => {
           return (
             <div
               {...props}
-              className="w-8 h-4 bg-white rounded-full shadow-md text-center font=[lato] font-bold text-sm"
+              className="font=[lato] h-4 w-8 rounded-full bg-white text-center text-sm font-bold shadow-md"
             >
               {Math.round(state.valueNow)}
             </div>
@@ -557,7 +571,7 @@ const PlaybackMode = () => {
     return () => {
       cleanup()
       // hack
-      getMutableState(EngineState).sceneLoaded.set(false)
+      getMutableState(SceneState).sceneLoaded.set(false)
     }
   }, [locationState])
 
@@ -585,8 +599,8 @@ const PlaybackMode = () => {
 
     return (
       <>
-        <div className="w-full h-auto relative aspect-video overflow-hidden flex-column items-center justify-center">
-          <div className="flex flex-row w-full h-full max-w-full items-center justify-center">
+        <div className="flex-column relative aspect-video h-auto w-full items-center justify-center overflow-hidden">
+          <div className="flex h-full w-full max-w-full flex-row items-center justify-center">
             {videoPlaybackPairs.map((r) => (
               <VideoPlayback startTime={startTime} {...r} key={r.video.id} />
             ))}
@@ -600,17 +614,17 @@ const PlaybackMode = () => {
 
   const NoRecording = () => {
     return (
-      <div className="max-w-[1024px] w-auto container mx-auto relative aspect-video overflow-hidden flex items-center justify-center bg-black">
+      <div className="container relative mx-auto flex aspect-video w-auto max-w-[1024px] items-center justify-center overflow-hidden bg-black">
         <h1 className="text-2xl">No Recording Selected</h1>
       </div>
     )
   }
 
   return (
-    <div className="w-full container mx-auto pointer-events-auto items-center justify-center content-center">
-      <div className="w-full h-auto px-2">{recording.data ? <ActiveRecording /> : <NoRecording />}</div>
-      <div className="max-w-[1024px] w-full container mx-auto flex">
-        <div className="w-full h-auto relative m-2">
+    <div className="container pointer-events-auto mx-auto w-full content-center items-center justify-center">
+      <div className="h-auto w-full px-2">{recording.data ? <ActiveRecording /> : <NoRecording />}</div>
+      <div className="container mx-auto flex w-full max-w-[1024px]">
+        <div className="relative m-2 h-auto w-full">
           <RecordingsList {...{ startPlayback, stopPlayback }} />
         </div>
       </div>
@@ -633,11 +647,9 @@ const CaptureDashboard = () => {
   const mode = useHookstate(getMutableState(CapturePageState).mode)
 
   return (
-    <div className="max-w-[1024px] w-full container mx-auto overflow-hidden">
-      <Drawer settings={<div></div>}>
-        <Header mode={mode} />
-        {mode.value === 'playback' ? <PlaybackMode /> : <CaptureMode />}
-      </Drawer>
+    <div className="container mx-auto w-full max-w-[1024px] overflow-hidden">
+      <Header mode={mode} />
+      {mode.value === 'playback' ? <PlaybackMode /> : <CaptureMode />}
     </div>
   )
 }

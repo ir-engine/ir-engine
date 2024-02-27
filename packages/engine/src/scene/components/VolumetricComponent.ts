@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { State, getState } from '@etherealengine/hyperflux'
-import { AudioState } from '../../audio/AudioState'
 import {
   ComponentType,
   defineComponent,
@@ -35,9 +33,11 @@ import {
   removeComponent,
   setComponent,
   useComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { State, getState } from '@etherealengine/hyperflux'
+import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { AudioState } from '../../audio/AudioState'
 import { PlayMode } from '../constants/PlayMode'
 import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup, getNextTrack } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
@@ -82,7 +82,7 @@ export function handleAutoplay(
 
 export const VolumetricComponent = defineComponent({
   name: 'Volumetric Component',
-  jsonID: 'volumetric',
+  jsonID: 'EE_volumetric',
   onInit: (entity) => {
     return {
       paths: [] as string[],
@@ -91,7 +91,7 @@ export const VolumetricComponent = defineComponent({
       autoplay: true,
       paused: true,
       initialBuffersLoaded: false,
-      hasAudio: true,
+      hasAudio: false,
       ended: true,
       volume: 1,
       playMode: PlayMode.loop as PlayMode,

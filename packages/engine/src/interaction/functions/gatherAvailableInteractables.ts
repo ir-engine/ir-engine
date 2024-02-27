@@ -27,11 +27,11 @@ import { Matrix4 } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import {
   compareDistanceToLocalClient,
   DistanceFromLocalClientComponent
-} from '../../transform/components/DistanceComponents'
+} from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { InteractState } from '../systems/InteractiveSystem'
 
 const mat4 = new Matrix4()

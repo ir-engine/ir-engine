@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { VariantComponent, VariantLevel } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { State } from '@etherealengine/hyperflux'
 
@@ -53,7 +53,7 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
       description={t('editor:properties.variant.description')}
       {...props}
     >
-      <div className="bg-gray-800 rounded-lg p-4 m-4">
+      <div className="m-4 rounded-lg bg-gray-800 p-4">
         <InputGroup name="lodHeuristic" label={t('editor:properties.variant.heuristic')}>
           <SelectInput
             value={variantComponent.heuristic.value}
@@ -87,7 +87,7 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
           list={variantComponent.levels}
           element={(level: State<VariantLevel>, index) => {
             return (
-              <div className="bg-gray-900 m-2">
+              <div className="m-2 bg-gray-900">
                 <div style={{ margin: '2em' }}>
                   <InputGroup name="src" label={t('editor:properties.variant.src')}>
                     <ModelInput

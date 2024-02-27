@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { SimulationSystemGroup } from '../../ecs/functions/SystemGroups'
-import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectComponent'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { NetworkObjectAuthorityTag } from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
 import { applyGamepadInput } from '.././functions/moveAvatar'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 

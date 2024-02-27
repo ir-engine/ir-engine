@@ -27,13 +27,13 @@ import { useEffect } from 'react'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { MediaSettingsState } from '../../networking/MediaSettingsState'
+import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { MediaSettingsState } from '@etherealengine/spatial/src/networking/MediaSettingsState'
 
 export const MediaSettingsComponent = defineComponent({
   name: 'MediaSettingsComponent',
-  jsonID: 'media-settings',
+  jsonID: 'EE_media_settings',
 
   onInit(entity): typeof MediaSettingsState._TYPE {
     return typeof MediaSettingsState.initial === 'function'

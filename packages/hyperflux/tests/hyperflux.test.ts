@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { matches, matchesWithDefault } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 
+import matches from 'ts-matches'
 import {
   applyIncomingActions,
   clearOutgoingActions,
@@ -38,6 +38,7 @@ import {
   dispatchAction,
   getMutableState,
   getState,
+  matchesWithDefault,
   removeActionQueue
 } from '..'
 

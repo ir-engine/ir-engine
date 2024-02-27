@@ -32,9 +32,9 @@ import Button from '@etherealengine/client-core/src/common/components/Button'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
+import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { SpawnEffectComponent } from '@etherealengine/engine/src/avatar/components/SpawnEffectComponent'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
@@ -43,8 +43,8 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { AvatarID, avatarPath } from '@etherealengine/common/src/schema.type.module'
 import { AvatarState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { LocalAvatarState } from '@etherealengine/engine/src/avatar/state/AvatarState'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { debounce } from 'lodash'
 import { LoadingCircle } from '../../../../components/LoadingCircle'
 import { UserMenus } from '../../../UserUISystem'
@@ -60,7 +60,7 @@ const AvatarMenu = () => {
   const userId = authState.user?.id?.value
   const userAvatarId = useHookstate(getMutableState(AvatarState)[Engine.instance.userID].avatarID as AvatarID)
   const avatarLoading = useHookstate(false)
-  const isUserReady = useHookstate(getMutableState(EngineState).userReady)
+  const isUserReady = useHookstate(getMutableState(LocalAvatarState).avatarReady)
 
   const page = useHookstate(0)
   const selectedAvatarId = useHookstate('' as AvatarID)

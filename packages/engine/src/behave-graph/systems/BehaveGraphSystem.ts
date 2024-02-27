@@ -27,13 +27,14 @@ import { Validator, matches } from 'ts-matches'
 
 import { defineAction, defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { useEffect } from 'react'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { defineQuery, removeQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { InputSystemGroup } from '../../ecs/functions/SystemGroups'
 import { BehaveGraphComponent } from '../components/BehaveGraphComponent'
 
 export const BehaveGraphActions = {
@@ -75,9 +76,10 @@ const execute = () => {
 
 const reactor = () => {
   const engineState = useHookstate(getMutableState(EngineState))
+  const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
 
   useEffect(() => {
-    if (!engineState.sceneLoaded.value || engineState.isEditor.value) return
+    if (!sceneLoaded.value || engineState.isEditor.value) return
 
     const graphQuery = defineQuery([BehaveGraphComponent])
 
@@ -88,7 +90,7 @@ const reactor = () => {
     return () => {
       removeQuery(graphQuery)
     }
-  }, [engineState.sceneLoaded])
+  }, [sceneLoaded])
   // run scripts when loaded a scene, joined a world, scene entity changed, scene data changed
 
   return null

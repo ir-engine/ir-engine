@@ -30,7 +30,6 @@ import {
   ErrorBoundary,
   NO_PROXY,
   State,
-  defineActionQueue,
   dispatchAction,
   getMutableState,
   getState,
@@ -38,14 +37,8 @@ import {
 } from '@etherealengine/hyperflux'
 import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
-import { ComponentJsonType, EntityJsonType, SceneID, scenePath } from '@etherealengine/common/src/schema.type.module'
-import { Not } from 'bitecs'
-import React from 'react'
-import { Group } from 'three'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import { SceneState } from '../../ecs/classes/Scene'
+import { ComponentJsonType, EntityJsonType, SceneID } from '@etherealengine/common/src/schema.type.module'
+import { PresentationSystemGroup } from '@etherealengine/ecs'
 import {
   ComponentJSONIDMap,
   getComponent,
@@ -53,57 +46,40 @@ import {
   removeComponent,
   setComponent,
   useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { QueryReactor, useQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem, destroySystem } from '../../ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '../../ecs/functions/SystemGroups'
-import { NetworkState, SceneUser } from '../../networking/NetworkState'
-import { NetworkTopics } from '../../networking/classes/Network'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { PhysicsState } from '../../physics/state/PhysicsState'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { entityExists, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { QueryReactor, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { NetworkState, SceneUser } from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
+import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
+import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { Not } from 'bitecs'
+import React from 'react'
+import { Group } from 'three'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
-import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
-import { NameComponent } from '../components/NameComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
 import { SourceComponent } from '../components/SourceComponent'
-import { UUIDComponent } from '../components/UUIDComponent'
-import { VisibleComponent } from '../components/VisibleComponent'
 import { proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 
-const reactor = () => {
+export const SceneLoadingReactor = () => {
   const scenes = useHookstate(getMutableState(SceneState).scenes)
-  const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
-  const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
-  const entities = useHookstate(UUIDComponent.entitiesByUUIDState)
 
   const physicsWorld = useHookstate(getMutableState(PhysicsState).physicsWorld)
-
-  useEffect(() => {
-    if (!getState(EngineState).sceneLoading) return
-
-    const values = Object.values(assetLoadingState.value)
-    const total = values.reduce((acc, curr) => acc + curr.totalAmount, 0)
-    const loaded = values.reduce((acc, curr) => acc + curr.loadedAmount, 0)
-    const progress = !sceneAssetPendingTagQuery.length || total === 0 ? 100 : Math.round((100 * loaded) / total)
-
-    getMutableState(EngineState).loadingProgress.set(progress)
-
-    if (!sceneAssetPendingTagQuery.length && !getState(EngineState).sceneLoaded) {
-      getMutableState(EngineState).merge({
-        sceneLoading: false,
-        sceneLoaded: true
-      })
-      dispatchAction(EngineActions.sceneLoaded({}))
-      SceneAssetPendingTagComponent.loadingProgress.set({})
-    }
-  }, [sceneAssetPendingTagQuery.length, assetLoadingState, entities.keys])
-
   if (!physicsWorld.value) return null
 
   return (
@@ -151,8 +127,12 @@ const NetworkedSceneObjectReactor = () => {
 }
 
 const SceneReactor = (props: { sceneID: SceneID }) => {
+  const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
+  const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
+  const entities = useHookstate(UUIDComponent.entitiesByUUIDState)
+
   const currentSceneSnapshotState = SceneState.useScene(props.sceneID)
-  const entities = currentSceneSnapshotState.entities
+  const sceneEntities = currentSceneSnapshotState.entities
   const rootUUID = currentSceneSnapshotState.root.value
 
   const ready = useHookstate(false)
@@ -160,48 +140,52 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
   const isActiveScene = useHookstate(getMutableState(SceneState).activeScene).value === props.sceneID
 
   useEffect(() => {
+    if (!ready.value || !isActiveScene || !getState(SceneState).sceneLoading) return
+
+    const entitiesCount = sceneEntities.keys.map(UUIDComponent.getEntityByUUID).filter(Boolean).length
+    if (entitiesCount <= 1) return
+
+    const values = Object.values(assetLoadingState.value)
+    const total = values.reduce((acc, curr) => acc + curr.totalAmount, 0)
+    const loaded = values.reduce((acc, curr) => acc + curr.loadedAmount, 0)
+    const progress = !sceneAssetPendingTagQuery.length || total === 0 ? 100 : Math.round((100 * loaded) / total)
+
+    getMutableState(SceneState).loadingProgress.set(progress)
+
+    if (!sceneAssetPendingTagQuery.length && !getState(SceneState).sceneLoaded) {
+      getMutableState(SceneState).merge({
+        sceneLoading: false,
+        sceneLoaded: true
+      })
+      SceneAssetPendingTagComponent.loadingProgress.set({})
+    }
+  }, [sceneAssetPendingTagQuery.length, assetLoadingState, entities.keys])
+
+  useEffect(() => {
     const scene = getState(SceneState).scenes[props.sceneID]
     const { project } = scene.metadata
     const data = scene.snapshots[scene.index].data
-    getSystemsFromSceneData(project, data).then((systems) => {
-      // wait to set scene loading state until systems are loaded
-      if (isActiveScene)
-        getMutableState(EngineState).merge({
-          sceneLoading: true,
-          sceneLoaded: false
-        })
-
-      if (systems.length) {
-        systemsLoaded.set(systems)
-      } else {
-        ready.set(true)
-      }
+    const systemPromises = getSystemsFromSceneData(project, data)
+    if (!systemPromises) {
+      ready.set(true)
+      getMutableState(SceneState).merge({
+        sceneLoading: true,
+        sceneLoaded: false
+      })
+      return
+    }
+    systemPromises.then((systems) => {
+      systemsLoaded.set(systems)
+      ready.set(true)
+      getMutableState(SceneState).merge({
+        sceneLoading: true,
+        sceneLoaded: false
+      })
     })
-
-    if (!isActiveScene) return
-
-    const sceneUpdatedListener = async () => {
-      const [projectName, sceneName] = props.sceneID.split('/')
-      const sceneData = await Engine.instance.api
-        .service(scenePath)
-        .get(null, { query: { project: projectName, name: sceneName } })
-      SceneState.loadScene(props.sceneID, sceneData)
-    }
-    // for testing
-    // window.addEventListener('keydown', (ev) => {
-    //   if (ev.code === 'KeyN') sceneUpdatedListener()
-    // })
-
-    Engine.instance.api.service(scenePath).on('updated', sceneUpdatedListener)
-
-    return () => {
-      // the ? is for testing
-      Engine.instance?.api.service(scenePath).off('updated', sceneUpdatedListener)
-    }
   }, [])
 
   useEffect(() => {
-    ready.set(true)
+    if (!systemsLoaded.length) return
     const systems = [...systemsLoaded.value]
     return () => {
       for (const system of systems) {
@@ -213,7 +197,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
   return (
     <>
       {ready.value &&
-        Object.entries(entities.value).map(([entityUUID, data]) =>
+        Object.entries(sceneEntities.value).map(([entityUUID, data]) =>
           entityUUID === rootUUID && isActiveScene ? (
             <EntitySceneRootLoadReactor
               key={entityUUID}
@@ -222,7 +206,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
             />
           ) : (
             <EntityLoadReactor
-              key={entityUUID + ' ' + data.parent}
+              key={props.sceneID + ' ' + entityUUID + ' ' + data.parent + ' ' + data.index}
               sceneID={props.sceneID}
               entityUUID={entityUUID as EntityUUID}
             />
@@ -276,7 +260,6 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
 const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) => {
   const entityState = SceneState.useScene(props.sceneID).entities[props.entityUUID]
   const parentEntity = UUIDComponent.useEntityByUUID(entityState.value.parent!)
-
   return (
     <>
       {parentEntity ? (
@@ -325,11 +308,12 @@ const EntityChildLoadReactor = (props: {
       childIndex: entityJSONState.index.value
     })
 
-    if (!hasComponent(entity, GroupComponent)) {
+    if (!hasComponent(entity, Object3DComponent) && !hasComponent(entity, MeshComponent)) {
       const obj3d = new Group()
       obj3d.entity = entity
       addObjectToGroup(entity, obj3d)
       proxifyParentChildRelationships(obj3d)
+      setComponent(entity, Object3DComponent, obj3d)
     }
 
     setComponent(entity, SourceComponent, props.sceneID)
@@ -398,7 +382,7 @@ const ComponentLoadReactor = (props: {
     if (!componentState?.value) return
     const entity = UUIDComponent.getEntityByUUID(props.entityUUID)
     loadComponents(entity, [componentState.get(NO_PROXY)])
-  }, [componentState])
+  }, [componentState.get(NO_PROXY)])
 
   return null
 }
@@ -428,18 +412,8 @@ const loadComponents = (entity: Entity, components: ComponentJsonType[]) => {
   }
 }
 
-const sceneLoadedActionQueue = defineActionQueue(EngineActions.sceneLoaded.matches)
-
-const execute = () => {
-  if (sceneLoadedActionQueue().length) {
-    if (getState(EngineState).sceneLoading) getMutableState(EngineState).sceneLoading.set(false)
-    if (!getState(EngineState).sceneLoaded) getMutableState(EngineState).sceneLoaded.set(true)
-  }
-}
-
 export const SceneLoadingSystem = defineSystem({
   uuid: 'ee.engine.scene.SceneLoadingSystem',
   insert: { after: PresentationSystemGroup },
-  execute,
-  reactor
+  reactor: SceneLoadingReactor
 })

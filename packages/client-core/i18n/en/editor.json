@@ -292,7 +292,6 @@
       "name": "Collider",
       "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
       "lbl-isTrigger": "Trigger",
-      "lbl-removeMesh": "Remove Mesh",
       "lbl-shape": "Shape",
       "lbl-type": "Body Type"
     },
@@ -374,7 +373,7 @@
       "error-url": "Error Loading From URL",
       "lbl-loopAnimation": "Loop Animation",
       "lbl-animationSpeed": "Animation Speed",
-      "lbl-convertToVRM": "Convert to VRM",
+      "lbl-convertToVRM": "Use VRM",
       "lbl-isGPUInstancing": "Is Using GPU Instancing",
       "lbl-cameraOcclusion": "Occlude Camera",
       "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
@@ -680,6 +679,8 @@
       "info-useShadows": "Enables shadows",
       "lbl-csm": "Cascading Shadow Maps",
       "info-csm": "Enables cascading shadow maps.",
+      "lbl-csm-cascades": "Cascades",
+      "info-csm-cascades": "Smaller the size of the scene. More efficient to have less cascades.",
       "lbl-toneMapping": "Tone Mapping",
       "info-toneMapping": "Enables tone mapping on the scene renderer. Has no effect when a post processing is enabled.",
       "lbl-toneMappingExposure": "Tone Mapping Exposure",
@@ -1014,12 +1015,17 @@
     "lbl-rename": "Rename",
     "lbl-duplicate": "Duplicate",
     "lbl-group": "Group",
+    "lbl-copy": "Copy",
+    "lbl-paste": "Paste",
     "lbl-delete": "Delete",
     "lbl-expandAll": "Expand All",
     "lbl-collapseAll": "Collapse All",
     "lbl-explode": "Explode Objects",
     "lbl-addEntity": "Add Entity",
-    "issues": "Issues"
+    "issues": "Issues",
+    "copy-paste": {
+      "no-hierarchy-nodes": "No hierarchy nodes found"
+    }
   },
   "materialLibrary": {
     "lbl": "Material Library",

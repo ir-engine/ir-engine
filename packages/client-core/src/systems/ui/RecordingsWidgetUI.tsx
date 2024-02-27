@@ -32,15 +32,15 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { PlayIcon, PlusCircleIcon } from '@heroicons/react/24/solid'
 
 import { RecordingType, recordingPath } from '@etherealengine/common/src/schema.type.module'
-import { useFind, useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import {
   ECSRecordingActions,
   PlaybackState,
   RecordingState
 } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
-import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { useFind, useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { WidgetAppService } from '@etherealengine/spatial/src/xrui/WidgetAppService'
 import { startPlayback } from '@etherealengine/ui/src/pages/Capture'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 
@@ -361,7 +361,7 @@ const RecordingsList = () => {
               label={
                 <PlayIcon
                   style={{ display: 'block', width: '24px', height: '24px' }}
-                  className="block min-w-6 min-h-6"
+                  className="block min-h-6 min-w-6"
                 />
               }
             />
@@ -373,7 +373,7 @@ const RecordingsList = () => {
               label={
                 <PlusCircleIcon
                   style={{ display: 'block', width: '24px', height: '24px' }}
-                  className="block min-w-6 min-h-6"
+                  className="block min-h-6 min-w-6"
                 />
               }
             />
