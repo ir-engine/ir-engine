@@ -1,0 +1,248 @@
+{
+  "nodes": [
+    {
+      "id": "06b4f145-1917-46cc-a0b4-68680f082926",
+      "type": "debug/log",
+      "metadata": {
+        "positionX": "1386.7619068560305",
+        "positionY": "-487.39634919982484"
+      },
+      "parameters": {
+        "text": {
+          "value": "test pass"
+        }
+      }
+    },
+    {
+      "id": "7a04a03b-2a97-47e8-a0d3-4f314e3a15ae",
+      "type": "debug/expectTrue",
+      "metadata": {
+        "positionX": "828.1107293117283",
+        "positionY": "-473.9215940905379"
+      },
+      "parameters": {
+        "description": {
+          "value": "string length fail"
+        },
+        "condition": {
+          "link": {
+            "nodeId": "ede694f7-25bc-47b4-a806-f16ee3a471b1",
+            "socket": "result"
+          }
+        }
+      },
+      "flows": {
+        "flow": {
+          "nodeId": "06b4f145-1917-46cc-a0b4-68680f082926",
+          "socket": "flow"
+        }
+      }
+    },
+    {
+      "id": "ede694f7-25bc-47b4-a806-f16ee3a471b1",
+      "type": "math/integer/compare/equal",
+      "metadata": {
+        "positionX": "552.7976690430056",
+        "positionY": "-242.75361510020645"
+      },
+      "parameters": {
+        "b": {
+          "value": "5"
+        },
+        "a": {
+          "link": {
+            "nodeId": "0914e491-ca97-4da6-a2f8-a73b22c69bfc",
+            "socket": "result"
+          }
+        }
+      }
+    },
+    {
+      "id": "0faecdd8-e2ad-4852-8c59-81d5465d43ef",
+      "type": "debug/expectTrue",
+      "metadata": {
+        "positionX": "547.2566823985421",
+        "positionY": "-475.0214630306695"
+      },
+      "parameters": {
+        "description": {
+          "value": "string includes fail"
+        },
+        "condition": {
+          "link": {
+            "nodeId": "788db03e-d871-44d1-aff6-59ec35cc1391",
+            "socket": "result"
+          }
+        }
+      },
+      "flows": {
+        "flow": {
+          "nodeId": "7a04a03b-2a97-47e8-a0d3-4f314e3a15ae",
+          "socket": "flow"
+        }
+      }
+    },
+    {
+      "id": "233fc35a-3490-4492-8c99-0ff16c1f59f4",
+      "type": "logic/string/constant",
+      "metadata": {
+        "positionX": "-339.61317276951246",
+        "positionY": "-144.43782115375174"
+      },
+      "parameters": {
+        "a": {
+          "value": "helloworld"
+        }
+      }
+    },
+    {
+      "id": "ed0570d7-1a06-42c9-b557-f67dad99b9a1",
+      "type": "debug/expectTrue",
+      "metadata": {
+        "positionX": "238.4096291129659",
+        "positionY": "-476.4138454087183"
+      },
+      "parameters": {
+        "description": {
+          "value": "string concat, equals fail"
+        },
+        "condition": {
+          "link": {
+            "nodeId": "22edba4a-39a6-4150-b92f-5d0b5f568f30",
+            "socket": "result"
+          }
+        }
+      },
+      "flows": {
+        "flow": {
+          "nodeId": "0faecdd8-e2ad-4852-8c59-81d5465d43ef",
+          "socket": "flow"
+        }
+      }
+    },
+    {
+      "id": "0359635f-0467-42be-b6a2-5360459e68e0",
+      "type": "logic/string/constant",
+      "metadata": {
+        "positionX": "-344.73118768718484",
+        "positionY": "-251.67322470860964"
+      },
+      "parameters": {
+        "a": {
+          "value": "world"
+        }
+      }
+    },
+    {
+      "id": "0914e491-ca97-4da6-a2f8-a73b22c69bfc",
+      "type": "logic/string/length",
+      "metadata": {
+        "positionX": "317.7127314787781",
+        "positionY": "-48.36745272180613"
+      },
+      "parameters": {
+        "a": {
+          "link": {
+            "nodeId": "ad36130c-0b02-4b27-8ff9-f62d6fde6757",
+            "socket": "result"
+          }
+        }
+      }
+    },
+    {
+      "id": "788db03e-d871-44d1-aff6-59ec35cc1391",
+      "type": "logic/string/includes",
+      "metadata": {
+        "positionX": "193.40288557273624",
+        "positionY": "-165.84733565125163"
+      },
+      "parameters": {
+        "b": {
+          "link": {
+            "nodeId": "ad36130c-0b02-4b27-8ff9-f62d6fde6757",
+            "socket": "result"
+          }
+        },
+        "a": {
+          "link": {
+            "nodeId": "233fc35a-3490-4492-8c99-0ff16c1f59f4",
+            "socket": "result"
+          }
+        }
+      }
+    },
+    {
+      "id": "22edba4a-39a6-4150-b92f-5d0b5f568f30",
+      "type": "math/string/compare/equal",
+      "metadata": {
+        "positionX": "69.5036708797595",
+        "positionY": "-284.4812047352705"
+      },
+      "parameters": {
+        "b": {
+          "link": {
+            "nodeId": "233fc35a-3490-4492-8c99-0ff16c1f59f4",
+            "socket": "result"
+          }
+        },
+        "a": {
+          "link": {
+            "nodeId": "5bf1892a-dd3f-4992-974c-38958a4eea13",
+            "socket": "result"
+          }
+        }
+      }
+    },
+    {
+      "id": "ad36130c-0b02-4b27-8ff9-f62d6fde6757",
+      "type": "logic/string/constant",
+      "metadata": {
+        "positionX": "-341.21163024201655",
+        "positionY": "-367.92016776604737"
+      },
+      "parameters": {
+        "a": {
+          "value": "hello"
+        }
+      }
+    },
+    {
+      "id": "5bf1892a-dd3f-4992-974c-38958a4eea13",
+      "type": "logic/string/concat",
+      "metadata": {
+        "positionX": "-88.37646444596339",
+        "positionY": "-338.15706275970297"
+      },
+      "parameters": {
+        "b": {
+          "link": {
+            "nodeId": "0359635f-0467-42be-b6a2-5360459e68e0",
+            "socket": "result"
+          }
+        },
+        "a": {
+          "link": {
+            "nodeId": "ad36130c-0b02-4b27-8ff9-f62d6fde6757",
+            "socket": "result"
+          }
+        }
+      }
+    },
+    {
+      "id": "0",
+      "type": "flow/lifecycle/onStart",
+      "metadata": {
+        "positionX": "-343.4733898615655",
+        "positionY": "-484.0929007700485"
+      },
+      "flows": {
+        "flow": {
+          "nodeId": "ed0570d7-1a06-42c9-b557-f67dad99b9a1",
+          "socket": "flow"
+        }
+      }
+    }
+  ],
+  "variables": [],
+  "customEvents": []
+}

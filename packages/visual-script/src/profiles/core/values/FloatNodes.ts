@@ -105,10 +105,17 @@ export const SquareRoot = makeInNOutFunctionDesc({
 })
 
 export const E = makeInNOutFunctionDesc({
-  name: 'math/float/mathConstant/e',
+  name: 'math/float/constant/e',
   label: '𝑒',
   out: 'float',
   exec: () => Math.E
+})
+
+export const Phi = makeInNOutFunctionDesc({
+  name: 'math/float/constant/phi',
+  label: 'Φ',
+  out: 'float',
+  exec: () => 1.6180339887 // phi value
 })
 
 export const Exp = makeInNOutFunctionDesc({
@@ -144,7 +151,7 @@ export const Log10 = makeInNOutFunctionDesc({
 })
 
 export const PI = makeInNOutFunctionDesc({
-  name: 'math/float/mathConstant/pi',
+  name: 'math/float/constant/pi',
   label: 'π',
   out: 'float',
   exec: () => Math.PI
@@ -252,7 +259,7 @@ export const Max = makeInNOutFunctionDesc({
 export const Clamp = makeInNOutFunctionDesc({
   name: 'math/float/precision/clamp',
   label: 'CLAMP',
-  in: ['float', 'float', 'float'],
+  in: [{ value: 'float' }, { min: 'float' }, { max: 'float' }],
   out: 'float',
   exec: (value: number, min: number, max: number) => (value < min ? min : value > max ? max : value)
 })
