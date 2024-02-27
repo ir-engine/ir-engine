@@ -121,5 +121,10 @@
     "validation-error": "Please input valid {{type}}",
     "login-error": "Failed to login"
   },
+  "multiEmailInput": {
+    "placeholder": "Type or paste email addresses and press `Enter`...",
+    "alreadyAdded": "{{email}} has already been added!",
+    "invalidEmail": "{{email}} is not a valid email address!"
+  },
   "exploreRedirect": "Explore Worlds"
 }

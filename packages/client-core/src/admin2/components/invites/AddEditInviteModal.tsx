@@ -73,7 +73,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
   const adminUsers = useFind(userPath, { query: { isGuest: false } }).data
   const patchInvite = useMutation(invitePath).patch
 
-  const emailRecipients = useHookstate([] as string[])
+  const emailRecipients = useHookstate(invite?.token ? [invite.token] : ([] as string[]))
   const inviteType = useHookstate<InviteTypeOptionsType>((invite?.inviteType as InviteTypeOptionsType) || 'new-user')
   const oneTimeInvite = useHookstate(invite?.deleteOnUse || false)
   const makeAdmin = useHookstate(invite?.makeAdmin || false)
@@ -148,7 +148,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
       return
     }
 
-    emailRecipients.value.map(async (email) => {
+    const sendInvitePromises = emailRecipients.value.map(async (email) => {
       const inviteData: InviteData = {
         token: email,
         inviteType: inviteType.value,
@@ -179,20 +179,22 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
         inviteData.endTime = toDateTimeSql(new Date(inviteEndTime.value))
       }
 
-      modalProcessing.set(true)
-
-      try {
-        if (invite?.id) {
-          await patchInvite(invite.id, inviteData)
-        } else {
-          await InviteService.sendInvite(inviteData, '' as InviteCode)
-        }
-        PopoverState.hidePopupover()
-      } catch (err) {
-        NotificationService.dispatchNotify(err.message, { variant: 'error' })
-        modalProcessing.set(false)
+      if (invite?.id) {
+        await patchInvite(invite.id, inviteData)
+      } else {
+        await InviteService.sendInvite(inviteData, '' as InviteCode)
       }
     })
+
+    modalProcessing.set(true)
+
+    try {
+      await Promise.all(sendInvitePromises)
+      PopoverState.hidePopupover()
+    } catch (err) {
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+      modalProcessing.set(false)
+    }
   }
 
   return (
@@ -209,7 +211,20 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
         <LoadingCircle className="w-[10vw]" />
       ) : (
         <div className="grid w-full gap-6">
-          <MultiEmailInput emailList={emailRecipients} />
+          {invite?.id ? (
+            <Input
+              label={t('admin:components.invite.recipients')}
+              value={emailRecipients[0].value}
+              onChange={() => {}}
+              disabled={true}
+            />
+          ) : (
+            <MultiEmailInput
+              emailList={emailRecipients}
+              label={t('admin:components.invite.recipients')}
+              error={errors.recipients.value}
+            />
+          )}
           <Select
             label={t('admin:components.invite.type')}
             options={inviteTypeOptions.map((type) => ({ name: t(`admin:components.invite.${type}`), value: type }))}
