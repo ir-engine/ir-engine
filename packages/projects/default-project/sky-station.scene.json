@@ -481,7 +481,7 @@
           "props": {
             "position": {
               "x": 49.5,
-              "y": 2,
+              "y": 3,
               "z": 0
             },
             "rotation": {
@@ -502,25 +502,6 @@
           "props": {
             "cast": true,
             "receive": true
-          }
-        },
-        {
-          "name": "collider",
-          "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": true,
-            "removeMesh": true,
-            "collisionLayer": 8,
-            "collisionMask": 2,
-            "restitution": 0,
-            "triggers": [
-              {
-                "onEnter": "teleport",
-                "onExit": null,
-                "target": ""
-              }
-            ]
           }
         },
         {
@@ -561,7 +542,7 @@
           "props": {
             "position": {
               "x": 15,
-              "y": 8,
+              "y": 9,
               "z": -5
             },
             "rotation": {
@@ -585,25 +566,6 @@
           }
         },
         {
-          "name": "collider",
-          "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": true,
-            "removeMesh": true,
-            "collisionLayer": 8,
-            "collisionMask": 2,
-            "restitution": 0,
-            "triggers": [
-              {
-                "onEnter": "teleport",
-                "onExit": null,
-                "target": ""
-              }
-            ]
-          }
-        },
-        {
           "name": "EE_portal",
           "props": {
             "location": "",
@@ -614,7 +576,7 @@
             "previewImageURL": "__$project$__/default-project/sky-station-Portal--%20Sky%20Station%20Interior.ktx2",
             "spawnPosition": {
               "x": 15,
-              "y": 8,
+              "y": 9,
               "z": -5
             },
             "spawnRotation": {
@@ -641,7 +603,7 @@
           "props": {
             "position": {
               "x": -60,
-              "y": 2,
+              "y": 3,
               "z": 0
             },
             "rotation": {
@@ -665,25 +627,6 @@
           }
         },
         {
-          "name": "collider",
-          "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": true,
-            "removeMesh": true,
-            "collisionLayer": 8,
-            "collisionMask": 2,
-            "restitution": 0,
-            "triggers": [
-              {
-                "onEnter": "teleport",
-                "onExit": null,
-                "target": ""
-              }
-            ]
-          }
-        },
-        {
           "name": "EE_portal",
           "props": {
             "location": "",
@@ -694,7 +637,7 @@
             "previewImageURL": "__$project$__/default-project/sky-station-Portal--%20Sky%20Station%20Exterior.ktx2",
             "spawnPosition": {
               "x": -60,
-              "y": 2,
+              "y": 3,
               "z": 0
             },
             "spawnRotation": {

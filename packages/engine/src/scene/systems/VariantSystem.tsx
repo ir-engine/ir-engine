@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { PresentationSystemGroup } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
@@ -37,7 +38,6 @@ import { InstancingComponent } from '../components/InstancingComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { VariantComponent } from '../components/VariantComponent'
 import { setInstancedMeshVariant, setMeshVariant, setModelVariant } from '../functions/loaders/VariantFunctions'
-import { SceneLoadingSystem } from './SceneLoadingSystem'
 
 const updateFrequency = 0.1
 let lastUpdate = 0
@@ -73,6 +73,6 @@ function execute() {
 
 export const VariantSystem = defineSystem({
   uuid: 'ee.engine.scene.VariantSystem',
-  insert: { with: SceneLoadingSystem },
+  insert: { after: PresentationSystemGroup },
   execute
 })
