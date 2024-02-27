@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import { useLayoutEffect } from 'react'
 import {
   BoxGeometry,
   CapsuleGeometry,
@@ -42,11 +42,12 @@ import {
   TorusKnotGeometry
 } from 'three'
 
-import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { Geometry } from '@etherealengine/engine/src/assets/constants/Geometry'
 import { NO_PROXY, useState } from '@etherealengine/hyperflux'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
@@ -54,7 +55,7 @@ import { GeometryTypeEnum } from '../constants/GeometryTypeEnum'
 
 export const PrimitiveGeometryComponent = defineComponent({
   name: 'PrimitiveGeometryComponent',
-  jsonID: 'primitive-geometry',
+  jsonID: 'EE_primitive_geometry',
 
   onInit: (entity) => {
     return {
@@ -127,14 +128,13 @@ function GeometryReactor() {
     currGeometry = argList ? new geometryType(...argList) : new geometryType()
     return currGeometry
   }
-  useEffect(() => {
+
+  useLayoutEffect(() => {
     geometryComponent.geometry.set(new BoxGeometry()) // set default geometry
     const material = new MeshLambertMaterial() // set material later
     mesh.set(new Mesh(geometryComponent.geometry.value, material))
-    mesh.value.name = `${entity}-primitive-geometry`
-    mesh.value.visible = true
-    mesh.value.updateMatrixWorld(true)
     addObjectToGroup(entity, mesh.value)
+    setComponent(entity, MeshComponent, mesh.value)
     setObjectLayers(mesh.value, ObjectLayers.Scene)
 
     return () => {
@@ -142,12 +142,12 @@ function GeometryReactor() {
     }
   }, [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!mesh) return
     mesh.value.geometry = geometryComponent.geometry.get(NO_PROXY)
   }, [geometryComponent.geometry])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const params = geometryComponent.geometryParams.get(NO_PROXY)
     let currentGeometry: Geometry
     // can we get the params for a geometry type before its initialized? that would simplify this

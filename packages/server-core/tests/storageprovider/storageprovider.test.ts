@@ -186,7 +186,7 @@ describe('storageprovider', () => {
       })
 
       after(async function () {
-        destroyEngine()
+        await destroyEngine()
         await providerAfterTest(provider, testFolderName)
       })
     })

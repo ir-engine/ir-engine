@@ -29,9 +29,9 @@ Ethereal Engine. All Rights Reserved.
 module.exports = {
   mode: 'jit',
   content: [
-    '../**/*.{js,jsx,ts,tsx}',
+    '../**/*.{ts,tsx}',
   ],
-  darkMode: "class",
+  darkMode: ["class", '[data-theme="dark"]'],
   important: true, // important in prod is must be
   theme: {
     extend: {
@@ -46,7 +46,13 @@ module.exports = {
         theme: {
           primary: "var(--bg-primary)",
           secondary: "var(--bg-secondary)",
-          highlight: "var(--bg-highlight)"
+          highlight: "var(--bg-highlight)",
+          surfaceMain: "var(--bg-surface-main)"
+        }
+      },
+      borderColor: {
+        theme: {
+          primary: "var(--border-primary)"
         }
       }
     }

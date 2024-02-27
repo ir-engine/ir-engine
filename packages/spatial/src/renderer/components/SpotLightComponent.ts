@@ -53,7 +53,7 @@ import { setVisibleComponent } from './VisibleComponent'
 
 export const SpotLightComponent = defineComponent({
   name: 'SpotLightComponent',
-  jsonID: 'spot-light',
+  jsonID: 'EE_spot_light',
 
   onInit: (entity) => {
     const light = new SpotLight()
@@ -111,9 +111,10 @@ export const SpotLightComponent = defineComponent({
 
     useEffect(() => {
       if (isMobileXRHeadset) return
-      addObjectToGroup(entity, light.light.value)
+      const lightObj = light.light.value
+      addObjectToGroup(entity, lightObj)
       return () => {
-        removeObjectFromGroup(entity, light.light.value)
+        removeObjectFromGroup(entity, lightObj)
       }
     }, [])
 

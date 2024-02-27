@@ -292,7 +292,6 @@
       "name": "Collider",
       "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
       "lbl-isTrigger": "Trigger",
-      "lbl-removeMesh": "Remove Mesh",
       "lbl-shape": "Shape",
       "lbl-type": "Body Type"
     },
@@ -680,6 +679,8 @@
       "info-useShadows": "Enables shadows",
       "lbl-csm": "Cascading Shadow Maps",
       "info-csm": "Enables cascading shadow maps.",
+      "lbl-csm-cascades": "Cascades",
+      "info-csm-cascades": "Smaller the size of the scene. More efficient to have less cascades.",
       "lbl-toneMapping": "Tone Mapping",
       "info-toneMapping": "Enables tone mapping on the scene renderer. Has no effect when a post processing is enabled.",
       "lbl-toneMappingExposure": "Tone Mapping Exposure",

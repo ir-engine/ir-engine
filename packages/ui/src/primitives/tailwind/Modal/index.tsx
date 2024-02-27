@@ -24,93 +24,62 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
+import { MdClose } from 'react-icons/md'
+import { twMerge } from 'tailwind-merge'
+import Button from '../Button'
+import Text from '../Text'
 
-/**
- * Interface for Modal props
- */
 export interface ModalProps {
-  /**
-   * The ID for the modal component, which can be used for referencing.
-   */
-  id?: string
-  /**
-   * The content to be rendered within the modal.
-   */
-  children?: ReactNode
-  /**
-   * The CSS class name to apply to the modal dialog.
-   */
-  className?: string
-
   title?: string
-
-  open: boolean
+  hideFooter?: boolean
+  className?: string
+  children: ReactNode
+  onClose?: () => void
+  onSubmit?: () => void
 }
 
-/**
- * A Modal component which displays its children within a dialog.
- * The dialog can be closed by clicking the close button.
- *
- * @param {ModalProps} props - The properties that define the Modal component.
- * @returns {JSX.Element} The rendered Modal component.
- */
-const Modal = (props: ModalProps): JSX.Element => {
-  const { id, children, className, title, open } = props
-
-  return open ? (
-    <>
-      <div className="fixed top-0 left-0 w-screen h-screen z-10 bg-gray-500 bg-opacity-75 transition-opacity px-16 py-24 lg:py-48 lg:px-96">
-        <div
-          className="rounded-xl drop-shadow-2xl"
-          style={{
-            // TODO: replace with bg-primary
-            backgroundColor: 'white'
-          }}
-        >
-          <div className="flex p-5 border-b-2 border-slate-200">
-            {title && <h3 className="text-center flex-1">{title}</h3>}
-            <button className="ml-auto">
-              <svg width="24px" height="24px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <g>
-                  <path fill="none" d="M0 0h24v24H0z" />
-                  <path d="M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z" />
-                </g>
-              </svg>
-            </button>
-          </div>
-
-          <div className="px-6 py-2 border-b-2 border-slate-200 rounded-xl">{children}</div>
-        </div>
-      </div>
-    </>
-  ) : (
-    <></>
+export const ModalHeader = ({ title, onClose }: { closeIcon?: boolean; title?: string; onClose?: () => void }) => {
+  return (
+    <div className="border-b-theme-primary relative flex items-center justify-center border-b px-6 py-5">
+      {title && <Text>{title}</Text>}
+      <Button
+        variant="outline"
+        className="absolute right-0 border-0 dark:bg-transparent dark:text-[#A3A3A3]"
+        startIcon={<MdClose />}
+        onClick={onClose}
+      />
+    </div>
   )
 }
 
-/**
- * Specifies the name of the component for debugging purposes.
- */
-Modal.displayName = 'Modal'
+export const ModalFooter = ({ onCancel, onSubmit }: { onCancel?: () => void; onSubmit?: () => void }) => {
+  const { t } = useTranslation()
+  return (
+    <div className="border-t-theme-primary grid grid-flow-col border-t px-6 py-5">
+      <Button variant="outline" onClick={onCancel}>
+        {t('common:components.cancel')}
+      </Button>
+      {onSubmit && (
+        <Button onClick={onSubmit} className="place-self-end">
+          {t('common:components.confirm')}
+        </Button>
+      )}
+    </div>
+  )
+}
 
-/**
- * Default properties for the Modal component.
- */
-Modal.defaultProps = {
-  /**
-   * Default value for the id is an empty string.
-   */
-  id: '',
-  /**
-   * Default value for the children is null.
-   */
-  children: null,
-  /**
-   * Default value for the className is an empty string.
-   */
-  className: '',
-
-  title: 'Test title'
+const Modal = ({ title, onClose, onSubmit, hideFooter, children, className }: ModalProps) => {
+  const twClassName = twMerge('relative max-h-full w-full max-w-2xl p-4', className)
+  return (
+    <div className={twClassName}>
+      <div className="bg-theme-primary relative rounded-lg shadow">
+        {onClose && <ModalHeader title={title} onClose={onClose} />}
+        <div className="w-full px-10 py-6">{children}</div>
+        {!hideFooter && <ModalFooter onCancel={onClose} onSubmit={onSubmit} />}
+      </div>
+    </div>
+  )
 }
 
 export default Modal

@@ -53,7 +53,7 @@ import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterat
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { Material, MathUtils, Mesh, Raycaster, Vector2 } from 'three'
+import { Material, Mesh, Raycaster, Vector2 } from 'three'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
@@ -102,8 +102,6 @@ export async function addMediaNode(
         )[0]
         if (!material) return
         if (materialIsRegistered(material)) material = materialFromId(material.uuid).material
-        const cacheKey = MathUtils.generateUUID()
-        material.customProgramCacheKey = () => cacheKey
         iterateObject3D(intersected.object, (mesh: Mesh) => {
           if (!mesh?.isMesh) return
           const src = getMaterialSource(mesh.material as Material)

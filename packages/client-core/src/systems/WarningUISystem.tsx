@@ -87,7 +87,7 @@ const WarningSystemXRUI = function () {
       <div xr-layer="true" className={'z-1'} style={{ zIndex: '-1', fontFamily: 'Roboto, sans-serif' }}>
         <div
           xr-layer="true"
-          className={'pl-6 pr-8 max-w-sm'}
+          className={'max-w-sm pl-6 pr-8'}
           style={{
             paddingLeft: '24px',
             paddingRight: '32px',
@@ -101,7 +101,7 @@ const WarningSystemXRUI = function () {
         >
           <div
             xr-layer="true"
-            className={'flex justify-space-between align-center'}
+            className={'justify-space-between align-center flex'}
             style={{
               display: 'flex',
               alignItems: 'center',

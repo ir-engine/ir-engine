@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import {
   NO_PROXY_STEALTH,
   defineAction,
@@ -212,6 +210,17 @@ export const MediasoupDataProducerConsumerState = defineState({
         state[networkID].set(none)
       }
     })
+  },
+
+  reactor: () => {
+    const networkIDs = useHookstate(getMutableState(MediasoupDataProducerConsumerState))
+    return (
+      <>
+        {networkIDs.keys.map((id: InstanceID) => (
+          <NetworkReactor key={id} networkID={id} />
+        ))}
+      </>
+    )
   }
 })
 
@@ -230,7 +239,7 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
     return () => {
       producerObject.close()
     }
-  }, [transportState, producerObjectState])
+  }, [transportState.value, producerObjectState.value])
 
   return null
 }
@@ -271,20 +280,3 @@ const NetworkReactor = (props: { networkID: InstanceID }) => {
     </>
   )
 }
-
-const reactor = () => {
-  const networkIDs = useHookstate(getMutableState(MediasoupDataProducerConsumerState))
-  return (
-    <>
-      {networkIDs.keys.map((id: InstanceID) => (
-        <NetworkReactor key={id} networkID={id} />
-      ))}
-    </>
-  )
-}
-
-export const MediasoupDataProducerConsumerStateSystem = defineSystem({
-  uuid: 'ee.engine.network.mediasoup.MediasoupDataProducerConsumerStateSystem',
-  insert: { after: PresentationSystemGroup },
-  reactor
-})

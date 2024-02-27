@@ -57,6 +57,7 @@ import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { MeshBVHComponent } from '../components/MeshBVHComponent'
 import { ModelComponent } from '../components/ModelComponent'
+import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
 
 export const parseECSData = (data: [string, any][]): ComponentJsonType[] => {
@@ -228,12 +229,20 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     name,
     components: []
   }
+
+  for (const component of eJson.components) {
+    if (ComponentJSONIDMap.has(component.name))
+      setComponent(objEntity, ComponentJSONIDMap.get(component.name)!, component.props)
+  }
   eJson.parent = getComponent(parentEntity, UUIDComponent)
   setComponent(objEntity, SceneObjectComponent)
   setComponent(objEntity, EntityTreeComponent, {
     parentEntity,
     uuid
   })
+
+  if (hasComponent(rootEntity, SceneAssetPendingTagComponent))
+    SceneAssetPendingTagComponent.addResource(objEntity, `${rootEntity}`)
 
   setComponent(objEntity, NameComponent, name)
   setComponent(objEntity, TransformComponent, {
@@ -268,10 +277,16 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   }
 
   const findColliderData = (obj: Object3D) => {
-    if (Object.keys(obj.userData).find((key) => key.startsWith('xrengine.collider'))) {
+    if (
+      Object.keys(obj.userData).find(
+        (key) => key.startsWith('xrengine.collider') || key.startsWith('xrengine.EE_collider')
+      )
+    ) {
       return true
     } else if (obj.parent) {
-      return Object.keys(obj.parent.userData).some((key) => key.startsWith('xrengine.collider'))
+      return Object.keys(obj.parent.userData).some(
+        (key) => key.startsWith('xrengine.collider') || key.startsWith('xrengine.EE_collider')
+      )
     }
     return false
   }

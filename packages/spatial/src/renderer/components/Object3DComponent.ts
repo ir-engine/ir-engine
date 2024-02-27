@@ -28,7 +28,7 @@ import { Object3D } from 'three'
 
 export const Object3DComponent = defineComponent({
   name: 'Object3D Component',
-  jsonID: 'object3d',
+  jsonID: 'EE_object3d',
 
   onInit: (entity) => null! as Object3D,
   onSet: (entity, component, object3d: Object3D) => {

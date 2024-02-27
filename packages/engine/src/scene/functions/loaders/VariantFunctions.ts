@@ -2,7 +2,12 @@ import { InstancedMesh, Material, Object3D, Vector3 } from 'three'
 
 import { DistanceFromCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 
-import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  ComponentType,
+  getComponent,
+  getMutableComponent,
+  getOptionalComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
@@ -47,6 +52,57 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+function getModelVariant(
+  entity: Entity,
+  variantComponent: ComponentType<typeof VariantComponent>,
+  modelComponent: ComponentType<typeof ModelComponent>
+): string | null {
+  if (variantComponent.heuristic === 'DEVICE') {
+    const targetDevice = isMobile || isMobileXRHeadset ? 'MOBILE' : 'DESKTOP'
+    //get model src to mobile variant src
+    const deviceVariant = variantComponent.levels.find((level) => level.metadata['device'] === targetDevice)
+    const modelRelativePath = pathResolver().exec(modelComponent.src)?.[2]
+    const deviceRelativePath = deviceVariant ? pathResolver().exec(deviceVariant.src)?.[2] : ''
+    if (deviceVariant && modelRelativePath !== deviceRelativePath) return deviceVariant.src
+  } else if (variantComponent.heuristic === 'DISTANCE') {
+    const distance = DistanceFromCameraComponent.squaredDistance[entity]
+    for (let i = 0; i < variantComponent.levels.length; i++) {
+      const level = variantComponent.levels[i]
+      if ([level.metadata['minDistance'], level.metadata['maxDistance']].includes(undefined)) continue
+      const minDistance = Math.pow(level.metadata['minDistance'], 2)
+      const maxDistance = Math.pow(level.metadata['maxDistance'], 2)
+      const useLevel = minDistance <= distance && distance <= maxDistance
+      if (useLevel && level.src) return level.src
+    }
+  }
+
+  return null
+}
+
+function getMeshVariant(entity: Entity, variantComponent: ComponentType<typeof VariantComponent>): string | null {
+  if (variantComponent.heuristic === 'DEVICE') {
+    const targetDevice = isMobileXRHeadset ? 'XR' : isMobile ? 'MOBILE' : 'DESKTOP'
+    //get model src to mobile variant src
+    const deviceVariant = variantComponent.levels.find((level) => level.metadata['device'] === targetDevice)
+    if (deviceVariant) return deviceVariant.src
+  }
+
+  return null
+}
+
+export function getVariant(entity?: Entity): string | null {
+  if (!entity) return null
+  const variantComponent = getOptionalComponent(entity, VariantComponent)
+  if (!variantComponent) return null
+
+  const modelComponent = getOptionalComponent(entity, ModelComponent)
+  const meshComponent = getOptionalComponent(entity, MeshComponent)
+
+  if (modelComponent) return getModelVariant(entity, variantComponent, modelComponent)
+  else if (meshComponent) return getMeshVariant(entity, variantComponent)
+  else return null
+}
+
 /**
  * Handles setting model src for model component based on variant component
  * @param entity
@@ -55,25 +111,9 @@ export function setModelVariant(entity: Entity) {
   const variantComponent = getMutableComponent(entity, VariantComponent)
   const modelComponent = getMutableComponent(entity, ModelComponent)
 
-  if (variantComponent.heuristic.value === 'DEVICE') {
-    const targetDevice = isMobile || isMobileXRHeadset ? 'MOBILE' : 'DESKTOP'
-    //set model src to mobile variant src
-    const deviceVariant = variantComponent.levels.find((level) => level.value.metadata['device'] === targetDevice)
-    const modelRelativePath = pathResolver().exec(modelComponent.src.value)?.[2]
-    const deviceRelativePath = deviceVariant ? pathResolver().exec(deviceVariant.src.value)?.[2] : ''
-    deviceVariant && modelRelativePath !== deviceRelativePath && modelComponent.src.set(deviceVariant.src.value)
-  } else if (variantComponent.heuristic.value === 'DISTANCE') {
-    const distance = DistanceFromCameraComponent.squaredDistance[entity]
-    for (let i = 0; i < variantComponent.levels.length; i++) {
-      const level = variantComponent.levels[i].value
-      if ([level.metadata['minDistance'], level.metadata['maxDistance']].includes(undefined)) continue
-      const minDistance = Math.pow(level.metadata['minDistance'], 2)
-      const maxDistance = Math.pow(level.metadata['maxDistance'], 2)
-      const useLevel = minDistance <= distance && distance <= maxDistance
-      useLevel && modelComponent.src.value !== level.src && modelComponent.src.set(level.src)
-      if (useLevel) break
-    }
-  }
+  const src = getModelVariant(entity, variantComponent.value, modelComponent.value)
+  if (src && modelComponent.src.value !== src) modelComponent.src.set(src)
+
   variantComponent.calculated.set(true)
 }
 
@@ -81,12 +121,9 @@ export function setMeshVariant(entity: Entity) {
   const variantComponent = getComponent(entity, VariantComponent)
   const meshComponent = getComponent(entity, MeshComponent)
 
-  if (variantComponent.heuristic === 'DEVICE') {
-    const targetDevice = isMobileXRHeadset ? 'XR' : isMobile ? 'MOBILE' : 'DESKTOP'
-    //set model src to mobile variant src
-    const deviceVariant = variantComponent.levels.find((level) => level.metadata['device'] === targetDevice)
-    if (!deviceVariant) return
-    AssetLoader.load(deviceVariant.src, {}, (gltf) => {
+  const src = getMeshVariant(entity, variantComponent)
+  if (src) {
+    AssetLoader.load(src, {}, (gltf) => {
       const mesh = getFirstMesh(gltf.scene)
       if (!mesh) return
       meshComponent.geometry = mesh.geometry

@@ -62,6 +62,7 @@ export interface System {
    * Defaults to 'variable'.
    */
   timeStep: number | 'variable'
+  /** @deprecated use defineState reactor instead */
   reactor?: FC
   insert?: InsertSystem
   preSystems: SystemUUID[]
@@ -91,6 +92,7 @@ export function executeSystem(systemUUID: SystemUUID) {
     executeSystem(system.preSystems[i])
   }
 
+  /** @todo when we fully remove deprecated system reactors in favour of state reactors, we can just wrap system.execute with flushSync */
   if (system.reactor && !getState(SystemState).activeSystemReactors.has(system.uuid)) {
     const reactor = startReactor(system.reactor)
     getState(SystemState).activeSystemReactors.set(system.uuid, reactor)
@@ -141,11 +143,11 @@ export function defineSystem(systemConfig: SystemArgs) {
 
   const system = {
     preSystems: [],
-    execute: () => {},
     subSystems: [],
     postSystems: [],
     sceneSystem: false,
     timeStep: 'variable',
+    execute: () => {},
     ...systemConfig,
     uuid: systemConfig.uuid as SystemUUID,
     enabled: false,

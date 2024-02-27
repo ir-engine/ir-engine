@@ -23,19 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RigidBody, RigidBodyType } from '@dimforge/rapier3d-compat'
+import { RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { Types } from 'bitecs'
 
+import { useEntityContext } from '@etherealengine/ecs'
 import {
   defineComponent,
-  getComponent,
   removeComponent,
-  setComponent
+  setComponent,
+  useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
 import { getState } from '@etherealengine/hyperflux'
+import { useLayoutEffect } from 'react'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
+import { Physics } from '../classes/Physics'
 import { PhysicsState } from '../state/PhysicsState'
+import { Body, BodyTypes } from '../types/PhysicsTypes'
 
 const { f64 } = Types
 const Vector3Schema = { x: f64, y: f64, z: f64 }
@@ -48,16 +51,21 @@ const SCHEMA = {
   targetKinematicPosition: Vector3Schema,
   targetKinematicRotation: QuaternionSchema,
   linearVelocity: Vector3Schema,
-  angularVelocity: Vector3Schema,
-  scale: Vector3Schema
+  angularVelocity: Vector3Schema
 }
 
 export const RigidBodyComponent = defineComponent({
   name: 'RigidBodyComponent',
+  jsonID: 'EE_rigidbody',
   schema: SCHEMA,
 
   onInit(entity) {
     return {
+      type: 'fixed' as Body,
+      ccd: false,
+      allowRolling: true,
+      enabledRotations: [true, true, true],
+      // internal
       body: null! as RigidBody,
       previousPosition: proxifyVector3(this.previousPosition, entity),
       previousRotation: proxifyQuaternion(this.previousRotation, entity),
@@ -67,66 +75,112 @@ export const RigidBodyComponent = defineComponent({
       targetKinematicRotation: proxifyQuaternion(this.targetKinematicRotation, entity),
       linearVelocity: proxifyVector3(this.linearVelocity, entity),
       angularVelocity: proxifyVector3(this.angularVelocity, entity),
-      scale: proxifyVector3(this.scale, entity),
       /** If multiplier is 0, ridigbody moves immediately to target pose, linearly interpolating between substeps */
       targetKinematicLerpMultiplier: 0
     }
   },
 
-  onSet: (entity, component, json: { body: RigidBody }) => {
-    if (typeof json.body === 'object') component.body.set(json.body as RigidBody)
-    else throw new Error('RigidBodyComponent expects a RigidBody instance')
+  onSet: (entity, component, json) => {
+    if (!json) return
+
+    if (typeof json.type === 'string') component.type.set(json.type)
+    if (typeof json.ccd === 'boolean') component.ccd.set(json.ccd)
+    if (typeof json.allowRolling === 'boolean') component.allowRolling.set(json.allowRolling)
+    if (Array.isArray(json.enabledRotations) && json.enabledRotations.length === 3)
+      component.enabledRotations.set(json.enabledRotations)
   },
 
-  onRemove: (entity, component) => {
-    const world = getState(PhysicsState).physicsWorld
-    const rigidBody = component.body.value
-    if (rigidBody) {
-      const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())
-      if (world.bodies.contains(rigidBody.handle)) {
-        world.removeRigidBody(rigidBody)
-      }
-      removeComponent(entity, RigidBodyTypeTagComponent)
+  toJSON: (entity, component) => {
+    return {
+      type: component.type.value as Body,
+      ccd: component.ccd.value,
+      allowRolling: component.allowRolling.value,
+      enabledRotations: component.enabledRotations.value
     }
+  },
+
+  reactor: function () {
+    const entity = useEntityContext()
+    const component = useComponent(entity, RigidBodyComponent)
+
+    useLayoutEffect(() => {
+      let rigidBodyDesc: RigidBodyDesc = undefined!
+      switch (component.type.value) {
+        case 'fixed':
+        default:
+          rigidBodyDesc = RigidBodyDesc.fixed()
+          break
+
+        case 'dynamic':
+          rigidBodyDesc = RigidBodyDesc.dynamic()
+          break
+
+        case 'kinematic':
+          rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
+          break
+      }
+
+      const world = getState(PhysicsState).physicsWorld
+      const rigidBody = Physics.createRigidBody(entity, world, rigidBodyDesc)
+      component.body.set(rigidBody)
+
+      return () => {
+        const world = getState(PhysicsState).physicsWorld
+        if (world.bodies.contains(rigidBody.handle)) {
+          world.removeRigidBody(rigidBody)
+        }
+      }
+    }, [])
+
+    useLayoutEffect(() => {
+      const type = component.type.value
+      setComponent(entity, getTagComponentForRigidBody(type))
+      Physics.setRigidBodyType(entity, type)
+      return () => {
+        removeComponent(entity, getTagComponentForRigidBody(type))
+      }
+    }, [component.type])
+
+    useLayoutEffect(() => {
+      const rigidBody = component.body.value
+      rigidBody.enableCcd(component.ccd.value)
+    }, [component.ccd])
+
+    useLayoutEffect(() => {
+      const rigidBody = component.body.value
+      rigidBody.lockRotations(component.allowRolling.value, false)
+    }, [component.allowRolling])
+
+    useLayoutEffect(() => {
+      const rigidBody = component.body.value
+      rigidBody.setEnabledRotations(
+        component.enabledRotations.value[0],
+        component.enabledRotations.value[1],
+        component.enabledRotations.value[2],
+        false
+      )
+    }, [component.enabledRotations])
+
+    return null
   }
 })
 
 export const RigidBodyDynamicTagComponent = defineComponent({ name: 'RigidBodyDynamicTagComponent' })
 export const RigidBodyFixedTagComponent = defineComponent({ name: 'RigidBodyFixedTagComponent' })
-export const RigidBodyKinematicPositionBasedTagComponent = defineComponent({
-  name: 'RigidBodyKinematicPositionBasedTagComponent'
-})
-export const RigidBodyKinematicVelocityBasedTagComponent = defineComponent({
-  name: 'RigidBodyKinematicVelocityBasedTagComponent'
-})
+export const RigidBodyKinematicTagComponent = defineComponent({ name: 'RigidBodyKinematicTagComponent' })
 
 type RigidBodyTypes =
   | typeof RigidBodyDynamicTagComponent
   | typeof RigidBodyFixedTagComponent
-  | typeof RigidBodyKinematicPositionBasedTagComponent
-  | typeof RigidBodyKinematicVelocityBasedTagComponent
+  | typeof RigidBodyKinematicTagComponent
 
-export const getTagComponentForRigidBody = (type: RigidBodyType): RigidBodyTypes => {
+export const getTagComponentForRigidBody = (type: Body): RigidBodyTypes => {
   switch (type) {
-    case RigidBodyType.Dynamic:
+    case BodyTypes.Dynamic:
       return RigidBodyDynamicTagComponent
-
-    case RigidBodyType.Fixed:
+    case BodyTypes.Fixed:
       return RigidBodyFixedTagComponent
-
-    case RigidBodyType.KinematicPositionBased:
-      return RigidBodyKinematicPositionBasedTagComponent
-
-    case RigidBodyType.KinematicVelocityBased:
-      return RigidBodyKinematicVelocityBasedTagComponent
+    case BodyTypes.Kinematic:
+      return RigidBodyKinematicTagComponent
   }
-}
-
-export const setRigidBodyType = (entity: Entity, type: RigidBodyType) => {
-  const rigidbody = getComponent(entity, RigidBodyComponent)
-  const oldTypeTag = getTagComponentForRigidBody(rigidbody.body.bodyType())
-  removeComponent(entity, oldTypeTag)
-  rigidbody.body.setBodyType(type, false)
-  const typeTag = getTagComponentForRigidBody(type)
-  setComponent(entity, typeTag)
 }

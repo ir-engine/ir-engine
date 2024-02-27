@@ -27,13 +27,13 @@ import { useEffect } from 'react'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { PresentationSystemGroup } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { XRLightProbeState } from '@etherealengine/spatial/src/xr/XRLightProbeSystem'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { Texture } from 'three'
-import { SceneLoadingSystem } from './SceneLoadingSystem'
 
 const reactor = () => {
   const background = useHookstate(getMutableState(SceneState).background)
@@ -64,6 +64,6 @@ const reactor = () => {
 
 export const EnvironmentSystem = defineSystem({
   uuid: 'ee.engine.EnvironmentSystem',
-  insert: { with: SceneLoadingSystem },
+  insert: { after: PresentationSystemGroup },
   reactor
 })

@@ -11,6 +11,7 @@
     z-index: 11;
     box-shadow: 0 2px 10px 0 #11111159;
     overflow: hidden;
+    position: relative;
 
     img {
       margin: 0 auto;
@@ -102,7 +103,7 @@
     text-overflow: ellipsis;
     font-family: var(--lato);
     font-size: 12px;
-
+    
   }
 
   .border-lit {
@@ -416,4 +417,18 @@
   &:hover {
     background: rgb(0 0 0 / 15%);
   }
+}
+
+.canvas-container {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.canvas-rotate {
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+  -moz-transform: rotateY(180deg);
 }
