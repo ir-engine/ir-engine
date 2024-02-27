@@ -217,11 +217,11 @@ describe('Physics', () => {
     const physicsWorld = getState(PhysicsState).physicsWorld
 
     const entity = createEntity()
-    setComponent(entity, TransformComponent, { position: new Vector3(10, 0, 0), scale: new Vector3(5, 5, 5) })
+    setComponent(entity, TransformComponent, { position: new Vector3(10, 0, 0), scale: new Vector3(10, 10, 10) })
     computeTransformMatrix(entity)
     setComponent(entity, RigidBodyComponent, { type: BodyTypes.Fixed })
     setComponent(entity, ColliderComponent, {
-      shape: Shapes.Cylinder,
+      shape: Shapes.Box,
       collisionLayer: CollisionGroups.Default,
       collisionMask: CollisionGroups.Default
     })

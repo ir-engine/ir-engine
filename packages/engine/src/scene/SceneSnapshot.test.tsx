@@ -30,13 +30,7 @@ import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
 import { SceneSnapshotAction, SceneSnapshotSystem, SceneState } from '@etherealengine/engine/src/scene/Scene'
-import {
-  ReactorReconciler,
-  applyIncomingActions,
-  dispatchAction,
-  getMutableState,
-  getState
-} from '@etherealengine/hyperflux'
+import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { EventDispatcher } from '@etherealengine/spatial/src/common/classes/EventDispatcher'
@@ -45,8 +39,9 @@ import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsS
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import assert from 'assert'
 
-import { SystemState } from '@etherealengine/ecs/src/SystemState'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { act, render } from '@testing-library/react'
+import React from 'react'
 import { EditorControlFunctions } from '../../../editor/src/functions/EditorControlFunctions'
 import testSceneJson from '../../tests/assets/SceneLoadingTest.scene.json'
 import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
@@ -94,13 +89,18 @@ describe('Snapshots', () => {
     return destroyEngine()
   })
 
+  const SceneReactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
+  const sceneTag = <SceneReactor />
+
   it('create snapshot', async () => {
     getMutableState(SceneState).activeScene.set(testID)
 
     // init
     SceneState.loadScene(testID, testScene)
     applyIncomingActions()
-    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
+
+    const { rerender, unmount } = render(sceneTag)
+    await act(() => rerender(sceneTag))
 
     // assertions
     const rootEntity = SceneState.getRootEntity(testID)
@@ -218,12 +218,15 @@ describe('Snapshots', () => {
     dispatchAction(SceneSnapshotAction.createSnapshot(expectedSnapshot))
 
     applyIncomingActions()
-    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
+
+    await act(() => rerender(sceneTag))
 
     SystemDefinitions.get(SceneSnapshotSystem)!.execute()
 
     const actualSnapShot = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
     assert.deepStrictEqual(actualSnapShot, expectedSnapshot, 'Snapshots do not match')
+
+    unmount()
   })
 
   it('undo snapshot', async () => {
@@ -232,7 +235,8 @@ describe('Snapshots', () => {
     // init
     SceneState.loadScene(testID, testScene)
     applyIncomingActions()
-    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
+    const { rerender, unmount } = render(sceneTag)
+    await act(() => rerender(sceneTag))
 
     // assertions
     const rootEntity = SceneState.getRootEntity(testID)
@@ -339,7 +343,7 @@ describe('Snapshots', () => {
 
     applyIncomingActions()
     SystemDefinitions.get(SceneSnapshotSystem)!.execute()
-    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
+    await act(() => rerender(sceneTag))
 
     assert.equal(
       UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID),
@@ -350,12 +354,14 @@ describe('Snapshots', () => {
     dispatchAction(SceneSnapshotAction.undo({ count: 1, sceneID: getState(SceneState).activeScene! }))
     applyIncomingActions()
     SystemDefinitions.get(SceneSnapshotSystem)!.execute()
-    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
+    await act(() => rerender(sceneTag))
 
     // wait again
     const undoSnap = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
 
     assert.deepStrictEqual(oldSnap, undoSnap, 'Snapshots do not match')
+
+    unmount()
   })
 
   it('redo snapshot', async () => {
@@ -365,7 +371,8 @@ describe('Snapshots', () => {
     // init
     SceneState.loadScene(testID, testScene)
     applyIncomingActions()
-    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
+    const { rerender, unmount } = render(sceneTag)
+    await act(() => rerender(sceneTag))
 
     // assertions
     const rootEntity = SceneState.getRootEntity(testID)
@@ -472,7 +479,7 @@ describe('Snapshots', () => {
     EditorControlFunctions.removeObject([child2_1Entity])
     applyIncomingActions()
     SystemDefinitions.get(SceneSnapshotSystem)!.execute()
-    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
+    await act(() => rerender(sceneTag))
 
     // wait somehow
     const newSnap = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
@@ -486,7 +493,7 @@ describe('Snapshots', () => {
     dispatchAction(SceneSnapshotAction.undo({ count: 1, sceneID: getState(SceneState).activeScene! }))
     applyIncomingActions()
     SystemDefinitions.get(SceneSnapshotSystem)!.execute()
-    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
+    await act(() => rerender(sceneTag))
 
     // wait again
     const undoSnap = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
@@ -495,10 +502,12 @@ describe('Snapshots', () => {
     dispatchAction(SceneSnapshotAction.redo({ count: 1, sceneID: getState(SceneState).activeScene! }))
     applyIncomingActions()
     SystemDefinitions.get(SceneSnapshotSystem)!.execute()
-    ReactorReconciler.flushSync(() => getState(SystemState).activeSystemReactors.get(SceneLoadingSystem)!.run())
+    await act(() => rerender(sceneTag))
 
     const redoSnap = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
 
     assert.deepStrictEqual(newSnap, redoSnap, 'redo Snapshots do not match')
+
+    unmount()
   })
 })
