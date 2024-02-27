@@ -48,9 +48,13 @@ import { EngineState } from '../../EngineState'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { HighlightState } from '../HighlightState'
-import { PerformanceState } from '../PerformanceState'
 import { RendererState } from '../RendererState'
-import { EffectComposerWithSchema, EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
+import {
+  EffectComposerWithSchema,
+  EngineRenderer,
+  PostProcessingSettingsState,
+  RenderSettingsState
+} from '../WebGLRendererSystem'
 import { EffectMap, EffectPropsSchema, Effects } from '../effects/PostProcessing'
 import { SDFSettingsState } from '../effects/sdf/SDFSettingsState'
 import { SDFShader } from '../effects/sdf/SDFShader'
@@ -84,7 +88,7 @@ export const configureEffectComposer = (
 
   const effects: any[] = []
 
-  const smaaPreset = getState(PerformanceState).smaaPreset
+  const smaaPreset = getState(RenderSettingsState).smaaPreset
   const smaaEffect = new SMAAEffect({
     preset: smaaPreset,
     edgeDetectionMode: EdgeDetectionMode.COLOR

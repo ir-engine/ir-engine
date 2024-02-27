@@ -24,10 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { profile } from '@etherealengine/ecs/src/Timer'
-import { modelVariantQuery } from '@etherealengine/engine/src/scene/systems/VariantSystem'
 import { defineState, getMutableState, useMutableState } from '@etherealengine/hyperflux'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { EngineRenderer, RenderSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { getGPUTier } from 'detect-gpu'
 import { SMAAPreset } from 'postprocessing'
 import { useEffect } from 'react'
@@ -50,7 +49,6 @@ export const PerformanceState = defineState({
   name: 'PerformanceState',
   initial: () => ({
     tier: 0,
-    smaaPreset: SMAAPreset.MEDIUM,
     isMobileGPU: false as boolean | undefined,
     budgets: {
       maxTextureSize: 0,
@@ -69,7 +67,6 @@ export const PerformanceState = defineState({
     const performanceState = useMutableState(PerformanceState)
     useEffect(() => {
       const performanceTier = performanceState.tier.value
-      console.log('PerformanceState: performanceTier changed: ' + performanceTier)
       let smaaPreset
       switch (performanceTier) {
         case 0:
@@ -92,7 +89,7 @@ export const PerformanceState = defineState({
           break
       }
 
-      performanceState.smaaPreset.set(smaaPreset)
+      getMutableState(RenderSettingsState).smaaPreset.set(smaaPreset)
     }, [performanceState.tier])
   }
 })
@@ -274,8 +271,6 @@ export const incrementPerformance = () => {
   console.log('PerformanceState: Incrementing Performance')
   const performanceState = getMutableState(PerformanceState)
   performanceState.tier.set(Math.max(performanceState.tier.value + 1, 5))
-
-  const entities = modelVariantQuery()
 }
 
 export const decrementPerformance = () => {

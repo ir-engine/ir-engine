@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import '../threejsPatches'
 
-import { EffectComposer, NormalPass, RenderPass } from 'postprocessing'
+import { EffectComposer, NormalPass, RenderPass, SMAAPreset } from 'postprocessing'
 import { useEffect } from 'react'
 import {
   LinearToneMapping,
@@ -53,7 +53,7 @@ import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlug
 import { ObjectLayers } from '../renderer/constants/ObjectLayers'
 import { WebXRManager, createWebXRManager } from '../xr/WebXRManager'
 import { XRState } from '../xr/XRState'
-import { PerformanceState, decrementPerformance, incrementPerformance } from './PerformanceState'
+import { decrementPerformance, incrementPerformance } from './PerformanceState'
 import { RendererState } from './RendererState'
 import WebGL from './THREE.WebGL'
 import { EffectMapType, defaultPostProcessingSchema } from './effects/PostProcessing'
@@ -295,7 +295,8 @@ export const RenderSettingsState = defineState({
     cascades: 5,
     toneMapping: LinearToneMapping as ToneMapping,
     toneMappingExposure: 0.8,
-    shadowMapType: PCFSoftShadowMap as ShadowMapType
+    shadowMapType: PCFSoftShadowMap as ShadowMapType,
+    smaaPreset: SMAAPreset.MEDIUM
   }
 })
 
@@ -321,7 +322,6 @@ const reactor = () => {
   const postprocessing = useHookstate(getMutableState(PostProcessingSettingsState))
   const xrState = useHookstate(getMutableState(XRState))
   const sdfState = useHookstate(getMutableState(SDFSettingsState))
-  const performanceState = useHookstate(getMutableState(PerformanceState))
 
   useEffect(() => {
     EngineRenderer.instance.renderer.toneMapping = renderSettings.toneMapping.value
@@ -343,7 +343,7 @@ const reactor = () => {
     postprocessing.effects,
     sdfState.enabled,
     engineRendererSettings.usePostProcessing,
-    performanceState.smaaPreset
+    renderSettings.smaaPreset
   ])
 
   useEffect(() => {
