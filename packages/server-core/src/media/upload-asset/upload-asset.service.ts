@@ -208,7 +208,7 @@ const uploadAssets = (app: Application) => async (data: AssetUploadType, params:
 }
 
 export const createStaticResourceHash = (file: Buffer | string) => {
-  return createHash('sha-256').update(file).digest('hex')
+  return createHash('sha3-256').update(file).digest('hex')
 }
 
 /**
