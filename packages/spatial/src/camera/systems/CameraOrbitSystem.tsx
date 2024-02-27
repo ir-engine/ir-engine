@@ -34,7 +34,6 @@ import {
   hasComponent,
   setComponent
 } from '@etherealengine/ecs'
-import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
@@ -43,6 +42,7 @@ import {
   CameraOrbitComponent
 } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import obj3dFromUuid from '@etherealengine/spatial/src/common/functions/obj3dFromUuid'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'

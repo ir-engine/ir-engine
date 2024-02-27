@@ -60,7 +60,6 @@ import { useEffect } from 'react'
 import matches, { Validator } from 'ts-matches'
 import { SourceComponent } from './components/SourceComponent'
 import { migrateOldColliders } from './functions/migrateOldColliders'
-import { migrateOldComponents } from './functions/migrateOldComponents'
 import { serializeEntity } from './functions/serializeWorld'
 
 export interface SceneSnapshotInterface {
@@ -142,7 +141,6 @@ export const SceneState = defineState({
     if (getState(SceneState).activeScene === sceneID) {
       for (const [uuid, entityJson] of Object.entries(data.entities)) {
         migrateOldColliders(entityJson)
-        migrateOldComponents(entityJson)
       }
     }
 
@@ -230,9 +228,7 @@ export const SceneState = defineState({
     const snapshot = state.snapshots[state.index]
 
     if (snapshot.data) {
-      getMutableState(SceneState).merge({
-        sceneLoading: true
-      })
+      getMutableState(SceneState).sceneLoading.set(true)
     }
     // if (snapshot.selectedEntities)
     //   SelectionState.updateSelection(snapshot.selectedEntities.map((uuid) => UUIDComponent.getEntityByUUID(uuid) ?? uuid))
@@ -244,9 +240,9 @@ export const SceneServices = {
     Engine.instance.api
       .service(scenePath)
       .get('' as SceneID, { query: { sceneKey: sceneID } })
-      .then((sceneData) => {
+      .then((sceneData: SceneDataType) => {
         getMutableState(SceneState).activeScene.set(sceneID)
-        SceneState.loadScene(sceneID, sceneData as SceneDataType)
+        SceneState.loadScene(sceneID, sceneData)
       })
 
     return () => {
@@ -340,7 +336,12 @@ const reactor = () => {
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
 
   useEffect(() => {
-    if (!activeScene.value || getState(SceneState).scenes[activeScene.value].snapshots.length) return
+    if (
+      !activeScene.value ||
+      !getState(SceneState).scenes[activeScene.value] ||
+      getState(SceneState).scenes[activeScene.value].snapshots.length
+    )
+      return
     SceneState.resetHistory(activeScene.value)
   }, [activeScene])
 

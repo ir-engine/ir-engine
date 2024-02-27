@@ -238,6 +238,11 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     name,
     components: []
   }
+
+  for (const component of eJson.components) {
+    if (ComponentJSONIDMap.has(component.name))
+      setComponent(objEntity, ComponentJSONIDMap.get(component.name)!, component.props)
+  }
   eJson.parent = getComponent(parentEntity, UUIDComponent)
   setComponent(objEntity, SceneObjectComponent)
   setComponent(objEntity, EntityTreeComponent, {
