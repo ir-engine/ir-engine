@@ -329,8 +329,12 @@ function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptio
   return meshesToRemove
 }
 
-function createColliderAndAttachToRigidBody(world: World, colliderDesc: ColliderDesc, rigidBody: RigidBody): Collider {
+function attachCollider(world: World, colliderDesc: ColliderDesc, rigidBody: RigidBody): Collider {
   return world.createCollider(colliderDesc, rigidBody)
+}
+
+function removeCollider(world: World, collider: Collider) {
+  world.removeCollider(collider, false)
 }
 
 function createCharacterController(
@@ -357,7 +361,7 @@ function removeCollidersFromRigidBody(entity: Entity, world: World) {
   const numColliders = rigidBody.numColliders()
   for (let index = 0; index < numColliders; index++) {
     const collider = rigidBody.collider(index)
-    world.removeCollider(collider, true)
+    world.removeCollider(collider, false)
   }
 }
 
@@ -565,7 +569,8 @@ export const Physics = {
   applyDescToCollider,
   createRigidBodyForGroup,
   createCharacterController,
-  createColliderAndAttachToRigidBody,
+  attachCollider,
+  removeCollider,
   removeCollidersFromRigidBody,
   setRigidBodyType,
   castRay,
