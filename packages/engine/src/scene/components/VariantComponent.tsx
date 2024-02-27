@@ -42,6 +42,7 @@ import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/M
 import { DistanceFromCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { setInstancedMeshVariant } from '../functions/loaders/VariantFunctions'
 import { InstancingComponent } from './InstancingComponent'
+import { ModelComponent } from './ModelComponent'
 
 export type VariantLevel = {
   src: string
@@ -71,8 +72,8 @@ export const VariantComponent = defineComponent({
     levels: [] as VariantLevel[],
     heuristic: Heuristic.MANUAL,
     useDistance: false,
-    calculated: false,
-    currentLevel: 0
+    currentLevel: 0,
+    budgetLevel: 0
   }),
 
   onSet: (entity, component, json) => {
@@ -99,9 +100,10 @@ export const VariantComponent = defineComponent({
       }
       component.levels.set(json.levels)
     }
-    if (typeof json.calculated === 'boolean') component.calculated.set(json.calculated)
+
     if (typeof json.useDistance === 'boolean') component.useDistance.set(json.useDistance)
     if (typeof json.currentLevel === 'number') component.currentLevel.set(json.currentLevel)
+    if (typeof json.budgetLevel === 'number') component.currentLevel.set(json.budgetLevel)
   },
 
   toJSON: (entity, component) => ({
@@ -121,9 +123,22 @@ export const VariantComponent = defineComponent({
 function VariantReactor(): ReactElement {
   const entity = useEntityContext()
   const variantComponent = useComponent(entity, VariantComponent)
+  const modelComponent = useOptionalComponent(entity, ModelComponent)
   const meshComponent = getOptionalComponent(entity, MeshComponent)
 
-  useEffect(() => {}, [variantComponent.currentLevel])
+  useEffect(() => {
+    const currentLevel = variantComponent.currentLevel.value
+    let src: string | undefined = undefined
+    if (variantComponent.heuristic.value === Heuristic.BUDGET) {
+      if (currentLevel >= variantComponent.budgetLevel.value) {
+        src = variantComponent.levels[currentLevel].src.value
+      }
+    } else {
+      src = variantComponent.levels[currentLevel].src.value
+    }
+
+    if (src && modelComponent && modelComponent.src.value !== src) modelComponent.src.set(src)
+  }, [variantComponent.currentLevel])
 
   useEffect(() => {
     if (distanceBased(variantComponent.value) && meshComponent) {

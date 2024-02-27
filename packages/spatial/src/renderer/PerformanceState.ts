@@ -24,7 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { profile } from '@etherealengine/ecs/src/Timer'
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { modelVariantQuery } from '@etherealengine/engine/src/scene/systems/VariantSystem'
+import { defineState, getMutableState, useMutableState } from '@etherealengine/hyperflux'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { getGPUTier } from 'detect-gpu'
@@ -65,9 +66,10 @@ export const PerformanceState = defineState({
     }
   }),
   reactor: () => {
-    const performanceState = getMutableState(PerformanceState)
+    const performanceState = useMutableState(PerformanceState)
     useEffect(() => {
       const performanceTier = performanceState.tier.value
+      console.log('PerformanceState: performanceTier changed: ' + performanceTier)
       let smaaPreset
       switch (performanceTier) {
         case 0:
@@ -266,6 +268,20 @@ const chechAlphaRender = (renderer: EngineRenderer, onFinished: () => void) => {
 
     onFinished()
   })
+}
+
+export const incrementPerformance = () => {
+  console.log('PerformanceState: Incrementing Performance')
+  const performanceState = getMutableState(PerformanceState)
+  performanceState.tier.set(Math.max(performanceState.tier.value + 1, 5))
+
+  const entities = modelVariantQuery()
+}
+
+export const decrementPerformance = () => {
+  console.log('PerformanceState: Decrementing Performance')
+  const performanceState = getMutableState(PerformanceState)
+  performanceState.tier.set(Math.min(performanceState.tier.value - 1))
 }
 
 export const buildPerformanceState = async (renderer: EngineRenderer, onFinished: () => void) => {

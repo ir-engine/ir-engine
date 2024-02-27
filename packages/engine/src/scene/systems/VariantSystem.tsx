@@ -42,9 +42,14 @@ import { SceneLoadingSystem } from './SceneLoadingSystem'
 const updateFrequency = 0.1
 let lastUpdate = 0
 
-const modelVariantQuery = defineQuery([VariantComponent, ModelComponent, TransformComponent])
-const meshVariantQuery = defineQuery([VariantComponent, MeshComponent, TransformComponent, Not(InstancingComponent)])
-const instancedMeshVariantQuery = defineQuery([
+export const modelVariantQuery = defineQuery([VariantComponent, ModelComponent, TransformComponent])
+export const meshVariantQuery = defineQuery([
+  VariantComponent,
+  MeshComponent,
+  TransformComponent,
+  Not(InstancingComponent)
+])
+export const instancedMeshVariantQuery = defineQuery([
   VariantComponent,
   MeshComponent,
   TransformComponent,

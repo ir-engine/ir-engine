@@ -6,10 +6,12 @@ import {
   ComponentType,
   getComponent,
   getMutableComponent,
-  getOptionalComponent
+  getOptionalMutableComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { State, getState } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import {
@@ -52,31 +54,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-function getModelVariant(
+function updateModelVariant(
   entity: Entity,
-  variantComponent: ComponentType<typeof VariantComponent>,
-  modelComponent: ComponentType<typeof ModelComponent>
-): string | null {
-  if (variantComponent.heuristic === Heuristic.DEVICE) {
+  variantComponent: State<ComponentType<typeof VariantComponent>>,
+  modelComponent: State<ComponentType<typeof ModelComponent>>
+) {
+  if (variantComponent.heuristic.value === Heuristic.DEVICE) {
     const targetDevice = isMobile || isMobileXRHeadset ? 'MOBILE' : 'DESKTOP'
     //get model src to mobile variant src
-    const deviceVariant = variantComponent.levels.find((level) => level.metadata['device'] === targetDevice)
-    const modelRelativePath = pathResolver().exec(modelComponent.src)?.[2]
-    const deviceRelativePath = deviceVariant ? pathResolver().exec(deviceVariant.src)?.[2] : ''
-    if (deviceVariant && modelRelativePath !== deviceRelativePath) return deviceVariant.src
-  } else if (distanceBased(variantComponent)) {
+    const levelIndex = variantComponent.levels.findIndex((level) => level.metadata['device'] === targetDevice)
+    const deviceVariant = variantComponent.levels[levelIndex]
+    const modelRelativePath = pathResolver().exec(modelComponent.src.value)?.[2]
+    const deviceRelativePath = deviceVariant ? pathResolver().exec(deviceVariant.src.value)?.[2] : ''
+    if (deviceVariant && modelRelativePath !== deviceRelativePath) {
+      variantComponent.currentLevel.set(levelIndex)
+    }
+  } else if (distanceBased(variantComponent.value)) {
     const distance = DistanceFromCameraComponent.squaredDistance[entity]
     for (let i = 0; i < variantComponent.levels.length; i++) {
-      const level = variantComponent.levels[i]
+      const level = variantComponent.levels[i].value
       if ([level.metadata['minDistance'], level.metadata['maxDistance']].includes(undefined)) continue
       const minDistance = Math.pow(level.metadata['minDistance'], 2)
       const maxDistance = Math.pow(level.metadata['maxDistance'], 2)
       const useLevel = minDistance <= distance && distance <= maxDistance
-      if (useLevel && level.src) return level.src
+      if (useLevel && level.src) {
+        variantComponent.currentLevel.set(i)
+        return
+      }
     }
   }
-
-  return null
 }
 
 function getMeshVariant(entity: Entity, variantComponent: ComponentType<typeof VariantComponent>): string | null {
@@ -90,17 +96,13 @@ function getMeshVariant(entity: Entity, variantComponent: ComponentType<typeof V
   return null
 }
 
-export function getVariant(entity?: Entity): string | null {
-  if (!entity) return null
-  const variantComponent = getOptionalComponent(entity, VariantComponent)
+export function updateVariant(entity?: Entity) {
+  if (!entity || getState(EngineState).isEditing) return null
+  const variantComponent = getOptionalMutableComponent(entity, VariantComponent)
   if (!variantComponent) return null
 
-  const modelComponent = getOptionalComponent(entity, ModelComponent)
-  const meshComponent = getOptionalComponent(entity, MeshComponent)
-
-  if (modelComponent) return getModelVariant(entity, variantComponent, modelComponent)
-  else if (meshComponent) return getMeshVariant(entity, variantComponent)
-  else return null
+  const modelComponent = getOptionalMutableComponent(entity, ModelComponent)
+  if (modelComponent) updateModelVariant(entity, variantComponent, modelComponent)
 }
 
 /**
@@ -111,10 +113,7 @@ export function setModelVariant(entity: Entity) {
   const variantComponent = getMutableComponent(entity, VariantComponent)
   const modelComponent = getMutableComponent(entity, ModelComponent)
 
-  const src = getModelVariant(entity, variantComponent.value, modelComponent.value)
-  if (src && modelComponent.src.value !== src) modelComponent.src.set(src)
-
-  variantComponent.calculated.set(true)
+  updateModelVariant(entity, variantComponent, modelComponent)
 }
 
 export async function setMeshVariant(entity: Entity) {
@@ -123,7 +122,7 @@ export async function setMeshVariant(entity: Entity) {
 
   const src = getMeshVariant(entity, variantComponent)
   if (!src) return
-  const [gltf, unload] = await getGLTFAsync(src, entity)
+  const [gltf] = await getGLTFAsync(src, entity)
   if (!gltf) return
   const mesh = getFirstMesh(gltf.scene)
   if (!mesh) return

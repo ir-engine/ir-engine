@@ -53,7 +53,7 @@ import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlug
 import { ObjectLayers } from '../renderer/constants/ObjectLayers'
 import { WebXRManager, createWebXRManager } from '../xr/WebXRManager'
 import { XRState } from '../xr/XRState'
-import { PerformanceState } from './PerformanceState'
+import { PerformanceState, decrementPerformance, incrementPerformance } from './PerformanceState'
 import { RendererState } from './RendererState'
 import WebGL from './THREE.WebGL'
 import { EffectMapType, defaultPostProcessingSchema } from './effects/PostProcessing'
@@ -275,8 +275,10 @@ export class EngineRenderer {
     const averageDelta = this.movingAverage.mean
 
     if (averageDelta > this.maxRenderDelta && newQualityLevel > 1) {
+      decrementPerformance()
       newQualityLevel--
     } else if (averageDelta < this.minRenderDelta && newQualityLevel < this.maxQualityLevel) {
+      incrementPerformance()
       newQualityLevel++
     }
 
