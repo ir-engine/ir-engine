@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PresentationSystemGroup, SystemUUID, defineSystem, destroySystem, executeSystem } from '@etherealengine/ecs'
+import { PresentationSystemGroup, SystemUUID, defineSystem, executeSystem } from '@etherealengine/ecs'
 import {
   Engine,
   GraphJSON,
@@ -38,6 +38,7 @@ import { useCallback, useEffect, useState } from 'react'
  * engine and triggering start on the lifecycle event emitter.
  */
 let systemCounter = 0
+let system: SystemUUID | undefined = undefined
 export const useVisualScriptRunner = ({
   visualScriptJson,
   autoRun = false,
@@ -49,7 +50,7 @@ export const useVisualScriptRunner = ({
 }) => {
   const [engine, setEngine] = useState<Engine>()
   const [run, setRun] = useState(autoRun)
-  const [system, setSystem] = useState<SystemUUID>()
+
   const play = useCallback(() => {
     setRun(true)
   }, [])
@@ -86,9 +87,8 @@ export const useVisualScriptRunner = ({
 
   useEffect(() => {
     if (!engine || !run) return
-    engine.executeAllSync()
-
     const eventEmitter = registry.dependencies?.ILifecycleEventEmitter as ILifecycleEventEmitter
+    engine.executeAllSync()
 
     if (system === undefined) {
       const systemUUID = defineSystem({
@@ -99,7 +99,7 @@ export const useVisualScriptRunner = ({
         },
         insert: { after: PresentationSystemGroup }
       })
-      setSystem(systemUUID)
+      system = systemUUID
     } else {
       executeSystem(system)
     }
@@ -107,19 +107,11 @@ export const useVisualScriptRunner = ({
     ;(async () => {
       if (eventEmitter.startEvent.listenerCount) {
         eventEmitter.startEvent.emit()
-
         await engine.executeAllAsync(5)
       } else {
         console.warn('No onStart Node found in graph.  Graph will not run.')
       }
     })() // start up
-
-    return () => {
-      if (system !== undefined) {
-        destroySystem(system)
-        setSystem(undefined)
-      }
-    }
   }, [engine, registry.dependencies?.ILifecycleEventEmitter, run])
 
   return {
