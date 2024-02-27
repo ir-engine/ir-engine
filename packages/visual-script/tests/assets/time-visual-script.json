@@ -1,0 +1,79 @@
+{
+  "nodes": [
+    {
+      "id": "19b1db1c-fa64-48b7-a58d-9ea7fa2a4000",
+      "type": "math/float/convert/toString",
+      "metadata": {
+        "positionX": "83.92771961510331",
+        "positionY": "-326.89011400726395"
+      },
+      "parameters": {
+        "a": {
+          "link": {
+            "nodeId": "37c3b43c-b9be-4912-b962-defbdf16c64e",
+            "socket": "result"
+          }
+        }
+      }
+    },
+    {
+      "id": "92df88a9-72e1-4621-ab35-9f7c11755471",
+      "type": "debug/log",
+      "metadata": {
+        "positionX": "319.18305750941664",
+        "positionY": "-338.0662000263475"
+      },
+      "parameters": {
+        "text": {
+          "link": {
+            "nodeId": "19b1db1c-fa64-48b7-a58d-9ea7fa2a4000",
+            "socket": "result"
+          }
+        }
+      }
+    },
+    {
+      "id": "37c3b43c-b9be-4912-b962-defbdf16c64e",
+      "type": "flow/time/now",
+      "metadata": {
+        "positionX": "-88.74638667510794",
+        "positionY": "-327.2205245445963"
+      }
+    },
+    {
+      "id": "d3dfda83-e24c-4469-b30a-b33167cbc92e",
+      "type": "flow/time/delay",
+      "metadata": {
+        "positionX": "80.68378451054946",
+        "positionY": "-481.9302141267266"
+      },
+      "parameters": {
+        "duration": {
+          "value": "2"
+        }
+      },
+      "flows": {
+        "flow": {
+          "nodeId": "92df88a9-72e1-4621-ab35-9f7c11755471",
+          "socket": "flow"
+        }
+      }
+    },
+    {
+      "id": "0",
+      "type": "flow/lifecycle/onStart",
+      "metadata": {
+        "positionX": "-85.49623602563955",
+        "positionY": "-479.3284188696963"
+      },
+      "flows": {
+        "flow": {
+          "nodeId": "d3dfda83-e24c-4469-b30a-b33167cbc92e",
+          "socket": "flow"
+        }
+      }
+    }
+  ],
+  "variables": [],
+  "customEvents": []
+}
