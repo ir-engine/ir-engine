@@ -59,7 +59,7 @@ import { useGLTF } from '../../assets/functions/resourceHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
-import { autoconvertMixamoAvatar, isAvaturn } from '../../avatar/functions/avatarFunctions'
+import { autoconvertMixamoAvatar } from '../../avatar/functions/avatarFunctions'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
@@ -83,6 +83,7 @@ export const ModelComponent = defineComponent({
       /** optional, only for bone matchable avatars */
       convertToVRM: false as boolean,
       // internal
+      assetTypeOverride: null as null | AssetType,
       scene: null as Group | null,
       asset: null as VRM | GLTF | null
     }
@@ -129,10 +130,8 @@ function ModelReactor(): JSX.Element {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
 
-  /** @todo this is a hack */
-  const override = !isAvaturn(modelComponent.src.value) ? undefined : AssetType.glB
   const [gltf, unload, error, progress] = useGLTF(modelComponent.src.value, entity, {
-    forceAssetType: override,
+    forceAssetType: modelComponent.assetTypeOverride.value,
     ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
   })
 
