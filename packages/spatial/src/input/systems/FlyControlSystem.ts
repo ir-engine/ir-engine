@@ -33,11 +33,11 @@ import { InputSystemGroup } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getState } from '@etherealengine/hyperflux'
+import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
 import { FlyControlComponent } from '../../camera/components/FlyControlComponent'
 import { V_010 } from '../../common/constants/MathConstants'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
-import { InputState } from '../state/InputState'
 
 const EPSILON = 10e-5
 const flyControlQuery = defineQuery([FlyControlComponent])
@@ -45,12 +45,16 @@ const direction = new Vector3()
 const tempVec3 = new Vector3()
 const quat = new Quaternion()
 const candidateWorldQuat = new Quaternion()
+const pointers = defineQuery([InputPointerComponent])
 
 const execute = () => {
-  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
-  if (!nonCapturedInputSource) return
+  const inputPointerEntity = pointers()[0]
+  if (!inputPointerEntity) {
+    return
+  }
 
-  const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
+  const inputSource = getComponent(inputPointerEntity, InputSourceComponent)
+  const inputPointer = getComponent(inputPointerEntity, InputPointerComponent)
 
   if (!inputSource.buttons.SecondaryClick?.pressed && !inputSource.buttons.PrimaryClick?.pressed) return
 
@@ -60,8 +64,7 @@ const execute = () => {
 
     const inputState = inputSource.buttons
 
-    const pointerState = getState(InputState).pointerState
-    const mouseMovement = pointerState.movement
+    const mouseMovement = inputPointer.movement
 
     // rotate about the camera's local x axis
     candidateWorldQuat.multiplyQuaternions(
