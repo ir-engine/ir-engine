@@ -92,9 +92,10 @@ export const executeFixedSystem = (systemUUID: SystemUUID) => {
   }
 
   let timeout = timeUsed > maxMilliseconds
-  let updatesLimitReached = false
+  // let updatesLimitReached = false
 
-  while (simulationDelay > simulationTimestep && !timeout && !updatesLimitReached) {
+  while (simulationDelay > simulationTimestep && !timeout) {
+    // && !updatesLimitReached) {
     ecsState.simulationTime.set((t) => Math.floor((t + simulationTimestep) / simulationTimestep) * simulationTimestep)
 
     executeSystem(systemUUID)
