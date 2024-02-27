@@ -217,6 +217,14 @@ export function useBatchGLTF(
   return useBatchLoader<GLTF>(urls, ResourceType.GLTF, entity, params)
 }
 
+export async function getGLTFAsync(
+  url: string,
+  entity?: Entity,
+  params?: LoadingArgs
+): Promise<[GLTF | null, () => void, ErrorEvent | Error | null]> {
+  return getLoader<GLTF>(url, ResourceType.GLTF, entity, params)
+}
+
 export function useTexture(
   url: string,
   entity?: Entity,

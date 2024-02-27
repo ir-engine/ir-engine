@@ -71,7 +71,8 @@ export const VariantComponent = defineComponent({
     levels: [] as VariantLevel[],
     heuristic: Heuristic.MANUAL,
     useDistance: false,
-    calculated: false
+    calculated: false,
+    currentLevel: 0
   }),
 
   onSet: (entity, component, json) => {
@@ -100,6 +101,7 @@ export const VariantComponent = defineComponent({
     }
     if (typeof json.calculated === 'boolean') component.calculated.set(json.calculated)
     if (typeof json.useDistance === 'boolean') component.useDistance.set(json.useDistance)
+    if (typeof json.currentLevel === 'number') component.currentLevel.set(json.currentLevel)
   },
 
   toJSON: (entity, component) => ({
@@ -119,8 +121,9 @@ export const VariantComponent = defineComponent({
 function VariantReactor(): ReactElement {
   const entity = useEntityContext()
   const variantComponent = useComponent(entity, VariantComponent)
-
   const meshComponent = getOptionalComponent(entity, MeshComponent)
+
+  useEffect(() => {}, [variantComponent.currentLevel])
 
   useEffect(() => {
     if (distanceBased(variantComponent.value) && meshComponent) {

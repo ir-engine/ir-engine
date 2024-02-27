@@ -20,8 +20,8 @@ import {
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
-import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { pathResolver } from '../../../assets/functions/pathResolver'
+import { getGLTFAsync } from '../../../assets/functions/resourceHooks'
 import { InstancingComponent } from '../../components/InstancingComponent'
 import { ModelComponent } from '../../components/ModelComponent'
 import { Heuristic, VariantComponent, VariantLevel, distanceBased } from '../../components/VariantComponent'
@@ -117,22 +117,21 @@ export function setModelVariant(entity: Entity) {
   variantComponent.calculated.set(true)
 }
 
-export function setMeshVariant(entity: Entity) {
+export async function setMeshVariant(entity: Entity) {
   const variantComponent = getComponent(entity, VariantComponent)
   const meshComponent = getComponent(entity, MeshComponent)
 
   const src = getMeshVariant(entity, variantComponent)
-  if (src) {
-    AssetLoader.load(src, {}, (gltf) => {
-      const mesh = getFirstMesh(gltf.scene)
-      if (!mesh) return
-      meshComponent.geometry = mesh.geometry
-      meshComponent.material = mesh.material
-    })
-  }
+  if (!src) return
+  const [gltf, unload] = await getGLTFAsync(src, entity)
+  if (!gltf) return
+  const mesh = getFirstMesh(gltf.scene)
+  if (!mesh) return
+  meshComponent.geometry = mesh.geometry
+  meshComponent.material = mesh.material
 }
 
-export function setInstancedMeshVariant(entity: Entity) {
+export async function setInstancedMeshVariant(entity: Entity) {
   const variantComponent = getComponent(entity, VariantComponent)
   const meshComponent = getComponent(entity, MeshComponent)
   const instancingComponent = getComponent(entity, InstancingComponent)
@@ -142,12 +141,12 @@ export function setInstancedMeshVariant(entity: Entity) {
     //set model src to mobile variant src
     const deviceVariant = variantComponent.levels.find((level) => level.metadata['device'] === targetDevice)
     if (!deviceVariant) return
-    AssetLoader.load(deviceVariant.src, {}, (gltf) => {
-      const mesh = getFirstMesh(gltf.scene)
-      if (!mesh) return
-      meshComponent.geometry = mesh.geometry
-      meshComponent.material = mesh.material
-    })
+    const [gltf] = await getGLTFAsync(deviceVariant.src, entity)
+    if (!gltf) return
+    const mesh = getFirstMesh(gltf.scene)
+    if (!mesh) return
+    meshComponent.geometry = mesh.geometry
+    meshComponent.material = mesh.material
   } else if (variantComponent.heuristic === Heuristic.DISTANCE) {
     const referencedVariants: VariantLevel[] = []
     const variantIndices: number[] = []
@@ -209,31 +208,32 @@ export function setInstancedMeshVariant(entity: Entity) {
       const placeholder = new Object3D()
       placeholder.userData['variant'] = { src: referencedVariant.src, index: variantIndices[i] }
       addObjectToGroup(entity, placeholder)
-      AssetLoader.load(referencedVariant.src, {}, (gltf) => {
-        const minDistance = referencedVariant.metadata['minDistance']
-        const maxDistance = referencedVariant.metadata['maxDistance']
-        const mesh = getFirstMesh(gltf.scene)
-        if (!mesh) return
-        //convert to instanced mesh, using existing instance matrix
-        const instancedMesh =
-          mesh instanceof InstancedMesh
-            ? mesh
-            : new InstancedMesh(mesh.geometry, mesh.material, instancingComponent.instanceMatrix.count)
-        instancedMesh.instanceMatrix = instancingComponent.instanceMatrix
-        instancedMesh.frustumCulled = false
+      const [gltf] = await getGLTFAsync(referencedVariant.src, entity)
+      if (!gltf) return
+      const minDistance = referencedVariant.metadata['minDistance']
+      const maxDistance = referencedVariant.metadata['maxDistance']
+      const mesh = getFirstMesh(gltf.scene)
+      if (!mesh) return
+      //convert to instanced mesh, using existing instance matrix
+      const instancedMesh =
+        mesh instanceof InstancedMesh
+          ? mesh
+          : new InstancedMesh(mesh.geometry, mesh.material, instancingComponent.instanceMatrix.count)
+      instancedMesh.instanceMatrix = instancingComponent.instanceMatrix
+      instancedMesh.frustumCulled = false
 
-        //add distance culling shader plugin
-        const materials: Material[] = Array.isArray(instancedMesh.material)
-          ? instancedMesh.material
-          : [instancedMesh.material]
-        for (const material of materials) {
-          addOBCPlugin(material, {
-            id: 'lod-culling',
-            priority: 1,
-            compile: (shader, renderer) => {
-              shader.fragmentShader = shader.fragmentShader.replace(
-                'void main() {\n',
-                `
+      //add distance culling shader plugin
+      const materials: Material[] = Array.isArray(instancedMesh.material)
+        ? instancedMesh.material
+        : [instancedMesh.material]
+      for (const material of materials) {
+        addOBCPlugin(material, {
+          id: 'lod-culling',
+          priority: 1,
+          compile: (shader, renderer) => {
+            shader.fragmentShader = shader.fragmentShader.replace(
+              'void main() {\n',
+              `
       void main() {
         float maxDistance = ${maxDistance.toFixed(1)};
         float minDistance = ${minDistance.toFixed(1)};
@@ -244,20 +244,19 @@ export function setInstancedMeshVariant(entity: Entity) {
           discard;
         }
     `
-              )
-            }
-          })
-        }
-        //add variant metadata to mesh
-        instancedMesh.userData['variant'] = {
-          src: referencedVariant.src,
-          index: variantIndices[i]
-        }
-        //remove placeholder
-        removeObjectFromGroup(entity, placeholder)
-        //add to group
-        addObjectToGroup(entity, instancedMesh)
-      })
+            )
+          }
+        })
+      }
+      //add variant metadata to mesh
+      instancedMesh.userData['variant'] = {
+        src: referencedVariant.src,
+        index: variantIndices[i]
+      }
+      //remove placeholder
+      removeObjectFromGroup(entity, placeholder)
+      //add to group
+      addObjectToGroup(entity, instancedMesh)
     }
   }
 }
