@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { AnimationMixer, BoxGeometry, CapsuleGeometry, CylinderGeometry, Group, Scene, SphereGeometry } from 'three'
 
-import { NO_PROXY, createState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, createState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import {
   defineComponent,
@@ -251,7 +251,7 @@ function ModelReactor(): JSX.Element {
         })
 
     return () => {
-      getMutableState(SceneState).scenes[uuid].set(none)
+      SceneState.unloadScene(uuid)
     }
   }, [modelComponent.scene])
 
