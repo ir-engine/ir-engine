@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ColliderDesc, RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
+import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 import { useLayoutEffect } from 'react'
-import { Quaternion, Vector3 } from 'three'
 
 import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -44,10 +43,12 @@ import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { ColliderComponent as NewColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { CollisionGroups, DefaultCollisionMask } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
-import { Body, BodyTypes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
+import { Body, BodyTypes, OldShapeTypes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
@@ -223,47 +224,26 @@ export const ColliderComponent = defineComponent({
         /**
          * This component only supports one collider, always at index 0
          */
-        Physics.removeCollidersFromRigidBody(entity, physicsWorld)
-        const colliderDesc = createColliderDescFromScale(
-          colliderComponent.shapeType.value,
-          transformComponent.scale.value
-        )
-        Physics.applyDescToCollider(
-          colliderDesc,
-          {
-            shapeType: colliderComponent.shapeType.value,
-            isTrigger: colliderComponent.isTrigger.value,
-            /** @todo for whatever reason, the character controller will still collide with triggers if they have a collision layer other than trigger  */
-            collisionLayer: colliderComponent.isTrigger.value
-              ? CollisionGroups.Trigger
-              : colliderComponent.collisionLayer.value,
-            collisionMask: colliderComponent.collisionMask.value,
-            restitution: colliderComponent.restitution.value
-          },
-          new Vector3(),
-          new Quaternion()
-        )
-        physicsWorld.createCollider(colliderDesc, rigidbody.body)
+        if (rigidbody.body && rigidbody.body.numColliders() > 0) {
+          const collider = rigidbody.body.collider(0)
+          physicsWorld.removeCollider(collider, false)
+        }
 
-        rigidbody.body.setTranslation(transformComponent.position.value, true)
-        rigidbody.body.setRotation(transformComponent.rotation.value, true)
+        setComponent(entity, NewColliderComponent, {
+          shape: OldShapeTypes[colliderComponent.shapeType.value],
+          collisionLayer: colliderComponent.collisionLayer.value,
+          collisionMask: colliderComponent.collisionMask.value,
+          restitution: colliderComponent.restitution.value
+        })
+
+        if (colliderComponent.isTrigger.value) {
+          setComponent(entity, TriggerComponent)
+        } else {
+          removeComponent(entity, TriggerComponent)
+        }
       }
     }, [isLoadedFromGLTF, colliderComponent, transformComponent, groupComponent?.length, modelHierarchy])
 
     return null
   }
 })
-
-export const createColliderDescFromScale = (shapeType: ShapeType, scale: Vector3) => {
-  switch (shapeType as ShapeType) {
-    default:
-    case ShapeType.Cuboid:
-      return ColliderDesc.cuboid(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
-    case ShapeType.Ball:
-      return ColliderDesc.ball(Math.abs(scale.x))
-    case ShapeType.Capsule:
-      return ColliderDesc.capsule(Math.abs(scale.y), Math.abs(scale.x))
-    case ShapeType.Cylinder:
-      return ColliderDesc.cylinder(Math.abs(scale.y), Math.abs(scale.x))
-  }
-}

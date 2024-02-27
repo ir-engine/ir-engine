@@ -35,6 +35,9 @@ import {
   useEntityContext,
   useOptionalComponent
 } from '@etherealengine/ecs'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
+import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { getState, useHookstate } from '@etherealengine/hyperflux'
 import React, { useLayoutEffect } from 'react'
 import { Vector3 } from 'three'
@@ -75,6 +78,9 @@ export const ColliderComponent = defineComponent({
     if (typeof json.restitution === 'number') component.restitution.set(json.restitution)
     if (typeof json.collisionLayer === 'number') component.collisionLayer.set(json.collisionLayer)
     if (typeof json.collisionMask === 'number') component.collisionMask.set(json.collisionMask)
+
+    if (!getState(SceneState).sceneLoaded && hasComponent(entity, SceneObjectComponent) && !component.collider.value)
+      SceneAssetPendingTagComponent.addResource(entity, ColliderComponent.jsonID)
   },
 
   toJSON(entity, component) {
@@ -136,6 +142,8 @@ function ColliderComponentRigidbodyReactor(props: { entity: Entity; rigidbodyEnt
 
   useLayoutEffect(() => {
     if (!rigidbodyComponent.body.value) return
+
+    SceneAssetPendingTagComponent.removeResource(props.entity, ColliderComponent.jsonID)
 
     const colliderDesc = Physics.createColliderDesc(
       props.entity,

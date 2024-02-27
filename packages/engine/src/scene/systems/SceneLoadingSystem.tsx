@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useLayoutEffect } from 'react'
+import { useEffect } from 'react'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import {
@@ -78,31 +78,8 @@ import { proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 
 export const SceneLoadingReactor = () => {
   const scenes = useHookstate(getMutableState(SceneState).scenes)
-  const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
-  const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
-  const entities = useHookstate(UUIDComponent.entitiesByUUIDState)
 
   const physicsWorld = useHookstate(getMutableState(PhysicsState).physicsWorld)
-
-  useLayoutEffect(() => {
-    if (!getState(SceneState).sceneLoading) return
-
-    const values = Object.values(assetLoadingState.value)
-    const total = values.reduce((acc, curr) => acc + curr.totalAmount, 0)
-    const loaded = values.reduce((acc, curr) => acc + curr.loadedAmount, 0)
-    const progress = !sceneAssetPendingTagQuery.length || total === 0 ? 100 : Math.round((100 * loaded) / total)
-
-    getMutableState(SceneState).loadingProgress.set(progress)
-
-    if (!sceneAssetPendingTagQuery.length && !getState(SceneState).sceneLoaded) {
-      getMutableState(SceneState).merge({
-        sceneLoading: false,
-        sceneLoaded: true
-      })
-      SceneAssetPendingTagComponent.loadingProgress.set({})
-    }
-  }, [sceneAssetPendingTagQuery.length, assetLoadingState, entities.keys])
-
   if (!physicsWorld.value) return null
 
   return (
@@ -129,7 +106,7 @@ export const SceneLoadingReactor = () => {
 const NetworkedSceneObjectReactor = () => {
   const entity = useEntityContext()
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!entityExists(entity)) return
     const uuid = getComponent(entity, UUIDComponent)
     const transform = getComponent(entity, TransformComponent)
@@ -150,15 +127,41 @@ const NetworkedSceneObjectReactor = () => {
 }
 
 const SceneReactor = (props: { sceneID: SceneID }) => {
+  const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
+  const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
+  const entities = useHookstate(UUIDComponent.entitiesByUUIDState)
+
   const currentSceneSnapshotState = SceneState.useScene(props.sceneID)
-  const entities = currentSceneSnapshotState.entities
+  const sceneEntities = currentSceneSnapshotState.entities
   const rootUUID = currentSceneSnapshotState.root.value
 
   const ready = useHookstate(false)
   const systemsLoaded = useHookstate([] as SystemImportType[])
   const isActiveScene = useHookstate(getMutableState(SceneState).activeScene).value === props.sceneID
 
-  useLayoutEffect(() => {
+  useEffect(() => {
+    if (!ready.value || !isActiveScene || !getState(SceneState).sceneLoading) return
+
+    const entitiesCount = sceneEntities.keys.map(UUIDComponent.getEntityByUUID).filter(Boolean).length
+    if (entitiesCount <= 1) return
+
+    const values = Object.values(assetLoadingState.value)
+    const total = values.reduce((acc, curr) => acc + curr.totalAmount, 0)
+    const loaded = values.reduce((acc, curr) => acc + curr.loadedAmount, 0)
+    const progress = !sceneAssetPendingTagQuery.length || total === 0 ? 100 : Math.round((100 * loaded) / total)
+
+    getMutableState(SceneState).loadingProgress.set(progress)
+
+    if (!sceneAssetPendingTagQuery.length && !getState(SceneState).sceneLoaded) {
+      getMutableState(SceneState).merge({
+        sceneLoading: false,
+        sceneLoaded: true
+      })
+      SceneAssetPendingTagComponent.loadingProgress.set({})
+    }
+  }, [sceneAssetPendingTagQuery.length, assetLoadingState, entities.keys])
+
+  useEffect(() => {
     const scene = getState(SceneState).scenes[props.sceneID]
     const { project } = scene.metadata
     const data = scene.snapshots[scene.index].data
@@ -181,7 +184,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     })
   }, [])
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!systemsLoaded.length) return
     const systems = [...systemsLoaded.value]
     return () => {
@@ -194,7 +197,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
   return (
     <>
       {ready.value &&
-        Object.entries(entities.value).map(([entityUUID, data]) =>
+        Object.entries(sceneEntities.value).map(([entityUUID, data]) =>
           entityUUID === rootUUID && isActiveScene ? (
             <EntitySceneRootLoadReactor
               key={entityUUID}
@@ -218,7 +221,7 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
   const entityState = SceneState.useScene(props.sceneID).entities[props.entityUUID]
   const selfEntity = useHookstate(UndefinedEntity)
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const entity = UUIDComponent.getOrCreateEntityByUUID(props.entityUUID)
     setComponent(entity, NameComponent, entityState.name.value)
     setComponent(entity, VisibleComponent, true)
@@ -287,7 +290,7 @@ const EntityChildLoadReactor = (props: {
   const parentLoaded = !!useOptionalComponent(parentEntity, UUIDComponent)
   const dynamicParentState = useOptionalComponent(parentEntity, SceneDynamicLoadTagComponent)
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     // ensure parent has been deserialized before checking if dynamically loaded
     if (!parentLoaded) return
 
@@ -321,13 +324,13 @@ const EntityChildLoadReactor = (props: {
     }
   }, [dynamicParentState?.loaded, parentLoaded])
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const entity = UUIDComponent.getEntityByUUID(props.entityUUID)
     if (!entity) return
     setComponent(entity, NameComponent, entityJSONState.name.value)
   }, [entityJSONState.name, selfEntity])
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const entity = UUIDComponent.getEntityByUUID(props.entityUUID)
     if (!entity) return
     const uuid = props.entityUUID
@@ -362,7 +365,7 @@ const ComponentLoadReactor = (props: {
 }) => {
   const componentState = props.componentJSONState
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!componentState?.value) return
     const entity = UUIDComponent.getEntityByUUID(props.entityUUID)
     const component = componentState.get(NO_PROXY)
@@ -373,7 +376,7 @@ const ComponentLoadReactor = (props: {
     }
   }, [])
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     /** @todo this is a hack fix for variants */
     if (!getState(EngineState).isEditing) return
     if (!componentState?.value) return

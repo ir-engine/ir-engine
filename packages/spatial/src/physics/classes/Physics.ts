@@ -161,8 +161,6 @@ function applyDescToCollider(
 function createColliderDesc(entity: Entity, rootEntity: Entity, colliderDescOptions: ColliderOptions) {
   const mesh = getOptionalComponent(entity, MeshComponent)
 
-  console.log('colliderDescOptions', colliderDescOptions)
-
   let shape =
     typeof colliderDescOptions.shape === 'string' ? ShapeType[colliderDescOptions.shape] : colliderDescOptions.shape
 
@@ -415,8 +413,9 @@ function castRay(world: World, raycastQuery: RaycastArgs, filterPredicate?: (col
   )
   if (hitWithNormal?.collider) {
     const body = hitWithNormal.collider.parent() as RigidBody
-    if (!body) console.warn('No rigid body found for collider', hitWithNormal.collider)
-    else
+    if (!body) {
+      //console.warn('No rigid body found for collider', hitWithNormal.collider)
+    } else
       hits.push({
         collider: hitWithNormal.collider,
         distance: hitWithNormal.toi,
