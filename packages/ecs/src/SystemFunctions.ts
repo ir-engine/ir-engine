@@ -29,7 +29,7 @@ import { FC, useEffect } from 'react'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import multiLogger from '@etherealengine/common/src/logger'
-import { ReactorReconciler, getMutableState, getState, startReactor } from '@etherealengine/hyperflux'
+import { getMutableState, getState, startReactor } from '@etherealengine/hyperflux'
 
 import { MathUtils } from 'three'
 import { SystemState } from './SystemState'
@@ -93,35 +93,33 @@ export function executeSystem(systemUUID: SystemUUID) {
   }
 
   /** @todo when we fully remove deprecated system reactors in favour of state reactors, we can just wrap system.execute with flushSync */
-  ReactorReconciler.flushSync(() => {
-    if (system.reactor && !getState(SystemState).activeSystemReactors.has(system.uuid)) {
-      const reactor = startReactor(system.reactor)
-      getState(SystemState).activeSystemReactors.set(system.uuid, reactor)
+  if (system.reactor && !getState(SystemState).activeSystemReactors.has(system.uuid)) {
+    const reactor = startReactor(system.reactor)
+    getState(SystemState).activeSystemReactors.set(system.uuid, reactor)
+  }
+
+  const startTime = nowMilliseconds()
+
+  try {
+    getMutableState(SystemState).currentSystemUUID.set(systemUUID)
+    system.execute()
+  } catch (e) {
+    logger.error(`Failed to execute system ${system.uuid}`)
+    logger.error(e)
+  } finally {
+    getMutableState(SystemState).currentSystemUUID.set('__null__' as SystemUUID)
+  }
+
+  const endTime = nowMilliseconds()
+
+  if (getState(SystemState).performanceProfilingEnabled) {
+    const systemDuration = endTime - startTime
+    system.systemDuration = systemDuration
+    if (systemDuration > 50 && (lastWarningTime.get(systemUUID) ?? 0) < endTime - warningCooldownDuration) {
+      lastWarningTime.set(systemUUID, endTime)
+      logger.warn(`Long system execution detected. System: ${system.uuid} \n Duration: ${systemDuration}`)
     }
-
-    const startTime = nowMilliseconds()
-
-    try {
-      getMutableState(SystemState).currentSystemUUID.set(systemUUID)
-      system.execute()
-    } catch (e) {
-      logger.error(`Failed to execute system ${system.uuid}`)
-      logger.error(e)
-    } finally {
-      getMutableState(SystemState).currentSystemUUID.set('__null__' as SystemUUID)
-    }
-
-    const endTime = nowMilliseconds()
-
-    if (getState(SystemState).performanceProfilingEnabled) {
-      const systemDuration = endTime - startTime
-      system.systemDuration = systemDuration
-      if (systemDuration > 50 && (lastWarningTime.get(systemUUID) ?? 0) < endTime - warningCooldownDuration) {
-        lastWarningTime.set(systemUUID, endTime)
-        logger.warn(`Long system execution detected. System: ${system.uuid} \n Duration: ${systemDuration}`)
-      }
-    }
-  })
+  }
 
   for (let i = 0; i < system.subSystems.length; i++) {
     executeSystem(system.subSystems[i])

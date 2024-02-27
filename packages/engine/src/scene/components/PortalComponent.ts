@@ -198,6 +198,7 @@ export const PortalComponent = defineComponent({
 
       return () => {
         removeEntity(helperEntity)
+        if (!hasComponent(entity, PortalComponent)) return
         portalComponent.helperEntity.set(none)
       }
     }, [debugEnabled])
