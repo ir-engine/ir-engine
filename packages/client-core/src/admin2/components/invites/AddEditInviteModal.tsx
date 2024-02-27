@@ -43,6 +43,7 @@ import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
+import MultiEmailInput from '@etherealengine/ui/src/primitives/tailwind/MultiEmailInput'
 import Radios from '@etherealengine/ui/src/primitives/tailwind/Radio'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import React from 'react'
@@ -72,7 +73,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
   const adminUsers = useFind(userPath, { query: { isGuest: false } }).data
   const patchInvite = useMutation(invitePath).patch
 
-  const emailRecipients = useHookstate(invite?.token || '')
+  const emailRecipients = useHookstate([] as string[])
   const inviteType = useHookstate<InviteTypeOptionsType>((invite?.inviteType as InviteTypeOptionsType) || 'new-user')
   const oneTimeInvite = useHookstate(invite?.deleteOnUse || false)
   const makeAdmin = useHookstate(invite?.makeAdmin || false)
@@ -118,7 +119,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
   const handleSubmit = async () => {
     errors.set(getDefaultErrors())
 
-    if (!emailRecipients.value) {
+    if (!emailRecipients.length) {
       errors.recipients.set(t('admin:components.invite.errors.recipients'))
     }
     if (inviteType.value === 'location' && !inviteLocation.value) {
@@ -147,49 +148,51 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
       return
     }
 
-    const inviteData: InviteData = {
-      token: emailRecipients.value,
-      inviteType: inviteType.value,
-      identityProviderType: 'email',
-      targetObjectId:
-        inviteType.value === 'location'
-          ? inviteLocation.value
-          : inviteType.value === 'instance'
-          ? inviteInstance.value
-          : undefined,
-      makeAdmin: makeAdmin.value,
-      deleteOnUse: oneTimeInvite.value
-    }
-
-    if (spawnSelected.value) {
-      if (spawnType.value === 'spawnPoint') {
-        inviteData.spawnType = 'spawnPoint'
-        inviteData.spawnDetails = { spawnPoint: spawnPoint.value }
-      } else if (spawnType.value === 'userPosition') {
-        inviteData.spawnType = 'inviteCode'
-        inviteData.spawnDetails = { inviteCode: userPosition.value as InviteCode }
+    emailRecipients.value.map(async (email) => {
+      const inviteData: InviteData = {
+        token: email,
+        inviteType: inviteType.value,
+        identityProviderType: 'email',
+        targetObjectId:
+          inviteType.value === 'location'
+            ? inviteLocation.value
+            : inviteType.value === 'instance'
+            ? inviteInstance.value
+            : undefined,
+        makeAdmin: makeAdmin.value,
+        deleteOnUse: oneTimeInvite.value
       }
-    }
 
-    if (timedInvite.value) {
-      inviteData.timed = true
-      inviteData.startTime = toDateTimeSql(new Date(inviteStartTime.value))
-      inviteData.endTime = toDateTimeSql(new Date(inviteEndTime.value))
-    }
-
-    modalProcessing.set(true)
-
-    try {
-      if (invite?.id) {
-        await patchInvite(invite.id, inviteData)
-      } else {
-        await InviteService.sendInvite(inviteData, '' as InviteCode)
+      if (spawnSelected.value) {
+        if (spawnType.value === 'spawnPoint') {
+          inviteData.spawnType = 'spawnPoint'
+          inviteData.spawnDetails = { spawnPoint: spawnPoint.value }
+        } else if (spawnType.value === 'userPosition') {
+          inviteData.spawnType = 'inviteCode'
+          inviteData.spawnDetails = { inviteCode: userPosition.value as InviteCode }
+        }
       }
-      PopoverState.hidePopupover()
-    } catch (err) {
-      NotificationService.dispatchNotify(err.message, { variant: 'error' })
-      modalProcessing.set(false)
-    }
+
+      if (timedInvite.value) {
+        inviteData.timed = true
+        inviteData.startTime = toDateTimeSql(new Date(inviteStartTime.value))
+        inviteData.endTime = toDateTimeSql(new Date(inviteEndTime.value))
+      }
+
+      modalProcessing.set(true)
+
+      try {
+        if (invite?.id) {
+          await patchInvite(invite.id, inviteData)
+        } else {
+          await InviteService.sendInvite(inviteData, '' as InviteCode)
+        }
+        PopoverState.hidePopupover()
+      } catch (err) {
+        NotificationService.dispatchNotify(err.message, { variant: 'error' })
+        modalProcessing.set(false)
+      }
+    })
   }
 
   return (
@@ -206,16 +209,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
         <LoadingCircle className="w-[10vw]" />
       ) : (
         <div className="grid w-full gap-6">
-          <Input
-            className="w-full"
-            type="email"
-            placeholder="todo email inputs pills"
-            value={emailRecipients.value}
-            onChange={(event) => emailRecipients.set(event.target.value)}
-            label={t('admin:components.invite.recipients')}
-            error={errors.recipients.value}
-            disabled={invite?.id ? true : false}
-          />
+          <MultiEmailInput emailList={emailRecipients} />
           <Select
             label={t('admin:components.invite.type')}
             options={inviteTypeOptions.map((type) => ({ name: t(`admin:components.invite.${type}`), value: type }))}
