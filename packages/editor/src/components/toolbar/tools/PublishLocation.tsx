@@ -43,7 +43,7 @@ export const PublishLocation = () => {
   const openLocationDrawer = useHookstate(false)
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
   const selectedScene = activeScene.value
-    ? (activeScene.value!.replace('.scene.json', '').replace(`${activeScene.value!.split('/', 1)[0]}/`, '') as SceneID)
+    ? (activeScene.value.replace('.scene.json', '').replace(`${activeScene.value.split('/', 1)[0]}/`, '') as SceneID)
     : null
 
   const drawerMode = useHookstate<LocationDrawerMode>(LocationDrawerMode.Create)
