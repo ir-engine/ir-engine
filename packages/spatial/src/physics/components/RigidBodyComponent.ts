@@ -135,6 +135,7 @@ export const RigidBodyComponent = defineComponent({
     useLayoutEffect(() => {
       const type = component.type.value
       setComponent(entity, getTagComponentForRigidBody(type))
+      Physics.setRigidBodyType(entity, type)
       return () => {
         removeComponent(entity, getTagComponentForRigidBody(type))
       }
