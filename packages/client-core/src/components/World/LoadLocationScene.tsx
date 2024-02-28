@@ -84,6 +84,7 @@ export const useLoadLocation = (props: { locationName: string }) => {
 
 export const useLoadScene = (props: { projectName: string; sceneName: string }) => {
   useEffect(() => {
+    if (!props.sceneName || !props.projectName) return
     LocationState.setLocationName(`projects/${props.projectName}/${props.sceneName}.scene.json`)
     loadSceneJsonOffline(props.projectName, props.sceneName)
   }, [])
