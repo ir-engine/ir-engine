@@ -229,8 +229,6 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
     setComponent(entity, SceneObjectComponent)
     setComponent(entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
 
-    loadComponents(entity, entityState.components.get(NO_PROXY))
-
     selfEntity.set(entity)
 
     return () => {
@@ -238,21 +236,7 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
     }
   }, [])
 
-  return (
-    <>
-      {selfEntity.value
-        ? entityState.components.map((compState) => (
-            <ErrorBoundary key={compState.name.value}>
-              <ComponentLoadReactor
-                componentID={compState.value.name}
-                entityUUID={props.entityUUID}
-                componentJSONState={compState}
-              />
-            </ErrorBoundary>
-          ))
-        : null}
-    </>
-  )
+  return null
 }
 
 const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) => {
