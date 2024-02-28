@@ -49,7 +49,8 @@ export function logSeverityToLevel(severity: LogSeverity) {
 }
 export enum PrefixStyle {
   None = 0,
-  Time = 1
+  Default = 1,
+  Time = 2
 }
 
 const Reset = '\x1b[0m'
@@ -61,7 +62,7 @@ export type LogMessage = { severity: LogSeverity; text: string }
 
 export class Logger {
   static logLevel = LogLevel.Info
-  static prefixStyle = PrefixStyle.None
+  static prefixStyle = PrefixStyle.Default
 
   public static readonly onLog = new EventEmitter<LogMessage>()
 
@@ -70,14 +71,27 @@ export class Logger {
       switch (Logger.prefixStyle) {
         case PrefixStyle.None:
           return ''
+        case PrefixStyle.Default:
+          return '[ee Visual Script]:'
         case PrefixStyle.Time:
           return new Date().toLocaleTimeString().padStart(11, '0') + ' '
       }
     }
 
     Logger.onLog.addListener((logMessage: LogMessage) => {
-      if (Logger.logLevel > logSeverityToLevel(logMessage.severity)) return
-      console.log(prefix() + logMessage.text)
+      if (Logger.logLevel > logSeverityToLevel(logMessage.severity)) return // verbose if for in graph only
+
+      switch (logSeverityToLevel(logMessage.severity)) {
+        case LogLevel.Info:
+          console.info(prefix() + logMessage.text)
+          break
+        case LogLevel.Warning:
+          console.warn(prefix() + logMessage.text)
+          break
+        case LogLevel.Error:
+          console.error(prefix() + logMessage.text)
+          break
+      }
     })
   }
 

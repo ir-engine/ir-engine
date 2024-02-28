@@ -29,6 +29,8 @@ import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { VisualScriptComponent, VisualScriptDomain, registerEngineProfile } from '@etherealengine/spatial'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { expect } from 'chai'
+import booleanTestVisualScript from './assets/boolean-test-visual-script.json'
+import decisionTestVisualScript from './assets/decision-test-visual-script.json'
 import defaultVisualScript from './assets/default-visual-script.json'
 import floatTestVisualScript from './assets/float-test-visual-script.json'
 import integerTestVisualScript from './assets/integer-test-visual-script.json'
@@ -66,7 +68,7 @@ describe('visual Script', () => {
   beforeEach(() => {
     createEngine()
     VisualScriptState.registerProfile(registerEngineProfile, VisualScriptDomain.ECS)
-    consoleSpy = sinon.spy(console, 'log')
+    consoleSpy = sinon.spy(console, 'info')
     consoleErrorSpy = sinon.spy(console, 'error') // Spy on console.error
   })
 
@@ -110,6 +112,35 @@ describe('visual Script', () => {
     })
   })
 
+  it('test boolean nodes script', async () => {
+    const entity = createEntity()
+    const visualScript = parseStorageProviderURLs(booleanTestVisualScript) as unknown as GraphJSON
+    setComponent(entity, VisualScriptComponent, { visualScript: visualScript, run: true })
+
+    await waitForConsoleLog(successMessage).then((result) => {
+      expect(result.includes(successMessage)).to.be.true
+    })
+  })
+
+  it('test decision nodes script', async () => {
+    const entity = createEntity()
+    const visualScript = parseStorageProviderURLs(decisionTestVisualScript) as unknown as GraphJSON
+    setComponent(entity, VisualScriptComponent, { visualScript: visualScript, run: true })
+    const messageSequence = [
+      'branch true',
+      'sequence 1',
+      'sequence 2',
+      'flip off',
+      'sequence 3',
+      'switch string one',
+      'switch int 2'
+    ]
+    for (const message of messageSequence) {
+      await waitForConsoleLog(message).then((result) => {
+        expect(result.includes(message)).to.be.true
+      })
+    }
+  })
   afterEach(() => {
     consoleSpy.restore()
     consoleErrorSpy.restore()

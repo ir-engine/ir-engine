@@ -49,6 +49,14 @@ export const Or = makeInNOutFunctionDesc({
   exec: (a: boolean, b: boolean) => a || b
 })
 
+export const Xor = makeInNOutFunctionDesc({
+  name: 'math/boolean/xor',
+  label: '⊻',
+  in: ['boolean', 'boolean'],
+  out: 'boolean',
+  exec: (a: boolean, b: boolean) => (a || b) && !(a && b)
+})
+
 export const Not = makeInNOutFunctionDesc({
   name: 'math/boolean/negate',
   label: '¬',
