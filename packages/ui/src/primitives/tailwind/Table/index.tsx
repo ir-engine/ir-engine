@@ -113,7 +113,7 @@ const Table = ({ className, children }: TableProps) => {
   const twClassName = twMerge('min-w-full border-collapse overflow-x-auto rounded-md text-sm', className)
   return (
     <div className="flex flex-col">
-      <div className="overflow-x-auto">
+      <div className="mr-6 overflow-x-auto">
         <div className=" inline-block min-w-full align-middle">
           <div className="overflow-hidden">
             <table className={twClassName}>{children}</table>
