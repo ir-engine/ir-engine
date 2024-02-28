@@ -25,14 +25,20 @@ Ethereal Engine. All Rights Reserved.
 
 import { State, useHookstate } from '@etherealengine/hyperflux'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { IoMdClose } from 'react-icons/io'
 import Input from '../Input'
+import Label from '../Label'
 
 export interface LabelProps extends React.HtmlHTMLAttributes<HTMLLabelElement> {
   emailList: State<string[]>
+  error?: string
+  label?: string
 }
 
-const MultiEmailInput = ({ emailList }: LabelProps) => {
+const MultiEmailInput = ({ emailList, error, label }: LabelProps) => {
+  const { t } = useTranslation()
+
   const state = useHookstate({
     currentEmail: '',
     errorLabel: ''
@@ -41,9 +47,9 @@ const MultiEmailInput = ({ emailList }: LabelProps) => {
     errorLabel: string
   })
 
-  const handleKeyDown = (evt) => {
-    if (['Enter', 'Tab', ','].includes(evt.key)) {
-      evt.preventDefault()
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (['Enter', 'Tab', ','].includes(event.key)) {
+      event.preventDefault()
 
       const value = state.currentEmail.value.trim()
 
@@ -54,21 +60,21 @@ const MultiEmailInput = ({ emailList }: LabelProps) => {
     }
   }
 
-  const handleChange = (evt) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     state.merge({
-      currentEmail: evt.target.value,
+      currentEmail: event.target.value,
       errorLabel: ''
     })
   }
 
-  const handleDelete = (item) => {
-    emailList.set(emailList.value.filter((i) => i !== item))
+  const handleDelete = (email: string) => {
+    emailList.set(emailList.value.filter((item) => item !== email))
   }
 
-  const handlePaste = (evt) => {
-    evt.preventDefault()
+  const handlePaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
+    event.preventDefault()
 
-    const paste = evt.clipboardData.getData('text')
+    const paste = event.clipboardData.getData('text')
     const emails = paste.match(/[\w\d\.-]+@[\w\d\.-]+\.[\w\d\.-]+/g)
 
     if (emails) {
@@ -81,11 +87,11 @@ const MultiEmailInput = ({ emailList }: LabelProps) => {
     let error = ''
 
     if (isInList(email)) {
-      error = `${email} has already been added.`
+      error = t('common:multiEmailInput.alreadyAdded', { email })
     }
 
     if (!isEmail(email)) {
-      error = `${email} is not a valid email address.`
+      error = t('common:multiEmailInput.invalidEmail', { email })
     }
 
     if (error) {
@@ -101,36 +107,42 @@ const MultiEmailInput = ({ emailList }: LabelProps) => {
     return emailList.value.includes(email)
   }
 
-  const isEmail = (email) => {
+  const isEmail = (email: string) => {
     return /[\w\d\.-]+@[\w\d\.-]+\.[\w\d\.-]+/.test(email)
   }
 
+  let errorLabel = state.errorLabel.value || error
+
   return (
     <>
-      <div className="flex flex-wrap gap-2">
-        {emailList.value.map((item) => (
-          <div
-            className="flex w-fit items-center justify-between gap-1 rounded-full bg-neutral-300 px-2 py-1 text-black"
-            key={item}
-          >
-            {item}
-            <button className="button rounded-full bg-white p-1" onClick={() => handleDelete(item)}>
-              <IoMdClose />
-            </button>
-          </div>
-        ))}
-      </div>
+      {label && <Label className="self-stretch">{label}</Label>}
+
+      {emailList.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {emailList.value.map((item) => (
+            <div
+              className="flex w-fit items-center justify-between gap-1 rounded-full bg-neutral-300 px-2 py-1 text-black"
+              key={item}
+            >
+              {item}
+              <button className="button rounded-full bg-white p-1" onClick={() => handleDelete(item)}>
+                <IoMdClose />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       <Input
         className="w-full"
         value={state.currentEmail.value}
-        placeholder="Type or paste email addresses and press `Enter`..."
+        placeholder={t('common:multiEmailInput.placeholder')}
         onKeyDown={handleKeyDown}
         onChange={handleChange}
         onPaste={handlePaste}
       />
 
-      {state.errorLabel.value && <p className="error text-rose-500">{state.errorLabel.value}</p>}
+      {errorLabel && <p className="error text-[#E11D48]">{errorLabel}</p>}
     </>
   )
 }
