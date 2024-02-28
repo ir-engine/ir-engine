@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { AnimationMixer, BoxGeometry, CapsuleGeometry, CylinderGeometry, Group, Scene, SphereGeometry } from 'three'
 
-import { NO_PROXY, createState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, createState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import {
   defineComponent,
@@ -73,8 +73,8 @@ import { SourceComponent } from './SourceComponent'
 const entitiesInModelHierarchy = {} as Record<Entity, Entity[]>
 
 export const ModelComponent = defineComponent({
-  name: 'Model Component',
-  jsonID: 'gltf-model',
+  name: 'ModelComponent',
+  jsonID: 'EE_model',
 
   onInit: (entity) => {
     return {
@@ -258,7 +258,7 @@ function ModelReactor(): JSX.Element {
       })
     }
     return () => {
-      getMutableState(SceneState).scenes[uuid].set(none)
+      SceneState.unloadScene(uuid)
     }
   }, [modelComponent.scene])
 

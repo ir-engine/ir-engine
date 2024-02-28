@@ -33,8 +33,8 @@ import {
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
-import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getState } from '@etherealengine/hyperflux'
+import { PhysicsSystem } from '@etherealengine/spatial'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
@@ -50,7 +50,7 @@ const _point1Vector = new Vector3()
 
 export const SplineTrackComponent = defineComponent({
   name: 'SplineTrackComponent',
-  jsonID: 'spline-track',
+  jsonID: 'EE_spline_track',
 
   onInit: (entity) => {
     return {
@@ -167,7 +167,7 @@ export const SplineTrackComponent = defineComponent({
           .premultiply(mat4.copy(parentTransform.matrixWorld).invert())
           .decompose(transform.position, transform.rotation, transform.scale)
       },
-      { with: AnimationSystemGroup }
+      { before: PhysicsSystem }
     )
 
     useEffect(() => {

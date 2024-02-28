@@ -61,7 +61,6 @@ export const ReactorReconciler = Reconciler({
   supportsPersistence: false,
   supportsHydration: false,
   preparePortalMount: () => {},
-  // @ts-ignore
   getCurrentEventPriority: () => DefaultEventPriority,
   beforeActiveInstanceBlur: () => {},
   afterActiveInstanceBlur: () => {},
@@ -85,10 +84,9 @@ export type ReactorRoot = {
   isRunning: State<boolean>
   suspended: State<boolean>
   errors: State<Error[]>
-  promise: Promise<void>
   cleanupFunctions: Set<() => void>
-  run: (force?: boolean) => Promise<void>
-  stop: () => Promise<void>
+  run: () => void
+  stop: () => void
 }
 
 const ReactorRootContext = React.createContext<ReactorRoot>(undefined as any)
@@ -152,32 +150,19 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
     )
   }
 
-  const run = (force?: boolean) => {
-    if (reactorRoot.isRunning.value) {
-      if (force) {
-        return ReactorReconciler.flushSync(() => ReactorReconciler.updateContainer(<ReactorContainer />, fiberRoot))
-      } else {
-        return reactorRoot.promise
-      }
-    }
+  const run = () => {
     reactorRoot.isRunning.set(true)
-    return new Promise<void>((resolve) => {
-      HyperFlux.store.activeReactors.add(reactorRoot)
-      ReactorReconciler.updateContainer(<ReactorContainer />, fiberRoot, null, () => resolve())
-    })
+    HyperFlux.store.activeReactors.add(reactorRoot)
+    ReactorReconciler.flushSync(() => ReactorReconciler.updateContainer(<ReactorContainer />, fiberRoot))
   }
 
   const stop = () => {
     if (!reactorRoot.isRunning.value) return Promise.resolve()
-    return new Promise<void>((resolve) => {
-      ReactorReconciler.updateContainer(null, fiberRoot, null, () => {
-        reactorRoot.isRunning.set(false)
-        HyperFlux.store.activeReactors.delete(reactorRoot)
-        reactorRoot.cleanupFunctions.forEach((fn) => fn())
-        reactorRoot.cleanupFunctions.clear()
-        resolve()
-      })
-    })
+    ReactorReconciler.flushSync(() => ReactorReconciler.updateContainer(null, fiberRoot))
+    reactorRoot.isRunning.set(false)
+    HyperFlux.store.activeReactors.delete(reactorRoot)
+    reactorRoot.cleanupFunctions.forEach((fn) => fn())
+    reactorRoot.cleanupFunctions.clear()
   }
 
   const reactorRoot = {
@@ -193,7 +178,7 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
     stop
   } as ReactorRoot
 
-  reactorRoot.promise = reactorRoot.run()
+  reactorRoot.run()
 
   return reactorRoot
 }

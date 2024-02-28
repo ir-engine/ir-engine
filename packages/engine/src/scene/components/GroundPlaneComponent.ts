@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import { useLayoutEffect } from 'react'
 import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
@@ -51,7 +51,7 @@ import { SceneObjectComponent } from './SceneObjectComponent'
 
 export const GroundPlaneComponent = defineComponent({
   name: 'GroundPlaneComponent',
-  jsonID: 'ground-plane',
+  jsonID: 'EE_ground_plane',
 
   onInit(entity) {
     return {
@@ -92,7 +92,7 @@ export const GroundPlaneComponent = defineComponent({
 
     const component = useComponent(entity, GroundPlaneComponent)
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       const mesh = new Mesh(
         new PlaneGeometry(10000, 10000),
         component.visible.value ? new MeshLambertMaterial() : new ShadowMaterial({ opacity: 0.5 })
@@ -123,11 +123,11 @@ export const GroundPlaneComponent = defineComponent({
       }
     }, [])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (component.mesh.value) component.mesh.value.material.color.set(component.color.value)
     }, [component.color])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (component.mesh.value)
         component.mesh.value.material = component.visible.value
           ? new MeshLambertMaterial({ color: component.color.value })

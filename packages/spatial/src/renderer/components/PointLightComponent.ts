@@ -44,7 +44,7 @@ import { setVisibleComponent } from './VisibleComponent'
 
 export const PointLightComponent = defineComponent({
   name: 'PointLightComponent',
-  jsonID: 'point-light',
+  jsonID: 'EE_point_light',
 
   onInit: (entity) => {
     const light = new PointLight()
@@ -93,9 +93,10 @@ export const PointLightComponent = defineComponent({
     const light = useComponent(entity, PointLightComponent)
     useEffect(() => {
       if (isMobileXRHeadset) return
-      addObjectToGroup(entity, light.light.value)
+      const lightObj = light.light.value
+      addObjectToGroup(entity, lightObj)
       return () => {
-        removeObjectFromGroup(entity, light.light.value)
+        removeObjectFromGroup(entity, lightObj)
       }
     }, [])
 

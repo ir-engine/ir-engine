@@ -33,7 +33,7 @@ import { RenderSettingsState } from '@etherealengine/spatial/src/renderer/WebGLR
 
 export const RenderSettingsComponent = defineComponent({
   name: 'RenderSettingsComponent',
-  jsonID: 'render-settings',
+  jsonID: 'EE_render_settings',
 
   onInit(entity): typeof RenderSettingsState._TYPE {
     return typeof RenderSettingsState.initial === 'function'
