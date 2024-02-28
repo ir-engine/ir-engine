@@ -43,7 +43,6 @@ import {
   Box3,
   BufferAttribute,
   Matrix4,
-  Mesh,
   OrthographicCamera,
   PerspectiveCamera,
   Quaternion,
@@ -60,9 +59,7 @@ import {
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { V_000 } from '../../common/constants/MathConstants'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
-import { iterateEntityNode } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { TriggerComponent } from '../components/TriggerComponent'
@@ -74,7 +71,6 @@ import {
   ColliderDescOptions,
   ColliderOptions,
   CollisionEvents,
-  OldShapeTypes,
   RaycastHit,
   SceneQueryType
 } from '../types/PhysicsTypes'
@@ -285,52 +281,12 @@ function createColliderDesc(entity: Entity, rootEntity: Entity, colliderDescOpti
   return colliderDesc
 }
 
-/** @deprecated */
-function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptions: ColliderDescOptions) {
-  const meshesToRemove = [] as Mesh[]
-
-  const rigidBodyType =
-    typeof colliderDescOptions.bodyType === 'string'
-      ? RigidBodyType[colliderDescOptions.bodyType]
-      : colliderDescOptions.bodyType
-
-  let type: Body
-  switch (rigidBodyType) {
-    default:
-    case RigidBodyType.Fixed:
-      type = BodyTypes.Fixed
-      break
-
-    case RigidBodyType.Dynamic:
-      type = BodyTypes.Dynamic
-      break
-
-    case RigidBodyType.KinematicPositionBased:
-    case RigidBodyType.KinematicVelocityBased:
-      type = BodyTypes.Kinematic
-      break
-  }
-
-  setComponent(entity, RigidBodyComponent, { type })
-
-  iterateEntityNode(entity, (child) => {
-    const mesh = getOptionalComponent(child, MeshComponent)
-    if (!mesh) return // || ((mesh?.geometry.attributes['position'] as BufferAttribute).array.length ?? 0 === 0)) return
-    if (mesh.userData.type && mesh.userData.type !== ('glb' as any)) mesh.userData.shapeType = mesh.userData.type
-
-    const args = { ...colliderDescOptions, ...mesh.userData } as ColliderOptions & ColliderDescOptions
-    if (args.shapeType) args.shape = OldShapeTypes[args.shapeType]
-    if (args.isTrigger) setComponent(child, TriggerComponent)
-    setComponent(child, ColliderComponent, args)
-
-    meshesToRemove.push(mesh)
-  })
-
-  return meshesToRemove
+function attachCollider(world: World, colliderDesc: ColliderDesc, rigidBody: RigidBody): Collider {
+  return world.createCollider(colliderDesc, rigidBody)
 }
 
-function createColliderAndAttachToRigidBody(world: World, colliderDesc: ColliderDesc, rigidBody: RigidBody): Collider {
-  return world.createCollider(colliderDesc, rigidBody)
+function removeCollider(world: World, collider: Collider) {
+  world.removeCollider(collider, false)
 }
 
 function createCharacterController(
@@ -357,7 +313,7 @@ function removeCollidersFromRigidBody(entity: Entity, world: World) {
   const numColliders = rigidBody.numColliders()
   for (let index = 0; index < numColliders; index++) {
     const collider = rigidBody.collider(index)
-    world.removeCollider(collider, true)
+    world.removeCollider(collider, false)
   }
 }
 
@@ -563,9 +519,9 @@ export const Physics = {
   createRigidBody,
   createColliderDesc,
   applyDescToCollider,
-  createRigidBodyForGroup,
   createCharacterController,
-  createColliderAndAttachToRigidBody,
+  attachCollider,
+  removeCollider,
   removeCollidersFromRigidBody,
   setRigidBodyType,
   castRay,
