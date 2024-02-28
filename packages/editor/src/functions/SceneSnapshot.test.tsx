@@ -39,12 +39,13 @@ import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsS
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import assert from 'assert'
 
+import { SceneLoadingSystem } from '@etherealengine/engine'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { act, render } from '@testing-library/react'
 import React from 'react'
 import { EditorControlFunctions } from '../../../editor/src/functions/EditorControlFunctions'
-import testSceneJson from '../../tests/assets/SceneLoadingTest.scene.json'
-import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
+import { EditorState } from '../../../editor/src/services/EditorServices'
+import testSceneJson from '../../../engine/tests/assets/SceneLoadingTest.scene.json'
 
 const testScene = {
   name: '',
@@ -228,6 +229,7 @@ describe('Snapshots', () => {
   it('undo snapshot', async () => {
     // init
     SceneState.loadScene(testID, testScene)
+    getMutableState(EditorState).sceneID.set(testID)
     applyIncomingActions()
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
@@ -363,6 +365,8 @@ describe('Snapshots', () => {
 
     // init
     SceneState.loadScene(testID, testScene)
+    getMutableState(EditorState).sceneID.set(testID)
+
     applyIncomingActions()
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))

@@ -39,7 +39,6 @@ import { SceneLoadingSystem } from '@etherealengine/engine/src/scene/systems/Sce
 import testSceneJson from '@etherealengine/engine/tests/assets/SceneLoadingTest.scene.json'
 import { applyIncomingActions, getMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { EventDispatcher } from '@etherealengine/spatial/src/common/classes/EventDispatcher'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
@@ -379,7 +378,7 @@ describe('EditorControlFunctions', () => {
 
       const child2Entity = UUIDComponent.getEntityByUUID('child_2' as EntityUUID)
       const child2_1Entity = UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID)
-      console.log({ child2_1Entity })
+
       assert(child2_1Entity, 'child_2_1 entity not found')
       assert.equal(
         hasComponent(child2_1Entity, EntityTreeComponent),
@@ -425,11 +424,6 @@ describe('EditorControlFunctions', () => {
         getComponent(child2_1Entity, EntityTreeComponent).children.length - 1
       ]
 
-      console.log(
-        getComponent(newChild1, NameComponent),
-        getComponent(newChild2, NameComponent),
-        getComponent(newChild3, NameComponent)
-      )
       // name is the same
       //assert.notEqual(getComponent(newChild1,NameComponent), getComponent(newChild2,NameComponent))
       //assert.notEqual(getComponent(newChild2,NameComponent), getComponent(newChild3,NameComponent))
