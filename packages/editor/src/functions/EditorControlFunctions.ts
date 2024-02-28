@@ -556,8 +556,9 @@ const removeObject = (entities: Entity[]) => {
   getMutableState(SelectionState).selectedEntities.set([])
 
   const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(getState(EditorState).sceneID!)
+  const rootEntity = SceneState.getRootEntity(getState(EditorState).sceneID!)
 
-  const removedParentNodes = filterParentEntities(entities, undefined, true, false)
+  const removedParentNodes = filterParentEntities(rootEntity, entities, undefined, true, false)
   for (let i = 0; i < removedParentNodes.length; i++) {
     const entity = removedParentNodes[i]
     const entityTreeComponent = getComponent(entity, EntityTreeComponent)

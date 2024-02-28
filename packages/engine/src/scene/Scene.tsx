@@ -101,8 +101,7 @@ export const SceneState = defineState({
     getMutableState(SceneState).scenes[sceneID].set(none)
   },
 
-  getRootEntity: (sceneID?: SceneID) => {
-    if (!sceneID) return UndefinedEntity
+  getRootEntity: (sceneID: SceneID) => {
     if (!getState(SceneState).scenes[sceneID]) return UndefinedEntity
     const scene = getState(SceneState).scenes[sceneID].scene
     return UUIDComponent.getEntityByUUID(scene.root)
