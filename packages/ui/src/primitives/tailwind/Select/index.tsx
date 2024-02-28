@@ -23,10 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useHookstate } from '@etherealengine/hyperflux'
 import React from 'react'
-import { HiXCircle } from 'react-icons/hi'
+import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
-import Label from '../Label'
+import Input from '../Input'
 
 export interface SelectProps extends React.HTMLAttributes<HTMLSelectElement> {
   label?: string
@@ -36,6 +37,7 @@ export interface SelectProps extends React.HTMLAttributes<HTMLSelectElement> {
   currentValue: any
   options: { name: string; value: any; disabled?: boolean }[]
   onChange: (value: any) => void
+  placeholder?: string
 }
 
 const Select = ({
@@ -47,37 +49,76 @@ const Select = ({
   currentValue,
   options,
   onChange,
+  placeholder,
   ...props
 }: SelectProps) => {
-  const twClassName = twMerge(
-    'text-theme-secondary p-2.5 text-base font-normal',
-    'textshadow-sm border-theme-primary w-full rounded-lg border bg-transparent transition-colors',
-    'file:border-0 file:bg-transparent file:text-sm file:font-medium',
-    'placeholder:text-muted-foreground focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50',
-    className
-  )
+  const twClassName = twMerge('bg-theme-primary relative', className)
+
+  const selectedOption = useHookstate(-1)
+  const filteredOptions = useHookstate(options)
+
+  const showOptions = useHookstate(false)
+
+  placeholder = placeholder || 'Select an Option'
+
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    selectLabel.set(e.target.value)
+    const newOptions: {
+      name: string
+      value: any
+    }[] = []
+    for (let i = 0; i < options.length; i++) {
+      if (options[i].name.toLowerCase().startsWith(e.target.value.toLowerCase())) {
+        newOptions.push(options[i])
+      }
+    }
+    filteredOptions.set(newOptions)
+  }
+
+  const selectLabel = useHookstate('')
 
   return (
-    <div className={twMerge('flex w-full flex-col items-center gap-2', containerClassName)}>
-      {label && <Label className="self-stretch">{label}</Label>}
-      <select
-        className={twClassName}
-        value={currentValue}
-        onChange={(event) => onChange(event.target.value)}
-        {...props}
+    <div className={twClassName}>
+      <Input
+        className="cursor-pointer"
+        placeholder={placeholder}
+        value={selectLabel.value}
+        onChange={handleOnChange}
+        onClick={() => {
+          showOptions.set(!showOptions.value)
+        }}
+      />
+
+      <MdOutlineKeyboardArrowDown
+        size="1.5em"
+        className={`text-theme-primary absolute right-3 top-2 transition-transform ${
+          showOptions.value ? 'rotate-180' : ''
+        }`}
+      />
+
+      <div
+        className={`border-theme-primary bg-theme-primary absolute z-10 mt-2 w-full rounded border ${
+          showOptions.value ? 'visible' : 'hidden'
+        }`}
       >
-        {options.map(({ name, value, disabled }) => (
-          <option key={name} value={value} disabled={disabled}>
-            {name}
-          </option>
-        ))}
-      </select>
-      {description && <p className="text-theme-secondary self-stretch text-xs">{description}</p>}
-      {error && (
-        <p className="inline-flex items-center gap-2.5 self-start text-sm text-[#E11D48]">
-          <HiXCircle /> {error}
-        </p>
-      )}
+        <ul className="hover:[&>li]:bg-theme-secondary max-h-[140px] overflow-auto [&>li]:cursor-pointer [&>li]:px-4 [&>li]:py-2 [&>li]:text-gray-500">
+          {filteredOptions.value.map((option, index) => (
+            <li
+              key={option.value}
+              value={option.value}
+              onClick={() => {
+                selectedOption.set(index)
+                showOptions.set(false)
+                onChange?.(option.value)
+                selectLabel.set(option.name)
+              }}
+              className="text-theme-primary hover:text-theme-highlight cursor-pointer px-4 py-2"
+            >
+              {option.name}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   )
 }
