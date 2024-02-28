@@ -31,7 +31,7 @@ import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFun
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
-import { SceneSnapshotSystem, SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { FogType } from '@etherealengine/engine/src/scene/constants/FogType'
 import { SceneLoadingSystem } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
@@ -63,7 +63,6 @@ const testID = 'test' as SceneID
 describe('EditorControlFunctions', () => {
   beforeEach(() => {
     createEngine()
-    getMutableState(SceneState).activeScene.set(testID)
     getMutableState(PhysicsState).physicsWorld.set({} as any)
     getMutableState(EngineState).isEditing.set(true)
     getMutableState(EngineState).isEditor.set(true)
@@ -138,7 +137,6 @@ describe('EditorControlFunctions', () => {
 
       EditorControlFunctions.modifyProperty([child2_1Entity], FogSettingsComponent, prop)
       applyIncomingActions()
-      SystemDefinitions.get(SceneSnapshotSystem)!.execute()
       await act(() => rerender(sceneTag))
 
       const newComponent = getComponent(child2_1Entity, FogSettingsComponent)
@@ -187,7 +185,6 @@ describe('EditorControlFunctions', () => {
 
       EditorControlFunctions.duplicateObject([child0Entity])
       applyIncomingActions()
-      SystemDefinitions.get(SceneSnapshotSystem)!.execute()
       await act(() => rerender(sceneTag))
 
       assert(rootEntity, 'root entity not found')
@@ -253,7 +250,6 @@ describe('EditorControlFunctions', () => {
         child2_1Entity
       )
       applyIncomingActions()
-      SystemDefinitions.get(SceneSnapshotSystem)!.execute()
       await act(() => rerender(sceneTag))
 
       assert(getComponent(child2_1Entity, EntityTreeComponent).children.length > 0)
@@ -329,7 +325,6 @@ describe('EditorControlFunctions', () => {
         child2_1Entity
       ) // so it wll be between, child3 and child2_1
       applyIncomingActions()
-      SystemDefinitions.get(SceneSnapshotSystem)!.execute()
       await act(() => rerender(sceneTag))
 
       const newChildren = getComponent(child2Entity, EntityTreeComponent).children
@@ -386,7 +381,6 @@ describe('EditorControlFunctions', () => {
         child2_1Entity
       )
       applyIncomingActions()
-      SystemDefinitions.get(SceneSnapshotSystem)!.execute()
       await act(() => rerender(sceneTag))
       const newChild1 = getComponent(child2_1Entity, EntityTreeComponent).children[
         getComponent(child2_1Entity, EntityTreeComponent).children.length - 1
@@ -397,7 +391,6 @@ describe('EditorControlFunctions', () => {
         child2_1Entity
       )
       applyIncomingActions()
-      SystemDefinitions.get(SceneSnapshotSystem)!.execute()
       await act(() => rerender(sceneTag))
       const newChild2 = getComponent(child2_1Entity, EntityTreeComponent).children[
         getComponent(child2_1Entity, EntityTreeComponent).children.length - 1
@@ -408,7 +401,6 @@ describe('EditorControlFunctions', () => {
         child2_1Entity
       )
       applyIncomingActions()
-      SystemDefinitions.get(SceneSnapshotSystem)!.execute()
       await act(() => rerender(sceneTag))
       const newChild3 = getComponent(child2_1Entity, EntityTreeComponent).children[
         getComponent(child2_1Entity, EntityTreeComponent).children.length - 1
@@ -542,7 +534,6 @@ describe('EditorControlFunctions', () => {
       const nodes = [child1Entity, child2Entity, child3Entity, child4Entity, child5Entity]
       EditorControlFunctions.groupObjects(nodes)
       applyIncomingActions()
-      SystemDefinitions.get(SceneSnapshotSystem)!.execute()
       await act(() => rerender(sceneTag))
 
       const newEntitesUUID = Object.keys(UUIDComponent.entitiesByUUIDState).map((x) => x as EntityUUID)
@@ -597,7 +588,6 @@ describe('EditorControlFunctions', () => {
       const nodes = [child0Entity]
       EditorControlFunctions.removeObject(nodes)
       applyIncomingActions()
-      SystemDefinitions.get(SceneSnapshotSystem)!.execute()
       await act(() => rerender(sceneTag))
 
       nodes.forEach((node: Entity) => {
@@ -622,7 +612,6 @@ describe('EditorControlFunctions', () => {
 
       EditorControlFunctions.removeObject(nodes)
       applyIncomingActions()
-      SystemDefinitions.get(SceneSnapshotSystem)!.execute()
       await act(() => rerender(sceneTag))
 
       nodes.forEach((node: Entity) => {

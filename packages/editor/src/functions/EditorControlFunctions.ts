@@ -59,6 +59,7 @@ import { SourceComponent } from '@etherealengine/engine/src/scene/components/Sou
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { EditorHelperState } from '../services/EditorHelperState'
+import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { filterParentEntities } from './filterParentEntities'
 import { getDetachedObjectsRoots } from './getDetachedObjectsRoots'
@@ -102,7 +103,7 @@ const addOrRemoveComponent = <C extends Component<any, any>>(entities: Entity[],
 const modifyName = (entities: Entity[], name: string) => {
   //cancelGrabOrPlacement()
 
-  const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+  const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(getState(EditorState).sceneID!)
 
   for (const entity of entities) {
     const entityUUID = getComponent(entity, UUIDComponent)
@@ -215,7 +216,7 @@ const createObjectFromSceneElement = (
   beforeEntity?: Entity,
   updateSelection = true
 ) => {
-  parentEntity = parentEntity ?? SceneState.getRootEntity(getState(SceneState).activeScene!)
+  parentEntity = parentEntity ?? SceneState.getRootEntity(getState(EditorState).sceneID!)
   //cancelGrabOrPlacement()
 
   let childIndex = 0
@@ -242,7 +243,7 @@ const createObjectFromSceneElement = (
     }
   }))
 
-  const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+  const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(getState(EditorState).sceneID!)
   // if (updateSelection) newSnapshot.selectedEntities = [entityUUID]
   newSnapshot.data.entities[entityUUID] = {
     name: componentJson[0].name,
@@ -269,7 +270,7 @@ const duplicateObject = (entities: Entity[]) => {
     parents.push(parent)
   }
 
-  const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+  const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(getState(EditorState).sceneID!)
 
   const rootEntities = getDetachedObjectsRoots(entities)
 
@@ -445,10 +446,10 @@ const scaleObject = (entities: Entity[], scales: Vector3[], overrideScale = fals
 }
 
 const reparentObject = (entities: Entity[], before?: Entity | null, parent?: Entity | null) => {
-  parent = parent ?? SceneState.getRootEntity(getState(SceneState).activeScene!)
+  parent = parent ?? SceneState.getRootEntity(getState(EditorState).sceneID!)
   //cancelGrabOrPlacement()
 
-  const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+  const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(getState(EditorState).sceneID!)
 
   for (let i = 0; i < entities.length; i++) {
     const entity = entities[i]
@@ -493,9 +494,9 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent?: Ent
 const groupObjects = (entities: Entity[]) => {
   //cancelGrabOrPlacement()
 
-  const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+  const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(getState(EditorState).sceneID!)
 
-  const parentEntity = SceneState.getRootEntity(getState(SceneState).activeScene!)
+  const parentEntity = SceneState.getRootEntity(getState(EditorState).sceneID!)
   const parentEntityTreeComponent = getComponent(parentEntity, EntityTreeComponent)
   const childIndex = parentEntityTreeComponent.children.length
   const parentEntityUUID = getComponent(parentEntity, UUIDComponent)
@@ -554,7 +555,7 @@ const removeObject = (entities: Entity[]) => {
   /** we have to manually set this here or it will cause react errors when entities are removed */
   getMutableState(SelectionState).selectedEntities.set([])
 
-  const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+  const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(getState(EditorState).sceneID!)
 
   const removedParentNodes = filterParentEntities(entities, undefined, true, false)
   for (let i = 0; i < removedParentNodes.length; i++) {
@@ -592,7 +593,7 @@ const replaceSelection = (entities: EntityUUID[]) => {
     if (same) return
   }
 
-  const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+  const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(getState(EditorState).sceneID!)
   // newSnapshot.selectedEntities = entities.filter(Boolean) as EntityUUID[]
 
   SelectionState.updateSelection(entities)
@@ -613,7 +614,7 @@ const toggleSelection = (entities: EntityUUID[]) => {
     }
   }
 
-  const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+  const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(getState(EditorState).sceneID!)
   // newSnapshot.selectedEntities = selectedEntities.filter(Boolean) as EntityUUID[]
 
   SelectionState.updateSelection(entities)
@@ -629,7 +630,7 @@ const addToSelection = (entities: EntityUUID[]) => {
     selectedEntities.push(object)
   }
 
-  const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+  const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(getState(EditorState).sceneID!)
   // newSnapshot.selectedEntities = selectedEntities.filter(Boolean) as EntityUUID[]
 
   SelectionState.updateSelection(entities)

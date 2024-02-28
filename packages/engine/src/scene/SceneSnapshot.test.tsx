@@ -30,7 +30,7 @@ import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
 import { SceneSnapshotAction, SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { EventDispatcher } from '@etherealengine/spatial/src/common/classes/EventDispatcher'
@@ -93,8 +93,6 @@ describe('Snapshots', () => {
   const sceneTag = <SceneReactor />
 
   it('create snapshot', async () => {
-    getMutableState(SceneState).activeScene.set(testID)
-
     // init
     SceneState.loadScene(testID, testScene)
     applyIncomingActions()
@@ -205,7 +203,7 @@ describe('Snapshots', () => {
     // check all entites are loaded correctly
     // check if data in the manual json matches scene data
 
-    const expectedSnapshot = SceneSnapshotState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+    const expectedSnapshot = SceneSnapshotState.cloneCurrentSnapshot(testID)
     const visibleJson = {
       name: 'visible',
       props: {}
@@ -221,15 +219,13 @@ describe('Snapshots', () => {
 
     await act(() => rerender(sceneTag))
 
-    const actualSnapShot = SceneSnapshotState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+    const actualSnapShot = SceneSnapshotState.cloneCurrentSnapshot(testID)
     assert.deepStrictEqual(actualSnapShot, expectedSnapshot, 'Snapshots do not match')
 
     unmount()
   })
 
   it('undo snapshot', async () => {
-    getMutableState(SceneState).activeScene.set(testID)
-
     // init
     SceneState.loadScene(testID, testScene)
     applyIncomingActions()
@@ -336,7 +332,7 @@ describe('Snapshots', () => {
       child2Entity,
       'child_2_1 entity does not have parentEntity as child_2 entity'
     )
-    const oldSnap = SceneSnapshotState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+    const oldSnap = SceneSnapshotState.cloneCurrentSnapshot(testID)
     EditorControlFunctions.removeObject([child2_1Entity])
 
     applyIncomingActions()
@@ -349,13 +345,13 @@ describe('Snapshots', () => {
       'snapshot unchanged,  entity was not deleted'
     )
 
-    dispatchAction(SceneSnapshotAction.undo({ count: 1, sceneID: getState(SceneState).activeScene! }))
+    dispatchAction(SceneSnapshotAction.undo({ count: 1, sceneID: testID }))
     applyIncomingActions()
 
     await act(() => rerender(sceneTag))
 
     // wait again
-    const undoSnap = SceneSnapshotState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+    const undoSnap = SceneSnapshotState.cloneCurrentSnapshot(testID)
 
     assert.deepStrictEqual(oldSnap, undoSnap, 'Snapshots do not match')
 
@@ -364,7 +360,6 @@ describe('Snapshots', () => {
 
   it('redo snapshot', async () => {
     // wont load unless we simulate the avatar and its distance from the dynamic entity
-    getMutableState(SceneState).activeScene.set(testID)
 
     // init
     SceneState.loadScene(testID, testScene)
@@ -473,14 +468,14 @@ describe('Snapshots', () => {
       'child_2_1 entity does not have parentEntity as child_2 entity'
     )
 
-    const oldSnap = SceneSnapshotState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+    const oldSnap = SceneSnapshotState.cloneCurrentSnapshot(testID)
     EditorControlFunctions.removeObject([child2_1Entity])
     applyIncomingActions()
 
     await act(() => rerender(sceneTag))
 
     // wait somehow
-    const newSnap = SceneSnapshotState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+    const newSnap = SceneSnapshotState.cloneCurrentSnapshot(testID)
 
     assert.equal(
       UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID),
@@ -488,21 +483,21 @@ describe('Snapshots', () => {
       'snapshot unchanged entity not deleted'
     )
 
-    dispatchAction(SceneSnapshotAction.undo({ count: 1, sceneID: getState(SceneState).activeScene! }))
+    dispatchAction(SceneSnapshotAction.undo({ count: 1, sceneID: testID }))
     applyIncomingActions()
 
     await act(() => rerender(sceneTag))
 
     // wait again
-    const undoSnap = SceneSnapshotState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+    const undoSnap = SceneSnapshotState.cloneCurrentSnapshot(testID)
     assert.deepStrictEqual(oldSnap, undoSnap, 'undo Snapshots do not match')
 
-    dispatchAction(SceneSnapshotAction.redo({ count: 1, sceneID: getState(SceneState).activeScene! }))
+    dispatchAction(SceneSnapshotAction.redo({ count: 1, sceneID: testID }))
     applyIncomingActions()
 
     await act(() => rerender(sceneTag))
 
-    const redoSnap = SceneSnapshotState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+    const redoSnap = SceneSnapshotState.cloneCurrentSnapshot(testID)
 
     assert.deepStrictEqual(newSnap, redoSnap, 'redo Snapshots do not match')
 

@@ -27,12 +27,13 @@ import assert from 'assert'
 import { Group, Layers, MathUtils, Mesh, Scene } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { defineComponent, getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -58,7 +59,7 @@ describe.skip('loadGLTFModel', () => {
 
   // TODO: - this needs to be broken down and more comprehensive
   it('loadGLTFModel', async () => {
-    const sceneEntity = SceneState.getRootEntity(getState(SceneState).activeScene!)
+    const sceneEntity = SceneState.getRootEntity('test' as SceneID)
 
     const mockComponentData = { src: '' } as any
     const CustomComponent = defineComponent({

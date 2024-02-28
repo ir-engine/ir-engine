@@ -44,7 +44,6 @@ import {
   SceneDataType,
   SceneID,
   SceneJsonType,
-  SceneMetadataType,
   scenePath
 } from '@etherealengine/common/src/schema.type.module'
 import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -71,8 +70,6 @@ export const SceneState = defineState({
     sceneLoading: false,
     sceneLoaded: false,
     loadingProgress: 0,
-    /** @todo replace activeScene with proper multi-scene support */
-    activeScene: null as null | SceneID,
     background: null as null | Color | Texture,
     environment: null as null | Texture,
     sceneModified: false
@@ -87,7 +84,6 @@ export const SceneState = defineState({
   },
 
   loadScene: (sceneID: SceneID, sceneData: SceneDataType) => {
-    const metadata: SceneMetadataType = sceneData
     const data: SceneJsonType = sceneData.scene
 
     migrateSceneSettings(data)
@@ -119,7 +115,6 @@ export const SceneServices = {
       .service(scenePath)
       .get('' as SceneID, { query: { sceneKey: sceneID } })
       .then((sceneData: SceneDataType) => {
-        getMutableState(SceneState).activeScene.set(sceneID)
         SceneState.loadScene(sceneID, sceneData)
       })
 

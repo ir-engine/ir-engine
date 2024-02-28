@@ -137,10 +137,9 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
 
   const ready = useHookstate(false)
   const systemsLoaded = useHookstate([] as SystemImportType[])
-  const isActiveScene = useHookstate(getMutableState(SceneState).activeScene).value === props.sceneID
 
   useEffect(() => {
-    if (!ready.value || !isActiveScene || !getState(SceneState).sceneLoading) return
+    if (!ready.value || !getState(SceneState).sceneLoading) return
 
     const entitiesCount = sceneEntities.keys.map(UUIDComponent.getEntityByUUID).filter(Boolean).length
     if (entitiesCount <= 1) return
@@ -196,7 +195,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     <>
       {ready.value &&
         Object.entries(sceneEntities.value).map(([entityUUID, data]) =>
-          entityUUID === rootUUID && isActiveScene ? (
+          entityUUID === rootUUID ? (
             <EntitySceneRootLoadReactor
               key={entityUUID}
               sceneID={props.sceneID}

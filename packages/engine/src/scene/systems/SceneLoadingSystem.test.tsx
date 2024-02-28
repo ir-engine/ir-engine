@@ -96,8 +96,6 @@ describe('SceneLoadingSystem', () => {
   const sceneTag = <SceneReactor />
 
   it('will load entities', async () => {
-    getMutableState(SceneState).activeScene.set(testID)
-
     // init
     SceneState.loadScene(testID, testScene)
 
@@ -207,8 +205,6 @@ describe('SceneLoadingSystem', () => {
     unmount()
   })
   it('will load correct data', async () => {
-    getMutableState(SceneState).activeScene.set(testID)
-
     // init
     SceneState.loadScene(testID, testScene)
     const { rerender, unmount } = render(sceneTag)
@@ -245,7 +241,6 @@ describe('SceneLoadingSystem', () => {
   })
   it('will not load dynamic entity', async () => {
     // wont load unless we simulate the avatar and its distance from the dynamic entity
-    getMutableState(SceneState).activeScene.set(testID)
     // its easier to just add the component to the scene and remove it at the end
     const dynamicLoadJson = {
       name: SceneDynamicLoadTagComponent.jsonID,
@@ -299,7 +294,6 @@ describe('SceneLoadingSystem', () => {
   })
 
   it('will load dynamic entity in studio', async () => {
-    getMutableState(SceneState).activeScene.set(testID)
     getMutableState(EngineState).isEditor.set(true)
     getMutableState(EngineState).isEditing.set(true)
 
@@ -430,8 +424,6 @@ describe('SceneLoadingSystem', () => {
   })
 
   it('will load sub-scene from model component', async () => {
-    getMutableState(SceneState).activeScene.set(testID)
-
     SceneState.loadScene(testID, testScene)
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
@@ -506,8 +498,6 @@ describe('SceneLoadingSystem', () => {
   })
 
   it('will have sceneAssetPendingTagQuery when loading', async () => {
-    getMutableState(SceneState).activeScene.set(testID)
-
     // init
     SceneState.loadScene(testID, testScene)
     const { rerender, unmount } = render(sceneTag)
