@@ -23,29 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import exportModelGLTF from '@etherealengine/engine/src/assets/functions/exportModelGLTF'
-import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
+import { EntityJsonType, SceneJsonType } from '@etherealengine/common/src/schema.type.module'
+import { v4 as uuid } from 'uuid'
 
-import { uploadProjectFiles } from './assetFunctions'
+// puts the scene settings from the the root entity into a sub entity
+export const migrateSceneSettings = (json: SceneJsonType) => {
+  if (!json.root) return
+  const rootEntity = json.entities[json.root]
+  if (!rootEntity) return
+  if (json.entities[json.root].components.length) {
+    const newEntity = {
+      name: 'Settings',
+      components: JSON.parse(JSON.stringify(rootEntity.components)),
+      parent: json.root,
+      index: 0
+    } as EntityJsonType
 
-export default async function exportGLTF(entity: Entity, path: string) {
-  const [, pName, fileName] = pathResolver().exec(path)!
-  return exportRelativeGLTF(entity, pName, fileName)
-}
+    // remove all root entity components
+    json.entities[json.root].components = []
 
-export async function exportRelativeGLTF(entity: Entity, projectName: string, relativePath: string) {
-  const isGLTF = /\.gltf$/.test(relativePath)
-  const gltf = await exportModelGLTF(entity, {
-    projectName,
-    relativePath,
-    binary: !isGLTF,
-    embedImages: !isGLTF,
-    includeCustomExtensions: true,
-    onlyVisible: false
-  })
-  const blob = isGLTF ? [JSON.stringify(gltf, null, 2)] : [gltf]
-  const file = new File(blob, relativePath)
-  const urls = await Promise.all(uploadProjectFiles(projectName, [file]).promises)
-  console.log('exported model data to ', ...urls)
+    // increment all indexes as our new entity will be at the start
+    for (const entity of Object.values(json.entities)) {
+      if (typeof entity.index === 'number') entity.index = entity.index + 1
+    }
+
+    // force reordering so our new entity can be at the start
+    json.entities = {
+      [json.root]: json.entities[json.root],
+      [uuid()]: newEntity,
+      ...json.entities
+    }
+  }
 }
