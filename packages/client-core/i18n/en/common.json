@@ -121,5 +121,8 @@
     "validation-error": "Please input valid {{type}}",
     "login-error": "Failed to login"
   },
-  "exploreRedirect": "Explore Worlds"
+  "exploreRedirect": "Explore Worlds",
+  "loading": {
+    "refetching": "Refetching Data..."
+  }
 }

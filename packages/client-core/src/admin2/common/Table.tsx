@@ -23,9 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useEffect } from 'react'
 import { HiArrowSmallDown, HiArrowSmallUp } from 'react-icons/hi2'
 
+import { NO_PROXY } from '@etherealengine/hyperflux'
 import { FeathersOrder, useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import Table, {
@@ -36,6 +37,9 @@ import Table, {
   TablePagination,
   TableRow
 } from '@etherealengine/ui/src/primitives/tailwind/Table'
+import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
+import { useHookstate } from '@hookstate/core'
+import { useTranslation } from 'react-i18next'
 
 export interface ITableHeadCell {
   id: string | number
@@ -80,44 +84,64 @@ const TableHead = ({ order, orderBy, onRequestSort, columns }: TableHeadProps) =
   )
 }
 
+type RowType = Record<string | 'className' | 'id', string | ReactNode>
+
 interface DataTableProps {
   query: ReturnType<typeof useFind>
-  rows: Record<string | 'className' | 'id', string | ReactNode>[]
+  rows: RowType[]
   columns: ITableHeadCell[]
 }
 
 const DataTable = ({ query, columns, rows }: DataTableProps) => {
+  const { t } = useTranslation()
   const [orderBy, order] = (Object.entries(query.sort)[0] as [string | number, FeathersOrder]) ?? ['', 0]
 
-  return query.status !== 'success' ? (
-    <div className="flex h-96 w-full items-center justify-center">
-      <LoadingCircle className="flex w-1/4 items-center justify-center" />
+  const storedRows = useHookstate<RowType[]>([])
+  useEffect(() => {
+    if (rows.length !== 0) {
+      storedRows.set(rows)
+    }
+  }, [rows])
+
+  return storedRows.length === 0 && query.status === 'pending' ? (
+    <div className="flex animate-pulse flex-col gap-2">
+      {Array.from({ length: 20 }, (_, i) => i).map((idx) => (
+        <div key={idx} className="h-12 w-full odd:bg-gray-300 even:bg-gray-200" />
+      ))}
     </div>
   ) : (
-    <Table>
-      <TableHead
-        order={order}
-        orderBy={orderBy}
-        onRequestSort={(property, order) => query.setSort({ [property]: order })}
-        columns={columns}
-      />
-      <TableBody>
-        {rows.map((row, rowIdx) => (
-          <TableRow key={typeof row['id'] === 'string' ? row['id'] : rowIdx}>
-            {columns.map((column, columnIdx) => (
-              <TableCell key={columnIdx} className={column.className}>
-                {row[column.id]}
-              </TableCell>
-            ))}
-          </TableRow>
-        ))}
-      </TableBody>
-      <TablePagination
-        totalPages={Math.ceil(query.total / query.limit)}
-        currentPage={query.page}
-        onPageChange={(newPage) => query.setPage(newPage)}
-      />
-    </Table>
+    <>
+      {query.status === 'pending' && (
+        <div className="my-2 flex h-8 items-center">
+          <LoadingCircle className="mx-1 h-8 w-8" />
+          <Text className="mx-1">{t('common:loading.refetching')}</Text>
+        </div>
+      )}
+      <Table>
+        <TableHead
+          order={order}
+          orderBy={orderBy}
+          onRequestSort={(property, order) => query.setSort({ [property]: order })}
+          columns={columns}
+        />
+        <TableBody>
+          {storedRows.get(NO_PROXY).map((row, rowIdx) => (
+            <TableRow key={typeof row['id'] === 'string' ? row['id'] : rowIdx}>
+              {columns.map((column, columnIdx) => (
+                <TableCell key={columnIdx} className={column.className}>
+                  {row[column.id]}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+        <TablePagination
+          totalPages={Math.ceil(query.total / query.limit)}
+          currentPage={query.page}
+          onPageChange={(newPage) => query.setPage(newPage)}
+        />
+      </Table>
+    </>
   )
 }
 
