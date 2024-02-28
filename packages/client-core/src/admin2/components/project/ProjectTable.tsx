@@ -78,7 +78,7 @@ export default function ProjectTable() {
     const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)[project.name]).value
 
     return (
-      <div className="flex justify-around">
+      <div className="flex items-center justify-around">
         <Button
           startIcon={<GrGithub />}
           size="small"
