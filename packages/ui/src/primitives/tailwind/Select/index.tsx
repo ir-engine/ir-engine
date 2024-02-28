@@ -29,9 +29,9 @@ import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import Input from '../Input'
 
-export interface SelectProps extends React.HTMLAttributes<HTMLSelectElement> {
+export interface SelectProps {
   label?: string
-  containerClassName?: string
+  className?: string
   error?: string
   description?: string
   currentValue: any
@@ -42,19 +42,17 @@ export interface SelectProps extends React.HTMLAttributes<HTMLSelectElement> {
 
 const Select = ({
   className,
-  containerClassName,
   label,
   error,
   description,
   currentValue,
   options,
   onChange,
-  placeholder,
-  ...props
+  placeholder
 }: SelectProps) => {
   const twClassName = twMerge('bg-theme-primary relative', className)
 
-  const selectedOption = useHookstate(-1)
+  const selectedOption = useHookstate(currentValue)
   const filteredOptions = useHookstate(options)
 
   const showOptions = useHookstate(false)
@@ -75,11 +73,14 @@ const Select = ({
     filteredOptions.set(newOptions)
   }
 
-  const selectLabel = useHookstate('')
+  const selectLabel = useHookstate(options.find((option) => option.value === currentValue)?.name || '')
 
   return (
     <div className={twClassName}>
       <Input
+        label={label}
+        description={description}
+        error={error}
         className="cursor-pointer"
         placeholder={placeholder}
         value={selectLabel.value}
@@ -91,28 +92,31 @@ const Select = ({
 
       <MdOutlineKeyboardArrowDown
         size="1.5em"
-        className={`text-theme-primary absolute right-3 top-2 transition-transform ${
+        className={`text-theme-primary absolute right-3 top-8 transition-transform ${
           showOptions.value ? 'rotate-180' : ''
         }`}
       />
 
       <div
-        className={`border-theme-primary bg-theme-primary absolute z-10 mt-2 w-full rounded border ${
+        className={`border-theme-primary bg-theme-secondary absolute z-10 mt-2 w-full rounded border ${
           showOptions.value ? 'visible' : 'hidden'
         }`}
       >
-        <ul className="hover:[&>li]:bg-theme-secondary max-h-[140px] overflow-auto [&>li]:cursor-pointer [&>li]:px-4 [&>li]:py-2 [&>li]:text-gray-500">
-          {filteredOptions.value.map((option, index) => (
+        <ul className="hover:[&>li]:bg-theme-primary max-h-[140px] overflow-auto [&>li]:cursor-pointer [&>li]:px-4 [&>li]:py-2 [&>li]:text-gray-500">
+          {filteredOptions.value.map((option) => (
             <li
               key={option.value}
               value={option.value}
               onClick={() => {
-                selectedOption.set(index)
+                selectedOption.set(option.value)
                 showOptions.set(false)
                 onChange?.(option.value)
                 selectLabel.set(option.name)
               }}
-              className="text-theme-primary hover:text-theme-highlight cursor-pointer px-4 py-2"
+              className={twMerge(
+                'text-theme-primary hover:text-theme-highlight cursor-pointer px-4 py-2',
+                option.disabled && 'cursor-not-allowed'
+              )}
             >
               {option.name}
             </li>
