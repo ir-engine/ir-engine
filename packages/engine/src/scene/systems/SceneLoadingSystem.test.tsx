@@ -61,7 +61,7 @@ const testScene = {
   scene: testSceneJson as unknown as SceneJsonType
 } as SceneDataType
 
-const testID = 'test' as SceneID
+const sceneID = 'test' as SceneID
 overrideFileLoaderLoad()
 describe('SceneLoadingSystem', () => {
   beforeEach(async () => {
@@ -97,13 +97,13 @@ describe('SceneLoadingSystem', () => {
 
   it('will load entities', async () => {
     // init
-    SceneState.loadScene(testID, testScene)
+    SceneState.loadScene(sceneID, testScene)
 
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
     // assertions
-    const rootEntity = SceneState.getRootEntity(testID)
+    const rootEntity = SceneState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
@@ -206,12 +206,12 @@ describe('SceneLoadingSystem', () => {
   })
   it('will load correct data', async () => {
     // init
-    SceneState.loadScene(testID, testScene)
+    SceneState.loadScene(sceneID, testScene)
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
     // assertions
-    const rootEntity = SceneState.getRootEntity(testID)
+    const rootEntity = SceneState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
@@ -256,12 +256,12 @@ describe('SceneLoadingSystem', () => {
     // load scene
 
     // init
-    SceneState.loadScene(testID, testScene)
+    SceneState.loadScene(sceneID, testScene)
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
     // assertions
-    const rootEntity = SceneState.getRootEntity(testID)
+    const rootEntity = SceneState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
@@ -313,12 +313,12 @@ describe('SceneLoadingSystem', () => {
     // load scene
 
     // init
-    SceneState.loadScene(testID, testScene)
+    SceneState.loadScene(sceneID, testScene)
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
     // assertions
-    const rootEntity = SceneState.getRootEntity(testID)
+    const rootEntity = SceneState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
@@ -424,12 +424,12 @@ describe('SceneLoadingSystem', () => {
   })
 
   it('will load sub-scene from model component', async () => {
-    SceneState.loadScene(testID, testScene)
+    SceneState.loadScene(sceneID, testScene)
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
     // assertions
-    const rootEntity = SceneState.getRootEntity(testID)
+    const rootEntity = SceneState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
@@ -499,7 +499,7 @@ describe('SceneLoadingSystem', () => {
 
   it('will have sceneAssetPendingTagQuery when loading', async () => {
     // init
-    SceneState.loadScene(testID, testScene)
+    SceneState.loadScene(sceneID, testScene)
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
@@ -512,7 +512,7 @@ describe('SceneLoadingSystem', () => {
     assert(inLoadingEntities.length > 0, 'no sceneAssetPendingTag found when loading')
     //while loading
     for (const entity of inLoadingEntities) {
-      if (entity === SceneState.getRootEntity(testID)) {
+      if (entity === SceneState.getRootEntity(sceneID)) {
         assert.equal(
           hasComponent(entity, SceneAssetPendingTagComponent),
           true,
@@ -529,7 +529,7 @@ describe('SceneLoadingSystem', () => {
     }
 
     //after loading
-    const rootEntity = SceneState.getRootEntity(testID)
+    const rootEntity = SceneState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(

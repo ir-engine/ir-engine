@@ -58,7 +58,7 @@ const testScene = {
   scenePath: 'test' as SceneID,
   scene: testSceneJson as unknown as SceneJsonType
 } as SceneDataType
-const testID = 'test' as SceneID
+const sceneID = 'test' as SceneID
 
 /** @todo rewrite all these tests */
 describe('EditorControlFunctions', () => {
@@ -97,14 +97,14 @@ describe('EditorControlFunctions', () => {
       // force re-render
       // assertions
 
-      SceneState.loadScene(testID, testScene)
-      getMutableState(EditorState).sceneID.set(testID)
+      SceneState.loadScene(sceneID, testScene)
+      getMutableState(EditorState).sceneID.set(sceneID)
       applyIncomingActions()
 
       const { rerender, unmount } = render(sceneTag)
       await act(() => rerender(sceneTag))
 
-      const rootEntity = SceneState.getRootEntity(testID)
+      const rootEntity = SceneState.getRootEntity(sceneID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
@@ -151,8 +151,8 @@ describe('EditorControlFunctions', () => {
   describe('duplicateObject', () => {
     it('will execute the command', async () => {
       // load scene
-      SceneState.loadScene(testID, testScene)
-      getMutableState(EditorState).sceneID.set(testID)
+      SceneState.loadScene(sceneID, testScene)
+      getMutableState(EditorState).sceneID.set(sceneID)
 
       // force re-render
       applyIncomingActions()
@@ -161,7 +161,7 @@ describe('EditorControlFunctions', () => {
       await act(() => rerender(sceneTag))
 
       // assertions
-      const rootEntity = SceneState.getRootEntity(testID)
+      const rootEntity = SceneState.getRootEntity(sceneID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
@@ -201,15 +201,15 @@ describe('EditorControlFunctions', () => {
 
   describe('createObjectFromSceneElement', () => {
     it('creates components from given ID', async () => {
-      SceneState.loadScene(testID, testScene)
-      getMutableState(EditorState).sceneID.set(testID)
+      SceneState.loadScene(sceneID, testScene)
+      getMutableState(EditorState).sceneID.set(sceneID)
 
       applyIncomingActions()
 
       const { rerender, unmount } = render(sceneTag)
       await act(() => rerender(sceneTag))
 
-      const rootEntity = SceneState.getRootEntity(testID)
+      const rootEntity = SceneState.getRootEntity(sceneID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
@@ -262,15 +262,15 @@ describe('EditorControlFunctions', () => {
     })
 
     it('places created entity before passed entity', async () => {
-      SceneState.loadScene(testID, testScene)
-      getMutableState(EditorState).sceneID.set(testID)
+      SceneState.loadScene(sceneID, testScene)
+      getMutableState(EditorState).sceneID.set(sceneID)
 
       applyIncomingActions()
 
       const { rerender, unmount } = render(sceneTag)
       await act(() => rerender(sceneTag))
 
-      const rootEntity = SceneState.getRootEntity(testID)
+      const rootEntity = SceneState.getRootEntity(sceneID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
@@ -346,15 +346,15 @@ describe('EditorControlFunctions', () => {
     })
 
     it('creates unique name for each newly created objects', async () => {
-      SceneState.loadScene(testID, testScene)
-      getMutableState(EditorState).sceneID.set(testID)
+      SceneState.loadScene(sceneID, testScene)
+      getMutableState(EditorState).sceneID.set(sceneID)
 
       applyIncomingActions()
 
       const { rerender, unmount } = render(sceneTag)
       await act(() => rerender(sceneTag))
 
-      const rootEntity = SceneState.getRootEntity(testID)
+      const rootEntity = SceneState.getRootEntity(sceneID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
@@ -435,15 +435,15 @@ describe('EditorControlFunctions', () => {
 
   describe('groupObjects', () => {
     it('will execute command', async () => {
-      SceneState.loadScene(testID, testScene)
-      getMutableState(EditorState).sceneID.set(testID)
+      SceneState.loadScene(sceneID, testScene)
+      getMutableState(EditorState).sceneID.set(sceneID)
 
       applyIncomingActions()
 
       const { rerender, unmount } = render(sceneTag)
       await act(() => rerender(sceneTag))
 
-      const rootEntity = SceneState.getRootEntity(testID)
+      const rootEntity = SceneState.getRootEntity(sceneID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
@@ -568,14 +568,14 @@ describe('EditorControlFunctions', () => {
 
   describe('removeObjects', () => {
     it('Removes given nodes', async () => {
-      SceneState.loadScene(testID, testScene)
-      getMutableState(EditorState).sceneID.set(testID)
+      SceneState.loadScene(sceneID, testScene)
+      getMutableState(EditorState).sceneID.set(sceneID)
       applyIncomingActions()
 
       const { rerender, unmount } = render(sceneTag)
       await act(() => rerender(sceneTag))
 
-      const rootEntity = SceneState.getRootEntity(testID)
+      const rootEntity = SceneState.getRootEntity(sceneID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
@@ -610,15 +610,15 @@ describe('EditorControlFunctions', () => {
     })
 
     it('will not remove root node', async () => {
-      SceneState.loadScene(testID, testScene)
-      getMutableState(EditorState).sceneID.set(testID)
+      SceneState.loadScene(sceneID, testScene)
+      getMutableState(EditorState).sceneID.set(sceneID)
 
       applyIncomingActions()
 
       const { rerender, unmount } = render(sceneTag)
       await act(() => rerender(sceneTag))
 
-      const rootEntity = SceneState.getRootEntity(testID)
+      const rootEntity = SceneState.getRootEntity(sceneID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(

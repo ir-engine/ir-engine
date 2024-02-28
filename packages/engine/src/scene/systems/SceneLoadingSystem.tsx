@@ -163,7 +163,6 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
   useEffect(() => {
     const { project, scene } = getState(SceneState).scenes[props.sceneID]
     const systemPromises = getSystemsFromSceneData(project, scene)
-    console.log('SceneReactor', systemPromises)
     if (!systemPromises) {
       ready.set(true)
       getMutableState(SceneState).merge({
