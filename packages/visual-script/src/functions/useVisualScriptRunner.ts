@@ -104,7 +104,7 @@ export const useVisualScriptRunner = ({
         const systemUUID = defineSystem({
           uuid: 'visual-script-asyncExecute' + systemCounter++,
           execute: async () => {
-            if (!engine || !run || eventEmitter.tickEvent.listenerCount === 0) return
+            if (!engine || !run) return
             await engine.executeAllAsync(500)
           },
           insert: { after: PresentationSystemGroup }

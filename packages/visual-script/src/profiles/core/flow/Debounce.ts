@@ -58,11 +58,10 @@ export class Debounce extends AsyncNode {
     const localTriggerCount = this.triggerVersion
     setTimeout(
       () => {
-        if (this.triggerVersion >= localTriggerCount) {
+        if (this.triggerVersion > localTriggerCount) {
           // ignore this timer, as it isn't for the most recent trigger
           return
         }
-
         engine.commitToNewFiber(this, 'flow')
         finished()
       },

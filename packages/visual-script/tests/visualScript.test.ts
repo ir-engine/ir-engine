@@ -34,6 +34,7 @@ import decisionTestVisualScript from './assets/decision-test-visual-script.json'
 import defaultVisualScript from './assets/default-visual-script.json'
 import floatTestVisualScript from './assets/float-test-visual-script.json'
 import integerTestVisualScript from './assets/integer-test-visual-script.json'
+import rateRepeatTestVisualScript from './assets/rate-repeat-test-visual-script.json'
 import stringTestVisualScript from './assets/string-test-visual-script.json'
 
 import { parseStorageProviderURLs } from '@etherealengine/spatial/src/common/functions/parseSceneJSON'
@@ -141,6 +142,28 @@ describe('visual Script', () => {
       })
     }
   })
+
+  it('test rate and repeat nodes script', async () => {
+    const entity = createEntity()
+    const visualScript = parseStorageProviderURLs(rateRepeatTestVisualScript) as unknown as GraphJSON
+    setComponent(entity, VisualScriptComponent, { visualScript: visualScript, run: true })
+    const messageSequence = [
+      'repeatNone',
+      'repeatN0',
+      'repeatN1',
+      'repeatN2',
+      'throttle0',
+      'throttle1',
+      'throttle2',
+      'debounce'
+    ]
+    for (const message of messageSequence) {
+      await waitForConsoleLog(message).then((result) => {
+        expect(result.includes(message)).to.be.true
+      })
+    }
+  })
+
   afterEach(() => {
     consoleSpy.restore()
     consoleErrorSpy.restore()
