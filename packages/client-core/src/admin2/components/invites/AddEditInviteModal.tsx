@@ -90,7 +90,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
   const userPosition = useHookstate(invite?.spawnDetails?.inviteCode || '')
 
   const errors = useHookstate(getDefaultErrors())
-  const modalProcessing = useHookstate(false)
+  const submitLoading = useHookstate(false)
 
   const adminSceneState = useHookstate(getMutableState(AdminSceneState))
   const spawnPoints = adminSceneState.singleScene?.scene?.entities.value
@@ -186,14 +186,14 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
       }
     })
 
-    modalProcessing.set(true)
+    submitLoading.set(true)
 
     try {
       await Promise.all(sendInvitePromises)
       PopoverState.hidePopupover()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
-      modalProcessing.set(false)
+      submitLoading.set(false)
     }
   }
 
@@ -205,144 +205,143 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
       onClose={() => {
         PopoverState.hidePopupover()
       }}
-      hideFooter={modalProcessing.value}
+      submitLoading={submitLoading.value}
     >
-      {modalProcessing.value ? (
-        <LoadingCircle className="w-[10vw]" />
-      ) : (
-        <div className="grid w-full gap-6">
-          {invite?.id ? (
-            <Input
-              label={t('admin:components.invite.recipients')}
-              value={emailRecipients[0].value}
-              onChange={() => {}}
-              disabled={true}
-            />
-          ) : (
-            <MultiEmailInput
-              emailList={emailRecipients}
-              label={t('admin:components.invite.recipients')}
-              error={errors.recipients.value}
-            />
-          )}
+      <div className={`relative grid w-full gap-6 ${submitLoading.value && 'pointer-events-none opacity-50'}`}>
+        {submitLoading.value && (
+          <LoadingCircle className="absolute left-1/2 top-1/2 z-50 my-auto h-1/6 w-1/6 -translate-x-1/2 -translate-y-1/2 cursor-wait" />
+        )}
+        {invite?.id ? (
+          <Input
+            label={t('admin:components.invite.recipients')}
+            value={emailRecipients[0].value}
+            onChange={() => {}}
+            disabled={true}
+          />
+        ) : (
+          <MultiEmailInput
+            emailList={emailRecipients}
+            label={t('admin:components.invite.recipients')}
+            error={errors.recipients.value}
+          />
+        )}
+        <Select
+          label={t('admin:components.invite.type')}
+          options={inviteTypeOptions.map((type) => ({ name: t(`admin:components.invite.${type}`), value: type }))}
+          currentValue={inviteType.value}
+          onChange={(value) => inviteType.set(value)}
+        />
+        {inviteType.value === 'location' && (
           <Select
-            label={t('admin:components.invite.type')}
-            options={inviteTypeOptions.map((type) => ({ name: t(`admin:components.invite.${type}`), value: type }))}
-            currentValue={inviteType.value}
-            onChange={(value) => inviteType.set(value)}
+            label={t('admin:components.invite.location')}
+            options={[
+              ...adminLocations.map((location) => ({
+                value: location.id,
+                name: `${location.name} (${location.sceneId})`
+              })),
+              { value: '', name: t('admin:components.invite.selectLocation'), disabled: true }
+            ]}
+            currentValue={inviteLocation.value}
+            onChange={(value) => inviteLocation.set(value)}
+            error={errors.inviteLocation.value}
           />
-          {inviteType.value === 'location' && (
-            <Select
-              label={t('admin:components.invite.location')}
-              options={[
-                ...adminLocations.map((location) => ({
-                  value: location.id,
-                  name: `${location.name} (${location.sceneId})`
-                })),
-                { value: '', name: t('admin:components.invite.selectLocation'), disabled: true }
-              ]}
-              currentValue={inviteLocation.value}
-              onChange={(value) => inviteLocation.set(value)}
-              error={errors.inviteLocation.value}
+        )}
+        {inviteType.value === 'instance' && (
+          <Select
+            label={t('admin:components.invite.instance')}
+            options={[
+              ...adminInstances.map((instance) => ({
+                name: `${instance.id} (${instance.location.name})`,
+                value: instance.id
+              })),
+              { value: '', name: t('admin:components.invite.selectInstance'), disabled: true }
+            ]}
+            currentValue={inviteInstance.value}
+            onChange={(value) => inviteInstance.set(value)}
+            error={errors.inviteInstance.value}
+          />
+        )}
+        {((inviteType.value === 'instance' && inviteInstance.value) ||
+          (inviteType.value === 'location' && inviteLocation.value)) && (
+          <>
+            <Checkbox
+              label={t('admin:components.invite.spawnAtPosition')}
+              value={spawnSelected.value}
+              onChange={(value) => spawnSelected.set(value)}
             />
-          )}
-          {inviteType.value === 'instance' && (
-            <Select
-              label={t('admin:components.invite.instance')}
-              options={[
-                ...adminInstances.map((instance) => ({
-                  name: `${instance.id} (${instance.location.name})`,
-                  value: instance.id
-                })),
-                { value: '', name: t('admin:components.invite.selectInstance'), disabled: true }
-              ]}
-              currentValue={inviteInstance.value}
-              onChange={(value) => inviteInstance.set(value)}
-              error={errors.inviteInstance.value}
-            />
-          )}
-          {((inviteType.value === 'instance' && inviteInstance.value) ||
-            (inviteType.value === 'location' && inviteLocation.value)) && (
-            <>
-              <Checkbox
-                label={t('admin:components.invite.spawnAtPosition')}
-                value={spawnSelected.value}
-                onChange={(value) => spawnSelected.set(value)}
-              />
-              {spawnSelected.value && (
-                <>
-                  <Radios
-                    className="grid-flow-col"
-                    options={spawnTypeOptions.map((option) => ({
-                      value: option,
-                      name: t(`admin:components.invite.${option}`)
-                    }))}
-                    currentValue={spawnType.value}
-                    onChange={(value) => spawnType.set(value)}
+            {spawnSelected.value && (
+              <>
+                <Radios
+                  className="grid-flow-col"
+                  options={spawnTypeOptions.map((option) => ({
+                    value: option,
+                    name: t(`admin:components.invite.${option}`)
+                  }))}
+                  currentValue={spawnType.value}
+                  onChange={(value) => spawnType.set(value)}
+                />
+                {spawnType.value === 'spawnPoint' && (
+                  <Select
+                    label={t('admin:components.invite.spawnPoint')}
+                    options={spawnPointOptions}
+                    currentValue={spawnPoint.value}
+                    onChange={(value) => spawnPoint.set(value)}
                   />
-                  {spawnType.value === 'spawnPoint' && (
-                    <Select
-                      label={t('admin:components.invite.spawnPoint')}
-                      options={spawnPointOptions}
-                      currentValue={spawnPoint.value}
-                      onChange={(value) => spawnPoint.set(value)}
-                    />
-                  )}
-                  {spawnType.value === 'userPosition' && (
-                    <Select
-                      label={t('admin:components.invite.userPosition')}
-                      options={[
-                        ...adminUsers.map((user) => ({
-                          value: user.inviteCode,
-                          name: `${user.name} (${user.inviteCode})`
-                        })),
-                        { name: t('admin:components.invite.selectUserPosition'), value: '', disabled: true }
-                      ]}
-                      currentValue={userPosition.value}
-                      onChange={(value) => userPosition.set(value)}
-                    />
-                  )}
-                </>
-              )}
-            </>
-          )}
-          <Checkbox
-            label={t('admin:components.invite.oneTime')}
-            value={oneTimeInvite.value}
-            onChange={(value) => oneTimeInvite.set(value)}
-          />
-          <Checkbox
-            label={t('admin:components.invite.timedInvite')}
-            value={timedInvite.value}
-            onChange={(value) => timedInvite.set(value)}
-          />
-          {timedInvite.value && (
-            <div className="flex justify-between">
-              <Input
-                type="datetime-local"
-                className="w-auto"
-                label={t('admin:components.invite.startTime')}
-                value={inviteStartTime.value}
-                onChange={(event) => inviteStartTime.set(event.target.value)}
-                error={errors.startTime.value}
-              />
-              <Input
-                type="datetime-local"
-                className="w-auto"
-                label={t('admin:components.invite.endTime')}
-                value={inviteEndTime.value}
-                onChange={(event) => inviteEndTime.set(event.target.value)}
-                error={errors.endTime.value}
-              />
-            </div>
-          )}
-          <Checkbox
-            label={t('admin:components.invite.makeAdmin')}
-            value={makeAdmin.value}
-            onChange={(value) => makeAdmin.set(value)}
-          />
-        </div>
-      )}
+                )}
+                {spawnType.value === 'userPosition' && (
+                  <Select
+                    label={t('admin:components.invite.userPosition')}
+                    options={[
+                      ...adminUsers.map((user) => ({
+                        value: user.inviteCode,
+                        name: `${user.name} (${user.inviteCode})`
+                      })),
+                      { name: t('admin:components.invite.selectUserPosition'), value: '', disabled: true }
+                    ]}
+                    currentValue={userPosition.value}
+                    onChange={(value) => userPosition.set(value)}
+                  />
+                )}
+              </>
+            )}
+          </>
+        )}
+        <Checkbox
+          label={t('admin:components.invite.oneTime')}
+          value={oneTimeInvite.value}
+          onChange={(value) => oneTimeInvite.set(value)}
+        />
+        <Checkbox
+          label={t('admin:components.invite.timedInvite')}
+          value={timedInvite.value}
+          onChange={(value) => timedInvite.set(value)}
+        />
+        {timedInvite.value && (
+          <div className="flex justify-between">
+            <Input
+              type="datetime-local"
+              className="w-auto"
+              label={t('admin:components.invite.startTime')}
+              value={inviteStartTime.value}
+              onChange={(event) => inviteStartTime.set(event.target.value)}
+              error={errors.startTime.value}
+            />
+            <Input
+              type="datetime-local"
+              className="w-auto"
+              label={t('admin:components.invite.endTime')}
+              value={inviteEndTime.value}
+              onChange={(event) => inviteEndTime.set(event.target.value)}
+              error={errors.endTime.value}
+            />
+          </div>
+        )}
+        <Checkbox
+          label={t('admin:components.invite.makeAdmin')}
+          value={makeAdmin.value}
+          onChange={(value) => makeAdmin.set(value)}
+        />
+      </div>
     </Modal>
   )
 }
