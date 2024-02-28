@@ -145,14 +145,14 @@ function ColliderComponentRigidbodyReactor(props: { entity: Entity; rigidbodyEnt
     const rigidbody = rigidbodyComponent.body.value
 
     const physicsWorld = getState(PhysicsState).physicsWorld
-    const collider = physicsWorld.createCollider(colliderDesc, rigidbody)
+    const collider = Physics.attachCollider(physicsWorld, colliderDesc, rigidbody)
     colliderComponent.collider.set(collider)
 
     return () => {
       if (entityExists(props.entity) && hasComponent(props.entity, ColliderComponent)) {
         colliderComponent.collider.set(null)
       }
-      physicsWorld.removeCollider(collider, false)
+      Physics.removeCollider(physicsWorld, collider)
     }
   }, [rigidbodyComponent.body])
 

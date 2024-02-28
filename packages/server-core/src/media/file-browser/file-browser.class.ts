@@ -268,7 +268,7 @@ export class FileBrowserService
       fs.writeFileSync(filePath, data.body)
     }
 
-    const hash = createStaticResourceHash(data.body, { mimeType: data.contentType, assetURL: key })
+    const hash = createStaticResourceHash(data.body)
     const cacheDomain = getCacheDomain(storageProvider, params && params.provider == null)
     const url = getCachedURL(key, cacheDomain)
 
