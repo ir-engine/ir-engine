@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect, useLayoutEffect } from 'react'
+import { useEffect } from 'react'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import {
@@ -271,7 +271,7 @@ const EntityChildLoadReactor = (props: {
   const parentLoaded = !!useOptionalComponent(parentEntity, UUIDComponent)
   const dynamicParentState = useOptionalComponent(parentEntity, SceneDynamicLoadTagComponent)
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     // ensure parent has been deserialized before checking if dynamically loaded
     if (!parentLoaded) return
 
