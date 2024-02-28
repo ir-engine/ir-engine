@@ -301,7 +301,6 @@ const reactor = () => {
     if (theme) defaultColor.set(theme!.textColor)
   }, [themeState, themeModes, clientSettings])
 
-  console.log('LoadingReactor', locationSceneID, scenes, !!scenes[locationSceneID])
   if (!locationSceneID || !scenes[locationSceneID]) return null
 
   return (
