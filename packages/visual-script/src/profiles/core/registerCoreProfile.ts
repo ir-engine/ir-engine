@@ -43,9 +43,7 @@ import { SwitchOnInteger } from './flow/SwitchOnInteger'
 import { SwitchOnString } from './flow/SwitchOnString'
 import { Throttle } from './flow/Throttle'
 import { WaitAll } from './flow/WaitAll'
-import { LifecycleOnEnd } from './lifecycle/LifecycleOnEnd'
 import { LifecycleOnStart } from './lifecycle/LifecycleOnStart'
-import { LifecycleOnTick } from './lifecycle/LifecycleOnTick'
 import { Easing } from './logic/Easing'
 import { Delay } from './time/Delay'
 import * as TimeNodes from './time/TimeNodes'
@@ -87,8 +85,8 @@ export const getCoreNodesMap = memo<Record<string, NodeDefinition>>(() => {
 
     // events
     LifecycleOnStart,
-    LifecycleOnEnd,
-    LifecycleOnTick,
+    //LifecycleOnEnd,
+    //LifecycleOnTick,
 
     // time
     Delay.Description,

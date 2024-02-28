@@ -2,7 +2,7 @@
   "nodes": [
     {
       "id": "4bb99f89-11c4-471e-ba46-f507d86ffc93",
-      "type": "flow/lifecycle/onTick",
+      "type": "flow/lifecycle/onExecute",
       "metadata": {
         "positionX": "4.753700030301175",
         "positionY": "-330.7364926607548"

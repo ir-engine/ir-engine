@@ -9,7 +9,7 @@
       },
       "parameters": {
         "text": {
-          "value": "test pass"
+          "value": "string test pass"
         }
       }
     },

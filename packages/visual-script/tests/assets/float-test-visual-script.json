@@ -1901,7 +1901,7 @@
       },
       "parameters": {
         "text": {
-          "value": "test passed"
+          "value": "float test passed"
         }
       }
     },

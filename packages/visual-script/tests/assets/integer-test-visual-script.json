@@ -929,7 +929,7 @@
       },
       "parameters": {
         "text": {
-          "value": "test passed"
+          "value": "integer test passed"
         }
       }
     },

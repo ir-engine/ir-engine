@@ -81,6 +81,10 @@ const reactor = () => {
   const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
 
   useEffect(() => {
+    VisualScriptState.registerProfile(registerEngineProfile, VisualScriptDomain.ECS)
+  }, [])
+
+  useEffect(() => {
     if (!sceneLoaded.value || engineState.isEditor.value) return
 
     const visualScriptQuery = defineQuery([VisualScriptComponent])
@@ -93,10 +97,6 @@ const reactor = () => {
       removeQuery(visualScriptQuery)
     }
   }, [sceneLoaded])
-
-  useEffect(() => {
-    VisualScriptState.registerProfile(registerEngineProfile, VisualScriptDomain.ECS)
-  }, [])
 
   // run scripts when loaded a scene, joined a world, scene entity changed, scene data changed
 

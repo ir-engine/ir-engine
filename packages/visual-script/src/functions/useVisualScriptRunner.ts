@@ -76,7 +76,6 @@ export const useVisualScriptRunner = ({
       return
     }
     const engine = new Engine(visualScriptNodes)
-
     setEngine(engine)
 
     return () => {
@@ -90,28 +89,33 @@ export const useVisualScriptRunner = ({
     const eventEmitter = registry.dependencies?.ILifecycleEventEmitter as ILifecycleEventEmitter
     engine.executeAllSync()
 
-    if (system === undefined) {
-      const systemUUID = defineSystem({
-        uuid: 'visual-script-asyncExecute' + systemCounter++,
-        execute: async () => {
-          eventEmitter.tickEvent.emit()
-          await engine.executeAllAsync(500)
-        },
-        insert: { after: PresentationSystemGroup }
-      })
-      system = systemUUID
-    } else {
-      executeSystem(system)
+    if (eventEmitter.startEvent.listenerCount === 0) {
+      console.warn('No onStart Node found in graph.  Graph will not run.')
+      return
+    }
+    eventEmitter.startEvent.emit()
+    ;(async () => {
+      if (engine.asyncNodes.length === 0) return
+      await engine.executeAllAsync(5)
+    })()
+
+    if (engine.asyncNodes.length) {
+      if (system === undefined) {
+        const systemUUID = defineSystem({
+          uuid: 'visual-script-asyncExecute' + systemCounter++,
+          execute: async () => {
+            if (!engine || !run || eventEmitter.tickEvent.listenerCount === 0) return
+            await engine.executeAllAsync(500)
+          },
+          insert: { after: PresentationSystemGroup }
+        })
+        system = systemUUID
+      } else {
+        executeSystem(system)
+      }
     }
 
-    ;(async () => {
-      if (eventEmitter.startEvent.listenerCount) {
-        eventEmitter.startEvent.emit()
-        await engine.executeAllAsync(5)
-      } else {
-        console.warn('No onStart Node found in graph.  Graph will not run.')
-      }
-    })() // start up
+    // start up
   }, [engine, registry.dependencies?.ILifecycleEventEmitter, run])
 
   return {
