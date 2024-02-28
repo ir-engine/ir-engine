@@ -36,7 +36,7 @@ interface TableCellProps extends React.HTMLAttributes<HTMLTableCellElement> {
 const TableHeaderCell = ({ className, children, ...props }: TableCellProps) => {
   const twClassName = twMerge(
     'text-neutral-600 dark:text-white',
-    'p-6',
+    'p-4',
     'border border-neutral-300 dark:border-[0.5px] dark:border-[#2B2C30]',
     className
   )
@@ -66,7 +66,7 @@ const TableHeadRow = ({
 
 const TableCell = ({ className, children, ...props }: TableCellProps) => {
   const twClassName = twMerge(
-    'p-6',
+    'p-4',
     'border border-neutral-300 dark:border-[0.5px] dark:border-[#2B2C30]',
     'text-left text-neutral-600 dark:text-white',
     className

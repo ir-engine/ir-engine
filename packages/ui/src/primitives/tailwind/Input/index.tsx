@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { InputHTMLAttributes } from 'react'
+import React, { InputHTMLAttributes, forwardRef } from 'react'
 import { HiXCircle } from 'react-icons/hi'
 import { twMerge } from 'tailwind-merge'
 import Label from '../Label'
@@ -40,47 +40,62 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   icon?: JSX.Element
 }
 
-const Input = ({
-  className,
-  containerClassname,
-  label,
-  type = 'text',
-  error,
-  description,
-  value,
-  itemType,
-  onChange,
-  disabled,
-  icon,
-  ...props
-}: InputProps) => {
-  const twClassname = twMerge(
-    'text-base font-normal tracking-tight',
-    'textshadow-sm border-theme-primary bg-theme-primary flex h-9 w-full rounded-lg border px-3.5 py-5 transition-colors',
-    'file:bg-theme-primary file:border-0 file:text-sm file:font-medium',
-    'dark:[color-scheme:dark]',
-    'placeholder:text-muted-foreground focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50',
-    icon ? 'ps-10' : undefined,
-    className
-  )
+const Input = forwardRef<HTMLInputElement, InputProps>(
+  (
+    {
+      className,
+      containerClassname,
+      label,
+      type = 'text',
+      error,
+      description,
+      value,
+      itemType,
+      onChange,
+      disabled,
+      icon,
+      ...props
+    },
+    ref
+  ) => {
+    const twClassname = twMerge(
+      'text-base font-normal tracking-tight',
+      'textshadow-sm border-theme-primary bg-theme-primary flex h-9 w-full rounded-lg border px-3.5 py-5 transition-colors',
+      'file:bg-theme-primary file:border-0 file:text-sm file:font-medium',
+      'dark:[color-scheme:dark]',
+      'placeholder:text-muted-foreground focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50',
+      icon ? 'ps-10' : undefined,
+      className
+    )
 
-  const twContainerClassname = twMerge('flex w-full flex-col items-center gap-2', containerClassname)
+    const twContainerClassname = twMerge('flex w-full flex-col items-center gap-2', containerClassname)
 
-  return (
-    <div className={twContainerClassname}>
-      {label && <Label className="self-stretch">{label}</Label>}
-      <div className="relative w-full">
-        {icon && <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5">{icon}</div>}
-        <input disabled={disabled} type={type} className={twClassname} value={value} onChange={onChange} {...props} />
+    return (
+      <div className={twContainerClassname}>
+        {label && <Label className="self-stretch">{label}</Label>}
+        <div className="relative w-full">
+          {icon && (
+            <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5">{icon}</div>
+          )}
+          <input
+            ref={ref}
+            disabled={disabled}
+            type={type}
+            className={twClassname}
+            value={value}
+            onChange={onChange}
+            {...props}
+          />
+        </div>
+        {description && <p className="text-theme-secondary self-stretch text-xs">{description}</p>}
+        {error && (
+          <p className="inline-flex items-center gap-2.5 self-start text-sm text-[#E11D48]">
+            <HiXCircle /> {error}
+          </p>
+        )}
       </div>
-      {description && <p className="text-theme-secondary self-stretch text-xs">{description}</p>}
-      {error && (
-        <p className="inline-flex items-center gap-2.5 self-start text-sm text-[#E11D48]">
-          <HiXCircle /> {error}
-        </p>
-      )}
-    </div>
-  )
-}
+    )
+  }
+)
 
 export default Input

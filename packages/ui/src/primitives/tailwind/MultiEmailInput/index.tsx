@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { State, useHookstate } from '@etherealengine/hyperflux'
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoMdClose } from 'react-icons/io'
 import Input from '../Input'
@@ -34,10 +34,20 @@ export interface LabelProps extends React.HtmlHTMLAttributes<HTMLLabelElement> {
   emailList: State<string[]>
   error?: string
   label?: string
+  disabled?: boolean
 }
 
-const MultiEmailInput = ({ emailList, error, label }: LabelProps) => {
+const isInList = (email: string, emailList: string[]) => {
+  return emailList.includes(email)
+}
+
+const isEmail = (email: string) => {
+  return /[\w\d\.-]+@[\w\d\.-]+\.[\w\d\.-]+/.test(email)
+}
+
+const MultiEmailInput = ({ emailList, error, label, disabled }: LabelProps) => {
   const { t } = useTranslation()
+  const ref = useRef<HTMLInputElement>(null)
 
   const state = useHookstate({
     currentEmail: '',
@@ -47,16 +57,19 @@ const MultiEmailInput = ({ emailList, error, label }: LabelProps) => {
     errorLabel: string
   })
 
+  const addToEmailList = () => {
+    const value = state.currentEmail.value.trim()
+
+    if (value && isValid(value)) {
+      emailList.merge([state.currentEmail.value])
+      state.currentEmail.set('')
+    }
+  }
+
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (['Enter', 'Tab', ','].includes(event.key)) {
       event.preventDefault()
-
-      const value = state.currentEmail.value.trim()
-
-      if (value && isValid(value)) {
-        emailList.merge([state.currentEmail.value])
-        state.currentEmail.set('')
-      }
+      addToEmailList()
     }
   }
 
@@ -78,15 +91,16 @@ const MultiEmailInput = ({ emailList, error, label }: LabelProps) => {
     const emails = paste.match(/[\w\d\.-]+@[\w\d\.-]+\.[\w\d\.-]+/g)
 
     if (emails) {
-      const toBeAdded = emails.filter((email) => !isInList(email))
+      const toBeAdded = emails.filter((email) => !isInList(email, emailList.value))
       emailList.merge(toBeAdded)
     }
   }
 
   const isValid = (email: string) => {
+    state.errorLabel.set('')
     let error = ''
 
-    if (isInList(email)) {
+    if (isInList(email, emailList.value)) {
       error = t('common:multiEmailInput.alreadyAdded', { email })
     }
 
@@ -103,13 +117,16 @@ const MultiEmailInput = ({ emailList, error, label }: LabelProps) => {
     return true
   }
 
-  const isInList = (email: string) => {
-    return emailList.value.includes(email)
-  }
-
-  const isEmail = (email: string) => {
-    return /[\w\d\.-]+@[\w\d\.-]+\.[\w\d\.-]+/.test(email)
-  }
+  useEffect(() => {
+    console.log('debug1 the ref was', ref)
+    const onClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        addToEmailList()
+      }
+    }
+    document.addEventListener('mousedown', onClickOutside)
+    return () => document.removeEventListener('mousedown', onClickOutside)
+  }, [ref])
 
   let errorLabel = state.errorLabel.value || error
 
@@ -125,7 +142,11 @@ const MultiEmailInput = ({ emailList, error, label }: LabelProps) => {
               key={item}
             >
               {item}
-              <button className="button rounded-full bg-white p-1" onClick={() => handleDelete(item)}>
+              <button
+                disabled={disabled}
+                className="button rounded-full bg-white p-1"
+                onClick={() => handleDelete(item)}
+              >
                 <IoMdClose />
               </button>
             </div>
@@ -140,6 +161,8 @@ const MultiEmailInput = ({ emailList, error, label }: LabelProps) => {
         onKeyDown={handleKeyDown}
         onChange={handleChange}
         onPaste={handlePaste}
+        disabled={disabled}
+        ref={ref}
       />
 
       {errorLabel && <p className="error text-[#E11D48]">{errorLabel}</p>}
