@@ -114,7 +114,7 @@ const DataTable = ({ query, columns, rows }: DataTableProps) => {
       {query.status === 'pending' && (
         <div className="my-2 flex h-8 items-center">
           <LoadingCircle className="mx-1 h-8 w-8" />
-          <Text className="mx-1">{t('common:loading.refetching')}</Text>
+          <Text className="mx-1">{t('common:table.refetching')}</Text>
         </div>
       )}
       <Table>
@@ -125,6 +125,13 @@ const DataTable = ({ query, columns, rows }: DataTableProps) => {
           columns={columns}
         />
         <TableBody>
+          {storedRows.length === 0 && (
+            <TableRow>
+              <TableCell {...{ colSpan: columns.length }} className="text-center italic">
+                {t('common:table.noData')}
+              </TableCell>
+            </TableRow>
+          )}
           {storedRows.get(NO_PROXY).map((row, rowIdx) => (
             <TableRow key={typeof row['id'] === 'string' ? row['id'] : rowIdx}>
               {columns.map((column, columnIdx) => (

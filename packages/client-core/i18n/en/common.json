@@ -122,7 +122,8 @@
     "login-error": "Failed to login"
   },
   "exploreRedirect": "Explore Worlds",
-  "loading": {
-    "refetching": "Refetching Data..."
+  "table": {
+    "refetching": "Refetching Data...",
+    "noData": "Data is Empty"
   }
 }
