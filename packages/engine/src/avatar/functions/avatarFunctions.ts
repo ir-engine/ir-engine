@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRM, VRM1Meta, VRMHumanBone, VRMHumanoid } from '@pixiv/three-vrm'
-import { AnimationClip, AnimationMixer, Box3, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Box3, Mesh, Vector3 } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
@@ -45,6 +45,7 @@ import { AnimationState } from '../AnimationManager'
 import config from '@etherealengine/common/src/config'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { TransformComponent } from '@etherealengine/spatial'
 import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
@@ -61,6 +62,7 @@ import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { LocalAvatarState } from '../state/AvatarState'
+import { ditheringAlphatestChunk, ditheringUniform, ditheringVertex } from './ditherShaderChunk'
 import { bindAnimationClipFromMixamo } from './retargetMixamoRig'
 
 declare module '@pixiv/three-vrm/types/VRM' {
@@ -191,6 +193,36 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   }
 
   if (entity === Engine.instance.localClientEntity) getMutableState(LocalAvatarState).avatarReady.set(true)
+}
+
+/** Injects dithering logic into avatar materials */
+export const setupAvatarDithering = (entity: Entity, vrm: VRM) => {
+  vrm.scene.traverse((obj) => {
+    if (obj instanceof Mesh) {
+      obj.material.onBeforeCompile = (shader, renderer) => {
+        shader.vertexShader = shader.vertexShader.replace(/#include <common>/, '#include <common>\n' + ditheringUniform)
+        shader.vertexShader = shader.vertexShader.replace(
+          /#include <worldpos_vertex>/,
+          '	#include <worldpos_vertex>\n' + ditheringVertex
+        )
+
+        shader.fragmentShader = shader.fragmentShader.replace(
+          /#include <common>/,
+          '#include <common>\n' + ditheringUniform
+        )
+        shader.fragmentShader = shader.fragmentShader.replace(/#include <alphatest_fragment>/, ditheringAlphatestChunk)
+        shader.uniforms.cameraPosition = {
+          value: getComponent(Engine.instance.cameraEntity, TransformComponent).position
+        }
+
+        console.log(shader.vertexShader)
+        console.log(shader.fragmentShader)
+      }
+
+      obj.material.alphaTest = 0.5
+      obj.material.alphaToHash = true
+    }
+  })
 }
 
 export const retargetAvatarAnimations = (entity: Entity) => {

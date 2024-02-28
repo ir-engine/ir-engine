@@ -58,6 +58,7 @@ import { preloadedAnimations } from '../animation/Util'
 import {
   retargetAvatarAnimations,
   setAvatarSpeedFromRootMotion,
+  setupAvatarDithering,
   setupAvatarForUser,
   setupAvatarProportions
 } from '../functions/avatarFunctions'
@@ -168,6 +169,7 @@ export const AvatarRigComponent = defineComponent({
       if (!modelComponent?.asset?.value) return
       const model = getComponent(entity, ModelComponent)
       setupAvatarProportions(entity, model.asset as VRM)
+      setupAvatarDithering(entity, model.asset as VRM)
       setComponent(entity, AvatarRigComponent, {
         vrm: model.asset as VRM,
         avatarURL: model.src
