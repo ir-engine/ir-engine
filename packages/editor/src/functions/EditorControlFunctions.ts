@@ -42,9 +42,9 @@ import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/scen
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
 import { materialFromId } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
-import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import obj3dFromUuid from '@etherealengine/spatial/src/common/functions/obj3dFromUuid'
 import {
   EntityTreeComponent,
   iterateEntityNode,
