@@ -206,14 +206,6 @@ export const execute = () => {
 
   const awakeCleanRigidbodyEntities = allRigidbodyEntities.filter(filterAwakeCleanRigidbodies)
   for (const entity of awakeCleanRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
-
-  for (const entity of awakeCleanRigidbodyEntities) {
-    TransformComponent.dirtyTransforms[entity] = false
-    if (hasComponent(entity, EntityTreeComponent)) {
-      const children = getComponent(entity, EntityTreeComponent).children
-      for (const child of children) TransformComponent.dirtyTransforms[child] = true
-    }
-  }
 }
 
 export const PhysicsPreTransformSystem = defineSystem({

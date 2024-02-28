@@ -27,8 +27,8 @@ import React, { ReactElement, useEffect } from 'react'
 
 import { NO_PROXY, getMutableState, useState } from '@etherealengine/hyperflux'
 
+import { PresentationSystemGroup } from '@etherealengine/ecs'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { SceneLoadingSystem } from '../../../scene/systems/SceneLoadingSystem'
 import { MaterialLibraryState, initializeMaterialLibrary } from '../MaterialLibrary'
 import {
   protoIdToFactory,
@@ -109,6 +109,6 @@ function reactor(): ReactElement {
 
 export const MaterialLibrarySystem = defineSystem({
   uuid: 'ee.engine.scene.MaterialLibrarySystem',
-  insert: { with: SceneLoadingSystem },
+  insert: { after: PresentationSystemGroup },
   reactor
 })

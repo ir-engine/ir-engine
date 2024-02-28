@@ -93,7 +93,7 @@ import {
 
 import { FileLoader } from '../base/FileLoader';
 import { Loader } from '../base/Loader';
-
+import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import { ResourceType } from "../../state/ResourceState"
 
 /**
@@ -484,6 +484,9 @@ class GLTFLoader extends Loader {
 			return;
 
 		}
+		
+		// Populate storage provider URLs
+		parseStorageProviderURLs(json)
 
 		const parser = new GLTFParser( json, {
 			url,

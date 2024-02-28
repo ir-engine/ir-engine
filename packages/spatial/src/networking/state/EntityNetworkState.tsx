@@ -146,6 +146,7 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
     const entity = UUIDComponent.getEntityByUUID(props.uuid)
     const ownerID = getOptionalComponent(entity, NetworkObjectComponent)?.ownerId
     if (!ownerID || ownerID !== Engine.instance.userID) return
+    console.log('Requesting authority over object', props.uuid, state.requestingPeerId.value)
     dispatchAction(
       WorldNetworkAction.transferAuthorityOfObject({
         entityUUID: props.uuid,
