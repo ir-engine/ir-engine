@@ -274,12 +274,12 @@ export class EngineRenderer {
     this.movingAverage.update(Math.min(delta, 50))
     const averageDelta = this.movingAverage.mean
 
-    if (averageDelta > this.maxRenderDelta && newQualityLevel > 1) {
+    if (averageDelta > this.maxRenderDelta) {
       decrementPerformance()
-      newQualityLevel--
-    } else if (averageDelta < this.minRenderDelta && newQualityLevel < this.maxQualityLevel) {
+      if (newQualityLevel > 1) newQualityLevel--
+    } else if (averageDelta < this.minRenderDelta) {
       incrementPerformance()
-      newQualityLevel++
+      if (newQualityLevel < this.maxQualityLevel) newQualityLevel++
     }
 
     if (newQualityLevel !== qualityLevel) {

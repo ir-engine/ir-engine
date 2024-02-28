@@ -49,6 +49,7 @@ export const PerformanceState = defineState({
   name: 'PerformanceState',
   initial: () => ({
     tier: 0,
+    performanceOffset: 0,
     isMobileGPU: false as boolean | undefined,
     budgets: {
       maxTextureSize: 0,
@@ -270,13 +271,16 @@ const chechAlphaRender = (renderer: EngineRenderer, onFinished: () => void) => {
 export const incrementPerformance = () => {
   console.log('PerformanceState: Incrementing Performance')
   const performanceState = getMutableState(PerformanceState)
-  performanceState.tier.set(Math.max(performanceState.tier.value + 1, 5))
+  performanceState.tier.set(Math.min(performanceState.tier.value + 1, 5))
+  performanceState.performanceOffset.set(Math.max(performanceState.performanceOffset.value - 1, 0))
 }
 
+const maxOffset = 16
 export const decrementPerformance = () => {
   console.log('PerformanceState: Decrementing Performance')
   const performanceState = getMutableState(PerformanceState)
-  performanceState.tier.set(Math.min(performanceState.tier.value - 1))
+  performanceState.tier.set(Math.max(performanceState.tier.value - 1, 0))
+  performanceState.performanceOffset.set(Math.min(performanceState.performanceOffset.value + 1, maxOffset))
 }
 
 export const buildPerformanceState = async (renderer: EngineRenderer, onFinished: () => void) => {
