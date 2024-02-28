@@ -162,10 +162,8 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
   }, [sceneAssetPendingTagQuery.length, assetLoadingState, entities.keys])
 
   useEffect(() => {
-    const scene = getState(SceneState).scenes[props.sceneID]
-    const { project } = scene.metadata
-    const data = scene.snapshots[scene.index].data
-    const systemPromises = getSystemsFromSceneData(project, data)
+    const { project, scene } = getState(SceneState).scenes[props.sceneID]
+    const systemPromises = getSystemsFromSceneData(project, scene)
     if (!systemPromises) {
       ready.set(true)
       getMutableState(SceneState).merge({

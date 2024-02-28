@@ -32,7 +32,7 @@ import { FixedSizeList } from 'react-window'
 
 import { getComponent, getMutableComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { NO_PROXY, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -97,7 +97,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
   const uuidQuery = useQuery([UUIDComponent, SceneObjectComponent])
   const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
   const sceneID = useHookstate(getMutableState(EditorState).sceneID)
-  const index = SceneState.useSnapshotIndex(sceneID.value!)
+  const index = SceneSnapshotState.useSnapshotIndex(sceneID.value!)
 
   const MemoTreeNode = useCallback(
     (props: HierarchyTreeNodeProps) => (
@@ -563,7 +563,7 @@ export default function HierarchyPanel() {
   const editorState = useHookstate(getMutableState(EditorState))
   const sceneState = useHookstate(getMutableState(SceneState))
 
-  const sceneJson = SceneState.getScene(editorState.sceneID.value!)
+  const sceneJson = SceneState.getScene(editorState.sceneID.value!)?.scene
 
   if (!editorState.sceneID.value || !sceneState.scenes[editorState.sceneID.value] || !sceneJson) return null
   return <HierarchyPanelContents key={sceneJson.root} rootEntityUUID={sceneJson.root} />
