@@ -141,6 +141,12 @@ function VariantReactor(): ReactElement {
   }, [variantComponent.currentLevel])
 
   useEffect(() => {
+    const budgetLevel = variantComponent.budgetLevel.value
+    const src = variantComponent.levels[budgetLevel].src.value
+    if (src && modelComponent && modelComponent.src.value !== src) modelComponent.src.set(src)
+  }, [variantComponent.budgetLevel])
+
+  useEffect(() => {
     if (distanceBased(variantComponent.value) && meshComponent) {
       meshComponent.removeFromParent()
     }

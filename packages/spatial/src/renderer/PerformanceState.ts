@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { profile } from '@etherealengine/ecs/src/Timer'
-import { defineState, getMutableState, useMutableState } from '@etherealengine/hyperflux'
+import { State, defineState, getMutableState, useMutableState } from '@etherealengine/hyperflux'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { EngineRenderer, RenderSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { getGPUTier } from 'detect-gpu'
@@ -268,19 +268,38 @@ const chechAlphaRender = (renderer: EngineRenderer, onFinished: () => void) => {
   })
 }
 
+const updatePerformanceState = (
+  performanceState: State<typeof PerformanceState._TYPE>,
+  tier: number,
+  offset: number
+) => {
+  if (tier !== performanceState.tier.value) {
+    console.log('PerformanceState: updating performance tier: ' + tier)
+    performanceState.tier.set(tier)
+  }
+  if (offset !== performanceState.performanceOffset.value) {
+    console.log('PerformanceState: updating performance offset: ' + offset)
+    performanceState.performanceOffset.set(offset)
+  }
+}
+
 export const incrementPerformance = () => {
-  console.log('PerformanceState: Incrementing Performance')
   const performanceState = getMutableState(PerformanceState)
-  performanceState.tier.set(Math.min(performanceState.tier.value + 1, 5))
-  performanceState.performanceOffset.set(Math.max(performanceState.performanceOffset.value - 1, 0))
+  updatePerformanceState(
+    performanceState,
+    Math.min(performanceState.tier.value + 1, 5),
+    Math.max(performanceState.performanceOffset.value - 1, 0)
+  )
 }
 
 const maxOffset = 16
 export const decrementPerformance = () => {
-  console.log('PerformanceState: Decrementing Performance')
   const performanceState = getMutableState(PerformanceState)
-  performanceState.tier.set(Math.max(performanceState.tier.value - 1, 0))
-  performanceState.performanceOffset.set(Math.min(performanceState.performanceOffset.value + 1, maxOffset))
+  updatePerformanceState(
+    performanceState,
+    Math.max(performanceState.tier.value - 1, 0),
+    Math.min(performanceState.performanceOffset.value + 1, maxOffset)
+  )
 }
 
 export const buildPerformanceState = async (renderer: EngineRenderer, onFinished: () => void) => {

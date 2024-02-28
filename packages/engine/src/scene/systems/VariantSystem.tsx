@@ -38,7 +38,12 @@ import { useEffect } from 'react'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { VariantComponent } from '../components/VariantComponent'
-import { setInstancedMeshVariant, setMeshVariant, setModelVariant } from '../functions/loaders/VariantFunctions'
+import {
+  setInstancedMeshVariant,
+  setMeshVariant,
+  setModelVariant,
+  setModelVariantLOD
+} from '../functions/loaders/VariantFunctions'
 import { SceneLoadingSystem } from './SceneLoadingSystem'
 
 const updateFrequency = 0.1
@@ -80,11 +85,16 @@ function execute() {
 
 function reactor() {
   const performanceState = useHookstate(getMutableState(PerformanceState))
+  const sceneState = useHookstate(getMutableState(SceneState))
 
   useEffect(() => {
+    if (!sceneState.sceneLoaded.value || getState(EngineState).isEditing) return
     const offset = performanceState.performanceOffset.value
     console.log('VariantSystem: performanceOffset: ' + offset)
-  }, [performanceState.performanceOffset])
+    for (const entity of modelVariantQuery()) {
+      setModelVariantLOD(entity, offset)
+    }
+  }, [performanceState.performanceOffset, sceneState.sceneLoaded])
 
   return null
 }

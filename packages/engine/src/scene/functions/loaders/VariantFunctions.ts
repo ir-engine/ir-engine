@@ -106,6 +106,18 @@ export function updateVariant(entity?: Entity) {
 }
 
 /**
+ * Handles setting LOD level for variant components of models based on performance offset
+ * @param entity
+ * @param performanceOffset
+ */
+export function setModelVariantLOD(entity: Entity, performanceOffset: number) {
+  console.log('VariantFunctions:setModelVariantLOD performanceOffset: ' + performanceOffset)
+  const variantComponent = getMutableComponent(entity, VariantComponent)
+  if (variantComponent.heuristic.value === Heuristic.BUDGET)
+    variantComponent.budgetLevel.set(Math.min(performanceOffset, variantComponent.levels.length - 1))
+}
+
+/**
  * Handles setting model src for model component based on variant component
  * @param entity
  */
