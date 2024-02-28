@@ -38,6 +38,7 @@ import {
 import { CommonKnownContentTypes, MimeTypeToExtension } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
+import { uploadAssetPath } from '@etherealengine/common/src/schema.type.module'
 import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { Application } from '../../../declarations'
 import verifyScope from '../../hooks/verify-scope'
@@ -52,7 +53,9 @@ const multipartMiddleware = Multer({ limits: { fieldSize: Infinity } })
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    'upload-asset': any
+    [uploadAssetPath]: {
+      create: ReturnType<typeof uploadAssets>
+    }
   }
 }
 
@@ -286,7 +289,7 @@ export const addAssetAsStaticResource = async (
 
 export default (app: Application): void => {
   app.use(
-    'upload-asset',
+    uploadAssetPath,
     {
       create: uploadAssets(app)
     },
@@ -309,7 +312,7 @@ export default (app: Application): void => {
       }
     }
   )
-  const service = app.service('upload-asset')
+  const service = app.service(uploadAssetPath)
 
   service.hooks(hooks)
 }

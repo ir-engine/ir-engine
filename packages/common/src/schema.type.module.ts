@@ -292,3 +292,5 @@ export const podsPath = 'pods'
 export const buildStatusPath = 'build-status'
 export const helmSettingPath = 'helm-setting'
 export const apiJobPath = 'api-job'
+
+export const uploadAssetPath = 'upload-asset'
