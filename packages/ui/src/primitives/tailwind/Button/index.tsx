@@ -67,7 +67,6 @@ const Button = ({
     'flex items-center justify-between',
     'font-medium text-white',
     'transition ease-in-out',
-    'inline-flex items-center justify-center',
     'disabled:cursor-not-allowed',
     sizes[size],
     variants[variant],
@@ -80,7 +79,7 @@ const Button = ({
   return (
     <button role="button" disabled={disabled} className={twClassName} {...props}>
       {StartIcon && <span className="mx-1">{StartIcon}</span>}
-      {children && <span className={twMerge('mx-1', fullWidth ? 'mx-1' : '')}> {children}</span>}
+      {children && <span className="mx-1"> {children}</span>}
       {EndIcon && <span className="mx-1">{EndIcon}</span>}
     </button>
   )

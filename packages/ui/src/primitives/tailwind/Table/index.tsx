@@ -114,7 +114,7 @@ const Table = ({ className, children }: TableProps) => {
   return (
     <div className="flex flex-col">
       <div className="mr-6 overflow-x-auto">
-        <div className=" inline-block min-w-full align-middle">
+        <div className="inline-block min-w-full align-middle">
           <div className="overflow-hidden">
             <table className={twClassName}>{children}</table>
           </div>
