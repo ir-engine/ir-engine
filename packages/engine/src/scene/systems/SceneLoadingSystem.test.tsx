@@ -61,7 +61,7 @@ const testScene = {
   scene: testSceneJson as unknown as SceneJsonType
 } as SceneDataType
 
-const testID = 'test' as SceneID
+const sceneID = 'test' as SceneID
 overrideFileLoaderLoad()
 describe('SceneLoadingSystem', () => {
   beforeEach(async () => {
@@ -96,16 +96,14 @@ describe('SceneLoadingSystem', () => {
   const sceneTag = <SceneReactor />
 
   it('will load entities', async () => {
-    getMutableState(SceneState).activeScene.set(testID)
-
     // init
-    SceneState.loadScene(testID, testScene)
+    SceneState.loadScene(sceneID, testScene)
 
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
     // assertions
-    const rootEntity = SceneState.getRootEntity(testID)
+    const rootEntity = SceneState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
@@ -207,15 +205,13 @@ describe('SceneLoadingSystem', () => {
     unmount()
   })
   it('will load correct data', async () => {
-    getMutableState(SceneState).activeScene.set(testID)
-
     // init
-    SceneState.loadScene(testID, testScene)
+    SceneState.loadScene(sceneID, testScene)
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
     // assertions
-    const rootEntity = SceneState.getRootEntity(testID)
+    const rootEntity = SceneState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
@@ -245,7 +241,6 @@ describe('SceneLoadingSystem', () => {
   })
   it('will not load dynamic entity', async () => {
     // wont load unless we simulate the avatar and its distance from the dynamic entity
-    getMutableState(SceneState).activeScene.set(testID)
     // its easier to just add the component to the scene and remove it at the end
     const dynamicLoadJson = {
       name: SceneDynamicLoadTagComponent.jsonID,
@@ -261,12 +256,12 @@ describe('SceneLoadingSystem', () => {
     // load scene
 
     // init
-    SceneState.loadScene(testID, testScene)
+    SceneState.loadScene(sceneID, testScene)
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
     // assertions
-    const rootEntity = SceneState.getRootEntity(testID)
+    const rootEntity = SceneState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
@@ -299,7 +294,6 @@ describe('SceneLoadingSystem', () => {
   })
 
   it('will load dynamic entity in studio', async () => {
-    getMutableState(SceneState).activeScene.set(testID)
     getMutableState(EngineState).isEditor.set(true)
     getMutableState(EngineState).isEditing.set(true)
 
@@ -319,12 +313,12 @@ describe('SceneLoadingSystem', () => {
     // load scene
 
     // init
-    SceneState.loadScene(testID, testScene)
+    SceneState.loadScene(sceneID, testScene)
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
     // assertions
-    const rootEntity = SceneState.getRootEntity(testID)
+    const rootEntity = SceneState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
@@ -430,14 +424,12 @@ describe('SceneLoadingSystem', () => {
   })
 
   it('will load sub-scene from model component', async () => {
-    getMutableState(SceneState).activeScene.set(testID)
-
-    SceneState.loadScene(testID, testScene)
+    SceneState.loadScene(sceneID, testScene)
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
     // assertions
-    const rootEntity = SceneState.getRootEntity(testID)
+    const rootEntity = SceneState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
@@ -506,10 +498,8 @@ describe('SceneLoadingSystem', () => {
   })
 
   it('will have sceneAssetPendingTagQuery when loading', async () => {
-    getMutableState(SceneState).activeScene.set(testID)
-
     // init
-    SceneState.loadScene(testID, testScene)
+    SceneState.loadScene(sceneID, testScene)
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
@@ -522,7 +512,7 @@ describe('SceneLoadingSystem', () => {
     assert(inLoadingEntities.length > 0, 'no sceneAssetPendingTag found when loading')
     //while loading
     for (const entity of inLoadingEntities) {
-      if (entity === SceneState.getRootEntity(testID)) {
+      if (entity === SceneState.getRootEntity(sceneID)) {
         assert.equal(
           hasComponent(entity, SceneAssetPendingTagComponent),
           true,
@@ -539,7 +529,7 @@ describe('SceneLoadingSystem', () => {
     }
 
     //after loading
-    const rootEntity = SceneState.getRootEntity(testID)
+    const rootEntity = SceneState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
