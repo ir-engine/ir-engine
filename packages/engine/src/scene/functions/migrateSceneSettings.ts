@@ -23,41 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
-import React, { Suspense } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { EntityJsonType, SceneJsonType } from '@etherealengine/common/src/schema.type.module'
+import { v4 as uuid } from 'uuid'
 
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+// puts the scene settings from the the root entity into a sub entity
+export const migrateSceneSettings = (json: SceneJsonType) => {
+  if (!json.root) return
+  const rootEntity = json.entities[json.root]
+  if (!rootEntity) return
+  if (json.entities[json.root].components.length) {
+    const newEntity = {
+      name: 'Settings',
+      components: JSON.parse(JSON.stringify(rootEntity.components)),
+      parent: json.root,
+      index: 0
+    } as EntityJsonType
 
-import Admin from '@etherealengine/client-core/src/admin2/admin'
-import { useEngineInjection } from '@etherealengine/client-core/src/components/World/EngineHooks'
+    // remove all root entity components
+    json.entities[json.root].components = []
 
-const LocationRoutes = () => {
-  const projectsLoaded = useEngineInjection()
+    // increment all indexes as our new entity will be at the start
+    for (const entity of Object.values(json.entities)) {
+      if (typeof entity.index === 'number') entity.index = entity.index + 1
+    }
 
-  if (!projectsLoaded)
-    return (
-      <LoadingCircle
-        className="flex h-1/4 w-1/4 items-center justify-center"
-        message={t('common:loader.loadingProjects')}
-      />
-    )
-
-  return (
-    <Suspense
-      fallback={
-        <LoadingCircle
-          className="flex h-1/4 w-1/4 items-center justify-center"
-          message={t('common:loader.loadingLocation')}
-        />
-      }
-    >
-      <Routes>
-        <Route path=":locationName" element={<Admin />} />
-        <Route path="/" element={<Admin />} />
-      </Routes>
-    </Suspense>
-  )
+    // force reordering so our new entity can be at the start
+    json.entities = {
+      [json.root]: json.entities[json.root],
+      [uuid()]: newEntity,
+      ...json.entities
+    }
+  }
 }
-
-export default LocationRoutes

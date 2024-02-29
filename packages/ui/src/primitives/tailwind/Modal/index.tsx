@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next'
 import { MdClose } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import Button from '../Button'
+import LoadingCircle from '../LoadingCircle'
 import Text from '../Text'
 
 export interface ModalProps {
@@ -35,6 +36,7 @@ export interface ModalProps {
   hideFooter?: boolean
   className?: string
   children: ReactNode
+  submitLoading?: boolean
   onClose?: () => void
   onSubmit?: () => void
 }
@@ -53,7 +55,15 @@ export const ModalHeader = ({ title, onClose }: { closeIcon?: boolean; title?: s
   )
 }
 
-export const ModalFooter = ({ onCancel, onSubmit }: { onCancel?: () => void; onSubmit?: () => void }) => {
+export const ModalFooter = ({
+  onCancel,
+  onSubmit,
+  submitLoading
+}: {
+  onCancel?: () => void
+  onSubmit?: () => void
+  submitLoading?: boolean
+}) => {
   const { t } = useTranslation()
   return (
     <div className="border-t-theme-primary grid grid-flow-col border-t px-6 py-5">
@@ -61,7 +71,12 @@ export const ModalFooter = ({ onCancel, onSubmit }: { onCancel?: () => void; onS
         {t('common:components.cancel')}
       </Button>
       {onSubmit && (
-        <Button onClick={onSubmit} className="place-self-end">
+        <Button
+          endIcon={submitLoading ? <LoadingCircle className="h-6 w-6" /> : undefined}
+          disabled={submitLoading}
+          onClick={onSubmit}
+          className="place-self-end"
+        >
           {t('common:components.confirm')}
         </Button>
       )}
@@ -69,14 +84,14 @@ export const ModalFooter = ({ onCancel, onSubmit }: { onCancel?: () => void; onS
   )
 }
 
-const Modal = ({ title, onClose, onSubmit, hideFooter, children, className }: ModalProps) => {
+const Modal = ({ title, onClose, onSubmit, hideFooter, children, className, submitLoading }: ModalProps) => {
   const twClassName = twMerge('relative max-h-full w-full max-w-2xl p-4', className)
   return (
     <div className={twClassName}>
       <div className="bg-theme-primary relative rounded-lg shadow">
         {onClose && <ModalHeader title={title} onClose={onClose} />}
         <div className="w-full px-10 py-6">{children}</div>
-        {!hideFooter && <ModalFooter onCancel={onClose} onSubmit={onSubmit} />}
+        {!hideFooter && <ModalFooter onCancel={onClose} onSubmit={onSubmit} submitLoading={submitLoading} />}
       </div>
     </div>
   )
