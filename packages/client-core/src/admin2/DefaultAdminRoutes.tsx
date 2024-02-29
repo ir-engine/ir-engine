@@ -34,7 +34,7 @@ const Invites = lazy(() => import('./components/invites'))
 
 const Projects = lazy(() => import('./components/project'))
 
-export const DefaultAdmin2Routes: Record<string, AdminRouteStateType> = {
+export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
   projects: {
     name: 'user:dashboard.projects',
     scope: 'projects',

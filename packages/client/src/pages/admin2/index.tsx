@@ -28,7 +28,7 @@ import React, { Suspense } from 'react'
 
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
-import Admin from '@etherealengine/client-core/src/admin2/adminRoutes'
+import AdminRoutes from '@etherealengine/client-core/src/admin2/adminRoutes'
 import { useEngineInjection } from '@etherealengine/client-core/src/components/World/EngineHooks'
 
 const LocationRoutes = () => {
@@ -51,7 +51,7 @@ const LocationRoutes = () => {
         />
       }
     >
-      <Admin />
+      <AdminRoutes />
     </Suspense>
   )
 }
