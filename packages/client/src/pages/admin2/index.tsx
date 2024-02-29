@@ -25,11 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { t } from 'i18next'
 import React, { Suspense } from 'react'
-import { Route, Routes } from 'react-router-dom'
 
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
-import Admin from '@etherealengine/client-core/src/admin2/admin'
+import Admin from '@etherealengine/client-core/src/admin2/adminRoutes'
 import { useEngineInjection } from '@etherealengine/client-core/src/components/World/EngineHooks'
 
 const LocationRoutes = () => {
@@ -52,10 +51,7 @@ const LocationRoutes = () => {
         />
       }
     >
-      <Routes>
-        <Route path=":locationName" element={<Admin />} />
-        <Route path="/" element={<Admin />} />
-      </Routes>
+      <Admin />
     </Suspense>
   )
 }
