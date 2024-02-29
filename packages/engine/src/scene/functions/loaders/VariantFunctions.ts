@@ -63,6 +63,7 @@ export function updateModelVariant(
     const targetDevice = isMobile || isMobileXRHeadset ? 'MOBILE' : 'DESKTOP'
     //get model src to mobile variant src
     const levelIndex = variantComponent.levels.findIndex((level) => level.metadata['device'] === targetDevice)
+    if (levelIndex < 0) return
     const deviceVariant = variantComponent.levels[levelIndex]
     const modelRelativePath = pathResolver().exec(modelComponent.src.value)?.[2]
     const deviceRelativePath = deviceVariant ? pathResolver().exec(deviceVariant.src.value)?.[2] : ''

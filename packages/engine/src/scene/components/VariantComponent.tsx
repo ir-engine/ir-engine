@@ -137,14 +137,15 @@ function VariantReactor(): ReactElement {
         src = variantComponent.levels[budgetLevel].src.value
       }
     } else {
-      src = variantComponent.levels[currentLevel].src.value
+      src = variantComponent.levels[currentLevel].src && variantComponent.levels[currentLevel].src.value
     }
 
     if (src && modelComponent && modelComponent.src.value !== src) modelComponent.src.set(src)
   }, [variantComponent.currentLevel])
 
   useEffect(() => {
-    updateModelVariant(entity, variantComponent, modelComponent!)
+    if (variantComponent.heuristic.value === Heuristic.BUDGET)
+      updateModelVariant(entity, variantComponent, modelComponent!)
   }, [variantComponent.budgetLevel])
 
   useEffect(() => {

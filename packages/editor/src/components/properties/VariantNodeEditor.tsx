@@ -29,10 +29,12 @@ import { useTranslation } from 'react-i18next'
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { Heuristic, VariantComponent, VariantLevel } from '@etherealengine/engine/src/scene/components/VariantComponent'
-import { NO_PROXY, State, getState, useHookstate } from '@etherealengine/hyperflux'
+import { State, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import DeblurIcon from '@mui/icons-material/Deblur'
 
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
 import {
   ResourceManager,
   ResourceState,
@@ -102,6 +104,26 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
     modelComponent.src.set(variantComponent.levels[index].src.value)
   }
 
+  const updateLevelsForBudget = () => {
+    const levels = variantComponent.levels.value
+    const srcSet = new Set<string>()
+    for (const level of levels) {
+      srcSet.add(level.src)
+    }
+
+    if (srcSet.size !== levels.length) {
+      const newLevels: VariantLevel[] = [...srcSet].map((src) => {
+        return {
+          src: src,
+          metadata: {}
+        }
+      })
+      commitProperties(VariantComponent, { levels: newLevels, heuristic: Heuristic.BUDGET }, [entity])
+    } else {
+      commitProperty(VariantComponent, 'heuristic')(Heuristic.BUDGET)
+    }
+  }
+
   return (
     <NodeEditor
       name={t('editor:properties.variant.name')}
@@ -112,7 +134,10 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
         <InputGroup name="lodHeuristic" label={t('editor:properties.variant.heuristic')}>
           <SelectInput
             value={variantComponent.heuristic.value}
-            onChange={commitProperty(VariantComponent, 'heuristic')}
+            onChange={(value: Heuristic) => {
+              if (value === Heuristic.BUDGET) updateLevelsForBudget()
+              else commitProperty(VariantComponent, 'heuristic')(value)
+            }}
             options={[
               { value: Heuristic.DISTANCE, label: t('editor:properties.variant.heuristic-distance') },
               { value: Heuristic.SCENE_SCALE, label: t('editor:properties.variant.heuristic-sceneScale') },
@@ -150,7 +175,7 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
         )}
         <PaginatedList
           options={{ countPerPage: 6 }}
-          list={variantComponent.levels}
+          list={variantComponent.levels.value}
           element={(level: State<VariantLevel>, index) => {
             return (
               <div className="m-2 bg-gray-900">
@@ -235,12 +260,16 @@ export const BudgetVariantNodeEditor = (props: {
 }) => {
   const { t } = useTranslation()
   const { level, index, useDistance, preview, onPreview } = props
-  const initialMetadata = useHookstate(level.metadata['vertexCount'].get(NO_PROXY))
+  const lastSrc = useHookstate(level.src.value)
 
   useEffect(() => {
-    if (!level.src.value || initialMetadata) return
-    const controller = new AbortController()
+    if (level.src.value === lastSrc.value && level.metadata['vertexCount'].value !== undefined) return
+    lastSrc.set(level.src.value)
 
+    const assetType = AssetLoader.getAssetType(level.src.value)
+    if (assetType !== AssetType.glB && assetType !== AssetType.glTF) return
+
+    const controller = new AbortController()
     buildBudgetVariantMetadata(level.value, controller.signal, (maxTextureSize: number, vertexCount: number) => {
       level.metadata.merge({
         maxTextureSize: maxTextureSize,
