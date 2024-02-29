@@ -117,7 +117,7 @@ const DataTable = ({ query, columns, rows }: DataTableProps) => {
           <Text className="mx-1">{t('common:table.refetching')}</Text>
         </div>
       )}
-      <Table>
+      <Table containerClassname="h-[80vh]">
         <TableHead
           order={order}
           orderBy={orderBy}
@@ -142,12 +142,12 @@ const DataTable = ({ query, columns, rows }: DataTableProps) => {
             </TableRow>
           ))}
         </TableBody>
-        <TablePagination
-          totalPages={Math.ceil(query.total / query.limit)}
-          currentPage={query.page}
-          onPageChange={(newPage) => query.setPage(newPage)}
-        />
       </Table>
+      <TablePagination
+        totalPages={Math.ceil(query.total / query.limit)}
+        currentPage={query.page}
+        onPageChange={(newPage) => query.setPage(newPage)}
+      />
     </>
   )
 }
