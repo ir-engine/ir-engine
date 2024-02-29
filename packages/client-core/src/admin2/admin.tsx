@@ -111,7 +111,7 @@ const Admin = () => {
   const PageComponent = sideBarItems[currentPage.value].component
 
   return (
-    <main className="pointer-events-auto mt-6 flex gap-1.5">
+    <main className="pointer-events-auto mt-0 mt-6 flex h-screen	gap-1.5 overflow-y-auto">
       {/* only for multitenancy
        <nav className="w-full px-8 py-4 mb-1.5 flex items-center justify-between bg-theme-surfaceMain">
         <img src={EELogo} className="h-8 w-8" />
