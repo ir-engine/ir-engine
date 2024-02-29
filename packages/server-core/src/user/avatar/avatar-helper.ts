@@ -82,7 +82,7 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
         avatarName,
         avatarFileType,
         dependencies,
-        avatarsFolder: avatarsFolder.replace(path.join(appRootPath.path, 'packages/projects'), '')
+        avatarsFolder: avatarsFolder.replace(path.join(appRootPath.path, 'packages/projects/'), '')
       }
     })
 
