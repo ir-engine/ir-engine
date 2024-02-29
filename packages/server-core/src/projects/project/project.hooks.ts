@@ -106,6 +106,21 @@ const filterDisabledProjects = (context: HookContext<ProjectService>) => {
 }
 
 /**
+ * Hook used to check if request data only has enabled.
+ * @param context
+ */
+export const checkEnabled = async (context: HookContext) => {
+  if (!context.data || context.method !== 'patch') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+  const data: ProjectPatch = context.data as ProjectPatch
+
+  if (data.enabled !== undefined && Object.keys(data).length === 2) return true
+
+  return false
+}
+
+/**
  * Checks whether the user has push access to the project
  * @param context
  * @returns
@@ -591,7 +606,7 @@ export default createSkippableHooks(
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
         () => schemaHooks.validateData(projectPatchValidator),
         schemaHooks.resolveData(projectPatchResolver),
-        iff(isProvider('external'), linkGithubToProject)
+        iff(isProvider('external'), iffElse(checkEnabled, [], linkGithubToProject))
       ],
       remove: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
