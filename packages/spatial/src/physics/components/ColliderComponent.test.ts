@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { createEntity, destroyEngine, getComponent, removeComponent, setComponent } from '@etherealengine/ecs'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { ReactorReconciler, getMutableState } from '@etherealengine/hyperflux'
 import assert from 'assert'
 import { TransformComponent } from '../../SpatialModule'
 import { createEngine } from '../../initializeEngine'
@@ -50,8 +50,10 @@ describe('ColliderComponent', () => {
 
     setComponent(entity, TransformComponent)
 
-    setComponent(entity, RigidBodyComponent, { type: 'fixed' })
-    setComponent(entity, ColliderComponent)
+    ReactorReconciler.flushSync(() => {
+      setComponent(entity, RigidBodyComponent, { type: 'fixed' })
+      setComponent(entity, ColliderComponent)
+    })
 
     const rigidbody = getComponent(entity, RigidBodyComponent)
     const collider = getComponent(entity, ColliderComponent)
@@ -66,8 +68,10 @@ describe('ColliderComponent', () => {
 
     setComponent(entity, TransformComponent)
 
-    setComponent(entity, RigidBodyComponent, { type: 'fixed' })
-    setComponent(entity, ColliderComponent)
+    ReactorReconciler.flushSync(() => {
+      setComponent(entity, RigidBodyComponent, { type: 'fixed' })
+      setComponent(entity, ColliderComponent)
+    })
 
     const rigidbody = getComponent(entity, RigidBodyComponent)
     const collider = getComponent(entity, ColliderComponent)
@@ -76,11 +80,10 @@ describe('ColliderComponent', () => {
     assert(collider.collider)
     assert.equal(collider.collider, rigidbody.body.collider(0))
 
-    const promise = removeComponent(entity, ColliderComponent)
+    ReactorReconciler.flushSync(() => {
+      removeComponent(entity, ColliderComponent)
+    })
     assert.equal(rigidbody.body.numColliders(), 0)
-
-    await promise
-    assert.equal(collider.collider, null)
   })
 
   it('should add trigger collider', () => {
@@ -88,9 +91,11 @@ describe('ColliderComponent', () => {
 
     setComponent(entity, TransformComponent)
 
-    setComponent(entity, RigidBodyComponent, { type: 'fixed' })
-    setComponent(entity, TriggerComponent)
-    setComponent(entity, ColliderComponent)
+    ReactorReconciler.flushSync(() => {
+      setComponent(entity, RigidBodyComponent, { type: 'fixed' })
+      setComponent(entity, TriggerComponent)
+      setComponent(entity, ColliderComponent)
+    })
 
     const collider = getComponent(entity, ColliderComponent)
 

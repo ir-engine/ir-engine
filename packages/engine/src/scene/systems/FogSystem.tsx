@@ -29,6 +29,7 @@ import { Fog, FogExp2, Mesh, MeshStandardMaterial, Shader } from 'three'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { PresentationSystemGroup } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
@@ -43,7 +44,6 @@ import { SceneTagComponent } from '../components/SceneTagComponent'
 import { FogType } from '../constants/FogType'
 import { FogSettingState } from '../FogState'
 import { initBrownianMotionFogShader, initHeightFogShader, removeFogShader } from '../functions/FogShaders'
-import { SceneLoadingSystem } from './SceneLoadingSystem'
 
 export const FogShaders = [] as Shader[]
 
@@ -168,6 +168,6 @@ const reactor = () => {
 
 export const FogSystem = defineSystem({
   uuid: 'ee.engine.FogSystem',
-  insert: { with: SceneLoadingSystem },
+  insert: { after: PresentationSystemGroup },
   reactor
 })

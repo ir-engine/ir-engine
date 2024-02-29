@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import { useLayoutEffect } from 'react'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { NO_PROXY, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineComponent, hasComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -45,7 +45,7 @@ const GLTF_PATH = '/static/editor/spawn-point.glb'
 
 export const SpawnPointComponent = defineComponent({
   name: 'SpawnPointComponent',
-  jsonID: 'spawn-point',
+  jsonID: 'EE_spawn_point',
 
   onInit: (entity) => {
     return {
@@ -73,11 +73,11 @@ export const SpawnPointComponent = defineComponent({
     const [gltf, unload] = useGLTF(debugEnabled.value ? GLTF_PATH : '', entity)
 
     // Only call unload when unmounted
-    useEffect(() => {
+    useLayoutEffect(() => {
       return unload
     }, [])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       const scene = gltf.get(NO_PROXY)?.scene
       if (!scene || !debugEnabled.value) return
 
@@ -95,6 +95,7 @@ export const SpawnPointComponent = defineComponent({
       return () => {
         removeObjectFromGroup(helperEntity, scene)
         removeEntity(helperEntity)
+        if (!hasComponent(entity, SpawnPointComponent)) return
         spawnPoint.helperEntity.set(none)
       }
     }, [gltf, debugEnabled])

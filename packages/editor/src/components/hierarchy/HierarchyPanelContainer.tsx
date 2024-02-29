@@ -96,7 +96,8 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
   const activeScene = useHookstate(getMutableState(SceneState).activeScene)
   const uuidQuery = useQuery([UUIDComponent, SceneObjectComponent])
   const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
-  const index = SceneState.useSnapshotIndex(activeScene.value!)
+  const sceneID = useHookstate(getMutableState(EditorState).sceneID)
+  const index = SceneState.useSnapshotIndex(sceneID.value!)
 
   const MemoTreeNode = useCallback(
     (props: HierarchyTreeNodeProps) => (
@@ -118,10 +119,11 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
   }
 
   useEffect(() => {
-    if (!expandedNodes.value[activeScene.value!]) {
-      expandedNodes.set({ [activeScene.value!]: { [rootEntity]: true } })
+    if (!activeScene.value) return
+    if (!expandedNodes.value[activeScene.value]) {
+      expandedNodes.set({ [activeScene.value]: { [rootEntity]: true } })
     }
-  }, [rootEntity])
+  }, [rootEntity, activeScene.value])
 
   useEffect(() => {
     if (!activeScene.value) return

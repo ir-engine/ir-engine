@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { AnimationMixer, BoxGeometry, CapsuleGeometry, CylinderGeometry, Group, Scene, SphereGeometry } from 'three'
 
-import { NO_PROXY, createState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, createState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import {
   defineComponent,
@@ -59,7 +59,7 @@ import { useGLTF } from '../../assets/functions/resourceHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
-import { autoconvertMixamoAvatar, isAvaturn } from '../../avatar/functions/avatarFunctions'
+import { autoconvertMixamoAvatar } from '../../avatar/functions/avatarFunctions'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
@@ -73,8 +73,8 @@ import { SourceComponent } from './SourceComponent'
 const entitiesInModelHierarchy = {} as Record<Entity, Entity[]>
 
 export const ModelComponent = defineComponent({
-  name: 'Model Component',
-  jsonID: 'gltf-model',
+  name: 'ModelComponent',
+  jsonID: 'EE_model',
 
   onInit: (entity) => {
     return {
@@ -83,7 +83,8 @@ export const ModelComponent = defineComponent({
       /** optional, only for bone matchable avatars */
       convertToVRM: false as boolean,
       // internal
-      scene: null as Scene | null,
+      assetTypeOverride: null as null | AssetType,
+      scene: null as Group | null,
       asset: null as VRM | GLTF | null
     }
   },
@@ -111,7 +112,7 @@ export const ModelComponent = defineComponent({
       !getState(SceneState).sceneLoaded &&
       hasComponent(entity, SceneObjectComponent) &&
       component.src.value &&
-      !component.scene.value
+      !component.asset.value
     )
       SceneAssetPendingTagComponent.addResource(entity, component.src.value)
   },
@@ -129,10 +130,8 @@ function ModelReactor(): JSX.Element {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
 
-  /** @todo this is a hack */
-  const override = !isAvaturn(modelComponent.src.value) ? undefined : AssetType.glB
   const [gltf, unload, error, progress] = useGLTF(modelComponent.src.value, entity, {
-    forceAssetType: override,
+    forceAssetType: modelComponent.assetTypeOverride.value,
     ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
   })
 
@@ -165,7 +164,15 @@ function ModelReactor(): JSX.Element {
 
   useEffect(() => {
     const loadedAsset = gltf.get(NO_PROXY)
-    if (!loadedAsset) return
+    if (!loadedAsset) {
+      if (!hasComponent(entity, GroupComponent)) {
+        const obj3d = new Group()
+        obj3d.entity = entity
+        addObjectToGroup(entity, obj3d)
+        proxifyParentChildRelationships(obj3d)
+      }
+      return
+    }
 
     if (typeof loadedAsset !== 'object') {
       addError(entity, ModelComponent, 'INVALID_SOURCE', 'Invalid URL')
@@ -183,13 +190,6 @@ function ModelReactor(): JSX.Element {
         mixer: new AnimationMixer(boneMatchedAsset.humanoid.normalizedHumanBonesRoot)
       })
 
-    if (!hasComponent(entity, GroupComponent)) {
-      const obj3d = new Group()
-      obj3d.entity = entity
-      addObjectToGroup(entity, obj3d)
-      proxifyParentChildRelationships(obj3d)
-    }
-
     modelComponent.asset.set(boneMatchedAsset)
   }, [gltf])
 
@@ -203,11 +203,9 @@ function ModelReactor(): JSX.Element {
 
     removeError(entity, ModelComponent, 'INVALID_SOURCE')
     removeError(entity, ModelComponent, 'LOADING_ERROR')
-    const sceneObj = group[0] as Scene
+    const sceneObj = group[0] as Group
 
     sceneObj.userData.src = model.src
-    sceneObj.userData.sceneID = getModelSceneID(entity)
-    //sceneObj.userData.type === 'glb' && delete asset.scene.userData.type
     modelComponent.scene.set(sceneObj)
   }, [modelComponent.asset])
 
@@ -251,7 +249,7 @@ function ModelReactor(): JSX.Element {
         })
 
     return () => {
-      getMutableState(SceneState).scenes[uuid].set(none)
+      SceneState.unloadScene(uuid)
     }
   }, [modelComponent.scene])
 

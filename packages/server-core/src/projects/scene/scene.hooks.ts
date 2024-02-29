@@ -51,7 +51,7 @@ import { getSceneData } from './scene-helper'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
-import { cleanStorageProviderURLs } from '@etherealengine/spatial/src/common/functions/parseSceneJSON'
+import { cleanStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import { ProjectParams } from '../project/project.class'
 import { SceneService } from './scene.class'

@@ -261,12 +261,16 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             // file is directory
             await FileBrowserService.addNewFolder(`${path}${file.name}`)
           } else {
-            const name = processFileName(file.name)
-            await uploadToFeathersService(fileBrowserUploadPath, [file], {
-              fileName: name,
-              path,
-              contentType: file.type
-            }).promise
+            try {
+              const name = processFileName(file.name)
+              await uploadToFeathersService(fileBrowserUploadPath, [file], {
+                fileName: name,
+                path,
+                contentType: file.type
+              }).promise
+            } catch (err) {
+              NotificationService.dispatchNotify(err.message, { variant: 'error' })
+            }
           }
         })
       )
@@ -632,8 +636,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         {showUploadAndDownloadButtons && (
           <ToolButton
             tooltip={t('editor:layout.filebrowser.uploadAsset')}
-            onClick={() => {
-              inputFileWithAddToScene({ directoryPath: selectedDirectory.value }).then(refreshDirectory)
+            onClick={async () => {
+              await inputFileWithAddToScene({ directoryPath: selectedDirectory.value })
+                .then(refreshDirectory)
+                .catch((err) => {
+                  NotificationService.dispatchNotify(err.message, { variant: 'error' })
+                })
             }}
             icon={AddIcon}
             id="uploadAsset"

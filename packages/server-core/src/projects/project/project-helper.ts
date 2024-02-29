@@ -1759,7 +1759,7 @@ export const uploadLocalProjectToProvider = async (
         ]
         const thisFileClass = AssetLoader.getAssetClass(file)
         if (filePathRelative.startsWith('/assets/') && staticResourceClasses.includes(thisFileClass)) {
-          const hash = createStaticResourceHash(fileResult, { mimeType: contentType, assetURL: key })
+          const hash = createStaticResourceHash(fileResult)
           if (existingContentSet.has(resourceKey(key, hash))) {
             logger.info(`Skipping upload of static resource of class ${thisFileClass}: "${key}"`)
           } else {
