@@ -139,7 +139,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
   const systemsLoaded = useHookstate([] as SystemImportType[])
 
   useEffect(() => {
-    if (!ready.value) return
+    if (!ready.value || getState(SceneState).sceneLoaded) return
 
     const entitiesCount = sceneEntities.keys.map(UUIDComponent.getEntityByUUID).filter(Boolean).length
     if (entitiesCount <= 1) return
@@ -154,8 +154,6 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     if (!sceneAssetPendingTagQuery.length && !getState(SceneState).sceneLoaded) {
       getMutableState(SceneState).sceneLoaded.set(true)
       SceneAssetPendingTagComponent.loadingProgress.set({})
-    } else {
-      getMutableState(SceneState).sceneLoaded.set(false)
     }
   }, [sceneAssetPendingTagQuery.length, assetLoadingState, entities.keys])
 
