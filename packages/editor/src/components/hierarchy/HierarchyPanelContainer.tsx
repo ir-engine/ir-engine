@@ -30,12 +30,11 @@ import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 
-import { getComponent, getMutableComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { NO_PROXY, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { EntityTreeComponent, traverseEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import MenuItem from '@mui/material/MenuItem'
@@ -61,7 +60,6 @@ import Search from '../Search/Search'
 import useUpload from '../assets/useUpload'
 import { PropertiesPanelButton } from '../inputs/Button'
 import { ContextMenu } from '../layout/ContextMenu'
-import { updateProperties } from '../properties/Util'
 import { HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
 import { HierarchyTreeNode, HierarchyTreeNodeProps, RenameNodeData, getNodeElId } from './HierarchyTreeNode'
 import styles from './styles.module.scss'
@@ -384,9 +382,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 
   const onRenameSubmit = useCallback((node: HeirarchyTreeNodeType, name: string) => {
     if (name) {
-      updateProperties(NameComponent, name, [node.entity])
-      const groups = getOptionalComponent(node.entity, GroupComponent)
-      if (groups) for (const obj of groups) if (obj) obj.name = name
+      EditorControlFunctions.modifyName([node.entity], name)
     }
 
     setRenamingNode(null)
