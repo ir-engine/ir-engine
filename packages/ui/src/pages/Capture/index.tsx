@@ -89,7 +89,7 @@ export const startPlayback = async (recordingID: RecordingID, twin = true, fromS
   // ) as DataProducer
   // if (getState(PlaybackState).recordingID && dataProducer) {
   //   dispatchAction(
-  //     MediaProducerActions.producerClosed({
+  //     MediasoupMediaProducerActions.producerClosed({
   //       producerID: dataProducer.id,
   //       $network: network.id,
   //       $topic: network.topic

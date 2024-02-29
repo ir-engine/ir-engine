@@ -90,7 +90,7 @@ import {
   MediasoupDataProducerConsumerState
 } from '@etherealengine/spatial/src/networking/systems/MediasoupDataProducerConsumerState'
 import {
-  MediaProducerActions,
+  MediasoupMediaProducerActions,
   MediasoupMediaConsumerActions,
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
@@ -625,7 +625,7 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
         // failure.
         const requestID = MathUtils.generateUUID()
         dispatchAction(
-          MediaProducerActions.requestProducer({
+          MediasoupMediaProducerActions.requestProducer({
             requestID,
             transportID,
             kind,
@@ -641,8 +641,8 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
         //  TODO - this is an anti pattern, how else can we resolve this? inject a system?
         try {
           const producerPromise = await new Promise<any>((resolve, reject) => {
-            const actionQueue = defineActionQueue(MediaProducerActions.producerCreated.matches)
-            const errorQueue = defineActionQueue(MediaProducerActions.requestProducerError.matches)
+            const actionQueue = defineActionQueue(MediasoupMediaProducerActions.producerCreated.matches)
+            const errorQueue = defineActionQueue(MediasoupMediaProducerActions.requestProducerError.matches)
 
             const cleanup = () => {
               destroySystem(systemUUID)
@@ -1024,7 +1024,7 @@ export function resumeConsumer(network: SocketWebRTCClientNetwork, consumer: Con
 
 export function pauseProducer(network: SocketWebRTCClientNetwork, producer: ProducerExtension) {
   dispatchAction(
-    MediaProducerActions.producerPaused({
+    MediasoupMediaProducerActions.producerPaused({
       producerID: producer.id,
       globalMute: false,
       paused: true,
@@ -1036,7 +1036,7 @@ export function pauseProducer(network: SocketWebRTCClientNetwork, producer: Prod
 
 export function resumeProducer(network: SocketWebRTCClientNetwork, producer: ProducerExtension) {
   dispatchAction(
-    MediaProducerActions.producerPaused({
+    MediasoupMediaProducerActions.producerPaused({
       producerID: producer.id,
       globalMute: false,
       paused: false,
@@ -1048,7 +1048,7 @@ export function resumeProducer(network: SocketWebRTCClientNetwork, producer: Pro
 
 export function globalMuteProducer(network: SocketWebRTCClientNetwork, producer: { id: any }) {
   dispatchAction(
-    MediaProducerActions.producerPaused({
+    MediasoupMediaProducerActions.producerPaused({
       producerID: producer.id,
       globalMute: true,
       paused: true,
@@ -1060,7 +1060,7 @@ export function globalMuteProducer(network: SocketWebRTCClientNetwork, producer:
 
 export function globalUnmuteProducer(network: SocketWebRTCClientNetwork, producer: { id: any }) {
   dispatchAction(
-    MediaProducerActions.producerPaused({
+    MediasoupMediaProducerActions.producerPaused({
       producerID: producer.id,
       globalMute: false,
       paused: false,
@@ -1251,7 +1251,7 @@ export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
     await mediaStreamState.screenVideoProducer.value.pause()
     mediaStreamState.screenShareVideoPaused.set(true)
     dispatchAction(
-      MediaProducerActions.producerClosed({
+      MediasoupMediaProducerActions.producerClosed({
         producerID: mediaStreamState.screenVideoProducer.value.id,
         $network: network.id,
         $topic: network.topic
@@ -1263,7 +1263,7 @@ export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
 
   if (mediaStreamState.screenAudioProducer.value) {
     dispatchAction(
-      MediaProducerActions.producerClosed({
+      MediasoupMediaProducerActions.producerClosed({
         producerID: mediaStreamState.screenAudioProducer.value.id,
         $network: network.id,
         $topic: network.topic

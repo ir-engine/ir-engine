@@ -43,7 +43,7 @@ import { Validator, matches, matchesPeerID } from '../../common/functions/Matche
 import { MediaStreamAppData, MediaTagType, NetworkState } from '../NetworkState'
 import { MediasoupTransportObjectsState } from './MediasoupTransportState'
 
-export class MediaProducerActions {
+export class MediasoupMediaProducerActions {
   static requestProducer = defineAction({
     type: 'ee.engine.network.mediasoup.MEDIA_CREATE_PRODUCER',
     requestID: matches.string,
@@ -193,7 +193,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
   },
 
   receptors: {
-    onProducerCreated: MediaProducerActions.producerCreated.receive((action) => {
+    onProducerCreated: MediasoupMediaProducerActions.producerCreated.receive((action) => {
       const state = getMutableState(MediasoupMediaProducerConsumerState)
       const networkID = action.$network as InstanceID
       if (!state.value[networkID]) {
@@ -210,7 +210,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
       })
     }),
 
-    onProducerClosed: MediaProducerActions.producerClosed.receive((action) => {
+    onProducerClosed: MediasoupMediaProducerActions.producerClosed.receive((action) => {
       const networkID = action.$network as InstanceID
       const state = getMutableState(MediasoupMediaProducerConsumerState)
 
@@ -221,7 +221,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
       }
     }),
 
-    onProducerPaused: MediaProducerActions.producerPaused.receive((action) => {
+    onProducerPaused: MediasoupMediaProducerActions.producerPaused.receive((action) => {
       const state = getMutableState(MediasoupMediaProducerConsumerState)
       const networkID = action.$network as InstanceID
       if (!state.value[networkID]?.producers[action.producerID]) return

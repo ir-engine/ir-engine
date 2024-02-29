@@ -54,7 +54,7 @@ import {
   MediasoupDataProducersConsumersObjectsState
 } from '@etherealengine/spatial/src/networking/systems/MediasoupDataProducerConsumerState'
 import {
-  MediaProducerActions,
+  MediasoupMediaProducerActions,
   MediasoupMediaConsumerActions,
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
@@ -679,7 +679,7 @@ export async function handleWebRtcTransportConnect(
   }
 }
 
-export async function handleRequestProducer(action: typeof MediaProducerActions.requestProducer.matches._TYPE) {
+export async function handleRequestProducer(action: typeof MediasoupMediaProducerActions.requestProducer.matches._TYPE) {
   const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
 
   const { $peer: peerID, transportID, rtpParameters, paused, requestID, appData, kind } = action
@@ -690,7 +690,7 @@ export async function handleRequestProducer(action: typeof MediaProducerActions.
   if (!transport) {
     logger.error('Invalid transport ID.')
     return dispatchAction(
-      MediaProducerActions.requestProducerError({
+      MediasoupMediaProducerActions.requestProducerError({
         requestID,
         error: 'Invalid transport ID.',
         $network: action.$network,
@@ -735,7 +735,7 @@ export async function handleRequestProducer(action: typeof MediaProducerActions.
 
     producer.on('transportclose', () => {
       dispatchAction(
-        MediaProducerActions.producerClosed({
+        MediasoupMediaProducerActions.producerClosed({
           producerID: producer.id,
           $topic: network.topic,
           $network: network.id
@@ -755,7 +755,7 @@ export async function handleRequestProducer(action: typeof MediaProducerActions.
       }
     }
     dispatchAction(
-      MediaProducerActions.producerCreated({
+      MediasoupMediaProducerActions.producerCreated({
         requestID,
         peerID,
         mediaTag: appData.mediaTag,
@@ -771,7 +771,7 @@ export async function handleRequestProducer(action: typeof MediaProducerActions.
   } catch (err) {
     logger.error(err, 'Error with sendTrack.')
     dispatchAction(
-      MediaProducerActions.requestProducerError({
+      MediasoupMediaProducerActions.requestProducerError({
         requestID,
         error: 'Error with sendTrack: ' + err,
         $network: action.$network,
