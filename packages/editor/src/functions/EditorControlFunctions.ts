@@ -141,7 +141,7 @@ const modifyProperty = <C extends Component<any, any>>(
         (c) => c.name === component.jsonID
       )
       if (!componentSnapshot) continue
-      componentSnapshot.props = { ...componentSnapshot.props, properties }
+      componentSnapshot.props = { ...componentSnapshot.props, ...properties }
     }
     dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
   }
