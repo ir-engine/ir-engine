@@ -536,6 +536,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                     <div>
                       {availableTableColumns.map((column) => (
                         <FormControlLabel
+                          key={column}
                           classes={{
                             label: styles.viewModeSettingsLabel
                           }}
