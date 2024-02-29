@@ -295,14 +295,14 @@ const reactor = () => {
   const clientSettings = useHookstate(
     getMutableState(AdminClientSettingsState)?.client?.[0]?.themeSettings?.clientSettings
   )
-  const activeScene = useHookstate(getMutableState(SceneState).activeScene)
+  const { activeScene, scenes } = useHookstate(getMutableState(SceneState))
 
   useEffect(() => {
     const theme = getAppTheme()
     if (theme) defaultColor.set(theme!.textColor)
   }, [themeState, themeModes, clientSettings])
 
-  if (!activeScene.value) return null
+  if (!activeScene.value || !scenes.value[activeScene.value]) return null
 
   return (
     <>

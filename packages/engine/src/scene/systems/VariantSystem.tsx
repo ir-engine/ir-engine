@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { PresentationSystemGroup } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
@@ -44,7 +45,6 @@ import {
   setModelVariant,
   setModelVariantLOD
 } from '../functions/loaders/VariantFunctions'
-import { SceneLoadingSystem } from './SceneLoadingSystem'
 
 const updateFrequency = 0.1
 let lastUpdate = 0
@@ -101,7 +101,7 @@ function reactor() {
 
 export const VariantSystem = defineSystem({
   uuid: 'ee.engine.scene.VariantSystem',
-  insert: { with: SceneLoadingSystem },
+  insert: { with: PresentationSystemGroup },
   execute,
   reactor
 })

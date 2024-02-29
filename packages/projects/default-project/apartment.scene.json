@@ -937,7 +937,7 @@
           "props": {
             "position": {
               "x": -12,
-              "y": 0,
+              "y": 1,
               "z": 14
             },
             "rotation": {
@@ -971,7 +971,7 @@
             "previewImageURL": "__$project$__/default-project/apartment-Portal.ktx2",
             "spawnPosition": {
               "x": -12,
-              "y": 0,
+              "y": 1,
               "z": 14
             },
             "spawnRotation": {
@@ -985,33 +985,6 @@
         {
           "name": "EE_visible",
           "props": true
-        },
-        {
-          "name": "EE_rigidbody",
-          "props": {
-            "type": "fixed"
-          }
-        },
-        {
-          "name": "EE_collider",
-          "props": {
-            "shape": "box",
-            "collisionLayer": 8,
-            "collisionMask": 2,
-            "restitution": 0
-          }
-        },
-        {
-          "name": "EE_trigger",
-          "props": {
-            "triggers": [
-              {
-                "onEnter": "teleport",
-                "onExit": null,
-                "target": ""
-              }
-            ]
-          }
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
