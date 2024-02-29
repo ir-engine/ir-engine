@@ -24,40 +24,31 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { Suspense } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { ITableHeadCell } from '../Table'
 
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+type IdType =
+  | 'id'
+  | 'name'
+  | 'passcode'
+  | 'type'
+  | 'action'
+  | 'select'
+  | 'spawnType'
+  | 'spawnDetails'
+  | 'targetObjectId'
 
-import Admin from '@etherealengine/client-core/src/admin2/admin'
-import { useEngineInjection } from '@etherealengine/client-core/src/components/World/EngineHooks'
+export type InviteRowType = Record<IdType, string | JSX.Element | undefined>
 
-const LocationRoutes = () => {
-  const projectsLoaded = useEngineInjection()
-
-  if (!projectsLoaded)
-    return (
-      <LoadingCircle
-        className="flex h-1/4 w-1/4 items-center justify-center"
-        message={t('common:loader.loadingProjects')}
-      />
-    )
-
-  return (
-    <Suspense
-      fallback={
-        <LoadingCircle
-          className="flex h-1/4 w-1/4 items-center justify-center"
-          message={t('common:loader.loadingLocation')}
-        />
-      }
-    >
-      <Routes>
-        <Route path=":locationName" element={<Admin />} />
-        <Route path="/" element={<Admin />} />
-      </Routes>
-    </Suspense>
-  )
+interface IInviteColumn extends ITableHeadCell {
+  id: IdType
 }
 
-export default LocationRoutes
+export const inviteColumns: IInviteColumn[] = [
+  { id: 'id', label: t('admin:components.invite.columns.id') },
+  { id: 'name', label: t('admin:components.invite.columns.name') },
+  { id: 'passcode', label: t('admin:components.invite.columns.passcode') },
+  { id: 'type', label: t('admin:components.invite.columns.type') },
+  { id: 'targetObjectId', label: t('admin:components.invite.columns.targetObjectId') },
+  { id: 'spawnDetails', label: t('admin:components.invite.columns.spawnDetails') },
+  { id: 'action', label: t('admin:components.invite.columns.action') }
+]
