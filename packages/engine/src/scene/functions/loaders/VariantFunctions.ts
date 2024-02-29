@@ -54,7 +54,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-function updateModelVariant(
+export function updateModelVariant(
   entity: Entity,
   variantComponent: State<ComponentType<typeof VariantComponent>>,
   modelComponent: State<ComponentType<typeof ModelComponent>>
@@ -78,10 +78,18 @@ function updateModelVariant(
       const maxDistance = Math.pow(level.metadata['maxDistance'], 2)
       const useLevel = minDistance <= distance && distance <= maxDistance
       if (useLevel && level.src) {
-        variantComponent.currentLevel.set(i)
-        return
+        if (variantComponent.heuristic.value === Heuristic.BUDGET) {
+          if (i >= variantComponent.budgetLevel.value) variantComponent.currentLevel.set(i)
+          else variantComponent.currentLevel.set(variantComponent.budgetLevel.value)
+        } else variantComponent.currentLevel.set(i)
+        break
       }
     }
+  } else if (
+    variantComponent.heuristic.value === Heuristic.BUDGET &&
+    variantComponent.budgetLevel.value != variantComponent.currentLevel.value
+  ) {
+    variantComponent.currentLevel.set(variantComponent.budgetLevel.value)
   }
 }
 

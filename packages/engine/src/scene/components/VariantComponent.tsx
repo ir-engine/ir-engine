@@ -40,7 +40,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { DistanceFromCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
-import { setInstancedMeshVariant } from '../functions/loaders/VariantFunctions'
+import { setInstancedMeshVariant, updateModelVariant } from '../functions/loaders/VariantFunctions'
 import { InstancingComponent } from './InstancingComponent'
 import { ModelComponent } from './ModelComponent'
 
@@ -130,8 +130,11 @@ function VariantReactor(): ReactElement {
     const currentLevel = variantComponent.currentLevel.value
     let src: string | undefined = undefined
     if (variantComponent.heuristic.value === Heuristic.BUDGET) {
-      if (currentLevel >= variantComponent.budgetLevel.value) {
+      const budgetLevel = variantComponent.budgetLevel.value
+      if (currentLevel >= budgetLevel) {
         src = variantComponent.levels[currentLevel].src.value
+      } else {
+        src = variantComponent.levels[budgetLevel].src.value
       }
     } else {
       src = variantComponent.levels[currentLevel].src.value
@@ -141,9 +144,7 @@ function VariantReactor(): ReactElement {
   }, [variantComponent.currentLevel])
 
   useEffect(() => {
-    const budgetLevel = variantComponent.budgetLevel.value
-    const src = variantComponent.levels[budgetLevel].src.value
-    if (src && modelComponent && modelComponent.src.value !== src) modelComponent.src.set(src)
+    updateModelVariant(entity, variantComponent, modelComponent!)
   }, [variantComponent.budgetLevel])
 
   useEffect(() => {
