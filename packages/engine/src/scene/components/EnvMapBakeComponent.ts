@@ -159,6 +159,9 @@ export const applyBoxProjection = (entity: Entity, targets: Object3D[]) => {
           '#include <envmap_physical_pars_fragment>',
           envmapPhysicalParsReplace
         )
+
+        console.log(shader.vertexShader)
+        console.log(shader.fragmentShader)
       }
     }
     if ((child.material as any) instanceof MeshLambertMaterial) {
