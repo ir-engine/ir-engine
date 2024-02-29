@@ -75,7 +75,7 @@ const getScenePositionForBake = (entity?: Entity) => {
  */
 
 export const uploadBPCEMBakeToServer = async (entity: Entity) => {
-  const isSceneEntity = entity === SceneState.getRootEntity()
+  const isSceneEntity = entity === SceneState.getRootEntity(getState(EditorState).sceneID!)
 
   if (isSceneEntity) {
     if (!hasComponent(entity, EnvMapBakeComponent)) {

@@ -50,6 +50,7 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { Euler, Matrix4, Quaternion, Raycaster, Vector3 } from 'three'
 import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
 import { TransformGizmoVisualComponent } from '../classes/TransformGizmoVisualComponent'
+import { EditorState } from '../services/EditorServices'
 import { ObjectGridSnapState } from '../systems/ObjectGridSnapSystem'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
@@ -444,7 +445,7 @@ export function controlUpdate(gizmoEntity: Entity) {
       : gizmoControl.controlledEntities.get(NO_PROXY)[0]
   if (targetEntity === UndefinedEntity) return
 
-  let parentEntity = SceneState.getRootEntity(getState(SceneState).activeScene!) // we can always ensure scene entity is root parent even if entty tree component doesnt exist
+  let parentEntity = SceneState.getRootEntity(getState(EditorState).sceneID!) // we can always ensure scene entity is root parent even if entty tree component doesnt exist
   const parent = getComponent(targetEntity, EntityTreeComponent)
 
   if (parent && parent.parentEntity !== UndefinedEntity) {
