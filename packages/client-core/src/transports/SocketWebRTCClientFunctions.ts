@@ -812,10 +812,38 @@ export async function configureMediaTransports(mediaTypes: string[]): Promise<bo
   return true
 }
 
+const getCodecEncodings = (service: string) => {
+  const clientSettingState = getState(AdminClientSettingsState).client[0]
+  const settings =
+    service === 'video' ? clientSettingState.mediaSettings.video : clientSettingState.mediaSettings.screenshare
+  let codec, encodings
+  if (settings) {
+    switch (settings.codec) {
+      case 'VP9':
+        codec = VP9_CODEC
+        encodings = CAM_VIDEO_SVC_CODEC_OPTIONS
+        break
+      case 'h264':
+        codec = H264_CODEC
+        encodings = CAM_VIDEO_SIMULCAST_ENCODINGS
+        encodings[0].maxBitrate = settings.lowResMaxBitrate * 1000
+        encodings[1].maxBitrate = settings.midResMaxBitrate * 1000
+        encodings[2].maxBitrate = settings.highResMaxBitrate * 1000
+        break
+      case 'VP8':
+        codec = VP8_CODEC
+        encodings = CAM_VIDEO_SIMULCAST_ENCODINGS
+        encodings[0].maxBitrate = settings.lowResMaxBitrate * 1000
+        encodings[1].maxBitrate = settings.midResMaxBitrate * 1000
+        encodings[2].maxBitrate = settings.highResMaxBitrate * 1000
+    }
+  }
+
+  return { codec, encodings }
+}
+
 export async function createCamVideoProducer(network: SocketWebRTCClientNetwork): Promise<void> {
   const channelConnectionState = getState(MediaInstanceState)
-  const clientSettingState = getState(AdminClientSettingsState).client[0]
-  const videoSettings = clientSettingState.mediaSettings.video
   const currentChannelInstanceConnection = channelConnectionState.instances[network.id]
   const channelId = currentChannelInstanceConnection.channelId
   const mediaStreamState = getMutableState(MediaStreamState)
@@ -823,28 +851,7 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
     await waitForTransports(network)
     const transport = MediasoupTransportState.getTransport(network.id, 'send') as WebRTCTransportExtension
 
-    let codec, encodings
-    if (videoSettings) {
-      switch (videoSettings.codec) {
-        case 'VP9':
-          codec = VP9_CODEC
-          encodings = CAM_VIDEO_SVC_CODEC_OPTIONS
-          break
-        case 'h264':
-          codec = H264_CODEC
-          encodings = CAM_VIDEO_SIMULCAST_ENCODINGS
-          encodings[0].maxBitrate = videoSettings.lowResMaxBitrate * 1000
-          encodings[1].maxBitrate = videoSettings.midResMaxBitrate * 1000
-          encodings[2].maxBitrate = videoSettings.highResMaxBitrate * 1000
-          break
-        case 'VP8':
-          codec = VP8_CODEC
-          encodings = CAM_VIDEO_SIMULCAST_ENCODINGS
-          encodings[0].maxBitrate = videoSettings.lowResMaxBitrate * 1000
-          encodings[1].maxBitrate = videoSettings.midResMaxBitrate * 1000
-          encodings[2].maxBitrate = videoSettings.highResMaxBitrate * 1000
-      }
-    }
+    const { codec, encodings } = getCodecEncodings('video')
 
     try {
       let produceInProgress = false
@@ -1201,28 +1208,7 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
   await waitForTransports(network)
   const transport = MediasoupTransportState.getTransport(network.id, 'send') as WebRTCTransportExtension
 
-  let codec, encodings
-  if (screenshareSettings) {
-    switch (screenshareSettings.codec) {
-      case 'VP9':
-        codec = VP9_CODEC
-        encodings = CAM_VIDEO_SVC_CODEC_OPTIONS
-        break
-      case 'h264':
-        codec = H264_CODEC
-        encodings = CAM_VIDEO_SIMULCAST_ENCODINGS
-        encodings[0].maxBitrate = screenshareSettings.lowResMaxBitrate * 1000
-        encodings[1].maxBitrate = screenshareSettings.midResMaxBitrate * 1000
-        encodings[2].maxBitrate = screenshareSettings.highResMaxBitrate * 1000
-        break
-      case 'VP8':
-        codec = VP8_CODEC
-        encodings = CAM_VIDEO_SIMULCAST_ENCODINGS
-        encodings[0].maxBitrate = screenshareSettings.lowResMaxBitrate * 1000
-        encodings[1].maxBitrate = screenshareSettings.midResMaxBitrate * 1000
-        encodings[2].maxBitrate = screenshareSettings.highResMaxBitrate * 1000
-    }
-  }
+  const { codec, encodings } = getCodecEncodings('screenshare')
 
   // create a producer for video
   const videoProducer = (await transport.produce({
