@@ -251,7 +251,7 @@ const ProjectTable = ({ className }: Props) => {
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <InputSwitch
             name="enabled"
-            disabled={name === 'default-project'}
+            disabled={el.name === 'default-project'}
             checked={el.enabled}
             onChange={() => handleEnabledChange(el)}
           />
