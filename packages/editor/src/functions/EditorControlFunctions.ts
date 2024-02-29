@@ -54,6 +54,7 @@ import {
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 import { ComponentJsonType, SceneID } from '@etherealengine/common/src/schema.type.module'
+import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
@@ -141,7 +142,14 @@ const modifyProperty = <C extends Component<any, any>>(
         (c) => c.name === component.jsonID
       )
       if (!componentSnapshot) continue
-      componentSnapshot.props = { ...componentSnapshot.props, ...properties }
+      if (typeof properties === 'string') {
+        componentSnapshot.props = properties
+      } else {
+        Object.entries(properties).map(([k, v]) => {
+          const { result, finalProp } = getNestedObject(componentSnapshot.props, k)
+          result[finalProp] = v
+        })
+      }
     }
     dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
   }
