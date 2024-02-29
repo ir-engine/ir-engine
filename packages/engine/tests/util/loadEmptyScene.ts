@@ -28,7 +28,6 @@ import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
@@ -56,7 +55,6 @@ export const loadEmptyScene = () => {
       root: 'root' as EntityUUID
     }
   })
-  getMutableState(SceneState).activeScene.set('test' as SceneID)
   const entity = createEntity()
   setComponent(entity, NameComponent, 'Root')
   setComponent(entity, VisibleComponent, true)
