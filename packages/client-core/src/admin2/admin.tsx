@@ -47,12 +47,13 @@ import {
 import { RiSendPlaneFill } from 'react-icons/ri'
 import Avatars from './components/avatar'
 import AdminInvites from './components/invites'
+import AdminLocation from './components/locations'
 import AdminProject from './components/project'
 
 const sideBarItems = [
   { label: 'Dashboard', icon: <HiOutlineHome />, component: AdminProject },
   { label: 'Projects', icon: <HiOutlineTableCells />, component: AdminProject },
-  { label: 'Location', icon: <HiOutlineMapPin />, component: AdminProject },
+  { label: 'Location', icon: <HiOutlineMapPin />, component: AdminLocation },
   { label: 'Instances', icon: <HiCube />, component: AdminProject },
   { label: 'Servers', icon: <HiServer />, component: AdminProject },
   { label: 'Avatars', icon: <HiUserCircle />, component: Avatars },
