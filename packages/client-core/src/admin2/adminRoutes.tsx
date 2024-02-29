@@ -31,7 +31,7 @@ import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperfl
 import { AllowedAdminRoutesState } from '../admin/AllowedAdminRoutesState'
 import { AuthState } from '../user/services/AuthService'
 import Projects from './components/project'
-import { DefaultAdmin2Routes } from './DefaultAdminRoutes'
+import { DefaultAdminRoutes } from './DefaultAdminRoutes'
 
 import { ThemeState } from '@etherealengine/client-core/src/common/services/ThemeService'
 import '@etherealengine/engine/src/EngineModule'
@@ -96,7 +96,7 @@ const AdminRoutes = () => {
   const scopes = admin?.scopes?.value
 
   useEffect(() => {
-    allowedRoutes.set(DefaultAdmin2Routes)
+    allowedRoutes.set(DefaultAdminRoutes)
   }, [])
 
   useEffect(() => {
