@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { lazy } from 'react'
 import { HiOutlineTableCells, HiUserCircle } from 'react-icons/hi2'
+import { IoCubeOutline } from 'react-icons/io5'
 import { RiSendPlaneFill } from 'react-icons/ri'
 import { AdminRouteStateType } from '../admin/AllowedAdminRoutesState'
 
@@ -33,6 +34,8 @@ const Avatars = lazy(() => import('./components/avatar'))
 const Invites = lazy(() => import('./components/invites'))
 
 const Projects = lazy(() => import('./components/project'))
+
+const Instances = lazy(() => import('./components/instance'))
 
 export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
   projects: {
@@ -55,5 +58,12 @@ export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
     component: Invites,
     access: false,
     icon: <RiSendPlaneFill />
+  },
+  instances: {
+    name: 'user:dashboard.instances',
+    scope: 'instance',
+    component: Instances,
+    access: false,
+    icon: <IoCubeOutline />
   }
 }

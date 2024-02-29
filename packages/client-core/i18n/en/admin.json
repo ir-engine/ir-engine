@@ -256,6 +256,19 @@
       "refreshingGithubRepoAccess": "Refreshing"
     },
     "instance": {
+      "columns": {
+        "id": "Instance ID",
+        "ipAddress": "IP Address",
+        "currentUsers": "Current Users",
+        "locationName": "Location",
+        "channelId": "Channel",
+        "podName": "Pod Name",
+        "action": "Action"
+      },
+      "actions": {
+        "view": "View",
+        "delete": "Delete"
+      },
       "confirmInstanceDelete": "Do you want to delete instance",
       "location": "Location",
       "count": "Count",
