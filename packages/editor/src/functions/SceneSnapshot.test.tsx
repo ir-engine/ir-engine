@@ -29,8 +29,8 @@ import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFun
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
-import { SceneSnapshotAction, SceneSnapshotSystem, SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { SceneSnapshotAction, SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { EventDispatcher } from '@etherealengine/spatial/src/common/classes/EventDispatcher'
@@ -39,12 +39,13 @@ import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsS
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import assert from 'assert'
 
+import { SceneLoadingSystem } from '@etherealengine/engine'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { act, render } from '@testing-library/react'
 import React from 'react'
 import { EditorControlFunctions } from '../../../editor/src/functions/EditorControlFunctions'
-import testSceneJson from '../../tests/assets/SceneLoadingTest.scene.json'
-import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
+import { EditorState } from '../../../editor/src/services/EditorServices'
+import testSceneJson from '../../../engine/tests/assets/SceneLoadingTest.scene.json'
 
 const testScene = {
   name: '',
@@ -54,7 +55,7 @@ const testScene = {
   scene: testSceneJson as unknown as SceneJsonType
 } as SceneDataType
 
-const testID = 'test' as SceneID
+const sceneID = 'test' as SceneID
 
 describe('Snapshots', () => {
   beforeEach(async () => {
@@ -84,8 +85,6 @@ describe('Snapshots', () => {
   })
 
   afterEach(() => {
-    getMutableState(EngineState).isEditing.set(false)
-    getMutableState(EngineState).isEditor.set(false)
     return destroyEngine()
   })
 
@@ -93,17 +92,15 @@ describe('Snapshots', () => {
   const sceneTag = <SceneReactor />
 
   it('create snapshot', async () => {
-    getMutableState(SceneState).activeScene.set(testID)
-
     // init
-    SceneState.loadScene(testID, testScene)
+    SceneState.loadScene(sceneID, testScene)
     applyIncomingActions()
 
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
     // assertions
-    const rootEntity = SceneState.getRootEntity(testID)
+    const rootEntity = SceneState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
@@ -205,10 +202,10 @@ describe('Snapshots', () => {
     // check all entites are loaded correctly
     // check if data in the manual json matches scene data
 
-    const expectedSnapshot = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+    const expectedSnapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
     const visibleJson = {
-      name: 'visible',
-      props: {}
+      name: 'EE_visible',
+      props: true
     }
     const root = expectedSnapshot.data.entities['root']
     root.components.push(visibleJson)
@@ -221,25 +218,22 @@ describe('Snapshots', () => {
 
     await act(() => rerender(sceneTag))
 
-    SystemDefinitions.get(SceneSnapshotSystem)!.execute()
-
-    const actualSnapShot = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+    const actualSnapShot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
     assert.deepStrictEqual(actualSnapShot, expectedSnapshot, 'Snapshots do not match')
 
     unmount()
   })
 
   it('undo snapshot', async () => {
-    getMutableState(SceneState).activeScene.set(testID)
-
     // init
-    SceneState.loadScene(testID, testScene)
+    SceneState.loadScene(sceneID, testScene)
+    getMutableState(EditorState).sceneID.set(sceneID)
     applyIncomingActions()
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
     // assertions
-    const rootEntity = SceneState.getRootEntity(testID)
+    const rootEntity = SceneState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
@@ -338,11 +332,11 @@ describe('Snapshots', () => {
       child2Entity,
       'child_2_1 entity does not have parentEntity as child_2 entity'
     )
-    const oldSnap = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+    const oldSnap = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
     EditorControlFunctions.removeObject([child2_1Entity])
 
     applyIncomingActions()
-    SystemDefinitions.get(SceneSnapshotSystem)!.execute()
+
     await act(() => rerender(sceneTag))
 
     assert.equal(
@@ -351,13 +345,13 @@ describe('Snapshots', () => {
       'snapshot unchanged,  entity was not deleted'
     )
 
-    dispatchAction(SceneSnapshotAction.undo({ count: 1, sceneID: getState(SceneState).activeScene! }))
+    dispatchAction(SceneSnapshotAction.undo({ count: 1, sceneID: sceneID }))
     applyIncomingActions()
-    SystemDefinitions.get(SceneSnapshotSystem)!.execute()
+
     await act(() => rerender(sceneTag))
 
     // wait again
-    const undoSnap = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+    const undoSnap = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
 
     assert.deepStrictEqual(oldSnap, undoSnap, 'Snapshots do not match')
 
@@ -365,17 +359,15 @@ describe('Snapshots', () => {
   })
 
   it('redo snapshot', async () => {
-    // wont load unless we simulate the avatar and its distance from the dynamic entity
-    getMutableState(SceneState).activeScene.set(testID)
-
     // init
-    SceneState.loadScene(testID, testScene)
+    SceneState.loadScene(sceneID, testScene)
+    getMutableState(EditorState).sceneID.set(sceneID)
     applyIncomingActions()
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
     // assertions
-    const rootEntity = SceneState.getRootEntity(testID)
+    const rootEntity = SceneState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
@@ -462,49 +454,36 @@ describe('Snapshots', () => {
       'child_5 entity does not have parentEntity as child_4 entity'
     )
 
-    const child2_1Entity = UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID)
-    assert(child2_1Entity, 'child_2_1 entity not found')
-    assert.equal(
-      hasComponent(child2_1Entity, EntityTreeComponent),
-      true,
-      'child_2_1 entity does not have EntityTreeComponent'
-    )
-    assert.equal(
-      getComponent(child2_1Entity, EntityTreeComponent).parentEntity,
-      child2Entity,
-      'child_2_1 entity does not have parentEntity as child_2 entity'
-    )
+    const oldSnap = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
+    EditorControlFunctions.removeObject([child5Entity])
 
-    const oldSnap = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
-    EditorControlFunctions.removeObject([child2_1Entity])
     applyIncomingActions()
-    SystemDefinitions.get(SceneSnapshotSystem)!.execute()
     await act(() => rerender(sceneTag))
 
     // wait somehow
-    const newSnap = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+    const newSnap = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
 
     assert.equal(
-      UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID),
+      UUIDComponent.getEntityByUUID('child_5' as EntityUUID),
       UndefinedEntity,
       'snapshot unchanged entity not deleted'
     )
 
-    dispatchAction(SceneSnapshotAction.undo({ count: 1, sceneID: getState(SceneState).activeScene! }))
+    dispatchAction(SceneSnapshotAction.undo({ count: 1, sceneID: sceneID }))
+
     applyIncomingActions()
-    SystemDefinitions.get(SceneSnapshotSystem)!.execute()
     await act(() => rerender(sceneTag))
 
     // wait again
-    const undoSnap = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+    const undoSnap = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
     assert.deepStrictEqual(oldSnap, undoSnap, 'undo Snapshots do not match')
 
-    dispatchAction(SceneSnapshotAction.redo({ count: 1, sceneID: getState(SceneState).activeScene! }))
+    dispatchAction(SceneSnapshotAction.redo({ count: 1, sceneID: sceneID }))
+
     applyIncomingActions()
-    SystemDefinitions.get(SceneSnapshotSystem)!.execute()
     await act(() => rerender(sceneTag))
 
-    const redoSnap = SceneState.cloneCurrentSnapshot(getState(SceneState).activeScene!)
+    const redoSnap = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
 
     assert.deepStrictEqual(newSnap, redoSnap, 'redo Snapshots do not match')
 
