@@ -28,7 +28,6 @@ import React, { useEffect } from 'react'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
@@ -68,9 +67,6 @@ const requestTransportConnectActionQueue = defineActionQueue(MediasoupTransportA
 const transportCloseActionQueue = defineActionQueue(MediasoupTransportActions.transportClosed.matches)
 
 const execute = () => {
-  // queues will accumulate actions until the scene is loaded, then they will be processed
-  if (!getState(SceneState).sceneLoaded) return
-
   for (const action of requestConsumerActionQueue()) {
     handleRequestConsumer(action)
   }

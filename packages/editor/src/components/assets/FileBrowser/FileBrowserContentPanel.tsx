@@ -68,7 +68,6 @@ import InputSlider from '@etherealengine/client-core/src/common/components/Input
 import { archiverPath, fileBrowserUploadPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
@@ -176,8 +175,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const openConfirm = useHookstate(false)
   const contentToDeletePath = useHookstate('')
 
-  const activeScene = useHookstate(getMutableState(SceneState).activeScene)
-
   const filesViewMode = useHookstate(getMutableState(FilesViewModeState).viewMode)
   const viewModeSettingsAnchorPosition = useHookstate({ left: 0, top: 0 })
 
@@ -208,7 +205,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   useEffect(() => {
     refreshDirectory()
-  }, [selectedDirectory, activeScene])
+  }, [selectedDirectory])
 
   const refreshDirectory = async () => {
     await FileBrowserService.fetchFiles(selectedDirectory.value, page)
