@@ -48,7 +48,7 @@ export default function AddEditLocationModal({ location }: { location?: Location
 
   const locationMutation = useMutation(locationPath)
 
-  const modalProcessing = useHookstate(false)
+  const submitLoading = useHookstate(false)
   const errors = useHookstate(getDefaultErrors())
 
   const name = useHookstate(location?.name || '')
@@ -115,55 +115,47 @@ export default function AddEditLocationModal({ location }: { location?: Location
       onClose={() => {
         PopoverState.hidePopupover()
       }}
-      hideFooter={modalProcessing.value}
+      hideFooter={submitLoading.value}
+      submitLoading={submitLoading.value}
     >
-      {modalProcessing.value ? (
-        <LoadingCircle className="w-[10vw]" />
-      ) : (
-        <div className="grid w-full gap-6">
-          <Input
-            label={t('admin:components.location.lbl-name')}
-            value={name.value}
-            onChange={(event) => name.set(event.target.value)}
-            error={errors.name.value}
-          />
-          <Input
-            type="number"
-            label={t('admin:components.location.lbl-maxuser')}
-            value={maxUsers.value}
-            onChange={(event) => maxUsers.set(Math.max(parseInt(event.target.value, 0), 0))}
-            error={errors.maxUsers.value}
-          />
-          <Select
-            label={t('admin:components.location.lbl-scene')}
-            currentValue={scene.value}
-            onChange={scene.set}
-            options={[
-              ...scenes.value.map((scene) => ({
-                name: `${scene.name} (${scene.project})`,
-                value: `${scene.project}/${scene.name}`
-              })),
-              { value: '', name: t('admin:components.location.selectScene'), disabled: true }
-            ]}
-            error={errors.scene.value}
-          />
-          <Toggle
-            label={t('admin:components.location.lbl-ve')}
-            value={videoEnabled.value}
-            onChange={videoEnabled.set}
-          />
-          <Toggle
-            label={t('admin:components.location.lbl-ae')}
-            value={audioEnabled.value}
-            onChange={audioEnabled.set}
-          />
-          <Toggle
-            label={t('admin:components.location.lbl-se')}
-            value={screenSharingEnabled.value}
-            onChange={screenSharingEnabled.set}
-          />
-        </div>
-      )}
+      <div className="grid w-full gap-6">
+        {submitLoading.value && (
+          <LoadingCircle className="absolute left-1/2 top-1/2 z-50 my-auto h-1/6 w-1/6 -translate-x-1/2 -translate-y-1/2 cursor-wait" />
+        )}
+        <Input
+          label={t('admin:components.location.lbl-name')}
+          value={name.value}
+          onChange={(event) => name.set(event.target.value)}
+          error={errors.name.value}
+        />
+        <Input
+          type="number"
+          label={t('admin:components.location.lbl-maxuser')}
+          value={maxUsers.value}
+          onChange={(event) => maxUsers.set(Math.max(parseInt(event.target.value, 0), 0))}
+          error={errors.maxUsers.value}
+        />
+        <Select
+          label={t('admin:components.location.lbl-scene')}
+          currentValue={scene.value}
+          onChange={scene.set}
+          options={[
+            ...scenes.value.map((scene) => ({
+              name: `${scene.name} (${scene.project})`,
+              value: `${scene.project}/${scene.name}`
+            })),
+            { value: '', name: t('admin:components.location.selectScene'), disabled: true }
+          ]}
+          error={errors.scene.value}
+        />
+        <Toggle label={t('admin:components.location.lbl-ve')} value={videoEnabled.value} onChange={videoEnabled.set} />
+        <Toggle label={t('admin:components.location.lbl-ae')} value={audioEnabled.value} onChange={audioEnabled.set} />
+        <Toggle
+          label={t('admin:components.location.lbl-se')}
+          value={screenSharingEnabled.value}
+          onChange={screenSharingEnabled.set}
+        />
+      </div>
     </Modal>
   )
 }
