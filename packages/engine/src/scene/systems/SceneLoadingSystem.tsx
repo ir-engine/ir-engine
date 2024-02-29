@@ -139,7 +139,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
   const systemsLoaded = useHookstate([] as SystemImportType[])
 
   useEffect(() => {
-    if (!ready.value || !getState(SceneState).sceneLoading) return
+    if (!ready.value) return
 
     const entitiesCount = sceneEntities.keys.map(UUIDComponent.getEntityByUUID).filter(Boolean).length
     if (entitiesCount <= 1) return
@@ -152,11 +152,10 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     getMutableState(SceneState).loadingProgress.set(progress)
 
     if (!sceneAssetPendingTagQuery.length && !getState(SceneState).sceneLoaded) {
-      getMutableState(SceneState).merge({
-        sceneLoading: false,
-        sceneLoaded: true
-      })
+      getMutableState(SceneState).sceneLoaded.set(true)
       SceneAssetPendingTagComponent.loadingProgress.set({})
+    } else {
+      getMutableState(SceneState).sceneLoaded.set(false)
     }
   }, [sceneAssetPendingTagQuery.length, assetLoadingState, entities.keys])
 
@@ -165,19 +164,11 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     const systemPromises = getSystemsFromSceneData(project, scene)
     if (!systemPromises) {
       ready.set(true)
-      getMutableState(SceneState).merge({
-        sceneLoading: true,
-        sceneLoaded: false
-      })
       return
     }
     systemPromises.then((systems) => {
       systemsLoaded.set(systems)
       ready.set(true)
-      getMutableState(SceneState).merge({
-        sceneLoading: true,
-        sceneLoaded: false
-      })
     })
   }, [])
 

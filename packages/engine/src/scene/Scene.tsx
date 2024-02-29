@@ -67,7 +67,6 @@ export const SceneState = defineState({
   name: 'SceneState',
   initial: () => ({
     scenes: {} as Record<SceneID, SceneDataType>,
-    sceneLoading: false,
     sceneLoaded: false,
     loadingProgress: 0,
     background: null as null | Color | Texture,

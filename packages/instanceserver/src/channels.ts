@@ -287,10 +287,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
 
   if (instanceServerState.isMediaInstance) {
     getMutableState(NetworkState).hostIds.media.set(hostId)
-    getMutableState(SceneState).merge({
-      sceneLoading: false,
-      sceneLoaded: true
-    })
+    getMutableState(SceneState).sceneLoaded.set(true)
   } else {
     getMutableState(NetworkState).hostIds.world.set(hostId)
 
