@@ -101,7 +101,7 @@ function reactor() {
 
 export const VariantSystem = defineSystem({
   uuid: 'ee.engine.scene.VariantSystem',
-  insert: { with: PresentationSystemGroup },
+  insert: { after: PresentationSystemGroup },
   execute,
   reactor
 })
