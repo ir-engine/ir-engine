@@ -115,10 +115,9 @@ export default function AddEditLocationModal({ location }: { location?: Location
       onClose={() => {
         PopoverState.hidePopupover()
       }}
-      hideFooter={submitLoading.value}
       submitLoading={submitLoading.value}
     >
-      <div className="grid w-full gap-6">
+      <div className="relative grid w-full gap-6">
         {submitLoading.value && (
           <LoadingCircle className="absolute left-1/2 top-1/2 z-50 my-auto h-1/6 w-1/6 -translate-x-1/2 -translate-y-1/2 cursor-wait" />
         )}
