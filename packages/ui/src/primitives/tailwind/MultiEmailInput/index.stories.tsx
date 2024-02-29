@@ -23,41 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
-import React, { Suspense } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { useHookstate } from '@etherealengine/hyperflux'
+import React from 'react'
+import MultiEmailInput from './index'
 
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
-
-import Admin from '@etherealengine/client-core/src/admin2/admin'
-import { useEngineInjection } from '@etherealengine/client-core/src/components/World/EngineHooks'
-
-const LocationRoutes = () => {
-  const projectsLoaded = useEngineInjection()
-
-  if (!projectsLoaded)
-    return (
-      <LoadingCircle
-        className="flex h-1/4 w-1/4 items-center justify-center"
-        message={t('common:loader.loadingProjects')}
-      />
-    )
-
-  return (
-    <Suspense
-      fallback={
-        <LoadingCircle
-          className="flex h-1/4 w-1/4 items-center justify-center"
-          message={t('common:loader.loadingLocation')}
-        />
-      }
-    >
-      <Routes>
-        <Route path=":locationName" element={<Admin />} />
-        <Route path="/" element={<Admin />} />
-      </Routes>
-    </Suspense>
-  )
+const Story = () => {
+  const emailList = useHookstate([] as string[])
+  return <MultiEmailInput emailList={emailList} />
 }
 
-export default LocationRoutes
+export default {
+  title: 'Primitives/Tailwind/MultiEmailInput',
+  component: Story,
+  parameters: {
+    componentSubtitle: 'MultiEmailInput',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  }
+}
+
+export const Default = {
+  args: {}
+}
