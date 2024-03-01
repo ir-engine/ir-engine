@@ -175,7 +175,7 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
         )}
         <PaginatedList
           options={{ countPerPage: 6 }}
-          list={variantComponent.levels.value}
+          list={variantComponent.levels}
           element={(level: State<VariantLevel>, index) => {
             return (
               <div className="m-2 bg-gray-900">
@@ -260,13 +260,14 @@ export const BudgetVariantNodeEditor = (props: {
 }) => {
   const { t } = useTranslation()
   const { level, index, useDistance, preview, onPreview } = props
-  const lastSrc = useHookstate(level.src.value)
+  const src = level.src.value
+  const lastSrc = useHookstate(src)
 
   useEffect(() => {
-    if (level.src.value === lastSrc.value && level.metadata['vertexCount'].value !== undefined) return
-    lastSrc.set(level.src.value)
+    if (src === lastSrc.value && level.metadata['vertexCount'].value !== undefined) return
+    lastSrc.set(src)
 
-    const assetType = AssetLoader.getAssetType(level.src.value)
+    const assetType = AssetLoader.getAssetType(src)
     if (assetType !== AssetType.glB && assetType !== AssetType.glTF) return
 
     const controller = new AbortController()
@@ -280,7 +281,7 @@ export const BudgetVariantNodeEditor = (props: {
     return () => {
       controller.abort()
     }
-  }, [level.src])
+  }, [src])
 
   return (
     <>
