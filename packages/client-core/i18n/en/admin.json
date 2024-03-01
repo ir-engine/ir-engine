@@ -482,6 +482,16 @@
       "confirmThumbnailReplace": "Do you want to replace previously selected avatar thumbnail with current avatar preview?"
     },
     "user": {
+      "columns": {
+        "id": "Id",
+        "name": "Name",
+        "avatar": "Avatar",
+        "accountIdentifier": "Linked Accounts",
+        "action": "Action"
+      },
+      "users": "Users",
+      "addUser": "Add User",
+      "updateUser": "Update User",
       "nameCantEmpty": "Name can't be empty",
       "avatarCantEmpty": "Avatar can't be empty",
       "scopeTypeCantEmpty": "Scope type can't be empty",
@@ -497,7 +507,10 @@
       "location": "Location",
       "inviteCode": "Invite Code",
       "instance": "Instance",
+      "remove": "Remove User",
+      "removeUsers": "Remove Users",
       "confirmUserDelete": "Do you want to delete user",
+      "confirmMultiUserDelete": "Do you want to delete all these users?",
       "isGuest": "Is guest",
       "selectAllScopes": "Select All Scopes",
       "clearAllScopes": "Clear All Scopes",
@@ -510,7 +523,8 @@
       "linkedIn": "LinkedIn",
       "twitter": "Twitter",
       "sms": "SMS",
-      "email": "Email"
+      "email": "Email",
+      "selectAvatar": "Select an Avatar"
     },
     "server": {
       "loading": "Fetching Server Info",
