@@ -72,7 +72,6 @@ import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneComponent } from '../components/SceneComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
-import { SceneTagComponent } from '../components/SceneTagComponent'
 import { proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 
 export const SceneLoadingReactor = () => {
@@ -84,14 +83,7 @@ export const SceneLoadingReactor = () => {
   return (
     <>
       <QueryReactor
-        Components={[
-          EntityTreeComponent,
-          TransformComponent,
-          UUIDComponent,
-          SceneComponent,
-          Not(GLTFLoadedComponent),
-          Not(SceneTagComponent)
-        ]}
+        Components={[EntityTreeComponent, TransformComponent, UUIDComponent, SceneComponent, Not(GLTFLoadedComponent)]}
         ChildEntityReactor={NetworkedSceneObjectReactor}
       />
       {Object.keys(scenes.value).map((sceneID: SceneID) => (
@@ -211,7 +203,6 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
     setComponent(entity, NameComponent, entityState.name.value)
     setComponent(entity, VisibleComponent, true)
     setComponent(entity, SceneComponent, props.sceneID)
-    setComponent(entity, SceneTagComponent, true)
     setComponent(entity, TransformComponent)
     setComponent(entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
 

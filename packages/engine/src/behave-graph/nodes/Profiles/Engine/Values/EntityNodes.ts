@@ -47,7 +47,6 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { cloneDeep, isEqual, uniqueId } from 'lodash'
 import { teleportAvatar } from '../../../../../avatar/functions/moveAvatar'
 import { SceneComponent } from '../../../../../scene/components/SceneComponent'
-import { SceneTagComponent } from '../../../../../scene/components/SceneTagComponent'
 import { addEntityToScene } from '../helper/entityHelper'
 
 type State = {
@@ -58,7 +57,6 @@ const initialState = (): State => ({
 })
 
 const sceneQuery = defineQuery([SceneComponent])
-const sceneTagQuery = defineQuery([SceneTagComponent])
 
 export const getEntity = makeFunctionNodeDefinition({
   typeName: 'engine/entity/getEntityInScene',
@@ -73,7 +71,7 @@ export const getEntity = makeFunctionNodeDefinition({
       return {
         valueType: 'string',
         choices: choices,
-        defaultValue: getComponent(sceneTagQuery()[0], UUIDComponent)
+        defaultValue: ''
       }
     }
   },
@@ -158,7 +156,7 @@ export const addEntity = makeFlowNodeDefinition({
       return {
         valueType: 'string',
         choices: choices,
-        defaultValue: getComponent(sceneTagQuery()[0], UUIDComponent)
+        defaultValue: ''
       }
     },
     componentName: (_, graphApi) => {
