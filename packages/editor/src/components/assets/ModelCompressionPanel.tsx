@@ -53,7 +53,7 @@ import exportGLTF from '../../functions/exportGLTF'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { createEntity, Entity, UndefinedEntity } from '@etherealengine/ecs'
-import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
+import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
 import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -138,7 +138,7 @@ const createTempEntity = (name: string, parentEntity: Entity = UndefinedEntity):
 
   const uuid = MathUtils.generateUUID() as EntityUUID
   setComponent(entity, UUIDComponent, uuid)
-  setComponent(entity, SceneObjectComponent)
+  setComponent(entity, SceneComponent)
 
   // These additional properties and relations are required for
   // the current GLTF exporter to successfully generate a GLTF.

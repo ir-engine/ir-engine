@@ -46,7 +46,7 @@ import { copyTransformToRigidBody } from '@etherealengine/spatial/src/physics/sy
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { cloneDeep, isEqual, uniqueId } from 'lodash'
 import { teleportAvatar } from '../../../../../avatar/functions/moveAvatar'
-import { SceneObjectComponent } from '../../../../../scene/components/SceneObjectComponent'
+import { SceneComponent } from '../../../../../scene/components/SceneComponent'
 import { SceneTagComponent } from '../../../../../scene/components/SceneTagComponent'
 import { addEntityToScene } from '../helper/entityHelper'
 
@@ -57,7 +57,7 @@ const initialState = (): State => ({
   systemUUID: '' as SystemUUID
 })
 
-const sceneQuery = defineQuery([SceneObjectComponent])
+const sceneQuery = defineQuery([SceneComponent])
 const sceneTagQuery = defineQuery([SceneTagComponent])
 
 export const getEntity = makeFunctionNodeDefinition({

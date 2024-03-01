@@ -70,10 +70,9 @@ import React from 'react'
 import { Group } from 'three'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
+import { SceneComponent } from '../components/SceneComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
-import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
-import { SourceComponent } from '../components/SourceComponent'
 import { proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 
 export const SceneLoadingReactor = () => {
@@ -89,7 +88,7 @@ export const SceneLoadingReactor = () => {
           EntityTreeComponent,
           TransformComponent,
           UUIDComponent,
-          SceneObjectComponent,
+          SceneComponent,
           Not(GLTFLoadedComponent),
           Not(SceneTagComponent)
         ]}
@@ -211,10 +210,9 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
     const entity = UUIDComponent.getOrCreateEntityByUUID(props.entityUUID)
     setComponent(entity, NameComponent, entityState.name.value)
     setComponent(entity, VisibleComponent, true)
-    setComponent(entity, SourceComponent, props.sceneID)
+    setComponent(entity, SceneComponent, props.sceneID)
     setComponent(entity, SceneTagComponent, true)
     setComponent(entity, TransformComponent)
-    setComponent(entity, SceneObjectComponent)
     setComponent(entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
 
     selfEntity.set(entity)
@@ -271,7 +269,6 @@ const EntityChildLoadReactor = (props: {
 
     selfEntity.set(entity)
 
-    setComponent(entity, SceneObjectComponent)
     setComponent(entity, EntityTreeComponent, {
       parentEntity,
       uuid: props.entityUUID,
@@ -286,7 +283,7 @@ const EntityChildLoadReactor = (props: {
       setComponent(entity, Object3DComponent, obj3d)
     }
 
-    setComponent(entity, SourceComponent, props.sceneID)
+    setComponent(entity, SceneComponent, props.sceneID)
     loadComponents(entity, entityJSONState.components.get(NO_PROXY))
 
     return () => {
