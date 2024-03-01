@@ -287,10 +287,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
 
   if (instanceServerState.isMediaInstance) {
     getMutableState(NetworkState).hostIds.media.set(hostId)
-    getMutableState(SceneState).merge({
-      sceneLoading: false,
-      sceneLoaded: true
-    })
+    getMutableState(SceneState).sceneLoaded.set(true)
   } else {
     getMutableState(NetworkState).hostIds.world.set(hostId)
 
@@ -300,7 +297,6 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
       const sceneData = (await app
         .service(scenePath)
         .get('', { query: { sceneKey: sceneId, metadataOnly: false }, headers })) as SceneDataType
-      getMutableState(SceneState).activeScene.set(sceneId)
       SceneState.loadScene(sceneId, sceneData)
       /** @todo - quick hack to wait until scene has loaded */
 
