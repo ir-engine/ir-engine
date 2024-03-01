@@ -1762,33 +1762,35 @@ export const uploadLocalProjectToProvider = async (
           const hash = createStaticResourceHash(fileResult)
           if (existingContentSet.has(resourceKey(key, hash))) {
             logger.info(`Skipping upload of static resource of class ${thisFileClass}: "${key}"`)
-          } else if (existingKeySet.has(key)) {
-            logger.info(`Updating static resource of class ${thisFileClass}: "${key}"`)
-            await app.service(staticResourcePath).patch(
-              null,
-              {
+          } else {
+            if (existingKeySet.has(key)) {
+              logger.info(`Updating static resource of class ${thisFileClass}: "${key}"`)
+              await app.service(staticResourcePath).patch(
+                null,
+                {
+                  hash,
+                  url,
+                  mimeType: contentType,
+                  tags: [thisFileClass]
+                },
+                {
+                  query: {
+                    key,
+                    project: projectName
+                  }
+                }
+              )
+            } else {
+              logger.info(`Creating static resource of class ${thisFileClass}: "${key}"`)
+              await app.service(staticResourcePath).create({
+                key: `projects/${projectName}${filePathRelative}`,
+                project: projectName,
                 hash,
                 url,
                 mimeType: contentType,
                 tags: [thisFileClass]
-              },
-              {
-                query: {
-                  key,
-                  project: projectName
-                }
-              }
-            )
-          }
-          {
-            await app.service(staticResourcePath).create({
-              key: `projects/${projectName}${filePathRelative}`,
-              project: projectName,
-              hash,
-              url,
-              mimeType: contentType,
-              tags: [thisFileClass]
-            })
+              })
+            }
             logger.info(`Uploaded static resource of class ${thisFileClass}: "${key}"`)
           }
         }

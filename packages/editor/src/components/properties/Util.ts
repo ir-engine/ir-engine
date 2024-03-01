@@ -25,10 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Component, SerializedComponentType, updateComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
-import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorState } from '../../services/EditorServices'
@@ -96,14 +94,4 @@ export const commitProperties = <C extends Component>(
     : SelectionState.getSelectedEntities()
 
   EditorControlFunctions.modifyProperty(affectedNodes, component, properties)
-}
-
-export function traverseScene<T>(
-  callback: (node: Entity) => T,
-  predicate: (node: Entity) => boolean = () => true,
-  snubChildren = false
-): T[] {
-  const result: T[] = []
-  iterateEntityNode(SceneState.getRootEntity(), (node) => result.push(callback(node)), predicate, snubChildren)
-  return result
 }

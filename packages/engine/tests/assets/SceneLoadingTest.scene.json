@@ -32,7 +32,11 @@
       "components": [
         {
           "name": "EE_transform",
-          "props": { "position": { "x": 1, "y": 0, "z": 0 }, "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 }, "scale": { "x": 1, "y": 1, "z": 1 } }
+          "props": {
+            "position": { "x": 1, "y": 0, "z": 0 },
+            "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+            "scale": { "x": 1, "y": 1, "z": 1 }
+          }
         }
       ],
       "parent": "child_0"
@@ -42,7 +46,11 @@
       "components": [
         {
           "name": "EE_transform",
-          "props": { "position": { "x": 0, "y": 1, "z": 0 }, "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 }, "scale": { "x": 1, "y": 1, "z": 1 } }
+          "props": {
+            "position": { "x": 0, "y": 1, "z": 0 },
+            "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+            "scale": { "x": 1, "y": 1, "z": 1 }
+          }
         }
       ],
       "parent": "child_1"
@@ -52,7 +60,11 @@
       "components": [
         {
           "name": "EE_transform",
-          "props": { "position": { "x": 0, "y": 0, "z": 1 }, "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 }, "scale": { "x": 1, "y": 1, "z": 1 } }
+          "props": {
+            "position": { "x": 0, "y": 0, "z": 1 },
+            "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+            "scale": { "x": 1, "y": 1, "z": 1 }
+          }
         }
       ],
       "parent": "child_2"
@@ -62,7 +74,11 @@
       "components": [
         {
           "name": "EE_transform",
-          "props": { "position": { "x": 2, "y": 0, "z": 0 }, "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 }, "scale": { "x": 1, "y": 1, "z": 1 } }
+          "props": {
+            "position": { "x": 2, "y": 0, "z": 0 },
+            "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+            "scale": { "x": 1, "y": 1, "z": 1 }
+          }
         }
       ],
       "parent": "child_3"
@@ -72,7 +88,11 @@
       "components": [
         {
           "name": "EE_transform",
-          "props": { "position": { "x": 0, "y": 2, "z": 0 }, "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 }, "scale": { "x": 1, "y": 1, "z": 1 } }
+          "props": {
+            "position": { "x": 0, "y": 2, "z": 0 },
+            "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+            "scale": { "x": 1, "y": 1, "z": 1 }
+          }
         }
       ],
       "parent": "child_4"
@@ -82,7 +102,10 @@
       "components": [
         {
           "name": "EE_transform",
-          "props": { "position": { "x": 0, "y": 0, "z": 2 }, "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 }, "scale": { "x": 1, "y": 1, "z": 1 }
+          "props": {
+            "position": { "x": 0, "y": 0, "z": 2 },
+            "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+            "scale": { "x": 1, "y": 1, "z": 1 }
           }
         },
         {

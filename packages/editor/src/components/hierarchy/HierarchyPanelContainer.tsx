@@ -30,12 +30,11 @@ import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 
-import { getComponent, getMutableComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { NO_PROXY, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { EntityTreeComponent, traverseEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import MenuItem from '@mui/material/MenuItem'
@@ -61,7 +60,6 @@ import Search from '../Search/Search'
 import useUpload from '../assets/useUpload'
 import { PropertiesPanelButton } from '../inputs/Button'
 import { ContextMenu } from '../layout/ContextMenu'
-import { updateProperties } from '../properties/Util'
 import { HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
 import { HierarchyTreeNode, HierarchyTreeNodeProps, RenameNodeData, getNodeElId } from './HierarchyTreeNode'
 import styles from './styles.module.scss'
@@ -93,11 +91,10 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
   const lockPropertiesPanel = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
   const searchHierarchy = useHookstate('')
 
-  const activeScene = useHookstate(getMutableState(SceneState).activeScene)
   const uuidQuery = useQuery([UUIDComponent, SceneObjectComponent])
   const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
   const sceneID = useHookstate(getMutableState(EditorState).sceneID)
-  const index = SceneState.useSnapshotIndex(sceneID.value!)
+  const index = SceneSnapshotState.useSnapshotIndex(sceneID.value!)
 
   const MemoTreeNode = useCallback(
     (props: HierarchyTreeNodeProps) => (
@@ -119,49 +116,49 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
   }
 
   useEffect(() => {
-    if (!activeScene.value) return
-    if (!expandedNodes.value[activeScene.value]) {
-      expandedNodes.set({ [activeScene.value]: { [rootEntity]: true } })
+    if (!sceneID.value) return
+    if (!expandedNodes.value[sceneID.value]) {
+      expandedNodes.set({ [sceneID.value]: { [rootEntity]: true } })
     }
-  }, [rootEntity, activeScene.value])
+  }, [rootEntity, sceneID.value])
 
   useEffect(() => {
-    if (!activeScene.value) return
+    if (!sceneID.value) return
     entityHierarchy.set(
       Array.from(
         heirarchyTreeWalker(
-          activeScene.value,
-          SceneState.getRootEntity(getState(SceneState).activeScene!),
+          sceneID.value,
+          SceneState.getRootEntity(sceneID.value),
           SelectionState.getSelectedEntities()
         )
       )
     )
-  }, [expandedNodes, index, uuidQuery.length, activeScene, selectionState.selectedEntities])
+  }, [expandedNodes, index, uuidQuery.length, sceneID, selectionState.selectedEntities])
 
   const setSelectedNode = (selection) => !lockPropertiesPanel.value && _setSelectedNode(selection)
 
   /* Expand & Collapse Functions */
   const expandNode = useCallback(
     (node: HeirarchyTreeNodeType) => {
-      const scene = activeScene.get(NO_PROXY)
+      const scene = sceneID.get(NO_PROXY)
       if (!scene) return
       expandedNodes[scene][node.entity].set(true)
     },
-    [expandedNodes, activeScene]
+    [expandedNodes, sceneID]
   )
 
   const collapseNode = useCallback(
     (node: HeirarchyTreeNodeType) => {
-      const scene = activeScene.get(NO_PROXY)
+      const scene = sceneID.get(NO_PROXY)
       if (!scene) return
       expandedNodes[scene][node.entity].set(none)
     },
-    [expandedNodes, activeScene]
+    [expandedNodes, sceneID]
   )
 
   const expandChildren = useCallback(
     (node: HeirarchyTreeNodeType) => {
-      const scene = activeScene.get(NO_PROXY)
+      const scene = sceneID.get(NO_PROXY)
       if (!scene) return
       handleClose()
       traverseEntityNode(node.entity, (child) => {
@@ -173,7 +170,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 
   const collapseChildren = useCallback(
     (node: HeirarchyTreeNodeType) => {
-      const scene = activeScene.get(NO_PROXY)
+      const scene = sceneID.get(NO_PROXY)
       if (!scene) return
       handleClose()
       traverseEntityNode(node.entity, (child) => {
@@ -238,11 +235,11 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 
   const onToggle = useCallback(
     (_, node: HeirarchyTreeNodeType) => {
-      if (!activeScene.value) return
-      if (expandedNodes.value[activeScene.value][node.entity]) collapseNode(node)
+      if (!sceneID.value) return
+      if (expandedNodes.value[sceneID.value][node.entity]) collapseNode(node)
       else expandNode(node)
     },
-    [activeScene, expandedNodes, expandNode, collapseNode]
+    [sceneID, expandedNodes, expandNode, collapseNode]
   )
 
   const onKeyDown = useCallback(
@@ -384,9 +381,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 
   const onRenameSubmit = useCallback((node: HeirarchyTreeNodeType, name: string) => {
     if (name) {
-      updateProperties(NameComponent, name, [node.entity])
-      const groups = getOptionalComponent(node.entity, GroupComponent)
-      if (groups) for (const obj of groups) if (obj) obj.name = name
+      EditorControlFunctions.modifyName([node.entity], name)
     }
 
     setRenamingNode(null)
@@ -427,11 +422,11 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
     canDrop(item: any, monitor) {
       if (!monitor.isOver({ shallow: true })) return false
 
-      if (!getState(SceneState).activeScene) return false
+      if (!sceneID.value) return false
 
       // check if item is of node type
       if (item.type === ItemTypes.Node) {
-        const sceneEntity = SceneState.getRootEntity(getState(SceneState).activeScene!)
+        const sceneEntity = SceneState.getRootEntity(sceneID.value!)
         return !(item.multiple
           ? item.value.some((otherObject) => isAncestor(otherObject, sceneEntity))
           : isAncestor(item.value, sceneEntity))
@@ -441,7 +436,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
     }
   })
 
-  if (!activeScene) return <></>
+  if (!sceneID) return <></>
 
   let validNodes = nodeSearch?.length > 0 ? nodeSearch : entityHierarchy.value
   validNodes = validNodes.filter((node) => entityExists(node.entity))
@@ -563,7 +558,7 @@ export default function HierarchyPanel() {
   const editorState = useHookstate(getMutableState(EditorState))
   const sceneState = useHookstate(getMutableState(SceneState))
 
-  const sceneJson = SceneState.getScene(editorState.sceneID.value!)
+  const sceneJson = SceneState.getScene(editorState.sceneID.value!)?.scene
 
   if (!editorState.sceneID.value || !sceneState.scenes[editorState.sceneID.value] || !sceneJson) return null
   return <HierarchyPanelContents key={sceneJson.root} rootEntityUUID={sceneJson.root} />
