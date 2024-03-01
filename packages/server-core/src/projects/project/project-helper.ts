@@ -488,7 +488,7 @@ export const checkProjectDestinationMatch = async (
         })
         resolve(destinationPackage)
       } catch (err) {
-        logger.error('destination package fetch error', err)
+        logger.error('destination package fetch error %o', err)
         if (err.status === 404) {
           resolve({
             error: 'destinationPackageMissing',
@@ -586,7 +586,7 @@ export const checkDestination = async (app: Application, url: string, params?: P
     try {
       destinationPackage = await octoKit.rest.repos.getContent({ owner, repo, path: 'package.json' })
     } catch (err) {
-      logger.error('destination package fetch error', err)
+      logger.error('destination package fetch error %o', err)
       if (err.status !== 404) throw err
     }
     if (destinationPackage)
@@ -621,7 +621,7 @@ export const checkDestination = async (app: Application, url: string, params?: P
           returned.text = `The new destination repo contains project '${returned.projectName}', which is different than the current project '${existingProjectName}'`
         }
       } catch (err) {
-        logger.error('destination package fetch error', err)
+        logger.error('destination package fetch error %o', err)
         if (err.status !== 404) throw err
       }
     }

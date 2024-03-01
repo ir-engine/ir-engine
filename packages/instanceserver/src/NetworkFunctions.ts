@@ -34,7 +34,7 @@ import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respa
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
-import { localConfig } from '@etherealengine/server-core/src/config'
+import { config as mediaConfig } from '@etherealengine/server-core/src/config'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
@@ -85,24 +85,24 @@ export const setupIPs = async () => {
     : (await getLocalServerIp(instanceServerState.isMediaInstance.value)).ipAddress
 
   // @todo put this in hyperflux state
-  localConfig.mediasoup.webRtcTransport.listenIps = [
+  mediaConfig.mediasoup.webRtcTransport.listenIps = [
     {
       ip: '0.0.0.0',
       announcedIp
     }
   ]
 
-  localConfig.mediasoup.webRtcServerOptions.listenInfos.forEach((listenInfo) => {
+  mediaConfig.mediasoup.webRtcServerOptions.listenInfos.forEach((listenInfo) => {
     listenInfo.announcedIp = announcedIp
     listenInfo.ip = '0.0.0.0'
   })
 
-  localConfig.mediasoup.plainTransport.listenIp = {
+  mediaConfig.mediasoup.plainTransport.listenIp = {
     ip: '0.0.0.0',
     announcedIp
   }
 
-  localConfig.mediasoup.recording.ip = config.kubernetes.enabled ? '127.0.0.1' : announcedIp
+  mediaConfig.mediasoup.recording.ip = config.kubernetes.enabled ? '127.0.0.1' : announcedIp
 }
 
 export async function cleanupOldInstanceservers(app: Application): Promise<void> {
