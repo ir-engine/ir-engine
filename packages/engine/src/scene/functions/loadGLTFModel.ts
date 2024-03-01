@@ -231,10 +231,6 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     components: []
   }
 
-  for (const component of eJson.components) {
-    if (ComponentJSONIDMap.has(component.name))
-      setComponent(objEntity, ComponentJSONIDMap.get(component.name)!, component.props)
-  }
   eJson.parent = getComponent(parentEntity, UUIDComponent)
 
   const sceneID = getModelSceneID(rootEntity)
@@ -254,6 +250,12 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     scale: obj.scale.clone()
   })
   computeTransformMatrix(objEntity)
+
+  for (const component of eJson.components) {
+    if (ComponentJSONIDMap.has(component.name))
+      setComponent(objEntity, ComponentJSONIDMap.get(component.name)!, component.props)
+  }
+
   eJson.components.push({
     name: TransformComponent.jsonID,
     props: {
