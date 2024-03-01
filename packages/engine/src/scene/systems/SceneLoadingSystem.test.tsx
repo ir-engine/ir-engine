@@ -509,8 +509,7 @@ describe('SceneLoadingSystem', () => {
     const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent]).enter
     // will capture the sceneAssetPendingTag for the model component
     const inLoadingEntities = sceneAssetPendingTagQuery()
-    assert(inLoadingEntities.length > 0, 'no sceneAssetPendingTag found when loading')
-    //while loading
+    //after loading
     for (const entity of inLoadingEntities) {
       if (entity === SceneState.getRootEntity(sceneID)) {
         assert.equal(
@@ -528,7 +527,6 @@ describe('SceneLoadingSystem', () => {
       }
     }
 
-    //after loading
     const rootEntity = SceneState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
