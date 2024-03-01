@@ -906,15 +906,11 @@
               "w": 0.9981347983432053
             },
             "scale": {
-              "x": 0.4000000059604645,
-              "y": 0.6000000238418579,
-              "z": 0.4000000059604645
+              "x": 0.8,
+              "y": 1.2,
+              "z": 0.8
             }
           }
-        },
-        {
-          "name": "EE_visible",
-          "props": {}
         },
         {
           "name": "EE_rigidbody",
@@ -930,6 +926,10 @@
             "collisionMask": 7,
             "restitution": 1
           }
+        },
+        {
+          "name": "EE_visible",
+          "props": true
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
@@ -1021,10 +1021,6 @@
           }
         },
         {
-          "name": "EE_visible",
-          "props": {}
-        },
-        {
           "name": "EE_rigidbody",
           "props": {
             "type": "fixed"
@@ -1050,6 +1046,10 @@
               }
             ]
           }
+        },
+        {
+          "name": "EE_visible",
+          "props": true
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
@@ -1080,10 +1080,6 @@
           }
         },
         {
-          "name": "EE_visible",
-          "props": {}
-        },
-        {
           "name": "EE_rigidbody",
           "props": {
             "type": "fixed"
@@ -1109,6 +1105,10 @@
               }
             ]
           }
+        },
+        {
+          "name": "EE_visible",
+          "props": true
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
@@ -1214,10 +1214,6 @@
           }
         },
         {
-          "name": "EE_visible",
-          "props": {}
-        },
-        {
           "name": "EE_rigidbody",
           "props": {
             "type": "fixed"
@@ -1243,6 +1239,10 @@
               }
             ]
           }
+        },
+        {
+          "name": "EE_visible",
+          "props": true
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
@@ -1273,10 +1273,6 @@
           }
         },
         {
-          "name": "EE_visible",
-          "props": {}
-        },
-        {
           "name": "EE_envmapbake",
           "props": {
             "bakePosition": {
@@ -1300,6 +1296,10 @@
             "envMapOrigin": "__$project$__/default-project/apartment-New-EnvMap%20Bake.ktx2",
             "boxProjection": true
           }
+        },
+        {
+          "name": "EE_visible",
+          "props": true
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
