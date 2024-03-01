@@ -80,11 +80,12 @@ const injectDitheringLogic = (material: Material, ditheringDistance: number, dit
   material.onBeforeCompile = (shader, renderer) => {
     if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {
       shader.vertexShader = shader.vertexShader.replace(/#include <common>/, '#include <common>\n' + ditheringUniform)
-      shader.vertexShader = shader.vertexShader.replace(
-        /#include <worldpos_vertex>/,
-        '	#include <worldpos_vertex>\n' + ditheringVertex
-      )
     }
+
+    shader.vertexShader = shader.vertexShader.replace(
+      /#include <worldpos_vertex>/,
+      '	#include <worldpos_vertex>\n' + ditheringVertex
+    )
 
     if (!shader.fragmentShader.startsWith('varying vec3 vWorldPosition'))
       shader.fragmentShader = shader.fragmentShader.replace(

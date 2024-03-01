@@ -26,8 +26,7 @@ Ethereal Engine. All Rights Reserved.
 export const ditheringUniform = `  varying vec3 vWorldPosition;`
 
 export const ditheringVertex = `
-worldPosition = modelMatrix * vec4( transformed, 1.0 );
-vWorldPosition = worldPosition.xyz;
+vWorldPosition = (modelMatrix * vec4( transformed, 1.0 )).xyz;
 `
 
 /** glsl */
