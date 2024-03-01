@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 export const VIDEO_CONSTRAINTS = {
-  qvga: { width: { ideal: 320 }, height: { ideal: 240 } },
-  vga: { width: { ideal: 640 }, height: { ideal: 480 } },
+  nhd: { width: { ideal: 640 }, height: { ideal: 360 } },
+  fwvga: { width: { ideal: 854 }, height: { ideal: 480 } },
   hd: { width: { ideal: 1280 }, height: { ideal: 720 } },
   fhd: { width: { ideal: 1920 }, height: { ideal: 1080 } }
 }
@@ -38,12 +38,9 @@ export const localAudioConstraints: MediaStreamConstraints = {
   }
 }
 
-export const localVideoConstraints: MediaStreamConstraints = {
-  video: {
-    width: VIDEO_CONSTRAINTS.fhd.width,
-    height: VIDEO_CONSTRAINTS.fhd.height,
-    frameRate: { max: 60 }
-  }
+export const CAM_AUDIO_CODEC_OPTIONS = {
+  opusDtx: true,
+  opusMaxAverageBitrate: 32000 // 32 kbps
 }
 
 export const CAM_VIDEO_SIMULCAST_ENCODINGS = [
@@ -58,8 +55,44 @@ export const CAM_VIDEO_SIMULCAST_CODEC_OPTIONS = {
   videoGoogleMinBitrate: 1 // 1kbps
 }
 
+export const CAM_VIDEO_SVC_CODEC_OPTIONS = [
+  {
+    scalabilityMode: 'L3T2'
+  }
+]
+
 export const SCREEN_SHARE_SIMULCAST_ENCODINGS = [
   { dtx: true, maxBitrate: 500 * 1000 }, // 500kbps
   { dtx: true, maxBitrate: 2 * 1000 * 1000 }, // 2mbps
   { dtx: true, maxBitrate: 10 * 1000 * 1000 } // 10mbps
 ]
+
+export const VP8_CODEC = {
+  kind: 'video',
+  mimeType: 'video/VP8',
+  clockRate: 90000
+}
+
+export const VP9_CODEC = {
+  kind: 'video',
+  mimeType: 'video/VP9',
+  clockRate: 90000
+}
+
+export const H264_CODEC = {
+  kind: 'video',
+  mimeType: 'video/h264',
+  clockRate: 90000,
+  parameters: {
+    'packetization-mode': 1,
+    'profile-level-id': '4d0032',
+    'level-asymmetry-allowed': 1
+  }
+}
+
+export const OPUS_STEREO_CODEC = {
+  kind: 'audio',
+  mimeType: 'audio/opus',
+  clockRate: 48000,
+  channels: 2
+}

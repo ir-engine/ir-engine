@@ -260,7 +260,7 @@ export const NetworkConsumer = (props: { networkID: InstanceID; consumerID: stri
     return () => {
       consumerObject.close()
     }
-  }, [transportState, consumerObjectState])
+  }, [transportState.value, consumerObjectState.value])
 
   return null
 }
