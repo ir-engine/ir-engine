@@ -28,7 +28,6 @@ import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { VisualScriptComponent, VisualScriptDomain, registerEngineProfile } from '@etherealengine/spatial'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
-import { expect } from 'chai'
 import booleanTestVisualScript from './assets/boolean-test-visual-script.json'
 import decisionTestVisualScript from './assets/decision-test-visual-script.json'
 import defaultVisualScript from './assets/default-visual-script.json'
@@ -38,6 +37,7 @@ import rateRepeatTestVisualScript from './assets/rate-repeat-test-visual-script.
 import stringTestVisualScript from './assets/string-test-visual-script.json'
 
 import { parseStorageProviderURLs } from '@etherealengine/spatial/src/common/functions/parseSceneJSON'
+import assert from 'assert'
 import { default as Sinon, default as sinon } from 'sinon'
 import { GraphJSON, VisualScriptState } from '../src/VisualScriptModule'
 
@@ -79,7 +79,7 @@ describe('visual Script', () => {
     setComponent(entity, VisualScriptComponent, { visualScript: visualScript, run: true })
 
     await waitForConsoleLog(successMessage).then((result) => {
-      expect(result.includes(successMessage)).to.be.true
+      assert(result.includes(successMessage))
     })
   })
 
@@ -89,7 +89,7 @@ describe('visual Script', () => {
     setComponent(entity, VisualScriptComponent, { visualScript: visualScript, run: true })
 
     await waitForConsoleLog(successMessage).then((result) => {
-      expect(result.includes(successMessage)).to.be.true
+      assert(result.includes(successMessage))
     })
   })
 
@@ -99,7 +99,7 @@ describe('visual Script', () => {
     setComponent(entity, VisualScriptComponent, { visualScript: visualScript, run: true })
 
     await waitForConsoleLog(successMessage).then((result) => {
-      expect(result.includes(successMessage)).to.be.true
+      assert(result.includes(successMessage))
     })
   })
 
@@ -109,7 +109,7 @@ describe('visual Script', () => {
     setComponent(entity, VisualScriptComponent, { visualScript: visualScript, run: true })
 
     await waitForConsoleLog(successMessage).then((result) => {
-      expect(result.includes(successMessage)).to.be.true
+      assert(result.includes(successMessage))
     })
   })
 
@@ -119,7 +119,7 @@ describe('visual Script', () => {
     setComponent(entity, VisualScriptComponent, { visualScript: visualScript, run: true })
 
     await waitForConsoleLog(successMessage).then((result) => {
-      expect(result.includes(successMessage)).to.be.true
+      assert(result.includes(successMessage))
     })
   })
 
@@ -138,7 +138,7 @@ describe('visual Script', () => {
     ]
     for (const message of messageSequence) {
       await waitForConsoleLog(message).then((result) => {
-        expect(result.includes(message)).to.be.true
+        assert(result.includes(successMessage))
       })
     }
   })
@@ -159,7 +159,7 @@ describe('visual Script', () => {
     ]
     for (const message of messageSequence) {
       await waitForConsoleLog(message).then((result) => {
-        expect(result.includes(message)).to.be.true
+        assert(result.includes(successMessage))
       })
     }
   })
