@@ -269,6 +269,7 @@
         "view": "View",
         "delete": "Delete"
       },
+      "instances": "Instance",
       "confirmInstanceDelete": "Do you want to delete instance",
       "location": "Location",
       "count": "Count",

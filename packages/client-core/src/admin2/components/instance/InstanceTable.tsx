@@ -53,7 +53,7 @@ export default function InstanceTable({ search }: { search: string }) {
       id: row.id,
       ipAddress: row.ipAddress,
       currentUsers: row.currentUsers,
-      locationName: row.location.name,
+      locationName: row.location && row.location.name ? row.location.name : '',
       channelId: row.channelId,
       podName: row.podName,
       action: (

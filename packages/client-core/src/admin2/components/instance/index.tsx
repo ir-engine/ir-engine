@@ -46,7 +46,7 @@ export default function Invites() {
     <>
       <div>
         <Text fontSize="xl" className="mb-6">
-          {t('admin:components.avatar.avatars')}
+          {t('admin:components.instance.instances')}
         </Text>
         <div className="mb-4 flex justify-between">
           <Input
