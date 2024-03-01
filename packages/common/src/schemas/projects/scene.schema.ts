@@ -49,7 +49,6 @@ export const entityJsonSchema = Type.Object(
         format: 'uuid'
       })
     ]),
-    type: Type.Optional(Type.String()),
     components: Type.Array(Type.Ref(componentJsonSchema)),
     parent: Type.Optional(
       TypedString<EntityUUID>({

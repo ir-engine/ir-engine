@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ColliderDesc, RigidBodyDesc, RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
-import { useEffect } from 'react'
-import { Quaternion, Vector3 } from 'three'
+import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
+import { useLayoutEffect } from 'react'
 
 import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -35,6 +34,7 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
+  removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -43,17 +43,27 @@ import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { ColliderComponent as NewColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { CollisionGroups, DefaultCollisionMask } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+import {
+  Body,
+  BodyTypes,
+  ColliderDescOptions,
+  ColliderOptions,
+  OldShapeTypes
+} from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import {
   computeTransformMatrix,
   updateGroupChildren
 } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+import { Mesh } from 'three'
 import matches from 'ts-matches'
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'
@@ -168,7 +178,7 @@ export const ColliderComponent = defineComponent({
     const groupComponent = useOptionalComponent(entity, GroupComponent)
     const modelHierarchy = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       SceneAssetPendingTagComponent.removeResource(entity, ColliderComponent.jsonID)
 
       const isMeshCollider = [ShapeType.TriMesh, ShapeType.ConvexPolyhedron].includes(colliderComponent.shapeType.value)
@@ -177,22 +187,57 @@ export const ColliderComponent = defineComponent({
       if (isLoadedFromGLTF?.value || isMeshCollider) {
         const colliderComponent = getComponent(entity, ColliderComponent)
 
-        if (hasComponent(entity, RigidBodyComponent)) {
-          Physics.removeRigidBody(entity, physicsWorld)
-        }
-
         iterateEntityNode(entity, computeTransformMatrix)
         if (hasComponent(entity, GroupComponent)) {
           updateGroupChildren(entity)
         }
 
-        const meshesToRemove = Physics.createRigidBodyForGroup(entity, physicsWorld, {
+        const meshesToRemove = [] as Mesh[]
+
+        const colliderDescOptions = {
           bodyType: colliderComponent.bodyType,
           shapeType: colliderComponent.shapeType,
           isTrigger: colliderComponent.isTrigger,
           collisionLayer: colliderComponent.collisionLayer,
           collisionMask: colliderComponent.collisionMask,
           restitution: colliderComponent.restitution
+        }
+
+        const rigidBodyType =
+          typeof colliderComponent.bodyType === 'string'
+            ? RigidBodyType[colliderComponent.bodyType]
+            : colliderComponent.bodyType
+
+        let type: Body
+        switch (rigidBodyType) {
+          default:
+          case RigidBodyType.Fixed:
+            type = BodyTypes.Fixed
+            break
+
+          case RigidBodyType.Dynamic:
+            type = BodyTypes.Dynamic
+            break
+
+          case RigidBodyType.KinematicPositionBased:
+          case RigidBodyType.KinematicVelocityBased:
+            type = BodyTypes.Kinematic
+            break
+        }
+
+        setComponent(entity, RigidBodyComponent, { type })
+
+        iterateEntityNode(entity, (child) => {
+          const mesh = getOptionalComponent(child, MeshComponent)
+          if (!mesh) return // || ((mesh?.geometry.attributes['position'] as BufferAttribute).array.length ?? 0 === 0)) return
+          if (mesh.userData.type && mesh.userData.type !== ('glb' as any)) mesh.userData.shapeType = mesh.userData.type
+
+          const args = { ...colliderDescOptions, ...mesh.userData } as ColliderOptions & ColliderDescOptions
+          if (args.shapeType) args.shape = OldShapeTypes[args.shapeType]
+          if (args.isTrigger) setComponent(child, TriggerComponent)
+          setComponent(child, NewColliderComponent, args)
+
+          meshesToRemove.push(mesh)
         })
 
         if (!getState(EngineState).isEditor)
@@ -200,87 +245,50 @@ export const ColliderComponent = defineComponent({
             cleanupAllMeshData(mesh, {})
           }
       } else {
-        const rigidbodyTypeChanged =
-          !hasComponent(entity, RigidBodyComponent) ||
-          colliderComponent.bodyType.value !== getComponent(entity, RigidBodyComponent).body.bodyType()
-
-        if (rigidbodyTypeChanged) {
-          const rigidbody = getOptionalComponent(entity, RigidBodyComponent)?.body
-          /**
-           * If rigidbody exists, simply change it's type
-           */
-          if (rigidbody) {
-            Physics.changeRigidbodyType(entity, colliderComponent.bodyType.value)
-          } else {
-            /**
-             * If rigidbody does not exist, create one
-             */
-            let bodyDesc: RigidBodyDesc
-            switch (colliderComponent.bodyType.value) {
-              case RigidBodyType.Dynamic:
-                bodyDesc = RigidBodyDesc.dynamic()
-                break
-              case RigidBodyType.KinematicPositionBased:
-                bodyDesc = RigidBodyDesc.kinematicPositionBased()
-                break
-              case RigidBodyType.KinematicVelocityBased:
-                bodyDesc = RigidBodyDesc.kinematicVelocityBased()
-                break
-              default:
-              case RigidBodyType.Fixed:
-                bodyDesc = RigidBodyDesc.fixed()
-                break
-            }
-            Physics.createRigidBody(entity, physicsWorld, bodyDesc, [])
-          }
+        /**
+         * If rigidbody does not exist, create one
+         */
+        let type: Body
+        switch (colliderComponent.bodyType.value) {
+          default:
+          case RigidBodyType.Fixed:
+            type = BodyTypes.Fixed
+            break
+          case RigidBodyType.Dynamic:
+            type = BodyTypes.Dynamic
+            break
+          case RigidBodyType.KinematicPositionBased:
+          case RigidBodyType.KinematicVelocityBased:
+            type = BodyTypes.Kinematic
+            break
         }
+        setComponent(entity, RigidBodyComponent, { type })
 
         const rigidbody = getComponent(entity, RigidBodyComponent)
 
         /**
          * This component only supports one collider, always at index 0
          */
-        Physics.removeCollidersFromRigidBody(entity, physicsWorld)
-        const colliderDesc = createColliderDescFromScale(
-          colliderComponent.shapeType.value,
-          transformComponent.scale.value
-        )
-        Physics.applyDescToCollider(
-          colliderDesc,
-          {
-            shapeType: colliderComponent.shapeType.value,
-            isTrigger: colliderComponent.isTrigger.value,
-            /** @todo for whatever reason, the character controller will still collide with triggers if they have a collision layer other than trigger  */
-            collisionLayer: colliderComponent.isTrigger.value
-              ? CollisionGroups.Trigger
-              : colliderComponent.collisionLayer.value,
-            collisionMask: colliderComponent.collisionMask.value,
-            restitution: colliderComponent.restitution.value
-          },
-          new Vector3(),
-          new Quaternion()
-        )
-        physicsWorld.createCollider(colliderDesc, rigidbody.body)
+        if (rigidbody.body && rigidbody.body.numColliders() > 0) {
+          const collider = rigidbody.body.collider(0)
+          physicsWorld.removeCollider(collider, false)
+        }
 
-        rigidbody.body.setTranslation(transformComponent.position.value, true)
-        rigidbody.body.setRotation(transformComponent.rotation.value, true)
+        setComponent(entity, NewColliderComponent, {
+          shape: OldShapeTypes[colliderComponent.shapeType.value],
+          collisionLayer: colliderComponent.collisionLayer.value,
+          collisionMask: colliderComponent.collisionMask.value,
+          restitution: colliderComponent.restitution.value
+        })
+
+        if (colliderComponent.isTrigger.value) {
+          setComponent(entity, TriggerComponent)
+        } else {
+          removeComponent(entity, TriggerComponent)
+        }
       }
     }, [isLoadedFromGLTF, colliderComponent, transformComponent, groupComponent?.length, modelHierarchy])
 
     return null
   }
 })
-
-export const createColliderDescFromScale = (shapeType: ShapeType, scale: Vector3) => {
-  switch (shapeType as ShapeType) {
-    default:
-    case ShapeType.Cuboid:
-      return ColliderDesc.cuboid(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
-    case ShapeType.Ball:
-      return ColliderDesc.ball(Math.abs(scale.x))
-    case ShapeType.Capsule:
-      return ColliderDesc.capsule(Math.abs(scale.y), Math.abs(scale.x))
-    case ShapeType.Cylinder:
-      return ColliderDesc.cylinder(Math.abs(scale.y), Math.abs(scale.x))
-  }
-}

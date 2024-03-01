@@ -37,13 +37,8 @@ import {
 } from '@etherealengine/hyperflux'
 import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
-import {
-  ComponentJsonType,
-  EntityJsonType,
-  SceneDataType,
-  SceneID,
-  scenePath
-} from '@etherealengine/common/src/schema.type.module'
+import { ComponentJsonType, EntityJsonType, SceneID } from '@etherealengine/common/src/schema.type.module'
+import { PresentationSystemGroup } from '@etherealengine/ecs'
 import {
   ComponentJSONIDMap,
   getComponent,
@@ -52,12 +47,10 @@ import {
   setComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { entityExists, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { QueryReactor, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -83,33 +76,10 @@ import { SceneTagComponent } from '../components/SceneTagComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 
-const reactor = () => {
+export const SceneLoadingReactor = () => {
   const scenes = useHookstate(getMutableState(SceneState).scenes)
-  const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
-  const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
-  const entities = useHookstate(UUIDComponent.entitiesByUUIDState)
 
   const physicsWorld = useHookstate(getMutableState(PhysicsState).physicsWorld)
-
-  useEffect(() => {
-    if (!getState(SceneState).sceneLoading) return
-
-    const values = Object.values(assetLoadingState.value)
-    const total = values.reduce((acc, curr) => acc + curr.totalAmount, 0)
-    const loaded = values.reduce((acc, curr) => acc + curr.loadedAmount, 0)
-    const progress = !sceneAssetPendingTagQuery.length || total === 0 ? 100 : Math.round((100 * loaded) / total)
-
-    getMutableState(SceneState).loadingProgress.set(progress)
-
-    if (!sceneAssetPendingTagQuery.length && !getState(SceneState).sceneLoaded) {
-      getMutableState(SceneState).merge({
-        sceneLoading: false,
-        sceneLoaded: true
-      })
-      SceneAssetPendingTagComponent.loadingProgress.set({})
-    }
-  }, [sceneAssetPendingTagQuery.length, assetLoadingState, entities.keys])
-
   if (!physicsWorld.value) return null
 
   return (
@@ -157,8 +127,12 @@ const NetworkedSceneObjectReactor = () => {
 }
 
 const SceneReactor = (props: { sceneID: SceneID }) => {
+  const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
+  const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
+  const entities = useHookstate(UUIDComponent.entitiesByUUIDState)
+
   const currentSceneSnapshotState = SceneState.useScene(props.sceneID)
-  const entities = currentSceneSnapshotState.entities
+  const sceneEntities = currentSceneSnapshotState.entities
   const rootUUID = currentSceneSnapshotState.root.value
 
   const ready = useHookstate(false)
@@ -166,48 +140,52 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
   const isActiveScene = useHookstate(getMutableState(SceneState).activeScene).value === props.sceneID
 
   useEffect(() => {
+    if (!ready.value || !isActiveScene || !getState(SceneState).sceneLoading) return
+
+    const entitiesCount = sceneEntities.keys.map(UUIDComponent.getEntityByUUID).filter(Boolean).length
+    if (entitiesCount <= 1) return
+
+    const values = Object.values(assetLoadingState.value)
+    const total = values.reduce((acc, curr) => acc + curr.totalAmount, 0)
+    const loaded = values.reduce((acc, curr) => acc + curr.loadedAmount, 0)
+    const progress = !sceneAssetPendingTagQuery.length || total === 0 ? 100 : Math.round((100 * loaded) / total)
+
+    getMutableState(SceneState).loadingProgress.set(progress)
+
+    if (!sceneAssetPendingTagQuery.length && !getState(SceneState).sceneLoaded) {
+      getMutableState(SceneState).merge({
+        sceneLoading: false,
+        sceneLoaded: true
+      })
+      SceneAssetPendingTagComponent.loadingProgress.set({})
+    }
+  }, [sceneAssetPendingTagQuery.length, assetLoadingState, entities.keys])
+
+  useEffect(() => {
     const scene = getState(SceneState).scenes[props.sceneID]
     const { project } = scene.metadata
     const data = scene.snapshots[scene.index].data
-    getSystemsFromSceneData(project, data).then((systems) => {
-      // wait to set scene loading state until systems are loaded
-      if (isActiveScene)
-        getMutableState(SceneState).merge({
-          sceneLoading: true,
-          sceneLoaded: false
-        })
-
-      if (systems.length) {
-        systemsLoaded.set(systems)
-      } else {
-        ready.set(true)
-      }
+    const systemPromises = getSystemsFromSceneData(project, data)
+    if (!systemPromises) {
+      ready.set(true)
+      getMutableState(SceneState).merge({
+        sceneLoading: true,
+        sceneLoaded: false
+      })
+      return
+    }
+    systemPromises.then((systems) => {
+      systemsLoaded.set(systems)
+      ready.set(true)
+      getMutableState(SceneState).merge({
+        sceneLoading: true,
+        sceneLoaded: false
+      })
     })
-
-    if (!isActiveScene) return
-
-    const sceneUpdatedListener = async () => {
-      const [projectName, sceneName] = props.sceneID.split('/')
-      const sceneData = (await Engine.instance.api
-        .service(scenePath)
-        .get('', { query: { project: projectName, name: sceneName } })) as SceneDataType
-      SceneState.loadScene(props.sceneID, sceneData)
-    }
-    // for testing
-    // window.addEventListener('keydown', (ev) => {
-    //   if (ev.code === 'KeyN') sceneUpdatedListener()
-    // })
-
-    Engine.instance.api.service(scenePath).on('updated', sceneUpdatedListener)
-
-    return () => {
-      // the ? is for testing
-      Engine.instance?.api.service(scenePath).off('updated', sceneUpdatedListener)
-    }
   }, [])
 
   useEffect(() => {
-    ready.set(true)
+    if (!systemsLoaded.length) return
     const systems = [...systemsLoaded.value]
     return () => {
       for (const system of systems) {
@@ -219,7 +197,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
   return (
     <>
       {ready.value &&
-        Object.entries(entities.value).map(([entityUUID, data]) =>
+        Object.entries(sceneEntities.value).map(([entityUUID, data]) =>
           entityUUID === rootUUID && isActiveScene ? (
             <EntitySceneRootLoadReactor
               key={entityUUID}
@@ -228,7 +206,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
             />
           ) : (
             <EntityLoadReactor
-              key={entityUUID + ' ' + data.parent}
+              key={props.sceneID + ' ' + entityUUID + ' ' + data.parent + ' ' + data.index}
               sceneID={props.sceneID}
               entityUUID={entityUUID as EntityUUID}
             />
@@ -253,8 +231,6 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
     setComponent(entity, SceneObjectComponent)
     setComponent(entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
 
-    loadComponents(entity, entityState.components.get(NO_PROXY))
-
     selfEntity.set(entity)
 
     return () => {
@@ -262,27 +238,12 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
     }
   }, [])
 
-  return (
-    <>
-      {selfEntity.value
-        ? entityState.components.map((compState) => (
-            <ErrorBoundary key={compState.name.value}>
-              <ComponentLoadReactor
-                componentID={compState.value.name}
-                entityUUID={props.entityUUID}
-                componentJSONState={compState}
-              />
-            </ErrorBoundary>
-          ))
-        : null}
-    </>
-  )
+  return null
 }
 
 const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) => {
   const entityState = SceneState.useScene(props.sceneID).entities[props.entityUUID]
   const parentEntity = UUIDComponent.useEntityByUUID(entityState.value.parent!)
-
   return (
     <>
       {parentEntity ? (
@@ -438,5 +399,5 @@ const loadComponents = (entity: Entity, components: ComponentJsonType[]) => {
 export const SceneLoadingSystem = defineSystem({
   uuid: 'ee.engine.scene.SceneLoadingSystem',
   insert: { after: PresentationSystemGroup },
-  reactor
+  reactor: SceneLoadingReactor
 })
