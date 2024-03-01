@@ -561,7 +561,7 @@ export default function HierarchyPanel() {
   const sceneJson = SceneState.getScene(sceneID!)?.scene
   const snapshots = useHookstate(getMutableState(SceneSnapshotState)).value
 
-  if (!sceneID || !sceneState.scenes[sceneID] || !sceneJson || !snapshots[sceneID]) return
+  if (!sceneID || !sceneState.scenes[sceneID] || !sceneJson || !snapshots[sceneID]) return null
 
   return <HierarchyPanelContents key={sceneJson.root} rootEntityUUID={sceneJson.root} />
 }
