@@ -27,7 +27,6 @@ import { Downgraded } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
-import { saveAs } from 'save-as'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
@@ -72,7 +71,7 @@ import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHo
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
-import { inputFileWithAddToScene } from '../../../functions/assetFunctions'
+import { downloadBlobAsZip, inputFileWithAddToScene } from '../../../functions/assetFunctions'
 import { bytesToSize, unique } from '../../../functions/utils'
 import StringInput from '../../inputs/StringInput'
 import { ToolButton } from '../../toolbar/ToolButton'
@@ -347,7 +346,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       fileName = selectedDirectory.value.split('/').at(-1) as string
     }
 
-    saveAs(blob, fileName + '.zip')
+    downloadBlobAsZip(blob, fileName)
   }
 
   const BreadcrumbItems = () => {
@@ -368,9 +367,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
     const nestedIndex = breadcrumbDirectoryFiles.indexOf(nestingDirectory.value)
 
-    breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((file, idx) => {
-      return idx >= nestedIndex
-    })
+    breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx >= nestedIndex)
 
     return (
       <Breadcrumbs

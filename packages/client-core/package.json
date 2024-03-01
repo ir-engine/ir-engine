@@ -73,7 +73,6 @@
     "react-reflex": "^4.0.12",
     "react-router-dom": "6.9.0",
     "recovery": "^0.2.6",
-    "save-as": "^0.1.8",
     "tick-tock": "^1.0.0",
     "typescript": "5.0.2",
     "util": "^0.12.5",
