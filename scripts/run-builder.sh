@@ -11,7 +11,6 @@ START_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 mkdir -pv ~/.docker
 cp -v /var/lib/docker/certs/client/* ~/.docker
 touch ./builder-started.txt
-bash ./scripts/setup_helm.sh
 bash ./scripts/setup_aws.sh $EKS_AWS_ACCESS_KEY_ID $EKS_AWS_ACCESS_KEY_SECRET $AWS_REGION $CLUSTER_NAME
 npx cross-env ts-node --swc scripts/check-db-exists.ts
 npm run prepare-database
@@ -48,10 +47,6 @@ mkdir -p ./project-package-jsons/projects/default-project
 cp packages/projects/default-project/package.json ./project-package-jsons/projects/default-project
 find packages/projects/projects/ -name package.json -exec bash -c 'mkdir -p ./project-package-jsons/$(dirname $1) && cp $1 ./project-package-jsons/$(dirname $1)' - '{}' \;
 
-bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL root root $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >root-build-logs.txt 2>root-build-error.txt
-npm run record-build-error -- --service=root --isDocker=true
-
-npm install -g cli @aws-sdk/client-s3
 
 if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "s3" ]
 then
