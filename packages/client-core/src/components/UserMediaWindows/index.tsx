@@ -111,7 +111,12 @@ export const useMediaWindows = () => {
     ? filteredUsersState.nearbyLayerUsers.value.map((userID) => mediaNetwork.users[userID]).flat()
     : []
 
-  return windows.filter(({ peerID }) => peerID === Engine.instance.store.peerID || nearbyPeers.includes(peerID))
+  return windows.filter(
+    ({ peerID }) =>
+      peerID === Engine.instance.peerID ||
+      mediaNetwork?.peers[peerID].userId === Engine.instance.userID ||
+      nearbyPeers.includes(peerID)
+  )
 }
 
 export const UserMediaWindows = () => {

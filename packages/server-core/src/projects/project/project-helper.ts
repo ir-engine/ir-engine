@@ -317,6 +317,11 @@ export const getEnginePackageJson = (): ProjectPackageJsonType => {
   return require(path.resolve(appRootPath.path, 'packages/server-core/package.json'))
 }
 
+export const getProjectEnabled = (projectName: string) => {
+  const matchesVersion = getProjectPackageJson(projectName).etherealEngine?.version === getEnginePackageJson().version
+  return config.allowOutOfDateProjects ? true : matchesVersion
+}
+
 //DO NOT REMOVE!
 //Even though an IDE may say that it's not used in the codebase, projects may use this.
 export const getProjectEnv = async (app: Application, projectName: string) => {
@@ -483,7 +488,7 @@ export const checkProjectDestinationMatch = async (
         })
         resolve(destinationPackage)
       } catch (err) {
-        logger.error('destination package fetch error', err)
+        logger.error('destination package fetch error %o', err)
         if (err.status === 404) {
           resolve({
             error: 'destinationPackageMissing',
@@ -581,7 +586,7 @@ export const checkDestination = async (app: Application, url: string, params?: P
     try {
       destinationPackage = await octoKit.rest.repos.getContent({ owner, repo, path: 'package.json' })
     } catch (err) {
-      logger.error('destination package fetch error', err)
+      logger.error('destination package fetch error %o', err)
       if (err.status !== 404) throw err
     }
     if (destinationPackage)
@@ -616,7 +621,7 @@ export const checkDestination = async (app: Application, url: string, params?: P
           returned.text = `The new destination repo contains project '${returned.projectName}', which is different than the current project '${existingProjectName}'`
         }
       } catch (err) {
-        logger.error('destination package fetch error', err)
+        logger.error('destination package fetch error %o', err)
         if (err.status !== 404) throw err
       }
     }
@@ -1509,6 +1514,8 @@ export const updateProject = async (
 
   const projectConfig = getProjectConfig(projectName) ?? {}
 
+  const enabled = getProjectEnabled(projectName)
+
   // when we have successfully re-installed the project, remove the database entry if it already exists
   const existingProjectResult = (await app.service(projectPath).find({
     query: {
@@ -1532,6 +1539,7 @@ export const updateProject = async (
         {
           id: v4(),
           name: projectName,
+          enabled,
           repositoryPath,
           needsRebuild: data.needsRebuild ? data.needsRebuild : true,
           sourceRepo: data.sourceURL,
@@ -1549,6 +1557,7 @@ export const updateProject = async (
     : await app.service(projectPath).patch(
         existingProject.id,
         {
+          enabled,
           commitSHA,
           commitDate: toDateTimeSql(commitDate),
           sourceRepo: data.sourceURL,
@@ -1750,36 +1759,38 @@ export const uploadLocalProjectToProvider = async (
         ]
         const thisFileClass = AssetLoader.getAssetClass(file)
         if (filePathRelative.startsWith('/assets/') && staticResourceClasses.includes(thisFileClass)) {
-          const hash = createStaticResourceHash(fileResult, { mimeType: contentType, assetURL: key })
+          const hash = createStaticResourceHash(fileResult)
           if (existingContentSet.has(resourceKey(key, hash))) {
             logger.info(`Skipping upload of static resource of class ${thisFileClass}: "${key}"`)
-          } else if (existingKeySet.has(key)) {
-            logger.info(`Updating static resource of class ${thisFileClass}: "${key}"`)
-            await app.service(staticResourcePath).patch(
-              null,
-              {
+          } else {
+            if (existingKeySet.has(key)) {
+              logger.info(`Updating static resource of class ${thisFileClass}: "${key}"`)
+              await app.service(staticResourcePath).patch(
+                null,
+                {
+                  hash,
+                  url,
+                  mimeType: contentType,
+                  tags: [thisFileClass]
+                },
+                {
+                  query: {
+                    key,
+                    project: projectName
+                  }
+                }
+              )
+            } else {
+              logger.info(`Creating static resource of class ${thisFileClass}: "${key}"`)
+              await app.service(staticResourcePath).create({
+                key: `projects/${projectName}${filePathRelative}`,
+                project: projectName,
                 hash,
                 url,
                 mimeType: contentType,
                 tags: [thisFileClass]
-              },
-              {
-                query: {
-                  key,
-                  project: projectName
-                }
-              }
-            )
-          }
-          {
-            await app.service(staticResourcePath).create({
-              key: `projects/${projectName}${filePathRelative}`,
-              project: projectName,
-              hash,
-              url,
-              mimeType: contentType,
-              tags: [thisFileClass]
-            })
+              })
+            }
             logger.info(`Uploaded static resource of class ${thisFileClass}: "${key}"`)
           }
         }

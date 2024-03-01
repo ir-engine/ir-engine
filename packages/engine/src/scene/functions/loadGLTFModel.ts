@@ -57,7 +57,9 @@ import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { MeshBVHComponent } from '../components/MeshBVHComponent'
 import { ModelComponent } from '../components/ModelComponent'
-import { SceneObjectComponent } from '../components/SceneObjectComponent'
+import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
+import { SceneComponent } from '../components/SceneComponent'
+import { getModelSceneID } from './loaders/ModelFunctions'
 
 export const parseECSData = (data: [string, any][]): ComponentJsonType[] => {
   const components: { [key: string]: any } = {}
@@ -228,12 +230,18 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     name,
     components: []
   }
+
   eJson.parent = getComponent(parentEntity, UUIDComponent)
-  setComponent(objEntity, SceneObjectComponent)
+
+  const sceneID = getModelSceneID(rootEntity)
+  setComponent(objEntity, SceneComponent, sceneID)
   setComponent(objEntity, EntityTreeComponent, {
     parentEntity,
     uuid
   })
+
+  if (hasComponent(rootEntity, SceneAssetPendingTagComponent))
+    SceneAssetPendingTagComponent.addResource(objEntity, `${rootEntity}`)
 
   setComponent(objEntity, NameComponent, name)
   setComponent(objEntity, TransformComponent, {
@@ -242,6 +250,12 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     scale: obj.scale.clone()
   })
   computeTransformMatrix(objEntity)
+
+  for (const component of eJson.components) {
+    if (ComponentJSONIDMap.has(component.name))
+      setComponent(objEntity, ComponentJSONIDMap.get(component.name)!, component.props)
+  }
+
   eJson.components.push({
     name: TransformComponent.jsonID,
     props: {
@@ -268,10 +282,16 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   }
 
   const findColliderData = (obj: Object3D) => {
-    if (Object.keys(obj.userData).find((key) => key.startsWith('xrengine.collider'))) {
+    if (
+      Object.keys(obj.userData).find(
+        (key) => key.startsWith('xrengine.collider') || key.startsWith('xrengine.EE_collider')
+      )
+    ) {
       return true
     } else if (obj.parent) {
-      return Object.keys(obj.parent.userData).some((key) => key.startsWith('xrengine.collider'))
+      return Object.keys(obj.parent.userData).some(
+        (key) => key.startsWith('xrengine.collider') || key.startsWith('xrengine.EE_collider')
+      )
     }
     return false
   }

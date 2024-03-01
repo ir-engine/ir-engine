@@ -119,9 +119,9 @@ const LoadingReactor = () => {
   const state = useHookstate(getMutableState(LoadingUISystemState))
   const locationState = useHookstate(getMutableState(LocationState))
   const meshEntity = state.meshEntity.value
-  const activeScene = useHookstate(getMutableState(SceneState).activeScene).value!
-  const scene = SceneState.getScene(activeScene)!
-  const sceneEntity = UUIDComponent.useEntityByUUID(scene.root)
+  const locationSceneID = locationState.currentLocation.location.sceneId.value
+  const scene = SceneState.getScene(locationSceneID)
+  const sceneEntity = UUIDComponent.useEntityByUUID(scene.scene.root)
 
   /** Scene is loading */
   useEffect(() => {
@@ -293,14 +293,15 @@ const reactor = () => {
   const clientSettings = useHookstate(
     getMutableState(AdminClientSettingsState)?.client?.[0]?.themeSettings?.clientSettings
   )
-  const activeScene = useHookstate(getMutableState(SceneState).activeScene)
+  const locationSceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId).value
+  const scenes = useHookstate(getMutableState(SceneState).scenes).value
 
   useEffect(() => {
     const theme = getAppTheme()
     if (theme) defaultColor.set(theme!.textColor)
   }, [themeState, themeModes, clientSettings])
 
-  if (!activeScene.value) return null
+  if (!locationSceneID || !scenes[locationSceneID]) return null
 
   return (
     <>

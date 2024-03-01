@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RigidBodyType } from '@dimforge/rapier3d-compat'
 import React, { useEffect } from 'react'
 import { MeshBasicMaterial, Vector3 } from 'three'
 
@@ -68,9 +67,9 @@ import {
   NetworkObjectComponent
 } from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
-import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
+import { BodyTypes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
@@ -118,10 +117,21 @@ export const GrabbableState = defineState({
       const state = getMutableState(GrabbableState)
       state[action.entityUUID].set(none)
     })
+  },
+
+  reactor: () => {
+    const grabbableState = useHookstate(getMutableState(GrabbableState))
+    return (
+      <>
+        {grabbableState.keys.map((entityUUID: EntityUUID) => (
+          <GrabbableReactor key={entityUUID} entityUUID={entityUUID} />
+        ))}
+      </>
+    )
   }
 })
 
-const GrabbableReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) => {
+const GrabbableReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   const state = useHookstate(getMutableState(GrabbableState)[entityUUID])
   const entity = UUIDComponent.useEntityByUUID(entityUUID)
   const grabberEntity = UUIDComponent.useEntityByUUID(state.grabberUserId.value as EntityUUID)
@@ -140,7 +150,7 @@ const GrabbableReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID })
     const body = bodyState.value
 
     if (body) {
-      Physics.changeRigidbodyType(entity, RigidBodyType.KinematicPositionBased)
+      setComponent(entity, RigidBodyComponent, { type: BodyTypes.Kinematic })
       for (let i = 0; i < body.numColliders(); i++) {
         const collider = body.collider(i)
         let oldCollisionGroups = collider.collisionGroups()
@@ -155,7 +165,7 @@ const GrabbableReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID })
       if (!entityExists(entity)) return
       removeComponent(entity, GrabbedComponent)
       if (body) {
-        Physics.changeRigidbodyType(entity, RigidBodyType.Dynamic)
+        setComponent(entity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         for (let i = 0; i < body.numColliders(); i++) {
           const collider = body.collider(i)
           let oldCollisionGroups = collider.collisionGroups()
@@ -167,18 +177,7 @@ const GrabbableReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID })
   }, [entity, grabberEntity, bodyState])
 
   return null
-})
-
-export const GrabbablesReactor = React.memo(() => {
-  const grabbableState = Object.keys(useHookstate(getMutableState(GrabbableState)).value)
-  return (
-    <>
-      {grabbableState.map((entityUUID: EntityUUID) => (
-        <GrabbableReactor key={entityUUID} entityUUID={entityUUID} />
-      ))}
-    </>
-  )
-})
+}
 
 /** @deprecated @todo - replace with reactor */
 export function transferAuthorityOfObjectReceptor(
@@ -388,6 +387,5 @@ const execute = () => {
 export const GrabbableSystem = defineSystem({
   uuid: 'ee.engine.GrabbableSystem',
   insert: { with: SimulationSystemGroup },
-  execute,
-  reactor: GrabbablesReactor
+  execute
 })

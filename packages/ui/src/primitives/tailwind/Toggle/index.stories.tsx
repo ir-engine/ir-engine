@@ -23,8 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import Component from './index'
 
-export const SceneTagComponent = defineComponent({
-  name: 'SceneTagComponent'
-})
+export default {
+  title: 'Primitives/Tailwind/Toggle',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'Toggle',
+    jest: 'Toggle.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  }
+}
+
+export const Off = {
+  args: {
+    label: 'Toggle Off Example',
+    value: false,
+    onChange: () => {}
+  }
+}
+
+export const On = {
+  args: {
+    label: 'Toggle On Example',
+    value: true,
+    onChange: () => {}
+  }
+}

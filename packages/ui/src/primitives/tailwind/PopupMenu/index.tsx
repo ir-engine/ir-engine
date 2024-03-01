@@ -29,9 +29,18 @@ import React from 'react'
 import ClickawayListener from '../ClickawayListener'
 
 const PopupMenu = () => {
-  const popoverElement = useHookstate(getMutableState(PopoverState).element)
-  const PopoverComponent = popoverElement.get(NO_PROXY) as any // types are broken for some reason...
-  return <>{popoverElement.value && <ClickawayListener>{PopoverComponent}</ClickawayListener>}</>
+  const popoverElement = useHookstate(getMutableState(PopoverState).elements)
+  return (
+    <>
+      {popoverElement.get(NO_PROXY).map((element, idx) => {
+        return (
+          <div key={idx} className={idx === popoverElement.length - 1 ? 'block' : 'hidden'}>
+            <ClickawayListener>{element ?? undefined}</ClickawayListener>
+          </div>
+        )
+      })}
+    </>
+  )
 }
 PopupMenu.displayName = 'PopupMenu'
 

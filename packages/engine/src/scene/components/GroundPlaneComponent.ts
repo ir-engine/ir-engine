@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ColliderDesc, RigidBodyDesc } from '@dimforge/rapier3d-compat'
-import { useEffect } from 'react'
+import { useLayoutEffect } from 'react'
 import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
@@ -39,21 +38,20 @@ import {
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
-import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
-import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+import { BodyTypes, Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { enableObjectLayer } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { SceneObjectComponent } from './SceneObjectComponent'
+import { SceneComponent } from './SceneComponent'
 
 export const GroundPlaneComponent = defineComponent({
   name: 'GroundPlaneComponent',
-  jsonID: 'ground-plane',
+  jsonID: 'EE_ground_plane',
 
   onInit(entity) {
     return {
@@ -76,10 +74,10 @@ export const GroundPlaneComponent = defineComponent({
      */
     if (
       !getState(SceneState).sceneLoaded &&
-      hasComponent(entity, SceneObjectComponent) &&
+      hasComponent(entity, SceneComponent) &&
       !hasComponent(entity, RigidBodyComponent)
     )
-      setComponent(entity, SceneAssetPendingTagComponent)
+      SceneAssetPendingTagComponent.addResource(entity, GroundPlaneComponent.jsonID)
   },
 
   toJSON(entity, component) {
@@ -94,11 +92,9 @@ export const GroundPlaneComponent = defineComponent({
 
     const component = useComponent(entity, GroundPlaneComponent)
 
-    useEffect(() => {
-      const radius = 10000
-
+    useLayoutEffect(() => {
       const mesh = new Mesh(
-        new PlaneGeometry(radius, radius),
+        new PlaneGeometry(10000, 10000),
         component.visible.value ? new MeshLambertMaterial() : new ShadowMaterial({ opacity: 0.5 })
       )
       component.mesh.set(mesh)
@@ -112,28 +108,26 @@ export const GroundPlaneComponent = defineComponent({
       enableObjectLayer(mesh, ObjectLayers.Camera, true)
       setComponent(entity, MeshComponent, mesh)
 
-      const rigidBodyDesc = RigidBodyDesc.fixed()
-      const colliderDesc = ColliderDesc.cuboid(radius * 2, 0.001, radius * 2)
-      colliderDesc.setCollisionGroups(
-        getInteractionGroups(CollisionGroups.Ground, CollisionGroups.Default | CollisionGroups.Avatars)
-      )
+      setComponent(entity, RigidBodyComponent, { type: BodyTypes.Fixed })
+      setComponent(entity, ColliderComponent, {
+        shape: Shapes.Plane,
+        collisionLayer: CollisionGroups.Ground,
+        collisionMask: CollisionGroups.Default | CollisionGroups.Avatars
+      })
 
-      const physicsWorld = getState(PhysicsState).physicsWorld
-      Physics.createRigidBody(entity, physicsWorld, rigidBodyDesc, [colliderDesc])
-
-      removeComponent(entity, SceneAssetPendingTagComponent)
-
+      SceneAssetPendingTagComponent.removeResource(entity, GroundPlaneComponent.jsonID)
       return () => {
-        Physics.removeRigidBody(entity, physicsWorld)
+        removeComponent(entity, RigidBodyComponent)
+        removeComponent(entity, ColliderComponent)
         removeObjectFromGroup(entity, mesh)
       }
     }, [])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (component.mesh.value) component.mesh.value.material.color.set(component.color.value)
     }, [component.color])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (component.mesh.value)
         component.mesh.value.material = component.visible.value
           ? new MeshLambertMaterial({ color: component.color.value })

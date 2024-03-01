@@ -22,8 +22,38 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import { ArgTypes } from '@storybook/react'
+import React from 'react'
+import Button from '../Button'
+import ToolTip from './index'
 
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+const argTypes: ArgTypes = {}
 
-/** Used to identity an entity that has been loaded as part of a scene */
-export const SceneObjectComponent = defineComponent({ name: 'SceneObjectComponent' })
+const ToolTipStory = (title) => {
+  return (
+    <div className="flex h-screen items-center justify-center">
+      <ToolTip title={title} direction="top">
+        <Button title="Submit" />
+      </ToolTip>
+    </div>
+  )
+}
+
+export default {
+  title: 'Primitives/Tailwind/ToolTip',
+  component: ToolTipStory,
+  parameters: {
+    componentSubtitle: 'Button',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
+}
+
+export const Default = {
+  args: {
+    title: 'Tooltip info'
+  }
+}

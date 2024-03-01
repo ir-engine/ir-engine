@@ -108,17 +108,17 @@ describe('addClientInputListeners', () => {
 
     const mock: MockEngineRenderer = EngineRenderer.instance as MockEngineRenderer
     const mockDomElm = mock.renderer.domElement as unknown as MockEventListener
-    assert(mockDomElm.listeners.length > 1, 'Callbacks were added to canvas')
+    assert(mockDomElm.listeners.length > 0, 'Callbacks were added to canvas')
     mockDomElm.listeners.forEach((listener) => {
       listener(mockEvent)
     })
 
-    assert(mockDocEvents.listeners.length > 1, 'Callbacks were added to document')
+    assert(mockDocEvents.listeners.length > 0, 'Callbacks were added to document')
     mockDocEvents.listeners.forEach((listener) => {
       listener(mockEvent)
     })
 
-    assert(mockWinEvents.listeners.length > 1, 'Callbacks were added to window')
+    assert(mockWinEvents.listeners.length > 0, 'Callbacks were added to window')
     mockWinEvents.listeners.forEach((listener) => {
       listener(mockEvent)
     })

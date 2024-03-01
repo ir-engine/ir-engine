@@ -27,7 +27,6 @@ import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChann
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { ChannelID, InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import {
   NO_PROXY_STEALTH,
   defineAction,
@@ -41,11 +40,10 @@ import {
 import React, { useEffect } from 'react'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
 
-import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { MediaStreamAppData, MediaTagType, NetworkState } from '../NetworkState'
 import { MediasoupTransportObjectsState } from './MediasoupTransportState'
 
-export class MediaProducerActions {
+export class MediasoupMediaProducerActions {
   static requestProducer = defineAction({
     type: 'ee.engine.network.mediasoup.MEDIA_CREATE_PRODUCER',
     requestID: matches.string,
@@ -195,7 +193,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
   },
 
   receptors: {
-    onProducerCreated: MediaProducerActions.producerCreated.receive((action) => {
+    onProducerCreated: MediasoupMediaProducerActions.producerCreated.receive((action) => {
       const state = getMutableState(MediasoupMediaProducerConsumerState)
       const networkID = action.$network as InstanceID
       if (!state.value[networkID]) {
@@ -212,7 +210,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
       })
     }),
 
-    onProducerClosed: MediaProducerActions.producerClosed.receive((action) => {
+    onProducerClosed: MediasoupMediaProducerActions.producerClosed.receive((action) => {
       const networkID = action.$network as InstanceID
       const state = getMutableState(MediasoupMediaProducerConsumerState)
 
@@ -223,7 +221,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
       }
     }),
 
-    onProducerPaused: MediaProducerActions.producerPaused.receive((action) => {
+    onProducerPaused: MediasoupMediaProducerActions.producerPaused.receive((action) => {
       const state = getMutableState(MediasoupMediaProducerConsumerState)
       const networkID = action.$network as InstanceID
       if (!state.value[networkID]?.producers[action.producerID]) return
@@ -276,7 +274,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
 
       state[networkID].consumers[action.consumerID].set(none)
 
-      if (!Object.keys(state[networkID].consumers).length && !Object.keys(state[networkID].consumers).length) {
+      if (!Object.keys(state[networkID].producers).length && !Object.keys(state[networkID].consumers).length) {
         state[networkID].set(none)
       }
     }),
@@ -290,6 +288,17 @@ export const MediasoupMediaProducerConsumerState = defineState({
         paused: action.paused
       })
     })
+  },
+
+  reactor: () => {
+    const networkIDs = useHookstate(getMutableState(MediasoupMediaProducerConsumerState))
+    return (
+      <>
+        {networkIDs.keys.map((id: InstanceID) => (
+          <NetworkReactor key={id} networkID={id} />
+        ))}
+      </>
+    )
   }
 })
 
@@ -318,15 +327,18 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
 
       const network = getState(NetworkState).networks[networkID]
 
+      if (!network) return
+
       // remove from the peer state
       const media = network.peers[peerID]?.media
       if (media && media[producer.appData.mediaTag]) {
         delete media[producer.appData.mediaTag]
       }
 
-      const consumer = Object.values(getState(MediasoupMediaProducerConsumerState)[networkID].consumers).find(
-        (p) => p.peerID === peerID && p.mediaTag === mediaTag
-      )
+      const state = getState(MediasoupMediaProducerConsumerState)[networkID]
+      if (!state) return
+
+      const consumer = Object.values(state.consumers).find((p) => p.peerID === peerID && p.mediaTag === mediaTag)
 
       // todo, replace this with a better check
       if (consumer && isClient) {
@@ -338,7 +350,7 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
         )
       }
     }
-  }, [producerObjectState])
+  }, [producerObjectState.value])
 
   useEffect(() => {
     const producer = producerObjectState.value as any
@@ -349,7 +361,7 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
 
     if (producerState.paused.value && producer.pause) producer.pause()
     if (!producerState.paused.value && producer.resume) producer.resume()
-  }, [producerState.paused, producerObjectState])
+  }, [producerState.paused.value, producerObjectState.value])
 
   useEffect(() => {
     if (!transportState.value || !producerObjectState.value) return
@@ -357,7 +369,7 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
     return () => {
       producerObject.close()
     }
-  }, [transportState, producerObjectState])
+  }, [transportState.value, producerObjectState.value])
 
   const consumer = Object.values(getState(MediasoupMediaProducerConsumerState)[networkID].consumers).find(
     (p) => p.producerID === producerID
@@ -433,7 +445,7 @@ export const NetworkConsumer = (props: { networkID: InstanceID; consumerID: stri
     return () => {
       consumerObject.close()
     }
-  }, [transportState, consumerObjectState])
+  }, [transportState.value, consumerObjectState.value])
 
   return null
 }
@@ -444,20 +456,20 @@ const NetworkReactor = (props: { networkID: InstanceID }) => {
   const producers = useHookstate(getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers)
   const consumers = useHookstate(getMutableState(MediasoupMediaProducerConsumerState)[networkID].consumers)
 
-  useEffect(() => {
-    if (producers?.value)
-      for (const [producerID, producer] of Object.entries(producers.value)) {
-        if (!networkState.peers.value[producer.peerID]) {
-          producers[producerID].set(none)
-        }
-      }
-    if (consumers?.value)
-      for (const [consumerID, consumer] of Object.entries(consumers.value)) {
-        if (!networkState.peers.value[consumer.peerID]) {
-          consumers[consumerID].set(none)
-        }
-      }
-  }, [networkState.peers])
+  // useEffect(() => {
+  //   if (producers?.value)
+  //     for (const [producerID, producer] of Object.entries(producers.value)) {
+  //       if (!networkState.peers.value[producer.peerID]) {
+  //         producers[producerID].set(none)
+  //       }
+  //     }
+  //   if (consumers?.value)
+  //     for (const [consumerID, consumer] of Object.entries(consumers.value)) {
+  //       if (!networkState.peers.value[consumer.peerID]) {
+  //         consumers[consumerID].set(none)
+  //       }
+  //     }
+  // }, [networkState.peers])
 
   return (
     <>
@@ -470,20 +482,3 @@ const NetworkReactor = (props: { networkID: InstanceID }) => {
     </>
   )
 }
-
-const reactor = () => {
-  const networkIDs = useHookstate(getMutableState(MediasoupMediaProducerConsumerState))
-  return (
-    <>
-      {networkIDs.keys.map((id: InstanceID) => (
-        <NetworkReactor key={id} networkID={id} />
-      ))}
-    </>
-  )
-}
-
-export const MediasoupMediaProducerConsumerStateSystem = defineSystem({
-  uuid: 'ee.engine.network.mediasoup.MediasoupMediaProducerConsumerStateSystem',
-  insert: { after: PresentationSystemGroup },
-  reactor
-})

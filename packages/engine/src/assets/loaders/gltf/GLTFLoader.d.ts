@@ -33,7 +33,6 @@ import {
   ColorSpace,
   Group,
   InterleavedBufferAttribute,
-  Loader,
   LoadingManager,
   Material,
   Mesh,
@@ -47,6 +46,8 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 
 import { DRACOLoader } from './DRACOLoader'
 import { KTX2Loader } from './KTX2Loader'
+
+import { Loader } from '../base/Loader'
 
 export interface GLTF {
   animations: AnimationClip[]
@@ -74,7 +75,8 @@ export class GLTFLoader extends Loader {
     url: string,
     onLoad: (gltf: GLTF) => void,
     onProgress?: (event: ProgressEvent) => void,
-    onError?: (event: ErrorEvent) => void
+    onError?: (event: ErrorEvent) => void,
+    signal?: AbortSignal
   ): void
   loadAsync(url: string, onProgress?: (event: ProgressEvent) => void): Promise<GLTF>
 

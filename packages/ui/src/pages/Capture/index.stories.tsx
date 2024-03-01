@@ -53,10 +53,7 @@ import 'tailwindcss/tailwind.css'
 const initializeEngineForRecorder = async () => {
   // const projects = API.instance.client.service(projectsPath).find()
   // await loadEngineInjection(await projects)
-  getMutableState(SceneState).merge({
-    sceneLoading: false,
-    sceneLoaded: true
-  })
+  getMutableState(SceneState).sceneLoaded.set(true)
 }
 
 const argTypes = {}
@@ -120,7 +117,7 @@ const decorators = [
     // const engineState = useHookstate(getMutableState(EngineState))
 
     return (
-      <div className="w-full h-full container mx-auto">
+      <div className="container mx-auto h-full w-full">
         <Story />
         {projectComponents}
       </div>

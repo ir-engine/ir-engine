@@ -24,24 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-import { useTranslation } from 'react-i18next'
+import './index.css'
 
-import LanguageIcon from '@mui/icons-material/Language'
-
-import NodeEditor from './NodeEditor'
-import { EditorComponentType } from './Util'
-
-export const SceneNodeEditor: EditorComponentType = (props) => {
-  const { t } = useTranslation()
-  return (
-    <NodeEditor
-      {...props}
-      name={t('editor:properties.scene.name')}
-      description={t('editor:properties.scene.description')}
-    />
-  )
+interface ToolTipProps {
+  title: string
+  direction: 'top' | 'bottom' | 'left' | 'right'
 }
 
-SceneNodeEditor.iconComponent = LanguageIcon
+const ToolTip = ({ title, direction = 'top', children, ...props }) => {
+  return React.cloneElement(children as React.ReactElement, {
+    className: `${children.props.className} tooltip`,
+    'data-content': title
+  })
+}
 
-export default SceneNodeEditor
+export default ToolTip

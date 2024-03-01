@@ -29,7 +29,7 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { Timer } from '@etherealengine/ecs/src/Timer'
 import { getMutableState } from '@etherealengine/hyperflux'
-import { BoxGeometry, Mesh, MeshNormalMaterial, Vector3 } from 'three'
+import { BoxGeometry, Mesh, MeshNormalMaterial } from 'three'
 import { CameraComponent } from './camera/components/CameraComponent'
 import { NameComponent } from './common/NameComponent'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
@@ -72,7 +72,6 @@ export const createEngine = () => {
   setComponent(Engine.instance.cameraEntity, NameComponent, 'camera')
   setComponent(Engine.instance.cameraEntity, CameraComponent)
   setComponent(Engine.instance.cameraEntity, VisibleComponent, true)
-  setComponent(Engine.instance.originEntity, TransformComponent, { position: new Vector3(0, 5, 2) })
   setComponent(Engine.instance.cameraEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
   const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
   camera.matrixAutoUpdate = false

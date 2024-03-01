@@ -39,9 +39,8 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { DistanceFromCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
-import { setInstancedMeshVariant, setMeshVariant, setModelVariant } from '../functions/loaders/VariantFunctions'
+import { setInstancedMeshVariant } from '../functions/loaders/VariantFunctions'
 import { InstancingComponent } from './InstancingComponent'
-import { ModelComponent } from './ModelComponent'
 
 export type VariantLevel = {
   src: string
@@ -51,7 +50,7 @@ export type VariantLevel = {
 export const VariantComponent = defineComponent({
   name: 'EE_variant',
 
-  jsonID: 'variant',
+  jsonID: 'EE_variant',
 
   onInit: (entity) => ({
     levels: [] as VariantLevel[],
@@ -117,8 +116,6 @@ const VariantLevelReactor = React.memo(({ entity, level }: { level: number; enti
   const variantComponent = useComponent(entity, VariantComponent)
   const variantLevel = variantComponent.levels[level]
 
-  const modelComponent = useOptionalComponent(entity, ModelComponent)
-
   useEffect(() => {
     //if the variant heuristic is set to Distance, add the DistanceFromCameraComponent
     if (variantComponent.heuristic.value === 'DISTANCE') {
@@ -131,15 +128,10 @@ const VariantLevelReactor = React.memo(({ entity, level }: { level: number; enti
     }
   }, [variantComponent.heuristic])
 
-  useEffect(() => {
-    modelComponent && setModelVariant(entity)
-  }, [variantLevel.src, variantLevel.metadata, modelComponent])
-
   const meshComponent = useOptionalComponent(entity, MeshComponent)
   const instancingComponent = getOptionalComponent(entity, InstancingComponent)
 
   useEffect(() => {
-    meshComponent && !instancingComponent && setMeshVariant(entity)
     meshComponent && instancingComponent && setInstancedMeshVariant(entity)
   }, [variantLevel.src, variantLevel.metadata, meshComponent])
 

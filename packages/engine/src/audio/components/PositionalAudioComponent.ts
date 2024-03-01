@@ -49,7 +49,7 @@ export interface PositionalAudioInterface {
 export const PositionalAudioComponent = defineComponent({
   name: 'EE_positionalAudio',
 
-  jsonID: 'audio',
+  jsonID: 'EE_audio',
 
   onInit: (entity) => {
     return {

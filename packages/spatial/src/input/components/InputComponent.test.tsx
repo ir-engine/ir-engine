@@ -23,12 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { act, render } from '@testing-library/react'
 import assert from 'assert'
-import React from 'react'
 
-import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { ReactorReconciler } from '@etherealengine/hyperflux'
 import { createEngine } from '../../initializeEngine'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { InputComponent } from './InputComponent'
@@ -42,23 +46,19 @@ describe('InputComponent', () => {
     const entity = Engine.instance.originEntity
 
     const json = { highlight: true, grow: true }
-    setComponent(entity, InputComponent, json)
+    ReactorReconciler.flushSync(() => {
+      setComponent(entity, InputComponent, json)
+    })
     const inputComponent = getComponent(entity, InputComponent)
 
     assert(inputComponent.grow === json.grow)
     assert(inputComponent.highlight === json.highlight)
 
-    inputComponent.inputSources.push(entity)
-
-    const Reactor = InputComponent.reactor
-    const tag = <Reactor />
-    const { rerender, unmount } = render(tag)
-
-    await act(() => rerender(tag))
+    ReactorReconciler.flushSync(() => {
+      getMutableComponent(entity, InputComponent).inputSources.merge([entity])
+    })
 
     assert(hasComponent(entity, HighlightComponent))
-
-    unmount()
   })
 
   afterEach(() => {

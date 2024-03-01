@@ -37,6 +37,8 @@ import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/c
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
+import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import ThreeDRotationIcon from '@mui/icons-material/ThreeDRotation'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorHelperState } from '../../services/EditorHelperState'
 import { SelectionState } from '../../services/SelectionServices'
@@ -63,16 +65,14 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const transformComponent = useComponent(props.entity, TransformComponent)
   const transformSpace = useHookstate(getMutableState(EditorHelperState).transformSpace)
 
-  const bboxSnapState = getMutableState(ObjectGridSnapState)
-
-  transformSpace.value
+  transformSpace.value === TransformSpace.world
     ? transformComponent.matrixWorld.value.decompose(position, rotation, scale)
     : transformComponent.matrix.value.decompose(position, rotation, scale)
 
-  /** Scaling only makes sense in local scale */
   scale.copy(transformComponent.scale.value)
 
   const onRelease = () => {
+    const bboxSnapState = getMutableState(ObjectGridSnapState)
     if (bboxSnapState.enabled.value) {
       bboxSnapState.apply.set(true)
     } else {
@@ -143,5 +143,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
     </PropertyGroup>
   )
 }
+
+TransformPropertyGroup.iconComponent = ThreeDRotationIcon
 
 export default TransformPropertyGroup

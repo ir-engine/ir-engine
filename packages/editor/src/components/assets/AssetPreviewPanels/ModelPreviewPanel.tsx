@@ -88,7 +88,7 @@ export const ModelPreviewPanel = (props) => {
     const uuid = MathUtils.generateUUID() as EntityUUID
     setComponent(entity, UUIDComponent, uuid)
     setComponent(entity, ModelComponent, { src: url, cameraOcclusion: false })
-    setComponent(entity, EnvmapComponent, { type: 'Skybox' })
+    setComponent(entity, EnvmapComponent, { type: 'Skybox', envMapIntensity: 2 })
     setComponent(entity, VisibleComponent, false)
     const cameraEntity = renderPanelEntities[PanelEntities.camera].value
     setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: entity })
@@ -106,7 +106,11 @@ export const ModelPreviewPanel = (props) => {
           <h1 className={styles.error}>{error.value}</h1>
         </div>
       )}
-      <div id="modelPreview" ref={panelRef} style={{ minHeight: '250px', width: '100%', height: '100%' }}></div>
+      <div
+        id="modelPreview"
+        ref={panelRef}
+        style={{ minHeight: '250px', width: '100%', height: '100%', ...props.style }}
+      ></div>
     </>
   )
 }
