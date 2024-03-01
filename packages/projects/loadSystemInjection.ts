@@ -42,7 +42,7 @@ export const getSystemsFromSceneData = (
   const systems = [] as ReturnType<typeof importSystem>[]
   for (const [uuid, entity] of Object.entries(sceneData.entities)) {
     for (const component of entity.components) {
-      if (component.name === 'system') {
+      if (component.name === SystemComponent.jsonID) {
         systems.push(importSystem(project, component.props, uuid as EntityUUID))
       }
     }

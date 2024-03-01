@@ -27,12 +27,11 @@ import { Color, Material, Texture } from 'three'
 
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
-import { Entity } from '@etherealengine/ecs'
-import { getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { Entity, defineQuery } from '@etherealengine/ecs'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { stringHash } from '@etherealengine/spatial/src/common/functions/MathFunctions'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { SceneObjectComponent } from '../../components/SceneObjectComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
 import { MaterialSelectionState } from '../MaterialLibraryState'
 import { MaterialComponentType } from '../components/MaterialComponent'
@@ -291,12 +290,11 @@ export function materialsFromSource(src: MaterialSource) {
   return getSourceItems(src)?.map(materialFromId)
 }
 
+const sceneMeshQuery = defineQuery([MeshComponent, SceneObjectComponent])
+
 export function replaceMaterial(material: Material, nuMat: Material) {
-  const activeSceneID = getState(SceneState).activeScene!
-  const rootEntity = SceneState.getRootEntity(activeSceneID)
-  iterateEntityNode(rootEntity, (entity) => {
-    const mesh = getOptionalComponent(entity, MeshComponent)
-    if (!mesh?.isMesh) return
+  for (const entity of sceneMeshQuery()) {
+    const mesh = getComponent(entity, MeshComponent)
     if (Array.isArray(mesh.material)) {
       mesh.material.map((meshMat, i) => {
         if (material.uuid === meshMat.uuid) {
@@ -308,7 +306,7 @@ export function replaceMaterial(material: Material, nuMat: Material) {
         mesh.material = nuMat
       }
     }
-  })
+  }
 }
 
 export function changeMaterialPrototype(material: Material, protoId: string) {

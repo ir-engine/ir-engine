@@ -23,41 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
-import React, { Suspense } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import React, { lazy } from 'react'
+import { HiOutlineTableCells, HiUserCircle } from 'react-icons/hi2'
+import { RiSendPlaneFill } from 'react-icons/ri'
+import { AdminRouteStateType } from '../admin/AllowedAdminRoutesState'
 
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+const Avatars = lazy(() => import('./components/avatar'))
 
-import { useEngineInjection } from '@etherealengine/client-core/src/components/World/EngineHooks'
-import Admin from './admin'
+const Invites = lazy(() => import('./components/invites'))
 
-const LocationRoutes = () => {
-  const projectsLoaded = useEngineInjection()
+const Projects = lazy(() => import('./components/project'))
 
-  if (!projectsLoaded)
-    return (
-      <LoadingCircle
-        className="flex h-1/4 w-1/4 items-center justify-center"
-        message={t('common:loader.loadingProjects')}
-      />
-    )
-
-  return (
-    <Suspense
-      fallback={
-        <LoadingCircle
-          className="flex h-1/4 w-1/4 items-center justify-center"
-          message={t('common:loader.loadingLocation')}
-        />
-      }
-    >
-      <Routes>
-        <Route path=":locationName" element={<Admin />} />
-        <Route path="/" element={<Admin />} />
-      </Routes>
-    </Suspense>
-  )
+export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
+  projects: {
+    name: 'user:dashboard.projects',
+    scope: 'projects',
+    component: Projects,
+    access: false,
+    icon: <HiOutlineTableCells />
+  },
+  avatars: {
+    name: 'user:dashboard.avatars',
+    scope: 'globalAvatars',
+    component: Avatars,
+    access: false,
+    icon: <HiUserCircle />
+  },
+  invites: {
+    name: 'user:dashboard.invites',
+    scope: 'invite',
+    component: Invites,
+    access: false,
+    icon: <RiSendPlaneFill />
+  }
 }
-
-export default LocationRoutes

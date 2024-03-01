@@ -51,7 +51,7 @@ export type HeirarchyTreeCollapsedNodeType = { [key: number]: boolean }
  */
 
 export function* heirarchyTreeWalker(
-  activeScene: SceneID,
+  sceneID: SceneID,
   treeNode: Entity,
   selectedEntities: Entity[]
 ): Generator<HeirarchyTreeNodeType> {
@@ -69,7 +69,7 @@ export function* heirarchyTreeWalker(
 
     const expandedNodes = getState(EditorState).expandedNodes
 
-    const isCollapsed = !expandedNodes[activeScene]?.[entityNode]
+    const isCollapsed = !expandedNodes[sceneID]?.[entityNode]
 
     const entityTreeComponent = getComponent(entityNode as Entity, EntityTreeComponent)
 
