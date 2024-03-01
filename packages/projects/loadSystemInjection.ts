@@ -35,7 +35,10 @@ export type SystemImportType = {
   entityUUID: EntityUUID
 }
 
-export const getSystemsFromSceneData = (project: string, sceneData: SceneJsonType): Promise<SystemImportType[]> => {
+export const getSystemsFromSceneData = (
+  project: string,
+  sceneData: SceneJsonType
+): Promise<SystemImportType[]> | null => {
   const systems = [] as ReturnType<typeof importSystem>[]
   for (const [uuid, entity] of Object.entries(sceneData.entities)) {
     for (const component of entity.components) {
@@ -44,6 +47,7 @@ export const getSystemsFromSceneData = (project: string, sceneData: SceneJsonTyp
       }
     }
   }
+  if (!systems.length) return null
   return Promise.all(systems)
 }
 

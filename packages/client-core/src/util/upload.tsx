@@ -28,6 +28,7 @@ import i18n from 'i18next'
 import config from '@etherealengine/common/src/config'
 import { getMutableState } from '@etherealengine/hyperflux'
 
+import { uploadAssetPath } from '@etherealengine/common/src/schema.type.module'
 import '@etherealengine/common/src/utils/jsonUtils'
 import { AuthState } from '../user/services/AuthService'
 import { RethrownError } from './errors'
@@ -36,7 +37,7 @@ export type CancelableUploadPromiseReturnType<T = any> = { cancel: () => void; p
 export type CancelableUploadPromiseArrayReturnType<T = any> = { cancel: () => void; promises: Array<Promise<T | T[]>> }
 
 export const uploadToFeathersService = (
-  service = 'upload-asset',
+  service = uploadAssetPath,
   files: Array<File>,
   params: any = {},
   onUploadProgress?: (progress: number) => any

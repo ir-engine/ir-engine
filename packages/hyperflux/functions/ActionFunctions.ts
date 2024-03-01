@@ -456,7 +456,7 @@ const createEventSourceQueues = (action: Required<ResolvedActionType>) => {
 
       // if new actions were applied, synchronously run the reactor
       if (hasNewActions && HyperFlux.store.stateReactors[definition.name]) {
-        HyperFlux.store.stateReactors[definition.name].run(true)
+        HyperFlux.store.stateReactors[definition.name].run()
       }
     }
 

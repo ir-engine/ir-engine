@@ -23,21 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 import assert, { strictEqual } from 'assert'
-import { Mesh, MeshNormalMaterial, Quaternion, SphereGeometry, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { AvatarID, UserID, UserName } from '@etherealengine/common/src/schema.type.module'
-import {
-  applyIncomingActions,
-  clearOutgoingActions,
-  dispatchAction,
-  getMutableState,
-  getState
-} from '@etherealengine/hyperflux'
+import { applyIncomingActions, clearOutgoingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
@@ -47,8 +40,10 @@ import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkStat
 import { Network } from '@etherealengine/spatial/src/networking/classes/Network'
 import { NetworkObjectComponent } from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { BodyTypes, Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
@@ -145,20 +140,8 @@ describe.skip('EquippableSystem Integration Tests', () => {
     const grabbableEntity = createEntity()
 
     setComponent(grabbableEntity, TransformComponent)
-
-    // physics mock stuff
-    const type = ShapeType.Cuboid
-    const geom = new SphereGeometry()
-
-    const mesh = new Mesh(geom, new MeshNormalMaterial())
-    const bodyOptions = {
-      type,
-      bodyType: RigidBodyType.Dynamic
-    }
-    mesh.userData = bodyOptions
-
-    addObjectToGroup(grabbableEntity, mesh)
-    Physics.createRigidBodyForGroup(grabbableEntity, getState(PhysicsState).physicsWorld, bodyOptions)
+    setComponent(grabbableEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+    setComponent(grabbableEntity, ColliderComponent, { shape: Shapes.Sphere })
     // network mock stuff
     // initially the object is owned by server
     setComponent(grabbableEntity, NetworkObjectComponent, {

@@ -28,6 +28,7 @@ import {
   Entity,
   UndefinedEntity,
   defineComponent,
+  entityExists,
   getComponent,
   hasComponent,
   useComponent,
@@ -88,13 +89,6 @@ export const ColliderComponent = defineComponent({
     }
   },
 
-  onRemove(entity, component) {
-    if (component.collider.value) {
-      const physicsWorld = getState(PhysicsState).physicsWorld
-      physicsWorld.removeCollider(component.collider.value, false)
-    }
-  },
-
   reactor: ColliderComponentReactor
 })
 
@@ -151,12 +145,14 @@ function ColliderComponentRigidbodyReactor(props: { entity: Entity; rigidbodyEnt
     const rigidbody = rigidbodyComponent.body.value
 
     const physicsWorld = getState(PhysicsState).physicsWorld
-    const collider = physicsWorld.createCollider(colliderDesc, rigidbody)
+    const collider = Physics.attachCollider(physicsWorld, colliderDesc, rigidbody)
     colliderComponent.collider.set(collider)
 
     return () => {
-      colliderComponent.collider.set(null)
-      physicsWorld.removeCollider(collider, false)
+      if (entityExists(props.entity) && hasComponent(props.entity, ColliderComponent)) {
+        colliderComponent.collider.set(null)
+      }
+      Physics.removeCollider(physicsWorld, collider)
     }
   }, [rigidbodyComponent.body])
 
