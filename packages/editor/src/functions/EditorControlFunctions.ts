@@ -33,6 +33,7 @@ import {
   componentJsonDefaults,
   getComponent,
   hasComponent,
+  removeComponent,
   serializeComponent,
   setComponent,
   updateComponent
@@ -57,6 +58,7 @@ import { ComponentJsonType, SceneID } from '@etherealengine/common/src/schema.ty
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { EditorHelperState } from '../services/EditorHelperState'
@@ -444,6 +446,12 @@ const scaleObject = (entities: Entity[], scales: Vector3[], overrideScale = fals
     )
 
     updateComponent(entity, TransformComponent, { scale: transformComponent.scale })
+
+    if (hasComponent(entity, ColliderComponent)) {
+      const data = serializeComponent(entity, ColliderComponent)
+      removeComponent(entity, ColliderComponent)
+      setComponent(entity, ColliderComponent, data)
+    }
   }
 }
 
