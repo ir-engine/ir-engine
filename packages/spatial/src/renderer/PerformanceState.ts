@@ -28,6 +28,7 @@ import { State, defineState, getMutableState, useMutableState } from '@ethereale
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { EngineRenderer, RenderSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { getGPUTier } from 'detect-gpu'
+import { debounce } from 'lodash'
 import { SMAAPreset } from 'postprocessing'
 import { useEffect } from 'react'
 import {
@@ -283,19 +284,34 @@ const updatePerformanceState = (
   }
 }
 
+const debounceTime = 1000
+const increment = debounce(
+  (state, tier, offset) => {
+    updatePerformanceState(state, tier, offset)
+  },
+  debounceTime,
+  { trailing: true, maxWait: debounceTime * 2 }
+)
+const decrement = debounce(
+  (state, tier, offset) => {
+    updatePerformanceState(state, tier, offset)
+  },
+  debounceTime,
+  { trailing: true, maxWait: debounceTime * 2 }
+)
 export const incrementPerformance = () => {
   const performanceState = getMutableState(PerformanceState)
-  updatePerformanceState(
+  increment(
     performanceState,
     Math.min(performanceState.tier.value + 1, 5),
     Math.max(performanceState.performanceOffset.value - 1, 0)
   )
 }
 
-const maxOffset = 16
+const maxOffset = 12
 export const decrementPerformance = () => {
   const performanceState = getMutableState(PerformanceState)
-  updatePerformanceState(
+  decrement(
     performanceState,
     Math.max(performanceState.tier.value - 1, 0),
     Math.min(performanceState.performanceOffset.value + 1, maxOffset)
