@@ -80,7 +80,7 @@ const injectDitheringLogic = (material: Material, ditheringDistance: number, dit
   material.alphaTest = 0.5
   addOBCPlugin(material, {
     id: 'transparency-dithering',
-    priority: 2,
+    priority: 3,
     compile: (shader, renderer) => {
       if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {
         shader.vertexShader = shader.vertexShader.replace(/#include <common>/, '#include <common>\n' + ditheringUniform)
