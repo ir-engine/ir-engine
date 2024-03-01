@@ -85,11 +85,13 @@ export const VisualScriptComponent = defineComponent({
     const visualScriptState = useHookstate(getMutableState(VisualScriptState))
     const canPlay = visualScript.run.value && !visualScript.disabled.value
     const registry = visualScriptState.registries[visualScript.domain.value].get({ noproxy: true })
+
     const visualScriptRunner = useVisualScriptRunner({
       visualScriptJson: visualScript.visualScript.get({ noproxy: true }),
       autoRun: canPlay,
       registry
     })
+    //console.log('visualScriptRunner', visualScriptRunner)
     useEffect(() => {
       if (visualScript.disabled.value) return
       visualScript.run.value ? visualScriptRunner.play() : visualScriptRunner.pause()

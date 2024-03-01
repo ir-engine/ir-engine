@@ -26,7 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { VisualScriptComponent, VisualScriptDomain, registerEngineProfile } from '@etherealengine/spatial'
+import {
+  VisualScriptComponent,
+  VisualScriptDomain,
+  getOnExecuteSystemUUID,
+  registerEngineProfile
+} from '@etherealengine/spatial'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import booleanTestVisualScript from './assets/boolean-test-visual-script.json'
 import decisionTestVisualScript from './assets/decision-test-visual-script.json'
@@ -36,6 +41,7 @@ import integerTestVisualScript from './assets/integer-test-visual-script.json'
 import rateRepeatTestVisualScript from './assets/rate-repeat-test-visual-script.json'
 import stringTestVisualScript from './assets/string-test-visual-script.json'
 
+import { SystemDefinitions } from '@etherealengine/ecs'
 import { parseStorageProviderURLs } from '@etherealengine/spatial/src/common/functions/parseSceneJSON'
 import assert from 'assert'
 import { default as Sinon, default as sinon } from 'sinon'
@@ -80,6 +86,11 @@ describe('visual Script', () => {
 
     await waitForConsoleLog(successMessage).then((result) => {
       assert(result.includes(successMessage))
+    })
+    SystemDefinitions.get(getOnExecuteSystemUUID())!.execute()
+
+    await waitForConsoleLog('tick').then((result) => {
+      assert(result.includes('tick'))
     })
   })
 
@@ -147,19 +158,32 @@ describe('visual Script', () => {
     const entity = createEntity()
     const visualScript = parseStorageProviderURLs(rateRepeatTestVisualScript) as unknown as GraphJSON
     setComponent(entity, VisualScriptComponent, { visualScript: visualScript, run: true })
-    const messageSequence = [
-      'repeatNone',
-      'repeatN0',
-      'repeatN1',
-      'repeatN2',
-      'throttle0',
-      'throttle1',
-      'throttle2',
-      'debounce'
-    ]
-    for (const message of messageSequence) {
+    const onStartMessageSequence = ['repeatNone', 'repeatN0', 'repeatN1', 'repeatN2']
+    const onTickMessageSequence = ['throttle0', 'throttle1', 'throttle2', 'debounce']
+
+    for (const message of onStartMessageSequence) {
       await waitForConsoleLog(message).then((result) => {
-        assert(result.includes(successMessage))
+        assert(result.includes(message))
+      })
+    }
+    const startTime = Date.now()
+    const duration = 5
+    const loop = () => {
+      const currentTime = Date.now()
+      const elapsedTime = currentTime - startTime
+
+      if (elapsedTime < duration * 1000) {
+        SystemDefinitions.get(getOnExecuteSystemUUID())!.execute()
+        // Continue the loop
+        setTimeout(loop, 0) // using setTimeout with 0ms delay to allow other tasks to run
+      } else {
+        return
+      }
+    }
+    loop()
+    for (const message of onTickMessageSequence) {
+      await waitForConsoleLog(message).then((result) => {
+        assert(result.includes(message))
       })
     }
   })

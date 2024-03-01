@@ -26,8 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { InputSystemGroup, SystemDefinitions, SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs'
 import { NodeCategory, makeEventNodeDefinition } from '@etherealengine/visual-script'
 
-let systemCounter = 0
-
+let onExecuteSystemCounter = 0
+const onExecuteSystemUUID = 'visual-script-onExecute-'
+export const getOnExecuteSystemUUID = () => (onExecuteSystemUUID + onExecuteSystemCounter) as SystemUUID
 type State = {
   systemUUID: SystemUUID
 }
@@ -60,9 +61,9 @@ export const OnExecute = makeEventNodeDefinition({
   initialState: initialState(),
   init: ({ read, write, commit, graph, configuration }) => {
     const system = read<SystemUUID>('system')
-
-    const systemUUID = defineSystem({
-      uuid: 'visual-script-onExecute-' + systemCounter++,
+    onExecuteSystemCounter++
+    const visualScriptOnExecuteSystem = defineSystem({
+      uuid: getOnExecuteSystemUUID(),
       insert: { with: system },
       execute: () => {
         commit('flow')
@@ -70,7 +71,7 @@ export const OnExecute = makeEventNodeDefinition({
     })
 
     const state: State = {
-      systemUUID
+      systemUUID: visualScriptOnExecuteSystem
     }
 
     return state

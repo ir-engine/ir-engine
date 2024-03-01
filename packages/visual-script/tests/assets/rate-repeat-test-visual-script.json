@@ -1,30 +1,11 @@
 {
   "nodes": [
     {
-      "id": "5f8f5c4f-f311-4884-a91b-ef230c951ec3",
-      "type": "debug/log",
-      "metadata": {
-        "positionX": "-1173.3155224267418",
-        "positionY": "-1211.7356510630284"
-      },
-      "parameters": {
-        "text": {
-          "value": "debug execute"
-        }
-      },
-      "flows": {
-        "flow": {
-          "nodeId": "60b21448-2bd9-4e2a-a933-5c727e23b6a0",
-          "socket": "flow"
-        }
-      }
-    },
-    {
       "id": "bc60a75e-ae69-42d7-ac2e-754bf4cd9a24",
       "type": "debug/log",
       "metadata": {
-        "positionX": "267.1923638318914",
-        "positionY": "-1171.3742008981808"
+        "positionX": "-418.94862712112393",
+        "positionY": "-833.9278119048943"
       },
       "parameters": {
         "text": {
@@ -36,8 +17,8 @@
       "id": "08f89751-6deb-4f7d-ac77-2f089fa07eef",
       "type": "flow/rate/debounce",
       "metadata": {
-        "positionX": "16.19610430049667",
-        "positionY": "-1171.7794849712527"
+        "positionX": "-772.5505366390956",
+        "positionY": "-859.0242951725969"
       },
       "parameters": {
         "waitDuration": {
@@ -55,8 +36,8 @@
       "id": "9ffa807e-f2e7-4150-bc1f-8cf6d8124562",
       "type": "logic/string/concat",
       "metadata": {
-        "positionX": "-379.9349201270076",
-        "positionY": "-991.2551807912943"
+        "positionX": "-169.93492012700762",
+        "positionY": "-951.2551807912943"
       },
       "parameters": {
         "a": {
@@ -145,17 +126,17 @@
       "id": "de09563b-6a6e-4e16-93d0-a053e69c9d4d",
       "type": "flow/lifecycle/onExecute",
       "metadata": {
-        "positionX": "-1721.8978512144222",
-        "positionY": "-1175.6767293147454"
+        "positionX": "-1457.9981536486218",
+        "positionY": "-1123.1883916773486"
       },
       "parameters": {
         "system": {
-          "value": "ee.engine.input-group"
+          "value": "ee.engine.VisualScriptSystem"
         }
       },
       "flows": {
         "flow": {
-          "nodeId": "5f8f5c4f-f311-4884-a91b-ef230c951ec3",
+          "nodeId": "60b21448-2bd9-4e2a-a933-5c727e23b6a0",
           "socket": "flow"
         }
       }
