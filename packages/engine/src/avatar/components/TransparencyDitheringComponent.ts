@@ -40,13 +40,18 @@ import { useEffect } from 'react'
 import { Material } from 'three'
 import matches from 'ts-matches'
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import { ditheringAlphatestChunk, ditheringUniform, ditheringVertex } from '../functions/ditherShaderChunk'
+import {
+  ditheringAlphatestChunk,
+  ditheringFragUniform,
+  ditheringVertex,
+  ditheringVertexUniform
+} from '../functions/ditherShaderChunk'
 
 export const TransparencyDitheringComponent = defineComponent({
   name: 'TransparencyDitheringComponent',
   onInit: (entity) => {
     return {
-      ditheringDistance: 0.5,
+      ditheringDistance: 0.3,
       ditheringExponent: 2
     }
   },
@@ -83,7 +88,10 @@ const injectDitheringLogic = (material: Material, ditheringDistance: number, dit
     priority: 3,
     compile: (shader, renderer) => {
       if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {
-        shader.vertexShader = shader.vertexShader.replace(/#include <common>/, '#include <common>\n' + ditheringUniform)
+        shader.vertexShader = shader.vertexShader.replace(
+          /#include <common>/,
+          '#include <common>\n' + ditheringVertexUniform
+        )
       }
 
       shader.vertexShader = shader.vertexShader.replace(
@@ -94,13 +102,15 @@ const injectDitheringLogic = (material: Material, ditheringDistance: number, dit
       if (!shader.fragmentShader.startsWith('varying vec3 vWorldPosition'))
         shader.fragmentShader = shader.fragmentShader.replace(
           /#include <common>/,
-          '#include <common>\n' + ditheringUniform
+          '#include <common>\n' + ditheringFragUniform
         )
 
       shader.fragmentShader = shader.fragmentShader.replace(/#include <alphatest_fragment>/, ditheringAlphatestChunk)
       shader.uniforms.cameraPosition = {
         value: getComponent(Engine.instance.cameraEntity, TransformComponent).position
       }
+      shader.uniforms.ditheringDistance = { value: ditheringDistance }
+      shader.uniforms.ditheringExponent = { value: ditheringExponent }
       console.log(shader.vertexShader)
       console.log(shader.fragmentShader)
     }

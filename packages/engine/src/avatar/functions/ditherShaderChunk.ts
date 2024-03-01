@@ -23,18 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export const ditheringUniform = `  varying vec3 vWorldPosition;`
+/** glsl */
+export const ditheringVertexUniform = `varying vec3 vWorldPosition;`
 
+/** glsl */
 export const ditheringVertex = `
 vWorldPosition = (modelMatrix * vec4( transformed, 1.0 )).xyz;
+`
+
+/** glsl */
+export const ditheringFragUniform = `
+varying vec3 vWorldPosition;
+uniform float ditheringExponent;
+uniform float ditheringDistance;
 `
 
 /** glsl */
 export const ditheringAlphatestChunk = `
 // sample sine at screen space coordinates for dithering pattern
 float dither = sin( gl_FragCoord.x * 4.0)*sin( gl_FragCoord.y * 4.0);
-float distance = length(cameraPosition - vWorldPosition)*2.0;
-dither += pow(0.25/distance, 3.0)-1.0;
+float distance = length(cameraPosition - vWorldPosition)*1.5;
+dither += pow(ditheringDistance/distance, ditheringExponent)-1.0;
 diffuseColor.a = smoothstep( alphaTest, alphaTest + fwidth( diffuseColor.a ), diffuseColor.a );
 diffuseColor.a -= max(dither, 0.0);
 
