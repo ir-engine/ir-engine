@@ -54,7 +54,7 @@ import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import React, { useLayoutEffect } from 'react'
 import matches, { Validator } from 'ts-matches'
-import { SourceComponent } from './components/SourceComponent'
+import { SceneComponent } from './components/SceneComponent'
 import { migrateOldColliders } from './functions/migrateOldColliders'
 import { migrateSceneSettings } from './functions/migrateSceneSettings'
 import { serializeEntity } from './functions/serializeWorld'
@@ -223,7 +223,7 @@ export const SceneSnapshotState = defineState({
 
   /** @todo reserved for future use */
   snapshotFromECS: (sceneID: SceneID) => {
-    const entities = SourceComponent.entitiesBySource[sceneID] ?? []
+    const entities = SceneComponent.entitiesByScene[sceneID] ?? []
     const serializedEntities: [EntityUUID, EntityJsonType][] = entities.map((entity) => {
       const components = serializeEntity(entity)
       const name = getComponent(entity, NameComponent)
@@ -239,7 +239,7 @@ export const SceneSnapshotState = defineState({
       return [uuid, entityJson]
     })
     let rootEntity = entities[0]
-    while (getComponent(rootEntity, SourceComponent) === sceneID) {
+    while (getComponent(rootEntity, SceneComponent) === sceneID) {
       const entityTree = getOptionalComponent(rootEntity, EntityTreeComponent)
       if (!entityTree || entityTree.parentEntity === null) break
       rootEntity = entityTree.parentEntity
