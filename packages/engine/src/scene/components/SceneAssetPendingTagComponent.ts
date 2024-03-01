@@ -48,7 +48,6 @@ export const SceneAssetPendingTagComponent = defineComponent({
   },
 
   addResource: (entity: Entity, resource: string) => {
-    console.trace('addResource', entity, resource)
     if (!hasComponent(entity, SceneAssetPendingTagComponent)) setComponent(entity, SceneAssetPendingTagComponent)
     if (!getComponent(entity, SceneAssetPendingTagComponent).includes(resource)) {
       getMutableComponent(entity, SceneAssetPendingTagComponent).merge([resource])
@@ -56,7 +55,6 @@ export const SceneAssetPendingTagComponent = defineComponent({
   },
 
   removeResource: (entity: Entity, resource: string) => {
-    console.trace('removeResource', entity, resource)
     if (!hasComponent(entity, SceneAssetPendingTagComponent)) return
     const index = getComponent(entity, SceneAssetPendingTagComponent).indexOf(resource)
     if (index < 0) return
