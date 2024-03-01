@@ -555,11 +555,13 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 }
 
 export default function HierarchyPanel() {
-  const editorState = useHookstate(getMutableState(EditorState))
-  const sceneState = useHookstate(getMutableState(SceneState))
+  const sceneID = useHookstate(getMutableState(EditorState).sceneID).value
+  const sceneState = useHookstate(getMutableState(SceneState)).value
 
-  const sceneJson = SceneState.getScene(editorState.sceneID.value!)?.scene
+  const sceneJson = SceneState.getScene(sceneID!)?.scene
+  const snapshots = useHookstate(getMutableState(SceneSnapshotState)).value
 
-  if (!editorState.sceneID.value || !sceneState.scenes[editorState.sceneID.value] || !sceneJson) return null
+  if (!sceneID || !sceneState.scenes[sceneID] || !sceneJson || !snapshots[sceneID]) return
+
   return <HierarchyPanelContents key={sceneJson.root} rootEntityUUID={sceneJson.root} />
 }
