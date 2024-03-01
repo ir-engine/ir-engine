@@ -29,24 +29,19 @@ import { useTranslation } from 'react-i18next'
 import { LocationType, SceneID, locationPath } from '@etherealengine/common/src/schema.type.module'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { getMutableState } from '@etherealengine/hyperflux'
 import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { useHookstate } from '@hookstate/core'
+import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
 import { HiPencil, HiTrash } from 'react-icons/hi2'
-import { AuthState } from '../../../user/services/AuthService'
 import { userHasAccess } from '../../../user/userHasAccess'
 import DataTable from '../../common/Table'
 import { LocationRowType, locationColumns } from '../../common/constants/location'
 import AddEditLocationModal from './AddEditLocationModal'
 import RemoveLocationModal from './RemoveLocationModal'
-// import AddEditAvatarModal from './AddEditAvatarModal'
-// import RemoveAvatarModal from './RemoveAvatarModal'
 
 const transformLink = (link: string) => link.toLowerCase().replace(' ', '-')
 
 export default function LocationTable({ search }: { search: string }) {
   const { t } = useTranslation()
-  const user = useHookstate(getMutableState(AuthState).user)
 
   const adminLocationQuery = useFind(locationPath, {
     query: {
@@ -78,7 +73,12 @@ export default function LocationTable({ search }: { search: string }) {
       maxUsersPerInstance: row.maxUsersPerInstance.toString(),
       scene: row.slugifiedName,
       locationType: row.locationSetting.locationType,
-      tags: row.isFeatured + ' ' + row.isLobby, // todo
+      tags: (
+        <>
+          {row.isFeatured ? <Badge label={t('admin:components.location.featured')} /> : null}{' '}
+          {row.isLobby ? <Badge label={t('admin:components.location.isLobby')} /> : null}
+        </>
+      ),
       videoEnabled: row.locationSetting.videoEnabled
         ? t('admin:components.common.yes')
         : t('admin:components.common.no'),

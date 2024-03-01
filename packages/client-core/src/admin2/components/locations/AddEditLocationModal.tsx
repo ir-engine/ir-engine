@@ -58,7 +58,7 @@ export default function AddEditLocationModal({ location }: { location?: Location
   const audioEnabled = useHookstate(location?.locationSetting.audioEnabled || false)
   const screenSharingEnabled = useHookstate(location?.locationSetting.screenSharingEnabled || false)
 
-  const scenes = useHookstate(getMutableState(AdminSceneState).scenes)
+  const adminSceneState = useHookstate(getMutableState(AdminSceneState))
 
   useEffect(() => {
     AdminSceneService.fetchAdminScenes()
@@ -138,13 +138,18 @@ export default function AddEditLocationModal({ location }: { location?: Location
           label={t('admin:components.location.lbl-scene')}
           currentValue={scene.value}
           onChange={scene.set}
-          options={[
-            ...scenes.value.map((scene) => ({
-              name: `${scene.name} (${scene.project})`,
-              value: `${scene.project}/${scene.name}`
-            })),
-            { value: '', name: t('admin:components.location.selectScene'), disabled: true }
-          ]}
+          disabled={adminSceneState.retrieving.value}
+          options={
+            adminSceneState.retrieving.value
+              ? [{ value: '', name: t('common:select.fetching') }]
+              : [
+                  { value: '', name: t('admin:components.location.selectScene'), disabled: true },
+                  ...adminSceneState.scenes.value.map((scene) => ({
+                    name: `${scene.name} (${scene.project})`,
+                    value: `${scene.project}/${scene.name}`
+                  }))
+                ]
+          }
           error={errors.scene.value}
         />
         <Toggle label={t('admin:components.location.lbl-ve')} value={videoEnabled.value} onChange={videoEnabled.set} />
