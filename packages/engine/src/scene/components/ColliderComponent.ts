@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 import { useLayoutEffect } from 'react'
 
-import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getState } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import {
@@ -67,9 +67,8 @@ import { Mesh } from 'three'
 import matches from 'ts-matches'
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'
-import { ModelComponent } from './ModelComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { SceneObjectComponent } from './SceneObjectComponent'
+import { SceneComponent } from './SceneComponent'
 
 /** @deprecated - use the new API */
 export const ColliderComponent = defineComponent({
@@ -149,7 +148,7 @@ export const ColliderComponent = defineComponent({
 
     if (
       !getState(SceneState).sceneLoaded &&
-      hasComponent(entity, SceneObjectComponent) &&
+      hasComponent(entity, SceneComponent) &&
       !hasComponent(entity, RigidBodyComponent)
     )
       SceneAssetPendingTagComponent.addResource(entity, ColliderComponent.jsonID)
@@ -176,7 +175,6 @@ export const ColliderComponent = defineComponent({
     const colliderComponent = useComponent(entity, ColliderComponent)
     const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
     const groupComponent = useOptionalComponent(entity, GroupComponent)
-    const modelHierarchy = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
 
     useLayoutEffect(() => {
       SceneAssetPendingTagComponent.removeResource(entity, ColliderComponent.jsonID)
@@ -287,7 +285,7 @@ export const ColliderComponent = defineComponent({
           removeComponent(entity, TriggerComponent)
         }
       }
-    }, [isLoadedFromGLTF, colliderComponent, transformComponent, groupComponent?.length, modelHierarchy])
+    }, [isLoadedFromGLTF, colliderComponent, transformComponent, groupComponent?.length])
 
     return null
   }

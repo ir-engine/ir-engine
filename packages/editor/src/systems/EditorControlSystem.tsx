@@ -44,7 +44,7 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { PresentationSystemGroup, UndefinedEntity } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { SceneSnapshotAction, SceneSnapshotState } from '@etherealengine/engine/src/scene/Scene'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
 import { TransformComponent } from '@etherealengine/spatial'
 import {
   ActiveOrbitCamera,
@@ -284,12 +284,12 @@ const execute = () => {
     if (buttons.PrimaryClick?.up && inputSource.assignedButtonEntity) {
       let clickedEntity = inputSource.assignedButtonEntity
       while (
-        !hasComponent(clickedEntity, SourceComponent) &&
+        !hasComponent(clickedEntity, SceneComponent) &&
         getOptionalComponent(clickedEntity, EntityTreeComponent)?.parentEntity
       ) {
         clickedEntity = getComponent(clickedEntity, EntityTreeComponent).parentEntity!
       }
-      if (hasComponent(clickedEntity, SourceComponent)) {
+      if (hasComponent(clickedEntity, SceneComponent)) {
         SelectionState.updateSelection([getComponent(clickedEntity, UUIDComponent)])
       }
     }

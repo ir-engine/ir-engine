@@ -27,18 +27,19 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
+  getComponent,
   hasComponent,
   removeComponent,
   setComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { SceneTagComponent } from '@etherealengine/engine/src/scene/components/SceneTagComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { Entity } from '@etherealengine/ecs'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
 import LockIcon from '@mui/icons-material/Lock'
 import UnlockIcon from '@mui/icons-material/LockOpen'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -125,7 +126,7 @@ export const CoreNodeEditor = (props: { entity: Entity }) => {
       </div>
       <div style={nameInputGroupContainerStyle}>
         <NameInputGroup entity={props.entity} />
-        {hasComponent(props.entity, SceneTagComponent) ? (
+        {getComponent(props.entity, SceneComponent) === editorState.sceneID.value ? (
           <>
             <PropertiesPanelButton onClick={exportAsGLTF}>Export as GLTF</PropertiesPanelButton>
           </>
