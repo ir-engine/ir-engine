@@ -58,8 +58,10 @@ import { UserName } from '@etherealengine/common/src/schema.type.module'
 import { useExecute } from '@etherealengine/ecs'
 import { MotionCaptureSystem, timeSeriesMocapData } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { VIDEO_CONSTRAINTS } from '@etherealengine/spatial/src/networking/constants/VideoConstants'
 import { drawPoseToCanvas } from '@etherealengine/ui/src/pages/Capture'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
+import { AdminClientSettingsState } from '../../admin/services/Setting/ClientSettingService'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
@@ -71,6 +73,8 @@ interface Props {
   peerID: PeerID
   type: 'screen' | 'cam'
 }
+
+const MAX_RES_TO_USE_TOP_LAYER = 540 //If under 540p, use the topmost video layer, otherwise use layer n-1
 
 const useDrawMocapLandmarks = (
   videoElement: HTMLVideoElement,
@@ -498,6 +502,9 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
     const encodings = videoStream.rtpParameters.encodings
 
     const immersiveMedia = getMutableState(MediaSettingsState).immersiveMedia
+    const clientSettingState = getMutableState(AdminClientSettingsState)
+    const { maxResolution } = clientSettingState.client[0].mediaSettings.video.value
+    const resolution = VIDEO_CONSTRAINTS[maxResolution] || VIDEO_CONSTRAINTS.hd
     if (isPiP || immersiveMedia.value) {
       let maxLayer
       const scalabilityMode = encodings && encodings[0].scalabilityMode
@@ -510,11 +517,16 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
       // If we're in immersive media mode, using max-resolution video for everyone could overwhelm some devices.
       // If there are more than 2 layers, then use layer n-1 to balance quality and performance
       // (immersive video bubbles are bigger than the flat bubbles, so low-quality video will be more noticeable).
-      // If we're not, then use the highest layer when opening PiP for a video
+      // If we're not, then the highest layer is still probably more than necessary, so use the n-1 layer unless the
+      // n layer is under a specified constant
       setPreferredConsumerLayer(
         mediaNetwork,
         videoStream as ConsumerExtension,
-        immersiveMedia && maxLayer > 1 ? maxLayer - 1 : maxLayer
+        (immersiveMedia.value && maxLayer) > 1
+          ? maxLayer - 1
+          : (!isScreen && resolution.height.ideal) > MAX_RES_TO_USE_TOP_LAYER
+          ? maxLayer - 1
+          : maxLayer
       )
     }
     // Standard video bubbles in flat/non-immersive mode should use the lowest quality layer for performance reasons

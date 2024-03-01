@@ -37,8 +37,8 @@ import {
   MediasoupDataProducerActions
 } from '@etherealengine/spatial/src/networking/systems/MediasoupDataProducerConsumerState'
 import {
-  MediaProducerActions,
-  MediasoupMediaConsumerActions
+  MediasoupMediaConsumerActions,
+  MediasoupMediaProducerActions
 } from '@etherealengine/spatial/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { MediasoupTransportActions } from '@etherealengine/spatial/src/networking/systems/MediasoupTransportState'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
@@ -57,7 +57,7 @@ import {
 /** @todo replace this with event sourcing */
 const requestConsumerActionQueue = defineActionQueue(MediasoupMediaConsumerActions.requestConsumer.matches)
 const consumerLayersActionQueue = defineActionQueue(MediasoupMediaConsumerActions.consumerLayers.matches)
-const requestProducerActionQueue = defineActionQueue(MediaProducerActions.requestProducer.matches)
+const requestProducerActionQueue = defineActionQueue(MediasoupMediaProducerActions.requestProducer.matches)
 
 const dataRequestProducerActionQueue = defineActionQueue(MediasoupDataProducerActions.requestProducer.matches)
 const dataRequestConsumerActionQueue = defineActionQueue(MediasoupDataConsumerActions.requestConsumer.matches)
