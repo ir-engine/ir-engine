@@ -201,12 +201,14 @@ export default function ImportSettingsPanel() {
   const [defaultImportFolder, setDefaultImportFolder] = useState<string>(importSettingsState.importFolder.value)
   const [LODImportFolder, setLODImportFolder] = useState<string>(importSettingsState.LODFolder.value)
   const [LODGenEnabled, setLODGenEnabled] = useState<boolean>(importSettingsState.LODsEnabled.value)
-  const [selectedLODS, setSelectedLods] = useState<LODVariantDescriptor[]>(importSettingsState.selectedLODS.value)
-  const [currentLOD, setCurrentLOD] = useState<LODVariantDescriptor>(importSettingsState.selectedLODS.value[0])
+  const [selectedLODS, setSelectedLods] = useState<LODVariantDescriptor[]>(
+    importSettingsState.selectedLODS.get(NO_PROXY)
+  )
+  const [currentLOD, setCurrentLOD] = useState<LODVariantDescriptor>(importSettingsState.selectedLODS[0].get(NO_PROXY))
   const [currentIndex, setCurrentIndex] = useState<number>(0)
   const [KTXEnabled, setKTXEnabled] = useState<boolean>(importSettingsState.imageCompression.value)
 
-  const presetLabels = ['Desktop', 'Mobile', 'XR']
+  const presetLabels = ['LOD0', 'LOD1', 'LOD2']
 
   useEffect(() => {
     handleLODChange()
@@ -222,9 +224,10 @@ export default function ImportSettingsPanel() {
     importSettingsState.importFolder.set(defaultImportFolder)
     importSettingsState.LODFolder.set(LODImportFolder)
     importSettingsState.LODsEnabled.set(LODGenEnabled)
-    importSettingsState.selectedLODS.set(selectedLODS)
     importSettingsState.imageCompression.set(KTXEnabled)
-    importSettingsState.imageSettings.set(compressProperties.value)
+    importSettingsState.imageSettings.set(compressProperties.get(NO_PROXY))
+    importSettingsState.selectedLODS.set(selectedLODS)
+    handleCancel()
   }
 
   const handleCancel = () => {
@@ -245,7 +248,7 @@ export default function ImportSettingsPanel() {
       <Box>
         <Typography>glTF / glB</Typography>
         <FormControlLabel
-          control={<Checkbox onChange={() => setLODGenEnabled(!LODGenEnabled)} />}
+          control={<Checkbox checked={LODGenEnabled} onChange={() => setLODGenEnabled(!LODGenEnabled)} />}
           label={'Generate LODs'}
         />
         {LODGenEnabled && (
@@ -285,7 +288,7 @@ export default function ImportSettingsPanel() {
         <Typography>Compression Settings</Typography>
         <Box>
           <FormControlLabel
-            control={<Checkbox onChange={() => setKTXEnabled(!KTXEnabled)} />}
+            control={<Checkbox checked={KTXEnabled} onChange={() => setKTXEnabled(!KTXEnabled)} />}
             label={'Compress to KTX2'}
           />
           {KTXEnabled && <ImageCompressionBox compressProperties={compressProperties} />}
