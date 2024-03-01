@@ -242,8 +242,6 @@ export const defineComponent = <
   }
   ComponentMap.set(Component.name, Component)
 
-  globalThis.ECS[Component.name] = Component
-
   return Component as typeof Component & { _TYPE: ComponentType }
 
   // const ExternalComponentReactor = (props: SetJSON) => {
