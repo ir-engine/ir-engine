@@ -99,9 +99,9 @@ export default function AddEditLocationModal({ location }: { location?: Location
     }
 
     if (location?.id) {
-      locationMutation.patch(location.id, locationData)
+      locationMutation.patch(location.id, locationData).then(() => PopoverState.hidePopupover())
     } else {
-      locationMutation.create(locationData)
+      locationMutation.create(locationData).then(() => PopoverState.hidePopupover())
     }
   }
 
