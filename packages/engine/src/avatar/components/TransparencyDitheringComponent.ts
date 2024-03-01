@@ -32,6 +32,7 @@ import {
   useEntityContext
 } from '@etherealengine/ecs'
 import { TransformComponent } from '@etherealengine/spatial'
+import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { isArray } from 'lodash'
@@ -77,27 +78,31 @@ export const TransparencyDitheringComponent = defineComponent({
 
 const injectDitheringLogic = (material: Material, ditheringDistance: number, ditheringExponent: number) => {
   material.alphaTest = 0.5
-  material.onBeforeCompile = (shader, renderer) => {
-    if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {
-      shader.vertexShader = shader.vertexShader.replace(/#include <common>/, '#include <common>\n' + ditheringUniform)
-    }
+  addOBCPlugin(material, {
+    id: 'transparency-dithering',
+    priority: 2,
+    compile: (shader, renderer) => {
+      if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {
+        shader.vertexShader = shader.vertexShader.replace(/#include <common>/, '#include <common>\n' + ditheringUniform)
+      }
 
-    shader.vertexShader = shader.vertexShader.replace(
-      /#include <worldpos_vertex>/,
-      '	#include <worldpos_vertex>\n' + ditheringVertex
-    )
-
-    if (!shader.fragmentShader.startsWith('varying vec3 vWorldPosition'))
-      shader.fragmentShader = shader.fragmentShader.replace(
-        /#include <common>/,
-        '#include <common>\n' + ditheringUniform
+      shader.vertexShader = shader.vertexShader.replace(
+        /#include <worldpos_vertex>/,
+        '	#include <worldpos_vertex>\n' + ditheringVertex
       )
 
-    shader.fragmentShader = shader.fragmentShader.replace(/#include <alphatest_fragment>/, ditheringAlphatestChunk)
-    shader.uniforms.cameraPosition = {
-      value: getComponent(Engine.instance.cameraEntity, TransformComponent).position
+      if (!shader.fragmentShader.startsWith('varying vec3 vWorldPosition'))
+        shader.fragmentShader = shader.fragmentShader.replace(
+          /#include <common>/,
+          '#include <common>\n' + ditheringUniform
+        )
+
+      shader.fragmentShader = shader.fragmentShader.replace(/#include <alphatest_fragment>/, ditheringAlphatestChunk)
+      shader.uniforms.cameraPosition = {
+        value: getComponent(Engine.instance.cameraEntity, TransformComponent).position
+      }
+      console.log(shader.vertexShader)
+      console.log(shader.fragmentShader)
     }
-    console.log(shader.vertexShader)
-    console.log(shader.fragmentShader)
-  }
+  })
 }
