@@ -350,7 +350,7 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
         )
       }
     }
-  }, [producerObjectState])
+  }, [producerObjectState.value])
 
   useEffect(() => {
     const producer = producerObjectState.value as any
@@ -361,7 +361,7 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
 
     if (producerState.paused.value && producer.pause) producer.pause()
     if (!producerState.paused.value && producer.resume) producer.resume()
-  }, [producerState.paused, producerObjectState])
+  }, [producerState.paused.value, producerObjectState.value])
 
   useEffect(() => {
     if (!transportState.value || !producerObjectState.value) return
@@ -456,20 +456,20 @@ const NetworkReactor = (props: { networkID: InstanceID }) => {
   const producers = useHookstate(getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers)
   const consumers = useHookstate(getMutableState(MediasoupMediaProducerConsumerState)[networkID].consumers)
 
-  useEffect(() => {
-    if (producers?.value)
-      for (const [producerID, producer] of Object.entries(producers.value)) {
-        if (!networkState.peers.value[producer.peerID]) {
-          producers[producerID].set(none)
-        }
-      }
-    if (consumers?.value)
-      for (const [consumerID, consumer] of Object.entries(consumers.value)) {
-        if (!networkState.peers.value[consumer.peerID]) {
-          consumers[consumerID].set(none)
-        }
-      }
-  }, [networkState.peers])
+  // useEffect(() => {
+  //   if (producers?.value)
+  //     for (const [producerID, producer] of Object.entries(producers.value)) {
+  //       if (!networkState.peers.value[producer.peerID]) {
+  //         producers[producerID].set(none)
+  //       }
+  //     }
+  //   if (consumers?.value)
+  //     for (const [consumerID, consumer] of Object.entries(consumers.value)) {
+  //       if (!networkState.peers.value[consumer.peerID]) {
+  //         consumers[consumerID].set(none)
+  //       }
+  //     }
+  // }, [networkState.peers])
 
   return (
     <>

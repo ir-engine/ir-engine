@@ -90,8 +90,8 @@ import {
   MediasoupDataProducerConsumerState
 } from '@etherealengine/spatial/src/networking/systems/MediasoupDataProducerConsumerState'
 import {
-  MediasoupMediaProducerActions,
   MediasoupMediaConsumerActions,
+  MediasoupMediaProducerActions,
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
 } from '@etherealengine/spatial/src/networking/systems/MediasoupMediaProducerConsumerState'

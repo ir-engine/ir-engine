@@ -54,8 +54,8 @@ import {
   MediasoupDataProducersConsumersObjectsState
 } from '@etherealengine/spatial/src/networking/systems/MediasoupDataProducerConsumerState'
 import {
-  MediasoupMediaProducerActions,
   MediasoupMediaConsumerActions,
+  MediasoupMediaProducerActions,
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
 } from '@etherealengine/spatial/src/networking/systems/MediasoupMediaProducerConsumerState'
@@ -679,7 +679,9 @@ export async function handleWebRtcTransportConnect(
   }
 }
 
-export async function handleRequestProducer(action: typeof MediasoupMediaProducerActions.requestProducer.matches._TYPE) {
+export async function handleRequestProducer(
+  action: typeof MediasoupMediaProducerActions.requestProducer.matches._TYPE
+) {
   const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
 
   const { $peer: peerID, transportID, rtpParameters, paused, requestID, appData, kind } = action
@@ -841,6 +843,7 @@ export const handleRequestConsumer = async (
         })
       )
     })
+
     consumer.on('producerclose', () => {
       logger.info(`Consumer's producer closed, consumer.id: "${consumer.id}".`)
       dispatchAction(

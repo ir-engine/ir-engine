@@ -37,8 +37,8 @@ import {
   MediasoupDataProducerActions
 } from '@etherealengine/spatial/src/networking/systems/MediasoupDataProducerConsumerState'
 import {
-  MediasoupMediaProducerActions,
-  MediasoupMediaConsumerActions
+  MediasoupMediaConsumerActions,
+  MediasoupMediaProducerActions
 } from '@etherealengine/spatial/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { MediasoupTransportActions } from '@etherealengine/spatial/src/networking/systems/MediasoupTransportState'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
