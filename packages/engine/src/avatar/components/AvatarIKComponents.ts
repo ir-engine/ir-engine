@@ -51,7 +51,7 @@ import { ModelComponent } from '../../scene/components/ModelComponent'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
 
 const EPSILON = 1e-6
-const eyeOffset = 0.2
+const eyeOffset = 0.275
 
 export const AvatarHeadDecapComponent = defineComponent({
   name: 'AvatarHeadDecapComponent',
@@ -66,13 +66,10 @@ export const AvatarHeadDecapComponent = defineComponent({
     useEffect(() => {
       if (!rig.rawRig.value?.head?.node || !headDecap?.value) return
 
-      //rig.rawRig.value.head.node.scale.setScalar(EPSILON)
-
       const cameraComponent = getComponent(Engine.instance.cameraEntity, FollowCameraComponent)
       cameraComponent.offset.setZ(eyeOffset)
 
       return () => {
-        //rig.rawRig.value.head.node.scale.setScalar(1)
         cameraComponent.offset.setZ(0)
       }
     }, [headDecap, model.scene])

@@ -31,8 +31,10 @@ import {
   useComponent,
   useEntityContext
 } from '@etherealengine/ecs'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { isArray } from 'lodash'
@@ -51,8 +53,8 @@ export const TransparencyDitheringComponent = defineComponent({
   name: 'TransparencyDitheringComponent',
   onInit: (entity) => {
     return {
-      ditheringDistance: 0.3,
-      ditheringExponent: 2
+      ditheringDistance: 0.35,
+      ditheringExponent: 5
     }
   },
 
@@ -65,6 +67,7 @@ export const TransparencyDitheringComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const modelComponent = useComponent(entity, ModelComponent)
+    const useBasicMaterials = useHookstate(getMutableState(RendererState).forceBasicMaterials)
     /** Injects dithering logic into avatar materials */
     useEffect(() => {
       const ditheringComponent = getComponent(entity, TransparencyDitheringComponent)
@@ -76,7 +79,7 @@ export const TransparencyDitheringComponent = defineComponent({
         if (isArray(material)) material.forEach((m) => injectDitheringLogic(m, ditheringDistance, ditheringExponent))
         else injectDitheringLogic(material, ditheringDistance, ditheringExponent)
       })
-    }, [modelComponent.scene])
+    }, [modelComponent.scene, useBasicMaterials])
     return null
   }
 })
@@ -85,7 +88,7 @@ const injectDitheringLogic = (material: Material, ditheringDistance: number, dit
   material.alphaTest = 0.5
   addOBCPlugin(material, {
     id: 'transparency-dithering',
-    priority: 3,
+    priority: 10,
     compile: (shader, renderer) => {
       if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {
         shader.vertexShader = shader.vertexShader.replace(
