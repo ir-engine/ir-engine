@@ -37,8 +37,8 @@ import InputGroup from '../inputs/InputGroup'
 import styles from './styles.module.scss'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
-import { modelTransformPath, SceneID } from '@etherealengine/common/src/schema.type.module'
-import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { modelTransformPath } from '@etherealengine/common/src/schema.type.module'
+import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import {
   DefaultModelTransformParameters as defaultParams,
@@ -53,8 +53,7 @@ import exportGLTF from '../../functions/exportGLTF'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { createEntity, Entity, UndefinedEntity } from '@etherealengine/ecs'
-import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
 import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -66,11 +65,10 @@ import {
   EntityTreeComponent,
   removeEntityNodeRecursively
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { Box, ListItemButton, ListItemText, Modal } from '@mui/material'
+import { Box, List, ListItem, ListItemButton, ListItemText, Modal } from '@mui/material'
 import { Group, LoaderUtils, MathUtils } from 'three'
 import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
 import { EditorState } from '../../services/EditorServices'
-import { List, ListItem } from '../layout/List'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 import { FileType } from './FileBrowser/FileBrowserContentPanel'
 
@@ -81,16 +79,14 @@ const createTempEntity = (name: string, parentEntity: Entity = UndefinedEntity):
   setComponent(entity, TransformComponent)
   setComponent(entity, EntityTreeComponent, { parentEntity })
 
-  let sceneID: SceneID
-  if (parentEntity != null) {
-    sceneID ??= getComponent(parentEntity!, SourceComponent)
+  let sceneID = getState(EditorState).sceneID!
+  if (hasComponent(parentEntity, SceneComponent)) {
+    sceneID = getComponent(parentEntity, SceneComponent)
   }
-  sceneID ??= getState(EditorState).sceneID!
-  setComponent(entity, SourceComponent, sceneID)
+  setComponent(entity, SceneComponent, sceneID)
 
   const uuid = MathUtils.generateUUID() as EntityUUID
   setComponent(entity, UUIDComponent, uuid)
-  setComponent(entity, SceneObjectComponent)
 
   // These additional properties and relations are required for
   // the current GLTF exporter to successfully generate a GLTF.
