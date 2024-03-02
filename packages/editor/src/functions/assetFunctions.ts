@@ -35,11 +35,12 @@ import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@ether
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { Engine } from '@etherealengine/ecs'
 import { ModelFormat } from '@etherealengine/engine/src/assets/classes/ModelTransform'
-import { getBasePath, modelResourcesPath } from '@etherealengine/engine/src/assets/functions/pathResolver'
+import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/pathResolver'
 import { Heuristic } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { getState } from '@etherealengine/hyperflux'
 import { ImportSettingsState } from '../components/assets/ImportSettingsPanel'
 import { createLODVariants } from '../components/assets/ModelCompressionPanel'
+import { LODVariantDescriptor } from '../constants/GLTFPresets'
 
 const logger = multiLogger.child({ component: 'editor:assetFunctions' })
 
@@ -76,17 +77,14 @@ export const inputFileWithAddToScene = async ({
               if (url.endsWith('.gltf') || url.endsWith('.glb') || url.endsWith('.wrm')) {
                 const importSettings = getState(ImportSettingsState)
                 if (importSettings.LODsEnabled) {
-                  const LODSettings = [...importSettings.selectedLODS]
+                  const LODSettings = JSON.parse(JSON.stringify(importSettings.selectedLODS)) as LODVariantDescriptor[]
                   for (const lod of LODSettings) {
                     const fileName = url.match(/\/([^\/]+)\.\w+$/)!
                     const fileType = url.match(/\.(\w+)$/)!
-                    const dst = fileName[1] + '-' + lod.suffix + `.${fileType[1]}`
-                    const newDst = dst.replace(/\s/g, '').toLowerCase()
+                    const dst = (fileName[1] + lod.suffix).replace(/\s/g, '')
+
                     lod.params.src = url
-
-                    const path = `${getBasePath(url)}${importSettings.LODFolder}${newDst}`
-                    lod.params.dst = path
-
+                    lod.params.dst = `${importSettings.LODFolder}${dst}`
                     lod.params.modelFormat = fileType[1] as ModelFormat
                   }
                   await createLODVariants(LODSettings, true, Heuristic.BUDGET, true)

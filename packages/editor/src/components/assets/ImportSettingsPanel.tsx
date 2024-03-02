@@ -56,7 +56,7 @@ export const ImportSettingsState = defineState({
     imageCompression: false,
     imageSettings: KTX2EncodeDefaultArguments,
     importFolder: '/assets/',
-    LODFolder: '/assets/LODs/'
+    LODFolder: 'LODs/'
   }),
   onCreate: () => {
     syncStateWithLocalStorage(ImportSettingsState, [
@@ -255,7 +255,7 @@ export default function ImportSettingsPanel() {
           <>
             <Typography>LODs Folder</Typography>
             <TextField
-              defaultValue={'/assets/LODS/'}
+              defaultValue={'LODS/'}
               onChange={(event) => {
                 setLODImportFolder(event.target.value)
               }}

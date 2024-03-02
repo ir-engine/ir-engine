@@ -134,7 +134,8 @@ export const defaultLODs: LODVariantDescriptor[] = [
       src: '-LOD1',
       dst: '-LOD1',
       maxTextureSize: 1024,
-      simplifyRatio: 0.85
+      simplifyRatio: 0.85,
+      simplifyErrorThreshold: 0.01
     },
     suffix: '-LOD1',
     variantMetadata: {}
@@ -145,7 +146,8 @@ export const defaultLODs: LODVariantDescriptor[] = [
       src: '-LOD2',
       dst: '-LOD2',
       maxTextureSize: 512,
-      simplifyRatio: 0.75
+      simplifyRatio: 0.75,
+      simplifyErrorThreshold: 0.01
     },
     suffix: '-LOD2',
     variantMetadata: {}
