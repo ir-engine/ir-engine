@@ -32,7 +32,9 @@ module.exports = {
     'jsdom-global/register'
   ],
   spec: [
-    './**/*.test.ts'
+    './**/*.test.ts',
+    './**/*.test.tsx'
+
   ],
   extension: [
     'ts',

@@ -23,13 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import {
   VisualScriptComponent,
   VisualScriptDomain,
   getOnExecuteSystemUUID,
+  getUseVariableSystemUUID,
   registerEngineProfile
 } from '@etherealengine/spatial'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
@@ -40,10 +41,13 @@ import floatTestVisualScript from './assets/float-test-visual-script.json'
 import integerTestVisualScript from './assets/integer-test-visual-script.json'
 import rateRepeatTestVisualScript from './assets/rate-repeat-test-visual-script.json'
 import stringTestVisualScript from './assets/string-test-visual-script.json'
+import variableTestVisualScript from './assets/variable-test-visual-script.json'
 
+import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import { SystemDefinitions } from '@etherealengine/ecs'
-import { parseStorageProviderURLs } from '@etherealengine/spatial/src/common/functions/parseSceneJSON'
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
+import React from 'react'
 import { default as Sinon, default as sinon } from 'sinon'
 import { GraphJSON, VisualScriptState } from '../src/VisualScriptModule'
 
@@ -186,6 +190,42 @@ describe('visual Script', () => {
         assert(result.includes(message))
       })
     }
+  })
+
+  it('test variable nodes script', async () => {
+    const entity = createEntity()
+    const visualScript = parseStorageProviderURLs(variableTestVisualScript) as unknown as GraphJSON
+    setComponent(entity, VisualScriptComponent, { visualScript: visualScript, run: true })
+
+    const variableName = getComponent(entity, VisualScriptComponent)!.visualScript!.variables![0].name
+
+    await waitForConsoleLog('variableGet').then((result) => {
+      assert(result.includes('variableGet'))
+    })
+
+    const systemUUID = getUseVariableSystemUUID(variableName)
+    const UseVariableReactor = SystemDefinitions.get(systemUUID)!.reactor!
+    const useVariableTag = <UseVariableReactor />
+    const { rerender, unmount } = render(useVariableTag)
+    await act(() => rerender(useVariableTag))
+
+    SystemDefinitions.get(systemUUID)!.execute()
+    await waitForConsoleLog('variableUsevariableGet').then((result) => {
+      assert(result.includes('variableUsevariableGet'))
+    })
+
+    await act(() => rerender(useVariableTag))
+
+    await waitForConsoleLog('variableSet').then((result) => {
+      assert(result.includes('variableSet'))
+    })
+
+    SystemDefinitions.get(systemUUID)!.execute()
+
+    await waitForConsoleLog('variableUsevariableSet').then((result) => {
+      assert(result.includes('variableUsevariableSet'))
+    })
+    unmount()
   })
 
   afterEach(() => {

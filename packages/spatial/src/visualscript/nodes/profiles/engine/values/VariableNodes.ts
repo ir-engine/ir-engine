@@ -35,7 +35,6 @@ import {
   makeFlowNodeDefinition,
   makeFunctionNodeDefinition
 } from '@etherealengine/visual-script'
-import { uniqueId } from 'lodash'
 import { useEffect } from 'react'
 
 export const EngineVariableGet = makeFunctionNodeDefinition({
@@ -145,7 +144,10 @@ type State = {
 const initialState = (): State => ({
   systemUUID: '' as SystemUUID
 })
-
+let useVariableSystemCounter = 0
+const useVariableSystemUUID = 'visual-script-useVariable-'
+export const getUseVariableSystemUUID = (variableName) =>
+  (useVariableSystemUUID + `${variableName}-` + useVariableSystemCounter) as SystemUUID
 export const EngineVariableUse = makeEventNodeDefinition({
   typeName: 'engine/variable/use',
   category: NodeCategory.Event,
@@ -194,8 +196,9 @@ export const EngineVariableUse = makeEventNodeDefinition({
     const changeVariable = (variable) => {
       variableValueQueue.unshift(variable.get())
     }
+    useVariableSystemCounter++
     const systemUUID = defineSystem({
-      uuid: `visual-script-useVariable-${read<string>('variableName')}-` + uniqueId(),
+      uuid: getUseVariableSystemUUID(read<string>('variableName')),
       insert: { with: InputSystemGroup },
       execute: () => {
         const value = variableValueQueue.pop()

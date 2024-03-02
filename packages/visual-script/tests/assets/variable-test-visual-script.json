@@ -1,0 +1,199 @@
+{
+  "nodes": [
+    {
+      "id": "dd13f3e1-5084-4392-9d45-2fef3b20aeb7",
+      "type": "flow/time/delay",
+      "metadata": {
+        "positionX": "-786.2990452861914",
+        "positionY": "-1373.5298789474862"
+      },
+      "parameters": {
+        "duration": {
+          "value": ".1"
+        }
+      },
+      "flows": {
+        "flow": {
+          "nodeId": "169eee0f-c1c0-432b-945d-db39a2545578",
+          "socket": "flow"
+        }
+      }
+    },
+    {
+      "id": "95c33e3f-ad3d-4f8c-9208-924f3b469845",
+      "type": "logic/string/concat",
+      "metadata": {
+        "positionX": "-766.5155283900252",
+        "positionY": "-908.7858909813206"
+      },
+      "parameters": {
+        "a": {
+          "value": "variableUse"
+        },
+        "b": {
+          "link": {
+            "nodeId": "9280e546-65ca-478d-bd3e-3cae449d87bc",
+            "socket": "value"
+          }
+        }
+      }
+    },
+    {
+      "id": "e2c80602-9b79-43c9-a5a0-b022350f5205",
+      "type": "debug/log",
+      "metadata": {
+        "positionX": "-485.018251728946",
+        "positionY": "-968.5097892658385"
+      },
+      "parameters": {
+        "text": {
+          "link": {
+            "nodeId": "95c33e3f-ad3d-4f8c-9208-924f3b469845",
+            "socket": "result"
+          }
+        }
+      }
+    },
+    {
+      "id": "01e1bfef-fefb-4625-bd69-faa7881e6328",
+      "type": "debug/log",
+      "metadata": {
+        "positionX": "-139.52779815674353",
+        "positionY": "-1381.8841020179257"
+      },
+      "parameters": {
+        "text": {
+          "link": {
+            "nodeId": "30b0ad60-2f9b-401f-8ff6-26711cd1a5ab",
+            "socket": "value"
+          }
+        }
+      }
+    },
+    {
+      "id": "30b0ad60-2f9b-401f-8ff6-26711cd1a5ab",
+      "type": "engine/variable/get",
+      "metadata": {
+        "positionX": "-718.3746466302628",
+        "positionY": "-1181.8195985301993"
+      },
+      "configuration": {
+        "variableName": "testVariable"
+      },
+      "parameters": {
+        "variableName": {
+          "value": "testVariable"
+        }
+      }
+    },
+    {
+      "id": "9280e546-65ca-478d-bd3e-3cae449d87bc",
+      "type": "engine/variable/use",
+      "metadata": {
+        "positionX": "-1193.8215357373301",
+        "positionY": "-963.2145736022504"
+      },
+      "configuration": {
+        "variableName": "testVariable"
+      },
+      "parameters": {
+        "variableName": {
+          "value": "testVariable"
+        }
+      },
+      "flows": {
+        "valueChange": {
+          "nodeId": "e2c80602-9b79-43c9-a5a0-b022350f5205",
+          "socket": "flow"
+        }
+      }
+    },
+    {
+      "id": "d64ac8b0-40bd-4f6d-bfd1-4037ed6e428e",
+      "type": "debug/log",
+      "metadata": {
+        "positionX": "-1022.4126318786034",
+        "positionY": "-1381.8841020179257"
+      },
+      "parameters": {
+        "text": {
+          "link": {
+            "nodeId": "a682db55-01fb-47f8-8845-25b4fb6e8b8e",
+            "socket": "value"
+          }
+        }
+      },
+      "flows": {
+        "flow": {
+          "nodeId": "dd13f3e1-5084-4392-9d45-2fef3b20aeb7",
+          "socket": "flow"
+        }
+      }
+    },
+    {
+      "id": "169eee0f-c1c0-432b-945d-db39a2545578",
+      "type": "engine/variable/set",
+      "metadata": {
+        "positionX": "-511.05179069688785",
+        "positionY": "-1401.7883959196747"
+      },
+      "configuration": {
+        "variableName": "testVariable",
+        "value": "variableSet"
+      },
+      "parameters": {
+        "variableName": {
+          "value": "testVariable"
+        },
+        "value": {
+          "value": "variableSet"
+        }
+      },
+      "flows": {
+        "flow": {
+          "nodeId": "01e1bfef-fefb-4625-bd69-faa7881e6328",
+          "socket": "flow"
+        }
+      }
+    },
+    {
+      "id": "a682db55-01fb-47f8-8845-25b4fb6e8b8e",
+      "type": "engine/variable/get",
+      "metadata": {
+        "positionX": "-1432.2974656004633",
+        "positionY": "-1174.660191125468"
+      },
+      "configuration": {
+        "variableName": "testVariable"
+      },
+      "parameters": {
+        "variableName": {
+          "value": "testVariable"
+        }
+      }
+    },
+    {
+      "id": "1bd9b417-df31-4587-8926-7ca75d01256e",
+      "type": "flow/lifecycle/onStart",
+      "metadata": {
+        "positionX": "-1317.269797795049",
+        "positionY": "-1383.7388843474673"
+      },
+      "flows": {
+        "flow": {
+          "nodeId": "d64ac8b0-40bd-4f6d-bfd1-4037ed6e428e",
+          "socket": "flow"
+        }
+      }
+    }
+  ],
+  "variables": [
+    {
+      "id": "a3506ff2-0a24-4663-8f47-fad5da6015ce",
+      "name": "testVariable",
+      "valueTypeName": "string",
+      "initialValue": "variableGet"
+    }
+  ],
+  "customEvents": []
+}
