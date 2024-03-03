@@ -35,6 +35,10 @@ import { instanceColumns } from '../../common/constants/instance'
 
 import { InstanceType } from '@etherealengine/common/src/schema.type.module'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import { BsTrash3 } from 'react-icons/bs'
+import { PopoverState } from '../../../common/services/PopoverState'
+import RemoveInstanceModal from './RemoveInstanceModal'
+import ViewModal from './ViewModal'
 
 export default function InstanceTable({ search }: { search: string }) {
   const { t } = useTranslation()
@@ -58,8 +62,21 @@ export default function InstanceTable({ search }: { search: string }) {
       podName: row.podName,
       action: (
         <div className="flex w-full justify-around px-2 py-1">
-          <Button>{t('admin:components.instance.actions.view')}</Button>
-          <Button>{t('admin:components.instance.actions.delete')}</Button>
+          <Button
+            onClick={() => {
+              PopoverState.showPopupover(<ViewModal instanceId={row.id} />)
+            }}
+          >
+            {t('admin:components.instance.actions.view')}
+          </Button>
+          <Button className="bg-transparent	">
+            <BsTrash3
+              color="#FB7185"
+              onClick={() => {
+                PopoverState.showPopupover(<RemoveInstanceModal instanceId={row.id} />)
+              }}
+            />
+          </Button>
         </div>
       )
     }))

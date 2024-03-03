@@ -30,10 +30,12 @@ import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMagnifyingGlass } from 'react-icons/hi2'
+import { PopoverState } from '../../../common/services/PopoverState'
 import InstanceTable from './InstanceTable'
 // import AddEditInviteModal from './AddEditInviteModal'
 // import InviteTable from './InviteTable'
 // import RemoveInviteModal from './RemoveInviteModal'
+import PatchServerModal from './PatchServerModal'
 
 export default function Invites() {
   const { t } = useTranslation()
@@ -69,7 +71,7 @@ export default function Invites() {
           />
           <Button
             onClick={() => {
-              // PopoverState.showPopupover(<AddEditAvatarModal />)
+              PopoverState.showPopupover(<PatchServerModal />)
             }}
           >
             {t('admin:components.setting.patchInstanceserver')}
