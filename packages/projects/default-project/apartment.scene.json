@@ -2,6 +2,11 @@
   "version": 0,
   "entities": {
     "60a390ad-4193-493d-84bf-cfb77b5095c2": {
+      "components": [],
+      "name": "apartment"
+    },
+    "51d71835-68a8-430b-96f6-4c618b8ea407": {
+      "name": "Settings",
       "components": [
         {
           "name": "EE_transform",
@@ -242,7 +247,8 @@
           }
         }
       ],
-      "name": "apartment"
+      "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
+      "index": 0
     },
     "a0a03866-c1d0-46d4-94ce-6f6bb0098c20": {
       "components": [
@@ -273,7 +279,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 0,
+      "index": 1,
       "name": "scene preview camera"
     },
     "86bda8f8-a9bc-4447-b92a-6514815a5b22": {
@@ -323,7 +329,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 1,
+      "index": 2,
       "name": "EE_skybox"
     },
     "45113aff-0bdb-4670-917a-dbf2a3b86bf0": {
@@ -358,7 +364,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 2,
+      "index": 3,
       "name": "ground plane"
     },
     "23816114-e405-47d7-bfff-0baa2339b773": {
@@ -396,7 +402,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 3,
+      "index": 4,
       "name": "spawn point"
     },
     "1452a9a3-3271-4989-b341-90cf215325a3": {
@@ -436,7 +442,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 4,
+      "index": 5,
       "name": "hemisphere light"
     },
     "c4e80371-a13b-42f1-b5e1-6d61f572bb34": {
@@ -476,7 +482,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 5,
+      "index": 6,
       "name": "directional light"
     },
     "b46b57c1-bd37-43cc-b000-8b4411fe728b": {
@@ -551,7 +557,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 6,
+      "index": 7,
       "name": "model"
     },
     "46add0e6-cbc5-4caa-8845-03defdc40e29": {
@@ -560,9 +566,9 @@
           "name": "EE_transform",
           "props": {
             "position": {
-              "x": 9.100000381469727,
+              "x": 8.400000381469727,
               "y": 5.699999809265137,
-              "z": 2.5
+              "z": 2.499999999999999
             },
             "rotation": {
               "x": 0,
@@ -572,14 +578,10 @@
             },
             "scale": {
               "x": 0.8799999952316284,
-              "y": 6.079999923706055,
-              "z": 15.15999984741211
+              "y": 11.379999923706055,
+              "z": 28.25999984741211
             }
           }
-        },
-        {
-          "name": "EE_visible",
-          "props": {}
         },
         {
           "name": "EE_rigidbody",
@@ -595,10 +597,14 @@
             "collisionMask": 7,
             "restitution": 1
           }
+        },
+        {
+          "name": "EE_visible",
+          "props": true
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 7,
+      "index": 8,
       "name": "Box Collider 25"
     },
     "78a26534-fdd6-4a79-a7fe-97e83895640c": {
@@ -618,15 +624,11 @@
               "w": 1
             },
             "scale": {
-              "x": 0.8799999952316284,
-              "y": 6.079999923706055,
-              "z": 15.15999984741211
+              "x": 0.5799999952316284,
+              "y": 11.979999923706055,
+              "z": 27.85999984741211
             }
           }
-        },
-        {
-          "name": "EE_visible",
-          "props": {}
         },
         {
           "name": "EE_rigidbody",
@@ -642,10 +644,14 @@
             "collisionMask": 7,
             "restitution": 1
           }
+        },
+        {
+          "name": "EE_visible",
+          "props": true
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 8,
+      "index": 9,
       "name": "Box Collider 26"
     },
     "1052a07b-414f-4887-a7aa-c70c972598b1": {
@@ -665,15 +671,11 @@
               "w": 1
             },
             "scale": {
-              "x": 0.2800000011920929,
-              "y": 6.079999923706055,
-              "z": 12.0600004196167
+              "x": 0.3800000011920929,
+              "y": 11.579999923706055,
+              "z": 23.8600004196167
             }
           }
-        },
-        {
-          "name": "EE_visible",
-          "props": {}
         },
         {
           "name": "EE_rigidbody",
@@ -689,10 +691,14 @@
             "collisionMask": 7,
             "restitution": 1
           }
+        },
+        {
+          "name": "EE_visible",
+          "props": true
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 9,
+      "index": 10,
       "name": "Box Collider 27"
     },
     "ab324600-7600-455f-a116-4ed957603b71": {
@@ -701,9 +707,9 @@
           "name": "EE_transform",
           "props": {
             "position": {
-              "x": -3.5,
+              "x": -3.499999999999999,
               "y": 5.699999809265137,
-              "z": -10.5
+              "z": -10.4
             },
             "rotation": {
               "x": 0,
@@ -712,15 +718,11 @@
               "w": 1
             },
             "scale": {
-              "x": 13.579999923706055,
-              "y": 6.079999923706055,
-              "z": 0.23999999463558197
+              "x": 24.179999923706056,
+              "y": 11.679999923706056,
+              "z": 0.639999994635582
             }
           }
-        },
-        {
-          "name": "EE_visible",
-          "props": {}
         },
         {
           "name": "EE_rigidbody",
@@ -736,10 +738,14 @@
             "collisionMask": 7,
             "restitution": 1
           }
+        },
+        {
+          "name": "EE_visible",
+          "props": true
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 10,
+      "index": 11,
       "name": "Box Collider 28"
     },
     "c8992c75-4881-4186-a47f-614d2fa61c67": {
@@ -759,15 +765,11 @@
               "w": 1
             },
             "scale": {
-              "x": 13.579999923706055,
-              "y": 6.079999923706055,
-              "z": 0.23999999463558197
+              "x": 24.179999923706056,
+              "y": 11.579999923706055,
+              "z": 0.43999999463558204
             }
           }
-        },
-        {
-          "name": "EE_visible",
-          "props": {}
         },
         {
           "name": "EE_rigidbody",
@@ -783,10 +785,14 @@
             "collisionMask": 7,
             "restitution": 1
           }
+        },
+        {
+          "name": "EE_visible",
+          "props": true
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 11,
+      "index": 12,
       "name": "Box Collider 29"
     },
     "9c073abf-9ce3-4cd7-be90-b0ace33aca5c": {
@@ -806,15 +812,11 @@
               "w": 1
             },
             "scale": {
-              "x": 6.079999923706055,
-              "y": 6.079999923706055,
-              "z": 0.23999999463558197
+              "x": 12.579999923706055,
+              "y": 11.479999923706055,
+              "z": 0.439999994635582
             }
           }
-        },
-        {
-          "name": "EE_visible",
-          "props": {}
         },
         {
           "name": "EE_rigidbody",
@@ -830,10 +832,14 @@
             "collisionMask": 7,
             "restitution": 1
           }
+        },
+        {
+          "name": "EE_visible",
+          "props": true
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 12,
+      "index": 13,
       "name": "Box Collider 30"
     },
     "ac0c4391-8394-4601-85d5-64bca9df30dc": {
@@ -853,15 +859,11 @@
               "w": 0.9995853682006881
             },
             "scale": {
-              "x": 0.5,
-              "y": 0.6000000238418579,
-              "z": 0.800000011920929
+              "x": 1,
+              "y": 1.200000023841858,
+              "z": 1.7000000119209289
             }
           }
-        },
-        {
-          "name": "EE_visible",
-          "props": {}
         },
         {
           "name": "EE_rigidbody",
@@ -877,10 +879,14 @@
             "collisionMask": 7,
             "restitution": 1
           }
+        },
+        {
+          "name": "EE_visible",
+          "props": true
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 13,
+      "index": 14,
       "name": "Box Collider 31"
     },
     "aee1caa8-e502-489b-aca7-425b14da4cf6": {
@@ -900,15 +906,11 @@
               "w": 0.9981347983432053
             },
             "scale": {
-              "x": 0.4000000059604645,
-              "y": 0.6000000238418579,
-              "z": 0.4000000059604645
+              "x": 0.8,
+              "y": 1.2,
+              "z": 0.8
             }
           }
-        },
-        {
-          "name": "EE_visible",
-          "props": {}
         },
         {
           "name": "EE_rigidbody",
@@ -924,10 +926,14 @@
             "collisionMask": 7,
             "restitution": 1
           }
+        },
+        {
+          "name": "EE_visible",
+          "props": true
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 14,
+      "index": 15,
       "name": "Box Collider 32"
     },
     "da8a8f5a-7a72-4dae-acef-9ef013cb31b6": {
@@ -937,7 +943,7 @@
           "props": {
             "position": {
               "x": -12,
-              "y": 0,
+              "y": 1,
               "z": 14
             },
             "rotation": {
@@ -971,7 +977,7 @@
             "previewImageURL": "__$project$__/default-project/apartment-Portal.ktx2",
             "spawnPosition": {
               "x": -12,
-              "y": 0,
+              "y": 1,
               "z": 14
             },
             "spawnRotation": {
@@ -985,37 +991,10 @@
         {
           "name": "EE_visible",
           "props": true
-        },
-        {
-          "name": "EE_rigidbody",
-          "props": {
-            "type": "fixed"
-          }
-        },
-        {
-          "name": "EE_collider",
-          "props": {
-            "shape": "box",
-            "collisionLayer": 8,
-            "collisionMask": 2,
-            "restitution": 0
-          }
-        },
-        {
-          "name": "EE_trigger",
-          "props": {
-            "triggers": [
-              {
-                "onEnter": "teleport",
-                "onExit": null,
-                "target": ""
-              }
-            ]
-          }
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 15,
+      "index": 16,
       "name": "EE_portal"
     },
     "0f5b5b02-67f9-4682-b687-d8ef95448c16": {
@@ -1040,10 +1019,6 @@
               "z": 1
             }
           }
-        },
-        {
-          "name": "EE_visible",
-          "props": {}
         },
         {
           "name": "EE_rigidbody",
@@ -1071,10 +1046,14 @@
               }
             ]
           }
+        },
+        {
+          "name": "EE_visible",
+          "props": true
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 16,
+      "index": 17,
       "name": "Trigger Volume"
     },
     "d8a020bd-0795-44f2-b00a-97c6bc9984a7": {
@@ -1099,10 +1078,6 @@
               "z": 1
             }
           }
-        },
-        {
-          "name": "EE_visible",
-          "props": {}
         },
         {
           "name": "EE_rigidbody",
@@ -1130,10 +1105,14 @@
               }
             ]
           }
+        },
+        {
+          "name": "EE_visible",
+          "props": true
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 17,
+      "index": 18,
       "name": "Door"
     },
     "61304262-c00c-4f1f-80a2-e4163d97a007": {
@@ -1208,7 +1187,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 18,
+      "index": 19,
       "name": "Model"
     },
     "9d06e7cb-bd8f-4537-80ad-d62dcc8b89c3": {
@@ -1233,10 +1212,6 @@
               "z": 1
             }
           }
-        },
-        {
-          "name": "EE_visible",
-          "props": {}
         },
         {
           "name": "EE_rigidbody",
@@ -1264,10 +1239,14 @@
               }
             ]
           }
+        },
+        {
+          "name": "EE_visible",
+          "props": true
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 19,
+      "index": 20,
       "name": "VCKey Trigger Volume"
     },
     "1f374932-e649-4b30-b6e7-de990fdee2a1": {
@@ -1294,10 +1273,6 @@
           }
         },
         {
-          "name": "EE_visible",
-          "props": {}
-        },
-        {
           "name": "EE_envmapbake",
           "props": {
             "bakePosition": {
@@ -1321,10 +1296,14 @@
             "envMapOrigin": "__$project$__/default-project/apartment-New-EnvMap%20Bake.ktx2",
             "boxProjection": true
           }
+        },
+        {
+          "name": "EE_visible",
+          "props": true
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 20,
+      "index": 21,
       "name": "New EnvMap Bake"
     },
     "4e6a56be-a4d8-4091-a741-10fbefaea21d": {
@@ -1368,7 +1347,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 24
+      "index": 25
     }
   },
   "root": "60a390ad-4193-493d-84bf-cfb77b5095c2"

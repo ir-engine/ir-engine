@@ -37,7 +37,7 @@ import {
 } from '@etherealengine/common/src/schema.type.module'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneSnapshotState } from '@etherealengine/engine/src/scene/Scene'
 import { GLTFLoadedComponent } from '@etherealengine/engine/src/scene/components/GLTFLoadedComponent'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
@@ -118,7 +118,7 @@ export const renameScene = async (projectName: string, newSceneName: string, old
 export const saveScene = async (projectName: string, sceneName: string, signal: AbortSignal) => {
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
 
-  const sceneData = getState(SceneState).scenes[getState(SceneState).activeScene!].snapshots.at(-1)?.data
+  const sceneData = getState(SceneSnapshotState)[getState(EditorState).sceneID!].snapshots.at(-1)?.data
 
   try {
     if (!sceneData) throw new Error(i18n.t('editor:errors.sceneDataNotFound'))

@@ -28,6 +28,7 @@ import {
   Entity,
   UndefinedEntity,
   defineComponent,
+  entityExists,
   getComponent,
   hasComponent,
   useComponent,
@@ -38,6 +39,7 @@ import { getState, useHookstate } from '@etherealengine/hyperflux'
 import React, { useLayoutEffect } from 'react'
 import { Vector3 } from 'three'
 import { traverseEntityNodeParent } from '../../transform/components/EntityTree'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { PhysicsState } from '../state/PhysicsState'
@@ -88,13 +90,6 @@ export const ColliderComponent = defineComponent({
     }
   },
 
-  onRemove(entity, component) {
-    if (component.collider.value) {
-      const physicsWorld = getState(PhysicsState).physicsWorld
-      physicsWorld.removeCollider(component.collider.value, false)
-    }
-  },
-
   reactor: ColliderComponentReactor
 })
 
@@ -139,6 +134,7 @@ function ColliderComponentRigidbodyReactor(props: { entity: Entity; rigidbodyEnt
   const rigidbodyComponent = useComponent(props.rigidbodyEntity, RigidBodyComponent)
   const isTrigger = !!useOptionalComponent(props.entity, TriggerComponent)
   const colliderComponent = useComponent(props.entity, ColliderComponent)
+  const transformComponent = useComponent(props.entity, TransformComponent)
 
   useLayoutEffect(() => {
     if (!rigidbodyComponent.body.value) return
@@ -151,14 +147,16 @@ function ColliderComponentRigidbodyReactor(props: { entity: Entity; rigidbodyEnt
     const rigidbody = rigidbodyComponent.body.value
 
     const physicsWorld = getState(PhysicsState).physicsWorld
-    const collider = physicsWorld.createCollider(colliderDesc, rigidbody)
+    const collider = Physics.attachCollider(physicsWorld, colliderDesc, rigidbody)
     colliderComponent.collider.set(collider)
 
     return () => {
-      colliderComponent.collider.set(null)
-      physicsWorld.removeCollider(collider, false)
+      if (entityExists(props.entity) && hasComponent(props.entity, ColliderComponent)) {
+        colliderComponent.collider.set(null)
+      }
+      Physics.removeCollider(physicsWorld, collider)
     }
-  }, [rigidbodyComponent.body])
+  }, [rigidbodyComponent.body, transformComponent.scale])
 
   useLayoutEffect(() => {
     if (!colliderComponent.collider.value) return

@@ -106,7 +106,11 @@ export const ModelPreviewPanel = (props) => {
           <h1 className={styles.error}>{error.value}</h1>
         </div>
       )}
-      <div id="modelPreview" ref={panelRef} style={{ minHeight: '250px', width: '100%', height: '100%' }}></div>
+      <div
+        id="modelPreview"
+        ref={panelRef}
+        style={{ minHeight: '250px', width: '100%', height: '100%', ...props.style }}
+      ></div>
     </>
   )
 }

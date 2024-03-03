@@ -33,9 +33,8 @@ import {
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 
 import { Engine, UndefinedEntity } from '@etherealengine/ecs'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { TransformPivot } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
@@ -69,9 +68,7 @@ export const TransformGizmoControlledComponent = defineComponent({
       setComponent(pivotEntity, NameComponent, 'gizmoPivotEntity')
       setComponent(pivotEntity, TransformComponent)
       setComponent(pivotEntity, VisibleComponent)
-      setComponent(pivotEntity, EntityTreeComponent, {
-        parentEntity: SceneState.getRootEntity(getState(SceneState).activeScene!)
-      })
+      setComponent(pivotEntity, EntityTreeComponent)
       /*addObjectToGroup(
         pivotEntity,
         new Mesh(new SphereGeometry(1.5, 32, 32), new MeshBasicMaterial({ color: 0xff0000 }))

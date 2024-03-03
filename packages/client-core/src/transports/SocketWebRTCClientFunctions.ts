@@ -76,9 +76,13 @@ import {
 import { NetworkTopics, createNetwork } from '@etherealengine/spatial/src/networking/classes/Network'
 import { PUBLIC_STUN_SERVERS } from '@etherealengine/spatial/src/networking/constants/STUNServers'
 import {
+  CAM_AUDIO_CODEC_OPTIONS,
   CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
   CAM_VIDEO_SIMULCAST_ENCODINGS,
-  SCREEN_SHARE_SIMULCAST_ENCODINGS
+  CAM_VIDEO_SVC_CODEC_OPTIONS,
+  H264_CODEC,
+  VP8_CODEC,
+  VP9_CODEC
 } from '@etherealengine/spatial/src/networking/constants/VideoConstants'
 import { NetworkPeerFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkPeerFunctions'
 import {
@@ -86,8 +90,8 @@ import {
   MediasoupDataProducerConsumerState
 } from '@etherealengine/spatial/src/networking/systems/MediasoupDataProducerConsumerState'
 import {
-  MediaProducerActions,
   MediasoupMediaConsumerActions,
+  MediasoupMediaProducerActions,
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
 } from '@etherealengine/spatial/src/networking/systems/MediasoupMediaProducerConsumerState'
@@ -116,6 +120,7 @@ import { encode } from 'msgpackr'
 import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
+import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
 
@@ -483,7 +488,7 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
 }
 
 export const waitForTransports = async (network: SocketWebRTCClientNetwork) => {
-  const promise = new Promise<void>((resolve) => {
+  return new Promise<void>((resolve) => {
     const interval = setInterval(() => {
       if (network.ready) {
         clearInterval(interval)
@@ -492,7 +497,6 @@ export const waitForTransports = async (network: SocketWebRTCClientNetwork) => {
       }
     }, 100)
   })
-  return promise
 }
 
 export const onTransportCreated = async (action: typeof MediasoupTransportActions.transportCreated.matches._TYPE) => {
@@ -621,7 +625,7 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
         // failure.
         const requestID = MathUtils.generateUUID()
         dispatchAction(
-          MediaProducerActions.requestProducer({
+          MediasoupMediaProducerActions.requestProducer({
             requestID,
             transportID,
             kind,
@@ -637,8 +641,8 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
         //  TODO - this is an anti pattern, how else can we resolve this? inject a system?
         try {
           const producerPromise = await new Promise<any>((resolve, reject) => {
-            const actionQueue = defineActionQueue(MediaProducerActions.producerCreated.matches)
-            const errorQueue = defineActionQueue(MediaProducerActions.requestProducerError.matches)
+            const actionQueue = defineActionQueue(MediasoupMediaProducerActions.producerCreated.matches)
+            const errorQueue = defineActionQueue(MediasoupMediaProducerActions.requestProducerError.matches)
 
             const cleanup = () => {
               destroySystem(systemUUID)
@@ -808,6 +812,36 @@ export async function configureMediaTransports(mediaTypes: string[]): Promise<bo
   return true
 }
 
+const getCodecEncodings = (service: string) => {
+  const clientSettingState = getState(AdminClientSettingsState).client[0]
+  const settings =
+    service === 'video' ? clientSettingState.mediaSettings.video : clientSettingState.mediaSettings.screenshare
+  let codec, encodings
+  if (settings) {
+    switch (settings.codec) {
+      case 'VP9':
+        codec = VP9_CODEC
+        encodings = CAM_VIDEO_SVC_CODEC_OPTIONS
+        break
+      case 'h264':
+        codec = H264_CODEC
+        encodings = CAM_VIDEO_SIMULCAST_ENCODINGS
+        encodings[0].maxBitrate = settings.lowResMaxBitrate * 1000
+        encodings[1].maxBitrate = settings.midResMaxBitrate * 1000
+        encodings[2].maxBitrate = settings.highResMaxBitrate * 1000
+        break
+      case 'VP8':
+        codec = VP8_CODEC
+        encodings = CAM_VIDEO_SIMULCAST_ENCODINGS
+        encodings[0].maxBitrate = settings.lowResMaxBitrate * 1000
+        encodings[1].maxBitrate = settings.midResMaxBitrate * 1000
+        encodings[2].maxBitrate = settings.highResMaxBitrate * 1000
+    }
+  }
+
+  return { codec, encodings }
+}
+
 export async function createCamVideoProducer(network: SocketWebRTCClientNetwork): Promise<void> {
   const channelConnectionState = getState(MediaInstanceState)
   const currentChannelInstanceConnection = channelConnectionState.instances[network.id]
@@ -816,6 +850,8 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
   if (mediaStreamState.videoStream.value !== null) {
     await waitForTransports(network)
     const transport = MediasoupTransportState.getTransport(network.id, 'send') as WebRTCTransportExtension
+
+    const { codec, encodings } = getCodecEncodings('video')
 
     try {
       let produceInProgress = false
@@ -826,8 +862,9 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
               produceInProgress = true
               const producer = (await transport.produce({
                 track: mediaStreamState.videoStream.value!.getVideoTracks()[0],
-                encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
+                encodings,
                 codecOptions: CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
+                codec,
                 appData: { mediaTag: webcamVideoDataChannelType, channelId: channelId }
               })) as any as ProducerExtension
               getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[producer.id].set(producer)
@@ -848,6 +885,7 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
 
 export async function createCamAudioProducer(network: SocketWebRTCClientNetwork): Promise<void> {
   const channelConnectionState = getState(MediaInstanceState)
+  const clientSettingState = getState(AdminClientSettingsState)
   const currentChannelInstanceConnection = channelConnectionState.instances[network.id]
   const channelId = currentChannelInstanceConnection.channelId
   const mediaStreamState = getMutableState(MediaStreamState)
@@ -870,6 +908,10 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
     const transport = MediasoupTransportState.getTransport(network.id, 'send') as WebRTCTransportExtension
 
     try {
+      let codecOptions = CAM_AUDIO_CODEC_OPTIONS
+      if (clientSettingState.client?.[0]?.mediaSettings?.audio)
+        codecOptions.opusMaxAverageBitrate = clientSettingState.client[0].mediaSettings.audio.maxBitrate * 1000
+
       // Create a new transport for audio and start producing
       let produceInProgress = false
       await new Promise((resolve) => {
@@ -879,6 +921,7 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
               produceInProgress = true
               const producer = (await transport.produce({
                 track: mediaStreamState.audioStream.value!.getAudioTracks()[0],
+                codecOptions,
                 appData: { mediaTag: webcamAudioDataChannelType, channelId: channelId }
               })) as any as ProducerExtension
               getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[producer.id].set(producer)
@@ -981,7 +1024,7 @@ export function resumeConsumer(network: SocketWebRTCClientNetwork, consumer: Con
 
 export function pauseProducer(network: SocketWebRTCClientNetwork, producer: ProducerExtension) {
   dispatchAction(
-    MediaProducerActions.producerPaused({
+    MediasoupMediaProducerActions.producerPaused({
       producerID: producer.id,
       globalMute: false,
       paused: true,
@@ -993,7 +1036,7 @@ export function pauseProducer(network: SocketWebRTCClientNetwork, producer: Prod
 
 export function resumeProducer(network: SocketWebRTCClientNetwork, producer: ProducerExtension) {
   dispatchAction(
-    MediaProducerActions.producerPaused({
+    MediasoupMediaProducerActions.producerPaused({
       producerID: producer.id,
       globalMute: false,
       paused: false,
@@ -1005,7 +1048,7 @@ export function resumeProducer(network: SocketWebRTCClientNetwork, producer: Pro
 
 export function globalMuteProducer(network: SocketWebRTCClientNetwork, producer: { id: any }) {
   dispatchAction(
-    MediaProducerActions.producerPaused({
+    MediasoupMediaProducerActions.producerPaused({
       producerID: producer.id,
       globalMute: true,
       paused: true,
@@ -1017,7 +1060,7 @@ export function globalMuteProducer(network: SocketWebRTCClientNetwork, producer:
 
 export function globalUnmuteProducer(network: SocketWebRTCClientNetwork, producer: { id: any }) {
   dispatchAction(
-    MediaProducerActions.producerPaused({
+    MediasoupMediaProducerActions.producerPaused({
       producerID: producer.id,
       globalMute: false,
       paused: false,
@@ -1157,17 +1200,22 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
   )
 
   const channelConnectionState = getState(MediaInstanceState)
+  const clientSettingState = getState(AdminClientSettingsState).client[0]
+  const screenshareSettings = clientSettingState.mediaSettings.screenshare
   const currentChannelInstanceConnection = channelConnectionState.instances[network.id]
   const channelId = currentChannelInstanceConnection.channelId
 
   await waitForTransports(network)
   const transport = MediasoupTransportState.getTransport(network.id, 'send') as WebRTCTransportExtension
 
+  const { codec, encodings } = getCodecEncodings('screenshare')
+
   // create a producer for video
   const videoProducer = (await transport.produce({
     track: mediaStreamState.localScreen.value!.getVideoTracks()[0],
-    encodings: SCREEN_SHARE_SIMULCAST_ENCODINGS,
+    encodings,
     codecOptions: CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
+    codec,
     appData: { mediaTag: screenshareVideoDataChannelType, channelId }
   })) as any as ProducerExtension
   mediaStreamState.screenVideoProducer.set(videoProducer)
@@ -1203,7 +1251,7 @@ export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
     await mediaStreamState.screenVideoProducer.value.pause()
     mediaStreamState.screenShareVideoPaused.set(true)
     dispatchAction(
-      MediaProducerActions.producerClosed({
+      MediasoupMediaProducerActions.producerClosed({
         producerID: mediaStreamState.screenVideoProducer.value.id,
         $network: network.id,
         $topic: network.topic
@@ -1215,7 +1263,7 @@ export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
 
   if (mediaStreamState.screenAudioProducer.value) {
     dispatchAction(
-      MediaProducerActions.producerClosed({
+      MediasoupMediaProducerActions.producerClosed({
         producerID: mediaStreamState.screenAudioProducer.value.id,
         $network: network.id,
         $topic: network.topic

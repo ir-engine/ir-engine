@@ -22,9 +22,26 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import { ArgTypes } from '@storybook/react'
+import DragNDrop from './index'
 
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+const argTypes: ArgTypes = {}
 
-export const SceneTagComponent = defineComponent({
-  name: 'SceneTagComponent'
-})
+export default {
+  title: 'Primitives/Tailwind/DragNDrop',
+  component: DragNDrop,
+  parameters: {
+    componentSubtitle: 'DragNDrop',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
+}
+
+export const Default = {
+  args: {
+    className: ''
+  }
+}
