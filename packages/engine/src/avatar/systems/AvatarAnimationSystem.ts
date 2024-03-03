@@ -40,16 +40,16 @@ import config from '@etherealengine/common/src/config'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import {
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
+  hasComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import {
   createPriorityQueue,
@@ -76,6 +76,7 @@ import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { getArmIKHint } from '../animation/getArmIKHint'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
+import { TransparencyDitheringComponent } from '../components/TransparencyDitheringComponent'
 import { retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 import { LocalAvatarState } from '../state/AvatarState'
@@ -107,6 +108,7 @@ const _vector3 = new Vector3()
 const _hint = new Vector3()
 const mat4 = new Matrix4()
 const hipsForward = new Vector3(0, 0, 1)
+const ditheringCenter = new Vector3()
 
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(avatarComponentQuery, compareDistanceToCamera)
 
@@ -319,6 +321,22 @@ const execute = () => {
         }
       }
   }
+
+  //update local client entity's dithering component and camera attached logic
+  const localClientEntity = Engine.instance.localClientEntity
+  const ditheringComponent = getMutableComponent(localClientEntity, TransparencyDitheringComponent)
+  const cameraAttached = getState(XRControlsState).isCameraAttachedToAvatar
+  cameraAttached
+    ? ditheringCenter.copy(
+        getComponent(localClientEntity, AvatarRigComponent).rawRig.head.node.getWorldPosition(_vector3)
+      )
+    : ditheringCenter.copy(getComponent(Engine.instance.cameraEntity, TransformComponent).position)
+  ditheringComponent.center.set(ditheringCenter)
+  const cameraComponent = getComponent(Engine.instance.cameraEntity, FollowCameraComponent)
+  const hasDecapComponent = hasComponent(localClientEntity, AvatarHeadDecapComponent)
+  const eyeOffset = 0.25
+  if (hasDecapComponent) cameraComponent.offset.setZ(Math.min(cameraComponent.offset.z + deltaSeconds, eyeOffset))
+  else cameraComponent.offset.setZ(Math.max(cameraComponent.offset.z - deltaSeconds, 0))
 }
 
 const reactor = () => {
@@ -379,12 +397,6 @@ const reactor = () => {
 
     const entity = Engine.instance.localClientEntity
     if (!entity) return
-
-    if (isCameraAttachedToAvatar.value) {
-      setComponent(entity, AvatarHeadDecapComponent, true)
-    } else {
-      removeComponent(entity, AvatarHeadDecapComponent)
-    }
   }, [isCameraAttachedToAvatar, session])
 
   useEffect(() => {

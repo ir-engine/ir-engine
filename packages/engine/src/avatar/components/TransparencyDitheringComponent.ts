@@ -54,7 +54,7 @@ export const TransparencyDitheringComponent = defineComponent({
     return {
       ditheringDistance: 0.35,
       ditheringExponent: 5,
-      position: new Vector3()
+      center: new Vector3()
     }
   },
 
@@ -62,7 +62,7 @@ export const TransparencyDitheringComponent = defineComponent({
     if (!json) return
     if (matches.number.test(json.ditheringDistance)) component.ditheringDistance.set(json.ditheringDistance)
     if (matches.number.test(json.ditheringExponent)) component.ditheringExponent.set(json.ditheringExponent)
-    if (matchesVector3.test(json.position)) component.position.set(json.position)
+    if (matchesVector3.test(json.center)) component.center.value.copy(json.center)
   },
 
   reactor: () => {
@@ -72,14 +72,14 @@ export const TransparencyDitheringComponent = defineComponent({
     /** Injects dithering logic into avatar materials */
     useEffect(() => {
       const ditheringComponent = getComponent(entity, TransparencyDitheringComponent)
-      const { ditheringExponent, ditheringDistance, position } = ditheringComponent
+      const { ditheringExponent, ditheringDistance, center } = ditheringComponent
       iterateEntityNode(entity, (node) => {
         const mesh = getOptionalComponent(node, MeshComponent)
         if (!mesh) return
         const material = mesh.material
         if (isArray(material))
-          material.forEach((m) => injectDitheringLogic(m, ditheringDistance, ditheringExponent, position))
-        else injectDitheringLogic(material, ditheringDistance, ditheringExponent, position)
+          material.forEach((m) => injectDitheringLogic(m, ditheringDistance, ditheringExponent, center))
+        else injectDitheringLogic(material, ditheringDistance, ditheringExponent, center)
       })
     }, [modelComponent.scene, useBasicMaterials])
     return null
@@ -90,7 +90,7 @@ const injectDitheringLogic = (
   material: Material,
   ditheringDistance: number,
   ditheringExponent: number,
-  position: Vector3
+  center: Vector3
 ) => {
   material.alphaTest = 0.5
   addOBCPlugin(material, {
@@ -117,12 +117,10 @@ const injectDitheringLogic = (
 
       shader.fragmentShader = shader.fragmentShader.replace(/#include <alphatest_fragment>/, ditheringAlphatestChunk)
       shader.uniforms.ditheringPosition = {
-        value: position
+        value: center
       }
       shader.uniforms.ditheringDistance = { value: ditheringDistance }
       shader.uniforms.ditheringExponent = { value: ditheringExponent }
-      console.log(shader.vertexShader)
-      console.log(shader.fragmentShader)
     }
   })
 }
