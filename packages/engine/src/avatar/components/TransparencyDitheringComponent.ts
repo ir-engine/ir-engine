@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  Engine,
   defineComponent,
   getComponent,
   getOptionalComponent,
@@ -32,14 +31,14 @@ import {
   useEntityContext
 } from '@etherealengine/ecs'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { TransformComponent } from '@etherealengine/spatial'
+import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { isArray } from 'lodash'
 import { useEffect } from 'react'
-import { Material } from 'three'
+import { Material, Vector3 } from 'three'
 import matches from 'ts-matches'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import {
@@ -54,7 +53,8 @@ export const TransparencyDitheringComponent = defineComponent({
   onInit: (entity) => {
     return {
       ditheringDistance: 0.35,
-      ditheringExponent: 5
+      ditheringExponent: 5,
+      position: new Vector3()
     }
   },
 
@@ -62,6 +62,7 @@ export const TransparencyDitheringComponent = defineComponent({
     if (!json) return
     if (matches.number.test(json.ditheringDistance)) component.ditheringDistance.set(json.ditheringDistance)
     if (matches.number.test(json.ditheringExponent)) component.ditheringExponent.set(json.ditheringExponent)
+    if (matchesVector3.test(json.position)) component.position.set(json.position)
   },
 
   reactor: () => {
@@ -71,20 +72,26 @@ export const TransparencyDitheringComponent = defineComponent({
     /** Injects dithering logic into avatar materials */
     useEffect(() => {
       const ditheringComponent = getComponent(entity, TransparencyDitheringComponent)
-      const { ditheringExponent, ditheringDistance } = ditheringComponent
+      const { ditheringExponent, ditheringDistance, position } = ditheringComponent
       iterateEntityNode(entity, (node) => {
         const mesh = getOptionalComponent(node, MeshComponent)
         if (!mesh) return
         const material = mesh.material
-        if (isArray(material)) material.forEach((m) => injectDitheringLogic(m, ditheringDistance, ditheringExponent))
-        else injectDitheringLogic(material, ditheringDistance, ditheringExponent)
+        if (isArray(material))
+          material.forEach((m) => injectDitheringLogic(m, ditheringDistance, ditheringExponent, position))
+        else injectDitheringLogic(material, ditheringDistance, ditheringExponent, position)
       })
     }, [modelComponent.scene, useBasicMaterials])
     return null
   }
 })
 
-const injectDitheringLogic = (material: Material, ditheringDistance: number, ditheringExponent: number) => {
+const injectDitheringLogic = (
+  material: Material,
+  ditheringDistance: number,
+  ditheringExponent: number,
+  position: Vector3
+) => {
   material.alphaTest = 0.5
   addOBCPlugin(material, {
     id: 'transparency-dithering',
@@ -109,8 +116,8 @@ const injectDitheringLogic = (material: Material, ditheringDistance: number, dit
         )
 
       shader.fragmentShader = shader.fragmentShader.replace(/#include <alphatest_fragment>/, ditheringAlphatestChunk)
-      shader.uniforms.cameraPosition = {
-        value: getComponent(Engine.instance.cameraEntity, TransformComponent).position
+      shader.uniforms.ditheringPosition = {
+        value: position
       }
       shader.uniforms.ditheringDistance = { value: ditheringDistance }
       shader.uniforms.ditheringExponent = { value: ditheringExponent }

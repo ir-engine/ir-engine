@@ -34,6 +34,7 @@ vWorldPosition = (modelMatrix * vec4( transformed, 1.0 )).xyz;
 /** glsl */
 export const ditheringFragUniform = `
 varying vec3 vWorldPosition;
+uniform vec3 ditheringPosition;
 uniform float ditheringExponent;
 uniform float ditheringDistance;
 `
@@ -41,8 +42,8 @@ uniform float ditheringDistance;
 /** glsl */
 export const ditheringAlphatestChunk = `
 // sample sine at screen space coordinates for dithering pattern
-float dither = sin( gl_FragCoord.x * 2.5)*sin( gl_FragCoord.y * 2.5);
-float distance = length(cameraPosition - vWorldPosition)*1.5;
+float dither = sin( gl_FragCoord.x * 2.0)*sin( gl_FragCoord.y * 2.0);
+float distance = length(ditheringPosition - vWorldPosition)*1.5;
 dither += pow(ditheringDistance/distance, ditheringExponent)-1.0;
 diffuseColor.a = smoothstep( alphaTest, alphaTest + fwidth( diffuseColor.a ), diffuseColor.a );
 diffuseColor.a -= max(dither, 0.0);

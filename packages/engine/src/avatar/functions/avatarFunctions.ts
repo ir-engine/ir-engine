@@ -45,6 +45,7 @@ import { AnimationState } from '../AnimationManager'
 import config from '@etherealengine/common/src/config'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { TransformComponent } from '@etherealengine/spatial'
 import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
@@ -171,7 +172,10 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
  * successfully loaded.
  */
 export const setupAvatarForUser = (entity: Entity, model: VRM) => {
-  if (entity == Engine.instance.localClientEntity) setComponent(entity, TransparencyDitheringComponent)
+  if (entity == Engine.instance.localClientEntity)
+    setComponent(entity, TransparencyDitheringComponent, {
+      position: getComponent(Engine.instance.cameraEntity, TransformComponent).position
+    })
 
   setComponent(entity, AvatarRigComponent, {
     normalizedRig: model.humanoid.normalizedHumanBones,
