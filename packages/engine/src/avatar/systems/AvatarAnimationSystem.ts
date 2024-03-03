@@ -324,6 +324,7 @@ const execute = () => {
 
   //update local client entity's dithering component and camera attached logic
   const localClientEntity = Engine.instance.localClientEntity
+  if (!localClientEntity) return
   const ditheringComponent = getMutableComponent(localClientEntity, TransparencyDitheringComponent)
   const cameraAttached = getState(XRControlsState).isCameraAttachedToAvatar
   cameraAttached
