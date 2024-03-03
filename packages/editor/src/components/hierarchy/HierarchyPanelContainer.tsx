@@ -45,7 +45,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { Engine } from '@etherealengine/ecs'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
+import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
@@ -91,7 +91,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
   const lockPropertiesPanel = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
   const searchHierarchy = useHookstate('')
 
-  const uuidQuery = useQuery([UUIDComponent, SceneObjectComponent])
+  const uuidQuery = useQuery([UUIDComponent, SceneComponent])
   const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
   const sceneID = useHookstate(getMutableState(EditorState).sceneID)
   const index = SceneSnapshotState.useSnapshotIndex(sceneID.value!)
@@ -555,11 +555,13 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 }
 
 export default function HierarchyPanel() {
-  const editorState = useHookstate(getMutableState(EditorState))
-  const sceneState = useHookstate(getMutableState(SceneState))
+  const sceneID = useHookstate(getMutableState(EditorState).sceneID).value
+  const sceneState = useHookstate(getMutableState(SceneState)).value
 
-  const sceneJson = SceneState.getScene(editorState.sceneID.value!)?.scene
+  const sceneJson = SceneState.getScene(sceneID!)?.scene
+  const snapshots = useHookstate(getMutableState(SceneSnapshotState)).value
 
-  if (!editorState.sceneID.value || !sceneState.scenes[editorState.sceneID.value] || !sceneJson) return null
+  if (!sceneID || !sceneState.scenes[sceneID] || !sceneJson || !snapshots[sceneID]) return null
+
   return <HierarchyPanelContents key={sceneJson.root} rootEntityUUID={sceneJson.root} />
 }
