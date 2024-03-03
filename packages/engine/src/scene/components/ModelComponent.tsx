@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { AnimationMixer, BoxGeometry, CapsuleGeometry, CylinderGeometry, Group, Scene, SphereGeometry } from 'three'
 
-import { NO_PROXY, createState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import {
   defineComponent,
@@ -42,7 +42,6 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
@@ -62,15 +61,12 @@ import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationCompo
 import { autoconvertMixamoAvatar } from '../../avatar/functions/avatarFunctions'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
-import { getModelSceneID } from '../functions/loaders/ModelFunctions'
+import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
 import { EnvmapComponent } from './EnvmapComponent'
 import { ObjectGridSnapComponent } from './ObjectGridSnapComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { SceneObjectComponent } from './SceneObjectComponent'
+import { SceneComponent } from './SceneComponent'
 import { ShadowComponent } from './ShadowComponent'
-import { SourceComponent } from './SourceComponent'
-
-const entitiesInModelHierarchy = {} as Record<Entity, Entity[]>
 
 export const ModelComponent = defineComponent({
   name: 'ModelComponent',
@@ -110,7 +106,7 @@ export const ModelComponent = defineComponent({
      */
     if (
       !getState(SceneState).sceneLoaded &&
-      hasComponent(entity, SceneObjectComponent) &&
+      hasComponent(entity, SceneComponent) &&
       component.src.value &&
       !component.asset.value
     )
@@ -119,16 +115,13 @@ export const ModelComponent = defineComponent({
 
   errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
 
-  reactor: ModelReactor,
-
-  /** Tracks all child entities loaded by this model */
-  entitiesInModelHierarchyState: createState(entitiesInModelHierarchy),
-  entitiesInModelHierarchy: entitiesInModelHierarchy as Readonly<typeof entitiesInModelHierarchy>
+  reactor: ModelReactor
 })
 
 function ModelReactor(): JSX.Element {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
+  const uuidComponent = useOptionalComponent(entity, UUIDComponent)
 
   const [gltf, unload, error, progress] = useGLTF(modelComponent.src.value, entity, {
     forceAssetType: modelComponent.assetTypeOverride.value,
@@ -248,20 +241,21 @@ function ModelReactor(): JSX.Element {
           SceneAssetPendingTagComponent.removeResource(entity, src)
         })
 
+    const gltf = asset as GLTF
+    if (gltf.animations?.length) scene.animations = gltf.animations
+    if (scene.animations?.length) {
+      setComponent(entity, AnimationComponent, {
+        mixer: new AnimationMixer(scene),
+        animations: scene.animations
+      })
+    }
     return () => {
       SceneState.unloadScene(uuid)
     }
   }, [modelComponent.scene])
 
-  const childQuery = useQuery([SourceComponent])
-  useEffect(() => {
-    const modelSceneID = getModelSceneID(entity)
-    ModelComponent.entitiesInModelHierarchyState[entity].set(
-      childQuery.filter((e) => getComponent(e, SourceComponent) === modelSceneID)
-    )
-  }, [JSON.stringify(childQuery)])
-
-  const childEntities = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
+  const sceneInstanceID = useModelSceneID(entity)
+  const childEntities = useHookstate(SceneComponent.entitiesBySceneState[sceneInstanceID])
 
   return (
     <>
@@ -342,13 +336,7 @@ const ThreeToPhysics = {
 export const useMeshOrModel = (entity: Entity) => {
   const meshComponent = useOptionalComponent(entity, MeshComponent)
   const modelComponent = useOptionalComponent(entity, ModelComponent)
-  const sourceComponent = useOptionalComponent(entity, SourceComponent)
-  const isEntityHierarchyOrMesh = (!sourceComponent && !!meshComponent) || !!modelComponent
+  const sceneComponent = useOptionalComponent(entity, SceneComponent)
+  const isEntityHierarchyOrMesh = (!sceneComponent && !!meshComponent) || !!modelComponent
   return isEntityHierarchyOrMesh
-}
-
-export const useContainsMesh = (entity: Entity) => {
-  const meshComponent = useOptionalComponent(entity, MeshComponent)
-  const childEntities = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
-  return !!meshComponent || !!childEntities.value?.find((e: Entity) => getComponent(e, MeshComponent))
 }

@@ -23,35 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityJsonType, SceneJsonType } from '@etherealengine/common/src/schema.type.module'
-import { v4 as uuid } from 'uuid'
+import { defaultMediaSettings } from '@etherealengine/common/src/constants/DefaultMediaSettings'
+import { clientSettingPath } from '@etherealengine/common/src/schemas/setting/client-setting.schema'
+import type { Knex } from 'knex'
 
-// puts the scene settings from the the root entity into a sub entity
-export const migrateSceneSettings = (json: SceneJsonType) => {
-  if (!json.root) return
-  const rootEntity = json.entities[json.root]
-  if (!rootEntity) return
-
-  if (!json.entities[json.root].components.length) return
-  const newEntity = {
-    name: 'Settings',
-    components: JSON.parse(JSON.stringify(rootEntity.components)),
-    parent: json.root,
-    index: 0
-  } as EntityJsonType
-
-  // remove all root entity components
-  json.entities[json.root].components = []
-
-  // increment all indexes as our new entity will be at the start
-  for (const entity of Object.values(json.entities)) {
-    if (typeof entity.index === 'number') entity.index = entity.index + 1
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const mediaSettingsColumnExists = await knex.schema.hasColumn(clientSettingPath, 'mediaSettings')
+  if (!mediaSettingsColumnExists) {
+    await knex.schema.alterTable(clientSettingPath, async (table) => {
+      table.json('mediaSettings')
+    })
+    await knex.table(clientSettingPath).update({
+      mediaSettings: JSON.stringify(defaultMediaSettings)
+    })
   }
+}
 
-  // force reordering so our new entity can be at the start
-  json.entities = {
-    [json.root]: json.entities[json.root],
-    [uuid()]: newEntity,
-    ...json.entities
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const mediaSettingsColumnExists = await knex.schema.hasColumn(clientSettingPath, 'mediaSettings')
+
+  if (mediaSettingsColumnExists) {
+    await knex.schema.alterTable(clientSettingPath, async (table) => {
+      table.dropColumn('mediaSettings')
+    })
   }
 }

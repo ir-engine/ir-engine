@@ -133,8 +133,6 @@ function VideoReactor() {
   const mediaUUID = video.mediaUUID.value
   const mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID) || entity
 
-  console.log({ mediaEntity })
-
   useEffect(() => {
     const videoEntity = createEntity()
     addObjectToGroup(videoEntity, video.videoMesh.value)

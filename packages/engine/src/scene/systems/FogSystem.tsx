@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Not } from 'bitecs'
 import React, { useEffect } from 'react'
 import { Fog, FogExp2, Mesh, MeshStandardMaterial, Shader } from 'three'
 
@@ -40,7 +39,6 @@ import {
 } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { GroupQueryReactor, GroupReactorProps } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { SceneTagComponent } from '../components/SceneTagComponent'
 import { FogType } from '../constants/FogType'
 import { FogSettingState } from '../FogState'
 import { initBrownianMotionFogShader, initHeightFogShader, removeFogShader } from '../functions/FogShaders'
@@ -161,9 +159,7 @@ const reactor = () => {
       }
   }, [fog.height])
 
-  return (
-    <GroupQueryReactor GroupChildReactor={FogGroupReactor} Components={[Not(SceneTagComponent), VisibleComponent]} />
-  )
+  return <GroupQueryReactor GroupChildReactor={FogGroupReactor} Components={[VisibleComponent]} />
 }
 
 export const FogSystem = defineSystem({

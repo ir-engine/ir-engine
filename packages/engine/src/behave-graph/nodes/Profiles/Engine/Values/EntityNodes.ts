@@ -46,8 +46,7 @@ import { copyTransformToRigidBody } from '@etherealengine/spatial/src/physics/sy
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { cloneDeep, isEqual, uniqueId } from 'lodash'
 import { teleportAvatar } from '../../../../../avatar/functions/moveAvatar'
-import { SceneObjectComponent } from '../../../../../scene/components/SceneObjectComponent'
-import { SceneTagComponent } from '../../../../../scene/components/SceneTagComponent'
+import { SceneComponent } from '../../../../../scene/components/SceneComponent'
 import { addEntityToScene } from '../helper/entityHelper'
 
 type State = {
@@ -57,8 +56,7 @@ const initialState = (): State => ({
   systemUUID: '' as SystemUUID
 })
 
-const sceneQuery = defineQuery([SceneObjectComponent])
-const sceneTagQuery = defineQuery([SceneTagComponent])
+const sceneQuery = defineQuery([SceneComponent])
 
 export const getEntity = makeFunctionNodeDefinition({
   typeName: 'engine/entity/getEntityInScene',
@@ -73,7 +71,7 @@ export const getEntity = makeFunctionNodeDefinition({
       return {
         valueType: 'string',
         choices: choices,
-        defaultValue: getComponent(sceneTagQuery()[0], UUIDComponent)
+        defaultValue: ''
       }
     }
   },
@@ -158,7 +156,7 @@ export const addEntity = makeFlowNodeDefinition({
       return {
         valueType: 'string',
         choices: choices,
-        defaultValue: getComponent(sceneTagQuery()[0], UUIDComponent)
+        defaultValue: ''
       }
     },
     componentName: (_, graphApi) => {

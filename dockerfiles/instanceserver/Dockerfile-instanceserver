@@ -6,6 +6,7 @@ FROM ${ECR_URL}/${REPO_NAME}-root:latest_${STAGE} as builder
 # Create app directory
 WORKDIR /app
 
+COPY project-package-jsons ./
 # to make use of caching, copy only package files and install dependencies
 COPY packages/instanceserver/package.json ./packages/instanceserver/
 

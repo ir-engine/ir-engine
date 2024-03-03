@@ -25,22 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import {
-  defineComponent,
-  hasComponent,
-  setComponent,
-  useComponent,
-  useOptionalComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineComponent, useComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { AudioNodeGroups, MediaElementComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { AudioNodeGroups, MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
-import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
 import { PositionalAudioHelper } from './PositionalAudioHelper'
 
 export interface PositionalAudioInterface {
@@ -73,9 +66,6 @@ export const PositionalAudioComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    if (hasComponent(entity, VolumetricComponent) || hasComponent(entity, MediaComponent)) return
-    setComponent(entity, MediaComponent, {})
-
     if (!json) return
     if (typeof json.distanceModel === 'number' && component.distanceModel.value !== json.distanceModel)
       component.distanceModel.set(json.distanceModel)

@@ -28,7 +28,7 @@ import React, { useEffect, useState } from 'react'
 
 import Button from '@etherealengine/client-core/src/common/components/Button'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import { none, State, useHookstate } from '@etherealengine/hyperflux'
+import { getState, none, State, useHookstate } from '@etherealengine/hyperflux'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
@@ -38,7 +38,7 @@ import styles from './styles.module.scss'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import { modelTransformPath } from '@etherealengine/common/src/schema.type.module'
-import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import {
   DefaultModelTransformParameters as defaultParams,
@@ -53,12 +53,13 @@ import exportGLTF from '../../functions/exportGLTF'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { createEntity, Entity, UndefinedEntity } from '@etherealengine/ecs'
-import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
+import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
 import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import {
   EntityTreeComponent,
@@ -66,6 +67,7 @@ import {
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { Box, ListItemButton, ListItemText, MenuItem, Modal, PopoverPosition } from '@mui/material'
 import { Group, MathUtils } from 'three'
+import { EditorState } from '../../services/EditorServices'
 import { ContextMenu } from '../layout/ContextMenu'
 import { List, ListItem } from '../layout/List'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
@@ -136,9 +138,14 @@ const createTempEntity = (name: string, parentEntity: Entity = UndefinedEntity):
   setComponent(entity, TransformComponent)
   setComponent(entity, EntityTreeComponent, { parentEntity })
 
+  let sceneID = getState(EditorState).sceneID!
+  if (hasComponent(parentEntity, SceneComponent)) {
+    sceneID = getComponent(parentEntity, SceneComponent)
+  }
+  setComponent(entity, SceneComponent, sceneID)
+
   const uuid = MathUtils.generateUUID() as EntityUUID
   setComponent(entity, UUIDComponent, uuid)
-  setComponent(entity, SceneObjectComponent)
 
   // These additional properties and relations are required for
   // the current GLTF exporter to successfully generate a GLTF.
@@ -146,6 +153,7 @@ const createTempEntity = (name: string, parentEntity: Entity = UndefinedEntity):
   obj3d.entity = entity
   addObjectToGroup(entity, obj3d)
   proxifyParentChildRelationships(obj3d)
+  setComponent(entity, Object3DComponent, obj3d)
 
   return entity
 }
