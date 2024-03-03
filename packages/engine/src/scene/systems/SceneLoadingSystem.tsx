@@ -70,10 +70,8 @@ import React from 'react'
 import { Group } from 'three'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
+import { SceneComponent } from '../components/SceneComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
-import { SceneObjectComponent } from '../components/SceneObjectComponent'
-import { SceneTagComponent } from '../components/SceneTagComponent'
-import { SourceComponent } from '../components/SourceComponent'
 import { proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 
 export const SceneLoadingReactor = () => {
@@ -85,14 +83,7 @@ export const SceneLoadingReactor = () => {
   return (
     <>
       <QueryReactor
-        Components={[
-          EntityTreeComponent,
-          TransformComponent,
-          UUIDComponent,
-          SceneObjectComponent,
-          Not(GLTFLoadedComponent),
-          Not(SceneTagComponent)
-        ]}
+        Components={[EntityTreeComponent, TransformComponent, UUIDComponent, SceneComponent, Not(GLTFLoadedComponent)]}
         ChildEntityReactor={NetworkedSceneObjectReactor}
       />
       {Object.keys(scenes.value).map((sceneID: SceneID) => (
@@ -137,10 +128,9 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
 
   const ready = useHookstate(false)
   const systemsLoaded = useHookstate([] as SystemImportType[])
-  const isActiveScene = useHookstate(getMutableState(SceneState).activeScene).value === props.sceneID
 
   useEffect(() => {
-    if (!ready.value || !isActiveScene || !getState(SceneState).sceneLoading) return
+    if (!ready.value || getState(SceneState).sceneLoaded) return
 
     const entitiesCount = sceneEntities.keys.map(UUIDComponent.getEntityByUUID).filter(Boolean).length
     if (entitiesCount <= 1) return
@@ -153,34 +143,21 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     getMutableState(SceneState).loadingProgress.set(progress)
 
     if (!sceneAssetPendingTagQuery.length && !getState(SceneState).sceneLoaded) {
-      getMutableState(SceneState).merge({
-        sceneLoading: false,
-        sceneLoaded: true
-      })
+      getMutableState(SceneState).sceneLoaded.set(true)
       SceneAssetPendingTagComponent.loadingProgress.set({})
     }
   }, [sceneAssetPendingTagQuery.length, assetLoadingState, entities.keys])
 
   useEffect(() => {
-    const scene = getState(SceneState).scenes[props.sceneID]
-    const { project } = scene.metadata
-    const data = scene.snapshots[scene.index].data
-    const systemPromises = getSystemsFromSceneData(project, data)
+    const { project, scene } = getState(SceneState).scenes[props.sceneID]
+    const systemPromises = getSystemsFromSceneData(project, scene)
     if (!systemPromises) {
       ready.set(true)
-      getMutableState(SceneState).merge({
-        sceneLoading: true,
-        sceneLoaded: false
-      })
       return
     }
     systemPromises.then((systems) => {
       systemsLoaded.set(systems)
       ready.set(true)
-      getMutableState(SceneState).merge({
-        sceneLoading: true,
-        sceneLoaded: false
-      })
     })
   }, [])
 
@@ -198,7 +175,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     <>
       {ready.value &&
         Object.entries(sceneEntities.value).map(([entityUUID, data]) =>
-          entityUUID === rootUUID && isActiveScene ? (
+          entityUUID === rootUUID ? (
             <EntitySceneRootLoadReactor
               key={entityUUID}
               sceneID={props.sceneID}
@@ -225,13 +202,9 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
     const entity = UUIDComponent.getOrCreateEntityByUUID(props.entityUUID)
     setComponent(entity, NameComponent, entityState.name.value)
     setComponent(entity, VisibleComponent, true)
-    setComponent(entity, SourceComponent, props.sceneID)
-    setComponent(entity, SceneTagComponent, true)
+    setComponent(entity, SceneComponent, props.sceneID)
     setComponent(entity, TransformComponent)
-    setComponent(entity, SceneObjectComponent)
     setComponent(entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
-
-    loadComponents(entity, entityState.components.get(NO_PROXY))
 
     selfEntity.set(entity)
 
@@ -240,21 +213,7 @@ const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: Sc
     }
   }, [])
 
-  return (
-    <>
-      {selfEntity.value
-        ? entityState.components.map((compState) => (
-            <ErrorBoundary key={compState.name.value}>
-              <ComponentLoadReactor
-                componentID={compState.value.name}
-                entityUUID={props.entityUUID}
-                componentJSONState={compState}
-              />
-            </ErrorBoundary>
-          ))
-        : null}
-    </>
-  )
+  return null
 }
 
 const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) => {
@@ -290,6 +249,8 @@ const EntityChildLoadReactor = (props: {
   const parentLoaded = !!useOptionalComponent(parentEntity, UUIDComponent)
   const dynamicParentState = useOptionalComponent(parentEntity, SceneDynamicLoadTagComponent)
 
+  // console.log('EntityChildLoadReactor', parentLoaded, props.entityUUID, entityJSONState.components.get(NO_PROXY))
+
   useEffect(() => {
     // ensure parent has been deserialized before checking if dynamically loaded
     if (!parentLoaded) return
@@ -301,7 +262,6 @@ const EntityChildLoadReactor = (props: {
 
     selfEntity.set(entity)
 
-    setComponent(entity, SceneObjectComponent)
     setComponent(entity, EntityTreeComponent, {
       parentEntity,
       uuid: props.entityUUID,
@@ -316,7 +276,7 @@ const EntityChildLoadReactor = (props: {
       setComponent(entity, Object3DComponent, obj3d)
     }
 
-    setComponent(entity, SourceComponent, props.sceneID)
+    setComponent(entity, SceneComponent, props.sceneID)
     loadComponents(entity, entityJSONState.components.get(NO_PROXY))
 
     return () => {

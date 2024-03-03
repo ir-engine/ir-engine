@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Knex } from 'knex'
 import { v4 } from 'uuid'
 
+import { defaultMediaSettings } from '@etherealengine/common/src/constants/DefaultMediaSettings'
 import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import {
   ClientSettingDatabaseType,
@@ -68,7 +69,8 @@ export const clientSettingSeedData = {
   homepageLinkButtonRedirect: '',
   homepageLinkButtonText: '',
   webmanifestLink: '',
-  swScriptLink: ''
+  swScriptLink: '',
+  mediaSettings: defaultMediaSettings
 }
 
 export async function seed(knex: Knex): Promise<void> {

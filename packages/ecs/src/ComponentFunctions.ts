@@ -330,7 +330,8 @@ export const setComponent = <C extends Component>(
   if (!bitECS.entityExists(HyperFlux.store, entity)) {
     throw new Error('[setComponent]: entity does not exist')
   }
-  if (!hasComponent(entity, Component)) {
+  const componentExists = hasComponent(entity, Component)
+  if (!componentExists) {
     const value = Component.onInit(entity)
 
     if (!Component.stateMap[entity]) {
@@ -340,21 +341,20 @@ export const setComponent = <C extends Component>(
     }
 
     bitECS.addComponent(HyperFlux.store, Component, entity, false) // don't clear data on-add
-
-    if (Component.reactor && !Component.reactorMap.has(entity)) {
-      const root = startReactor(() => {
-        return React.createElement(
-          EntityContext.Provider,
-          { value: entity },
-          React.createElement(Component.reactor!, {})
-        )
-      }) as ReactorRoot
-      root['entity'] = entity
-      root['component'] = Component.name
-      Component.reactorMap.set(entity, root)
-    }
   }
+
   Component.onSet(entity, Component.stateMap[entity]!, args as Readonly<SerializedComponentType<C>>)
+
+  if (!componentExists && Component.reactor && !Component.reactorMap.has(entity)) {
+    const root = startReactor(() => {
+      return React.createElement(EntityContext.Provider, { value: entity }, React.createElement(Component.reactor!, {}))
+    }) as ReactorRoot
+    root['entity'] = entity
+    root['component'] = Component.name
+    Component.reactorMap.set(entity, root)
+    return
+  }
+
   const root = Component.reactorMap.get(entity)
   root?.run()
 }

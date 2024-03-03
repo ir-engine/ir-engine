@@ -57,7 +57,8 @@ import { InstancingComponent } from '../components/InstancingComponent'
 import { MeshBVHComponent } from '../components/MeshBVHComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
-import { SceneObjectComponent } from '../components/SceneObjectComponent'
+import { SceneComponent } from '../components/SceneComponent'
+import { getModelSceneID } from './loaders/ModelFunctions'
 
 export const parseECSData = (data: [string, any][]): ComponentJsonType[] => {
   const components: { [key: string]: any } = {}
@@ -221,12 +222,10 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     components: []
   }
 
-  for (const component of eJson.components) {
-    if (ComponentJSONIDMap.has(component.name))
-      setComponent(objEntity, ComponentJSONIDMap.get(component.name)!, component.props)
-  }
   eJson.parent = getComponent(parentEntity, UUIDComponent)
-  setComponent(objEntity, SceneObjectComponent)
+
+  const sceneID = getModelSceneID(rootEntity)
+  setComponent(objEntity, SceneComponent, sceneID)
   setComponent(objEntity, EntityTreeComponent, {
     parentEntity,
     uuid
@@ -242,6 +241,12 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     scale: obj.scale.clone()
   })
   computeTransformMatrix(objEntity)
+
+  for (const component of eJson.components) {
+    if (ComponentJSONIDMap.has(component.name))
+      setComponent(objEntity, ComponentJSONIDMap.get(component.name)!, component.props)
+  }
+
   eJson.components.push({
     name: TransformComponent.jsonID,
     props: {
