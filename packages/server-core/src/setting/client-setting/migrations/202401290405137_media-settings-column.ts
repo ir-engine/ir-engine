@@ -23,18 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent, getComponent } from '@etherealengine/ecs'
-import { Object3D } from 'three'
-import { NameComponent } from '../../common/NameComponent'
+import { defaultMediaSettings } from '@etherealengine/common/src/constants/DefaultMediaSettings'
+import { clientSettingPath } from '@etherealengine/common/src/schemas/setting/client-setting.schema'
+import type { Knex } from 'knex'
 
-export const Object3DComponent = defineComponent({
-  name: 'Object3D Component',
-  jsonID: 'EE_object3d',
-
-  onInit: (entity) => null! as Object3D,
-  onSet: (entity, component, object3d: Object3D) => {
-    if (!object3d || !object3d.isObject3D) throw new Error('Object3DComponent: Invalid object3d')
-    object3d.name = getComponent(entity, NameComponent)
-    component.set(object3d)
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const mediaSettingsColumnExists = await knex.schema.hasColumn(clientSettingPath, 'mediaSettings')
+  if (!mediaSettingsColumnExists) {
+    await knex.schema.alterTable(clientSettingPath, async (table) => {
+      table.json('mediaSettings')
+    })
+    await knex.table(clientSettingPath).update({
+      mediaSettings: JSON.stringify(defaultMediaSettings)
+    })
   }
-})
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const mediaSettingsColumnExists = await knex.schema.hasColumn(clientSettingPath, 'mediaSettings')
+
+  if (mediaSettingsColumnExists) {
+    await knex.schema.alterTable(clientSettingPath, async (table) => {
+      table.dropColumn('mediaSettings')
+    })
+  }
+}

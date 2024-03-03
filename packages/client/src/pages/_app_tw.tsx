@@ -40,6 +40,10 @@ import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjectio
 import { ThemeProvider } from '@etherealengine/client-core/src/common/services/ThemeService'
 import PublicRouter, { CenteredLoadingCircle } from '../route/public_tw'
 
+import {
+  AdminClientSettingsState,
+  ClientSettingService
+} from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import { useTranslation } from 'react-i18next'
 import '../themes/base.css'
 import '../themes/components.css'
@@ -84,10 +88,15 @@ const AppPage = () => {
 const TailwindPage = () => {
   const notistackRef = useRef<SnackbarProvider>()
   const notificationstate = useHookstate(getMutableState(NotificationState))
+  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
 
   useEffect(() => {
     notificationstate.snackbar.set(notistackRef.current)
   }, [notistackRef.current])
+
+  useEffect(() => {
+    if (clientSettingState?.updateNeeded?.value) ClientSettingService.fetchClientSettings()
+  }, [clientSettingState?.updateNeeded?.value])
 
   return (
     <>
