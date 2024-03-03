@@ -40,8 +40,8 @@ import config from '@etherealengine/common/src/config'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import {
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
+  getOptionalMutableComponent,
   hasComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
@@ -325,7 +325,8 @@ const execute = () => {
   //update local client entity's dithering component and camera attached logic
   const localClientEntity = Engine.instance.localClientEntity
   if (!localClientEntity) return
-  const ditheringComponent = getMutableComponent(localClientEntity, TransparencyDitheringComponent)
+  const ditheringComponent = getOptionalMutableComponent(localClientEntity, TransparencyDitheringComponent)
+  if (!ditheringComponent) return
   const cameraAttached = getState(XRControlsState).isCameraAttachedToAvatar
   cameraAttached
     ? ditheringCenter.copy(

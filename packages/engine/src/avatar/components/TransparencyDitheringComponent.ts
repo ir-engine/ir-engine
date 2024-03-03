@@ -116,7 +116,7 @@ const injectDitheringLogic = (
         )
 
       shader.fragmentShader = shader.fragmentShader.replace(/#include <alphatest_fragment>/, ditheringAlphatestChunk)
-      shader.uniforms.ditheringPosition = {
+      shader.uniforms.ditheringCenter = {
         value: center
       }
       shader.uniforms.ditheringDistance = { value: ditheringDistance }
