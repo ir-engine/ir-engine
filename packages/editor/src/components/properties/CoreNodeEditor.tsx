@@ -27,7 +27,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
-  getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -39,7 +39,7 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { Entity } from '@etherealengine/ecs'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import LockIcon from '@mui/icons-material/Lock'
 import UnlockIcon from '@mui/icons-material/LockOpen'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -126,7 +126,7 @@ export const CoreNodeEditor = (props: { entity: Entity }) => {
       </div>
       <div style={nameInputGroupContainerStyle}>
         <NameInputGroup entity={props.entity} />
-        {getComponent(props.entity, SceneComponent) === editorState.sceneID.value ? (
+        {!getOptionalComponent(props.entity, EntityTreeComponent)?.parentEntity ? (
           <>
             <PropertiesPanelButton onClick={exportAsGLTF}>Export as GLTF</PropertiesPanelButton>
           </>
