@@ -241,7 +241,8 @@ function ModelReactor(): JSX.Element {
           SceneAssetPendingTagComponent.removeResource(entity, src)
         })
 
-    if ((asset as GLTF).animations.length) scene.animations = (asset as GLTF).animations
+    const gltf = asset as GLTF
+    if (gltf.animations?.length) scene.animations = gltf.animations
     if (scene.animations?.length) {
       setComponent(entity, AnimationComponent, {
         mixer: new AnimationMixer(scene),
