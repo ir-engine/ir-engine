@@ -175,7 +175,7 @@ const ensurePushStatus = async (context: HookContext<ProjectService>) => {
     )
     context.projectPushIds = context.projectPushIds.concat(pushableAllowedProjects.map((project) => project.id))
 
-    if (githubIdentityProvider) {
+    if (githubIdentityProvider.data.length > 0) {
       const repositoryPaths: string[] = []
       repoAccess.forEach((item) => {
         if (item.hasWriteAccess) {
@@ -202,7 +202,7 @@ const ensurePushStatus = async (context: HookContext<ProjectService>) => {
       context.projectPushIds = context.projectPushIds.concat(matchingAllowedRepos.map((repo) => repo.id))
     }
 
-    if (!(await checkScope(context.params.user!, 'projects', 'read')))
+    if (!(await checkScope(context.params.user!, 'admin', 'admin')))
       context.params.query.id = { $in: [...new Set(allowedProjects.map((project) => project.id))] }
   }
 }

@@ -85,7 +85,8 @@ export const EditorPage = () => {
 
   if (!projectState.projects.value.length) return <LoadingCircle message={t('common:loader.loadingEditor')} />
 
-  if (!sceneID.value && !projectName.value) return <ProjectPage />
+  if ((!sceneID.value && !projectName.value) || !projectState.projects.value.find((p) => p.name === projectName.value))
+    return <ProjectPage />
 
   return <EditorContainer />
 }

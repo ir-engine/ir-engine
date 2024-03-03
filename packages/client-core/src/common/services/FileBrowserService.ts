@@ -67,7 +67,7 @@ export const FileBrowserService = {
       fileBrowserState.merge({
         files: files.data,
         skip: files.skip,
-        total: files.total,
+        total: files.data.length,
         retrieving: false,
         fetched: true,
         lastFetched: Date.now()
