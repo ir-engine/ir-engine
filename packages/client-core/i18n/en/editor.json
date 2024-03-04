@@ -289,6 +289,15 @@
       "lbl-pause": "Pause",
       "error-url": "Error Loading From URL"
     },
+    "audioAnalysis": {
+      "name": "Audio Analysis",
+      "lbl-bassEnabled": "Bass Enabled",
+      "lbl-trebleEnabled": "Treble Enabled",
+      "lbl-midEnabled": "Mid Enabled",
+      "lbl-bassMultiplier": "Bass Multiplier",
+      "lbl-trebleMultiplier": "Treble Multiplier",
+      "lbl-midMultiplier": "Mid Multiplier"
+    },
     "collider": {
       "name": "Collider",
       "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
