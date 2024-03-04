@@ -35,17 +35,16 @@ import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { useEffect } from 'react'
-import { Color, Mesh, MeshStandardMaterial, SphereGeometry } from 'three'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
 import { AudioNodeGroups, MediaComponent, MediaElementComponent } from './MediaComponent'
 
 export const AudioAnalysisComponent = defineComponent({
-  name: 'EE_audioAnalyzer',
+  name: 'EE_audio_analyzer',
   jsonID: 'audio-analyzer',
 
   onInit: (entity) => {
     return {
-      src: '',
+      src: '' as string,
       dataArray: null as Uint8Array | null,
       analyser: null as AnalyserNode | null,
       bassEnabled: true as boolean,
@@ -59,28 +58,28 @@ export const AudioAnalysisComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (json.src && component.src.value !== json.src) {
+    if (typeof json.src === 'string' && component.src.value !== json.src) {
       component.src.set(json.src)
     }
     if (json.dataArray && component.dataArray.value !== json.dataArray) {
       component.dataArray.set(json.dataArray)
     }
-    if (json.bassEnabled) {
+    if (typeof json.bassEnabled === 'boolean' && component.bassEnabled.value !== json.bassEnabled) {
       component.bassEnabled.set(json.bassEnabled)
     }
-    if (json.midEnabled) {
+    if (typeof json.midEnabled === 'boolean' && component.midEnabled.value !== json.midEnabled) {
       component.midEnabled.set(json.midEnabled)
     }
-    if (json.trebleEnabled) {
+    if (typeof json.trebleEnabled === 'boolean' && component.trebleEnabled.value !== json.trebleEnabled) {
       component.trebleEnabled.set(json.trebleEnabled)
     }
-    if (json.bassMultiplier) {
+    if (typeof json.bassMultiplier === 'number' && component.bassMultiplier.value !== json.bassMultiplier) {
       component.bassMultiplier.set(json.bassMultiplier)
     }
-    if (json.midMultiplier) {
+    if (typeof json.midMultiplier === 'number' && component.midMultiplier.value !== json.midMultiplier) {
       component.midMultiplier.set(json.midMultiplier)
     }
-    if (json.trebleMultiplier) {
+    if (typeof json.trebleMultiplier === 'number' && component.trebleMultiplier.value !== json.trebleMultiplier) {
       component.trebleMultiplier.set(json.trebleMultiplier)
     }
   },
@@ -108,8 +107,6 @@ export const AudioAnalysisComponent = defineComponent({
       setComponent(entity, VisibleComponent)
       setComponent(entity, NameComponent, 'AudioAnalysis')
       setComponent(entity, TransformComponent)
-      const listenerMesh = new Mesh(new SphereGeometry(), new MeshStandardMaterial())
-      listenerMesh.material.color = new Color(0xffffff)
     }, [])
 
     useEffect(() => {

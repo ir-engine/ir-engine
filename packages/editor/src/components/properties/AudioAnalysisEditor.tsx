@@ -41,7 +41,7 @@ export const AudioAnalysisEditor: EditorComponentType = (props) => {
       <InputGroup name="Bass" label={t('editor:properties.audioAnalysis.lbl-bassEnabled')}>
         <BooleanInput
           value={audioAnalysisComponent.bassEnabled.value}
-          onChange={updateProperty(AudioAnalysisComponent, 'bassEnabled')}
+          onChange={commitProperty(AudioAnalysisComponent, 'bassEnabled')}
         />
       </InputGroup>
       <InputGroup name="Bass Multiplier" label={t('editor:properties.audioAnalysis.lbl-bassMultiplier')}>
@@ -59,7 +59,7 @@ export const AudioAnalysisEditor: EditorComponentType = (props) => {
       <InputGroup name="Mid Enabled" label={t('editor:properties.audioAnalysis.lbl-midEnabled')}>
         <BooleanInput
           value={audioAnalysisComponent.midEnabled.value}
-          onChange={updateProperty(AudioAnalysisComponent, 'midEnabled')}
+          onChange={commitProperty(AudioAnalysisComponent, 'midEnabled')}
         />
       </InputGroup>
       <InputGroup name="Mid Multiplier" label={t('editor:properties.audioAnalysis.lbl-midMultiplier')}>
@@ -77,7 +77,7 @@ export const AudioAnalysisEditor: EditorComponentType = (props) => {
       <InputGroup name="Treble Enabled" label={t('editor:properties.audioAnalysis.lbl-trebleEnabled')}>
         <BooleanInput
           value={audioAnalysisComponent.trebleEnabled.value}
-          onChange={updateProperty(AudioAnalysisComponent, 'trebleEnabled')}
+          onChange={commitProperty(AudioAnalysisComponent, 'trebleEnabled')}
         />
       </InputGroup>
       <InputGroup name="Treble Multiplier" label={t('editor:properties.audioAnalysis.lbl-trebleMultiplier')}>
