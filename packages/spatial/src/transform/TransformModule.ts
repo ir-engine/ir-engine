@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { SpawnPoseState } from './SpawnPoseState'
 import { TransformSystem } from './systems/TransformSystem'
 
-export { TransformSystem }
+export { SpawnPoseState, TransformSystem }

@@ -31,7 +31,6 @@ import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { NetworkState } from '../NetworkState'
 import { Network } from '../classes/Network'
-import { WorldNetworkAction } from './WorldNetworkAction'
 
 function createPeer(network: Network, peerID: PeerID, peerIndex: number, userID: UserID, userIndex: number) {
   const networkState = getMutableState(NetworkState).networks[network.id]
@@ -90,9 +89,7 @@ const destroyAllPeers = (network: Network) => {
 function getCachedActionsForPeer(toPeerID: PeerID) {
   // send all cached and outgoing actions to joining user
   const cachedActions = [] as Required<Action>[]
-  for (const action of Engine.instance.store.actions.cached as Array<
-    ReturnType<typeof WorldNetworkAction.spawnObject>
-  >) {
+  for (const action of Engine.instance.store.actions.cached) {
     if (action.$peer === toPeerID) continue
     if (action.$to === 'all' || action.$to === toPeerID) cachedActions.push({ ...action, $stack: undefined! })
   }

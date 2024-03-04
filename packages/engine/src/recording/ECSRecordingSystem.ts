@@ -723,7 +723,7 @@ const playbackStopped = (userId: UserID, recordingID: RecordingID, network?: Net
 
   for (const entityUUID of activePlayback.entitiesSpawned) {
     dispatchAction(
-      WorldNetworkAction.destroyObject({
+      WorldNetworkAction.destroyEntity({
         entityUUID: entityUUID as EntityUUID
       })
     )

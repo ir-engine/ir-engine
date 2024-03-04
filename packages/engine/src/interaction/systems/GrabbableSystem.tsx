@@ -113,7 +113,7 @@ export const GrabbableState = defineState({
         })
       else state[action.entityUUID].set(none)
     }),
-    onDestroyObject: WorldNetworkAction.destroyObject.receive((action) => {
+    onDestroyObject: WorldNetworkAction.destroyEntity.receive((action) => {
       const state = getMutableState(GrabbableState)
       state[action.entityUUID].set(none)
     })

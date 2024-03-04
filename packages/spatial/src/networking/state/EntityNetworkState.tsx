@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Quaternion, Vector3 } from 'three'
-
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
@@ -36,7 +34,6 @@ import { Engine, getOptionalComponent, removeEntity, setComponent } from '@ether
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import React, { useEffect, useLayoutEffect } from 'react'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkState, SceneUser } from '../NetworkState'
 import { NetworkWorldUserState } from '../NetworkUserState'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
@@ -52,21 +49,17 @@ export const EntityNetworkState = defineState({
       networkId: NetworkId
       authorityPeerId: PeerID
       requestingPeerId?: PeerID
-      spawnPosition: Vector3
-      spawnRotation: Quaternion
     }
   >,
 
   receptors: {
-    onSpawnObject: WorldNetworkAction.spawnObject.receive((action) => {
+    onSpawnObject: WorldNetworkAction.spawnEntity.receive((action) => {
       // const userId = getState(NetworkState).networks[action.$network].peers[action.$peer].userId
       getMutableState(EntityNetworkState)[action.entityUUID].merge({
         ownerId: action.$from,
         networkId: action.networkId,
         authorityPeerId: action.authorityPeerId ?? action.$peer,
-        ownerPeer: action.$peer,
-        spawnPosition: action.position ? new Vector3().copy(action.position) : new Vector3(),
-        spawnRotation: action.rotation ? new Quaternion().copy(action.rotation) : new Quaternion()
+        ownerPeer: action.$peer
       })
     }),
 
@@ -85,7 +78,7 @@ export const EntityNetworkState = defineState({
       state[action.entityUUID].requestingPeerId.set(none)
     }),
 
-    onDestroyObject: WorldNetworkAction.destroyObject.receive((action) => {
+    onDestroyObject: WorldNetworkAction.destroyEntity.receive((action) => {
       getMutableState(EntityNetworkState)[action.entityUUID].set(none)
     })
   },
@@ -111,13 +104,7 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
 
   useLayoutEffect(() => {
     if (!userConnected) return
-
     const entity = UUIDComponent.getOrCreateEntityByUUID(props.uuid)
-
-    setComponent(entity, TransformComponent, {
-      position: state.spawnPosition.value!,
-      rotation: state.spawnRotation.value!
-    })
     return () => {
       removeEntity(entity)
     }
@@ -172,7 +159,7 @@ const OwnerPeerReactor = (props: { uuid: EntityUUID }) => {
         const lowestPeer = [...networkState.users[Engine.instance.userID].value].sort((a, b) => (a > b ? 1 : -1))[0]
         if (lowestPeer !== Engine.instance.store.peerID) return
         dispatchAction(
-          WorldNetworkAction.spawnObject({
+          WorldNetworkAction.spawnEntity({
             entityUUID: props.uuid,
             // if the authority peer is not connected, we need to take authority
             authorityPeerId: networkState.users[Engine.instance.userID].value.includes(ownerPeer)

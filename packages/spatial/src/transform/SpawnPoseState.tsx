@@ -23,57 +23,61 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
-import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
-import React, { useLayoutEffect } from 'react'
-import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
-import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 
-export const AvatarIKTargetState = defineState({
-  name: 'ee.engine.avatar.AvatarIKTargetState',
+import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+
+import { setComponent } from '@etherealengine/ecs'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import React, { useLayoutEffect } from 'react'
+import { TransformComponent } from '../SpatialModule'
+import { SpawnObjectActions } from './SpawnObjectActions'
+
+export const SpawnPoseState = defineState({
+  name: 'ee.SpawnPoseState',
 
   initial: {} as Record<
     EntityUUID,
     {
-      name: string
+      spawnPosition: Vector3
+      spawnRotation: Quaternion
     }
   >,
 
   receptors: {
-    onSpawn: AvatarNetworkAction.spawnIKTarget.receive((action) => {
-      getMutableState(AvatarIKTargetState)[action.entityUUID].merge({ name: action.name })
-    }),
-    onDestroyObject: WorldNetworkAction.destroyEntity.receive((action) => {
-      getMutableState(AvatarIKTargetState)[action.entityUUID].set(none)
+    onSpawnObject: SpawnObjectActions.spawnObject.receive((action) => {
+      getMutableState(SpawnPoseState)[action.entityUUID].merge({
+        spawnPosition: action.position ? new Vector3().copy(action.position) : new Vector3(),
+        spawnRotation: action.rotation ? new Quaternion().copy(action.rotation) : new Quaternion()
+      })
     })
   },
 
   reactor: () => {
-    const avatarIKTargetState = useHookstate(getMutableState(AvatarIKTargetState))
+    const state = useHookstate(getMutableState(SpawnPoseState))
     return (
       <>
-        {avatarIKTargetState.keys.map((entityUUID: EntityUUID) => (
-          <AvatarReactor key={entityUUID} entityUUID={entityUUID} />
+        {state.keys.map((uuid: EntityUUID) => (
+          <EntityNetworkReactor uuid={uuid} key={uuid} />
         ))}
       </>
     )
   }
 })
 
-const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
-  const state = useHookstate(getMutableState(AvatarIKTargetState)[entityUUID])
-  const entity = UUIDComponent.useEntityByUUID(entityUUID)
+const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
+  const state = useHookstate(getMutableState(SpawnPoseState)[props.uuid])
+  const entity = UUIDComponent.useEntityByUUID(props.uuid)
 
   useLayoutEffect(() => {
     if (!entity) return
-    setComponent(entity, NameComponent, state.name.value)
-    setComponent(entity, AvatarIKTargetComponent)
-  }, [entity])
+    setComponent(entity, TransformComponent, {
+      position: state.spawnPosition.value,
+      rotation: state.spawnRotation.value
+    })
+  }, [entity, state.spawnPosition, state.spawnRotation])
 
   return null
 }

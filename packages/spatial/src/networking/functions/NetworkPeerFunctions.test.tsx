@@ -34,11 +34,11 @@ import { applyIncomingActions, dispatchAction, getMutableState } from '@ethereal
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
+import { SpawnObjectActions } from '../../transform/SpawnObjectActions'
 import { NetworkState } from '../NetworkState'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkPeerFunctions } from './NetworkPeerFunctions'
-import { WorldNetworkAction } from './WorldNetworkAction'
 
 describe('NetworkPeerFunctions', () => {
   beforeEach(() => {
@@ -153,7 +153,7 @@ describe('NetworkPeerFunctions', () => {
       const networkId = 2 as NetworkId
 
       dispatchAction(
-        WorldNetworkAction.spawnObject({
+        SpawnObjectActions.spawnObject({
           $from: userId, // from  user
           networkId: networkId,
           $peer: anotherPeerID,

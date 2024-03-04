@@ -25,30 +25,22 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineAction, matchesWithDefault } from '@etherealengine/hyperflux'
 
-import {
-  matchesEntityUUID,
-  matchesNetworkId,
-  matchesPeerID,
-  matchesQuaternion,
-  matchesVector3
-} from '../../common/functions/MatchesUtils'
+import { matchesEntityUUID, matchesNetworkId, matchesPeerID } from '../../common/functions/MatchesUtils'
 import { NetworkTopics } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
 export class WorldNetworkAction {
-  static spawnObject = defineAction({
-    type: 'ee.engine.world.SPAWN_OBJECT',
+  static spawnEntity = defineAction({
+    type: 'ee.network.SPAWN_ENTITY',
     entityUUID: matchesEntityUUID,
     networkId: matchesWithDefault(matchesNetworkId, () => NetworkObjectComponent.createNetworkId()),
-    position: matchesVector3.optional(),
     authorityPeerId: matchesPeerID.optional(),
-    rotation: matchesQuaternion.optional(),
     $cache: true,
     $topic: NetworkTopics.world
   })
 
-  static destroyObject = defineAction({
-    type: 'ee.engine.world.DESTROY_OBJECT',
+  static destroyEntity = defineAction({
+    type: 'ee.network.DESTROY_ENTITY',
     entityUUID: matchesEntityUUID,
     $cache: true,
     $topic: NetworkTopics.world
@@ -56,7 +48,7 @@ export class WorldNetworkAction {
 
   static requestAuthorityOverObject = defineAction({
     /** @todo embed $to restriction */
-    type: 'ee.engine.world.REQUEST_AUTHORITY_OVER_OBJECT',
+    type: 'ee.engine.world.REQUEST_AUTHORITY_OVER_ENTITY',
     entityUUID: matchesEntityUUID,
     newAuthority: matchesPeerID,
     $topic: NetworkTopics.world
@@ -64,7 +56,7 @@ export class WorldNetworkAction {
 
   static transferAuthorityOfObject = defineAction({
     /** @todo embed $from restriction */
-    type: 'ee.engine.world.TRANSFER_AUTHORITY_OF_OBJECT',
+    type: 'ee.engine.world.TRANSFER_AUTHORITY_OF_ENTITY',
     entityUUID: matchesEntityUUID,
     newAuthority: matchesPeerID,
     $topic: NetworkTopics.world,

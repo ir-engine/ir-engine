@@ -33,8 +33,8 @@ import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
+import { SpawnObjectActions } from '../../transform/SpawnObjectActions'
 import { NetworkTopics } from '../classes/Network'
-import { WorldNetworkAction } from '../functions/WorldNetworkAction'
 
 describe('IncomingActionSystem Unit Tests', async () => {
   beforeEach(() => {
@@ -57,7 +57,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
       ecsState.simulationTime.set(0)
 
       /* mock */
-      const action = WorldNetworkAction.spawnObject({
+      const action = SpawnObjectActions.spawnObject({
         $from: '0' as UserID,
         // incoming action from future
         $time: 2,
@@ -84,7 +84,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
 
     it('should immediately apply incoming action from the past or present', () => {
       /* mock */
-      const action = WorldNetworkAction.spawnObject({
+      const action = SpawnObjectActions.spawnObject({
         $from: '0' as UserID,
         // incoming action from past
         $time: -1,
@@ -106,7 +106,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
   describe('applyAndArchiveIncomingAction', () => {
     it('should cache actions where $cache = true', () => {
       /* mock */
-      const action = WorldNetworkAction.spawnObject({
+      const action = SpawnObjectActions.spawnObject({
         $from: '0' as UserID,
         // incoming action from past
         $time: 0,

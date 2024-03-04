@@ -50,6 +50,7 @@ import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { act, render } from '@testing-library/react'
 import React from 'react'
 import { MathUtils } from 'three'
+import { SpawnObjectActions } from '../../transform/SpawnObjectActions'
 import { NetworkWorldUserStateSystem } from '../NetworkUserState'
 import './EntityNetworkState'
 
@@ -88,7 +89,7 @@ describe('EntityNetworkState', () => {
       const objNetId = 3 as NetworkId
 
       dispatchAction(
-        WorldNetworkAction.spawnObject({
+        SpawnObjectActions.spawnObject({
           $from: NetworkState.worldNetwork.hostId, // from  host
           networkId: objNetId,
           $topic: NetworkTopics.world,
@@ -134,7 +135,7 @@ describe('EntityNetworkState', () => {
       const objNetId = 3 as NetworkId
 
       dispatchAction(
-        WorldNetworkAction.spawnObject({
+        SpawnObjectActions.spawnObject({
           $from: userId, // from  user
           networkId: objNetId,
           $peer: Engine.instance.peerID,
@@ -181,7 +182,7 @@ describe('EntityNetworkState', () => {
       const objNetId = 3 as NetworkId
 
       dispatchAction(
-        WorldNetworkAction.spawnObject({
+        SpawnObjectActions.spawnObject({
           $from: userId2, // from other user
           networkId: objNetId,
           $peer: peerID3,
@@ -221,7 +222,7 @@ describe('EntityNetworkState', () => {
       await act(() => rerender(tag))
 
       dispatchAction(
-        WorldNetworkAction.spawnObject({
+        SpawnObjectActions.spawnObject({
           networkId: 42 as NetworkId,
           $peer: peerID,
           entityUUID: Engine.instance.userID as string as EntityUUID
@@ -261,7 +262,7 @@ describe('EntityNetworkState', () => {
       const objNetId = 3 as NetworkId
 
       dispatchAction(
-        WorldNetworkAction.spawnObject({
+        SpawnObjectActions.spawnObject({
           $from: userId,
           networkId: objNetId,
           $topic: NetworkTopics.world,
@@ -331,7 +332,7 @@ describe('EntityNetworkState', () => {
     const objNetId = 3 as NetworkId
 
     dispatchAction(
-      WorldNetworkAction.spawnObject({
+      SpawnObjectActions.spawnObject({
         $from: hostUserId, // from  host
         networkId: objNetId,
         $topic: NetworkTopics.world,
@@ -402,7 +403,7 @@ describe('EntityNetworkState', () => {
 
     for (let i = 0; i < 10000; i++) {
       dispatchAction(
-        WorldNetworkAction.spawnObject({
+        SpawnObjectActions.spawnObject({
           $from: hostUserId, // from  host
           networkId: objNetId,
           $topic: NetworkTopics.world,
@@ -426,7 +427,7 @@ describe('EntityNetworkState', () => {
     console.log('10000 entities unchanged runner time:', runner1End - reactorEnd)
 
     dispatchAction(
-      WorldNetworkAction.spawnObject({
+      SpawnObjectActions.spawnObject({
         $from: hostUserId, // from  host
         networkId: objNetId,
         $topic: NetworkTopics.world,

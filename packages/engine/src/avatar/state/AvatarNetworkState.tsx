@@ -65,7 +65,7 @@ export const AvatarState = defineState({
     onSetAvatarID: AvatarNetworkAction.setAvatarID.receive((action) => {
       getMutableState(AvatarState)[action.entityUUID].set({ avatarID: action.avatarID })
     }),
-    onDestroyObject: WorldNetworkAction.destroyObject.receive((action) => {
+    onDestroyObject: WorldNetworkAction.destroyEntity.receive((action) => {
       getMutableState(AvatarState)[action.entityUUID].set(none)
     })
   },

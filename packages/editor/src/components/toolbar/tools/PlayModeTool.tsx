@@ -58,7 +58,7 @@ const PlayModeTool = () => {
   const onTogglePlayMode = () => {
     if (Engine.instance.localClientEntity) {
       dispatchAction(
-        WorldNetworkAction.destroyObject({ entityUUID: getComponent(Engine.instance.localClientEntity, UUIDComponent) })
+        WorldNetworkAction.destroyEntity({ entityUUID: getComponent(Engine.instance.localClientEntity, UUIDComponent) })
       )
       const cameraComputed = getComponent(Engine.instance.cameraEntity, ComputedTransformComponent)
       removeEntity(cameraComputed.referenceEntity)
@@ -76,8 +76,7 @@ const PlayModeTool = () => {
       if (avatarDetails)
         spawnLocalAvatarInWorld({
           avatarSpawnPose,
-          avatarID: avatarDetails.id!,
-          name: authState.user.name.value
+          avatarID: avatarDetails.id!
         })
 
       // todo

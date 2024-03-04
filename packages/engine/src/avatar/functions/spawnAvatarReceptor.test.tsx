@@ -33,7 +33,6 @@ import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { SystemDefinitions } from '@etherealengine/ecs'
 import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { EventDispatcher } from '@etherealengine/spatial/src/common/classes/EventDispatcher'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
@@ -114,7 +113,6 @@ describe('spawnAvatarReceptor', () => {
 
     assert(hasComponent(entity, TransformComponent))
     assert(hasComponent(entity, AvatarComponent))
-    assert(hasComponent(entity, NameComponent))
     assert(hasComponent(entity, AvatarAnimationComponent))
     assert(hasComponent(entity, AvatarControllerComponent))
     assert(hasComponent(entity, RigidBodyComponent))

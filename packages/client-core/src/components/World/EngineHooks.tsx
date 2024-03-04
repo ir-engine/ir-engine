@@ -91,8 +91,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
 
     spawnLocalAvatarInWorld({
       avatarSpawnPose,
-      avatarID: user.avatar.id!,
-      name: user.name
+      avatarID: user.avatar.id!
     })
   }, [sceneLoaded.value])
 }
@@ -119,7 +118,7 @@ export const despawnSelfAvatar = () => {
 
   // if we are the last peer in the world for this user, destroy the object
   if (!peersCountForUser || peersCountForUser === 1) {
-    dispatchAction(WorldNetworkAction.destroyObject({ entityUUID: getComponent(clientEntity, UUIDComponent) }))
+    dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID: getComponent(clientEntity, UUIDComponent) }))
   }
 
   /** @todo this logic should be handled by the camera system */
