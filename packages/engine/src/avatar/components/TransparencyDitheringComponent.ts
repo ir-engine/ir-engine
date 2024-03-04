@@ -65,7 +65,7 @@ export const TransparencyDitheringComponent = defineComponent({
     if (!json) return
     if (matches.number.test(json.ditheringDistance)) component.ditheringDistance.set(json.ditheringDistance)
     if (matches.number.test(json.ditheringExponent)) component.ditheringExponent.set(json.ditheringExponent)
-    if (matchesVector3.test(json.center)) component.center.value.copy(json.center)
+    if (matchesVector3.test(json.center)) component.center.set(new Vector3().copy(json.center))
     if (matches.boolean.test(json.useWorldSpace)) component.useWorldSpace.set(json.useWorldSpace)
   },
 
