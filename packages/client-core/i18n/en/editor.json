@@ -31,7 +31,6 @@
     "saveScene": "Save Scene",
     "saveAs": "Save As",
     "importAsset": "Import Asset",
-    "importSettings": "Import Settings",
     "exportGLB": "Export as binary glTF (.glb) ...",
     "importScene": "Import scene",
     "exportScene": "Export scene",
@@ -289,20 +288,10 @@
       "lbl-pause": "Pause",
       "error-url": "Error Loading From URL"
     },
-    "audioAnalysis": {
-      "name": "Audio Analysis",
-      "lbl-bassEnabled": "Bass Enabled",
-      "lbl-trebleEnabled": "Treble Enabled",
-      "lbl-midEnabled": "Mid Enabled",
-      "lbl-bassMultiplier": "Bass Multiplier",
-      "lbl-trebleMultiplier": "Treble Multiplier",
-      "lbl-midMultiplier": "Mid Multiplier"
-    },
     "collider": {
       "name": "Collider",
       "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
       "lbl-isTrigger": "Trigger",
-      "lbl-removeMesh": "Remove Mesh",
       "lbl-shape": "Shape",
       "lbl-type": "Body Type"
     },
@@ -384,7 +373,7 @@
       "error-url": "Error Loading From URL",
       "lbl-loopAnimation": "Loop Animation",
       "lbl-animationSpeed": "Animation Speed",
-      "lbl-convertToVRM": "Convert to VRM",
+      "lbl-convertToVRM": "Use VRM",
       "lbl-isGPUInstancing": "Is Using GPU Instancing",
       "lbl-cameraOcclusion": "Occlude Camera",
       "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
@@ -677,6 +666,15 @@
       "info-mediaConeOuterAngle": "A double value describing the angle, in degrees, of a cone outside of which the volume will be reduced by a constant value, defined by the coneOuterGain attribute.",
       "info-mediaConeOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard."
     },
+    "audioAnalysis": {
+      "name": "Audio Analysis",
+      "lbl-bassEnabled": "Bass Enabled",
+      "lbl-trebleEnabled": "Treble Enabled",
+      "lbl-midEnabled": "Mid Enabled",
+      "lbl-bassMultiplier": "Bass Multiplier",
+      "lbl-trebleMultiplier": "Treble Multiplier",
+      "lbl-midMultiplier": "Mid Multiplier"
+    },
     "renderSettings": {
       "name": "Render Settings",
       "description": "Customise the scene renderer settings",
@@ -690,6 +688,8 @@
       "info-useShadows": "Enables shadows",
       "lbl-csm": "Cascading Shadow Maps",
       "info-csm": "Enables cascading shadow maps.",
+      "lbl-csm-cascades": "Cascades",
+      "info-csm-cascades": "Smaller the size of the scene. More efficient to have less cascades.",
       "lbl-toneMapping": "Tone Mapping",
       "info-toneMapping": "Enables tone mapping on the scene renderer. Has no effect when a post processing is enabled.",
       "lbl-toneMappingExposure": "Tone Mapping Exposure",
@@ -938,7 +938,6 @@
         "video": "Imports a 2D plane that accepts .mp4, .mkv, .avi",
         "variant": "Add model variant for level of detail",
         "audio": "Import audio clips, .mp3, .flac, .ogg, .wav, .m4a",
-        "audio-analyzer": "Analyze audio frequency",
         "image": "Imports an image into the scene",
         "ground-plane": "Create collision ground plane.",
         "group": "Collection of models or assets.",
