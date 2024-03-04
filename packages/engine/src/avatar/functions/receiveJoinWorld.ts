@@ -32,7 +32,7 @@ import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { AvatarID, InviteCode, UserName } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
+import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
 import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
 import { ikTargets } from '../../avatar/animation/Util'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
@@ -74,7 +74,7 @@ export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
   worldState.userNames[Engine.instance.userID].set(name)
   dispatchAction(AvatarNetworkAction.spawn({ ...avatarSpawnPose, avatarID, entityUUID }))
   dispatchAction(
-    WorldNetworkAction.spawnCamera({
+    CameraActions.spawnCamera({
       entityUUID: ('camera_' + entityUUID) as EntityUUID
     })
   )
