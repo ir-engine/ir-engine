@@ -152,7 +152,7 @@ export class FileBrowserService
     }
 
     return {
-      total: total,
+      total,
       limit,
       skip,
       data: result
