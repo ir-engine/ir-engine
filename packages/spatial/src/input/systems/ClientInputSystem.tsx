@@ -45,6 +45,7 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformGizmoTagComponent } from '../../../../editor/src/classes/TransformGizmoControlledComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { NameComponent } from '../../common/NameComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
@@ -403,6 +404,7 @@ const inputSources = defineQuery([InputSourceComponent])
 const inputXRUIs = defineQuery([InputComponent, VisibleComponent, XRUIComponent])
 const inputBoundingBoxes = defineQuery([InputComponent, VisibleComponent, BoundingBoxComponent])
 const inputObjects = defineQuery([InputComponent, VisibleComponent, GroupComponent])
+const gizmoPickerObjects = defineQuery([InputComponent, GroupComponent, VisibleComponent, TransformGizmoTagComponent])
 
 const rayRotation = new Quaternion()
 
@@ -494,20 +496,22 @@ const execute = () => {
     if (!capturedButtons || !capturedAxes) {
       let assignedInputEntity = UndefinedEntity as Entity
       let hitDistance = Infinity
-
       const sourceRotation = TransformComponent.getWorldRotation(sourceEid, quat)
       inputRaycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceRotation)
       TransformComponent.getWorldPosition(sourceEid, inputRaycast.origin).addScaledVector(inputRaycast.direction, -0.01)
       inputRaycast.excludeRigidBody = getOptionalComponent(Engine.instance.localClientEntity, RigidBodyComponent)?.body
       inputRay.set(inputRaycast.origin, inputRaycast.direction)
-
+      const pickerObj = gizmoPickerObjects() // gizmo heuristic
+      const inputObj = inputObjects()
       // only heuristic is scene objects when in the editor
       if (getState(EngineState).isEditor) {
         raycaster.set(inputRaycast.origin, inputRaycast.direction)
-        raycaster.layers.enable(ObjectLayers.TransformGizmo) // needed for input with transform gizmo
-        const objects = inputObjects()
+        const objects = (pickerObj.length > 0 ? pickerObj : inputObj) // gizmo heuristic
           .map((eid) => getComponent(eid, GroupComponent))
           .flat()
+        pickerObj.length > 0
+          ? raycaster.layers.enable(ObjectLayers.TransformGizmo)
+          : raycaster.layers.disable(ObjectLayers.TransformGizmo)
         const hits = raycaster.intersectObjects<Object3D>(objects, true).sort((a, b) => a.distance - b.distance)
         if (hits.length && hits[0].distance < hitDistance) {
           const object = hits[0].object

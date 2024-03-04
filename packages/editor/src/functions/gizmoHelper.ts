@@ -43,7 +43,6 @@ import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { Q_IDENTITY, V_000, V_001, V_010, V_100 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
@@ -90,8 +89,8 @@ const _alignVector = new Vector3(0, 1, 0)
 const _lookAtMatrix = new Matrix4()
 const _dirVector = new Vector3()
 const _tempMatrix = new Matrix4()
-const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-const domElement = EngineRenderer.instance.renderer.domElement
+const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
+//const domElement = EngineRenderer.instance.renderer.domElement
 
 const _v1 = new Vector3()
 const _v2 = new Vector3()

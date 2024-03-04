@@ -36,7 +36,6 @@ import { TransformMode } from '@etherealengine/engine/src/scene/constants/transf
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { useEffect } from 'react'
@@ -54,6 +53,7 @@ import {
   SphereGeometry,
   TorusGeometry
 } from 'three'
+import { TransformGizmoTagComponent } from './TransformGizmoControlledComponent'
 
 export const TransformGizmoVisualComponent = defineComponent({
   name: 'TransformGizmoVisual',
@@ -365,7 +365,8 @@ export const TransformGizmoVisualComponent = defineComponent({
             tempGeometry.applyMatrix4(object.matrix)
             object.geometry = tempGeometry
             object.renderOrder = Infinity
-
+            object.layers.disableAll()
+            object.layers.enable(ObjectLayers.TransformGizmo)
             object.position.set(0, 0, 0)
             object.rotation.set(0, 0, 0)
             object.scale.set(1, 1, 1)
@@ -394,21 +395,25 @@ export const TransformGizmoVisualComponent = defineComponent({
       for (const mode in TransformMode) {
         setComponent(gizmo[mode], NameComponent, `gizmo${mode}Entity`)
         addObjectToGroup(gizmo[mode], gizmoObject[mode])
+        setComponent(gizmo[mode], TransformGizmoTagComponent)
         setComponent(gizmo[mode], VisibleComponent)
-        setObjectLayers(gizmoObject[mode], ObjectLayers.TransformGizmo)
+        //setObjectLayers(gizmoObject[mode], )
+
         visualComponent.gizmo[mode].set(gizmo[mode])
 
         setComponent(helper[mode], NameComponent, `gizmoHelper${mode}Entity`)
         addObjectToGroup(helper[mode], helperObject[mode])
+        setComponent(helper[mode], TransformGizmoTagComponent)
         setComponent(helper[mode], VisibleComponent)
-        setObjectLayers(helperObject[mode], ObjectLayers.TransformGizmo)
+        //setObjectLayers(helperObject[mode], ObjectLayers.TransformGizmo)
         visualComponent.helper[mode].set(helper[mode])
 
         setComponent(picker[mode], NameComponent, `gizmoPicker${mode}Entity`)
         pickerObject[mode].visible = false
         addObjectToGroup(picker[mode], pickerObject[mode])
+        setComponent(picker[mode], TransformGizmoTagComponent)
         setComponent(picker[mode], VisibleComponent)
-        setObjectLayers(pickerObject[mode], ObjectLayers.TransformGizmo)
+        //setObjectLayers(pickerObject[mode], ObjectLayers.TransformGizmo)
         visualComponent.picker[mode].set(picker[mode])
         setComponent(picker[mode], InputComponent)
       }

@@ -52,10 +52,10 @@ import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/component
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { useEffect } from 'react'
-import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry, Quaternion, Vector3 } from 'three'
-import { degToRad } from 'three/src/math/MathUtils'
+import { DoubleSide, MathUtils, Mesh, MeshBasicMaterial, PlaneGeometry, Quaternion, Vector3 } from 'three'
 import { onPointerDown, onPointerHover, onPointerMove, onPointerUp } from '../functions/gizmoHelper'
 import { EditorHelperState } from '../services/EditorHelperState'
+import { TransformGizmoTagComponent } from './TransformGizmoControlledComponent'
 import { TransformGizmoVisualComponent } from './TransformGizmoVisualComponent'
 
 export const TransformGizmoControlComponent = defineComponent({
@@ -185,6 +185,7 @@ export const TransformGizmoControlComponent = defineComponent({
       addObjectToGroup(gizmoControlComponent.planeEntity.value, plane)
       setObjectLayers(plane, ObjectLayers.TransformGizmo)
       setComponent(gizmoControlComponent.planeEntity.value, InputComponent)
+      setComponent(gizmoControlComponent.planeEntity.value, TransformGizmoTagComponent)
 
       return () => {
         /*domElement.removeEventListener('pointerdown', (event) => {
@@ -221,7 +222,7 @@ export const TransformGizmoControlComponent = defineComponent({
           break
         case SnapMode.Grid:
           gizmoControlComponent.translationSnap.set(editorHelperState.translationSnap.value)
-          gizmoControlComponent.rotationSnap.set(degToRad(editorHelperState.rotationSnap.value))
+          gizmoControlComponent.rotationSnap.set(MathUtils.degToRad(editorHelperState.rotationSnap.value))
           gizmoControlComponent.scaleSnap.set(editorHelperState.scaleSnap.value)
           break
       }
@@ -235,7 +236,9 @@ export const TransformGizmoControlComponent = defineComponent({
 
     useEffect(() => {
       gizmoControlComponent.rotationSnap.set(
-        editorHelperState.gridSnap.value === SnapMode.Grid ? degToRad(editorHelperState.rotationSnap.value) : 0
+        editorHelperState.gridSnap.value === SnapMode.Grid
+          ? MathUtils.degToRad(editorHelperState.rotationSnap.value)
+          : 0
       )
     }, [editorHelperState.rotationSnap])
 

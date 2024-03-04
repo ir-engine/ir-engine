@@ -69,6 +69,8 @@ export const TransformGizmoControlledComponent = defineComponent({
       setComponent(pivotEntity, TransformComponent)
       setComponent(pivotEntity, VisibleComponent)
       setComponent(pivotEntity, EntityTreeComponent)
+      setComponent(pivotEntity, TransformGizmoTagComponent)
+
       /*addObjectToGroup(
         pivotEntity,
         new Mesh(new SphereGeometry(1.5, 32, 32), new MeshBasicMaterial({ color: 0xff0000 }))
@@ -89,14 +91,18 @@ export const TransformGizmoControlledComponent = defineComponent({
         visualEntity: gizmoVisualEntity,
         planeEntity: gizmoPlaneEntity
       })
+      setComponent(gizmoControlEntity, TransformGizmoTagComponent)
       setComponent(gizmoControlEntity, VisibleComponent)
+
       transformGizmoControlledComponent.controller.set(gizmoControlEntity)
 
       setComponent(gizmoVisualEntity, NameComponent, 'gizmoVisualEntity')
       setComponent(gizmoVisualEntity, TransformGizmoVisualComponent)
+      setComponent(gizmoVisualEntity, TransformGizmoTagComponent)
       setComponent(gizmoVisualEntity, VisibleComponent)
 
       setComponent(gizmoPlaneEntity, NameComponent, 'gizmoPlaneEntity')
+      setComponent(gizmoPlaneEntity, TransformGizmoTagComponent)
       setComponent(gizmoPlaneEntity, VisibleComponent) // needed for raycasting
 
       return () => {
@@ -171,3 +177,5 @@ export const TransformGizmoControlledComponent = defineComponent({
     return null
   }
 })
+
+export const TransformGizmoTagComponent = defineComponent({ name: 'TransformGizmoTag' })
