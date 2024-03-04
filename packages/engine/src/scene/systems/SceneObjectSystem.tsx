@@ -130,7 +130,7 @@ export function setupObject(obj: Object3D, forceBasicMaterials = false) {
       nuMaterial.reflectivity = prevMaterial.metalness
       nuMaterial.envMap = prevMaterial.envMap
       nuMaterial.vertexColors = prevMaterial.vertexColors
-      nuMaterial.plugins = prevMaterial.plugins
+
       child.material = nuMaterial
       child.userData.lastMaterial = prevMaterial
       prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src, prevMatEntry.parameters)
