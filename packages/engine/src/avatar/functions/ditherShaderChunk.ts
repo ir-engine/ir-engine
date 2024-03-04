@@ -24,11 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 /** glsl */
-export const ditheringVertexUniform = `varying vec3 vWorldPosition;`
+export const ditheringVertexUniform = `
+varying vec3 vWorldPosition;
+uniform bool useWorldSpace;
+`
 
 /** glsl */
 export const ditheringVertex = `
-vWorldPosition = (modelMatrix * vec4( transformed, 1.0 )).xyz;
+vWorldPosition = useWorldSpace ? (modelMatrix * vec4( transformed, 1.0 )).xyz : position.xyz;
 `
 
 /** glsl */

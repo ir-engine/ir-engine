@@ -35,12 +35,11 @@ import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/Mat
 import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { isArray } from 'lodash'
+import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
 import { Material, Vector3 } from 'three'
 import matches from 'ts-matches'
-import { ModelComponent } from '../../scene/components/ModelComponent'
+import { materialFromId } from '../../scene/materials/functions/MaterialLibraryFunctions'
 import {
   ditheringAlphatestChunk,
   ditheringFragUniform,
@@ -52,9 +51,12 @@ export const TransparencyDitheringComponent = defineComponent({
   name: 'TransparencyDitheringComponent',
   onInit: (entity) => {
     return {
-      ditheringDistance: 0.35,
+      ditheringDistance: 0.3,
       ditheringExponent: 5,
-      center: new Vector3()
+      center: new Vector3(),
+      useWorldSpace: true,
+      //internal
+      matIds: [] as string[]
     }
   },
 
@@ -63,25 +65,41 @@ export const TransparencyDitheringComponent = defineComponent({
     if (matches.number.test(json.ditheringDistance)) component.ditheringDistance.set(json.ditheringDistance)
     if (matches.number.test(json.ditheringExponent)) component.ditheringExponent.set(json.ditheringExponent)
     if (matchesVector3.test(json.center)) component.center.value.copy(json.center)
+    if (matches.boolean.test(json.useWorldSpace)) component.useWorldSpace.set(json.useWorldSpace)
   },
 
   reactor: () => {
     const entity = useEntityContext()
-    const modelComponent = useComponent(entity, ModelComponent)
+    const entityComponent = useComponent(entity, EntityTreeComponent)
     const useBasicMaterials = useHookstate(getMutableState(RendererState).forceBasicMaterials)
+    const transparencyDitheringComponent = useComponent(entity, TransparencyDitheringComponent)
     /** Injects dithering logic into avatar materials */
     useEffect(() => {
-      const ditheringComponent = getComponent(entity, TransparencyDitheringComponent)
-      const { ditheringExponent, ditheringDistance, center } = ditheringComponent
+      const { ditheringExponent, ditheringDistance, center, useWorldSpace, matIds } = getComponent(
+        entity,
+        TransparencyDitheringComponent
+      )
+      transparencyDitheringComponent.matIds.set([])
       iterateEntityNode(entity, (node) => {
         const mesh = getOptionalComponent(node, MeshComponent)
         if (!mesh) return
-        const material = mesh.material
-        if (isArray(material))
-          material.forEach((m) => injectDitheringLogic(m, ditheringDistance, ditheringExponent, center))
-        else injectDitheringLogic(material, ditheringDistance, ditheringExponent, center)
+        const material = mesh.material as Material
+        /** Account for meshes sharing the same material */
+        if (!matIds.find((id) => id === material.uuid)) {
+          transparencyDitheringComponent.matIds.set([...matIds, material.uuid])
+          injectDitheringLogic(material, ditheringDistance, ditheringExponent, center, useWorldSpace)
+        }
       })
-    }, [modelComponent.scene, useBasicMaterials])
+    }, [entityComponent.children, useBasicMaterials])
+
+    useEffect(() => {
+      /** Updates the material's shader uniform when the component value is changed */
+      for (const matId of transparencyDitheringComponent.matIds.value) {
+        const materialComponent = materialFromId(matId)
+        materialComponent.material.shader.uniforms.useWorldSpace.value =
+          transparencyDitheringComponent.useWorldSpace.value
+      }
+    }, [transparencyDitheringComponent.useWorldSpace])
     return null
   }
 })
@@ -90,7 +108,8 @@ const injectDitheringLogic = (
   material: Material,
   ditheringDistance: number,
   ditheringExponent: number,
-  center: Vector3
+  center: Vector3,
+  useWorldSpace = true
 ) => {
   material.alphaTest = 0.5
   addOBCPlugin(material, {
@@ -121,6 +140,9 @@ const injectDitheringLogic = (
       }
       shader.uniforms.ditheringDistance = { value: ditheringDistance }
       shader.uniforms.ditheringExponent = { value: ditheringExponent }
+      shader.uniforms.useWorldSpace = { value: useWorldSpace }
+      material.shader = shader
+      console.log(shader)
     }
   })
 }

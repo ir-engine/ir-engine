@@ -109,6 +109,7 @@ const _hint = new Vector3()
 const mat4 = new Matrix4()
 const hipsForward = new Vector3(0, 0, 1)
 const ditheringCenter = new Vector3()
+const eyeOffset = 0.25
 
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(avatarComponentQuery, compareDistanceToCamera)
 
@@ -328,15 +329,16 @@ const execute = () => {
   const ditheringComponent = getOptionalMutableComponent(localClientEntity, TransparencyDitheringComponent)
   if (!ditheringComponent) return
   const cameraAttached = getState(XRControlsState).isCameraAttachedToAvatar
-  cameraAttached
-    ? ditheringCenter.copy(
-        getComponent(localClientEntity, AvatarRigComponent).rawRig.head.node.getWorldPosition(_vector3)
-      )
-    : ditheringCenter.copy(getComponent(Engine.instance.cameraEntity, TransformComponent).position)
+  if (cameraAttached) {
+    ditheringCenter.set(0, getComponent(localClientEntity, AvatarComponent).eyeHeight, 0)
+  } else {
+    ditheringCenter.copy(getComponent(Engine.instance.cameraEntity, TransformComponent).position)
+  }
+  ditheringComponent.useWorldSpace.set(!cameraAttached)
   ditheringComponent.center.set(ditheringCenter)
-  const cameraComponent = getComponent(Engine.instance.cameraEntity, FollowCameraComponent)
+  const cameraComponent = getOptionalComponent(Engine.instance.cameraEntity, FollowCameraComponent)
+  if (!cameraComponent) return
   const hasDecapComponent = hasComponent(localClientEntity, AvatarHeadDecapComponent)
-  const eyeOffset = 0.25
   if (hasDecapComponent) cameraComponent.offset.setZ(Math.min(cameraComponent.offset.z + deltaSeconds, eyeOffset))
   else cameraComponent.offset.setZ(Math.max(cameraComponent.offset.z - deltaSeconds, 0))
 }
