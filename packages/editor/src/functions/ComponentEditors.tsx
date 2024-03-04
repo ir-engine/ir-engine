@@ -79,11 +79,13 @@ import BehaveGraphNodeEditor from '../components/properties/BehaveGraphNodeEdito
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 
+import { AudioAnalysisComponent } from '@etherealengine/engine/src/scene/components/AudioAnalysisComponent'
 import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
+import { AudioAnalysisEditor } from '../components/properties/AudioAnalysisEditor'
 import LinkNodeEditor from '../components/properties/LinkNodeEditor'
 import LoopAnimationNodeEditor from '../components/properties/LoopAnimationNodeEditor'
 import MediaNodeEditor from '../components/properties/MediaNodeEditor'
@@ -121,6 +123,7 @@ export const EntityNodeEditor = new Map<Component, EditorComponentType>()
 EntityNodeEditor.set(SceneSettingsComponent, SceneSettingsEditor)
 EntityNodeEditor.set(PostProcessingComponent, PostProcessingSettingsEditor)
 EntityNodeEditor.set(MediaSettingsComponent, MediaSettingsEditor)
+EntityNodeEditor.set(AudioAnalysisComponent, AudioAnalysisEditor)
 EntityNodeEditor.set(RenderSettingsComponent, RenderSettingsEditor)
 EntityNodeEditor.set(FogSettingsComponent, FogSettingsEditor)
 EntityNodeEditor.set(CameraSettingsComponent, CameraPropertiesNodeEditor)

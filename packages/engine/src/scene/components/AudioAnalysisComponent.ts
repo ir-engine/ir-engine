@@ -40,7 +40,7 @@ import { PositionalAudioComponent } from '../../audio/components/PositionalAudio
 import { AudioNodeGroups, MediaComponent, MediaElementComponent } from './MediaComponent'
 
 export const AudioAnalysisComponent = defineComponent({
-  name: 'Audio Analysis Component',
+  name: 'EE_audioAnalyzer',
   jsonID: 'audio-analyzer',
 
   onInit: (entity) => {
@@ -100,10 +100,8 @@ export const AudioAnalysisComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-
     const audioAnaylsisComponent = useComponent(entity, AudioAnalysisComponent)
     const posAudio = useOptionalComponent(entity, PositionalAudioComponent)
-
     const existingSystem = useComponent(entity, MediaComponent)
 
     useEffect(() => {

@@ -38,7 +38,7 @@ export const AudioAnalysisEditor: EditorComponentType = (props) => {
   const audioAnalysisComponent = useComponent(props.entity, AudioAnalysisComponent)
   return (
     <PropertyGroup name={t('editor:properties.audioAnalysis.name')}>
-      <InputGroup name="Bass" label={t('editor:properties.audioAnalysis.info-bassEnabled')}>
+      <InputGroup name="Bass" label={t('editor:properties.audioAnalysis.lbl-bassEnabled')}>
         <BooleanInput
           value={audioAnalysisComponent.bassEnabled.value}
           onChange={updateProperty(AudioAnalysisComponent, 'bassEnabled')}
