@@ -40,10 +40,7 @@ import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkStat
 
 export const initializeEngineForChat = async () => {
   await loadEngineInjection()
-  getMutableState(SceneState).merge({
-    sceneLoading: false,
-    sceneLoaded: true
-  })
+  getMutableState(SceneState).sceneLoaded.set(true)
 }
 
 export function ChatPage() {

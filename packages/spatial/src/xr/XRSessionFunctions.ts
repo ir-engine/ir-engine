@@ -31,6 +31,7 @@ import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { V_000 } from '../common/constants/MathConstants'
+import { isSafari } from '../common/functions/isMobile'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -77,7 +78,7 @@ export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' |
   const sessionInit = {
     optionalFeatures: [
       'local-floor',
-      'hand-tracking',
+      requestedMode === 'immersive-vr' && isSafari ? undefined : 'hand-tracking',
       'layers',
       isXREAL ? undefined : 'dom-overlay', // dom overlay crashes nreal
       'hit-test',

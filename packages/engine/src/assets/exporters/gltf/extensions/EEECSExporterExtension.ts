@@ -32,7 +32,7 @@ import {
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { Object3D } from 'three'
-import { SceneObjectComponent } from '../../../../scene/components/SceneObjectComponent'
+import { SceneComponent } from '../../../../scene/components/SceneComponent'
 import { GLTFExporterPlugin } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -42,7 +42,7 @@ export class EEECSExporterExtension extends ExporterExtension implements GLTFExp
   writeNode(object: Object3D, nodeDef: { [key: string]: any }) {
     if (!object.entity) return
     const entity = object.entity
-    if (!hasComponent(entity, SceneObjectComponent)) return
+    if (!hasComponent(entity, SceneComponent)) return
     //const gltfLoaded = getComponent(entity, GLTFLoadedComponent)
     const components = getAllComponents(entity)
     if (hasComponent(entity, NameComponent)) {

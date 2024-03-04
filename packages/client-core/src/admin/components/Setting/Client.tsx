@@ -37,6 +37,7 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import InputSelect, { InputMenuItem } from '../../../common/components/InputSelect'
 import { AuthState } from '../../../user/services/AuthService'
 import { AdminClientSettingsState, ClientSettingService } from '../../services/Setting/ClientSettingService'
 import styles from '../../styles/settings.module.scss'
@@ -71,6 +72,9 @@ const Client = () => {
   const homepageLinkButtonRedirect = useHookstate(clientSetting?.homepageLinkButtonRedirect)
   const homepageLinkButtonText = useHookstate(clientSetting?.homepageLinkButtonText)
   const privacyPolicyLink = useHookstate(clientSetting?.privacyPolicy)
+  const mediaSettings = useHookstate(
+    JSON.parse(JSON.stringify(clientSetting?.mediaSettings)) as typeof clientSetting.mediaSettings
+  )
 
   useEffect(() => {
     if (user?.id?.value != null && clientSettingState?.updateNeeded?.value === true) {
@@ -129,6 +133,40 @@ const Client = () => {
     appSocialLinks.set(tempAppSocialLinks)
   }
 
+  const codecMenu: InputMenuItem[] = [
+    {
+      value: 'VP9',
+      label: 'VP9'
+    },
+    {
+      value: 'VP8',
+      label: 'VP8'
+    },
+    {
+      value: 'h264',
+      label: 'h264'
+    }
+  ]
+
+  const videoMaxResolutionMenu: InputMenuItem[] = [
+    {
+      value: 'fhd',
+      label: t('admin:components.setting.videoFHD')
+    },
+    {
+      value: 'hd',
+      label: t('admin:components.setting.videoHD')
+    },
+    {
+      value: 'fwvga',
+      label: t('admin:components.setting.videoFWVGA')
+    },
+    {
+      value: 'nhd',
+      label: t('admin:components.setting.videoNHD')
+    }
+  ]
+
   const handleSubmit = (event) => {
     event.preventDefault()
 
@@ -157,7 +195,8 @@ const Client = () => {
         privacyPolicy: privacyPolicyLink.value,
         homepageLinkButtonEnabled: homepageLinkButtonEnabled.value,
         homepageLinkButtonRedirect: homepageLinkButtonRedirect.value,
-        homepageLinkButtonText: homepageLinkButtonText.value
+        homepageLinkButtonText: homepageLinkButtonText.value,
+        mediaSettings: mediaSettings.value
       },
       id
     )
@@ -395,6 +434,94 @@ const Client = () => {
             value={key8thWall.value || ''}
             onChange={(e) => key8thWall.set(e.target.value)}
           />
+
+          <InputText
+            name="audioBitrate"
+            type="number"
+            label={t('admin:components.setting.audioMaxBitrate')}
+            value={mediaSettings.audio.maxBitrate.value || ''}
+            onChange={(e) => mediaSettings.audio.maxBitrate.set(e.target.value)}
+          />
+
+          <InputSelect
+            name="videoMaxResolution"
+            label={t('admin:components.setting.videoMaxResolution')}
+            value={mediaSettings.video.maxResolution.value}
+            menu={videoMaxResolutionMenu}
+            onChange={(e) => mediaSettings.video.maxResolution.set(e.target.value)}
+          />
+
+          <InputSelect
+            name="Codec"
+            label={t('admin:components.setting.videoCodec')}
+            value={mediaSettings.video.codec.value}
+            menu={codecMenu}
+            onChange={(e) => mediaSettings.video.codec.set(e.target.value)}
+          />
+
+          {(mediaSettings.video.codec.value === 'VP8' || mediaSettings.video.codec.value === 'h264') && (
+            <div>
+              <InputText
+                name="videoLowResBitrate"
+                type="number"
+                label={t('admin:components.setting.videoLowResMaxBitrate')}
+                value={mediaSettings.video.lowResMaxBitrate.value || ''}
+                onChange={(e) => mediaSettings.video.lowResMaxBitrate.set(e.target.value)}
+              />
+
+              <InputText
+                name="videoMidResBitrate"
+                type="number"
+                label={t('admin:components.setting.videoMidResMaxBitrate')}
+                value={mediaSettings.video.midResMaxBitrate.value || ''}
+                onChange={(e) => mediaSettings.video.midResMaxBitrate.set(e.target.value)}
+              />
+
+              <InputText
+                name="videoHighResBitrate"
+                type="number"
+                label={t('admin:components.setting.videoHighResMaxBitrate')}
+                value={mediaSettings.video.highResMaxBitrate.value || ''}
+                onChange={(e) => mediaSettings.video.highResMaxBitrate.set(e.target.value)}
+              />
+            </div>
+          )}
+
+          <InputSelect
+            name="Codec"
+            label={t('admin:components.setting.screenshareCodec')}
+            value={mediaSettings.screenshare.codec.value}
+            menu={codecMenu}
+            onChange={(e) => mediaSettings.screenshare.codec.set(e.target.value)}
+          />
+
+          {(mediaSettings.screenshare.codec.value === 'VP8' || mediaSettings.screenshare.codec.value === 'h264') && (
+            <div>
+              <InputText
+                name="screenshareLowResBitrate"
+                type="number"
+                label={t('admin:components.setting.screenshareLowResMaxBitrate')}
+                value={mediaSettings.screenshare.lowResMaxBitrate.value || ''}
+                onChange={(e) => mediaSettings.screenshare.lowResMaxBitrate.set(e.target.value)}
+              />
+
+              <InputText
+                name="screenshareMidResBitrate"
+                type="number"
+                label={t('admin:components.setting.screenshareMidResMaxBitrate')}
+                value={mediaSettings.screenshare.midResMaxBitrate.value || ''}
+                onChange={(e) => mediaSettings.screenshare.midResMaxBitrate.set(e.target.value)}
+              />
+
+              <InputText
+                name="screenshareHighResBitrate"
+                type="number"
+                label={t('admin:components.setting.screenshareHighResMaxBitrate')}
+                value={mediaSettings.screenshare.highResMaxBitrate.value || ''}
+                onChange={(e) => mediaSettings.screenshare.highResMaxBitrate.set(e.target.value)}
+              />
+            </div>
+          )}
         </Grid>
       </Grid>
       <Button sx={{ maxWidth: '100%' }} className={styles.outlinedButton} onClick={handleCancel}>

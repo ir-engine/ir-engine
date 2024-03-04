@@ -39,6 +39,7 @@ import { getState, useHookstate } from '@etherealengine/hyperflux'
 import React, { useLayoutEffect } from 'react'
 import { Vector3 } from 'three'
 import { traverseEntityNodeParent } from '../../transform/components/EntityTree'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { PhysicsState } from '../state/PhysicsState'
@@ -133,6 +134,7 @@ function ColliderComponentRigidbodyReactor(props: { entity: Entity; rigidbodyEnt
   const rigidbodyComponent = useComponent(props.rigidbodyEntity, RigidBodyComponent)
   const isTrigger = !!useOptionalComponent(props.entity, TriggerComponent)
   const colliderComponent = useComponent(props.entity, ColliderComponent)
+  const transformComponent = useComponent(props.entity, TransformComponent)
 
   useLayoutEffect(() => {
     if (!rigidbodyComponent.body.value) return
@@ -154,7 +156,7 @@ function ColliderComponentRigidbodyReactor(props: { entity: Entity; rigidbodyEnt
       }
       Physics.removeCollider(physicsWorld, collider)
     }
-  }, [rigidbodyComponent.body])
+  }, [rigidbodyComponent.body, transformComponent.scale])
 
   useLayoutEffect(() => {
     if (!colliderComponent.collider.value) return

@@ -32,7 +32,6 @@ import { createEntity } from '@etherealengine/ecs'
 import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { setTargetCameraRotation } from '@etherealengine/spatial/src/camera/functions/CameraFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
@@ -90,8 +89,8 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   setComponent(entity, EnvmapComponent, {
     type: EnvMapSourceType.Bake,
-    envMapIntensity: 0.5,
-    envMapSourceEntityUUID: getComponent(SceneState.getRootEntity(), UUIDComponent)
+    envMapIntensity: 0.5
+    // envMapSourceEntityUUID: getComponent(SceneState.getRootEntity(), UUIDComponent) /** @todo this requires avatars spawning into specific scenes */
   })
 
   setComponent(entity, AvatarComponent)

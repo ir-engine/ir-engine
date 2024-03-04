@@ -23,22 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityJsonType } from '@etherealengine/common/src/schema.type.module'
-import { ComponentJSONIDMap } from '@etherealengine/ecs'
-
-/**
- * If the entity has old components, migrate them to the new format
- * - will destructively lose information if there is a mismatch in the schema
- * @param entityJSON
- */
-export const migrateOldComponents = (entityJSON: EntityJsonType) => {
-  for (const component of entityJSON.components) {
-    if (component.name.startsWith('EE_') || component.name === 'collider') continue
-
-    const oldComponent = ComponentJSONIDMap.has('EE_' + component.name)
-    if (!oldComponent) continue
-
-    console.log('Migrating old component', component.name, 'to EE_' + component.name)
-    component.name = 'EE_' + component.name
+export const defaultMediaSettings = {
+  audio: {
+    maxBitrate: 32
+  },
+  video: {
+    codec: 'VP9',
+    maxResolution: 'hd',
+    lowResMaxBitrate: 500,
+    midResMaxBitrate: 1000,
+    highResMaxBitrate: 10000
+  },
+  screenshare: {
+    codec: 'VP8',
+    maxResolution: 'fhd',
+    lowResMaxBitrate: 500,
+    midResMaxBitrate: 2000,
+    highResMaxBitrate: 10000
   }
 }

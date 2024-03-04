@@ -24,12 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import multiLogger from '@etherealengine/common/src/logger'
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 import {
-  localAudioConstraints,
-  localVideoConstraints
+  VIDEO_CONSTRAINTS,
+  localAudioConstraints
 } from '@etherealengine/spatial/src/networking/constants/VideoConstants'
 
+import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
 import { ProducerExtension } from './SocketWebRTCClientFunctions'
 
 const logger = multiLogger.child({ component: 'client-core:MediaStreams' })
@@ -184,9 +185,14 @@ export const MediaStreamService = {
    */
   async getVideoStream() {
     const state = getMutableState(MediaStreamState)
+    const clientSettingState = getState(AdminClientSettingsState)
     try {
-      logger.info('Getting video stream %o', localVideoConstraints)
-      const videoStream = await navigator.mediaDevices.getUserMedia(localVideoConstraints)
+      const { maxResolution } = clientSettingState.client[0].mediaSettings.video
+      const constraints = {
+        video: VIDEO_CONSTRAINTS[maxResolution] || VIDEO_CONSTRAINTS.hd
+      }
+      const videoStream = await navigator.mediaDevices.getUserMedia(constraints)
+      logger.info('Getting video stream %o', constraints)
       state.videoStream.set(videoStream)
       if (state.camVideoProducer.value && !state.camVideoProducer.value.closed) {
         await state.camVideoProducer.value.replaceTrack({

@@ -44,7 +44,6 @@ import { PortalComponent } from '@etherealengine/engine/src/scene/components/Por
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
-import { SceneTagComponent } from '@etherealengine/engine/src/scene/components/SceneTagComponent'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
@@ -104,7 +103,6 @@ import PrimitiveGeometryNodeEditor from '../components/properties/PrimitiveGeome
 import { RenderSettingsEditor } from '../components/properties/RenderSettingsEditor'
 import RigidBodyComponentEditor from '../components/properties/RigidbodyComponentEditor'
 import SDFEditor from '../components/properties/SDFEditor'
-import SceneNodeEditor from '../components/properties/SceneNodeEditor'
 import ScenePreviewCameraNodeEditor from '../components/properties/ScenePreviewCameraNodeEditor'
 import { SceneSettingsEditor } from '../components/properties/SceneSettingsEditor'
 import ShadowProperties from '../components/properties/ShadowProperties'
@@ -150,7 +148,6 @@ export const ComponentEditorsState = defineState({
       [RigidBodyComponent.name]: RigidBodyComponentEditor,
       [ColliderComponent.name]: ColliderComponentEditor,
       [TriggerComponent.name]: TriggerComponentEditor,
-      [SceneTagComponent.name]: SceneNodeEditor,
       [ScenePreviewCameraComponent.name]: ScenePreviewCameraNodeEditor,
       [SkyboxComponent.name]: SkyboxNodeEditor,
       [SpawnPointComponent.name]: SpawnPointNodeEditor,
