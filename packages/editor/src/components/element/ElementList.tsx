@@ -60,6 +60,7 @@ import { Collapse, List, ListItemButton, ListItemIcon, ListItemText } from '@mui
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
+import { AudioAnalysisComponent } from '@etherealengine/engine/src/scene/components/AudioAnalysisComponent'
 import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
@@ -94,7 +95,14 @@ export const ComponentShelfCategoriesState = defineState({
   name: 'ee.editor.ComponentShelfCategories',
   initial: () => {
     return {
-      Files: [ModelComponent, VolumetricComponent, PositionalAudioComponent, VideoComponent, ImageComponent],
+      Files: [
+        ModelComponent,
+        VolumetricComponent,
+        PositionalAudioComponent,
+        AudioAnalysisComponent,
+        VideoComponent,
+        ImageComponent
+      ],
       'Scene Composition': [
         PrimitiveGeometryComponent,
         GroundPlaneComponent,
