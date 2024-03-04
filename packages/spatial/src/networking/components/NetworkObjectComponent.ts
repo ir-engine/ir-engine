@@ -23,12 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import * as bitecs from 'bitecs'
-
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import {
+import ECS, {
   Component,
   Engine,
   Entity,
@@ -42,6 +40,7 @@ import {
   useComponent,
   useEntityContext
 } from '@etherealengine/ecs'
+import type { ISchema } from 'bitecs'
 import { useLayoutEffect } from 'react'
 
 /** ID of last network created. */
@@ -51,7 +50,7 @@ export const NetworkObjectComponent = defineComponent({
   name: 'NetworkObjectComponent',
 
   schema: {
-    networkId: bitecs.Types.ui32
+    networkId: ECS.Types.ui32
   },
 
   onInit: (entity) => {
@@ -130,7 +129,7 @@ export const NetworkObjectComponent = defineComponent({
    * @param component
    * @returns
    */
-  getOwnedNetworkObjectWithComponent<T, S extends bitecs.ISchema>(userId: UserID, component: Component<T, S>) {
+  getOwnedNetworkObjectWithComponent<T, S extends ISchema>(userId: UserID, component: Component<T, S>) {
     return (
       NetworkObjectComponent.getOwnedNetworkObjects(userId).find((eid) => {
         return hasComponent(eid, component)
@@ -144,7 +143,7 @@ export const NetworkObjectComponent = defineComponent({
    * @param component
    * @returns
    */
-  getOwnedNetworkObjectsWithComponent<T, S extends bitecs.ISchema>(userId: UserID, component: Component<T, S>) {
+  getOwnedNetworkObjectsWithComponent<T, S extends ISchema>(userId: UserID, component: Component<T, S>) {
     return NetworkObjectComponent.getOwnedNetworkObjects(userId).filter((eid) => {
       return hasComponent(eid, component)
     })

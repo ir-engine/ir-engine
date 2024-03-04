@@ -40,7 +40,6 @@ import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 import checkPositionIsValid from '@etherealengine/spatial/src/common/functions/checkPositionIsValid'
 import { NetworkPeerFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkPeerFunctions'
-import { EntityNetworkState } from '@etherealengine/spatial/src/networking/state/EntityNetworkState'
 import { updatePeers } from '@etherealengine/spatial/src/networking/systems/OutgoingActionSystem'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
@@ -60,6 +59,7 @@ import {
 } from '@etherealengine/common/src/schema.type.module'
 import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
+import { SpawnPoseState } from '@etherealengine/spatial'
 import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 import { MediasoupTransportState } from '@etherealengine/spatial/src/networking/systems/MediasoupTransportState'
 import { InstanceServerState } from './InstanceServerState'
@@ -300,7 +300,7 @@ const getUserSpawnFromInvite = async (
         const validSpawnablePosition = checkPositionIsValid(inviterUserObject3d.position, false)
 
         if (validSpawnablePosition) {
-          const spawnPose = getState(EntityNetworkState)[user.id as any as EntityUUID]
+          const spawnPose = getState(SpawnPoseState)[user.id as any as EntityUUID]
           spawnPose.spawnPosition.copy(inviterUserObject3d.position)
           spawnPose.spawnRotation.copy(inviterUserTransform.rotation)
           respawnAvatar(selfAvatarEntity)
