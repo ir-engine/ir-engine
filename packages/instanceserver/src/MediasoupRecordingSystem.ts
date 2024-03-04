@@ -29,7 +29,7 @@ import { useEffect } from 'react'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { localConfig } from '@etherealengine/server-core/src/config'
+import { config } from '@etherealengine/server-core/src/config'
 import serverLogger from '@etherealengine/server-core/src/ServerLogger'
 import {
   NetworkState,
@@ -63,11 +63,11 @@ export const createTransport = async (router: Router, port: number, rtcpPort: nu
     // FFmpeg don't support RTP/RTCP multiplexing ("a=rtcp-mux" in SDP)
     rtcpMux: false,
 
-    listenIp: localConfig.mediasoup.plainTransport.listenIp
+    listenIp: config.mediasoup.plainTransport.listenIp
   })
 
   await transport.connect({
-    ip: localConfig.mediasoup.recording.ip,
+    ip: config.mediasoup.recording.ip,
     port,
     rtcpPort
   })

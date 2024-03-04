@@ -34,9 +34,7 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { SceneState } from '../../src/scene/Scene'
-import { SceneObjectComponent } from '../../src/scene/components/SceneObjectComponent'
-import { SceneTagComponent } from '../../src/scene/components/SceneTagComponent'
-import { SourceComponent } from '../../src/scene/components/SourceComponent'
+import { SceneComponent } from '../../src/scene/components/SceneComponent'
 
 export const loadEmptyScene = () => {
   SceneState.loadScene('test' as SceneID, {
@@ -59,9 +57,7 @@ export const loadEmptyScene = () => {
   setComponent(entity, NameComponent, 'Root')
   setComponent(entity, VisibleComponent, true)
   setComponent(entity, UUIDComponent, 'root' as EntityUUID)
-  setComponent(entity, SceneTagComponent, true)
   setComponent(entity, TransformComponent)
-  setComponent(entity, SceneObjectComponent)
   setComponent(entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
-  setComponent(entity, SourceComponent, 'test' as SceneID)
+  setComponent(entity, SceneComponent, 'test' as SceneID)
 }

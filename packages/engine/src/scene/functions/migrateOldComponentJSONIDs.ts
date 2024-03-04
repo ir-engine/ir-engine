@@ -23,25 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { useTranslation } from 'react-i18next'
+import { SceneJsonType } from '@etherealengine/common/src/schema.type.module'
+import { ComponentJSONIDMap } from '@etherealengine/ecs'
 
-import LanguageIcon from '@mui/icons-material/Language'
+export const migrateOldComponentJSONIDs = (json: SceneJsonType) => {
+  for (const [uuid, entityJson] of Object.entries(json.entities)) {
+    for (const component of entityJson.components) {
+      if (component.name.startsWith('EE_') || component.name === 'collider') continue
 
-import NodeEditor from './NodeEditor'
-import { EditorComponentType } from './Util'
+      const newJsonID = 'EE_' + component.name.replace('-', '_')
 
-export const SceneNodeEditor: EditorComponentType = (props) => {
-  const { t } = useTranslation()
-  return (
-    <NodeEditor
-      {...props}
-      name={t('editor:properties.scene.name')}
-      description={t('editor:properties.scene.description')}
-    />
-  )
+      const newComponent = ComponentJSONIDMap.has(newJsonID)
+      if (!newComponent) continue
+
+      console.log('Migrating old component', component.name, 'to', newJsonID)
+      component.name = newJsonID
+    }
+  }
 }
-
-SceneNodeEditor.iconComponent = LanguageIcon
-
-export default SceneNodeEditor
