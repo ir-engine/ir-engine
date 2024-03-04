@@ -56,6 +56,7 @@ import React, { useLayoutEffect } from 'react'
 import matches, { Validator } from 'ts-matches'
 import { SceneComponent } from './components/SceneComponent'
 import { migrateOldColliders } from './functions/migrateOldColliders'
+import { migrateOldComponentJSONIDs } from './functions/migrateOldComponentJSONIDs'
 import { migrateSceneSettings } from './functions/migrateSceneSettings'
 import { serializeEntity } from './functions/serializeWorld'
 
@@ -85,8 +86,8 @@ export const SceneState = defineState({
   loadScene: (sceneID: SceneID, sceneData: SceneDataType) => {
     const data: SceneJsonType = sceneData.scene
 
+    migrateOldComponentJSONIDs(data)
     migrateSceneSettings(data)
-
     for (const [uuid, entityJson] of Object.entries(data.entities)) {
       migrateOldColliders(entityJson)
     }
