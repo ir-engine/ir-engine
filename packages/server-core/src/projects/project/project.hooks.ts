@@ -202,7 +202,7 @@ const ensurePushStatus = async (context: HookContext<ProjectService>) => {
       context.projectPushIds = context.projectPushIds.concat(matchingAllowedRepos.map((repo) => repo.id))
     }
 
-    if (!(await checkScope(context.params.user!, 'admin', 'admin')))
+    if (!(await checkScope(context.params.user!, 'projects', 'read')))
       context.params.query.id = { $in: [...new Set(allowedProjects.map((project) => project.id))] }
   }
 }
