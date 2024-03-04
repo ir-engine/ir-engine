@@ -23,35 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityJsonType, SceneJsonType } from '@etherealengine/common/src/schema.type.module'
-import { v4 as uuid } from 'uuid'
+import { SceneJsonType } from '@etherealengine/common/src/schema.type.module'
+import { ComponentJSONIDMap } from '@etherealengine/ecs'
 
-// puts the scene settings from the the root entity into a sub entity
-export const migrateSceneSettings = (json: SceneJsonType) => {
-  if (!json.root) return
-  const rootEntity = json.entities[json.root]
-  if (!rootEntity) return
+export const migrateOldComponentJSONIDs = (json: SceneJsonType) => {
+  for (const [uuid, entityJson] of Object.entries(json.entities)) {
+    for (const component of entityJson.components) {
+      if (component.name.startsWith('EE_') || component.name === 'collider') continue
 
-  if (!json.entities[json.root].components.length) return
-  const newEntity = {
-    name: 'Settings',
-    components: JSON.parse(JSON.stringify(rootEntity.components)),
-    parent: json.root,
-    index: 0
-  } as EntityJsonType
+      const newJsonID = 'EE_' + component.name.replace('-', '_')
 
-  // remove all root entity components
-  json.entities[json.root].components = []
+      const newComponent = ComponentJSONIDMap.has(newJsonID)
+      if (!newComponent) continue
 
-  // increment all indexes as our new entity will be at the start
-  for (const entity of Object.values(json.entities)) {
-    if (typeof entity.index === 'number') entity.index = entity.index + 1
-  }
-
-  // force reordering so our new entity can be at the start
-  json.entities = {
-    [json.root]: json.entities[json.root],
-    [uuid()]: newEntity,
-    ...json.entities
+      console.log('Migrating old component', component.name, 'to', newJsonID)
+      component.name = newJsonID
+    }
   }
 }
