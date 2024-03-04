@@ -31,27 +31,27 @@ export const migrateSceneSettings = (json: SceneJsonType) => {
   if (!json.root) return
   const rootEntity = json.entities[json.root]
   if (!rootEntity) return
-  if (json.entities[json.root].components.length) {
-    const newEntity = {
-      name: 'Settings',
-      components: JSON.parse(JSON.stringify(rootEntity.components)),
-      parent: json.root,
-      index: 0
-    } as EntityJsonType
 
-    // remove all root entity components
-    json.entities[json.root].components = []
+  if (!json.entities[json.root].components.length) return
+  const newEntity = {
+    name: 'Settings',
+    components: JSON.parse(JSON.stringify(rootEntity.components)),
+    parent: json.root,
+    index: 0
+  } as EntityJsonType
 
-    // increment all indexes as our new entity will be at the start
-    for (const entity of Object.values(json.entities)) {
-      if (typeof entity.index === 'number') entity.index = entity.index + 1
-    }
+  // remove all root entity components
+  json.entities[json.root].components = []
 
-    // force reordering so our new entity can be at the start
-    json.entities = {
-      [json.root]: json.entities[json.root],
-      [uuid()]: newEntity,
-      ...json.entities
-    }
+  // increment all indexes as our new entity will be at the start
+  for (const entity of Object.values(json.entities)) {
+    if (typeof entity.index === 'number') entity.index = entity.index + 1
+  }
+
+  // force reordering so our new entity can be at the start
+  json.entities = {
+    [json.root]: json.entities[json.root],
+    [uuid()]: newEntity,
+    ...json.entities
   }
 }
