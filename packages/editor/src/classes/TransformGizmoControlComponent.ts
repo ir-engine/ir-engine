@@ -49,7 +49,6 @@ import { InputComponent } from '@etherealengine/spatial/src/input/components/Inp
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { useEffect } from 'react'
 import { DoubleSide, MathUtils, Mesh, MeshBasicMaterial, PlaneGeometry, Quaternion, Vector3 } from 'three'
@@ -171,36 +170,12 @@ export const TransformGizmoControlComponent = defineComponent({
           toneMapped: false
         })
       )
-      // create dummy object to attach gizmo to, we can only attach to three js objects
-      /*domElement.addEventListener('pointerdown', (event) => {
-        onPointerDown(event, gizmoControlEntity)
-      })
-      domElement.addEventListener('pointermove', (event) => {
-        onPointerHover(event, gizmoControlEntity)
-      })
-      domElement.addEventListener('pointerup', (event) => {
-        onPointerUp(event, gizmoControlEntity)
-      })*/
+      plane.layers.disableAll()
+      plane.layers.set(ObjectLayers.TransformGizmo)
 
       addObjectToGroup(gizmoControlComponent.planeEntity.value, plane)
-      setObjectLayers(plane, ObjectLayers.TransformGizmo)
       setComponent(gizmoControlComponent.planeEntity.value, InputComponent)
       setComponent(gizmoControlComponent.planeEntity.value, TransformGizmoTagComponent)
-
-      return () => {
-        /*domElement.removeEventListener('pointerdown', (event) => {
-          onPointerDown(event, gizmoControlEntity)
-        })
-        domElement.removeEventListener('pointerhover', (event) => {
-          onPointerHover(event, gizmoControlEntity)
-        })
-        domElement.removeEventListener('pointermove', (event) => {
-          onPointerMove(event, gizmoControlEntity)
-        })
-        domElement.removeEventListener('pointerup', (event) => {
-          onPointerUp(event, gizmoControlEntity)
-        })*/
-      }
     }, [])
 
     useEffect(() => {

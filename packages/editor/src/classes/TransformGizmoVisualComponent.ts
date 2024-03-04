@@ -397,7 +397,6 @@ export const TransformGizmoVisualComponent = defineComponent({
         addObjectToGroup(gizmo[mode], gizmoObject[mode])
         setComponent(gizmo[mode], TransformGizmoTagComponent)
         setComponent(gizmo[mode], VisibleComponent)
-        //setObjectLayers(gizmoObject[mode], )
 
         visualComponent.gizmo[mode].set(gizmo[mode])
 
@@ -405,7 +404,6 @@ export const TransformGizmoVisualComponent = defineComponent({
         addObjectToGroup(helper[mode], helperObject[mode])
         setComponent(helper[mode], TransformGizmoTagComponent)
         setComponent(helper[mode], VisibleComponent)
-        //setObjectLayers(helperObject[mode], ObjectLayers.TransformGizmo)
         visualComponent.helper[mode].set(helper[mode])
 
         setComponent(picker[mode], NameComponent, `gizmoPicker${mode}Entity`)
@@ -413,7 +411,6 @@ export const TransformGizmoVisualComponent = defineComponent({
         addObjectToGroup(picker[mode], pickerObject[mode])
         setComponent(picker[mode], TransformGizmoTagComponent)
         setComponent(picker[mode], VisibleComponent)
-        //setObjectLayers(pickerObject[mode], ObjectLayers.TransformGizmo)
         visualComponent.picker[mode].set(picker[mode])
         setComponent(picker[mode], InputComponent)
       }
