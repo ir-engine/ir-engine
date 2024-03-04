@@ -27,13 +27,13 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { SpawnPoseState } from '@etherealengine/spatial'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
-import { EntityNetworkState } from '@etherealengine/spatial/src/networking/state/EntityNetworkState'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { teleportAvatar } from './moveAvatar'
 
 export const respawnAvatar = (entity: Entity) => {
-  const { spawnPosition } = getState(EntityNetworkState)[getComponent(entity, UUIDComponent)]
+  const { spawnPosition } = getState(SpawnPoseState)[getComponent(entity, UUIDComponent)]
   const controller = getComponent(entity, AvatarControllerComponent)
   controller.verticalVelocity = 0
   teleportAvatar(entity, spawnPosition)

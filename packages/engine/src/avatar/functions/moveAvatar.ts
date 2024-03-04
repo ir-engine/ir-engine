@@ -38,13 +38,13 @@ import {
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { SpawnPoseState } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { ObjectDirection } from '@etherealengine/spatial/src/common/constants/Axis3D'
 import { V_000, V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import checkPositionIsValid from '@etherealengine/spatial/src/common/functions/checkPositionIsValid'
 import { NetworkObjectAuthorityTag } from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
-import { EntityNetworkState } from '@etherealengine/spatial/src/networking/state/EntityNetworkState'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
@@ -497,7 +497,7 @@ const _slerpBodyTowardsVelocity = (entity: Entity, alpha: number) => {
   let prevVector = prevVectors.get(entity)!
   if (!prevVector) {
     prevVector = new Vector3(0, 0, 1).applyQuaternion(
-      getState(EntityNetworkState)[getComponent(entity, UUIDComponent)].spawnRotation
+      getState(SpawnPoseState)[getComponent(entity, UUIDComponent)].spawnRotation
     )
     prevVectors.set(entity, prevVector)
   }
