@@ -26,12 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import {
   defineComponent,
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
   useComponent,
   useEntityContext
 } from '@etherealengine/ecs'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { PluginObjectType, addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
@@ -40,7 +39,7 @@ import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/
 import { useEffect } from 'react'
 import { Material, Vector3 } from 'three'
 import matches from 'ts-matches'
-import { MaterialLibraryState } from '../../scene/materials/MaterialLibrary'
+import { ModelComponent } from '../../scene/components/ModelComponent'
 import {
   ditheringAlphatestChunk,
   ditheringFragUniform,
@@ -69,51 +68,46 @@ export const TransparencyDitheringComponent = defineComponent({
     if (matches.boolean.test(json.useWorldSpace)) component.useWorldSpace.set(json.useWorldSpace)
   },
 
-  findAndSetupMaterials: (entity) => {
-    const { ditheringExponent, ditheringDistance, center, useWorldSpace, matIds } = getComponent(
-      entity,
-      TransparencyDitheringComponent
-    )
-    const transparencyDitheringComponent = getMutableComponent(entity, TransparencyDitheringComponent)
-    transparencyDitheringComponent.matIds.set([])
-    iterateEntityNode(entity, (node) => {
-      const mesh = getOptionalComponent(node, MeshComponent)
-      if (!mesh) return
-      const material = mesh.material as Material
-      /** Account for meshes sharing the same material */
-      if (!matIds.find((id) => id === material.uuid)) {
-        transparencyDitheringComponent.matIds.set([...matIds, material.uuid])
-        const plugin = material.plugins?.findIndex((plugin: PluginObjectType) => plugin.id === 'transparency-dithering')
-        if (plugin !== undefined && plugin !== -1) material.plugins!.splice(plugin, 1)
-        injectDitheringLogic(material, ditheringDistance, ditheringExponent, center, useWorldSpace)
-      }
-    })
-  },
-
   reactor: () => {
     const entity = useEntityContext()
+    const modelComponent = useComponent(entity, ModelComponent)
     const entityComponent = useComponent(entity, EntityTreeComponent)
     const useBasicMaterials = useHookstate(getMutableState(RendererState).forceBasicMaterials)
     const transparencyDitheringComponent = useComponent(entity, TransparencyDitheringComponent)
     /** Injects dithering logic into avatar materials */
     useEffect(() => {
-      TransparencyDitheringComponent.findAndSetupMaterials(entity)
-    }, [entityComponent.children, useBasicMaterials])
-
-    useEffect(() => {
-      /** Updates the material's shader uniform when the component value is changed */
-      for (const matId of transparencyDitheringComponent.matIds.value) {
-        const materialLibrary = getState(MaterialLibraryState)
-        const materialComponent = materialLibrary.materials[matId]
-        /** Account for materials being replaced */
-        if (!materialComponent) {
-          TransparencyDitheringComponent.findAndSetupMaterials(entity)
-          return
+      const { ditheringExponent, ditheringDistance, center, useWorldSpace, matIds } = getComponent(
+        entity,
+        TransparencyDitheringComponent
+      )
+      transparencyDitheringComponent.matIds.forEach((id) => id.set(none))
+      iterateEntityNode(entity, (node) => {
+        const mesh = getOptionalComponent(node, MeshComponent)
+        if (!mesh) return
+        const material = mesh.material as Material
+        /** Account for meshes sharing the same material */
+        if (!matIds.find((id) => id === material.uuid)) {
+          transparencyDitheringComponent.matIds.set([...matIds, material.uuid])
+          const plugin = material.plugins?.findIndex(
+            (plugin: PluginObjectType) => plugin.id === 'transparency-dithering'
+          )
+          if (plugin !== undefined && plugin !== -1) material.plugins!.splice(plugin, 1)
+          injectDitheringLogic(material, ditheringDistance, ditheringExponent, center, useWorldSpace)
+          if (material.shader.uniforms.useWorldSpace) material.shader.uniforms.useWorldSpace.value = useWorldSpace
+          if (material.shader.uniforms.ditheringDistance)
+            material.shader.uniforms.ditheringDistance.value = ditheringDistance
+          if (material.shader.uniforms.ditheringExponent)
+            material.shader.uniforms.ditheringExponent.value = ditheringExponent
         }
-        materialComponent.material.shader.uniforms.useWorldSpace.value =
-          transparencyDitheringComponent.useWorldSpace.value
-      }
-    }, [transparencyDitheringComponent.useWorldSpace])
+      })
+    }, [
+      modelComponent.scene,
+      entityComponent.children,
+      useBasicMaterials,
+      transparencyDitheringComponent.useWorldSpace,
+      transparencyDitheringComponent.ditheringDistance,
+      transparencyDitheringComponent.ditheringExponent
+    ])
     return null
   }
 })
@@ -123,7 +117,7 @@ const injectDitheringLogic = (
   ditheringDistance: number,
   ditheringExponent: number,
   center: Vector3,
-  useWorldSpace = true
+  useWorldSpace: boolean
 ) => {
   material.alphaTest = 0.5
   addOBCPlugin(material, {

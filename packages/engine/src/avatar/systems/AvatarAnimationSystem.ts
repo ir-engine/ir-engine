@@ -329,13 +329,11 @@ const execute = () => {
   const ditheringComponent = getOptionalMutableComponent(localClientEntity, TransparencyDitheringComponent)
   if (!ditheringComponent) return
   const cameraAttached = getState(XRControlsState).isCameraAttachedToAvatar
-  if (cameraAttached) {
-    ditheringCenter.set(0, getComponent(localClientEntity, AvatarComponent).eyeHeight, 0)
-  } else {
-    ditheringCenter.copy(getComponent(Engine.instance.cameraEntity, TransformComponent).position)
-  }
+  if (cameraAttached) ditheringCenter.set(0, getComponent(localClientEntity, AvatarComponent).eyeHeight, 0)
+  else ditheringCenter.copy(getComponent(Engine.instance.cameraEntity, TransformComponent).position)
   ditheringComponent.useWorldSpace.set(!cameraAttached)
   ditheringComponent.center.set(ditheringCenter)
+  ditheringComponent.ditheringDistance.set(cameraAttached ? 0.3 : 0.45)
   const cameraComponent = getOptionalComponent(Engine.instance.cameraEntity, FollowCameraComponent)
   if (!cameraComponent) return
   const hasDecapComponent = hasComponent(localClientEntity, AvatarHeadDecapComponent)
