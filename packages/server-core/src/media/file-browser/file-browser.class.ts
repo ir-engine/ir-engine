@@ -123,6 +123,7 @@ export class FileBrowserService
     checkDirectoryInsideNesting(directory, params.nestingDirectory)
 
     let result = await storageProvider.listFolderContent(directory)
+    const total = result.length
 
     result = result.slice(skip, skip + limit)
     result.forEach((file) => {
@@ -151,7 +152,7 @@ export class FileBrowserService
     }
 
     return {
-      total: result.length,
+      total: total,
       limit,
       skip,
       data: result
