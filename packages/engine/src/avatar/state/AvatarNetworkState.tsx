@@ -27,11 +27,20 @@ import React, { useEffect, useLayoutEffect } from 'react'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { defineState, dispatchAction, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
-import { AvatarID, AvatarType, avatarPath, userAvatarPath } from '@etherealengine/common/src/schema.type.module'
+import {
+  AvatarID,
+  AvatarType,
+  avatarPath,
+  userAvatarPath,
+  userPath
+} from '@etherealengine/common/src/schema.type.module'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { setComponent } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
 import { Paginated } from '@feathersjs/feathers'
@@ -101,6 +110,7 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   const avatarID = useHookstate(getMutableState(AvatarState)[entityUUID].avatarID)
   const userAvatarDetails = useHookstate(null as string | null)
   const entity = UUIDComponent.useEntityByUUID(entityUUID)
+  const user = useGet(userPath, entityUUID)
 
   useLayoutEffect(() => {
     if (!entity) return
@@ -137,6 +147,12 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
       unloadAvatarForUser(entity)
     }
   }, [userAvatarDetails, entity])
+
+  useEffect(() => {
+    if (!user.data) return
+    const userName = user.data.name
+    setComponent(entity, NameComponent, userName + "'s avatar")
+  }, [user.data?.name])
 
   return null
 }

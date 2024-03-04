@@ -65,7 +65,6 @@ import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-ser
 import { NetworkConnectionParams, NetworkState, addNetwork } from '@etherealengine/spatial/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkPeerFunctions'
-import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
 import { updatePeers } from '@etherealengine/spatial/src/networking/systems/OutgoingActionSystem'
 import './InstanceServerModule'
 import { InstanceServerState } from './InstanceServerState'
@@ -279,8 +278,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
     Engine.instance.store.peerID,
     network.peerIndexCount++,
     hostId,
-    network.userIndexCount++,
-    'server-' + hostId
+    network.userIndexCount++
   )
 
   await loadEngineInjection()
@@ -309,12 +307,8 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
         }, 100)
       })
     }
-    const userUpdatedListener = async (user) => {
-      const worldState = getMutableState(WorldState)
-      if (worldState.userNames[user.id]?.value) worldState.userNames[user.id].set(user.name)
-    }
+
     app.service(scenePath).on('updated', sceneUpdatedListener)
-    app.service(userPath).on('patched', userUpdatedListener)
     await sceneUpdatedListener()
 
     logger.info('Scene loaded!')

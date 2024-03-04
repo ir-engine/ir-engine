@@ -48,15 +48,15 @@ import { applyScreenshareToTexture } from '@etherealengine/engine/src/scene/func
 import { NO_PROXY, State, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { MediaSettingsState } from '@etherealengine/spatial/src/networking/MediaSettingsState'
-import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
-import { UserName } from '@etherealengine/common/src/schema.type.module'
+import { UserName, userPath } from '@etherealengine/common/src/schema.type.module'
 import { useExecute } from '@etherealengine/ecs'
 import { MotionCaptureSystem, timeSeriesMocapData } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 import { VIDEO_CONSTRAINTS } from '@etherealengine/spatial/src/networking/constants/VideoConstants'
 import { drawPoseToCanvas } from '@etherealengine/ui/src/pages/Capture'
@@ -357,11 +357,12 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     _volume.set(value)
   }
 
-  const usernames = useHookstate(getMutableState(WorldState).userNames)
+  const user = useGet(userPath, userId)
+
   const getUsername = () => {
     if (isSelf && !isScreen) return t('user:person.you')
     if (isSelf && isScreen) return t('user:person.yourScreen')
-    const username = userId ? usernames.get(NO_PROXY)[userId] : 'A User'
+    const username = user.data?.name ?? 'A User'
     if (!isSelf && isScreen) return username + "'s Screen"
     return username
   }

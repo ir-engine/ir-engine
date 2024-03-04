@@ -252,14 +252,7 @@ export const useNetwork = (props: { online?: boolean }) => {
     NetworkState.worldNetworkState.connected.set(true)
     NetworkState.worldNetworkState.ready.set(true)
 
-    NetworkPeerFunctions.createPeer(
-      NetworkState.worldNetwork as Network,
-      peerID,
-      peerIndex,
-      userId,
-      userIndex,
-      getState(AuthState).user.name
-    )
+    NetworkPeerFunctions.createPeer(NetworkState.worldNetwork as Network, peerID, peerIndex, userId, userIndex)
 
     const network = NetworkState.worldNetwork as Network
 

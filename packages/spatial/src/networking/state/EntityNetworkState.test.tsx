@@ -79,8 +79,8 @@ describe('EntityNetworkState', () => {
       Engine.instance.userID = userId
       const network = NetworkState.worldNetwork as Network
 
-      NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'host')
-      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
+      NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0)
+      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1)
 
       const { rerender, unmount } = render(tag)
       await act(() => rerender(tag))
@@ -125,8 +125,8 @@ describe('EntityNetworkState', () => {
 
       const network = NetworkState.worldNetwork as Network
 
-      NetworkPeerFunctions.createPeer(network, peerID, 0, hostId, 0, 'host')
-      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
+      NetworkPeerFunctions.createPeer(network, peerID, 0, hostId, 0)
+      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1)
 
       const { rerender, unmount } = render(tag)
       await act(() => rerender(tag))
@@ -171,9 +171,9 @@ describe('EntityNetworkState', () => {
       Engine.instance.userID = userId
       const network = NetworkState.worldNetwork as Network
 
-      NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'world')
-      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
-      NetworkPeerFunctions.createPeer(network, peerID3, 2, userId2, 2, 'second user name')
+      NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0)
+      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1)
+      NetworkPeerFunctions.createPeer(network, peerID3, 2, userId2, 2)
 
       const { rerender, unmount } = render(tag)
       await act(() => rerender(tag))
@@ -215,7 +215,7 @@ describe('EntityNetworkState', () => {
       Engine.instance.userID = userId
       const network = NetworkState.worldNetwork as Network
 
-      NetworkPeerFunctions.createPeer(network, peerID, 1, userId, 1, 'user name')
+      NetworkPeerFunctions.createPeer(network, peerID, 1, userId, 1)
 
       const { rerender, unmount } = render(tag)
       await act(() => rerender(tag))
@@ -251,9 +251,9 @@ describe('EntityNetworkState', () => {
       Engine.instance.userID = userId
       const network = NetworkState.worldNetwork as Network
 
-      NetworkPeerFunctions.createPeer(network, hostPeerId, 0, hostUserId, 0, 'host')
-      NetworkPeerFunctions.createPeer(network, peerID, 0, userId, 1, 'user name')
-      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
+      NetworkPeerFunctions.createPeer(network, hostPeerId, 0, hostUserId, 0)
+      NetworkPeerFunctions.createPeer(network, peerID, 0, userId, 1)
+      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1)
 
       const { rerender, unmount } = render(tag)
       await act(() => rerender(tag))
@@ -321,9 +321,9 @@ describe('EntityNetworkState', () => {
     Engine.instance.userID = userId // user being the action dispatcher
     const network = NetworkState.worldNetwork as Network
 
-    NetworkPeerFunctions.createPeer(network, hostPeerId, 0, hostUserId, 0, 'host')
-    NetworkPeerFunctions.createPeer(network, peerID, 0, userId, 1, 'user name')
-    NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
+    NetworkPeerFunctions.createPeer(network, hostPeerId, 0, hostUserId, 0)
+    NetworkPeerFunctions.createPeer(network, peerID, 0, userId, 1)
+    NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1)
 
     const { rerender, unmount } = render(tag)
     await act(() => rerender(tag))
@@ -389,9 +389,9 @@ describe('EntityNetworkState', () => {
     Engine.instance.userID = userId // user being the action dispatcher
     const network = NetworkState.worldNetwork as Network
 
-    NetworkPeerFunctions.createPeer(network, hostPeerId, 0, hostUserId, 0, 'host')
-    NetworkPeerFunctions.createPeer(network, peerID, 0, userId, 1, 'user name')
-    NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
+    NetworkPeerFunctions.createPeer(network, hostPeerId, 0, hostUserId, 0)
+    NetworkPeerFunctions.createPeer(network, peerID, 0, userId, 1)
+    NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1)
 
     const objNetId = 3 as NetworkId
 

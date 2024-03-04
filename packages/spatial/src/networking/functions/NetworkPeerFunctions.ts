@@ -24,24 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserID, UserName } from '@etherealengine/common/src/schema.type.module'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, none } from '@etherealengine/hyperflux'
 import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { NetworkState } from '../NetworkState'
 import { Network } from '../classes/Network'
-import { WorldState } from '../interfaces/WorldState'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
-function createPeer(
-  network: Network,
-  peerID: PeerID,
-  peerIndex: number,
-  userID: UserID,
-  userIndex: number,
-  name: string
-) {
+function createPeer(network: Network, peerID: PeerID, peerIndex: number, userID: UserID, userIndex: number) {
   const networkState = getMutableState(NetworkState).networks[network.id]
 
   networkState.userIDToUserIndex[userID].set(userIndex)
@@ -63,9 +55,6 @@ function createPeer(
   } else {
     if (!network.users[userID]!.includes(peerID)) networkState.users[userID].merge([peerID])
   }
-
-  const worldState = getMutableState(WorldState)
-  worldState.userNames[userID].set(name as UserName)
 }
 
 function destroyPeer(network: Network, peerID: PeerID) {

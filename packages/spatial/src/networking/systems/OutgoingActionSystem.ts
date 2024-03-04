@@ -24,25 +24,22 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { NetworkActions } from '../NetworkState'
 import { Network } from '../classes/Network'
 import { NetworkActionFunctions } from '../functions/NetworkActionFunctions'
-import { WorldState } from '../interfaces/WorldState'
 
 /** Publish to connected peers that peer information has changed */
 export const updatePeers = (network: Network) => {
-  const userNames = getState(WorldState).userNames
   const peers = Object.values(network.peers).map((peer) => {
     return {
       peerID: peer.peerID,
       peerIndex: peer.peerIndex,
       userID: peer.userId,
-      userIndex: peer.userIndex,
-      name: userNames[peer.userId]
+      userIndex: peer.userIndex
     }
   }) as Array<PeersUpdateType>
   const action = NetworkActions.updatePeers({

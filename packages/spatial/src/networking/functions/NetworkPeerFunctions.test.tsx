@@ -28,7 +28,7 @@ import assert from 'assert'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { InstanceID, UserID, UserName } from '@etherealengine/common/src/schema.type.module'
+import { InstanceID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
@@ -37,7 +37,6 @@ import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { NetworkState } from '../NetworkState'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { WorldState } from '../interfaces/WorldState'
 import { NetworkPeerFunctions } from './NetworkPeerFunctions'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
@@ -58,21 +57,17 @@ describe('NetworkPeerFunctions', () => {
       const peerID = Engine.instance.store.peerID
       Engine.instance.userID = 'another user id' as UserID
 
-      const userName = 'user name' as UserName
       const userIndex = 1
       const peerIndex = 2
       const network = NetworkState.worldNetwork as Network
 
-      NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
-
-      const worldState = getMutableState(WorldState)
+      NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex)
 
       assert(network.peers[peerID])
       assert.equal(network.peers[peerID]?.userId, userId)
       assert.equal(network.peers[peerID]?.userIndex, userIndex)
       assert.equal(network.peers[peerID]?.peerID, peerID)
       assert.equal(network.peers[peerID]?.peerIndex, peerIndex)
-      assert.equal(worldState.userNames[userId]?.value, userName)
       assert.equal(network.userIndexToUserID[userIndex], userId)
       assert.equal(network.userIDToUserIndex[userId], userIndex)
       assert.equal(network.peerIndexToPeerID[peerIndex], peerID)
@@ -84,29 +79,23 @@ describe('NetworkPeerFunctions', () => {
       const peerID = Engine.instance.store.peerID
       Engine.instance.userID = 'another user id' as UserID
 
-      const userName = 'user name' as UserName
-      const userName2 = 'user name 2' as UserName
       const userIndex = 1
       const userIndex2 = 2
       const peerIndex = 3
       const peerIndex2 = 4
       const network = NetworkState.worldNetwork as Network
 
-      const worldState = getMutableState(WorldState)
-
-      NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
+      NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex)
       assert.equal(network.peers[peerID]!.userId, userId)
       assert.equal(network.peers[peerID]!.userIndex, userIndex)
       assert.equal(network.peers[peerID]!.peerID, peerID)
       assert.equal(network.peers[peerID]!.peerIndex, peerIndex)
-      assert.equal(worldState.userNames[userId].value, userName)
 
-      NetworkPeerFunctions.createPeer(network, peerID, peerIndex2, userId, userIndex2, userName2)
+      NetworkPeerFunctions.createPeer(network, peerID, peerIndex2, userId, userIndex2)
       assert.equal(network.peers[peerID]!.userId, userId)
       assert.equal(network.peers[peerID]!.userIndex, userIndex2)
       assert.equal(network.peers[peerID]!.peerID, peerID)
       assert.equal(network.peers[peerID]!.peerIndex, peerIndex2)
-      assert.equal(worldState.userNames[userId].value, userName2)
     })
   })
 
@@ -115,12 +104,11 @@ describe('NetworkPeerFunctions', () => {
       const userId = 'user id' as UserID
       const peerID = 'peer id' as PeerID
       Engine.instance.userID = 'another user id' as UserID
-      const userName = 'user name' as UserName
       const userIndex = 1
       const peerIndex = 2
       const network = NetworkState.worldNetwork as Network
 
-      NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
+      NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex)
       NetworkPeerFunctions.destroyPeer(network, peerID)
 
       assert(!network.peers[peerID])
@@ -136,12 +124,11 @@ describe('NetworkPeerFunctions', () => {
       const peerID = Engine.instance.store.peerID
       Engine.instance.userID = 'another user id' as UserID
 
-      const userName = 'user name' as UserName
       const userIndex = 1
       const peerIndex = 2
       const network = NetworkState.worldNetwork as Network
 
-      NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
+      NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex)
       NetworkPeerFunctions.destroyPeer(network, peerID)
 
       assert(network.peers[peerID])
@@ -156,14 +143,13 @@ describe('NetworkPeerFunctions', () => {
       const userId = 'world' as UserID & InstanceID
       const anotherPeerID = 'another peer id' as PeerID
       Engine.instance.userID = 'another user id' as UserID
-      const userName = 'user name' as UserName
       const userIndex = 1
       const peerIndex = 5
       const network = NetworkState.worldNetwork as Network
       network.hostId = Engine.instance.userID
       getMutableState(NetworkState).hostIds.world.set(userId)
 
-      NetworkPeerFunctions.createPeer(network, anotherPeerID, peerIndex, userId, userIndex, userName)
+      NetworkPeerFunctions.createPeer(network, anotherPeerID, peerIndex, userId, userIndex)
       const networkId = 2 as NetworkId
 
       dispatchAction(

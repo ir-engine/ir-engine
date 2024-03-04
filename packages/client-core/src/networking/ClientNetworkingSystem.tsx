@@ -62,7 +62,7 @@ const execute = () => {
     if (!network) continue
 
     for (const peer of action.peers) {
-      NetworkPeerFunctions.createPeer(network, peer.peerID, peer.peerIndex, peer.userID, peer.userIndex, peer.name)
+      NetworkPeerFunctions.createPeer(network, peer.peerID, peer.peerIndex, peer.userID, peer.userIndex)
     }
     for (const [peerID, peer] of Object.entries(network.peers))
       if (!action.peers.find((p) => p.peerID === peerID)) {

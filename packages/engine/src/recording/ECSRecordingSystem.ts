@@ -635,8 +635,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
                   peerID,
                   network.peerIndexCount++,
                   entityID as any as UserID,
-                  network.userIndexCount++,
-                  user.name + ' (Playback)'
+                  network.userIndexCount++
                 )
                 updatePeers(network)
               }
