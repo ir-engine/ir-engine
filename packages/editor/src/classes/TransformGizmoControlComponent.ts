@@ -23,7 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, UndefinedEntity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
+import {
+  Entity,
+  InputSystemGroup,
+  UndefinedEntity,
+  defineComponent,
+  getComponent,
+  getOptionalComponent,
+  setComponent,
+  useComponent,
+  useEntityContext,
+  useExecute
+} from '@etherealengine/ecs'
 import {
   SnapMode,
   TransformAxisType,
@@ -34,6 +45,8 @@ import {
 } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -43,12 +56,12 @@ import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry, Quaternion, Vector3
 import { degToRad } from 'three/src/math/MathUtils'
 import { onPointerDown, onPointerHover, onPointerMove, onPointerUp } from '../functions/gizmoHelper'
 import { EditorHelperState } from '../services/EditorHelperState'
+import { TransformGizmoVisualComponent } from './TransformGizmoVisualComponent'
 
 export const TransformGizmoControlComponent = defineComponent({
   name: 'TransformGizmoControl',
 
   onInit(entity) {
-    //const control = new TransformControls()
     const control = {
       controlledEntities: [] as Entity[],
       visualEntity: UndefinedEntity,
@@ -106,15 +119,45 @@ export const TransformGizmoControlComponent = defineComponent({
     component.pivotEntity.set(UndefinedEntity)
   },
   reactor: function (props) {
-    const gizmoEntity = useEntityContext()
-    const gizmoControlComponent = useComponent(gizmoEntity, TransformGizmoControlComponent)
+    const gizmoControlEntity = useEntityContext()
+    const gizmoControlComponent = useComponent(gizmoControlEntity, TransformGizmoControlComponent)
 
-    //const gizmoEntity = createEntity()
-    const domElement = EngineRenderer.instance.renderer.domElement
-    domElement.style.touchAction = 'none' // disable touch scroll , hmm the editor window isnt scrollable anyways
+    EngineRenderer.instance.renderer.domElement.style.touchAction = 'none' // disable touch scroll , hmm the editor window isnt scrollable anyways
 
-    //temp variables
     const editorHelperState = useHookstate(getMutableState(EditorHelperState))
+    useExecute(
+      () => {
+        const gizmoControlComponent = getComponent(gizmoControlEntity, TransformGizmoControlComponent)
+        if (!gizmoControlComponent.enabled) return
+        if (!gizmoControlComponent.visualEntity) return
+        if (!gizmoControlComponent.planeEntity) return
+
+        const visualComponent = getComponent(gizmoControlComponent.visualEntity, TransformGizmoVisualComponent)
+        const pickerInputSourceEntity = getComponent(visualComponent.picker[TransformMode.translate], InputComponent)
+          .inputSources[0]
+        const planeInputSourceEntity = getComponent(gizmoControlComponent.planeEntity, InputComponent).inputSources[0]
+        if (pickerInputSourceEntity === undefined && planeInputSourceEntity === undefined) {
+          onPointerUp(gizmoControlEntity)
+          return
+        }
+        onPointerHover(gizmoControlEntity)
+
+        const pickerButtons = getOptionalComponent(pickerInputSourceEntity, InputSourceComponent)?.buttons
+        const planeButtons = getOptionalComponent(planeInputSourceEntity, InputSourceComponent)?.buttons
+
+        if (!pickerButtons && !planeButtons) {
+          onPointerUp(gizmoControlEntity)
+          return
+        }
+
+        if (!pickerButtons?.PrimaryClick?.touched && !planeButtons?.PrimaryClick?.touched) return
+
+        onPointerMove(gizmoControlEntity)
+        if (planeButtons?.PrimaryClick?.up || pickerButtons?.PrimaryClick?.up) onPointerUp(gizmoControlEntity)
+        else if (pickerButtons?.PrimaryClick?.down) onPointerDown(gizmoControlEntity)
+      },
+      { with: InputSystemGroup }
+    )
 
     useEffect(() => {
       const plane = new Mesh(
@@ -128,34 +171,34 @@ export const TransformGizmoControlComponent = defineComponent({
           toneMapped: false
         })
       )
-
       // create dummy object to attach gizmo to, we can only attach to three js objects
-      domElement.addEventListener('pointerdown', (event) => {
-        onPointerDown(event, gizmoEntity)
+      /*domElement.addEventListener('pointerdown', (event) => {
+        onPointerDown(event, gizmoControlEntity)
       })
       domElement.addEventListener('pointermove', (event) => {
-        onPointerHover(event, gizmoEntity)
+        onPointerHover(event, gizmoControlEntity)
       })
       domElement.addEventListener('pointerup', (event) => {
-        onPointerUp(event, gizmoEntity)
-      })
+        onPointerUp(event, gizmoControlEntity)
+      })*/
 
       addObjectToGroup(gizmoControlComponent.planeEntity.value, plane)
       setObjectLayers(plane, ObjectLayers.TransformGizmo)
+      setComponent(gizmoControlComponent.planeEntity.value, InputComponent)
 
       return () => {
-        domElement.removeEventListener('pointerdown', (event) => {
-          onPointerDown(event, gizmoEntity)
+        /*domElement.removeEventListener('pointerdown', (event) => {
+          onPointerDown(event, gizmoControlEntity)
         })
         domElement.removeEventListener('pointerhover', (event) => {
-          onPointerHover(event, gizmoEntity)
+          onPointerHover(event, gizmoControlEntity)
         })
         domElement.removeEventListener('pointermove', (event) => {
-          onPointerMove(event, gizmoEntity)
+          onPointerMove(event, gizmoControlEntity)
         })
         domElement.removeEventListener('pointerup', (event) => {
-          onPointerUp(event, gizmoEntity)
-        })
+          onPointerUp(event, gizmoControlEntity)
+        })*/
       }
     }, [])
 

@@ -89,6 +89,7 @@ export const TransformGizmoControlledComponent = defineComponent({
         visualEntity: gizmoVisualEntity,
         planeEntity: gizmoPlaneEntity
       })
+      setComponent(gizmoControlEntity, VisibleComponent)
       transformGizmoControlledComponent.controller.set(gizmoControlEntity)
 
       setComponent(gizmoVisualEntity, NameComponent, 'gizmoVisualEntity')

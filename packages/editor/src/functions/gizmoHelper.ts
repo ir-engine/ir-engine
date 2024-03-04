@@ -42,6 +42,7 @@ import { NO_PROXY, getMutableState, getState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { Q_IDENTITY, V_000, V_001, V_010, V_100 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
@@ -469,7 +470,8 @@ export function controlUpdate(gizmoEntity: Entity) {
   }
 }
 
-function pointerHover(pointer, gizmoEntity) {
+function pointerHover(gizmoEntity) {
+  const pointer = getState(InputState).pointerState.position
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
   const gizmoVisual = getComponent(gizmoControlComponent.visualEntity.value, TransformGizmoVisualComponent)
   const picker = getComponent(gizmoVisual.picker[gizmoControlComponent.mode.value], GroupComponent)[0]
@@ -490,7 +492,8 @@ function pointerHover(pointer, gizmoEntity) {
   }
 }
 
-function pointerDown(pointer, gizmoEntity) {
+function pointerDown(gizmoEntity) {
+  const pointer = getState(InputState).pointerState
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
   const plane = getComponent(gizmoControlComponent.planeEntity.value, GroupComponent)[0]
   const targetEntity =
@@ -498,10 +501,15 @@ function pointerDown(pointer, gizmoEntity) {
       ? gizmoControlComponent.pivotEntity.value
       : gizmoControlComponent.controlledEntities.get(NO_PROXY)[0]
 
-  if (targetEntity === UndefinedEntity || gizmoControlComponent.dragging.value === true || pointer.button !== 0) return
+  if (
+    targetEntity === UndefinedEntity ||
+    gizmoControlComponent.dragging.value === true ||
+    pointer.movement.length() !== 0
+  )
+    return
 
   if (gizmoControlComponent.axis.value !== null) {
-    _raycaster.setFromCamera(pointer, camera)
+    _raycaster.setFromCamera(pointer.position, camera)
 
     const planeIntersect = intersectObjectWithRay(plane, _raycaster, true)
     if (planeIntersect) {
@@ -739,7 +747,8 @@ function applyPivotRotation(entity, pivotToOriginMatrix, originToPivotMatrix, ro
   return { newPosition: _tempVector, newRotation: _tempQuaternion, newScale: _tempVector2 }
 }
 
-function pointerMove(pointer, gizmoEntity) {
+function pointerMove(gizmoEntity) {
+  const pointer = getState(InputState).pointerState
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
   const targetEntity =
     gizmoControlComponent.controlledEntities.value.length > 1
@@ -763,11 +772,11 @@ function pointerMove(pointer, gizmoEntity) {
     entity === UndefinedEntity ||
     axis === null ||
     gizmoControlComponent.dragging.value === false ||
-    pointer.button !== -1
+    pointer.movement.length() === 0
   )
     return
 
-  _raycaster.setFromCamera(pointer, camera)
+  _raycaster.setFromCamera(pointer.position, camera)
 
   const planeIntersect = intersectObjectWithRay(plane, _raycaster, true)
 
@@ -867,10 +876,11 @@ function pointerMove(pointer, gizmoEntity) {
   }
 }
 
-function pointerUp(pointer, gizmoEntity) {
+function pointerUp(gizmoEntity) {
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
+  const pointer = getState(InputState).pointerState
 
-  if (pointer.button !== 0) return
+  if (pointer.movement.length() !== 0) return
 
   if (gizmoControlComponent.dragging && gizmoControlComponent.axis !== null) {
     //check for snap modes
@@ -884,77 +894,40 @@ function pointerUp(pointer, gizmoEntity) {
   gizmoControlComponent.axis.set(null)
 }
 
-function getPointer(event) {
-  if (domElement.ownerDocument.pointerLockElement) {
-    return {
-      x: 0,
-      y: 0,
-      button: event.button
-    }
-  } else {
-    const rect = domElement.getBoundingClientRect()
-
-    return {
-      x: ((event.clientX - rect.left) / rect.width) * 2 - 1,
-      y: (-(event.clientY - rect.top) / rect.height) * 2 + 1,
-      button: event.button
-    }
-  }
-}
-
-export function onPointerHover(event, gizmoEntity) {
+export function onPointerHover(gizmoEntity) {
   const gizmoControl = getOptionalComponent(gizmoEntity, TransformGizmoControlComponent)
   if (gizmoControl === undefined) return
   if (!gizmoControl.enabled) return
 
-  switch (event.pointerType) {
-    case 'mouse':
-    case 'pen':
-      // eslint-disable-next-line no-case-declarations
-      pointerHover(getPointer(event), gizmoEntity)
-  }
+  pointerHover(gizmoEntity)
 }
 
-export function onPointerDown(event, gizmoEntity) {
+export function onPointerDown(gizmoEntity) {
   const gizmoControl = getOptionalComponent(gizmoEntity, TransformGizmoControlComponent)
   if (gizmoControl === undefined) return
 
   if (!gizmoControl.enabled) return
 
-  if (!document.pointerLockElement) {
-    domElement.setPointerCapture(event.pointerId)
-  }
-
-  domElement.addEventListener('pointermove', (event) => {
-    onPointerMove(event, gizmoEntity)
-  })
-
-  pointerHover(getPointer(event), gizmoEntity)
-  pointerDown(getPointer(event), gizmoEntity)
+  pointerHover(gizmoEntity)
+  pointerDown(gizmoEntity)
 }
 
-export function onPointerMove(event, gizmoEntity) {
+export function onPointerMove(gizmoEntity) {
   const gizmoControl = getOptionalComponent(gizmoEntity, TransformGizmoControlComponent)
   if (gizmoControl === undefined) return
 
   if (!gizmoControl.enabled) return
 
-  pointerMove(getPointer(event), gizmoEntity)
+  pointerMove(gizmoEntity)
 }
 
-export function onPointerUp(event, gizmoEntity) {
+export function onPointerUp(gizmoEntity) {
   const gizmoControl = getOptionalComponent(gizmoEntity, TransformGizmoControlComponent)
   if (gizmoControl === undefined) return
 
   if (!gizmoControl.enabled) return
 
-  domElement.releasePointerCapture(event.pointerId)
-
-  domElement.removeEventListener('pointermove', (event) => {
-    onPointerMove(event, gizmoEntity)
-  })
-
-  pointerUp(getPointer(event), gizmoEntity)
+  pointerUp(gizmoEntity)
 }
 
 export function intersectObjectWithRay(object, raycaster, includeInvisible?) {
