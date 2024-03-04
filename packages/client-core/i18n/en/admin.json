@@ -524,7 +524,8 @@
       "twitter": "Twitter",
       "sms": "SMS",
       "email": "Email",
-      "selectAvatar": "Select an Avatar"
+      "selectAvatar": "Select an Avatar",
+      "selectScopes": "Select Scopes"
     },
     "server": {
       "loading": "Fetching Server Info",

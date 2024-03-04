@@ -126,5 +126,9 @@
     "alreadyAdded": "{{email}} has already been added!",
     "invalidEmail": "{{email}} is not a valid email address!"
   },
-  "exploreRedirect": "Explore Worlds"
+  "exploreRedirect": "Explore Worlds",
+  "select": {
+    "filter": "Filter options",
+    "selectOptions": "Select Options"
+  }
 }

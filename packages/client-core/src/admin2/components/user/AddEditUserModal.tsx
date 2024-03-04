@@ -21,6 +21,7 @@ Ethereal Engine. All Rights Reserved.
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import {
   AvatarID,
+  ScopeType,
   UserData,
   UserName,
   UserType,
@@ -30,10 +31,12 @@ import {
 } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Label from '@etherealengine/ui/src/primitives/tailwind/Label'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
+import MultiSelect from '@etherealengine/ui/src/primitives/tailwind/MultiSelect'
 import Select, { SelectProps } from '@etherealengine/ui/src/primitives/tailwind/Select'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -53,7 +56,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       action: 'admin'
     }
   })
-  const avatarOptions: SelectProps['options'] =
+  const avatarOptions =
     avatarsQuery.status === 'success'
       ? [
           { name: t('admin:components.user.selectAvatar'), value: '', disabled: true },
@@ -66,7 +69,13 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       paginate: false
     }
   })
-  const scopeTypeOptions = scopeTypesQuery.data.map((st) => ({ name: st.type, value: st.type }))
+  const scopeTypeOptions: SelectProps['options'] =
+    scopeTypesQuery.status === 'success'
+      ? [
+          { name: t('admin:components.user.selectScopes'), value: '', disabled: true },
+          ...scopeTypesQuery.data.map((st) => ({ name: st.type, value: st.type }))
+        ]
+      : [{ name: t('common:select.fetching'), value: '', disabled: true }]
 
   if (user) {
     for (const scope of user.scopes || []) {
@@ -116,10 +125,15 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
 
   useEffect(() => {
     if (avatarsQuery.data && user) {
-      console.log()
       avatarId.set(user?.avatarId)
     }
   }, [avatarsQuery.data, user])
+
+  useEffect(() => {
+    if (scopeTypesQuery.data && user) {
+      scopes.set(user.scopes)
+    }
+  }, [scopeTypesQuery.data, user])
 
   return (
     <Modal
@@ -139,6 +153,28 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
           onChange={(event) => name.set(event.target.value)}
           error={errors.name.value}
         />
+        <div className="grid gap-3">
+          <MultiSelect
+            label={t('admin:components.user.selectScopes')}
+            options={scopeTypeOptions}
+            selectedOptions={scopes.value.map((sc) => sc.type)}
+            onChange={(values) => scopes.set(values.map((v) => ({ type: v })))}
+          />
+          <div className="flex gap-2">
+            <Button size="small" variant="outline" onClick={() => scopes.set([])}>
+              {t('admin:components.user.clearAllScopes')}
+            </Button>
+            <Button
+              size="small"
+              className="bg-[#61759f] dark:bg-[#2A3753]"
+              onClick={() =>
+                scopes.set(scopeTypeOptions.filter((st) => !st.disabled).map((st) => ({ type: st.value as ScopeType })))
+              }
+            >
+              {t('admin:components.user.selectAllScopes')}
+            </Button>
+          </div>
+        </div>
         <Select
           label={t('admin:components.user.avatar')}
           currentValue={avatarId}
@@ -149,7 +185,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
         {user?.inviteCode && (
           <Input disabled label={t('admin:components.user.inviteCode')} onChange={() => {}} value={user.inviteCode} />
         )}
-        {user?.id && user.identityProviders.length > 0 ? (
+        {user?.id && user.identityProviders.filter((ip) => ip.type !== 'guest').length > 0 ? (
           <div className="grid gap-2">
             <Label>{t('admin:components.user.linkedAccounts')}</Label>
             <AccountIdentifiers user={user} />
