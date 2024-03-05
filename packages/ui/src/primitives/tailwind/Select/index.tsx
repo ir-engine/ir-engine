@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
 import { useHookstate } from '@etherealengine/hyperflux'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import Input from '../Input'
@@ -39,6 +40,7 @@ export interface SelectProps {
   onChange: (value: any) => void
   placeholder?: string
   disabled?: boolean
+  menuClassname?: string
 }
 
 const Select = ({
@@ -50,9 +52,11 @@ const Select = ({
   options,
   onChange,
   placeholder,
-  disabled
+  disabled,
+  menuClassname
 }: SelectProps) => {
   const twClassName = twMerge('bg-theme-primary relative', className)
+  const ref = useRef<HTMLDivElement>(null)
 
   const selectedOption = useHookstate(currentValue)
   const filteredOptions = useHookstate(options)
@@ -81,6 +85,8 @@ const Select = ({
 
   const selectLabel = useHookstate(options.find((option) => option.value === currentValue)?.name || '')
 
+  useClickOutside(ref, () => showOptions.set(false))
+
   return (
     <div className={twClassName}>
       <Input
@@ -105,25 +111,27 @@ const Select = ({
       />
 
       <div
+        ref={ref}
         className={`border-theme-primary bg-theme-secondary absolute z-10 mt-2 w-full rounded border ${
           showOptions.value ? 'visible' : 'hidden'
         }`}
       >
-        <ul className="hover:[&>li]:bg-theme-primary max-h-[140px] overflow-auto [&>li]:cursor-pointer [&>li]:px-4 [&>li]:py-2 [&>li]:text-gray-500">
+        <ul className={twMerge('max-h-40 overflow-auto [&>li]:px-4 [&>li]:py-2 [&>li]:text-gray-200', menuClassname)}>
           {filteredOptions.value.map((option) => (
             <li
               key={option.value}
               value={option.value}
+              className={twMerge(
+                'text-theme-primary cursor-pointer px-4 py-2',
+                option.disabled ? 'cursor-not-allowed' : 'hover:text-theme-highlight hover:bg-theme-primary'
+              )}
               onClick={() => {
+                if (option.disabled) return
                 selectedOption.set(option.value)
                 showOptions.set(false)
                 onChange?.(option.value)
                 selectLabel.set(option.name)
               }}
-              className={twMerge(
-                'text-theme-primary hover:text-theme-highlight cursor-pointer px-4 py-2',
-                option.disabled && 'cursor-not-allowed'
-              )}
             >
               {option.name}
             </li>

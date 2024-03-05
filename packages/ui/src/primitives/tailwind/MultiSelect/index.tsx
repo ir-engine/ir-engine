@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
 import { useHookstate } from '@etherealengine/hyperflux'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiXCircle } from 'react-icons/hi2'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
@@ -43,6 +44,7 @@ export interface MultiSelectProps {
   selectedOptions: any[]
   onChange: (values: any[]) => void
   placeholder?: string
+  menuClassName?: string
 }
 
 const MultiSelect = ({
@@ -53,10 +55,12 @@ const MultiSelect = ({
   options,
   selectedOptions,
   onChange,
-  placeholder
+  placeholder,
+  menuClassName
 }: MultiSelectProps) => {
   const { t } = useTranslation()
   const twClassName = twMerge('bg-theme-primary relative', className)
+  const ref = useRef<HTMLDivElement>(null)
 
   const showOptions = useHookstate(false)
   const searchInput = useHookstate('')
@@ -80,6 +84,8 @@ const MultiSelect = ({
     filteredOptions.set(newOptions)
   }
 
+  useClickOutside(ref, () => showOptions.set(false))
+
   return (
     <div className={twClassName}>
       <Label>{label}</Label>
@@ -90,7 +96,7 @@ const MultiSelect = ({
         </p>
       )}
       <div
-        className="bg-theme-primary border-theme-primary textshadow-sm text-muted-foreground mt-2 flex min-h-10 w-full flex-auto flex-wrap items-center rounded-lg border px-3.5"
+        className="bg-theme-primary border-theme-primary textshadow-sm mt-2 flex min-h-10 w-full flex-auto flex-wrap items-center rounded-lg border px-3.5"
         onClick={() => showOptions.set((value) => !value)}
       >
         {selectedOptions.length === 0 && (
@@ -121,15 +127,16 @@ const MultiSelect = ({
         className={`border-theme-primary bg-theme-secondary absolute z-[1000] mt-2 w-full rounded border ${
           showOptions.value ? 'visible' : 'hidden'
         }`}
+        ref={ref}
       >
         <Input placeholder={t('common:select.filter')} value={searchInput.value} onChange={handleSearch} />
-        <ul className="hover:[&>li]:bg-theme-primary max-h-[140px] overflow-auto [&>li]:cursor-pointer [&>li]:px-4 [&>li]:py-2 [&>li]:text-gray-500">
+        <ul className={twMerge('max-h-40 overflow-auto [&>li]:px-4 [&>li]:py-2 [&>li]:text-gray-500 ', menuClassName)}>
           {filteredOptions.value.map((option) => (
             <li
               key={option.value}
               className={twMerge(
-                'text-theme-primary hover:text-theme-highlight cursor-pointer px-4 py-2',
-                option.disabled && 'cursor-not-allowed'
+                'text-theme-primary cursor-pointer px-4 py-2',
+                option.disabled ? 'cursor-not-allowed' : 'hover:bg-theme-primary hover:text-theme-highlight'
               )}
               onClick={() => {
                 if (option.disabled) return

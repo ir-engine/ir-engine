@@ -149,6 +149,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
         )}
         <Input
           label={t('admin:components.user.name')}
+          placeholder={t('admin:components.user.namePlaceholder')}
           value={name.value}
           onChange={(event) => name.set(event.target.value)}
           error={errors.name.value}
@@ -159,6 +160,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
             options={scopeTypeOptions}
             selectedOptions={scopes.value.map((sc) => sc.type)}
             onChange={(values) => scopes.set(values.map((v) => ({ type: v })))}
+            menuClassName="min-h-52"
           />
           <div className="flex gap-2">
             <Button size="small" variant="outline" onClick={() => scopes.set([])}>
@@ -181,6 +183,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
           onChange={(value) => avatarId.set(value)}
           options={avatarOptions}
           error={errors.avatarId.value}
+          menuClassname="min-h-52"
         />
         {user?.inviteCode && (
           <Input disabled label={t('admin:components.user.inviteCode')} onChange={() => {}} value={user.inviteCode} />
