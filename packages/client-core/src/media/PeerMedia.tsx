@@ -33,14 +33,14 @@ import {
   screenshareAudioDataChannelType,
   screenshareVideoDataChannelType,
   webcamAudioDataChannelType
-} from '@etherealengine/spatial/src/networking/NetworkState'
+} from '@etherealengine/network'
 
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import {
   MediasoupMediaConsumerActions,
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
-} from '@etherealengine/spatial/src/networking/systems/MediasoupMediaProducerConsumerState'
+} from '@etherealengine/network'
 import { useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../transports/MediaStreams'
 import {

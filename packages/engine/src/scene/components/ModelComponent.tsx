@@ -28,6 +28,7 @@ import { AnimationMixer, BoxGeometry, CapsuleGeometry, CylinderGeometry, Group, 
 
 import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -44,7 +45,6 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { Shape } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'

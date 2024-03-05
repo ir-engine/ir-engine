@@ -23,7 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { AudioAnalysisSystem } from '../audio/systems/AudioAnalysisSystem'
 import { MediaSystem } from '../audio/systems/MediaSystem'
 import { PositionalAudioSystem } from '../audio/systems/PositionalAudioSystem'
 
-export { MediaSystem, PositionalAudioSystem }
+export { MediaSystem, PositionalAudioSystem, AudioAnalysisSystem }

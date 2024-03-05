@@ -39,6 +39,7 @@ cli.main(async () => {
       'packages/engine',
       'packages/hyperflux',
       'packages/matchmaking',
+      'packages/network',
       'packages/projects',
       'packages/server',
       'packages/server-core',

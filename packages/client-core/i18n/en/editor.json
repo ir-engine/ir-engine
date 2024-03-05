@@ -666,6 +666,15 @@
       "info-mediaConeOuterAngle": "A double value describing the angle, in degrees, of a cone outside of which the volume will be reduced by a constant value, defined by the coneOuterGain attribute.",
       "info-mediaConeOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard."
     },
+    "audioAnalysis": {
+      "name": "Audio Analysis",
+      "lbl-bassEnabled": "Bass Enabled",
+      "lbl-trebleEnabled": "Treble Enabled",
+      "lbl-midEnabled": "Mid Enabled",
+      "lbl-bassMultiplier": "Bass Multiplier",
+      "lbl-trebleMultiplier": "Treble Multiplier",
+      "lbl-midMultiplier": "Mid Multiplier"
+    },
     "renderSettings": {
       "name": "Render Settings",
       "description": "Customise the scene renderer settings",
@@ -1059,7 +1068,7 @@
     "scene-assets": {
       "no-category": "No category selected",
       "search-placeholder": "Search for an asset ...",
-      "preview" : "Preview"
+      "preview": "Preview"
     }
   },
   "hierarchy": {

@@ -13,6 +13,7 @@ COPY packages/ecs/package.json ./packages/ecs/
 COPY packages/engine/package.json ./packages/engine/
 COPY packages/hyperflux/package.json ./packages/hyperflux/
 COPY packages/matchmaking/package.json ./packages/matchmaking/
+COPY packages/network/package.json ./packages/network/
 COPY packages/projects/package.json ./packages/projects/
 COPY packages/server-core/package.json ./packages/server-core/
 COPY packages/spatial/package.json ./packages/spatial/
