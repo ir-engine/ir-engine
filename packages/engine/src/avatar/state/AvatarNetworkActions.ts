@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { AvatarID } from '@etherealengine/common/src/schema.type.module'
+import { matchesEntityUUID } from '@etherealengine/ecs'
 import { defineAction } from '@etherealengine/hyperflux'
-import { matchesEntityUUID } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
+import { NetworkTopics } from '@etherealengine/network'
 import { SpawnObjectActions } from '@etherealengine/spatial/src/transform/SpawnObjectActions'
 import matches, { Validator } from 'ts-matches'
 import { matchesIkTarget } from '../animation/Util'

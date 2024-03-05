@@ -34,6 +34,7 @@ import {
   dispatchAction,
   getMutableState,
   getState,
+  matches,
   none,
   useHookstate
 } from '@etherealengine/hyperflux'
@@ -49,24 +50,18 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { Entity, matchesEntityUUID } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { NetworkObjectAuthorityTag, NetworkObjectComponent, NetworkState, NetworkTopics } from '@etherealengine/network'
+import { WorldNetworkAction } from '@etherealengine/network/src/functions/WorldNetworkAction'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
-import { matches, matchesEntityUUID } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
-import { NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
-import {
-  NetworkObjectAuthorityTag,
-  NetworkObjectComponent
-} from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
-import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { BodyTypes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'

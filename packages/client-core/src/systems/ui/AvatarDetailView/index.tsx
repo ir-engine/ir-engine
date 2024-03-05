@@ -34,8 +34,8 @@ import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRU
 import { useXRUIState } from '@etherealengine/spatial/src/xrui/functions/useXRUIState'
 
 import { userPath } from '@etherealengine/common/src/schema.type.module'
+import { NetworkState } from '@etherealengine/network'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 import { AvatarUIState } from '../../state/AvatarUIState'
 import styleString from './index.scss?inline'
 

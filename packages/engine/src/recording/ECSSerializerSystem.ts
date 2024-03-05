@@ -27,9 +27,8 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
-import { checkBitflag } from '@etherealengine/spatial/src/networking/serialization/DataReader'
-import { SerializationSchema } from '@etherealengine/spatial/src/networking/serialization/Utils'
+import { checkBitflag } from '@etherealengine/network/src/serialization/DataReader'
+import { SerializationSchema } from '@etherealengine/network/src/serialization/Utils'
 import {
   ViewCursor,
   createViewCursor,
@@ -39,7 +38,8 @@ import {
   sliceViewCursor,
   spaceUint32,
   spaceUint8
-} from '@etherealengine/spatial/src/networking/serialization/ViewCursor'
+} from '@etherealengine/network/src/serialization/ViewCursor'
+import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 
 export type SerializedChunk = {
   startTimecode: number

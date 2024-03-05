@@ -23,8 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
+import { matches, Validator } from '@etherealengine/hyperflux'
 
 export type Entity = OpaqueType<'entity'> & number
 
 export const UndefinedEntity = 0 as Entity
+
+export const matchesEntity = matches.number as Validator<unknown, Entity>
+export const matchesEntityUUID = matches.string as Validator<unknown, EntityUUID>

@@ -31,14 +31,15 @@ import { State, defineActionQueue, getMutableState, getState, useHookstate } fro
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { NetworkActions, NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
-import { NetworkPeerFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkPeerFunctions'
-import { MediasoupMediaConsumerActions } from '@etherealengine/spatial/src/networking/systems/MediasoupMediaProducerConsumerState'
 import {
+  MediasoupMediaConsumerActions,
   MediasoupTransportActions,
   MediasoupTransportObjectsState,
-  MediasoupTransportState
-} from '@etherealengine/spatial/src/networking/systems/MediasoupTransportState'
+  MediasoupTransportState,
+  NetworkActions,
+  NetworkState
+} from '@etherealengine/network'
+import { NetworkPeerFunctions } from '@etherealengine/network/src/functions/NetworkPeerFunctions'
 import { PeerMediaConsumers } from '../media/PeerMedia'
 import {
   SocketWebRTCClientNetwork,

@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { defineComponent, getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { NetworkObjectComponent } from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
+import { matches } from '@etherealengine/hyperflux'
+import { NetworkObjectComponent } from '@etherealengine/network/src/NetworkObjectComponent'
 
 export const AvatarComponent = defineComponent({
   name: 'AvatarComponent',

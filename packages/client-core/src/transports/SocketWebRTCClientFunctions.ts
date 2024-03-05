@@ -23,22 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import * as mediasoupClient from 'mediasoup-client'
-import {
-  Consumer,
-  DataProducer,
-  DtlsParameters,
-  MediaKind,
-  Transport as MediaSoupTransport,
-  Producer,
-  RtpParameters,
-  SctpStreamParameters
-} from 'mediasoup-client/lib/types'
-import type { EventEmitter } from 'primus'
-import Primus from 'primus-client'
-
 import config from '@etherealengine/common/src/config'
-import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { PUBLIC_STUN_SERVERS } from '@etherealengine/common/src/constants/STUNServers'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import multiLogger from '@etherealengine/common/src/logger'
 import {
@@ -61,45 +47,45 @@ import {
   defineActionQueue,
   removeActionQueue
 } from '@etherealengine/hyperflux/functions/ActionFunctions'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import {
+  DataChannelType,
   MediaStreamAppData,
+  MediasoupDataProducerActions,
+  MediasoupDataProducerConsumerState,
+  MediasoupMediaConsumerActions,
+  MediasoupMediaProducerActions,
+  MediasoupMediaProducerConsumerState,
+  MediasoupMediaProducersConsumersObjectsState,
+  MediasoupTransportActions,
+  MediasoupTransportObjectsState,
+  MediasoupTransportState,
   NetworkConnectionParams,
   NetworkState,
+  NetworkTopics,
+  VideoConstants,
   addNetwork,
+  createNetwork,
   removeNetwork,
   screenshareAudioDataChannelType,
   screenshareVideoDataChannelType,
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
-} from '@etherealengine/spatial/src/networking/NetworkState'
-import { NetworkTopics, createNetwork } from '@etherealengine/spatial/src/networking/classes/Network'
-import { PUBLIC_STUN_SERVERS } from '@etherealengine/spatial/src/networking/constants/STUNServers'
+} from '@etherealengine/network'
+import { NetworkPeerFunctions } from '@etherealengine/network/src/functions/NetworkPeerFunctions'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import * as mediasoupClient from 'mediasoup-client'
 import {
-  CAM_AUDIO_CODEC_OPTIONS,
-  CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
-  CAM_VIDEO_SIMULCAST_ENCODINGS,
-  CAM_VIDEO_SVC_CODEC_OPTIONS,
-  H264_CODEC,
-  VP8_CODEC,
-  VP9_CODEC
-} from '@etherealengine/spatial/src/networking/constants/VideoConstants'
-import { NetworkPeerFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkPeerFunctions'
-import {
-  MediasoupDataProducerActions,
-  MediasoupDataProducerConsumerState
-} from '@etherealengine/spatial/src/networking/systems/MediasoupDataProducerConsumerState'
-import {
-  MediasoupMediaConsumerActions,
-  MediasoupMediaProducerActions,
-  MediasoupMediaProducerConsumerState,
-  MediasoupMediaProducersConsumersObjectsState
-} from '@etherealengine/spatial/src/networking/systems/MediasoupMediaProducerConsumerState'
-import {
-  MediasoupTransportActions,
-  MediasoupTransportObjectsState,
-  MediasoupTransportState
-} from '@etherealengine/spatial/src/networking/systems/MediasoupTransportState'
+  Consumer,
+  DataProducer,
+  DtlsParameters,
+  MediaKind,
+  Transport as MediaSoupTransport,
+  Producer,
+  RtpParameters,
+  SctpStreamParameters
+} from 'mediasoup-client/lib/types'
+import type { EventEmitter } from 'primus'
+import Primus from 'primus-client'
 import { MathUtils } from 'three'
 import { LocationInstanceState } from '../common/services/LocationInstanceConnectionService'
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
@@ -113,8 +99,8 @@ import { AuthState } from '../user/services/AuthService'
 import { MediaStreamState, MediaStreamService as _MediaStreamService } from './MediaStreams'
 import { clearPeerMediaChannels } from './PeerMediaChannelState'
 
-import { NetworkActionFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkActionFunctions'
-import { DataChannelRegistryState } from '@etherealengine/spatial/src/networking/systems/DataChannelRegistry'
+import { DataChannelRegistryState } from '@etherealengine/network'
+import { NetworkActionFunctions } from '@etherealengine/network/src/functions/NetworkActionFunctions'
 import { encode } from 'msgpackr'
 
 import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
@@ -820,19 +806,19 @@ const getCodecEncodings = (service: string) => {
   if (settings) {
     switch (settings.codec) {
       case 'VP9':
-        codec = VP9_CODEC
-        encodings = CAM_VIDEO_SVC_CODEC_OPTIONS
+        codec = VideoConstants.VP9_CODEC
+        encodings = VideoConstants.CAM_VIDEO_SVC_CODEC_OPTIONS
         break
       case 'h264':
-        codec = H264_CODEC
-        encodings = CAM_VIDEO_SIMULCAST_ENCODINGS
+        codec = VideoConstants.H264_CODEC
+        encodings = VideoConstants.CAM_VIDEO_SIMULCAST_ENCODINGS
         encodings[0].maxBitrate = settings.lowResMaxBitrate * 1000
         encodings[1].maxBitrate = settings.midResMaxBitrate * 1000
         encodings[2].maxBitrate = settings.highResMaxBitrate * 1000
         break
       case 'VP8':
-        codec = VP8_CODEC
-        encodings = CAM_VIDEO_SIMULCAST_ENCODINGS
+        codec = VideoConstants.VP8_CODEC
+        encodings = VideoConstants.CAM_VIDEO_SIMULCAST_ENCODINGS
         encodings[0].maxBitrate = settings.lowResMaxBitrate * 1000
         encodings[1].maxBitrate = settings.midResMaxBitrate * 1000
         encodings[2].maxBitrate = settings.highResMaxBitrate * 1000
@@ -863,7 +849,7 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
               const producer = (await transport.produce({
                 track: mediaStreamState.videoStream.value!.getVideoTracks()[0],
                 encodings,
-                codecOptions: CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
+                codecOptions: VideoConstants.CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
                 codec,
                 appData: { mediaTag: webcamVideoDataChannelType, channelId: channelId }
               })) as any as ProducerExtension
@@ -908,7 +894,7 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
     const transport = MediasoupTransportState.getTransport(network.id, 'send') as WebRTCTransportExtension
 
     try {
-      let codecOptions = CAM_AUDIO_CODEC_OPTIONS
+      let codecOptions = VideoConstants.CAM_AUDIO_CODEC_OPTIONS
       if (clientSettingState.client?.[0]?.mediaSettings?.audio)
         codecOptions.opusMaxAverageBitrate = clientSettingState.client[0].mediaSettings.audio.maxBitrate * 1000
 
@@ -1214,7 +1200,7 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
   const videoProducer = (await transport.produce({
     track: mediaStreamState.localScreen.value!.getVideoTracks()[0],
     encodings,
-    codecOptions: CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
+    codecOptions: VideoConstants.CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
     codec,
     appData: { mediaTag: screenshareVideoDataChannelType, channelId }
   })) as any as ProducerExtension

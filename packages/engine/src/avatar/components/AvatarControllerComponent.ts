@@ -31,9 +31,9 @@ import { defineComponent, getComponent, hasComponent, useComponent } from '@ethe
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { entityExists, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { matches } from '@etherealengine/hyperflux'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
-import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { useEffect } from 'react'
 import { AvatarComponent } from './AvatarComponent'
 

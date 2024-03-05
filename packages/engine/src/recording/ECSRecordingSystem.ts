@@ -29,8 +29,20 @@ import { PassThrough } from 'stream'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import multiLogger from '@etherealengine/common/src/logger'
+import {
+  AvatarID,
+  RecordingID,
+  RecordingSchemaType,
+  UserID,
+  recordingPath,
+  userPath
+} from '@etherealengine/common/src/schema.type.module'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import {
   ECSDeserializer,
   ECSSerialization,
@@ -38,46 +50,32 @@ import {
   SerializedChunk
 } from '@etherealengine/engine/src/recording/ECSSerializerSystem'
 import {
+  Topic,
   defineAction,
   defineActionQueue,
   defineState,
   dispatchAction,
   getMutableState,
   getState,
-  Topic
+  matchesUserId
 } from '@etherealengine/hyperflux'
-import { Network, NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
-import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
 import {
+  DataChannelRegistryState,
+  DataChannelType,
+  Network,
   NetworkState,
+  NetworkTopics,
+  SerializationSchema,
+  WorldNetworkAction,
+  addDataChannelHandler,
+  removeDataChannelHandler,
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
-} from '@etherealengine/spatial/src/networking/NetworkState'
-import { SerializationSchema } from '@etherealengine/spatial/src/networking/serialization/Utils'
-
-import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import {
-  AvatarID,
-  RecordingID,
-  recordingPath,
-  RecordingSchemaType,
-  UserID,
-  userPath
-} from '@etherealengine/common/src/schema.type.module'
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
-import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
-import { matchesUserId } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+} from '@etherealengine/network'
+import { NetworkPeerFunctions } from '@etherealengine/network/src/functions/NetworkPeerFunctions'
+import { updatePeers } from '@etherealengine/network/src/systems/OutgoingActionSystem'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
-import { NetworkPeerFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkPeerFunctions'
-import {
-  addDataChannelHandler,
-  DataChannelRegistryState,
-  removeDataChannelHandler
-} from '@etherealengine/spatial/src/networking/systems/DataChannelRegistry'
-import { updatePeers } from '@etherealengine/spatial/src/networking/systems/OutgoingActionSystem'
+import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 import { PhysicsSerialization } from '@etherealengine/spatial/src/physics/PhysicsSerialization'
 import matches, { Validator } from 'ts-matches'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'

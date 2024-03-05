@@ -44,10 +44,10 @@ import { AuthState } from '@etherealengine/client-core/src/user/services/AuthSer
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
+import { MediaSettingsState } from '@etherealengine/engine/src/audio/MediaSettingsState'
 import { applyScreenshareToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
 import { NO_PROXY, State, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
-import { MediaSettingsState } from '@etherealengine/spatial/src/networking/MediaSettingsState'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
@@ -56,9 +56,8 @@ import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import { UserName, userPath } from '@etherealengine/common/src/schema.type.module'
 import { useExecute } from '@etherealengine/ecs'
 import { MotionCaptureSystem, timeSeriesMocapData } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+import { NetworkState, VideoConstants } from '@etherealengine/network'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
-import { VIDEO_CONSTRAINTS } from '@etherealengine/spatial/src/networking/constants/VideoConstants'
 import { drawPoseToCanvas } from '@etherealengine/ui/src/pages/Capture'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
 import { AdminClientSettingsState } from '../../admin/services/Setting/ClientSettingService'
@@ -505,7 +504,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
     const immersiveMedia = getMutableState(MediaSettingsState).immersiveMedia
     const clientSettingState = getMutableState(AdminClientSettingsState)
     const { maxResolution } = clientSettingState.client[0].mediaSettings.video.value
-    const resolution = VIDEO_CONSTRAINTS[maxResolution] || VIDEO_CONSTRAINTS.hd
+    const resolution = VideoConstants.VIDEO_CONSTRAINTS[maxResolution] || VideoConstants.VIDEO_CONSTRAINTS.hd
     if (isPiP || immersiveMedia.value) {
       let maxLayer
       const scalabilityMode = encodings && encodings[0].scalabilityMode
