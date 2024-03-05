@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { State } from '@hookstate/core'
-import * as bitecs from 'bitecs'
 import { v4 as uuidv4 } from 'uuid'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
@@ -141,7 +140,6 @@ export function createHyperStore(options: {
     // },
   }
   HyperFlux.store = store
-  bitecs.createWorld(store)
   return store
 }
 
@@ -149,6 +147,4 @@ export const disposeStore = (store = HyperFlux.store) => {
   for (const reactor of store.activeReactors) {
     ReactorReconciler.flushSync(() => reactor.stop())
   }
-  /** @todo this causes errors in tests */
-  // bitecs.deleteWorld(store)
 }

@@ -39,9 +39,9 @@ import {
   getOptionalComponent,
   hasComponent
 } from '@etherealengine/ecs'
+import { NetworkState } from '@etherealengine/network'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { CameraComponent } from '../../camera/components/CameraComponent'
-import { NetworkState } from '../../networking/NetworkState'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'

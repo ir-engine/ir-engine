@@ -43,10 +43,9 @@ import {
 } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { getState } from '@etherealengine/hyperflux'
+import { NetworkObjectComponent, NetworkObjectOwnedTag } from '@etherealengine/network'
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
-import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectLayerComponents } from '../../renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
@@ -227,7 +226,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   updateCameraTargetRotation(cameraEntity)
 }
 
-export function cameraSpawnReceptor(spawnAction: ReturnType<typeof WorldNetworkAction.spawnCamera>) {
+export function cameraSpawnReceptor(spawnAction: ReturnType<typeof CameraActions.spawnCamera>) {
   const entity = NetworkObjectComponent.getNetworkObject(spawnAction.$peer, spawnAction.networkId)
   if (!entity) return
 
@@ -239,7 +238,7 @@ export function cameraSpawnReceptor(spawnAction: ReturnType<typeof WorldNetworkA
 const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent])
 const ownedNetworkCamera = defineQuery([CameraComponent, NetworkObjectOwnedTag])
 const spectatorQuery = defineQuery([SpectatorComponent])
-const cameraSpawnActions = defineActionQueue(WorldNetworkAction.spawnCamera.matches)
+const cameraSpawnActions = defineActionQueue(CameraActions.spawnCamera.matches)
 const spectateUserActions = defineActionQueue(CameraActions.spectateUser.matches)
 const exitSpectateActions = defineActionQueue(CameraActions.exitSpectate.matches)
 

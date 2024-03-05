@@ -28,10 +28,10 @@ import { AnimationClip, AnimationMixer, LoopOnce, LoopRepeat, Object3D, Vector3 
 
 import { defineActionQueue, getState } from '@etherealengine/hyperflux'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, getMutableComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { lerp } from '@etherealengine/spatial/src/common/functions/MathLerpFunctions'
 import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'

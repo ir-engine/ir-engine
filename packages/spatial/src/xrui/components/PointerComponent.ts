@@ -45,8 +45,8 @@ import {
   RingGeometry,
   SphereGeometry
 } from 'three'
+import matches from 'ts-matches'
 import { NameComponent } from '../../common/NameComponent'
-import { matches } from '../../common/functions/MatchesUtils'
 import { useAnimationTransition } from '../../common/functions/createTransitionState'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'

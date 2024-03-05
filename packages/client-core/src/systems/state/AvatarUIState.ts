@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineAction, defineState, getMutableState, none } from '@etherealengine/hyperflux'
-import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
+import { defineAction, defineState, getMutableState, matches, none } from '@etherealengine/hyperflux'
+import { NetworkTopics } from '@etherealengine/network'
 
 export class AvatarUIActions {
   static setUserTyping = defineAction({

@@ -26,12 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import _ from 'lodash'
 import { Spark } from 'primus'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { EntityUUID } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { NetworkPeerFunctions, updatePeers } from '@etherealengine/network'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
 import { config as mediaConfig } from '@etherealengine/server-core/src/config'
@@ -39,10 +40,6 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 import checkPositionIsValid from '@etherealengine/spatial/src/common/functions/checkPositionIsValid'
-import { NetworkPeerFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkPeerFunctions'
-import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
-import { EntityNetworkState } from '@etherealengine/spatial/src/networking/state/EntityNetworkState'
-import { updatePeers } from '@etherealengine/spatial/src/networking/systems/OutgoingActionSystem'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
@@ -56,12 +53,13 @@ import {
   messagePath,
   UserID,
   userKickPath,
+  userPath,
   UserType
 } from '@etherealengine/common/src/schema.type.module'
 import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
-import { MediasoupTransportState } from '@etherealengine/spatial/src/networking/systems/MediasoupTransportState'
+import { MediasoupTransportState, NetworkState } from '@etherealengine/network'
+import { SpawnPoseState } from '@etherealengine/spatial'
 import { InstanceServerState } from './InstanceServerState'
 import { SocketWebRTCServerNetwork, WebRTCTransportExtension } from './SocketWebRTCServerFunctions'
 
@@ -212,7 +210,7 @@ export const handleConnectingPeer = (
   const userIndex = existingUser ? existingUser.userIndex : network.userIndexCount++
   const peerIndex = network.peerIndexCount++
 
-  NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, user.name)
+  NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex)
 
   const networkState = getMutableState(NetworkState).networks[network.id]
   networkState.peers[peerID].merge({
@@ -300,7 +298,7 @@ const getUserSpawnFromInvite = async (
         const validSpawnablePosition = checkPositionIsValid(inviterUserObject3d.position, false)
 
         if (validSpawnablePosition) {
-          const spawnPose = getState(EntityNetworkState)[user.id as any as EntityUUID]
+          const spawnPose = getState(SpawnPoseState)[user.id as any as EntityUUID]
           spawnPose.spawnPosition.copy(inviterUserObject3d.position)
           spawnPose.spawnRotation.copy(inviterUserTransform.rotation)
           respawnAvatar(selfAvatarEntity)
@@ -320,27 +318,29 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerI
   // The new connection will overwrite the socketID for the user's client.
   // This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (peerID === disconnectedClient?.peerID) {
-    const state = getMutableState(WorldState)
-    const userName = state.userNames[userId].value
-
     const instanceServerState = getState(InstanceServerState)
     const app = Engine.instance.api as Application
 
-    if (!instanceServerState.isMediaInstance)
-      app.service(messagePath).create(
-        {
-          instanceId: instanceServerState.instance.id,
-          text: `${userName} left`,
-          isNotification: true,
-          senderId: userId
-        },
-        {
-          [identityProviderPath]: {
-            userId: userId
-          }
-        } as any
-      )
-
+    if (!instanceServerState.isMediaInstance) {
+      app
+        .service(userPath)
+        .get(userId)
+        .then((user) => {
+          app.service(messagePath).create(
+            {
+              instanceId: instanceServerState.instance.id,
+              text: `${user.name} left`,
+              isNotification: true,
+              senderId: userId
+            },
+            {
+              [identityProviderPath]: {
+                userId: userId
+              }
+            } as any
+          )
+        })
+    }
     NetworkPeerFunctions.destroyPeer(network, peerID)
     updatePeers(network)
     logger.info(`Disconnecting user ${userId} on spark ${peerID}`)

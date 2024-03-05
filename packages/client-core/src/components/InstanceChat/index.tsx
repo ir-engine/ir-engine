@@ -44,7 +44,7 @@ import MessageIcon from '@mui/icons-material/Message'
 import Fab from '@mui/material/Fab'
 
 import { InstanceID, MessageID, UserName, messagePath } from '@etherealengine/common/src/schema.type.module'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkState } from '@etherealengine/network'
 import { AppState } from '../../common/services/AppService'
 import { AvatarUIActions, AvatarUIState } from '../../systems/state/AvatarUIState'
 import { useUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'

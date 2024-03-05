@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
@@ -43,15 +43,10 @@ import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { applyGamepadInput } from './moveAvatar'
 import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 
-import '@etherealengine/spatial/src/networking/state/EntityNetworkState'
-
 import { SystemDefinitions } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
-import { NetworkWorldUserStateSystem } from '@etherealengine/spatial/src/networking/NetworkUserState'
-import { Network } from '@etherealengine/spatial/src/networking/classes/Network'
-import { NetworkPeerFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkPeerFunctions'
-import { createMockNetwork } from '@etherealengine/spatial/tests/util/createMockNetwork'
+import { Network, NetworkPeerFunctions, NetworkState, NetworkWorldUserStateSystem } from '@etherealengine/network'
+import { createMockNetwork } from '@etherealengine/network/tests/createMockNetwork'
 import { act, render } from '@testing-library/react'
 import React from 'react'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -93,7 +88,7 @@ describe('moveAvatar function tests', () => {
     ecsState.simulationTimestep.set(1000 / 60)
 
     const network = NetworkState.worldNetwork as Network
-    NetworkPeerFunctions.createPeer(network, Engine.instance.peerID, 0, Engine.instance.userID, 0, 'user name')
+    NetworkPeerFunctions.createPeer(network, Engine.instance.peerID, 0, Engine.instance.userID, 0)
 
     const { rerender, unmount } = render(tag)
     await act(() => rerender(tag))
@@ -133,7 +128,7 @@ describe('moveAvatar function tests', () => {
     ecsState.simulationTimestep.set(1000 / 60)
 
     const network = NetworkState.worldNetwork as Network
-    NetworkPeerFunctions.createPeer(network, Engine.instance.peerID, 0, Engine.instance.userID, 0, 'user name')
+    NetworkPeerFunctions.createPeer(network, Engine.instance.peerID, 0, Engine.instance.userID, 0)
 
     const { rerender, unmount } = render(tag)
     await act(() => rerender(tag))
@@ -172,7 +167,7 @@ describe('moveAvatar function tests', () => {
     ecsState.simulationTimestep.set(1000 / 60)
 
     const network = NetworkState.worldNetwork as Network
-    NetworkPeerFunctions.createPeer(network, Engine.instance.peerID, 0, Engine.instance.userID, 0, 'user name')
+    NetworkPeerFunctions.createPeer(network, Engine.instance.peerID, 0, Engine.instance.userID, 0)
 
     const { rerender, unmount } = render(tag)
     await act(() => rerender(tag))
@@ -214,7 +209,7 @@ describe('moveAvatar function tests', () => {
     ecsState.simulationTimestep.set(1000 / 60)
 
     const network = NetworkState.worldNetwork as Network
-    NetworkPeerFunctions.createPeer(network, Engine.instance.peerID, 0, Engine.instance.userID, 0, 'user name')
+    NetworkPeerFunctions.createPeer(network, Engine.instance.peerID, 0, Engine.instance.userID, 0)
 
     const { rerender, unmount } = render(tag)
     await act(() => rerender(tag))

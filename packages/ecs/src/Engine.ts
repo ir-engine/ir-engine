@@ -62,11 +62,14 @@ export class Engine {
     return Engine.instance.store.peerID
   }
 
-  store = createHyperStore({
-    getDispatchId: () => Engine.instance.userID,
-    getDispatchTime: () => getState(ECSState).simulationTime,
-    getCurrentReactorRoot: () => getState(SystemState).activeSystemReactors.get(getState(SystemState).currentSystemUUID)
-  }) as HyperStore
+  store = bitECS.createWorld(
+    createHyperStore({
+      getDispatchId: () => Engine.instance.userID,
+      getDispatchTime: () => getState(ECSState).simulationTime,
+      getCurrentReactorRoot: () =>
+        getState(SystemState).activeSystemReactors.get(getState(SystemState).currentSystemUUID)
+    })
+  ) as HyperStore
 
   engineTimer = null! as ReturnType<typeof Timer>
 

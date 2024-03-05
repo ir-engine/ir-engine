@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PresentationSystemGroup, defineQuery, defineSystem, getComponent } from '@etherealengine/ecs'
+import { PresentationSystemGroup, defineQuery, defineSystem, getComponent, setComponent } from '@etherealengine/ecs'
 import { AudioAnalysisComponent } from '../../scene/components/AudioAnalysisComponent'
 
 const audioAnalysisQuery = defineQuery([AudioAnalysisComponent])
@@ -55,7 +55,7 @@ export const AudioAnalysisSystem = defineSystem({
             dataArray[i] = 0
           }
         }
-        analysisComponent.dataArray = dataArray
+        setComponent(entity, AudioAnalysisComponent, { dataArray })
       }
     }
   }
