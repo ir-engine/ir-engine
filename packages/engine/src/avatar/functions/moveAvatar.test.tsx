@@ -43,8 +43,6 @@ import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { applyGamepadInput } from './moveAvatar'
 import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 
-import '@etherealengine/network/src/state/EntityNetworkState'
-
 import { SystemDefinitions } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Network, NetworkState } from '@etherealengine/network'
