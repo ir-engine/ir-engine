@@ -286,19 +286,20 @@ const updatePerformanceState = (
 
 const debounceTime = 1000
 const increment = debounce(
-  (state, tier, offset) => {
+  (state: State<typeof PerformanceState._TYPE>, tier: number, offset: number) => {
     updatePerformanceState(state, tier, offset)
   },
   debounceTime,
   { trailing: true, maxWait: debounceTime * 2 }
 )
 const decrement = debounce(
-  (state, tier, offset) => {
+  (state: State<typeof PerformanceState._TYPE>, tier: number, offset: number) => {
     updatePerformanceState(state, tier, offset)
   },
   debounceTime,
   { trailing: true, maxWait: debounceTime * 2 }
 )
+
 export const incrementPerformance = () => {
   const performanceState = getMutableState(PerformanceState)
   increment(
