@@ -36,8 +36,7 @@ import {
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { Entity } from '@etherealengine/ecs'
+import { Entity, EntityUUID } from '@etherealengine/ecs'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import LockIcon from '@mui/icons-material/Lock'

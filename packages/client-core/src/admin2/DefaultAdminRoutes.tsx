@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { lazy } from 'react'
-import { HiOutlineTableCells, HiUser, HiUserCircle } from 'react-icons/hi2'
+import { HiMapPin, HiOutlineTableCells, HiUser, HiUserCircle } from 'react-icons/hi2'
 import { RiSendPlaneFill } from 'react-icons/ri'
 import { AdminRouteStateType } from '../admin/AllowedAdminRoutesState'
 
@@ -35,6 +35,8 @@ const Invites = lazy(() => import('./components/invites'))
 const Projects = lazy(() => import('./components/project'))
 
 const Users = lazy(() => import('./components/user'))
+
+const Locations = lazy(() => import('./components/locations'))
 
 export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
   projects: {
@@ -64,5 +66,12 @@ export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
     component: Users,
     access: false,
     icon: <HiUser />
+  },
+  locations: {
+    name: 'user:dashboard.locations',
+    scope: 'location',
+    component: Locations,
+    access: false,
+    icon: <HiMapPin />
   }
 }

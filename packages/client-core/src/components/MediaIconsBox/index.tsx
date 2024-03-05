@@ -39,7 +39,7 @@ import {
 import logger from '@etherealengine/common/src/logger'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkState } from '@etherealengine/network'
 import { endXRSession, requestXRSession } from '@etherealengine/spatial/src/xr/XRSessionFunctions'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'

@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { MediaSettingsState } from '@etherealengine/engine/src/audio/MediaSettingsState'
 import {
   defineState,
   getMutableState,
@@ -30,7 +31,6 @@ import {
   syncStateWithLocalStorage,
   useHookstate
 } from '@etherealengine/hyperflux'
-import { MediaSettingsState } from '@etherealengine/spatial/src/networking/MediaSettingsState'
 
 import { useEffect } from 'react'
 

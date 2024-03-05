@@ -25,11 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { UUIDComponent, WorldNetworkAction } from '@etherealengine/network'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
-import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
 import React, { useLayoutEffect } from 'react'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
@@ -48,7 +47,7 @@ export const AvatarIKTargetState = defineState({
     onSpawn: AvatarNetworkAction.spawnIKTarget.receive((action) => {
       getMutableState(AvatarIKTargetState)[action.entityUUID].merge({ name: action.name })
     }),
-    onDestroyObject: WorldNetworkAction.destroyObject.receive((action) => {
+    onDestroyObject: WorldNetworkAction.destroyEntity.receive((action) => {
       getMutableState(AvatarIKTargetState)[action.entityUUID].set(none)
     })
   },

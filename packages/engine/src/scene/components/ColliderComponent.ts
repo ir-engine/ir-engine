@@ -28,7 +28,7 @@ import { useLayoutEffect } from 'react'
 
 import { NO_PROXY, getState } from '@etherealengine/hyperflux'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,

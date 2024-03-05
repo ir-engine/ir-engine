@@ -31,7 +31,7 @@ import { defineState, getMutableState, getState } from '@etherealengine/hyperflu
 
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkState } from '@etherealengine/network'
 import { useEffect } from 'react'
 import { MediaInstanceState, useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
 import { SocketWebRTCClientNetwork } from './SocketWebRTCClientFunctions'

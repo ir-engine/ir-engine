@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@etherealengine/hyperflux'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import Input from '../Input'
@@ -38,6 +38,7 @@ export interface SelectProps {
   options: { name: string; value: any; disabled?: boolean }[]
   onChange: (value: any) => void
   placeholder?: string
+  disabled?: boolean
 }
 
 const Select = ({
@@ -48,7 +49,8 @@ const Select = ({
   currentValue,
   options,
   onChange,
-  placeholder
+  placeholder,
+  disabled
 }: SelectProps) => {
   const twClassName = twMerge('bg-theme-primary relative', className)
 
@@ -73,11 +75,16 @@ const Select = ({
     filteredOptions.set(newOptions)
   }
 
+  useEffect(() => {
+    filteredOptions.set(options)
+  }, [options])
+
   const selectLabel = useHookstate(options.find((option) => option.value === currentValue)?.name || '')
 
   return (
     <div className={twClassName}>
       <Input
+        disabled={disabled}
         label={label}
         description={description}
         error={error}
