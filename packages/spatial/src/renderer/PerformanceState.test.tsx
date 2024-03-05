@@ -117,14 +117,14 @@ describe('PerformanceState', () => {
 
   it('Increments performance tier', async () => {
     const performanceState = getMutableState(PerformanceState)
-    const initialOffset = performanceState.tier.value
-    assert(initialOffset === 0)
+    const initialTier = performanceState.tier.value
+    assert(initialTier === 0)
 
     const Reactor = () => {
       const performance = useHookstate(performanceState)
 
       useEffect(() => {
-        if (initialOffset !== performance.tier.value) {
+        if (initialTier !== performance.tier.value) {
           assert(performance.tier.value === 1)
         }
       }, [performance.performanceOffset])
