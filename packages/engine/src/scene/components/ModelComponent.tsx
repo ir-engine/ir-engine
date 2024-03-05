@@ -365,7 +365,7 @@ export const MeshOrModelQuery = (props: { ChildReactor: FC<{ entity: Entity; roo
   return (
     <>
       <QueryReactor Components={[ModelComponent]} ChildEntityReactor={ModelReactor} />
-      <QueryReactor Components={[Not(SceneComponent)]} ChildEntityReactor={MeshReactor} />
+      <QueryReactor Components={[Not(SceneComponent), MeshComponent]} ChildEntityReactor={MeshReactor} />
     </>
   )
 }
