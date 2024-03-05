@@ -93,14 +93,12 @@ describe('PerformanceState', () => {
     const initialOffset = performanceState.performanceOffset.value
     assert(initialOffset === 0)
 
-    let finish
     const Reactor = () => {
       const performance = useHookstate(performanceState)
 
       useEffect(() => {
         if (initialOffset !== performance.performanceOffset.value) {
           assert(performance.performanceOffset.value === 1)
-          return finish
         }
       }, [performance.performanceOffset])
 
@@ -110,7 +108,6 @@ describe('PerformanceState', () => {
     const clock = sinon.useFakeTimers()
     return act(async () => {
       const { rerender, unmount } = render(<Reactor />)
-      finish = unmount
       decrementPerformance()
       clock.tick(3000)
       rerender(<Reactor />)
@@ -123,14 +120,12 @@ describe('PerformanceState', () => {
     const initialOffset = performanceState.tier.value
     assert(initialOffset === 0)
 
-    let finish
     const Reactor = () => {
       const performance = useHookstate(performanceState)
 
       useEffect(() => {
         if (initialOffset !== performance.tier.value) {
           assert(performance.tier.value === 1)
-          return finish
         }
       }, [performance.performanceOffset])
 
@@ -140,7 +135,6 @@ describe('PerformanceState', () => {
     const clock = sinon.useFakeTimers()
     return act(async () => {
       const { rerender, unmount } = render(<Reactor />)
-      finish = unmount
       incrementPerformance()
       clock.tick(3000)
       rerender(<Reactor />)
@@ -153,14 +147,12 @@ describe('PerformanceState', () => {
     const initialOffset = performanceState.performanceOffset.value
     assert(initialOffset === 0)
 
-    let finish
     const Reactor = () => {
       const performance = useHookstate(performanceState)
 
       useEffect(() => {
         if (initialOffset !== performance.performanceOffset.value) {
           assert(performance.performanceOffset.value === 1)
-          return finish
         }
       }, [performance.performanceOffset])
 
@@ -170,7 +162,6 @@ describe('PerformanceState', () => {
     const clock = sinon.useFakeTimers()
     return act(async () => {
       const { rerender, unmount } = render(<Reactor />)
-      finish = unmount
       decrementPerformance()
       decrementPerformance()
       clock.tick(3000)
