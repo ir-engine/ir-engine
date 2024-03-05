@@ -88,7 +88,7 @@ describe('PerformanceState', () => {
     })
   })
 
-  it('Increments performance offset', async () => {
+  it('Increments performance offset', (done) => {
     const performanceState = getMutableState(PerformanceState)
     const initialOffset = performanceState.performanceOffset.value
     assert(initialOffset === 0)
@@ -105,17 +105,20 @@ describe('PerformanceState', () => {
       return <></>
     }
 
+    const { rerender, unmount } = render(<Reactor />)
     const clock = sinon.useFakeTimers()
-    return act(async () => {
-      const { rerender, unmount } = render(<Reactor />)
+    act(async () => {
       decrementPerformance()
       clock.tick(3000)
       rerender(<Reactor />)
       clock.restore()
+    }).then(() => {
+      unmount()
+      done()
     })
   })
 
-  it('Increments performance tier', async () => {
+  it('Increments performance tier', (done) => {
     const performanceState = getMutableState(PerformanceState)
     const initialTier = performanceState.tier.value
     assert(initialTier === 0)
@@ -124,25 +127,29 @@ describe('PerformanceState', () => {
       const performance = useHookstate(performanceState)
 
       useEffect(() => {
+        console.log('UseEffect: ' + initialTier)
         if (initialTier !== performance.tier.value) {
           assert(performance.tier.value === 1)
         }
-      }, [performance.performanceOffset])
+      }, [performanceState.tier])
 
       return <></>
     }
 
+    const { rerender, unmount } = render(<Reactor />)
     const clock = sinon.useFakeTimers()
-    return act(async () => {
-      const { rerender, unmount } = render(<Reactor />)
+    act(async () => {
       incrementPerformance()
       clock.tick(3000)
       rerender(<Reactor />)
       clock.restore()
+    }).then(() => {
+      unmount()
+      done()
     })
   })
 
-  it('Debounces performance offset', async () => {
+  it('Debounces performance offset', (done) => {
     const performanceState = getMutableState(PerformanceState)
     const initialOffset = performanceState.performanceOffset.value
     assert(initialOffset === 0)
@@ -159,14 +166,17 @@ describe('PerformanceState', () => {
       return <></>
     }
 
+    const { rerender, unmount } = render(<Reactor />)
     const clock = sinon.useFakeTimers()
-    return act(async () => {
-      const { rerender, unmount } = render(<Reactor />)
+    act(async () => {
       decrementPerformance()
       decrementPerformance()
       clock.tick(3000)
       rerender(<Reactor />)
       clock.restore()
+    }).then(() => {
+      unmount()
+      done()
     })
   })
 })
