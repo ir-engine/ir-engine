@@ -32,11 +32,10 @@ import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { UUIDComponent, WorldNetworkAction } from '@etherealengine/network'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
-import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
 import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
 
 import PauseIcon from '@mui/icons-material/Pause'
@@ -58,7 +57,7 @@ const PlayModeTool = () => {
   const onTogglePlayMode = () => {
     if (Engine.instance.localClientEntity) {
       dispatchAction(
-        WorldNetworkAction.destroyObject({ entityUUID: getComponent(Engine.instance.localClientEntity, UUIDComponent) })
+        WorldNetworkAction.destroyEntity({ entityUUID: getComponent(Engine.instance.localClientEntity, UUIDComponent) })
       )
       const cameraComputed = getComponent(Engine.instance.cameraEntity, ComputedTransformComponent)
       removeEntity(cameraComputed.referenceEntity)
@@ -76,8 +75,7 @@ const PlayModeTool = () => {
       if (avatarDetails)
         spawnLocalAvatarInWorld({
           avatarSpawnPose,
-          avatarID: avatarDetails.id!,
-          name: authState.user.name.value
+          avatarID: avatarDetails.id!
         })
 
       // todo

@@ -23,12 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  H264_CODEC,
-  OPUS_STEREO_CODEC,
-  VP8_CODEC,
-  VP9_CODEC
-} from '@etherealengine/spatial/src/networking/constants/VideoConstants'
+import { VideoConstants } from '@etherealengine/network'
 import configFile from './appconfig'
 import { SctpParameters } from './types/SctpParameters'
 
@@ -68,7 +63,12 @@ export const config = {
       logTags: ['info', 'ice', 'dtls', 'rtp', 'srtp', 'rtcp']
     },
     router: {
-      mediaCodecs: [OPUS_STEREO_CODEC, VP9_CODEC, VP8_CODEC, H264_CODEC]
+      mediaCodecs: [
+        VideoConstants.OPUS_STEREO_CODEC,
+        VideoConstants.VP9_CODEC,
+        VideoConstants.VP8_CODEC,
+        VideoConstants.H264_CODEC
+      ]
     },
 
     // rtp listenIps are the most important thing, below. you'll need

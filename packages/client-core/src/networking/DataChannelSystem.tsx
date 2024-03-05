@@ -23,20 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import logger from '@etherealengine/common/src/logger'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
-import { NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
-import { DataChannelRegistryState } from '@etherealengine/spatial/src/networking/systems/DataChannelRegistry'
 import {
+  DataChannelRegistryState,
+  DataChannelType,
   MediasoupDataConsumerActions,
   MediasoupDataProducerConsumerState,
-  MediasoupDataProducersConsumersObjectsState
-} from '@etherealengine/spatial/src/networking/systems/MediasoupDataProducerConsumerState'
-import { MediasoupTransportState } from '@etherealengine/spatial/src/networking/systems/MediasoupTransportState'
+  MediasoupDataProducersConsumersObjectsState,
+  MediasoupTransportState,
+  NetworkState,
+  NetworkTopics
+} from '@etherealengine/network'
 import { none, useHookstate } from '@hookstate/core'
 import { DataProducer, DataProducerOptions } from 'mediasoup-client/lib/DataProducer'
 import { decode } from 'msgpackr'

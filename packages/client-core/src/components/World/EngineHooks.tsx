@@ -38,19 +38,24 @@ import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/move
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
 import { PortalComponent, PortalState } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import {
+  Network,
+  NetworkState,
+  NetworkTopics,
+  UUIDComponent,
+  addNetwork,
+  createNetwork,
+  removeNetwork
+} from '@etherealengine/network'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
-import { NetworkState, addNetwork, removeNetwork } from '@etherealengine/spatial/src/networking/NetworkState'
 
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { LinkState } from '@etherealengine/engine/src/scene/components/LinkComponent'
+import { NetworkPeerFunctions, WorldNetworkAction } from '@etherealengine/network'
 import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
-import { Network, NetworkTopics, createNetwork } from '@etherealengine/spatial/src/networking/classes/Network'
-import { NetworkPeerFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkPeerFunctions'
-import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
 import { RouterState } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
@@ -91,8 +96,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
 
     spawnLocalAvatarInWorld({
       avatarSpawnPose,
-      avatarID: user.avatar.id!,
-      name: user.name
+      avatarID: user.avatar.id!
     })
   }, [sceneLoaded.value])
 }
@@ -119,7 +123,7 @@ export const despawnSelfAvatar = () => {
 
   // if we are the last peer in the world for this user, destroy the object
   if (!peersCountForUser || peersCountForUser === 1) {
-    dispatchAction(WorldNetworkAction.destroyObject({ entityUUID: getComponent(clientEntity, UUIDComponent) }))
+    dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID: getComponent(clientEntity, UUIDComponent) }))
   }
 
   /** @todo this logic should be handled by the camera system */
@@ -252,14 +256,7 @@ export const useNetwork = (props: { online?: boolean }) => {
     NetworkState.worldNetworkState.connected.set(true)
     NetworkState.worldNetworkState.ready.set(true)
 
-    NetworkPeerFunctions.createPeer(
-      NetworkState.worldNetwork as Network,
-      peerID,
-      peerIndex,
-      userId,
-      userIndex,
-      getState(AuthState).user.name
-    )
+    NetworkPeerFunctions.createPeer(NetworkState.worldNetwork as Network, peerID, peerIndex, userId, userIndex)
 
     const network = NetworkState.worldNetwork as Network
 
