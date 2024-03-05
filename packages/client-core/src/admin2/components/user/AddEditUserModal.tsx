@@ -160,7 +160,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
             options={scopeTypeOptions}
             selectedOptions={scopes.value.map((sc) => sc.type)}
             onChange={(values) => scopes.set(values.map((v) => ({ type: v })))}
-            menuClassName="min-h-52"
+            menuClassName="max-h-72"
           />
           <div className="flex gap-2">
             <Button size="small" variant="outline" onClick={() => scopes.set([])}>
