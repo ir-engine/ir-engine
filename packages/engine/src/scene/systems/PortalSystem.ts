@@ -25,14 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { SpawnPoseState } from '@etherealengine/spatial'
 import { switchCameraMode } from '@etherealengine/spatial/src/camera/functions/switchCameraMode'
 import { CameraMode } from '@etherealengine/spatial/src/camera/types/CameraMode'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
-import { EntityNetworkState } from '@etherealengine/spatial/src/networking/state/EntityNetworkState'
 import { useEffect } from 'react'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { PortalComponent, PortalState } from '../components/PortalComponent'
@@ -49,7 +49,7 @@ const reactor = () => {
 
     return () => {
       const localClientEntity = Engine.instance.localClientEntity
-      getState(EntityNetworkState)[getComponent(localClientEntity, UUIDComponent)].spawnPosition.copy(
+      getState(SpawnPoseState)[getComponent(localClientEntity, UUIDComponent)].spawnPosition.copy(
         activePortal.remoteSpawnPosition
       )
       AvatarControllerComponent.releaseMovement(Engine.instance.localClientEntity, activePortalEntity)

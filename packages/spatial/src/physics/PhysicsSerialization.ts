@@ -27,10 +27,18 @@ import { getOptionalComponent, hasComponent } from '@etherealengine/ecs/src/Comp
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { getState } from '@etherealengine/hyperflux'
-import { NetworkObjectSendPeriodicUpdatesTag } from '../networking/components/NetworkObjectComponent'
-import { checkBitflag, readVector3, readVector4 } from '../networking/serialization/DataReader'
-import { writeVector3, writeVector4 } from '../networking/serialization/DataWriter'
-import { ViewCursor, readUint8, rewindViewCursor, spaceUint8 } from '../networking/serialization/ViewCursor'
+import {
+  NetworkObjectSendPeriodicUpdatesTag,
+  ViewCursor,
+  checkBitflag,
+  readUint8,
+  readVector3,
+  readVector4,
+  rewindViewCursor,
+  spaceUint8,
+  writeVector3,
+  writeVector4
+} from '@etherealengine/network'
 import { RigidBodyComponent, RigidBodyDynamicTagComponent } from './components/RigidBodyComponent'
 
 export const readBodyPosition = readVector3(RigidBodyComponent.position)

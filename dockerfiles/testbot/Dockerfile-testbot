@@ -5,7 +5,7 @@ FROM ${ECR_URL}/${REPO_NAME}-root:latest_${STAGE} as builder
 
 # Create app directory
 WORKDIR /app
-
+COPY project-package-jsons ./
 RUN npm install --loglevel notice --legacy-peer-deps --production
 # copy then compile the code
 COPY . .

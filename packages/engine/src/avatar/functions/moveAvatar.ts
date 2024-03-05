@@ -24,11 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { QueryFilterFlags } from '@dimforge/rapier3d-compat'
-import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
-
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
-
+import { UUIDComponent } from '@etherealengine/ecs'
 import {
   ComponentType,
   getComponent,
@@ -38,14 +35,15 @@ import {
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { NetworkObjectAuthorityTag } from '@etherealengine/network'
+import { SpawnPoseState } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { ObjectDirection } from '@etherealengine/spatial/src/common/constants/Axis3D'
 import { V_000, V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import checkPositionIsValid from '@etherealengine/spatial/src/common/functions/checkPositionIsValid'
-import { NetworkObjectAuthorityTag } from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
-import { EntityNetworkState } from '@etherealengine/spatial/src/networking/state/EntityNetworkState'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
@@ -53,9 +51,10 @@ import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/Physic
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '@etherealengine/spatial/src/transform/updateWorldOrigin'
 import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { preloadedAnimations } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
-import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
+import { AvatarColliderComponent, AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
@@ -89,6 +88,11 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
   const xrFrame = getState(XRState).xrFrame
 
   if (!entity || (!xrFrame && !additionalMovement)) return
+
+  const colliderEntity = getComponent(entity, AvatarColliderComponent).colliderEntity
+  const bodyCollider = getComponent(colliderEntity, ColliderComponent)?.collider
+  /** @todo remove this check when physics API is fleshed out */
+  if (!bodyCollider) return
 
   const xrState = getState(XRState)
   const rigidbody = getComponent(entity, RigidBodyComponent)
@@ -132,10 +136,10 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
 
   if (additionalMovement) desiredMovement.add(additionalMovement)
 
-  const avatarCollisionGroups = controller.bodyCollider.collisionGroups() & ~CollisionGroups.Trigger
+  const avatarCollisionGroups = bodyCollider.collisionGroups() & ~CollisionGroups.Trigger
 
   controller.controller.computeColliderMovement(
-    controller.bodyCollider,
+    bodyCollider,
     desiredMovement,
     QueryFilterFlags.EXCLUDE_SENSORS,
     avatarCollisionGroups
@@ -491,7 +495,7 @@ const _slerpBodyTowardsVelocity = (entity: Entity, alpha: number) => {
   let prevVector = prevVectors.get(entity)!
   if (!prevVector) {
     prevVector = new Vector3(0, 0, 1).applyQuaternion(
-      getState(EntityNetworkState)[getComponent(entity, UUIDComponent)].spawnRotation
+      getState(SpawnPoseState)[getComponent(entity, UUIDComponent)].spawnRotation
     )
     prevVectors.set(entity, prevVector)
   }

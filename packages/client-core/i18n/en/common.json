@@ -7,7 +7,8 @@
     "processing": "Processing",
     "retry": "Retry",
     "close": "Close",
-    "submit": "Submit"
+    "submit": "Submit",
+    "search": "Search"
   },
   "tooltip": {
     "pressKey": "Press {{tip}} to {{message}}"

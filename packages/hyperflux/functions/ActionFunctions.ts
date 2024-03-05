@@ -32,13 +32,18 @@ import multiLogger from '@etherealengine/common/src/logger'
 import { InstanceID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { deepEqual } from '@etherealengine/common/src/utils/deepEqual'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { ReactorRoot } from './ReactorFunctions'
 import { setInitialState, StateDefinitions } from './StateFunctions'
 import { HyperFlux } from './StoreFunctions'
 
 const logger = multiLogger.child({ component: 'hyperflux:Action' })
+
+const matchesUserId = matches.string as Validator<unknown, UserID>
+const matchesPeerID = matches.string as Validator<unknown, PeerID>
+
+export { matches, Validator } from 'ts-matches'
+export { matchesUserId, matchesPeerID }
 
 export type Topic = OpaqueType<'topicId'> & string
 
@@ -49,7 +54,7 @@ export type Action = {
   type: string | string[]
 } & ActionOptions
 
-export type ActionRecipients = EntityUUID | PeerID | PeerID[] | 'all' | 'others'
+export type ActionRecipients = PeerID | PeerID[] | 'all' | 'others'
 
 export type ActionCacheOptions =
   | boolean
@@ -456,7 +461,7 @@ const createEventSourceQueues = (action: Required<ResolvedActionType>) => {
 
       // if new actions were applied, synchronously run the reactor
       if (hasNewActions && HyperFlux.store.stateReactors[definition.name]) {
-        HyperFlux.store.stateReactors[definition.name].run(true)
+        HyperFlux.store.stateReactors[definition.name].run()
       }
     }
 

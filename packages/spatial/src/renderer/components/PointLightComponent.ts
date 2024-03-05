@@ -31,10 +31,10 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { matches } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { NameComponent } from '../../common/NameComponent'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
-import { matches } from '../../common/functions/MatchesUtils'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { RendererState } from '../RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -93,9 +93,10 @@ export const PointLightComponent = defineComponent({
     const light = useComponent(entity, PointLightComponent)
     useEffect(() => {
       if (isMobileXRHeadset) return
-      addObjectToGroup(entity, light.light.value)
+      const lightObj = light.light.value
+      addObjectToGroup(entity, lightObj)
       return () => {
-        removeObjectFromGroup(entity, light.light.value)
+        removeObjectFromGroup(entity, lightObj)
       }
     }, [])
 

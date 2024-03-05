@@ -24,12 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { State } from '@hookstate/core'
-import * as bitecs from 'bitecs'
 import { v4 as uuidv4 } from 'uuid'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { ActionQueueHandle, ActionQueueInstance, ResolvedActionType, Topic } from './ActionFunctions'
-import { ReactorRoot } from './ReactorFunctions'
+import { ReactorReconciler, ReactorRoot } from './ReactorFunctions'
 
 export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never
 export interface HyperStore {
@@ -141,16 +140,11 @@ export function createHyperStore(options: {
     // },
   }
   HyperFlux.store = store
-  bitecs.createWorld(store)
   return store
 }
 
-export const disposeStore = async (store = HyperFlux.store) => {
-  const activeReactors = [] as Promise<void>[]
+export const disposeStore = (store = HyperFlux.store) => {
   for (const reactor of store.activeReactors) {
-    activeReactors.push(reactor.stop())
+    ReactorReconciler.flushSync(() => reactor.stop())
   }
-  await Promise.all(activeReactors)
-  /** @todo this causes errors in tests */
-  // bitecs.deleteWorld(store)
 }

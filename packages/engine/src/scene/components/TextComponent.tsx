@@ -34,7 +34,7 @@ import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 
-import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { matches } from '@etherealengine/hyperflux'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { Color, Material, MathUtils, Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector2 } from 'three'
 import { Text as TroikaText } from 'troika-three-text'

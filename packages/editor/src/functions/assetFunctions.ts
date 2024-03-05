@@ -203,3 +203,18 @@ export const extractZip = async (path: string): Promise<any> => {
     console.error('error extracting zip: ', err)
   }
 }
+
+export const downloadBlobAsZip = (blob: Blob, fileName: string) => {
+  const anchorElement = document.createElement('a')
+  anchorElement.href = URL.createObjectURL(blob)
+  anchorElement.download = fileName + '.zip'
+  document.body.appendChild(anchorElement)
+  anchorElement.dispatchEvent(
+    new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    })
+  )
+  document.body.removeChild(anchorElement)
+}

@@ -41,16 +41,15 @@ import { TransformMode } from '@etherealengine/engine/src/scene/constants/transf
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
-import { PresentationSystemGroup, UndefinedEntity } from '@etherealengine/ecs'
+import { PresentationSystemGroup, UUIDComponent, UndefinedEntity } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { SceneSnapshotAction, SceneSnapshotState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
 import { TransformComponent } from '@etherealengine/spatial'
 import {
   ActiveOrbitCamera,
   CameraOrbitComponent
 } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
@@ -68,6 +67,7 @@ import {
 } from '../functions/transformFunctions'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorHelperState } from '../services/EditorHelperState'
+import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { ObjectGridSnapState } from './ObjectGridSnapSystem'
 
@@ -142,14 +142,16 @@ const onKeyX = () => {
 }
 
 const onKeyZ = (control: boolean, shift: boolean) => {
+  const sceneID = getState(EditorState).sceneID
+  if (!sceneID) return
   if (control) {
-    const state = getState(SceneState).scenes[getState(SceneState).activeScene!]
+    const state = getState(SceneSnapshotState)[sceneID]
     if (shift) {
       if (state.index >= state.snapshots.length - 1) return
-      dispatchAction(SceneSnapshotAction.redo({ count: 1, sceneID: getState(SceneState).activeScene! }))
+      dispatchAction(SceneSnapshotAction.redo({ count: 1, sceneID }))
     } else {
       if (state.index <= 0) return
-      dispatchAction(SceneSnapshotAction.undo({ count: 1, sceneID: getState(SceneState).activeScene! }))
+      dispatchAction(SceneSnapshotAction.undo({ count: 1, sceneID }))
     }
   } else {
     toggleTransformSpace()
@@ -281,12 +283,12 @@ const execute = () => {
     if (buttons.PrimaryClick?.up && inputSource.assignedButtonEntity) {
       let clickedEntity = inputSource.assignedButtonEntity
       while (
-        !hasComponent(clickedEntity, SourceComponent) &&
+        !hasComponent(clickedEntity, SceneComponent) &&
         getOptionalComponent(clickedEntity, EntityTreeComponent)?.parentEntity
       ) {
         clickedEntity = getComponent(clickedEntity, EntityTreeComponent).parentEntity!
       }
-      if (hasComponent(clickedEntity, SourceComponent)) {
+      if (hasComponent(clickedEntity, SceneComponent)) {
         SelectionState.updateSelection([getComponent(clickedEntity, UUIDComponent)])
       }
     }

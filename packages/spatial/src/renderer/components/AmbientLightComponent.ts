@@ -28,7 +28,7 @@ import { AmbientLight, Color } from 'three'
 
 import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { matches } from '../../common/functions/MatchesUtils'
+import { matches } from '@etherealengine/hyperflux'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const AmbientLightComponent = defineComponent({
@@ -63,9 +63,10 @@ export const AmbientLightComponent = defineComponent({
     const entity = useEntityContext()
     const light = useComponent(entity, AmbientLightComponent)
     useEffect(() => {
-      addObjectToGroup(entity, light.light.value)
+      const lightObj = light.light.value
+      addObjectToGroup(entity, lightObj)
       return () => {
-        removeObjectFromGroup(entity, light.light.value)
+        removeObjectFromGroup(entity, lightObj)
       }
     }, [])
 

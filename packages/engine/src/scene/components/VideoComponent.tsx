@@ -28,7 +28,7 @@ import { DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, Side, Texture, Vecto
 
 import { defineState } from '@etherealengine/hyperflux'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -39,7 +39,6 @@ import {
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { createPriorityQueue } from '@etherealengine/spatial/src/common/functions/PriorityQueue'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -132,8 +131,6 @@ function VideoReactor() {
   const visible = useOptionalComponent(entity, VisibleComponent)
   const mediaUUID = video.mediaUUID.value
   const mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID) || entity
-
-  console.log({ mediaEntity })
 
   useEffect(() => {
     const videoEntity = createEntity()

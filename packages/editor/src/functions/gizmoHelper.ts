@@ -50,6 +50,7 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { Euler, Matrix4, Quaternion, Raycaster, Vector3 } from 'three'
 import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
 import { TransformGizmoVisualComponent } from '../classes/TransformGizmoVisualComponent'
+import { EditorState } from '../services/EditorServices'
 import { ObjectGridSnapState } from '../systems/ObjectGridSnapSystem'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
@@ -444,7 +445,7 @@ export function controlUpdate(gizmoEntity: Entity) {
       : gizmoControl.controlledEntities.get(NO_PROXY)[0]
   if (targetEntity === UndefinedEntity) return
 
-  let parentEntity = SceneState.getRootEntity(getState(SceneState).activeScene!) // we can always ensure scene entity is root parent even if entty tree component doesnt exist
+  let parentEntity = SceneState.getRootEntity(getState(EditorState).sceneID!) // we can always ensure scene entity is root parent even if entty tree component doesnt exist
   const parent = getComponent(targetEntity, EntityTreeComponent)
 
   if (parent && parent.parentEntity !== UndefinedEntity) {
@@ -783,7 +784,7 @@ function pointerMove(pointer, gizmoEntity) {
       space,
       gizmoControlComponent.translationSnap.value
     )
-    setComponent(entity, TransformComponent, { position: newPosition })
+    EditorControlFunctions.positionObject([entity], [newPosition])
     if (
       gizmoControlComponent.controlledEntities.value.length > 1 &&
       gizmoControlComponent.pivotEntity.value !== UndefinedEntity
@@ -798,7 +799,7 @@ function pointerMove(pointer, gizmoEntity) {
           gizmoControlComponent.translationSnap.value,
           true
         )
-        setComponent(cEntity, TransformComponent, { position: newPosition })
+        EditorControlFunctions.positionObject([cEntity], [newPosition])
       }
     }
   } else if (mode === TransformMode.scale) {
@@ -809,7 +810,7 @@ function pointerMove(pointer, gizmoEntity) {
       axis,
       gizmoControlComponent.scaleSnap.value
     )
-    setComponent(entity, TransformComponent, { scale: newScale })
+    EditorControlFunctions.scaleObject([entity], [newScale], true)
     if (
       gizmoControlComponent.controlledEntities.value.length > 1 &&
       gizmoControlComponent.pivotEntity.value !== UndefinedEntity
@@ -826,12 +827,13 @@ function pointerMove(pointer, gizmoEntity) {
         const newPosition = getComponent(cEntity, TransformComponent).position
         const newDistance = _positionMultiStart[cEntity].clone().sub(_positionStart.clone()).multiply(_tempVector2)
         newPosition.copy(newDistance.add(_positionStart))
-        setComponent(cEntity, TransformComponent, { position: newPosition, scale: newScale })
+        EditorControlFunctions.scaleObject([cEntity], [newScale], true)
+        EditorControlFunctions.positionObject([cEntity], [newPosition])
       }
     }
   } else if (mode === TransformMode.rotate) {
     const newRotation = applyRotation(entity, gizmoControlComponent, axis, space)
-    setComponent(entity, TransformComponent, { rotation: newRotation })
+    EditorControlFunctions.rotateObject([entity], [_tempEuler.setFromQuaternion(newRotation, 'XYZ')])
     if (
       gizmoControlComponent.controlledEntities.value.length > 1 &&
       gizmoControlComponent.pivotEntity.value !== UndefinedEntity
@@ -857,11 +859,9 @@ function pointerMove(pointer, gizmoEntity) {
           originToPivotMatrix,
           rotationMatrix
         )
-        setComponent(cEntity, TransformComponent, {
-          position: newPosition,
-          rotation: newRotation,
-          scale: newScale
-        })
+        EditorControlFunctions.positionObject([cEntity], [newPosition])
+        EditorControlFunctions.rotateObject([cEntity], [_tempEuler.setFromQuaternion(newRotation, 'XYZ')])
+        EditorControlFunctions.scaleObject([cEntity], [newScale], true)
       }
     }
   }

@@ -56,17 +56,20 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { HyperFlux, State, getMutableState, getState } from '@etherealengine/hyperflux'
+import {
+  NetworkConnectionParams,
+  NetworkPeerFunctions,
+  NetworkState,
+  NetworkTopics,
+  addNetwork,
+  updatePeers
+} from '@etherealengine/network'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import config from '@etherealengine/server-core/src/appconfig'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
-import { NetworkConnectionParams, NetworkState, addNetwork } from '@etherealengine/spatial/src/networking/NetworkState'
-import { NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
-import { NetworkPeerFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkPeerFunctions'
-import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
-import { updatePeers } from '@etherealengine/spatial/src/networking/systems/OutgoingActionSystem'
 import './InstanceServerModule'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleDisconnect, setupIPs } from './NetworkFunctions'
@@ -279,18 +282,14 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
     Engine.instance.store.peerID,
     network.peerIndexCount++,
     hostId,
-    network.userIndexCount++,
-    'server-' + hostId
+    network.userIndexCount++
   )
 
   await loadEngineInjection()
 
   if (instanceServerState.isMediaInstance) {
     getMutableState(NetworkState).hostIds.media.set(hostId)
-    getMutableState(SceneState).merge({
-      sceneLoading: false,
-      sceneLoaded: true
-    })
+    getMutableState(SceneState).sceneLoaded.set(true)
   } else {
     getMutableState(NetworkState).hostIds.world.set(hostId)
 
@@ -300,7 +299,6 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
       const sceneData = (await app
         .service(scenePath)
         .get('', { query: { sceneKey: sceneId, metadataOnly: false }, headers })) as SceneDataType
-      getMutableState(SceneState).activeScene.set(sceneId)
       SceneState.loadScene(sceneId, sceneData)
       /** @todo - quick hack to wait until scene has loaded */
 
@@ -313,12 +311,8 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
         }, 100)
       })
     }
-    const userUpdatedListener = async (user) => {
-      const worldState = getMutableState(WorldState)
-      if (worldState.userNames[user.id]?.value) worldState.userNames[user.id].set(user.name)
-    }
+
     app.service(scenePath).on('updated', sceneUpdatedListener)
-    app.service(userPath).on('patched', userUpdatedListener)
     await sceneUpdatedListener()
 
     logger.info('Scene loaded!')
