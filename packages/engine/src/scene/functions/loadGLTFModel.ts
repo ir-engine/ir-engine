@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Bone, InstancedMesh, Mesh, Object3D, Scene, SkinnedMesh } from 'three'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJsonType, EntityJsonType } from '@etherealengine/common/src/schema.type.module'
+import { EntityUUID } from '@etherealengine/ecs'
 import {
   ComponentJSONIDMap,
   ComponentMap,

@@ -28,7 +28,7 @@ import { DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, Side, Texture, Vecto
 
 import { defineState } from '@etherealengine/hyperflux'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,

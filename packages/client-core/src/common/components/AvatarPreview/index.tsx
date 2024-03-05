@@ -41,8 +41,7 @@ import { SxProps, Theme } from '@mui/material/styles'
 
 import styles from './index.module.scss'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { setComponent, UndefinedEntity } from '@etherealengine/ecs'
+import { EntityUUID, setComponent, UndefinedEntity } from '@etherealengine/ecs'
 import { defaultAnimationPath, preloadedAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { AssetPreviewCameraComponent } from '@etherealengine/engine/src/camera/components/AssetPreviewCameraComponent'

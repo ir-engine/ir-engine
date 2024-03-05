@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Quaternion, Vector3 } from 'three'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 
 import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 import {
   ErrorBoundary,
   NO_PROXY,

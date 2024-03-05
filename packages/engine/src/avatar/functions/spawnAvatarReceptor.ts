@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
 
 import { createEntity } from '@etherealengine/ecs'

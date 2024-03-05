@@ -34,8 +34,7 @@ import {
 } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { createEntity, getMutableComponent, removeEntity, setComponent } from '@etherealengine/ecs'
+import { EntityUUID, createEntity, getMutableComponent, removeEntity, setComponent } from '@etherealengine/ecs'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'

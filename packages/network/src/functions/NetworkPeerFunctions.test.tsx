@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { InstanceID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { EntityUUID } from '@etherealengine/ecs'
 import { applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'

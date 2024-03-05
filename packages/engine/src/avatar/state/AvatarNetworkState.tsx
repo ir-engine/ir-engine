@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect, useLayoutEffect } from 'react'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 import { defineState, dispatchAction, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 

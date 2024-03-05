@@ -29,7 +29,7 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SelectTagComponent } from '@etherealengine/engine/src/scene/components/SelectTagComponent'
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { UUIDComponent } from '@etherealengine/network'

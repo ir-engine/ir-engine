@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { decode, encode } from 'msgpackr'
 import { PassThrough } from 'stream'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import multiLogger from '@etherealengine/common/src/logger'
 import {
@@ -38,6 +37,7 @@ import {
   userPath
 } from '@etherealengine/common/src/schema.type.module'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { EntityUUID } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'

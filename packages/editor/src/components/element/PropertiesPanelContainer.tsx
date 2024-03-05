@@ -31,7 +31,7 @@ import { useAllComponents, useOptionalComponent } from '@etherealengine/ecs/src/
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { UUIDComponent } from '@etherealengine/network'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { Popover } from '@mui/material'
 import { ComponentEditorsState } from '../../functions/ComponentEditors'

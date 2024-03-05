@@ -28,9 +28,9 @@ import { ArrowHelper, BackSide, Euler, Mesh, MeshBasicMaterial, Quaternion, Sphe
 
 import { NO_PROXY, defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { portalPath } from '@etherealengine/common/src/schema.type.module'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { EntityUUID } from '@etherealengine/ecs'
 import {
   ComponentType,
   defineComponent,
