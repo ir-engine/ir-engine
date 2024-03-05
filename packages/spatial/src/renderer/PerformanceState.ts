@@ -275,11 +275,9 @@ const updatePerformanceState = (
   offset: number
 ) => {
   if (tier !== performanceState.tier.value) {
-    console.log('PerformanceState: updating performance tier: ' + tier)
     performanceState.tier.set(tier)
   }
   if (offset !== performanceState.performanceOffset.value) {
-    console.log('PerformanceState: updating performance offset: ' + offset)
     performanceState.performanceOffset.set(offset)
   }
 }

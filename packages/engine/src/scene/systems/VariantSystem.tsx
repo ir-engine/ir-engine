@@ -90,7 +90,6 @@ function reactor() {
   useEffect(() => {
     if (!sceneState.sceneLoaded.value || getState(EngineState).isEditing) return
     const offset = performanceState.performanceOffset.value
-    console.log('VariantSystem: performanceOffset: ' + offset)
     for (const entity of modelVariantQuery()) {
       setModelVariantLOD(entity, offset)
     }
