@@ -145,6 +145,7 @@ export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
 
   // Check hit with mid ray
   raycaster.layers.set(ObjectLayers.Camera) // Ignore avatars
+  // @ts-ignore - todo figure out why typescript freaks out at this
   raycaster.firstHitOnly = true // three-mesh-bvh setting
   raycaster.far = followCamera.maxDistance
   raycaster.set(target, targetToCamVec.normalize())
