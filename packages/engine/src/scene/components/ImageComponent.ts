@@ -40,7 +40,7 @@ import {
   Vector2
 } from 'three'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 import { getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
 import config from '@etherealengine/common/src/config'

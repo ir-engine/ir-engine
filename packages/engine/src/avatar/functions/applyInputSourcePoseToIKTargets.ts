@@ -27,11 +27,11 @@ import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/network'
 import { Q_Y_180 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'

@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/network'
 import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'

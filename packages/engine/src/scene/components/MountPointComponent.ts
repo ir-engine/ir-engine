@@ -26,13 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { ArrowHelper, Vector3 } from 'three'
 
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, matches, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { defineComponent, hasComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { matches, matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
