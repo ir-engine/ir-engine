@@ -126,5 +126,8 @@
     "alreadyAdded": "{{email}} has already been added!",
     "invalidEmail": "{{email}} is not a valid email address!"
   },
+  "select": {
+    "fetching": "Fetching options..."
+  },
   "exploreRedirect": "Explore Worlds"
 }
