@@ -24,8 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { createEntity, defineComponent, setComponent } from '@etherealengine/ecs'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { Entity, UndefinedEntity, createEntity, defineComponent, setComponent } from '@etherealengine/ecs'
 import { NO_PROXY_STEALTH, State, hookstate, useHookstate } from '@etherealengine/hyperflux'
 
 export const UUIDComponent = defineComponent({

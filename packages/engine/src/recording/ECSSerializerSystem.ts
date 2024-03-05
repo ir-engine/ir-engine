@@ -29,6 +29,7 @@ import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import {
   SerializationSchema,
+  UUIDComponent,
   ViewCursor,
   checkBitflag,
   createViewCursor,
@@ -39,7 +40,6 @@ import {
   spaceUint32,
   spaceUint8
 } from '@etherealengine/network'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 
 export type SerializedChunk = {
   startTimecode: number

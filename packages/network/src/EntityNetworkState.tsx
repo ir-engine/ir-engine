@@ -31,7 +31,7 @@ import { defineState, dispatchAction, getMutableState, getState, none, useHookst
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { Engine, getOptionalComponent, removeEntity, setComponent } from '@etherealengine/ecs'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/network'
 import React, { useEffect, useLayoutEffect } from 'react'
 import { NetworkObjectComponent } from './NetworkObjectComponent'
 import { NetworkState, SceneUser } from './NetworkState'

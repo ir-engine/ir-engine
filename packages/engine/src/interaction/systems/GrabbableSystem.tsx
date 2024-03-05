@@ -60,10 +60,10 @@ import {
   NetworkObjectComponent,
   NetworkState,
   NetworkTopics,
+  UUIDComponent,
   WorldNetworkAction
 } from '@etherealengine/network'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'

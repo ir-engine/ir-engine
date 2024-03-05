@@ -67,6 +67,7 @@ import {
   NetworkState,
   NetworkTopics,
   SerializationSchema,
+  UUIDComponent,
   WorldNetworkAction,
   addDataChannelHandler,
   removeDataChannelHandler,
@@ -74,7 +75,6 @@ import {
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
 } from '@etherealengine/network'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 import { PhysicsSerialization } from '@etherealengine/spatial/src/physics/PhysicsSerialization'
 import matches, { Validator } from 'ts-matches'

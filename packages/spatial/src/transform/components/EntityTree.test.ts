@@ -31,7 +31,7 @@ import { getComponent, hasComponent, removeComponent, setComponent } from '@ethe
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/network'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import {
   EntityTreeComponent,

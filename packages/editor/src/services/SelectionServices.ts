@@ -32,7 +32,7 @@ import { defineState, getMutableState, getState, useHookstate } from '@ethereale
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/network'
 import { useEffect } from 'react'
 
 export const SelectionState = defineState({

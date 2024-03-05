@@ -50,8 +50,7 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { NetworkState } from '@etherealengine/network'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { NetworkState, UUIDComponent } from '@etherealengine/network'
 import {
   createPriorityQueue,
   createSortAndApplyPriorityQueue

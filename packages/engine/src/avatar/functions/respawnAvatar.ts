@@ -27,8 +27,8 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { UUIDComponent } from '@etherealengine/network'
 import { SpawnPoseState } from '@etherealengine/spatial'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { teleportAvatar } from './moveAvatar'
 

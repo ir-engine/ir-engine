@@ -29,7 +29,7 @@ import { useTranslation } from 'react-i18next'
 
 import { useAllComponents, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/network'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'

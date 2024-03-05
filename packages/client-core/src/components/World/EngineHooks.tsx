@@ -38,10 +38,17 @@ import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/move
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
 import { PortalComponent, PortalState } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
-import { Network, NetworkState, NetworkTopics, addNetwork, createNetwork, removeNetwork } from '@etherealengine/network'
+import {
+  Network,
+  NetworkState,
+  NetworkTopics,
+  UUIDComponent,
+  addNetwork,
+  createNetwork,
+  removeNetwork
+} from '@etherealengine/network'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
