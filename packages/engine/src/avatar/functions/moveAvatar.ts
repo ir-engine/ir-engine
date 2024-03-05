@@ -24,11 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { QueryFilterFlags } from '@dimforge/rapier3d-compat'
-import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
-
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
-
+import { UUIDComponent } from '@etherealengine/ecs'
 import {
   ComponentType,
   getComponent,
@@ -38,7 +35,8 @@ import {
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { NetworkObjectAuthorityTag, UUIDComponent } from '@etherealengine/network'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { NetworkObjectAuthorityTag } from '@etherealengine/network'
 import { SpawnPoseState } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { ObjectDirection } from '@etherealengine/spatial/src/common/constants/Axis3D'
@@ -53,6 +51,7 @@ import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/Physic
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '@etherealengine/spatial/src/transform/updateWorldOrigin'
 import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { preloadedAnimations } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarColliderComponent, AvatarControllerComponent } from '../components/AvatarControllerComponent'

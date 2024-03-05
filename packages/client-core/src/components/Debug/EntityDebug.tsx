@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import {
   Component,
   ComponentMap,
@@ -42,7 +43,6 @@ import {
   getState,
   syncStateWithLocalStorage
 } from '@etherealengine/hyperflux'
-import { UUIDComponent } from '@etherealengine/network'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { useHookstate } from '@hookstate/core'

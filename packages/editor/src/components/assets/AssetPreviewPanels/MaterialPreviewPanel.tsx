@@ -34,11 +34,17 @@ import {
 } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { EntityUUID, createEntity, getMutableComponent, removeEntity, setComponent } from '@etherealengine/ecs'
+import {
+  EntityUUID,
+  UUIDComponent,
+  createEntity,
+  getMutableComponent,
+  removeEntity,
+  setComponent
+} from '@etherealengine/ecs'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
-import { UUIDComponent } from '@etherealengine/network'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'

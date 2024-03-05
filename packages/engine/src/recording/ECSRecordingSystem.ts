@@ -23,9 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { decode, encode } from 'msgpackr'
-import { PassThrough } from 'stream'
-
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import multiLogger from '@etherealengine/common/src/logger'
 import {
@@ -37,11 +34,7 @@ import {
   userPath
 } from '@etherealengine/common/src/schema.type.module'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { EntityUUID } from '@etherealengine/ecs'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { ECSState, Engine, EntityUUID, PresentationSystemGroup, UUIDComponent, defineSystem } from '@etherealengine/ecs'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import {
   ECSDeserializer,
@@ -67,7 +60,6 @@ import {
   NetworkState,
   NetworkTopics,
   SerializationSchema,
-  UUIDComponent,
   WorldNetworkAction,
   addDataChannelHandler,
   removeDataChannelHandler,
@@ -77,6 +69,8 @@ import {
 } from '@etherealengine/network'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 import { PhysicsSerialization } from '@etherealengine/spatial/src/physics/PhysicsSerialization'
+import { decode, encode } from 'msgpackr'
+import { PassThrough } from 'stream'
 import matches, { Validator } from 'ts-matches'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { mocapDataChannelType } from '../mocap/MotionCaptureSystem'

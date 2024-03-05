@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { MeshBasicMaterial, Vector3 } from 'three'
 
-import { EntityUUID } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import {
   defineAction,
   defineActionQueue,
@@ -41,26 +41,26 @@ import {
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
+  ECSState,
+  Engine,
+  Entity,
+  SimulationSystemGroup,
+  defineQuery,
+  defineSystem,
+  entityExists,
   getComponent,
   getOptionalComponent,
   hasComponent,
+  matchesEntityUUID,
   removeComponent,
   setComponent,
   useComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity, matchesEntityUUID } from '@etherealengine/ecs/src/Entity'
-import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+} from '@etherealengine/ecs'
 import {
   NetworkObjectAuthorityTag,
   NetworkObjectComponent,
   NetworkState,
   NetworkTopics,
-  UUIDComponent,
   WorldNetworkAction
 } from '@etherealengine/network'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
