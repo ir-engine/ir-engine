@@ -27,7 +27,7 @@ import { defineState, getMutableState, none, useHookstate } from '@etherealengin
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { WorldNetworkAction } from '@etherealengine/network/src/functions/WorldNetworkAction'
+import { WorldNetworkAction } from '@etherealengine/network'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import React, { useLayoutEffect } from 'react'

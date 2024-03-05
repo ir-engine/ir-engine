@@ -55,8 +55,13 @@ import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { NetworkObjectAuthorityTag, NetworkObjectComponent, NetworkState, NetworkTopics } from '@etherealengine/network'
-import { WorldNetworkAction } from '@etherealengine/network/src/functions/WorldNetworkAction'
+import {
+  NetworkObjectAuthorityTag,
+  NetworkObjectComponent,
+  NetworkState,
+  NetworkTopics,
+  WorldNetworkAction
+} from '@etherealengine/network'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'

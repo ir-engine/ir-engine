@@ -60,6 +60,7 @@ import {
   MediasoupTransportObjectsState,
   MediasoupTransportState,
   NetworkConnectionParams,
+  NetworkPeerFunctions,
   NetworkState,
   NetworkTopics,
   VideoConstants,
@@ -71,7 +72,6 @@ import {
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
 } from '@etherealengine/network'
-import { NetworkPeerFunctions } from '@etherealengine/network/src/functions/NetworkPeerFunctions'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import * as mediasoupClient from 'mediasoup-client'
 import {
@@ -99,8 +99,7 @@ import { AuthState } from '../user/services/AuthService'
 import { MediaStreamState, MediaStreamService as _MediaStreamService } from './MediaStreams'
 import { clearPeerMediaChannels } from './PeerMediaChannelState'
 
-import { DataChannelRegistryState } from '@etherealengine/network'
-import { NetworkActionFunctions } from '@etherealengine/network/src/functions/NetworkActionFunctions'
+import { DataChannelRegistryState, NetworkActionFunctions } from '@etherealengine/network'
 import { encode } from 'msgpackr'
 
 import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'

@@ -63,17 +63,17 @@ import {
   DataChannelRegistryState,
   DataChannelType,
   Network,
+  NetworkPeerFunctions,
   NetworkState,
   NetworkTopics,
   SerializationSchema,
   WorldNetworkAction,
   addDataChannelHandler,
   removeDataChannelHandler,
+  updatePeers,
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
 } from '@etherealengine/network'
-import { NetworkPeerFunctions } from '@etherealengine/network/src/functions/NetworkPeerFunctions'
-import { updatePeers } from '@etherealengine/network/src/systems/OutgoingActionSystem'
 import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 import { PhysicsSerialization } from '@etherealengine/spatial/src/physics/PhysicsSerialization'

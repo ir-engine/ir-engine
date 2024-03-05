@@ -24,8 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { NetworkPeerFunctions } from '@etherealengine/network/src/functions/NetworkPeerFunctions'
-import { updatePeers } from '@etherealengine/network/src/systems/OutgoingActionSystem'
+import { NetworkPeerFunctions, updatePeers } from '@etherealengine/network'
 import { useEffect } from 'react'
 
 import { RecordingID } from '@etherealengine/common/src/schema.type.module'

@@ -23,12 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import * as VideoConstants from './src/constants/VideoConstants'
 export * from './src/DataChannelRegistry'
 export * from './src/EntityNetworkState'
 export * from './src/Network'
 export * from './src/NetworkObjectComponent'
 export * from './src/NetworkState'
 export * from './src/NetworkUserState'
+export * from './src/functions/NetworkActionFunctions'
+export * from './src/functions/NetworkPeerFunctions'
 export * from './src/functions/WorldNetworkAction'
 export * from './src/serialization/DataReader'
 export * from './src/serialization/DataWriter'
@@ -42,5 +45,3 @@ export * from './src/transports/mediasoup/MediasoupDataProducerConsumerState'
 export * from './src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 export * from './src/transports/mediasoup/MediasoupTransportState'
 export { VideoConstants }
-
-import * as VideoConstants from './src/constants/VideoConstants'

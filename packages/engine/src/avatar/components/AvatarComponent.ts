@@ -27,7 +27,7 @@ import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { defineComponent, getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { matches } from '@etherealengine/hyperflux'
-import { NetworkObjectComponent } from '@etherealengine/network/src/NetworkObjectComponent'
+import { NetworkObjectComponent } from '@etherealengine/network'
 
 export const AvatarComponent = defineComponent({
   name: 'AvatarComponent',

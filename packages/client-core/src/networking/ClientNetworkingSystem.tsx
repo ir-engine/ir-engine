@@ -37,9 +37,9 @@ import {
   MediasoupTransportObjectsState,
   MediasoupTransportState,
   NetworkActions,
+  NetworkPeerFunctions,
   NetworkState
 } from '@etherealengine/network'
-import { NetworkPeerFunctions } from '@etherealengine/network/src/functions/NetworkPeerFunctions'
 import { PeerMediaConsumers } from '../media/PeerMedia'
 import {
   SocketWebRTCClientNetwork,

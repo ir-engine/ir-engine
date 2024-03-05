@@ -37,7 +37,7 @@ import {
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { NetworkObjectComponent } from '@etherealengine/network/src/NetworkObjectComponent'
+import { NetworkObjectComponent } from '@etherealengine/network'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'

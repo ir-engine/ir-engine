@@ -56,9 +56,14 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { HyperFlux, State, getMutableState, getState } from '@etherealengine/hyperflux'
-import { NetworkConnectionParams, NetworkState, NetworkTopics, addNetwork } from '@etherealengine/network'
-import { NetworkPeerFunctions } from '@etherealengine/network/src/functions/NetworkPeerFunctions'
-import { updatePeers } from '@etherealengine/network/src/systems/OutgoingActionSystem'
+import {
+  NetworkConnectionParams,
+  NetworkPeerFunctions,
+  NetworkState,
+  NetworkTopics,
+  addNetwork,
+  updatePeers
+} from '@etherealengine/network'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
