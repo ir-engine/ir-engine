@@ -365,8 +365,7 @@ export const TransformGizmoVisualComponent = defineComponent({
             tempGeometry.applyMatrix4(object.matrix)
             object.geometry = tempGeometry
             object.renderOrder = Infinity
-            object.layers.disableAll()
-            object.layers.enable(ObjectLayers.TransformGizmo)
+            object.layers.set(ObjectLayers.TransformGizmo)
             object.position.set(0, 0, 0)
             object.rotation.set(0, 0, 0)
             object.scale.set(1, 1, 1)
@@ -404,6 +403,7 @@ export const TransformGizmoVisualComponent = defineComponent({
         addObjectToGroup(helper[mode], helperObject[mode])
         setComponent(helper[mode], TransformGizmoTagComponent)
         setComponent(helper[mode], VisibleComponent)
+
         visualComponent.helper[mode].set(helper[mode])
 
         setComponent(picker[mode], NameComponent, `gizmoPicker${mode}Entity`)

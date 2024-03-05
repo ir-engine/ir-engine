@@ -169,10 +169,9 @@ export const TransformGizmoControlComponent = defineComponent({
           toneMapped: false
         })
       )
-      plane.layers.disableAll()
-      plane.layers.set(ObjectLayers.TransformGizmo)
 
       addObjectToGroup(gizmoControlComponent.planeEntity.value, plane)
+      plane.layers.set(ObjectLayers.TransformGizmo)
       setComponent(gizmoControlComponent.planeEntity.value, InputComponent)
       setComponent(gizmoControlComponent.planeEntity.value, TransformGizmoTagComponent)
     }, [])
