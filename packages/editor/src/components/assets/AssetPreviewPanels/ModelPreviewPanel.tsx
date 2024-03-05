@@ -35,11 +35,10 @@ import {
 } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { EntityUUID, setComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, setComponent } from '@etherealengine/ecs'
 import { AssetPreviewCameraComponent } from '@etherealengine/engine/src/camera/components/AssetPreviewCameraComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { UUIDComponent } from '@etherealengine/network'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'

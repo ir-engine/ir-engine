@@ -30,7 +30,7 @@ import { NO_PROXY, defineState, getMutableState, getState, none, useHookstate } 
 
 import { portalPath } from '@etherealengine/common/src/schema.type.module'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { EntityUUID } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import {
   ComponentType,
   defineComponent,
@@ -43,7 +43,6 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { matches } from '@etherealengine/hyperflux'
-import { UUIDComponent } from '@etherealengine/network'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { V_100 } from '@etherealengine/spatial/src/common/constants/MathConstants'

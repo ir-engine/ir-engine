@@ -42,10 +42,10 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
-import { UUIDComponent } from '@etherealengine/network'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { useHookstate } from '@hookstate/core'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'

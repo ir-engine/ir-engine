@@ -23,16 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three'
-
-import { EntityUUID } from '@etherealengine/ecs'
+import {
+  Engine,
+  Entity,
+  EntityUUID,
+  UUIDComponent,
+  createEntity,
+  getComponent,
+  setComponent
+} from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
-
-import { createEntity } from '@etherealengine/ecs'
-import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { NetworkObjectComponent, NetworkObjectSendPeriodicUpdatesTag, UUIDComponent } from '@etherealengine/network'
+import { NetworkObjectComponent, NetworkObjectSendPeriodicUpdatesTag } from '@etherealengine/network'
 import { setTargetCameraRotation } from '@etherealengine/spatial/src/camera/functions/CameraFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
@@ -50,6 +51,7 @@ import {
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three'
 import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
 import { EnvmapComponent } from '../../scene/components/EnvmapComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'

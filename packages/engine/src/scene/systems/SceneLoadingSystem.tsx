@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { EntityUUID } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import {
   ErrorBoundary,
   NO_PROXY,
@@ -38,21 +38,26 @@ import {
 import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
 import { ComponentJsonType, EntityJsonType, SceneID } from '@etherealengine/common/src/schema.type.module'
-import { PresentationSystemGroup } from '@etherealengine/ecs'
 import {
   ComponentJSONIDMap,
+  Entity,
+  PresentationSystemGroup,
+  QueryReactor,
+  UndefinedEntity,
+  defineSystem,
+  destroySystem,
+  entityExists,
   getComponent,
   hasComponent,
   removeComponent,
+  removeEntity,
   setComponent,
-  useOptionalComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { entityExists, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { QueryReactor, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+  useEntityContext,
+  useOptionalComponent,
+  useQuery
+} from '@etherealengine/ecs'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { NetworkState, NetworkTopics, SceneUser, UUIDComponent } from '@etherealengine/network'
+import { NetworkState, NetworkTopics, SceneUser } from '@etherealengine/network'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'

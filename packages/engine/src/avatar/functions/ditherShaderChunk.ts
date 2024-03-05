@@ -23,25 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import * as VideoConstants from './src/constants/VideoConstants'
-export * from './src/DataChannelRegistry'
-export * from './src/EntityNetworkState'
-export * from './src/Network'
-export * from './src/NetworkObjectComponent'
-export * from './src/NetworkState'
-export * from './src/NetworkUserState'
-export * from './src/functions/NetworkActionFunctions'
-export * from './src/functions/NetworkPeerFunctions'
-export * from './src/functions/WorldNetworkAction'
-export * from './src/serialization/DataReader'
-export * from './src/serialization/DataWriter'
-export * from './src/serialization/Utils'
-export * from './src/serialization/ViewCursor'
-export * from './src/systems/IncomingActionSystem'
-export * from './src/systems/IncomingNetworkSystem'
-export * from './src/systems/OutgoingActionSystem'
-export * from './src/systems/OutgoingNetworkSystem'
-export * from './src/transports/mediasoup/MediasoupDataProducerConsumerState'
-export * from './src/transports/mediasoup/MediasoupMediaProducerConsumerState'
-export * from './src/transports/mediasoup/MediasoupTransportState'
-export { VideoConstants }
+/** glsl */
+export const ditheringVertexUniform = `
+varying vec3 vWorldPosition;
+uniform bool useWorldSpace;
+`
+
+/** glsl */
+export const ditheringVertex = `
+vWorldPosition = useWorldSpace ? (modelMatrix * vec4( transformed, 1.0 )).xyz : position.xyz;
+`
+
+/** glsl */
+export const ditheringFragUniform = `
+varying vec3 vWorldPosition;
+uniform vec3 ditheringCenter;
+uniform float ditheringExponent;
+uniform float ditheringDistance;
+`
+
+/** glsl */
+export const ditheringAlphatestChunk = `
+// sample sine at screen space coordinates for dithering pattern
+float dither = sin( gl_FragCoord.x * 2.0)*sin( gl_FragCoord.y * 2.0);
+float distance = length(ditheringCenter - vWorldPosition)*1.5;
+dither += pow(ditheringDistance/distance, ditheringExponent)-1.0;
+diffuseColor.a = smoothstep( alphaTest, alphaTest + fwidth( diffuseColor.a ), diffuseColor.a );
+diffuseColor.a -= max(dither, 0.0);
+
+if ( diffuseColor.a == 0.0 ) discard;
+
+if ( diffuseColor.a < alphaTest ) discard;
+    `

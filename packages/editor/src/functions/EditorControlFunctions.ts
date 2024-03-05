@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Euler, Material, MathUtils, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 
-import { EntityUUID } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import {
   Component,
   ComponentJSONIDMap,
@@ -44,7 +44,6 @@ import { TransformSpace } from '@etherealengine/engine/src/scene/constants/trans
 import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
 import { materialFromId } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
-import { UUIDComponent } from '@etherealengine/network'
 import obj3dFromUuid from '@etherealengine/spatial/src/common/functions/obj3dFromUuid'
 import {
   EntityTreeComponent,
