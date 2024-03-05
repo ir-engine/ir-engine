@@ -27,9 +27,18 @@ import Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
-import { NO_PROXY, State, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import {
+  NO_PROXY,
+  State,
+  getMutableState,
+  getState,
+  none,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { defineQuery } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -51,6 +60,8 @@ import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { requestXRSession } from '@etherealengine/spatial/src/xr/XRSessionFunctions'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceHooks'
 import { AudioState } from '../../audio/AudioState'
@@ -88,6 +99,11 @@ export const createAudioNodeGroup = (
 export const MediaElementComponent = defineComponent({
   name: 'MediaElement',
 
+  // elementPool: {
+  //   video: [] as HTMLVideoElement[],
+  //   audio: [] as HTMLAudioElement[]
+  // },
+
   onInit: (entity) => {
     return {
       element: undefined! as HTMLMediaElement,
@@ -122,6 +138,51 @@ export const MediaElementComponent = defineComponent({
   },
 
   errors: ['MEDIA_ERROR', 'HLS_ERROR']
+})
+
+// if ('HTMLMediaElement' in globalThis) {
+//   for (let i = 0; i < 20; i++) {
+//     MediaElementComponent.elementPool.video.push(document.createElement('video'))
+//     MediaElementComponent.elementPool.audio.push(document.createElement('audio'))
+//   }
+// }
+
+// In Safari on Apple Vision Pro, all media looses autoplay permissions after entering XR, so
+// we need to trigger the play() method on the media element (and resume the audio context)
+// during a user activation event, which necessarily happens when starting an XR session.
+// play-puase all media elements to tickle the user activation
+// autoplay policy in Safari on Apple Vision Pro in the perfect way
+
+const elementsQuery = defineQuery([MediaElementComponent])
+let playPausePromises = [] as Promise<HTMLMediaElement>[]
+
+requestXRSession.beforeHooks.push(() => {
+  alert('test')
+  console.log('requestXRSession.beforeHooks')
+
+  playPausePromises = elementsQuery().map((eid) => {
+    const el = getComponent(eid, MediaElementComponent).element
+    return el
+      .play()
+      .then(() => el.pause())
+      .then(() => el)
+  })
+
+  getState(AudioState).audioContext.resume()
+})
+
+requestXRSession.afterHooks.push((ctx) => {
+  ctx.result.then(() => {
+    for (const p of playPausePromises) {
+      p.then((mediaElement) => {
+        mediaElement.play()
+        console.log('Did resume media playback: ' + mediaElement.src)
+      })
+    }
+    playPausePromises.length = 0
+    getState(AudioState).audioContext.resume()
+    console.log('Did resume audio context')
+  })
 })
 
 export const MediaComponent = defineComponent({
@@ -240,9 +301,10 @@ export const MediaComponent = defineComponent({
 export function MediaReactor() {
   const entity = useEntityContext()
   const media = useComponent(entity, MediaComponent)
-  const mediaElement = useOptionalComponent(entity, MediaElementComponent)
+  const mediaElementComponent = useOptionalComponent(entity, MediaElementComponent)
   const audioContext = getState(AudioState).audioContext
   const gainNodeMixBuses = getState(AudioState).gainNodeMixBuses
+  const xrSession = useMutableState(XRState).session
 
   if (!isClient) return null
 
@@ -250,9 +312,12 @@ export function MediaReactor() {
     // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
     // in order to ensure media will play programmatically
     const handleAutoplay = () => {
+      console.log('handleAutoplay')
       const mediaComponent = getComponent(entity, MediaElementComponent)
       // handle when we dont have autoplay enabled but have programatically started playback
-      if (!media.autoplay.value && !media.paused.value) mediaComponent?.element.play()
+      mediaComponent?.element.play().then(() => {
+        if (!media.autoplay.value && !media.paused.value) mediaComponent?.element.pause()
+      })
       // handle when we have autoplay enabled but have paused playback
       if (media.autoplay.value && media.paused.value) media.paused.set(false)
       // handle when we have autoplay and mediaComponent is paused
@@ -272,6 +337,9 @@ export function MediaReactor() {
     document.body.addEventListener('touchend', handleAutoplay)
     EngineRenderer.instance.renderer.domElement.addEventListener('pointerup', handleAutoplay)
     EngineRenderer.instance.renderer.domElement.addEventListener('touchend', handleAutoplay)
+    const mediaElement = mediaElementComponent?.element.value
+    mediaElement?.addEventListener('pause', handleAutoplay)
+    xrSession.value?.addEventListener('squeeze', handleAutoplay)
 
     return () => {
       window.removeEventListener('pointerup', handleAutoplay)
@@ -281,16 +349,18 @@ export function MediaReactor() {
       document.body.removeEventListener('touchend', handleAutoplay)
       EngineRenderer.instance.renderer.domElement.removeEventListener('pointerup', handleAutoplay)
       EngineRenderer.instance.renderer.domElement.removeEventListener('touchend', handleAutoplay)
+      mediaElement?.removeEventListener('pause', handleAutoplay)
+      xrSession.value?.removeEventListener('squeeze', handleAutoplay)
     }
-  }, [])
+  }, [mediaElementComponent, xrSession])
 
   useEffect(
     function updatePlay() {
-      if (!mediaElement) return
+      if (!mediaElementComponent) return
       if (media.paused.value) {
-        mediaElement.element.value.pause()
+        mediaElementComponent.element.value.pause()
       } else {
-        const promise = mediaElement.element.value.play()
+        const promise = mediaElementComponent.element.value.play()
         if (promise) {
           promise.catch((error) => {
             console.error(error)
@@ -298,16 +368,16 @@ export function MediaReactor() {
         }
       }
     },
-    [media.paused, mediaElement]
+    [media.paused, mediaElementComponent]
   )
 
   useEffect(
     function updateSeekTime() {
-      if (!mediaElement) return
-      setTime(mediaElement.element, media.seekTime.value)
-      if (!mediaElement.element.paused.value) mediaElement.element.value.play() // if not paused, start play again
+      if (!mediaElementComponent) return
+      setTime(mediaElementComponent.element, media.seekTime.value)
+      if (!mediaElementComponent.element.paused.value) mediaElementComponent.element.value.play() // if not paused, start play again
     },
-    [media.seekTime, mediaElement]
+    [media.seekTime, mediaElementComponent]
   )
 
   useEffect(
@@ -469,8 +539,8 @@ export function MediaReactor() {
 
   useEffect(
     function updateMixbus() {
-      if (!mediaElement?.value) return
-      const element = mediaElement.element.get({ noproxy: true })
+      if (!mediaElementComponent?.value) return
+      const element = mediaElementComponent.element.get({ noproxy: true })
       const audioNodes = AudioNodeGroups.get(element)
       if (audioNodes) {
         audioNodes.gain.disconnect(audioNodes.mixbus)
@@ -478,7 +548,7 @@ export function MediaReactor() {
         audioNodes.gain.connect(audioNodes.mixbus)
       }
     },
-    [mediaElement, media.isMusic]
+    [mediaElementComponent, media.isMusic]
   )
 
   const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
