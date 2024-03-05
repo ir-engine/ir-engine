@@ -40,11 +40,11 @@ import {
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserName } from '@etherealengine/common/src/schema.type.module'
+import { UserName, userPath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
-import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
+import { NetworkState } from '@etherealengine/network'
+import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { t } from 'i18next'
 import { Resizable } from 're-resizable'
 import React, { useEffect, useRef } from 'react'
@@ -65,13 +65,13 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
 
   const userID = mediaNetwork.peers[peerID]?.userId
 
+  const user = useGet(userPath, userID)
   const userThumbnail = useUserAvatarThumbnail(userID)
 
-  const usernames = useHookstate(getMutableState(WorldState).userNames)
   const getUsername = () => {
     if (isSelf && !isScreen) return t('user:person.you')
     if (isSelf && isScreen) return t('user:person.yourScreen')
-    const username = userID ? usernames.get({ noproxy: true })[userID] : 'A User'
+    const username = user.data?.name ?? 'A User'
     if (!isSelf && isScreen) return username + "'s Screen"
     return username
   }

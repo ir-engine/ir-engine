@@ -25,11 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { getState } from '@etherealengine/hyperflux'
+import { getState, matches } from '@etherealengine/hyperflux'
 
 import { defineComponent, setComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { matches } from '../common/functions/MatchesUtils'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRState } from './XRState'
 

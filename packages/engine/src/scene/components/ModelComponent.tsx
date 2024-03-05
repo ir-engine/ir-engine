@@ -23,11 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import { FC, useEffect } from 'react'
 import { AnimationMixer, BoxGeometry, CapsuleGeometry, CylinderGeometry, Group, Scene, SphereGeometry } from 'three'
 
 import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { QueryReactor, UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -44,7 +45,6 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { Shape } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
@@ -52,6 +52,7 @@ import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRender
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { VRM } from '@pixiv/three-vrm'
+import { Not } from 'bitecs'
 import React from 'react'
 import { AssetType } from '../../assets/enum/AssetType'
 import { useGLTF } from '../../assets/functions/resourceHooks'
@@ -339,4 +340,31 @@ export const useMeshOrModel = (entity: Entity) => {
   const sceneComponent = useOptionalComponent(entity, SceneComponent)
   const isEntityHierarchyOrMesh = (!sceneComponent && !!meshComponent) || !!modelComponent
   return isEntityHierarchyOrMesh
+}
+
+export const MeshOrModelQuery = (props: { ChildReactor: FC<{ entity: Entity; rootEntity: Entity }> }) => {
+  const ModelReactor = () => {
+    const entity = useEntityContext()
+    const sceneInstanceID = useModelSceneID(entity)
+    const childEntities = useHookstate(SceneComponent.entitiesBySceneState[sceneInstanceID])
+    return (
+      <>
+        {childEntities.value?.map((childEntity) => (
+          <props.ChildReactor entity={childEntity} rootEntity={entity} key={childEntity} />
+        ))}
+      </>
+    )
+  }
+
+  const MeshReactor = () => {
+    const entity = useEntityContext()
+    return <props.ChildReactor entity={entity} rootEntity={entity} key={entity} />
+  }
+
+  return (
+    <>
+      <QueryReactor Components={[ModelComponent]} ChildEntityReactor={ModelReactor} />
+      <QueryReactor Components={[Not(SceneComponent), MeshComponent]} ChildEntityReactor={MeshReactor} />
+    </>
+  )
 }

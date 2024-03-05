@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import i18n from 'i18next'
 
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import multiLogger from '@etherealengine/common/src/logger'
 import {
   SceneDataType,
@@ -35,12 +34,12 @@ import {
   scenePath,
   sceneUploadPath
 } from '@etherealengine/common/src/schema.type.module'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { SceneSnapshotState } from '@etherealengine/engine/src/scene/Scene'
 import { GLTFLoadedComponent } from '@etherealengine/engine/src/scene/components/GLTFLoadedComponent'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { EditorState } from '../services/EditorServices'
 
