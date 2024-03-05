@@ -23,9 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
-
+import config from '@etherealengine/common/src/config'
+import {
+  ECSState,
+  Engine,
+  Entity,
+  EntityUUID,
+  UUIDComponent,
+  defineQuery,
+  defineSystem,
+  getComponent,
+  getOptionalComponent,
+  getOptionalMutableComponent,
+  hasComponent
+} from '@etherealengine/ecs'
 import {
   NO_PROXY,
   defineState,
@@ -35,21 +46,7 @@ import {
   useHookstate,
   useMutableState
 } from '@etherealengine/hyperflux'
-
-import config from '@etherealengine/common/src/config'
-import { EntityUUID } from '@etherealengine/ecs'
-import {
-  getComponent,
-  getOptionalComponent,
-  getOptionalMutableComponent,
-  hasComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { NetworkState, UUIDComponent } from '@etherealengine/network'
+import { NetworkState } from '@etherealengine/network'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import {
   createPriorityQueue,
@@ -62,6 +59,8 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { XRLeftHandComponent, XRRightHandComponent } from '@etherealengine/spatial/src/xr/XRComponents'
 import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
+import { useEffect } from 'react'
+import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { useBatchGLTF } from '../../assets/functions/resourceHooks'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'

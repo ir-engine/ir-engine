@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Not, Types, getAllEntities } from 'bitecs'
 import {
   defineComponent,
   getAllComponentData,
@@ -41,15 +42,11 @@ import {
   useOptionalComponent
 } from './src/ComponentFunctions'
 import { executeFixedSystem, executeSystems } from './src/EngineFunctions'
-
+import { UndefinedEntity } from './src/Entity'
 import { createEntity, entityExists, removeEntity, useEntityContext } from './src/EntityFunctions'
 import { QueryReactor, defineQuery, removeQuery, useQuery } from './src/QueryFunctions'
-
 import { defineSystem, destroySystem, executeSystem, useExecute } from './src/SystemFunctions'
-
-import { UndefinedEntity } from './src/Entity'
-
-import { Not, Types, getAllEntities } from 'bitecs'
+import { UUIDComponent } from './src/UUIDComponent'
 
 const ECS = {
   /** Component API */
@@ -68,6 +65,7 @@ const ECS = {
   serializeComponent,
   useComponent,
   useOptionalComponent,
+  UUIDComponent,
   /** Entity API */
   createEntity,
   removeEntity,
@@ -98,6 +96,7 @@ globalThis.ECS = ECS
 export default ECS
 
 export * from './src/ComponentFunctions'
+export * from './src/ECSState'
 export * from './src/Engine'
 export * from './src/EngineFunctions'
 export * from './src/Entity'
@@ -105,4 +104,5 @@ export * from './src/EntityFunctions'
 export * from './src/QueryFunctions'
 export * from './src/SystemFunctions'
 export * from './src/SystemGroups'
+export * from './src/UUIDComponent'
 export { ECS }

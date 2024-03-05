@@ -27,8 +27,7 @@ import { Mesh, Object3D } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { EntityUUID } from '@etherealengine/ecs'
-import { UUIDComponent } from '@etherealengine/network'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
 import { MaterialLibraryState } from '../../../../scene/materials/MaterialLibrary'
 import { SourceType } from '../../../../scene/materials/components/MaterialSource'
