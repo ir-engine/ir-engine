@@ -75,6 +75,7 @@ import BehaveGraphNodeEditor from '../components/properties/BehaveGraphNodeEdito
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 
+import { AudioAnalysisComponent } from '@etherealengine/engine/src/scene/components/AudioAnalysisComponent'
 import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
@@ -84,6 +85,7 @@ import { defineState } from '@etherealengine/hyperflux'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
+import { AudioAnalysisEditor } from '../components/properties/AudioAnalysisEditor'
 import ColliderComponentEditor from '../components/properties/ColliderComponentEditor'
 import LinkNodeEditor from '../components/properties/LinkNodeEditor'
 import LoopAnimationNodeEditor from '../components/properties/LoopAnimationNodeEditor'
@@ -154,6 +156,7 @@ export const ComponentEditorsState = defineState({
       [MediaComponent.name]: MediaNodeEditor,
       [ImageComponent.name]: ImageNodeEditor,
       [PositionalAudioComponent.name]: PositionalAudioNodeEditor,
+      [AudioAnalysisComponent.name]: AudioAnalysisEditor,
       [VideoComponent.name]: VideoNodeEditor,
       [VolumetricComponent.name]: VolumetricNodeEditor,
       // [CloudComponent.name]: CloudsNodeEditor,

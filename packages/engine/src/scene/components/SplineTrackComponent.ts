@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -34,9 +34,9 @@ import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { getState } from '@etherealengine/hyperflux'
+import { UUIDComponent } from '@etherealengine/network'
 import { PhysicsSystem } from '@etherealengine/spatial'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { useEffect } from 'react'

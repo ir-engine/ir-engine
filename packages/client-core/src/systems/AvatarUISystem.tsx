@@ -34,18 +34,19 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { MediaSettingsState } from '@etherealengine/engine/src/audio/MediaSettingsState'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { applyVideoToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
+import {
+  NetworkObjectComponent,
+  NetworkObjectOwnedTag,
+  NetworkState,
+  webcamVideoDataChannelType
+} from '@etherealengine/network'
 import { easeOutElastic } from '@etherealengine/spatial/src/common/functions/MathFunctions'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
-import { MediaSettingsState } from '@etherealengine/spatial/src/networking/MediaSettingsState'
-import { NetworkState, webcamVideoDataChannelType } from '@etherealengine/spatial/src/networking/NetworkState'
-import {
-  NetworkObjectComponent,
-  NetworkObjectOwnedTag
-} from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
 import { Physics, RaycastArgs } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
@@ -57,9 +58,9 @@ import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIC
 
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { MediasoupMediaProducerConsumerState } from '@etherealengine/network'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
-import { MediasoupMediaProducerConsumerState } from '@etherealengine/spatial/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'

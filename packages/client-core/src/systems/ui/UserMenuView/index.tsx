@@ -32,7 +32,7 @@ import { defineState, getMutableState, useHookstate } from '@etherealengine/hype
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { XRUI, createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkState } from '@etherealengine/network'
 import { FriendService, FriendState } from '../../../social/services/FriendService'
 import { useUserAvatarThumbnail } from '../../../user/functions/useUserAvatarThumbnail'
 import { AuthState } from '../../../user/services/AuthService'

@@ -23,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID, matchesEntityUUID } from '@etherealengine/ecs'
 import { defineAction, defineState, getMutableState, none } from '@etherealengine/hyperflux'
-import { matchesEntityUUID } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
+import { NetworkTopics } from '@etherealengine/network'
 import matches from 'ts-matches'
 
 export class MountPointActions {

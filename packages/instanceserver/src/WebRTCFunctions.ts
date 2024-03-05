@@ -39,31 +39,27 @@ import os from 'os'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { MediaStreamAppData, NetworkState } from '@etherealengine/network'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import config from '@etherealengine/server-core/src/appconfig'
 import { config as mediaConfig, sctpParameters } from '@etherealengine/server-core/src/config'
 import { WebRtcTransportParams } from '@etherealengine/server-core/src/types/WebRtcTransportParams'
-import { MediaStreamAppData, NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 
-import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import { DataChannelRegistryState } from '@etherealengine/spatial/src/networking/systems/DataChannelRegistry'
 import {
+  DataChannelRegistryState,
+  DataChannelType,
   MediasoupDataConsumerActions,
   MediasoupDataProducerActions,
-  MediasoupDataProducersConsumersObjectsState
-} from '@etherealengine/spatial/src/networking/systems/MediasoupDataProducerConsumerState'
-import {
+  MediasoupDataProducersConsumersObjectsState,
   MediasoupMediaConsumerActions,
   MediasoupMediaProducerActions,
   MediasoupMediaProducerConsumerState,
-  MediasoupMediaProducersConsumersObjectsState
-} from '@etherealengine/spatial/src/networking/systems/MediasoupMediaProducerConsumerState'
-import {
+  MediasoupMediaProducersConsumersObjectsState,
   MediasoupTransportActions,
   MediasoupTransportObjectsState,
   MediasoupTransportState
-} from '@etherealengine/spatial/src/networking/systems/MediasoupTransportState'
+} from '@etherealengine/network'
 import { decode } from 'msgpackr'
 import { InstanceServerState } from './InstanceServerState'
 import { MediasoupInternalWebRTCDataChannelState } from './MediasoupInternalWebRTCDataChannelState'

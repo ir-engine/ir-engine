@@ -49,6 +49,8 @@ import { defineSystem, destroySystem, executeSystem, useExecute } from './src/Sy
 
 import { UndefinedEntity } from './src/Entity'
 
+import { Not, Types, getAllEntities } from 'bitecs'
+
 const ECS = {
   /** Component API */
   defineComponent,
@@ -84,7 +86,11 @@ const ECS = {
   QueryReactor,
   /** Pipeline Functions */
   executeSystems,
-  executeFixedSystem
+  executeFixedSystem,
+  /** bitECS Functions */
+  Not,
+  Types,
+  getAllEntities
 }
 
 globalThis.ECS = ECS

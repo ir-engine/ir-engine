@@ -27,7 +27,7 @@ import { useEffect } from 'react'
 import { BufferGeometry, Mesh, MeshLambertMaterial, MeshStandardMaterial, Object3D, ShadowMaterial } from 'three'
 import matches from 'ts-matches'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 import { defineAction, getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
 
 import {
@@ -39,7 +39,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/network'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { matchesQuaternion, matchesVector3 } from '../common/functions/MatchesUtils'
 import { addObjectToGroup, GroupComponent } from '../renderer/components/GroupComponent'
