@@ -189,7 +189,8 @@ const onItemLoadedFor = <T extends AssetType>(url: string, resourceType: Resourc
   else if (!resources[url].assetRefs[resourceType].value) resources[url].assetRefs.merge({ [resourceType]: [id] })
   else resources[url].assetRefs[resourceType].merge([id])
 
-  referencedAssets[id].merge([url])
+  /**@todo figure out a way to uniquely map an asset for a GLTF to the GLTF resource */
+  referencedAssets[id].set([url])
 }
 
 const onProgress = (url: string, loaded: number, total: number) => {}
@@ -464,9 +465,9 @@ const unload = (url: string, entity: Entity) => {
     return entities
   })
 
-  removeReferencedResources(resource)
   if (resource.references.length == 0) {
     if (debug) debugLog('Before Removing Resources: ' + JSON.stringify(getRendererInfo()))
+    removeReferencedResources(resource)
     removeResource(url)
     if (debug) debugLog('After Removing Resources: ' + JSON.stringify(getRendererInfo()))
   }

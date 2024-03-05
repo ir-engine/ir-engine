@@ -221,6 +221,51 @@ describe('ResourceState', () => {
     }, done)
   })
 
+  it('Can load the same asset sequentially', (done) => {
+    const entity = createEntity()
+    const entity2 = createEntity()
+    const resourceState = getState(ResourceState)
+    const controller1 = new AbortController()
+    const controller2 = new AbortController()
+    let oneDone = false
+    assert.doesNotThrow(() => {
+      ResourceManager.load<GLTF>(
+        url,
+        ResourceType.GLTF,
+        entity,
+        {},
+        (response) => {
+          assert(resourceState.resources[url] !== undefined, 'Asset not found')
+          ResourceManager.unload(url, entity)
+          if (oneDone) done()
+          else oneDone = true
+        },
+        (resquest) => {},
+        (error) => {
+          assert(false)
+        },
+        controller1.signal
+      )
+      ResourceManager.load<GLTF>(
+        url,
+        ResourceType.GLTF,
+        entity2,
+        {},
+        (response) => {
+          assert(resourceState.resources[url] !== undefined, 'Asset not found')
+          ResourceManager.unload(url, entity2)
+          if (oneDone) done()
+          else oneDone = true
+        },
+        (resquest) => {},
+        (error) => {
+          assert(false)
+        },
+        controller2.signal
+      )
+    }, done)
+  })
+
   it('Calls loading manager', (done) => {
     const entity = createEntity()
     const resourceState = getState(ResourceState)
