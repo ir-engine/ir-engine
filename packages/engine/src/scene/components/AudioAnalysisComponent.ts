@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   defineComponent,
-  getComponent,
   setComponent,
   useComponent,
   useEntityContext,
@@ -101,6 +100,7 @@ export const AudioAnalysisComponent = defineComponent({
     const entity = useEntityContext()
     const audioAnaylsisComponent = useComponent(entity, AudioAnalysisComponent)
     const posAudio = useOptionalComponent(entity, PositionalAudioComponent)
+    const mediaElement = useOptionalComponent(entity, MediaElementComponent)
     const existingSystem = useComponent(entity, MediaComponent)
 
     useEffect(() => {
@@ -114,21 +114,20 @@ export const AudioAnalysisComponent = defineComponent({
     }, [existingSystem.path])
 
     useEffect(() => {
-      if (!posAudio) {
-        return
-      }
+      if (!posAudio || !mediaElement?.value.element) return
 
-      const element = getComponent(entity, MediaElementComponent).element
-      const audioObject = AudioNodeGroups.get(element)
+      mediaElement.value.element.onplay = () => {
+        const audioObject = AudioNodeGroups.get(mediaElement.value.element)
 
-      if (audioObject) {
-        const audioContext = audioObject.source.context
-        const analyser = audioContext.createAnalyser()
-        audioObject.source.connect(analyser)
-        analyser.connect(audioContext.destination)
-        audioAnaylsisComponent.analyser.set(analyser)
+        if (audioObject) {
+          const audioContext = audioObject.source.context
+          const analyser = audioContext.createAnalyser()
+          audioObject.source.connect(analyser)
+          analyser.connect(audioContext.destination)
+          audioAnaylsisComponent.analyser.set(analyser)
+        }
       }
-    }, [audioAnaylsisComponent, posAudio])
+    }, [audioAnaylsisComponent, posAudio, mediaElement])
 
     return null
   }
