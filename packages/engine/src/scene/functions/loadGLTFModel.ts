@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Bone, InstancedMesh, Mesh, Object3D, Scene, SkinnedMesh } from 'three'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJsonType, EntityJsonType } from '@etherealengine/common/src/schema.type.module'
+import { EntityUUID } from '@etherealengine/ecs'
 import {
   ComponentJSONIDMap,
   ComponentMap,
@@ -37,9 +37,9 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { UUIDComponent } from '@etherealengine/network'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'

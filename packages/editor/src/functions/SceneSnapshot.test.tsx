@@ -23,16 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { SceneDataType, SceneID, SceneJsonType, UserID } from '@etherealengine/common/src/schema.type.module'
+import { EntityUUID } from '@etherealengine/ecs'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
 import { SceneSnapshotAction, SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { UUIDComponent } from '@etherealengine/network'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { EventDispatcher } from '@etherealengine/spatial/src/common/classes/EventDispatcher'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'

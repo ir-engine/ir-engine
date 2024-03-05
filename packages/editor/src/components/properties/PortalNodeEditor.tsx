@@ -34,8 +34,8 @@ import {
   PortalEffects,
   PortalPreviewTypes
 } from '@etherealengine/engine/src/scene/components/PortalComponent'
+import { UUIDComponent } from '@etherealengine/network'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'

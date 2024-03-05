@@ -26,14 +26,13 @@ Ethereal Engine. All Rights Reserved.
 // spawnPose is temporary - just so portals work for now - will be removed in favor of instanceserver-instanceserver communication
 import { Quaternion, Vector3 } from 'three'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { EntityUUID } from '@etherealengine/ecs'
+import { dispatchAction } from '@etherealengine/hyperflux'
 import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
-import { AvatarID, InviteCode, UserName } from '@etherealengine/common/src/schema.type.module'
+import { AvatarID, InviteCode } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
-import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
+import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
 import { ikTargets } from '../../avatar/animation/Util'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 
@@ -63,18 +62,15 @@ export type JoinWorldProps = {
 export type SpawnInWorldProps = {
   avatarSpawnPose: { position: Vector3; rotation: Quaternion }
   avatarID: AvatarID
-  name: UserName
 }
 
 export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
-  const { avatarSpawnPose, avatarID, name } = props
-  console.log('SPAWN IN WORLD', avatarSpawnPose, avatarID, name)
-  const worldState = getMutableState(WorldState)
+  const { avatarSpawnPose, avatarID } = props
+  console.log('SPAWN IN WORLD', avatarSpawnPose, avatarID)
   const entityUUID = Engine.instance.userID as string as EntityUUID
-  worldState.userNames[Engine.instance.userID].set(name)
   dispatchAction(AvatarNetworkAction.spawn({ ...avatarSpawnPose, avatarID, entityUUID }))
   dispatchAction(
-    WorldNetworkAction.spawnCamera({
+    CameraActions.spawnCamera({
       entityUUID: ('camera_' + entityUUID) as EntityUUID
     })
   )

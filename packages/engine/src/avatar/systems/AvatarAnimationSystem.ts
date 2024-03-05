@@ -37,7 +37,7 @@ import {
 } from '@etherealengine/hyperflux'
 
 import config from '@etherealengine/common/src/config'
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 import {
   getComponent,
   getOptionalComponent,
@@ -50,12 +50,11 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { NetworkState, UUIDComponent } from '@etherealengine/network'
 import {
   createPriorityQueue,
   createSortAndApplyPriorityQueue
 } from '@etherealengine/spatial/src/common/functions/PriorityQueue'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TransformSystem } from '@etherealengine/spatial/src/transform/TransformModule'
 import { compareDistanceToCamera } from '@etherealengine/spatial/src/transform/components/DistanceComponents'

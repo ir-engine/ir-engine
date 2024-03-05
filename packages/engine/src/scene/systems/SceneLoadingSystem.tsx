@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 import {
   ErrorBoundary,
   NO_PROXY,
@@ -52,17 +52,15 @@ import { entityExists, removeEntity, useEntityContext } from '@etherealengine/ec
 import { QueryReactor, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { NetworkState, NetworkTopics, SceneUser, UUIDComponent } from '@etherealengine/network'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
-import { NetworkState, SceneUser } from '@etherealengine/spatial/src/networking/NetworkState'
-import { NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
-import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { SpawnObjectActions } from '@etherealengine/spatial/src/transform/SpawnObjectActions'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { Not } from 'bitecs'
@@ -103,7 +101,7 @@ const NetworkedSceneObjectReactor = () => {
     const transform = getComponent(entity, TransformComponent)
     const isHostingWorldNetwork = !!NetworkState.worldNetwork?.isHosting
     dispatchAction(
-      WorldNetworkAction.spawnObject({
+      SpawnObjectActions.spawnObject({
         $from: SceneUser,
         $time: isHostingWorldNetwork ? undefined : 0,
         entityUUID: uuid,

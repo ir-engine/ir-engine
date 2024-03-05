@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, UndefinedEntity, defineComponent } from '@etherealengine/ecs'
+import { Entity, UndefinedEntity, defineComponent, matchesEntity } from '@etherealengine/ecs'
 import { defineState } from '@etherealengine/hyperflux'
-import { matchesEntity } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { Vector3 } from 'three'
 import matches from 'ts-matches'
 
