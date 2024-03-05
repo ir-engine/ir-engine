@@ -38,6 +38,7 @@ import { InputComponent } from '@etherealengine/spatial/src/input/components/Inp
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { TransformGizmoTagComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { useEffect } from 'react'
 import {
   BoxGeometry,
@@ -53,7 +54,6 @@ import {
   SphereGeometry,
   TorusGeometry
 } from 'three'
-import { TransformGizmoTagComponent } from './TransformGizmoControlledComponent'
 
 export const TransformGizmoVisualComponent = defineComponent({
   name: 'TransformGizmoVisual',

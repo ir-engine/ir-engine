@@ -45,7 +45,6 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { TransformGizmoTagComponent } from '../../../../editor/src/classes/TransformGizmoControlledComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { NameComponent } from '../../common/NameComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
@@ -60,7 +59,7 @@ import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent, TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
@@ -404,6 +403,7 @@ const inputSources = defineQuery([InputSourceComponent])
 const inputXRUIs = defineQuery([InputComponent, VisibleComponent, XRUIComponent])
 const inputBoundingBoxes = defineQuery([InputComponent, VisibleComponent, BoundingBoxComponent])
 const inputObjects = defineQuery([InputComponent, VisibleComponent, GroupComponent])
+/** @todo abstract into heuristic api */
 const gizmoPickerObjects = defineQuery([InputComponent, GroupComponent, VisibleComponent, TransformGizmoTagComponent])
 
 const rayRotation = new Quaternion()

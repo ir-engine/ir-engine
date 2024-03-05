@@ -49,11 +49,11 @@ import { InputSourceComponent } from '@etherealengine/spatial/src/input/componen
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { TransformGizmoTagComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { useEffect } from 'react'
 import { DoubleSide, MathUtils, Mesh, MeshBasicMaterial, PlaneGeometry, Quaternion, Vector3 } from 'three'
 import { onPointerDown, onPointerHover, onPointerMove, onPointerUp } from '../functions/gizmoHelper'
 import { EditorHelperState } from '../services/EditorHelperState'
-import { TransformGizmoTagComponent } from './TransformGizmoControlledComponent'
 import { TransformGizmoVisualComponent } from './TransformGizmoVisualComponent'
 
 export const TransformGizmoControlComponent = defineComponent({

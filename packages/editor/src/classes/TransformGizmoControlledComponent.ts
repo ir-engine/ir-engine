@@ -39,6 +39,7 @@ import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformGizmoTagComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { useHookstate } from '@hookstate/core'
 import { useEffect } from 'react'
 import { Box3, Vector3 } from 'three'
@@ -177,5 +178,3 @@ export const TransformGizmoControlledComponent = defineComponent({
     return null
   }
 })
-
-export const TransformGizmoTagComponent = defineComponent({ name: 'TransformGizmoTag' })
