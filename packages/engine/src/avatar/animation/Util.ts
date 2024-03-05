@@ -35,7 +35,8 @@ import {
 } from 'three'
 
 import config from '@etherealengine/common/src/config'
-import { matches, matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { matches } from '@etherealengine/hyperflux'
+import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 
 export const ikTargets = {
   rightHand: 'rightHand',

@@ -36,7 +36,7 @@ import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { emoteAnimations, preloadedAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import { dispatchAction } from '@etherealengine/hyperflux'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/network'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from './EmoteMenu.module.scss'
 

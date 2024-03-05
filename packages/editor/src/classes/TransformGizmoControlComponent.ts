@@ -43,8 +43,7 @@ import {
   TransformSpace,
   TransformSpaceType
 } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { getMutableState, matches, useHookstate } from '@etherealengine/hyperflux'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
