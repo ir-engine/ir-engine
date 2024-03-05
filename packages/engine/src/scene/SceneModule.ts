@@ -63,6 +63,7 @@ import { VolumetricComponent } from './components/VolumetricComponent'
 import { WaterComponent } from './components/WaterComponent'
 import { EnvironmentSystem } from './systems/EnvironmentSystem'
 import { FogSystem } from './systems/FogSystem'
+import { MeshBVHSystem } from './systems/MeshBVHSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
 import { PortalSystem } from './systems/PortalSystem'
 import { SDFSystem } from './systems/SDFSystem'
@@ -119,6 +120,7 @@ export {
   MaterialLibrarySystem,
   MountPointSystem,
   NoiseOffsetSystem,
+  MeshBVHSystem,
   ParticleSystem,
   PortalSystem,
   SceneLoadingSystem,
