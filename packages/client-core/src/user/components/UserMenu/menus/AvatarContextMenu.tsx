@@ -31,12 +31,12 @@ import Button from '@etherealengine/client-core/src/common/components/Button'
 import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
-import { UserID } from '@etherealengine/common/src/schema.type.module'
+import { UserID, userPath } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 
+import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { SocialMenus } from '../../../../networking/NetworkInstanceProvisioning'
 import { FriendService, FriendState } from '../../../../social/services/FriendService'
@@ -53,9 +53,9 @@ interface Props {
 const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
   const { t } = useTranslation()
   const friendState = useHookstate(getMutableState(FriendState))
-  const worldState = useHookstate(getMutableState(WorldState))
   const avatarUIContextMenuState = useHookstate(getMutableState(AvatarUIContextMenuState))
   const userId = avatarUIContextMenuState.id.value as UserID
+  const user = useGet(userPath, userId)
 
   const authState = useHookstate(getMutableState(AuthState))
   const selfId = authState.user.id?.value ?? ''
@@ -86,7 +86,7 @@ const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
     ? isBlocked.relatedUser.name
     : isBlocking
     ? isBlocking.relatedUser.name
-    : worldState.userNames[userId].value ?? 'A user'
+    : user.data?.name ?? 'A user'
 
   useEffect(() => {
     if (friendState.updateNeeded.value) {

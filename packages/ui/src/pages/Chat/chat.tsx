@@ -35,8 +35,8 @@ import { AuthService } from '@etherealengine/client-core/src/user/services/AuthS
 import '@etherealengine/engine/src/EngineModule'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { getMutableState } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/network'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 
 export const initializeEngineForChat = async () => {
   await loadEngineInjection()

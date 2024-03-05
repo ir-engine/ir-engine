@@ -29,7 +29,7 @@ import { useEffect } from 'react'
 
 import logger from '@etherealengine/common/src/logger'
 import { defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
-import { NetworkState, updateNetworkID } from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkState, updateNetworkID } from '@etherealengine/network'
 
 import {
   InstanceID,

@@ -25,10 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import multiLogger from '@etherealengine/common/src/logger'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
-import {
-  VIDEO_CONSTRAINTS,
-  localAudioConstraints
-} from '@etherealengine/spatial/src/networking/constants/VideoConstants'
+import { VideoConstants } from '@etherealengine/network'
 
 import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
 import { ProducerExtension } from './SocketWebRTCClientFunctions'
@@ -189,7 +186,7 @@ export const MediaStreamService = {
     try {
       const { maxResolution } = clientSettingState.client[0].mediaSettings.video
       const constraints = {
-        video: VIDEO_CONSTRAINTS[maxResolution] || VIDEO_CONSTRAINTS.hd
+        video: VideoConstants.VIDEO_CONSTRAINTS[maxResolution] || VideoConstants.VIDEO_CONSTRAINTS.hd
       }
       const videoStream = await navigator.mediaDevices.getUserMedia(constraints)
       logger.info('Getting video stream %o', constraints)
@@ -218,8 +215,8 @@ export const MediaStreamService = {
   async getAudioStream() {
     const state = getMutableState(MediaStreamState)
     try {
-      logger.info('Getting audio stream %o', localAudioConstraints)
-      const audioStream = await navigator.mediaDevices.getUserMedia(localAudioConstraints)
+      logger.info('Getting audio stream %o', VideoConstants.localAudioConstraints)
+      const audioStream = await navigator.mediaDevices.getUserMedia(VideoConstants.localAudioConstraints)
       if (!audioStream.active) {
         state.audioStream.set(null)
         return false
