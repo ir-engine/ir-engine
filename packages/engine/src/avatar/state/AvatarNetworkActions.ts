@@ -24,16 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { AvatarID } from '@etherealengine/common/src/schema.type.module'
+import { matchesEntityUUID } from '@etherealengine/ecs'
 import { defineAction } from '@etherealengine/hyperflux'
-import { matchesEntityUUID } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
-import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
+import { NetworkTopics } from '@etherealengine/network'
+import { SpawnObjectActions } from '@etherealengine/spatial/src/transform/SpawnObjectActions'
 import matches, { Validator } from 'ts-matches'
 import { matchesIkTarget } from '../animation/Util'
 
 export class AvatarNetworkAction {
   static spawn = defineAction(
-    WorldNetworkAction.spawnObject.extend({
+    SpawnObjectActions.spawnObject.extend({
       type: 'ee.engine.avatar.SPAWN',
       avatarID: matches.string as Validator<unknown, AvatarID>
     })
@@ -61,7 +61,7 @@ export class AvatarNetworkAction {
   })
 
   static spawnIKTarget = defineAction(
-    WorldNetworkAction.spawnObject.extend({
+    SpawnObjectActions.spawnObject.extend({
       type: 'ee.engine.avatar.SPAWN_IK_TARGET',
       name: matchesIkTarget,
       blendWeight: matches.number

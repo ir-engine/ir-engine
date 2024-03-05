@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 export * from './camera/CameraModule'
 export * from './input/InputModule'
-export * from './networking/NetworkModule'
 export * from './physics/PhysicsModule'
 export * from './renderer/RendererModule'
 export * from './threejsPatches'

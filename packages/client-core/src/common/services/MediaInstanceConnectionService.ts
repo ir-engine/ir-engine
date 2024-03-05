@@ -29,7 +29,7 @@ import multiLogger from '@etherealengine/common/src/logger'
 import { ChannelID, InstanceID, RoomCode, instanceProvisionPath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { State, defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkState } from '@etherealengine/network'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
 
