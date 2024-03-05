@@ -33,7 +33,7 @@ export interface CopyTextProps extends React.HTMLAttributes<HTMLTextAreaElement>
   className?: string
 }
 
-const Text = ({ text, className }: CopyTextProps) => {
+const CopyText = ({ text, className }: CopyTextProps) => {
   const twClasses = twMerge(
     'relative max-h-60 w-full resize-none rounded-md border border-[#2b2c30] p-4 focus-visible:outline-none',
     className
@@ -68,4 +68,4 @@ const Text = ({ text, className }: CopyTextProps) => {
   )
 }
 
-export default Text
+export default CopyText

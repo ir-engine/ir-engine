@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
 import { useHookstate } from '@etherealengine/hyperflux'
 import React, { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import Input from '../Input'
@@ -35,8 +36,8 @@ export interface SelectProps {
   className?: string
   error?: string
   description?: string
-  currentValue: any
   options: { name: string; value: any; disabled?: boolean }[]
+  currentValue: any
   onChange: (value: any) => void
   placeholder?: string
   disabled?: boolean
@@ -48,24 +49,23 @@ const Select = ({
   label,
   error,
   description,
-  currentValue,
   options,
+  currentValue,
   onChange,
   placeholder,
   disabled,
   menuClassname
 }: SelectProps) => {
-  const twClassName = twMerge('bg-theme-primary relative', className)
   const ref = useRef<HTMLDivElement>(null)
-
-  const selectedOption = useHookstate(currentValue)
-  const filteredOptions = useHookstate(options)
+  const { t } = useTranslation()
 
   const showOptions = useHookstate(false)
+  const filteredOptions = useHookstate(options)
+  useEffect(() => {
+    filteredOptions.set(options)
+  }, [options])
 
-  placeholder = placeholder || 'Select an Option'
-
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     selectLabel.set(e.target.value)
     const newOptions: {
       name: string
@@ -79,25 +79,25 @@ const Select = ({
     filteredOptions.set(newOptions)
   }
 
+  const selectLabel = useHookstate('')
   useEffect(() => {
-    filteredOptions.set(options)
-  }, [options])
-
-  const selectLabel = useHookstate(options.find((option) => option.value === currentValue)?.name || '')
+    const labelName = options.find((option) => option.value === currentValue)?.name
+    if (labelName) selectLabel.set(labelName)
+  }, [currentValue, options])
 
   useClickOutside(ref, () => showOptions.set(false))
 
   return (
-    <div className={twClassName}>
+    <div className={twMerge('bg-theme-primary relative', className)}>
       <Input
         disabled={disabled}
         label={label}
         description={description}
         error={error}
         className="cursor-pointer"
-        placeholder={placeholder}
+        placeholder={placeholder || t('common:select.selectOption')}
         value={selectLabel.value}
-        onChange={handleOnChange}
+        onChange={handleSearch}
         onClick={() => {
           showOptions.set(!showOptions.value)
         }}
@@ -127,10 +127,8 @@ const Select = ({
               )}
               onClick={() => {
                 if (option.disabled) return
-                selectedOption.set(option.value)
                 showOptions.set(false)
-                onChange?.(option.value)
-                selectLabel.set(option.name)
+                onChange(option.value)
               }}
             >
               {option.name}

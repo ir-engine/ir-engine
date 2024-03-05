@@ -130,6 +130,7 @@
   "select": {
     "fetching": "Fetching options...",
     "filter": "Filter options",
+    "selectOption": "Select Option",
     "selectOptions": "Select Options"
   }
 }

@@ -179,7 +179,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
         </div>
         <Select
           label={t('admin:components.user.avatar')}
-          currentValue={avatarId}
+          currentValue={avatarId.value}
           onChange={(value) => avatarId.set(value)}
           options={avatarOptions}
           error={errors.avatarId.value}
