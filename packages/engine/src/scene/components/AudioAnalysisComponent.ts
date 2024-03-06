@@ -122,6 +122,7 @@ export const AudioAnalysisComponent = defineComponent({
         if (audioObject) {
           const audioContext = audioObject.source.context
           const analyser = audioContext.createAnalyser()
+          analyser.fftSize = 2 ** 5
           audioObject.source.connect(analyser)
           analyser.connect(audioContext.destination)
           audioAnaylsisComponent.session.set({
