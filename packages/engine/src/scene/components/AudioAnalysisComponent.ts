@@ -37,6 +37,11 @@ import { useEffect } from 'react'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
 import { AudioNodeGroups, MediaComponent, MediaElementComponent } from './MediaComponent'
 
+export type AudioAnalysisSession = {
+  analyser: AnalyserNode
+  frequencyData: Uint8Array
+}
+
 export const AudioAnalysisComponent = defineComponent({
   name: 'EE_audio_analyzer',
   jsonID: 'audio-analyzer',
@@ -44,8 +49,7 @@ export const AudioAnalysisComponent = defineComponent({
   onInit: (entity) => {
     return {
       src: '' as string,
-      dataArray: null as Uint8Array | null,
-      analyser: null as AnalyserNode | null,
+      session: null as AudioAnalysisSession | null,
       bassEnabled: true as boolean,
       midEnabled: true as boolean,
       trebleEnabled: true as boolean,
@@ -59,9 +63,6 @@ export const AudioAnalysisComponent = defineComponent({
     if (!json) return
     if (typeof json.src === 'string' && component.src.value !== json.src) {
       component.src.set(json.src)
-    }
-    if (json.dataArray && component.dataArray.value !== json.dataArray) {
-      component.dataArray.set(json.dataArray)
     }
     if (typeof json.bassEnabled === 'boolean' && component.bassEnabled.value !== json.bassEnabled) {
       component.bassEnabled.set(json.bassEnabled)
@@ -86,7 +87,6 @@ export const AudioAnalysisComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       src: component.src.value,
-      dataArray: component.dataArray.value,
       bassEnabled: component.bassEnabled.value,
       midEnabled: component.midEnabled.value,
       trebleEnabled: component.trebleEnabled.value,
@@ -124,7 +124,10 @@ export const AudioAnalysisComponent = defineComponent({
           const analyser = audioContext.createAnalyser()
           audioObject.source.connect(analyser)
           analyser.connect(audioContext.destination)
-          audioAnaylsisComponent.analyser.set(analyser)
+          audioAnaylsisComponent.session.set({
+            analyser,
+            frequencyData: new Uint8Array(analyser.frequencyBinCount)
+          })
         }
       }
     }, [audioAnaylsisComponent, posAudio, mediaElement])
