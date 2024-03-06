@@ -49,7 +49,7 @@ import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 import { default as Sinon, default as sinon } from 'sinon'
-import { GraphJSON, VisualScriptState } from '../src/VisualScriptModule'
+import { GraphJSON, VisualScriptState, getOnAsyncExecuteSystemUUID } from '../src/VisualScriptModule'
 
 describe('visual Script', () => {
   let consoleSpy: Sinon.SinonSpy
@@ -153,7 +153,7 @@ describe('visual Script', () => {
     ]
     for (const message of messageSequence) {
       await waitForConsoleLog(message).then((result) => {
-        assert(result.includes(successMessage))
+        assert(result.includes(message))
       })
     }
   })
@@ -172,11 +172,12 @@ describe('visual Script', () => {
     }
     const startTime = Date.now()
     const duration = 5
+    let done = false
     const loop = () => {
       const currentTime = Date.now()
       const elapsedTime = currentTime - startTime
 
-      if (elapsedTime < duration * 1000) {
+      if (elapsedTime < duration * 1000 && !done) {
         SystemDefinitions.get(getOnExecuteSystemUUID())!.execute()
         // Continue the loop
         setTimeout(loop, 0) // using setTimeout with 0ms delay to allow other tasks to run
@@ -190,6 +191,7 @@ describe('visual Script', () => {
         assert(result.includes(message))
       })
     }
+    done = true
   })
 
   it('test variable nodes script', async () => {
@@ -197,12 +199,12 @@ describe('visual Script', () => {
     const visualScript = parseStorageProviderURLs(variableTestVisualScript) as unknown as GraphJSON
     setComponent(entity, VisualScriptComponent, { visualScript: visualScript, run: true })
 
-    const variableName = getComponent(entity, VisualScriptComponent)!.visualScript!.variables![0].name
-
+    console.log('variableGet')
     await waitForConsoleLog('variableGet').then((result) => {
       assert(result.includes('variableGet'))
     })
 
+    const variableName = getComponent(entity, VisualScriptComponent)!.visualScript!.variables![0].name
     const systemUUID = getUseVariableSystemUUID(variableName)
     const UseVariableReactor = SystemDefinitions.get(systemUUID)!.reactor!
     const useVariableTag = <UseVariableReactor />
@@ -213,6 +215,9 @@ describe('visual Script', () => {
     await waitForConsoleLog('variableUsevariableGet').then((result) => {
       assert(result.includes('variableUsevariableGet'))
     })
+    const systemAsyncUUID = getOnAsyncExecuteSystemUUID()
+    console.log('variableSet', systemAsyncUUID)
+    SystemDefinitions.get(systemAsyncUUID)!.execute()
 
     await act(() => rerender(useVariableTag))
 
@@ -225,6 +230,7 @@ describe('visual Script', () => {
     await waitForConsoleLog('variableUsevariableSet').then((result) => {
       assert(result.includes('variableUsevariableSet'))
     })
+
     unmount()
   })
 

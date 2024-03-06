@@ -39,6 +39,8 @@ import { useCallback, useEffect, useState } from 'react'
  */
 let systemCounter = 0
 let system: SystemUUID | undefined = undefined
+
+export const getOnAsyncExecuteSystemUUID = () => ('visual-script-asyncExecute' + systemCounter) as SystemUUID
 export const useVisualScriptRunner = ({
   visualScriptJson,
   autoRun = false,
@@ -97,8 +99,9 @@ export const useVisualScriptRunner = ({
 
     if (engine.asyncNodes.length) {
       if (system === undefined) {
+        systemCounter++
         const systemUUID = defineSystem({
-          uuid: 'visual-script-asyncExecute' + systemCounter++,
+          uuid: getOnAsyncExecuteSystemUUID(),
           execute: () => {
             if (!engine || !run) return
             engine.executeAllAsync(500)
