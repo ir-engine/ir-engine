@@ -373,3 +373,5 @@ export const setFromRotationMatrix = (entity: Entity, m: Matrix4) => {
     TransformComponent.rotation.z[entity] = 0.25 * s
   }
 }
+
+export const TransformGizmoTagComponent = defineComponent({ name: 'TransformGizmoTag' })
