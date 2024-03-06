@@ -41,11 +41,10 @@ import { TransformMode } from '@etherealengine/engine/src/scene/constants/transf
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
-import { PresentationSystemGroup, UndefinedEntity } from '@etherealengine/ecs'
+import { PresentationSystemGroup, UUIDComponent, UndefinedEntity } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { SceneSnapshotAction, SceneSnapshotState } from '@etherealengine/engine/src/scene/Scene'
 import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
-import { UUIDComponent } from '@etherealengine/network'
 import { TransformComponent } from '@etherealengine/spatial'
 import {
   ActiveOrbitCamera,

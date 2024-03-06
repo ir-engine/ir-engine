@@ -32,10 +32,10 @@ import { EntityUUID } from '@etherealengine/ecs'
 import { ReactorReconciler } from '@etherealengine/hyperflux'
 import { applyIncomingActions, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { UUIDComponent } from '@etherealengine/network'
 import { Network, NetworkTopics } from './Network'
 
 import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'

@@ -34,13 +34,12 @@ import {
   scenePath,
   sceneUploadPath
 } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { SceneSnapshotState } from '@etherealengine/engine/src/scene/Scene'
 import { GLTFLoadedComponent } from '@etherealengine/engine/src/scene/components/GLTFLoadedComponent'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
-import { UUIDComponent } from '@etherealengine/network'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { EditorState } from '../services/EditorServices'
 

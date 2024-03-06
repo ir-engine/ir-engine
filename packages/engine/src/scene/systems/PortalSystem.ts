@@ -25,11 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { UUIDComponent } from '@etherealengine/network'
 import { SpawnPoseState } from '@etherealengine/spatial'
 import { switchCameraMode } from '@etherealengine/spatial/src/camera/functions/switchCameraMode'
 import { CameraMode } from '@etherealengine/spatial/src/camera/types/CameraMode'

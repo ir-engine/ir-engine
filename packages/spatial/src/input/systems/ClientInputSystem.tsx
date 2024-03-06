@@ -57,8 +57,9 @@ import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent, TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
@@ -402,6 +403,8 @@ const inputSources = defineQuery([InputSourceComponent])
 const inputXRUIs = defineQuery([InputComponent, VisibleComponent, XRUIComponent])
 const inputBoundingBoxes = defineQuery([InputComponent, VisibleComponent, BoundingBoxComponent])
 const inputObjects = defineQuery([InputComponent, VisibleComponent, GroupComponent])
+/** @todo abstract into heuristic api */
+const gizmoPickerObjects = defineQuery([InputComponent, GroupComponent, VisibleComponent, TransformGizmoTagComponent])
 
 const rayRotation = new Quaternion()
 
@@ -493,21 +496,23 @@ const execute = () => {
     if (!capturedButtons || !capturedAxes) {
       let assignedInputEntity = UndefinedEntity as Entity
       let hitDistance = Infinity
-
       const sourceRotation = TransformComponent.getWorldRotation(sourceEid, quat)
       inputRaycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceRotation)
       TransformComponent.getWorldPosition(sourceEid, inputRaycast.origin).addScaledVector(inputRaycast.direction, -0.01)
       inputRaycast.excludeRigidBody = getOptionalComponent(Engine.instance.localClientEntity, RigidBodyComponent)?.body
       inputRay.set(inputRaycast.origin, inputRaycast.direction)
-
+      const pickerObj = gizmoPickerObjects() // gizmo heuristic
+      const inputObj = inputObjects()
       // only heuristic is scene objects when in the editor
       if (getState(EngineState).isEditor) {
         raycaster.set(inputRaycast.origin, inputRaycast.direction)
-        const objects = inputObjects()
+        const objects = (pickerObj.length > 0 ? pickerObj : inputObj) // gizmo heuristic
           .map((eid) => getComponent(eid, GroupComponent))
           .flat()
+        pickerObj.length > 0
+          ? raycaster.layers.enable(ObjectLayers.TransformGizmo)
+          : raycaster.layers.disable(ObjectLayers.TransformGizmo)
         const hits = raycaster.intersectObjects<Object3D>(objects, true).sort((a, b) => a.distance - b.distance)
-
         if (hits.length && hits[0].distance < hitDistance) {
           const object = hits[0].object
           const parentObject = Object3DUtils.findAncestor(object, (obj) => obj.parent === Engine.instance.scene)

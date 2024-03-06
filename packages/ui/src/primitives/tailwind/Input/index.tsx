@@ -34,7 +34,7 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   containerClassname?: string
   description?: string
   type?: InputHTMLAttributes<HTMLInputElement>['type']
-  onChange: InputHTMLAttributes<HTMLInputElement>['onChange']
+  onChange?: InputHTMLAttributes<HTMLInputElement>['onChange']
   error?: string
   disabled?: boolean
   icon?: JSX.Element
