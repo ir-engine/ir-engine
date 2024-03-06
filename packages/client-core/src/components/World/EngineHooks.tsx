@@ -30,31 +30,28 @@ import { LocationService } from '@etherealengine/client-core/src/social/services
 import { leaveNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import multiLogger from '@etherealengine/common/src/logger'
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Engine, UUIDComponent, UndefinedEntity, getComponent } from '@etherealengine/ecs'
 import { getRandomSpawnPoint, getSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/moveAvatar'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { LinkState } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { PortalComponent, PortalState } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import {
   Network,
+  NetworkPeerFunctions,
   NetworkState,
   NetworkTopics,
-  UUIDComponent,
+  WorldNetworkAction,
   addNetwork,
   createNetwork,
   removeNetwork
 } from '@etherealengine/network'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-
-import { InstanceID } from '@etherealengine/common/src/schema.type.module'
-import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { LinkState } from '@etherealengine/engine/src/scene/components/LinkComponent'
-import { NetworkPeerFunctions, WorldNetworkAction } from '@etherealengine/network'
 import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
 import { RouterState } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'

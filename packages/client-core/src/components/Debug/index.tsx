@@ -31,11 +31,10 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AvatarControllerComponent } from '@etherealengine/engine/src/avatar/components/AvatarControllerComponent'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
 
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineState, getMutableState, syncStateWithLocalStorage, useHookstate } from '@etherealengine/hyperflux'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { EntityDebug } from './EntityDebug'
 import { StateDebug } from './StateDebug'
 import { StatsPanel } from './StatsPanel'
@@ -102,6 +101,14 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
               title={t('common:debug.debug')}
             >
               <Icon type="SquareFoot" fontSize="small" />
+            </button>
+            <button
+              type="button"
+              onClick={() => rendererState.bvhDebug.set(!rendererState.bvhDebug.value)}
+              className={styles.flagBtn + (rendererState.bvhDebug.value ? ' ' + styles.active : '')}
+              title={t('common:debug.debug')}
+            >
+              <Icon type="AllOutIcon" fontSize="small" />
             </button>
             <button
               type="button"

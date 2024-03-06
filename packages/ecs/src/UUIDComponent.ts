@@ -23,8 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, EntityUUID, UndefinedEntity, createEntity, defineComponent, setComponent } from '@etherealengine/ecs'
 import { NO_PROXY_STEALTH, State, hookstate, useHookstate } from '@etherealengine/hyperflux'
+import { defineComponent, setComponent } from './ComponentFunctions'
+import { Entity, EntityUUID, UndefinedEntity } from './Entity'
+import { createEntity } from './EntityFunctions'
 
 export const UUIDComponent = defineComponent({
   name: 'UUIDComponent',

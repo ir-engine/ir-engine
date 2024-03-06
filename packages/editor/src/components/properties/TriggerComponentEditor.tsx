@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { useState } from '@etherealengine/hyperflux'
-import { UUIDComponent } from '@etherealengine/network'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'

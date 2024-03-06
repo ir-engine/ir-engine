@@ -30,6 +30,7 @@ import matches from 'ts-matches'
 import { EntityUUID } from '@etherealengine/ecs'
 import { defineAction, getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -39,7 +40,6 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { UUIDComponent } from '@etherealengine/network'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { matchesQuaternion, matchesVector3 } from '../common/functions/MatchesUtils'
 import { addObjectToGroup, GroupComponent } from '../renderer/components/GroupComponent'
