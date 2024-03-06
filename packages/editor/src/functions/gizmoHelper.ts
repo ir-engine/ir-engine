@@ -940,3 +940,9 @@ export function intersectObjectWithRay(object, raycaster, includeInvisible?) {
 
   return false
 }
+
+export function onPointerLost(gizmoEntity: Entity) {
+  const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
+  gizmoControlComponent.dragging.set(false)
+  gizmoControlComponent.axis.set(null)
+}
