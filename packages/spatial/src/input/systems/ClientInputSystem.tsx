@@ -506,9 +506,10 @@ const execute = () => {
       // only heuristic is scene objects when in the editor
       if (getState(EngineState).isEditor) {
         raycaster.set(inputRaycast.origin, inputRaycast.direction)
-        const objects = (pickerObj.length > 0 ? pickerObj : inputObj) // gizmo heuristic
+        const objects = (pickerObj.length > 0 ? pickerObj : inputObj)
           .map((eid) => getComponent(eid, GroupComponent))
           .flat()
+          .filter((m: Mesh) => m?.geometry?.boundsTree)
         pickerObj.length > 0
           ? raycaster.layers.enable(ObjectLayers.TransformGizmo)
           : raycaster.layers.disable(ObjectLayers.TransformGizmo)

@@ -352,7 +352,9 @@ const updateDropShadowTransforms = () => {
 
   sortAndApplyPriorityQueue(priorityQueue, sortedEntityTransforms, deltaSeconds)
 
-  const sceneObjects = cameraLayerQuery().flatMap((entity) => getComponent(entity, MeshComponent))
+  const sceneObjects = cameraLayerQuery()
+    .flatMap((entity) => getComponent(entity, MeshComponent))
+    .filter((m: Mesh) => m?.geometry?.boundsTree)
 
   for (const entity of priorityQueue.priorityEntities) {
     const dropShadow = getComponent(entity, DropShadowComponent)
