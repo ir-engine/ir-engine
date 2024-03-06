@@ -25,37 +25,12 @@ import { useTranslation } from 'react-i18next'
 // import AddEditUserModal from './AddEditUserModal'
 // import RemoveUserModal from './RemoveUserModal'
 import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
-import { t } from 'i18next'
+import { HiOutlineRefresh } from 'react-icons/hi'
 import { useServerInfoFind } from '../../../admin/services/ServerInfoQuery'
+import { serverAutoRefreshOptions } from '../../common/constants/server'
 import ServerTable from './ServerTable'
-
-const autoRefreshOptions = [
-  {
-    value: '0',
-    name: t('admin:components.server.none')
-  },
-  {
-    value: '10',
-    name: `10 ${t('admin:components.server.seconds')}`
-  },
-  {
-    value: '30',
-    name: `30 ${t('admin:components.server.seconds')}`
-  },
-  {
-    value: '60',
-    name: `1 ${t('admin:components.server.minute')}`
-  },
-  {
-    value: '300',
-    name: `5 ${t('admin:components.server.minutes')}`
-  },
-  {
-    value: '600',
-    name: `10 ${t('admin:components.server.minutes')}`
-  }
-]
 
 export default function Servers() {
   const { t } = useTranslation()
@@ -81,15 +56,24 @@ export default function Servers() {
         <Text fontSize="xl" className="mb-6">
           {t('admin:components.server.servers')}
         </Text>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <Text theme="secondary" fontSize="sm">
             {t('admin:components.server.autoRefresh')}
           </Text>
-          <Select
-            options={autoRefreshOptions}
-            currentValue={autoRefresh.value}
-            onChange={(value) => autoRefresh.set(value)}
-          />
+          <div className="flex items-center gap-1">
+            <Button
+              title={t('admin:components.common.refresh')}
+              onClick={serverInfoQuery.refetch}
+              startIcon={<HiOutlineRefresh />}
+              variant="outline"
+              className="justify-self-end border-0"
+            />
+            <Select
+              options={serverAutoRefreshOptions}
+              currentValue={autoRefresh.value}
+              onChange={(value) => autoRefresh.set(value)}
+            />
+          </div>
         </div>
       </div>
       <div className="mb-4 flex flex-wrap gap-2">

@@ -544,6 +544,7 @@
       "container": "Container",
       "age": "Time",
       "logs": "Logs",
+      "serverLogs": "Server Logs",
       "actions": "Actions",
       "autoRefresh": "Auto Refresh",
       "none": "None",
@@ -551,6 +552,7 @@
       "minute": "minute",
       "minutes": "minutes",
       "download": "Download",
+      "downloadLogs": "Download Logs",
       "removePod": "Remove Pod",
       "confirmPodDelete": "Do you want to delete pod",
       "viewLogs": "View Logs"

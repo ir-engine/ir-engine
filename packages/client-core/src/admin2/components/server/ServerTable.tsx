@@ -32,6 +32,7 @@ import { PopoverState } from '../../../common/services/PopoverState'
 import DataTable from '../../common/Table'
 import { ServerRowType, serverColumns } from '../../common/constants/server'
 import RemoveServerModal from './RemoveServerModal'
+import ServerLogsModal from './ServerLogsModal'
 
 const containerColor = {
   Succeeded: 'bg-green-200 dark:bg-[#064E3B]',
@@ -84,7 +85,15 @@ export default function ServerTable({
       instanceId: row.instanceId,
       action: (
         <div className="flex items-center gap-5">
-          <Button size="small" className="h-min bg-[#61759f] dark:bg-[#2A3753]">
+          <Button
+            size="small"
+            className="h-min bg-[#61759f] dark:bg-[#2A3753]"
+            onClick={() => {
+              PopoverState.showPopupover(
+                <ServerLogsModal podName={row.name} containerName={row.containers?.at(-1)?.name} />
+              )
+            }}
+          >
             {t('admin:components.server.viewLogs')}
           </Button>
           <Button
