@@ -88,7 +88,7 @@ const debugLog = debug
   ? (message?: any, ...optionalParams: any[]) => {
       console.log(message)
     }
-  : (message?: any, ...optionalParams: any[]) => {}
+  : () => {}
 
 export const ResourceState = defineState({
   name: 'ResourceManagerState',
@@ -452,11 +452,14 @@ const update = (url: string) => {
     return
   }
 
+  debugLog('ResourceManager:update Updating asset for url: ' + url)
+  removeReferencedResources(resource)
   for (const [_, onLoad] of Object.entries(onLoads)) {
     AssetLoader.load(
       url,
       resource.args.value || {},
       (response: AssetType) => {
+        resource.asset.set(response)
         onLoad(response)
       },
       (request) => {},
