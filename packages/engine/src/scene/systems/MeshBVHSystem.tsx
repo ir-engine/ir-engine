@@ -40,10 +40,68 @@ import {
 } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import React, { useEffect } from 'react'
-import { BufferGeometry, InstancedMesh, LineBasicMaterial, Mesh, SkinnedMesh } from 'three'
-import { MeshBVHHelper, acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
+import {
+  BufferGeometry,
+  InstancedMesh,
+  Intersection,
+  LineBasicMaterial,
+  Matrix4,
+  Mesh,
+  Ray,
+  Raycaster,
+  SkinnedMesh
+} from 'three'
+import { MeshBVHHelper, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 import { MeshOrModelQuery, ModelComponent } from '../components/ModelComponent'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
+
+const ray = new Ray()
+const tmpInverseMatrix = new Matrix4()
+const origMeshRaycastFunc = Mesh.prototype.raycast
+
+function convertRaycastIntersect(hit: Intersection | null, object: Mesh, raycaster: Raycaster) {
+  if (hit === null) {
+    return null
+  }
+
+  hit.point.applyMatrix4(object.matrixWorld)
+  hit.distance = hit.point.distanceTo(raycaster.ray.origin)
+  hit.object = object
+
+  if (hit.distance < raycaster.near || hit.distance > raycaster.far) {
+    return null
+  } else {
+    return hit
+  }
+}
+
+function acceleratedRaycast(raycaster: Raycaster, intersects: Array<Intersection>) {
+  const geometry = this.geometry as BufferGeometry
+  if (geometry.boundsTree) {
+    if (this.material === undefined) return
+
+    tmpInverseMatrix.copy(this.matrixWorld).invert()
+    ray.copy(raycaster.ray).applyMatrix4(tmpInverseMatrix)
+
+    const bvh = geometry.boundsTree
+    if (raycaster.firstHitOnly === true) {
+      const hit = convertRaycastIntersect(bvh.raycastFirst(ray, this.material), this, raycaster)
+      if (hit) {
+        intersects.push(hit)
+      }
+    } else {
+      const hits = bvh.raycast(ray, this.material)
+      for (let i = 0, l = hits.length; i < l; i++) {
+        const hit = convertRaycastIntersect(hits[i], this, raycaster)
+        if (hit) {
+          intersects.push(hit)
+        }
+      }
+    }
+  } else {
+    origMeshRaycastFunc.call(this, raycaster, intersects)
+  }
+}
 
 Mesh.prototype.raycast = acceleratedRaycast
 BufferGeometry.prototype['disposeBoundsTree'] = disposeBoundsTree
