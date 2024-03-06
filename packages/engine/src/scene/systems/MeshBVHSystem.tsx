@@ -59,6 +59,15 @@ const ray = new Ray()
 const tmpInverseMatrix = new Matrix4()
 const origMeshRaycastFunc = Mesh.prototype.raycast
 
+function ValidMeshForBVH(mesh: Mesh | undefined): boolean {
+  return (
+    mesh !== undefined &&
+    mesh.isMesh &&
+    !(mesh as InstancedMesh).isInstancedMesh &&
+    !(mesh as SkinnedMesh).isSkinnedMesh
+  )
+}
+
 function convertRaycastIntersect(hit: Intersection | null, object: Mesh, raycaster: Raycaster) {
   if (hit === null) {
     return null
@@ -100,7 +109,7 @@ function acceleratedRaycast(raycaster: Raycaster, intersects: Array<Intersection
       }
     }
   } else {
-    // origMeshRaycastFunc.call(this, raycaster, intersects)
+    if (!ValidMeshForBVH(mesh)) origMeshRaycastFunc.call(this, raycaster, intersects)
   }
 }
 
@@ -114,15 +123,6 @@ const edgeMaterial = new LineBasicMaterial({
   opacity: 0.3,
   depthWrite: false
 })
-
-function ValidMeshForBVH(mesh: Mesh | undefined): boolean {
-  return (
-    mesh !== undefined &&
-    mesh.isMesh &&
-    !(mesh as InstancedMesh).isInstancedMesh &&
-    !(mesh as SkinnedMesh).isSkinnedMesh
-  )
-}
 
 const MeshBVHChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   const bvhDebug = useHookstate(getMutableState(RendererState).bvhDebug)
