@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { IoMdCopy } from 'react-icons/io'
-import { twMerge } from 'tailwind-merge'
 import Button from '../Button'
 
 export interface CopyTextProps extends React.HTMLAttributes<HTMLTextAreaElement> {
@@ -35,16 +34,11 @@ export interface CopyTextProps extends React.HTMLAttributes<HTMLTextAreaElement>
 }
 
 const CopyText = ({ text, className, size = 'small' }: CopyTextProps) => {
-  const twClasses = twMerge(
-    'relative max-h-60 w-full resize-none rounded-md border border-[#2b2c30] p-4 focus-visible:outline-none',
-    className
-  )
-
   const copyText = () => {
     navigator.clipboard.writeText(text)
   }
 
-  return <Button size={size} onClick={copyText} className={twClasses} startIcon={<IoMdCopy />} />
+  return <Button size={size} onClick={copyText} className={className} startIcon={<IoMdCopy />} />
 }
 
 export default CopyText

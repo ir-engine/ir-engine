@@ -101,7 +101,7 @@ export const renameScene = async (
   newSceneName: string,
   oldSceneName: string,
   params?: SceneParams
-): Promise<any> => {
+) => {
   try {
     await Engine.instance.api
       .service(scenePath)
