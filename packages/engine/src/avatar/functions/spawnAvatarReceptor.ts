@@ -23,23 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three'
-
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import {
+  Engine,
+  Entity,
+  EntityUUID,
+  UUIDComponent,
+  createEntity,
+  getComponent,
+  setComponent
+} from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
-
-import { createEntity } from '@etherealengine/ecs'
-import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { NetworkObjectComponent, NetworkObjectSendPeriodicUpdatesTag } from '@etherealengine/network'
 import { setTargetCameraRotation } from '@etherealengine/spatial/src/camera/functions/CameraFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
-import {
-  NetworkObjectComponent,
-  NetworkObjectSendPeriodicUpdatesTag
-} from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
-import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { CollisionComponent } from '@etherealengine/spatial/src/physics/components/CollisionComponent'
@@ -55,6 +51,7 @@ import {
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three'
 import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
 import { EnvmapComponent } from '../../scene/components/EnvmapComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
@@ -73,10 +70,6 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
 
-  const userNames = getState(WorldState).userNames
-  const userName = userNames[entityUUID]
-  const shortId = ownerID.substring(0, 7)
-  setComponent(entity, NameComponent, 'avatar-' + (userName ? shortId + ' (' + userName + ')' : shortId))
   const obj3d = new Object3D()
   obj3d.entity = entity
   addObjectToGroup(entity, obj3d)

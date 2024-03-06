@@ -27,7 +27,7 @@ import { Vector3 } from 'three'
 
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { matches } from '@etherealengine/hyperflux'
 
 export const DropShadowComponent = defineComponent({
   name: 'DropShadowComponent',

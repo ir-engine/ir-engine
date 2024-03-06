@@ -37,7 +37,7 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 
 import {
   EntityJsonType,
@@ -46,16 +46,17 @@ import {
   SceneJsonType,
   scenePath
 } from '@etherealengine/common/src/schema.type.module'
+import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import React, { useLayoutEffect } from 'react'
 import matches, { Validator } from 'ts-matches'
 import { SceneComponent } from './components/SceneComponent'
 import { migrateOldColliders } from './functions/migrateOldColliders'
+import { migrateOldComponentJSONIDs } from './functions/migrateOldComponentJSONIDs'
 import { migrateSceneSettings } from './functions/migrateSceneSettings'
 import { serializeEntity } from './functions/serializeWorld'
 
@@ -85,8 +86,8 @@ export const SceneState = defineState({
   loadScene: (sceneID: SceneID, sceneData: SceneDataType) => {
     const data: SceneJsonType = sceneData.scene
 
+    migrateOldComponentJSONIDs(data)
     migrateSceneSettings(data)
-
     for (const [uuid, entityJson] of Object.entries(data.entities)) {
       migrateOldColliders(entityJson)
     }

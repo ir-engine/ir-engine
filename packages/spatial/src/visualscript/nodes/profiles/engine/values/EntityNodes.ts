@@ -23,16 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentMap, getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { copyTransformToRigidBody } from '@etherealengine/spatial/src/physics/systems/PhysicsPreTransformSystem'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
@@ -47,6 +45,7 @@ import {
 } from '@etherealengine/visual-script'
 import { cloneDeep, isEqual, uniqueId } from 'lodash'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/moveAvatar'
 import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
 import { addEntityToScene } from '../helper/entityHelper'

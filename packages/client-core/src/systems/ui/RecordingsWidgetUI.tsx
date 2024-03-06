@@ -38,8 +38,8 @@ import {
   PlaybackState,
   RecordingState
 } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
+import { NetworkState } from '@etherealengine/network'
 import { useFind, useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 import { WidgetAppService } from '@etherealengine/spatial/src/xrui/WidgetAppService'
 import { startPlayback } from '@etherealengine/ui/src/pages/Capture'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'

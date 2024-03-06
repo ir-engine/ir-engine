@@ -23,23 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
-import { checkBitflag } from '@etherealengine/spatial/src/networking/serialization/DataReader'
-import { SerializationSchema } from '@etherealengine/spatial/src/networking/serialization/Utils'
+import { Entity, EntityUUID, getComponent, UUIDComponent } from '@etherealengine/ecs'
 import {
-  ViewCursor,
+  checkBitflag,
   createViewCursor,
   readUint32,
   readUint8,
   rewindViewCursor,
+  SerializationSchema,
   sliceViewCursor,
   spaceUint32,
-  spaceUint8
-} from '@etherealengine/spatial/src/networking/serialization/ViewCursor'
+  spaceUint8,
+  ViewCursor
+} from '@etherealengine/network'
 
 export type SerializedChunk = {
   startTimecode: number
