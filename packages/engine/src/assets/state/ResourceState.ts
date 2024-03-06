@@ -478,7 +478,7 @@ const unload = (url: string, entity: Entity, uuid?: string) => {
 
   debugLog('ResourceManager:unload Unloading resource: ' + url + ' for entity: ' + entity)
   const resource = resources[url]
-  if (uuid) resource.onLoads[uuid].set(none)
+  if (uuid) resource.onLoads.merge({ [uuid]: none })
   resource.references.set((entities) => {
     const index = entities.indexOf(entity)
     if (index > -1) {
