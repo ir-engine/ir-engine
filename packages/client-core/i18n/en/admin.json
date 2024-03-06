@@ -551,6 +551,7 @@
       "minute": "minute",
       "minutes": "minutes",
       "download": "Download",
+      "removePod": "Remove Pod",
       "confirmPodDelete": "Do you want to delete pod",
       "viewLogs": "View Logs"
     },

@@ -129,5 +129,6 @@
   "select": {
     "fetching": "Fetching options..."
   },
-  "exploreRedirect": "Explore Worlds"
+  "exploreRedirect": "Explore Worlds",
+  "timeAgo": "{{time}} ago"
 }

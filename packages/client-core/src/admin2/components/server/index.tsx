@@ -20,26 +20,80 @@ Ethereal Engine. All Rights Reserved.
 
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import { useHookstate } from '@hookstate/core'
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 // import AddEditUserModal from './AddEditUserModal'
 // import RemoveUserModal from './RemoveUserModal'
 import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
+import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
+import { t } from 'i18next'
 import { useServerInfoFind } from '../../../admin/services/ServerInfoQuery'
 import ServerTable from './ServerTable'
+
+const autoRefreshOptions = [
+  {
+    value: '0',
+    name: t('admin:components.server.none')
+  },
+  {
+    value: '10',
+    name: `10 ${t('admin:components.server.seconds')}`
+  },
+  {
+    value: '30',
+    name: `30 ${t('admin:components.server.seconds')}`
+  },
+  {
+    value: '60',
+    name: `1 ${t('admin:components.server.minute')}`
+  },
+  {
+    value: '300',
+    name: `5 ${t('admin:components.server.minutes')}`
+  },
+  {
+    value: '600',
+    name: `10 ${t('admin:components.server.minutes')}`
+  }
+]
 
 export default function Servers() {
   const { t } = useTranslation()
   const serverType = useHookstate('all')
-  const serverInfo = useServerInfoFind().data
+  const serverInfoQuery = useServerInfoFind()
+
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const autoRefresh = useHookstate('60')
+
+  useEffect(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current)
+    const refreshValue = parseInt(autoRefresh.value, 10)
+    if (!refreshValue) return
+    intervalRef.current = setInterval(serverInfoQuery.refetch, refreshValue * 1000)
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
+  }, [autoRefresh])
 
   return (
     <>
-      <Text fontSize="xl" className="mb-6">
-        {t('admin:components.server.servers')}
-      </Text>
+      <div className="flex justify-between">
+        <Text fontSize="xl" className="mb-6">
+          {t('admin:components.server.servers')}
+        </Text>
+        <div className="flex items-center gap-4">
+          <Text theme="secondary" fontSize="sm">
+            {t('admin:components.server.autoRefresh')}
+          </Text>
+          <Select
+            options={autoRefreshOptions}
+            currentValue={autoRefresh.value}
+            onChange={(value) => autoRefresh.set(value)}
+          />
+        </div>
+      </div>
       <div className="mb-4 flex flex-wrap gap-2">
-        {serverInfo.map((info) => (
+        {serverInfoQuery.data.map((info) => (
           <div
             key={info.id}
             className={`flex h-16 w-44 cursor-pointer items-start justify-between rounded-2xl bg-[#212226] p-4 ${
@@ -55,7 +109,7 @@ export default function Servers() {
           </div>
         ))}
       </div>
-      <ServerTable serverType={serverType.value} />
+      <ServerTable serverType={serverType.value} serverInfoQuery={serverInfoQuery} />
     </>
   )
 }

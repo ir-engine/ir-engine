@@ -22,12 +22,16 @@ import { ServerPodInfoType } from '@etherealengine/common/src/schema.type.module
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { timeAgo } from '@etherealengine/common/src/utils/datetime-sql'
 import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
+import { HiTrash } from 'react-icons/hi2'
 import { useServerInfoFind } from '../../../admin/services/ServerInfoQuery'
+import { PopoverState } from '../../../common/services/PopoverState'
 import DataTable from '../../common/Table'
 import { ServerRowType, serverColumns } from '../../common/constants/server'
+import RemoveServerModal from './RemoveServerModal'
 
 const containerColor = {
   Succeeded: 'bg-green-200 dark:bg-[#064E3B]',
@@ -60,9 +64,14 @@ function ServerStatus({ serverPodInfo }: { serverPodInfo: ServerPodInfoType }) {
   )
 }
 
-export default function ServerTable({ serverType }: { serverType: string }) {
+export default function ServerTable({
+  serverType,
+  serverInfoQuery
+}: {
+  serverType: string
+  serverInfoQuery: ReturnType<typeof useServerInfoFind>
+}) {
   const { t } = useTranslation()
-  const serverInfoQuery = useServerInfoFind()
 
   const createRows = (rows: readonly ServerPodInfoType[]): ServerRowType[] =>
     rows.map((row) => ({
@@ -70,13 +79,21 @@ export default function ServerTable({ serverType }: { serverType: string }) {
       status: <ServerStatus serverPodInfo={row} />,
       type: row.type,
       currentUsers: row.currentUsers?.toString(),
-      age: row.age,
+      age: t('common:timeAgo', { time: timeAgo(new Date(row.age)) }),
       restarts: row.containers.map((container) => container.restarts).join(', '),
       instanceId: row.instanceId,
       action: (
-        <Button size="small" className="h-min bg-[#61759f] dark:bg-[#2A3753]">
-          {t('admin:components.server.viewLogs')}
-        </Button>
+        <div className="flex items-center gap-5">
+          <Button size="small" className="h-min bg-[#61759f] dark:bg-[#2A3753]">
+            {t('admin:components.server.viewLogs')}
+          </Button>
+          <Button
+            variant="outline"
+            className="border-0"
+            startIcon={<HiTrash className="text-[#E11D48] dark:text-[#FB7185]" />}
+            onClick={() => PopoverState.showPopupover(<RemoveServerModal serverPodInfo={row} />)}
+          />
+        </div>
       )
     }))
 
