@@ -108,9 +108,7 @@ function acceleratedRaycast(raycaster: Raycaster, intersects: Array<Intersection
         }
       }
     }
-  } else {
-    if (!ValidMeshForBVH(mesh)) origMeshRaycastFunc.call(this, raycaster, intersects)
-  }
+  } else if (!ValidMeshForBVH(mesh)) origMeshRaycastFunc.call(this, raycaster, intersects)
 }
 
 Mesh.prototype.raycast = acceleratedRaycast
