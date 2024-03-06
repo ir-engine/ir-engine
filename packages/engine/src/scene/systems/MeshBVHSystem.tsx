@@ -76,21 +76,22 @@ function convertRaycastIntersect(hit: Intersection | null, object: Mesh, raycast
 }
 
 function acceleratedRaycast(raycaster: Raycaster, intersects: Array<Intersection>) {
-  const geometry = this.geometry as BufferGeometry
+  const mesh = this as Mesh
+  const geometry = mesh.geometry as BufferGeometry
   if (geometry.boundsTree) {
-    if (this.material === undefined) return
+    if (mesh.material === undefined) return
 
-    tmpInverseMatrix.copy(this.matrixWorld).invert()
+    tmpInverseMatrix.copy(mesh.matrixWorld).invert()
     ray.copy(raycaster.ray).applyMatrix4(tmpInverseMatrix)
 
     const bvh = geometry.boundsTree
     if (raycaster.firstHitOnly === true) {
-      const hit = convertRaycastIntersect(bvh.raycastFirst(ray, this.material), this, raycaster)
+      const hit = convertRaycastIntersect(bvh.raycastFirst(ray, mesh.material), this, raycaster)
       if (hit) {
         intersects.push(hit)
       }
     } else {
-      const hits = bvh.raycast(ray, this.material)
+      const hits = bvh.raycast(ray, mesh.material)
       for (let i = 0, l = hits.length; i < l; i++) {
         const hit = convertRaycastIntersect(hits[i], this, raycaster)
         if (hit) {
@@ -99,7 +100,7 @@ function acceleratedRaycast(raycaster: Raycaster, intersects: Array<Intersection
       }
     }
   } else {
-    origMeshRaycastFunc.call(this, raycaster, intersects)
+    // origMeshRaycastFunc.call(this, raycaster, intersects)
   }
 }
 
