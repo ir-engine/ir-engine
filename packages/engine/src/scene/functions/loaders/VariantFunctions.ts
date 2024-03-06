@@ -149,6 +149,7 @@ export async function setMeshVariant(entity: Entity) {
   if (!mesh) return
   meshComponent.geometry = mesh.geometry
   meshComponent.material = mesh.material
+  getMutableComponent(entity, MeshComponent).set((val) => val) // reactivly update mesh
 }
 
 export async function setInstancedMeshVariant(entity: Entity) {
@@ -167,6 +168,7 @@ export async function setInstancedMeshVariant(entity: Entity) {
     if (!mesh) return
     meshComponent.geometry = mesh.geometry
     meshComponent.material = mesh.material
+    getMutableComponent(entity, MeshComponent).set((val) => val) // reactivly update mesh
   } else if (variantComponent.heuristic === Heuristic.DISTANCE) {
     const referencedVariants: VariantLevel[] = []
     const variantIndices: number[] = []

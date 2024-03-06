@@ -145,10 +145,10 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   }, [userAvatarDetails, entity])
 
   useEffect(() => {
-    if (!user.data) return
+    if (!user.data || !entity) return
     const userName = user.data.name
     setComponent(entity, NameComponent, userName + "'s avatar")
-  }, [user.data?.name])
+  }, [user.data?.name, entity])
 
   return null
 }
