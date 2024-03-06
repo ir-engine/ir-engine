@@ -95,20 +95,21 @@ function acceleratedRaycast(raycaster: Raycaster, intersects: Array<Intersection
 
     const bvh = geometry.boundsTree
     if (raycaster.firstHitOnly === true) {
-      const hit = convertRaycastIntersect(bvh.raycastFirst(ray, mesh.material), this, raycaster)
+      const hit = convertRaycastIntersect(bvh.raycastFirst(ray, mesh.material), mesh, raycaster)
       if (hit) {
         intersects.push(hit)
       }
     } else {
       const hits = bvh.raycast(ray, mesh.material)
       for (let i = 0, l = hits.length; i < l; i++) {
-        const hit = convertRaycastIntersect(hits[i], this, raycaster)
+        const hit = convertRaycastIntersect(hits[i], mesh, raycaster)
         if (hit) {
           intersects.push(hit)
         }
       }
     }
-  } else if (!ValidMeshForBVH(mesh)) origMeshRaycastFunc.call(this, raycaster, intersects)
+  } else if (!ValidMeshForBVH(mesh) || !hasComponent(mesh.entity, MeshComponent))
+    origMeshRaycastFunc.call(mesh, raycaster, intersects)
 }
 
 Mesh.prototype.raycast = acceleratedRaycast
