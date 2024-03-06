@@ -40,7 +40,16 @@ import {
 } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import React, { useEffect } from 'react'
-import { BufferGeometry, InstancedMesh, LineBasicMaterial, Mesh, SkinnedMesh } from 'three'
+import {
+  BufferGeometry,
+  InstancedMesh,
+  Intersection,
+  LineBasicMaterial,
+  Mesh,
+  Object3D,
+  Raycaster,
+  SkinnedMesh
+} from 'three'
 import { MeshBVHHelper, acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 import { MeshOrModelQuery, ModelComponent } from '../components/ModelComponent'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
@@ -65,6 +74,7 @@ function ValidMeshForBVH(mesh: Mesh | undefined): boolean {
   )
 }
 
+/** @todo abstract this to not rely on model component, instead always generating BVH, but moving the camera layer logic into model component */
 const MeshBVHChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   const bvhDebug = useHookstate(getMutableState(RendererState).bvhDebug)
   const model = useOptionalComponent(props.rootEntity, ModelComponent)
@@ -116,8 +126,51 @@ const MeshBVHChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
 
   return null
 }
+
 export const MeshBVHSystem = defineSystem({
   uuid: 'ee.engine.MeshBVHSystem',
   insert: { after: PresentationSystemGroup },
   reactor: () => <MeshOrModelQuery ChildReactor={MeshBVHChildReactor} />
 })
+
+/** Patch raycast functions to avoid intersections when BVH has not been generated */
+Raycaster.prototype.intersectObject = function <TIntersected extends Object3D>(
+  object: Object3D,
+  recursive = true,
+  intersects = [] as Array<Intersection<TIntersected>>
+): Array<Intersection<TIntersected>> {
+  const mesh = object as Mesh
+  if (!mesh?.geometry?.boundsTree) return intersects
+  intersectObject(object, this, intersects, recursive)
+  intersects.sort(ascSort)
+  return intersects
+}
+
+Raycaster.prototype.intersectObjects = function <TIntersected extends Object3D>(
+  objects: Array<Object3D>,
+  recursive = true,
+  intersects = [] as Array<Intersection<TIntersected>>
+): Array<Intersection<TIntersected>> {
+  for (let i = 0, l = objects.length; i < l; i++) {
+    const mesh = objects[i] as Mesh
+    if (mesh?.geometry?.boundsTree) intersectObject(objects[i], this, intersects, recursive)
+  }
+  intersects.sort(ascSort)
+  return intersects
+}
+
+function intersectObject(object: Object3D, raycaster: Raycaster, intersects: Array<Intersection>, recursive: boolean) {
+  if (object.layers.test(raycaster.layers)) {
+    object.raycast(raycaster, intersects)
+  }
+  if (recursive === true) {
+    const children = object.children
+    for (let i = 0, l = children.length; i < l; i++) {
+      intersectObject(children[i], raycaster, intersects, true)
+    }
+  }
+}
+
+function ascSort(a, b) {
+  return a.distance - b.distance
+}
