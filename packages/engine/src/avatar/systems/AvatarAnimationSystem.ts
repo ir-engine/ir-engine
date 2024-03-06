@@ -195,10 +195,9 @@ const execute = () => {
 
       node.updateMatrixWorld()
     })
-    normalizedRig.hips.node.matrixWorld.multiplyMatrices(transform.matrixWorld, normalizedRig.hips.node.matrix)
-    normalizedRig.hips.node.matrixWorld.elements[13] = rawRig.hips.node.matrixWorld.elements[13]
-    normalizedRig.hips.node.matrixWorld.elements[14] = rawRig.hips.node.matrixWorld.elements[14]
-    normalizedRig.hips.node.matrixWorld.elements[15] = rawRig.hips.node.matrixWorld.elements[15]
+    const test = transform.matrixWorld.clone()
+    test.elements[13] = rawRig.hips.node.getWorldPosition(new Vector3()).y - avatarComponent.hipsHeight
+    normalizedRig.hips.node.matrixWorld.multiplyMatrices(test, normalizedRig.hips.node.matrix)
 
     if (headTargetBlendWeight) {
       const headTransform = getComponent(head, TransformComponent)
