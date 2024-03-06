@@ -52,7 +52,7 @@ import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/Obj
 import { TransformGizmoTagComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { useEffect } from 'react'
 import { DoubleSide, MathUtils, Mesh, MeshBasicMaterial, PlaneGeometry, Quaternion, Vector3 } from 'three'
-import { onPointerDown, onPointerHover, onPointerMove, onPointerUp } from '../functions/gizmoHelper'
+import { onPointerDown, onPointerHover, onPointerLost, onPointerMove, onPointerUp } from '../functions/gizmoHelper'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { TransformGizmoVisualComponent } from './TransformGizmoVisualComponent'
 
@@ -135,7 +135,7 @@ export const TransformGizmoControlComponent = defineComponent({
           .inputSources[0]
         const planeInputSourceEntity = getComponent(gizmoControlComponent.planeEntity, InputComponent).inputSources[0]
         if (pickerInputSourceEntity === undefined && planeInputSourceEntity === undefined) {
-          onPointerUp(gizmoControlEntity)
+          onPointerLost(gizmoControlEntity)
           return
         }
         onPointerHover(gizmoControlEntity)
@@ -144,7 +144,7 @@ export const TransformGizmoControlComponent = defineComponent({
         const planeButtons = getOptionalComponent(planeInputSourceEntity, InputSourceComponent)?.buttons
 
         if (!pickerButtons && !planeButtons) {
-          onPointerUp(gizmoControlEntity)
+          onPointerLost(gizmoControlEntity)
           return
         }
 
