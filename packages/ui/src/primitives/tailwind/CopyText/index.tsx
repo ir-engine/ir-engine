@@ -31,9 +31,10 @@ import Button from '../Button'
 export interface CopyTextProps extends React.HTMLAttributes<HTMLTextAreaElement> {
   text: string
   className?: string
+  size?: 'small' | 'medium' | 'large'
 }
 
-const Text = ({ text, className }: CopyTextProps) => {
+const CopyText = ({ text, className, size = 'small' }: CopyTextProps) => {
   const twClasses = twMerge(
     'relative max-h-60 w-full resize-none rounded-md border border-[#2b2c30] p-4 focus-visible:outline-none',
     className
@@ -43,29 +44,7 @@ const Text = ({ text, className }: CopyTextProps) => {
     navigator.clipboard.writeText(text)
   }
 
-  return (
-    <div>
-      <textarea
-        readOnly
-        className={twClasses}
-        style={{
-          minHeight: 'fit-content' // min-h-fit is not working
-        }}
-      >
-        {text}
-      </textarea>
-      <Button
-        size="small"
-        onClick={copyText}
-        className="absolute"
-        style={{
-          top: '1.5rem',
-          right: '1.5rem' // top-6, right-6 classes are not working
-        }}
-        startIcon={<IoMdCopy />}
-      />
-    </div>
-  )
+  return <Button size={size} onClick={copyText} className={twClasses} startIcon={<IoMdCopy />} />
 }
 
-export default Text
+export default CopyText
