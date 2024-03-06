@@ -299,7 +299,7 @@ export const getComponent = <ComponentType>(
 ): ComponentType => {
   const componentState = component.stateMap[entity]!
   if (!componentState || componentState.promised) {
-    console.trace(
+    console.warn(
       `[getComponent]: entity ${entity} does not have ${component.name}. This will be an error in the future. Use getOptionalComponent if there is uncertainty over whether or not an entity has the specified component.`
     )
     return undefined as any
