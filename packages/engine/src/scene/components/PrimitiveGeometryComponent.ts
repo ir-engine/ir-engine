@@ -45,7 +45,7 @@ import {
 import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { Geometry } from '@etherealengine/engine/src/assets/constants/Geometry'
-import { NO_PROXY, useState } from '@etherealengine/hyperflux'
+import { NO_PROXY, NO_PROXY_STEALTH, useState } from '@etherealengine/hyperflux'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -145,6 +145,7 @@ function GeometryReactor() {
   useLayoutEffect(() => {
     if (!mesh) return
     mesh.value.geometry = geometryComponent.geometry.get(NO_PROXY)
+    mesh.set(mesh.get(NO_PROXY_STEALTH)) // reactivly update mesh
   }, [geometryComponent.geometry])
 
   useLayoutEffect(() => {
