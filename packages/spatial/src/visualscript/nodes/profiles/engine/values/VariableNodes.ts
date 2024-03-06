@@ -146,8 +146,10 @@ const initialState = (): State => ({
 })
 let useVariableSystemCounter = 0
 const useVariableSystemUUID = 'visual-script-useVariable-'
+
 export const getUseVariableSystemUUID = (variableName) =>
   (useVariableSystemUUID + `${variableName}-` + useVariableSystemCounter) as SystemUUID
+
 export const EngineVariableUse = makeEventNodeDefinition({
   typeName: 'engine/variable/use',
   category: NodeCategory.Event,
@@ -222,7 +224,7 @@ export const EngineVariableUse = makeEventNodeDefinition({
     }
     return state
   },
-  dispose: ({ state: { systemUUID }, graph: { variables } }) => {
+  dispose: ({ state: { systemUUID } }) => {
     destroySystem(systemUUID)
     return initialState()
   }

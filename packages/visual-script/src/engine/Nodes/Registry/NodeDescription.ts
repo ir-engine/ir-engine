@@ -36,8 +36,8 @@ export type NodeConfigurationDescription = {
   }
 }
 
-export function getNodeDescriptions(importWildcard: { [key: string]: INodeDefinition }): INodeDefinition[] {
-  return Object.values(importWildcard) as INodeDefinition[]
+export function getNodeDescriptions(importWildcard: { [key: string]: INodeDefinition | any }): INodeDefinition[] {
+  return Object.values(importWildcard).filter((obj) => typeof obj === 'object') as INodeDefinition[]
 }
 
 export interface INodeDescription {
