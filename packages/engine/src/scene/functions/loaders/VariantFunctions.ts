@@ -6,7 +6,8 @@ import {
   ComponentType,
   getComponent,
   getMutableComponent,
-  getOptionalMutableComponent
+  getOptionalMutableComponent,
+  hasComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
@@ -147,6 +148,7 @@ export async function setMeshVariant(entity: Entity) {
   if (!gltf) return
   const mesh = getFirstMesh(gltf.scene)
   if (!mesh) return
+  if (!hasComponent(entity, MeshComponent)) return
   meshComponent.geometry = mesh.geometry
   meshComponent.material = mesh.material
   getMutableComponent(entity, MeshComponent).set((val) => val) // reactivly update mesh
@@ -166,6 +168,7 @@ export async function setInstancedMeshVariant(entity: Entity) {
     if (!gltf) return
     const mesh = getFirstMesh(gltf.scene)
     if (!mesh) return
+    if (!hasComponent(entity, MeshComponent)) return
     meshComponent.geometry = mesh.geometry
     meshComponent.material = mesh.material
     getMutableComponent(entity, MeshComponent).set((val) => val) // reactivly update mesh
