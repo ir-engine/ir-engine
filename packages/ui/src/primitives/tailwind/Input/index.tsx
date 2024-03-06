@@ -38,7 +38,6 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   error?: string
   disabled?: boolean
   icon?: JSX.Element
-  button?: JSX.Element
 }
 
 const Input = ({
