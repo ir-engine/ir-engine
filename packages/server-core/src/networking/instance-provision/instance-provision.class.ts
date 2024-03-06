@@ -120,7 +120,7 @@ export async function getFreeInstanceserver({
       returned = returned && releaseMatch != null && releaseMatch[1] === config.server.releaseName
     if (returned && provisionConstraints) {
       const keys = Object.keys(provisionConstraints)
-      for (let key of keys) {
+      for (const key of keys) {
         const constraint = provisionConstraints[key]
         const provisionFunction = Object.keys(constraint)[0]
         const provisionValue = constraint[provisionFunction]
@@ -462,6 +462,27 @@ export async function checkForDuplicatedAssignments({
   }
 }
 
+/**
+ * A method that calculates and returns the server size category based on the maximum number of users per instance.
+ * This method categorizes the server size into 'small', 'medium', 'large', or 'default' based on the
+ * value of `maxUsersPerInstance`.
+ * @param maxUsersPerInstance
+ * @returns
+ */
+
+export async function getServerSize(maxUsersPerInstance: number) {
+  // Determine the size based on maxUsersPerInstance
+  if (maxUsersPerInstance > 20 && maxUsersPerInstance <= 50) {
+    return 'small'
+  } else if (maxUsersPerInstance > 50 && maxUsersPerInstance <= 70) {
+    return 'medium'
+  } else if (maxUsersPerInstance > 70) {
+    return 'large'
+  } else {
+    return 'default'
+  }
+}
+
 export interface InstanceProvisionParams extends KnexAdapterParams {}
 
 /**
@@ -633,7 +654,11 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
       const roomCode = params.query?.roomCode as RoomCode
       const createPrivateRoom = params.query?.createPrivateRoom
       const token = params.query?.token
-      const provisionConstraints = params.query?.provisionConstraints
+      const location = await this.app.service(locationPath).get(locationId)
+      const size = await getServerSize(location.maxUsersPerInstance)
+      const provisionConstraints = {
+        'metadata.labels.serverSize': size
+      }
       logger.info('instance-provision find %s %s %s %s', locationId, instanceId, channelId, roomCode)
       if (!token) throw new NotAuthenticated('No token provided')
       // Check if JWT resolves to a user
