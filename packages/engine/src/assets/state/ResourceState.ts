@@ -377,6 +377,8 @@ const Callbacks = {
       for (const key in asset.morphAttributes) {
         delete asset.morphAttributes[key]
       }
+
+      //@ts-ignore todo - figure out why check errors flags this
       if (asset.boundsTree) asset.disposeBoundsTree()
     }
   },
