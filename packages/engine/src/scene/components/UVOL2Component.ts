@@ -668,24 +668,24 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     volumetric.currentTrackInfo.currentTime.set(volumetric.currentTrackInfo.mediaStartTime.value)
     volumetric.currentTrackInfo.duration.set(sortedManifest.duration)
 
-    if (isClient && !isMobile && !isMobileXRHeadset) {
-      // Client's device is desktop.
-      // Fetch the highest quality textures & geometry
+    // if (isClient && !isMobile && !isMobileXRHeadset) {
+    //   // Client's device is desktop.
+    //   // Fetch the highest quality textures & geometry
 
-      const targetsCount = component.geometryInfo.targets.value.length
-      component.geometryInfo.merge({
-        userTarget: targetsCount - 1,
-        currentTarget: targetsCount - 1
-      })
+    //   const targetsCount = component.geometryInfo.targets.value.length
+    //   component.geometryInfo.merge({
+    //     userTarget: targetsCount - 1,
+    //     currentTarget: targetsCount - 1
+    //   })
 
-      component.textureInfo.textureTypes.value.forEach((textureType) => {
-        const targetsCount = component.textureInfo[textureType].targets.value.length
-        component.textureInfo[textureType].merge({
-          currentTarget: targetsCount - 1,
-          userTarget: targetsCount - 1
-        })
-      })
-    }
+    //   component.textureInfo.textureTypes.value.forEach((textureType) => {
+    //     const targetsCount = component.textureInfo[textureType].targets.value.length
+    //     component.textureInfo[textureType].merge({
+    //       currentTarget: targetsCount - 1,
+    //       userTarget: targetsCount - 1
+    //     })
+    //   })
+    // }
 
     const intervalId = setInterval(bufferLoop, 500)
     bufferLoop() // calling now because setInterval will call after 1 second
@@ -1099,7 +1099,11 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         }
         const i = j + startFrame
         frameData[i] = texture
-        component.textureInfo[textureType].buffered[relevantTimeRangeIndex].end.set((i + 1) / frameRate)
+        if (frameRate > 0) {
+          component.textureInfo[textureType].buffered[relevantTimeRangeIndex].end.set((i + 1) / frameRate)
+        } else {
+          component.textureInfo[textureType].buffered[relevantTimeRangeIndex].end.set(component.data.duration.value)
+        }
         component.textureInfo[textureType].pendingRequests.set((p) => p - 1)
 
         if ((i + 1) / targetData.frameRate >= minBufferToStart && !component.initialTextureBuffersLoaded.value) {
