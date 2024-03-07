@@ -89,8 +89,6 @@ export const addClientInputListeners = (canvas = EngineRenderer.instance.rendere
     if (evt.code === 'Space' || evt.code === 'Enter') evt.preventDefault()
   }
 
-  //canvas.addEventListener('keydown', preventDefaultKeyDown, false)
-
   canvas.addEventListener('gesturestart', preventDefault)
   canvas.addEventListener('contextmenu', preventDefault)
 
@@ -151,6 +149,7 @@ export const addClientInputListeners = (canvas = EngineRenderer.instance.rendere
 
   /** Keyboard events */
   const onKeyEvent = (event: KeyboardEvent) => {
+    preventDefaultKeyDown(event)
     const element = event.target as HTMLElement
     // Сheck which excludes the possibility of controlling the avatar when typing in a text field
     if (element?.tagName === 'INPUT' || element?.tagName === 'SELECT' || element?.tagName === 'TEXTAREA') return
@@ -329,7 +328,6 @@ export const addClientInputListeners = (canvas = EngineRenderer.instance.rendere
     inputSources().map((eid) => removeEntity(eid))
 
     window.removeEventListener('DOMMouseScroll', preventDefault, false)
-    window.removeEventListener('keydown', preventDefaultKeyDown, false)
     canvas.removeEventListener('gesturestart', preventDefault)
     canvas.removeEventListener('contextmenu', preventDefault)
 
