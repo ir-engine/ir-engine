@@ -93,6 +93,7 @@ export const TransparencyDitheringComponent = defineComponent({
           )
           if (plugin !== undefined && plugin !== -1) material.plugins!.splice(plugin, 1)
           injectDitheringLogic(material, ditheringDistance, ditheringExponent, center, useWorldSpace)
+          if (!material.shader) return
           if (material.shader.uniforms.useWorldSpace) material.shader.uniforms.useWorldSpace.value = useWorldSpace
           if (material.shader.uniforms.ditheringDistance)
             material.shader.uniforms.ditheringDistance.value = ditheringDistance

@@ -26,7 +26,17 @@ Ethereal Engine. All Rights Reserved.
 import { Entity } from '@etherealengine/ecs'
 import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { Cache, CompressedTexture, DefaultLoadingManager, LoadingManager, Material, Texture } from 'three'
+import {
+  Cache,
+  CompressedTexture,
+  DefaultLoadingManager,
+  InstancedMesh,
+  LoadingManager,
+  Material,
+  Mesh,
+  SkinnedMesh,
+  Texture
+} from 'three'
 import { SourceType } from '../../scene/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../scene/materials/functions/MaterialLibraryFunctions'
 import { AssetLoader, LoadingArgs } from '../classes/AssetLoader'
@@ -45,15 +55,16 @@ export enum ResourceStatus {
 
 export enum ResourceType {
   GLTF = 'GLTF',
+  Mesh = 'Mesh',
   Texture = 'Texture',
   Geometry = 'Geometry',
   Material = 'Material',
-  ECSData = 'ECSData',
-  Audio = 'Audio',
   Unknown = 'Unknown'
+  // ECSData = 'ECSData',
+  // Audio = 'Audio',
 }
 
-export type AssetType = GLTF | Texture | CompressedTexture | Geometry | Material
+export type AssetType = GLTF | Texture | CompressedTexture | Geometry | Material | Mesh
 
 type BaseMetadata = {
   size?: number
@@ -83,7 +94,7 @@ type Resource = {
   metadata: Metadata
 }
 
-const debug = false
+const debug = true
 const debugLog = debug
   ? (message?: any, ...optionalParams: any[]) => {
       console.log(message)
@@ -360,6 +371,31 @@ const Callbacks = {
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
     onUnload: (asset: Geometry, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
       asset.dispose()
+      for (const key in asset.attributes) {
+        asset.deleteAttribute(key)
+      }
+      for (const key in asset.morphAttributes) {
+        delete asset.morphAttributes[key]
+      }
+      if (asset.boundsTree) asset.disposeBoundsTree()
+    }
+  },
+  [ResourceType.Mesh]: {
+    onStart: (resource: State<Resource>) => {},
+    onLoad: (response: Material, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
+    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
+    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
+    onUnload: (asset: Mesh, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
+      const skinnedMesh = asset as SkinnedMesh
+      if (skinnedMesh.isSkinnedMesh) {
+        skinnedMesh.skeleton?.dispose()
+      }
+
+      // InstancedMesh or anything with a dispose function
+      const instancedMesh = asset as InstancedMesh
+      if (instancedMesh.isInstancedMesh || typeof instancedMesh.dispose === 'function') {
+        instancedMesh.dispose()
+      }
     }
   },
   [ResourceType.Unknown]: {

@@ -53,7 +53,6 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
-import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { GroupComponent, GroupQueryReactor } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -71,7 +70,7 @@ import { getModelSceneID } from '../functions/loaders/ModelFunctions'
 
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 
-export const disposeMaterial = (material: Material) => {
+const disposeMaterial = (material: Material) => {
   for (const [key, val] of Object.entries(material) as [string, Texture][]) {
     if (val && typeof val.dispose === 'function') {
       val.dispose()
@@ -152,15 +151,15 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
       ? getModelSceneID(entity)
       : getOptionalComponent(entity, SceneComponent)
     return () => {
-      if (obj.isProxified) {
-        disposeObject3D(obj)
-      } else {
-        iterateObject3D(
-          obj,
-          disposeObject3D,
-          (obj: Object3D) => getOptionalComponent(obj.entity, SceneComponent) === source
-        )
-      }
+      // if (obj.isProxified) {
+      //   disposeObject3D(obj)
+      // } else {
+      //   iterateObject3D(
+      //     obj,
+      //     disposeObject3D,
+      //     (obj: Object3D) => getOptionalComponent(obj.entity, SceneComponent) === source
+      //   )
+      // }
     }
   }, [])
 
