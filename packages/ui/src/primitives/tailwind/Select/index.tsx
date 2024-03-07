@@ -102,14 +102,12 @@ const Select = ({
           showOptions.set(!showOptions.value)
         }}
       />
-
       <MdOutlineKeyboardArrowDown
         size="1.5em"
-        className={`text-theme-primary absolute right-3 top-8 transition-transform ${
-          showOptions.value ? 'rotate-180' : ''
+        className={`text-theme-primary absolute right-3 transition-transform ${showOptions.value ? 'rotate-180' : ''} ${
+          label ? 'top-8' : 'top-2'
         }`}
       />
-
       <div
         ref={ref}
         className={`border-theme-primary bg-theme-secondary absolute z-10 mt-2 w-full rounded border ${
