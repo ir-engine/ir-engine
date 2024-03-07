@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 /** World Module */
+import '@etherealengine/spatial'
 
 export * from './avatar/AvatarModule'
 export * from './interaction/InteractionModule'
@@ -31,5 +32,3 @@ export * from './interaction/MediaModule'
 export * from './mocap/MocapModule'
 export * from './recording/RecordingModule'
 export * from './scene/SceneModule'
-
-import '@etherealengine/spatial'
