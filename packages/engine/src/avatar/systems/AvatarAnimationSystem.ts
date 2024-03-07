@@ -188,19 +188,22 @@ const execute = () => {
 
     /** place normalized rig in world space */
     const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
-    normalizedRig.hips.node.traverse((node) => {
-      node.scale.setScalar(1)
-      node.updateMatrix()
-      if (node.name === normalizedRig.hips.node.name) return
-
-      node.updateMatrixWorld()
-    })
-    const test = transform.matrixWorld.clone()
-    test.elements[13] = rawRig.hips.node.getWorldPosition(new Vector3()).y - avatarComponent.hipsHeight
-    normalizedRig.hips.node.matrixWorld.multiplyMatrices(test, normalizedRig.hips.node.matrix)
 
     if (headTargetBlendWeight) {
       const headTransform = getComponent(head, TransformComponent)
+
+      normalizedRig.hips.node.traverse((node) => {
+        node.scale.setScalar(1)
+        node.updateMatrix()
+        if (node.name === normalizedRig.hips.node.name) return
+
+        node.updateMatrixWorld()
+      })
+      const newWorldMatrix = transform.matrixWorld.clone()
+      newWorldMatrix.elements[13] = rawRig.hips.node.position.y - transform.position.y
+      normalizedRig.hips.node.matrix.elements[13] = 0
+      normalizedRig.hips.node.matrixWorld.multiplyMatrices(newWorldMatrix, normalizedRig.hips.node.matrix)
+
       normalizedRig.hips.node.position.set(
         headTransform.position.x,
         headTransform.position.y - avatarComponent.torsoLength - 0.125,
