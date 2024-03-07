@@ -23,25 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineActionQueue, dispatchAction } from '@etherealengine/hyperflux'
-
 import {
+  Engine,
+  UUIDComponent,
+  defineQuery,
+  defineSystem,
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { getState } from '@etherealengine/hyperflux'
+} from '@etherealengine/ecs'
+import { defineActionQueue, dispatchAction, getState } from '@etherealengine/hyperflux'
+import { NetworkObjectAuthorityTag, NetworkState, WorldNetworkAction } from '@etherealengine/network'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
-import { NetworkObjectAuthorityTag } from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
-import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { XRAction, XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'

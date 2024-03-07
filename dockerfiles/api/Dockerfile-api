@@ -6,7 +6,7 @@ FROM ${ECR_URL}/${REPO_NAME}-root:latest_${STAGE} as builder
 # Create app directory
 WORKDIR /app
 
-# to make use of caching, copy only package files and install dependencies
+COPY project-package-jsons ./
 COPY packages/server/package.json ./packages/server/
 
 ARG NODE_ENV

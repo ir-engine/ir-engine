@@ -31,14 +31,15 @@ import { State, defineActionQueue, getMutableState, getState, useHookstate } fro
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { NetworkActions, NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
-import { NetworkPeerFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkPeerFunctions'
-import { MediasoupMediaConsumerActions } from '@etherealengine/spatial/src/networking/systems/MediasoupMediaProducerConsumerState'
 import {
+  MediasoupMediaConsumerActions,
   MediasoupTransportActions,
   MediasoupTransportObjectsState,
-  MediasoupTransportState
-} from '@etherealengine/spatial/src/networking/systems/MediasoupTransportState'
+  MediasoupTransportState,
+  NetworkActions,
+  NetworkPeerFunctions,
+  NetworkState
+} from '@etherealengine/network'
 import { PeerMediaConsumers } from '../media/PeerMedia'
 import {
   SocketWebRTCClientNetwork,
@@ -62,7 +63,7 @@ const execute = () => {
     if (!network) continue
 
     for (const peer of action.peers) {
-      NetworkPeerFunctions.createPeer(network, peer.peerID, peer.peerIndex, peer.userID, peer.userIndex, peer.name)
+      NetworkPeerFunctions.createPeer(network, peer.peerID, peer.peerIndex, peer.userID, peer.userIndex)
     }
     for (const [peerID, peer] of Object.entries(network.peers))
       if (!action.peers.find((p) => p.peerID === peerID)) {

@@ -26,12 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 import { useLayoutEffect } from 'react'
 
-import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getState } from '@etherealengine/hyperflux'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -42,26 +43,32 @@ import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { ColliderComponent as NewColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { CollisionGroups, DefaultCollisionMask } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
-import { Body, BodyTypes, OldShapeTypes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
+import {
+  Body,
+  BodyTypes,
+  ColliderDescOptions,
+  ColliderOptions,
+  OldShapeTypes
+} from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import {
   computeTransformMatrix,
   updateGroupChildren
 } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+import { Mesh } from 'three'
 import matches from 'ts-matches'
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'
-import { ModelComponent } from './ModelComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { SceneObjectComponent } from './SceneObjectComponent'
+import { SceneComponent } from './SceneComponent'
 
 /** @deprecated - use the new API */
 export const ColliderComponent = defineComponent({
@@ -141,7 +148,7 @@ export const ColliderComponent = defineComponent({
 
     if (
       !getState(SceneState).sceneLoaded &&
-      hasComponent(entity, SceneObjectComponent) &&
+      hasComponent(entity, SceneComponent) &&
       !hasComponent(entity, RigidBodyComponent)
     )
       SceneAssetPendingTagComponent.addResource(entity, ColliderComponent.jsonID)
@@ -168,7 +175,6 @@ export const ColliderComponent = defineComponent({
     const colliderComponent = useComponent(entity, ColliderComponent)
     const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
     const groupComponent = useOptionalComponent(entity, GroupComponent)
-    const modelHierarchy = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
 
     useLayoutEffect(() => {
       SceneAssetPendingTagComponent.removeResource(entity, ColliderComponent.jsonID)
@@ -179,20 +185,57 @@ export const ColliderComponent = defineComponent({
       if (isLoadedFromGLTF?.value || isMeshCollider) {
         const colliderComponent = getComponent(entity, ColliderComponent)
 
-        removeComponent(entity, RigidBodyComponent)
-
         iterateEntityNode(entity, computeTransformMatrix)
         if (hasComponent(entity, GroupComponent)) {
           updateGroupChildren(entity)
         }
 
-        const meshesToRemove = Physics.createRigidBodyForGroup(entity, physicsWorld, {
+        const meshesToRemove = [] as Mesh[]
+
+        const colliderDescOptions = {
           bodyType: colliderComponent.bodyType,
           shapeType: colliderComponent.shapeType,
           isTrigger: colliderComponent.isTrigger,
           collisionLayer: colliderComponent.collisionLayer,
           collisionMask: colliderComponent.collisionMask,
           restitution: colliderComponent.restitution
+        }
+
+        const rigidBodyType =
+          typeof colliderComponent.bodyType === 'string'
+            ? RigidBodyType[colliderComponent.bodyType]
+            : colliderComponent.bodyType
+
+        let type: Body
+        switch (rigidBodyType) {
+          default:
+          case RigidBodyType.Fixed:
+            type = BodyTypes.Fixed
+            break
+
+          case RigidBodyType.Dynamic:
+            type = BodyTypes.Dynamic
+            break
+
+          case RigidBodyType.KinematicPositionBased:
+          case RigidBodyType.KinematicVelocityBased:
+            type = BodyTypes.Kinematic
+            break
+        }
+
+        setComponent(entity, RigidBodyComponent, { type })
+
+        iterateEntityNode(entity, (child) => {
+          const mesh = getOptionalComponent(child, MeshComponent)
+          if (!mesh) return // || ((mesh?.geometry.attributes['position'] as BufferAttribute).array.length ?? 0 === 0)) return
+          if (mesh.userData.type && mesh.userData.type !== ('glb' as any)) mesh.userData.shapeType = mesh.userData.type
+
+          const args = { ...colliderDescOptions, ...mesh.userData } as ColliderOptions & ColliderDescOptions
+          if (args.shapeType) args.shape = OldShapeTypes[args.shapeType]
+          if (args.isTrigger) setComponent(child, TriggerComponent)
+          setComponent(child, NewColliderComponent, args)
+
+          meshesToRemove.push(mesh)
         })
 
         if (!getState(EngineState).isEditor)
@@ -242,7 +285,7 @@ export const ColliderComponent = defineComponent({
           removeComponent(entity, TriggerComponent)
         }
       }
-    }, [isLoadedFromGLTF, colliderComponent, transformComponent, groupComponent?.length, modelHierarchy])
+    }, [isLoadedFromGLTF, colliderComponent, transformComponent, groupComponent?.length])
 
     return null
   }

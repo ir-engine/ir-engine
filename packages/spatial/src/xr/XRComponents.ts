@@ -25,13 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { getState } from '@etherealengine/hyperflux'
+import { getState, matches } from '@etherealengine/hyperflux'
 
 import { Engine, UndefinedEntity } from '@etherealengine/ecs'
 import { defineComponent, setComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import type { VRMHumanBoneName } from '@pixiv/three-vrm'
-import matches from 'ts-matches'
 import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { ReferenceSpace, XRState } from './XRState'

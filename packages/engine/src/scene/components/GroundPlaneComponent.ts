@@ -37,7 +37,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { matches } from '@etherealengine/hyperflux'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
@@ -47,7 +47,7 @@ import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/M
 import { enableObjectLayer } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { SceneObjectComponent } from './SceneObjectComponent'
+import { SceneComponent } from './SceneComponent'
 
 export const GroundPlaneComponent = defineComponent({
   name: 'GroundPlaneComponent',
@@ -74,7 +74,7 @@ export const GroundPlaneComponent = defineComponent({
      */
     if (
       !getState(SceneState).sceneLoaded &&
-      hasComponent(entity, SceneObjectComponent) &&
+      hasComponent(entity, SceneComponent) &&
       !hasComponent(entity, RigidBodyComponent)
     )
       SceneAssetPendingTagComponent.addResource(entity, GroundPlaneComponent.jsonID)

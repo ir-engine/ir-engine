@@ -40,7 +40,7 @@ import {
   Vector2
 } from 'three'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 import { getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
 import config from '@etherealengine/common/src/config'
@@ -56,7 +56,7 @@ import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionTyp
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 import { SceneState } from '../Scene'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { SceneObjectComponent } from './SceneObjectComponent'
+import { SceneComponent } from './SceneComponent'
 
 export const PLANE_GEO = new PlaneGeometry(1, 1, 1, 1)
 export const SPHERE_GEO = new SphereGeometry(1, 64, 32)
@@ -113,7 +113,7 @@ export const ImageComponent = defineComponent({
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
      */
-    if (!getState(SceneState).sceneLoaded && hasComponent(entity, SceneObjectComponent))
+    if (!getState(SceneState).sceneLoaded && hasComponent(entity, SceneComponent))
       SceneAssetPendingTagComponent.addResource(entity, ImageComponent.jsonID)
   },
 

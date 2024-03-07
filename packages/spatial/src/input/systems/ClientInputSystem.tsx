@@ -58,8 +58,9 @@ import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
+import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent, TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
@@ -125,6 +126,8 @@ const inputSources = defineQuery([InputSourceComponent])
 const inputXRUIs = defineQuery([InputComponent, VisibleComponent, XRUIComponent])
 const inputBoundingBoxes = defineQuery([InputComponent, VisibleComponent, BoundingBoxComponent])
 const inputObjects = defineQuery([InputComponent, VisibleComponent, GroupComponent])
+/** @todo abstract into heuristic api */
+const gizmoPickerObjects = defineQuery([InputComponent, GroupComponent, VisibleComponent, TransformGizmoTagComponent])
 
 const rayRotation = new Quaternion()
 
@@ -189,21 +192,23 @@ const execute = () => {
     if (!capturedButtons || !capturedAxes) {
       let assignedInputEntity = UndefinedEntity as Entity
       let hitDistance = Infinity
-
       const sourceRotation = TransformComponent.getWorldRotation(sourceEid, quat)
       inputRaycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceRotation)
       TransformComponent.getWorldPosition(sourceEid, inputRaycast.origin).addScaledVector(inputRaycast.direction, -0.01)
       inputRaycast.excludeRigidBody = getOptionalComponent(Engine.instance.localClientEntity, RigidBodyComponent)?.body
       inputRay.set(inputRaycast.origin, inputRaycast.direction)
-
+      const pickerObj = gizmoPickerObjects() // gizmo heuristic
+      const inputObj = inputObjects()
       // only heuristic is scene objects when in the editor
       if (getState(EngineState).isEditor) {
         raycaster.set(inputRaycast.origin, inputRaycast.direction)
-        const objects = inputObjects()
+        const objects = (pickerObj.length > 0 ? pickerObj : inputObj) // gizmo heuristic
           .map((eid) => getComponent(eid, GroupComponent))
           .flat()
+        pickerObj.length > 0
+          ? raycaster.layers.enable(ObjectLayers.TransformGizmo)
+          : raycaster.layers.disable(ObjectLayers.TransformGizmo)
         const hits = raycaster.intersectObjects<Object3D>(objects, true).sort((a, b) => a.distance - b.distance)
-
         if (hits.length && hits[0].distance < hitDistance) {
           const object = hits[0].object
           const parentObject = Object3DUtils.findAncestor(object, (obj) => obj.parent === Engine.instance.scene)
@@ -272,13 +277,14 @@ const useNonSpatialInputSources = () => {
     setComponent(eid, NameComponent, 'InputSource-nonspatial')
     const inputSourceComponent = getComponent(eid, InputSourceComponent)
 
-    const canvas = EngineRenderer.instance.renderer.domElement
-    canvas.addEventListener('DOMMouseScroll', preventDefault, false)
-    canvas.addEventListener('gesturestart', preventDefault)
-    canvas.addEventListener('contextmenu', preventDefault)
-    canvas.addEventListener('keydown', preventDefaultKeyDown, false)
+    // const canvas = EngineRenderer.instance.renderer.domElement
+    document.addEventListener('DOMMouseScroll', preventDefault, false)
+    document.addEventListener('gesturestart', preventDefault)
+    document.addEventListener('contextmenu', preventDefault)
+    document.addEventListener('keydown', preventDefaultKeyDown, false)
 
     const onKeyEvent = (event: KeyboardEvent) => {
+      preventDefaultKeyDown(event)
       const element = event.target as HTMLElement
       // Сheck which excludes the possibility of controlling the avatar when typing in a text field
       if (element?.tagName === 'INPUT' || element?.tagName === 'SELECT' || element?.tagName === 'TEXTAREA') return
@@ -290,8 +296,8 @@ const useNonSpatialInputSources = () => {
       if (down) buttonState[code] = createInitialButtonState()
       else if (buttonState[code]) buttonState[code].up = true
     }
-    canvas.addEventListener('keyup', onKeyEvent)
-    canvas.addEventListener('keydown', onKeyEvent)
+    document.addEventListener('keyup', onKeyEvent)
+    document.addEventListener('keydown', onKeyEvent)
 
     const handleTouchDirectionalPad = (event: CustomEvent): void => {
       const { stick, value }: { stick: 'LeftStick' | 'RightStick'; value: { x: number; y: number } } = event.detail
@@ -313,17 +319,16 @@ const useNonSpatialInputSources = () => {
       inputState.scroll.x += x
       inputState.scroll.y += y
     }
-    canvas.addEventListener('wheel', onWheelEvent, { passive: true, capture: true })
+    document.addEventListener('wheel', onWheelEvent, { passive: true, capture: true })
 
     return () => {
-      canvas.removeEventListener('DOMMouseScroll', preventDefault, false)
-      canvas.removeEventListener('gesturestart', preventDefault)
-      canvas.removeEventListener('contextmenu', preventDefault)
-      canvas.removeEventListener('keydown', preventDefaultKeyDown, false)
-      canvas.removeEventListener('keyup', onKeyEvent)
-      canvas.removeEventListener('keydown', onKeyEvent)
+      document.removeEventListener('DOMMouseScroll', preventDefault, false)
+      document.removeEventListener('gesturestart', preventDefault)
+      document.removeEventListener('contextmenu', preventDefault)
+      document.removeEventListener('keyup', onKeyEvent)
+      document.removeEventListener('keydown', onKeyEvent)
       document.removeEventListener('touchstickmove', handleTouchDirectionalPad)
-      canvas.removeEventListener('wheel', onWheelEvent)
+      document.removeEventListener('wheel', onWheelEvent)
       removeEntity(eid)
     }
   }, [])

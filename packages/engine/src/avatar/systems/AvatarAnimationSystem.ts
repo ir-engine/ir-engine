@@ -23,9 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
-
+import config from '@etherealengine/common/src/config'
+import {
+  ECSState,
+  Engine,
+  Entity,
+  EntityUUID,
+  UUIDComponent,
+  defineQuery,
+  defineSystem,
+  getComponent,
+  getOptionalComponent,
+  getOptionalMutableComponent,
+  hasComponent
+} from '@etherealengine/ecs'
 import {
   NO_PROXY,
   defineState,
@@ -35,27 +46,12 @@ import {
   useHookstate,
   useMutableState
 } from '@etherealengine/hyperflux'
-
-import config from '@etherealengine/common/src/config'
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import {
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { NetworkState } from '@etherealengine/network'
+import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import {
   createPriorityQueue,
   createSortAndApplyPriorityQueue
 } from '@etherealengine/spatial/src/common/functions/PriorityQueue'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TransformSystem } from '@etherealengine/spatial/src/transform/TransformModule'
 import { compareDistanceToCamera } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
@@ -63,6 +59,8 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { XRHandComponent, XRLeftHandComponent, XRRightHandComponent } from '@etherealengine/spatial/src/xr/XRComponents'
 import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
+import { useEffect } from 'react'
+import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { useBatchGLTF } from '../../assets/functions/resourceHooks'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
@@ -76,6 +74,7 @@ import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { getArmIKHint } from '../animation/getArmIKHint'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
+import { TransparencyDitheringComponent } from '../components/TransparencyDitheringComponent'
 import { retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 import { LocalAvatarState } from '../state/AvatarState'
@@ -108,6 +107,8 @@ const _vector3 = new Vector3()
 const _hint = new Vector3()
 const mat4 = new Matrix4()
 const hipsForward = new Vector3(0, 0, 1)
+const ditheringCenter = new Vector3()
+const eyeOffset = 0.25
 
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(avatarComponentQuery, compareDistanceToCamera)
 
@@ -320,6 +321,23 @@ const execute = () => {
         }
       }
   }
+
+  //update local client entity's dithering component and camera attached logic
+  const localClientEntity = Engine.instance.localClientEntity
+  if (!localClientEntity) return
+  const ditheringComponent = getOptionalMutableComponent(localClientEntity, TransparencyDitheringComponent)
+  if (!ditheringComponent) return
+  const cameraAttached = getState(XRControlsState).isCameraAttachedToAvatar
+  if (cameraAttached) ditheringCenter.set(0, getComponent(localClientEntity, AvatarComponent).eyeHeight, 0)
+  else ditheringCenter.copy(getComponent(Engine.instance.cameraEntity, TransformComponent).position)
+  ditheringComponent.useWorldSpace.set(!cameraAttached)
+  ditheringComponent.center.set(ditheringCenter)
+  ditheringComponent.ditheringDistance.set(cameraAttached ? 0.3 : 0.45)
+  const cameraComponent = getOptionalComponent(Engine.instance.cameraEntity, FollowCameraComponent)
+  if (!cameraComponent) return
+  const hasDecapComponent = hasComponent(localClientEntity, AvatarHeadDecapComponent)
+  if (hasDecapComponent) cameraComponent.offset.setZ(Math.min(cameraComponent.offset.z + deltaSeconds, eyeOffset))
+  else cameraComponent.offset.setZ(Math.max(cameraComponent.offset.z - deltaSeconds, 0))
 }
 
 const reactor = () => {
@@ -380,12 +398,6 @@ const reactor = () => {
 
     const entity = Engine.instance.localClientEntity
     if (!entity) return
-
-    if (isCameraAttachedToAvatar.value) {
-      setComponent(entity, AvatarHeadDecapComponent, true)
-    } else {
-      removeComponent(entity, AvatarHeadDecapComponent)
-    }
   }, [isCameraAttachedToAvatar, session])
 
   useEffect(() => {

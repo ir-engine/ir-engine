@@ -27,11 +27,11 @@ import {
   UndefinedEntity,
   defineComponent,
   getMutableComponent,
+  matchesEntity,
   useComponent,
   useEntityContext
 } from '@etherealengine/ecs'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
-import { matchesEntity } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { useEffect } from 'react'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 
