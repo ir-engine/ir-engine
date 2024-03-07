@@ -23,21 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@etherealengine/hyperflux'
+import { StateMethods } from '@etherealengine/hyperflux'
+import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import React from 'react'
-import BuildStatusTab from './BuildStatusTab'
-import ProjectTab from './ProjectTab'
+import { useTranslation } from 'react-i18next'
+import BuildStatusTable from './BuildStatusTable'
 
-export default function AdminProject() {
-  const selectedTab = useHookstate<'projects' | 'buildStatus'>('projects')
+export default function BuildStatusTab({ selectedTab }: { selectedTab: StateMethods<'projects' | 'buildStatus'> }) {
+  const { t } = useTranslation()
 
   return (
-    <>
-      {selectedTab.value === 'projects' ? (
-        <ProjectTab selectedTab={selectedTab} />
-      ) : (
-        <BuildStatusTab selectedTab={selectedTab} />
-      )}
-    </>
+    <div>
+      <Text className="mb-6" fontSize="xl">
+        {t('admin:components.buildStatus.buildStatus')}
+      </Text>
+      <div className="mb-4 flex justify-between gap-2">
+        <div className="flex gap-2">
+          <div className="flex items-center border-b border-b-transparent transition-all hover:border-b-blue-400">
+            <button onClick={() => selectedTab.set('projects')} className="p-3 text-sm">
+              {t('admin:components.common.all')}
+            </button>
+          </div>
+          <div className="flex items-center border-b border-b-blue-400">
+            <span className="p-3 text-sm">{t('admin:components.project.buildStatus')}</span>
+          </div>
+        </div>
+      </div>
+      <BuildStatusTable />
+    </div>
   )
 }
