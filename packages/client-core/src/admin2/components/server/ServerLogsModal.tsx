@@ -93,7 +93,7 @@ export default function ServerLogsModal({ podName, containerName }: { podName: s
             onClick={handleDownloadServerLogs}
           />
         </div>
-        <div className="flex items-center">
+        <div className="flex items-end">
           <Select
             label={t('admin:components.server.container')}
             options={containersOptions}

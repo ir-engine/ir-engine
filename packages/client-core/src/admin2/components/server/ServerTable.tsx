@@ -44,7 +44,7 @@ function ServerStatus({ serverPodInfo }: { serverPodInfo: ServerPodInfoType }) {
   const { t } = useTranslation()
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center justify-between gap-3">
       {serverPodInfo.status === 'Succeeded' && (
         <Badge className="rounded" variant="success" label={t('admin:components.server.serverStatus.succeeded')} />
       )}
