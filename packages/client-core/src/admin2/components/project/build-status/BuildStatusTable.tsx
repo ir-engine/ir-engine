@@ -29,17 +29,12 @@ import { useTranslation } from 'react-i18next'
 import { BuildStatusType, buildStatusPath } from '@etherealengine/common/src/schema.type.module'
 
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { HiEye } from 'react-icons/hi2'
+import { PopoverState } from '../../../../common/services/PopoverState'
 import DataTable from '../../../common/Table'
 import { BuildStatusRowType, buildStatusColumns } from '../../../common/constants/build-status'
-
-const BuildStatusBadgeVariant = {
-  success: 'success',
-  ended: 'neutral',
-  failed: 'danger'
-}
+import BuildStatusLogsModal, { BuildStatusBadge, getStartOrEndDate } from './BuildStatusLogsModal'
 
 export default function BuildStatusTable() {
   const { t } = useTranslation()
@@ -57,25 +52,17 @@ export default function BuildStatusTable() {
     rows.map((row) => ({
       id: row.id.toString(),
       commitSHA: row.commitSHA,
-      status: <Badge label={row.status} variant={BuildStatusBadgeVariant[row.status]} className="w-20 rounded" />,
-      dateStarted: new Date(row.dateStarted).toLocaleString('en-us', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric'
-      }),
-      dateEnded: row.dateEnded
-        ? new Date(row.dateEnded).toLocaleString('en-us', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric'
-          })
-        : t('admin:components.buildStatus.running'),
+      status: <BuildStatusBadge status={row.status} />,
+      dateStarted: getStartOrEndDate(row.dateStarted),
+      dateEnded: getStartOrEndDate(row.dateEnded, true),
       logs: (
-        <Button disabled={!row.logs || !row.logs.length} startIcon={<HiEye />}>
+        <Button
+          disabled={!row.logs || !row.logs.length}
+          startIcon={<HiEye />}
+          onClick={() => {
+            PopoverState.showPopupover(<BuildStatusLogsModal buildStatus={row} />)
+          }}
+        >
           {t('admin:components.buildStatus.viewLogs')}
         </Button>
       )

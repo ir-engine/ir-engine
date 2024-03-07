@@ -8,7 +8,8 @@
     "retry": "Retry",
     "close": "Close",
     "submit": "Submit",
-    "search": "Search"
+    "search": "Search",
+    "copyText": "Copy Text"
   },
   "tooltip": {
     "pressKey": "Press {{tip}} to {{message}}"
