@@ -39,7 +39,7 @@ import {
 import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkState } from '@etherealengine/network'
 
 import Groups from '@mui/icons-material/Groups'
 

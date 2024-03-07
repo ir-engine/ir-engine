@@ -26,20 +26,17 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 import { ReactorReconciler, applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { SystemDefinitions } from '@etherealengine/ecs'
 import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { Network, NetworkPeerFunctions, NetworkState, NetworkWorldUserStateSystem } from '@etherealengine/network'
+import { createMockNetwork } from '@etherealengine/network/tests/createMockNetwork'
 import { EventDispatcher } from '@etherealengine/spatial/src/common/classes/EventDispatcher'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
-import { NetworkWorldUserStateSystem } from '@etherealengine/spatial/src/networking/NetworkUserState'
-import { Network } from '@etherealengine/spatial/src/networking/classes/Network'
-import { NetworkPeerFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkPeerFunctions'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import {
   RigidBodyComponent,
@@ -47,7 +44,6 @@ import {
 } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { createMockNetwork } from '@etherealengine/spatial/tests/util/createMockNetwork'
 import { act, render } from '@testing-library/react'
 import React from 'react'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
@@ -91,7 +87,7 @@ describe('spawnAvatarReceptor', () => {
 
   it('check the create avatar function', async () => {
     const network = NetworkState.worldNetwork as Network
-    NetworkPeerFunctions.createPeer(network, Engine.instance.peerID, 0, Engine.instance.userID, 0, 'user name')
+    NetworkPeerFunctions.createPeer(network, Engine.instance.peerID, 0, Engine.instance.userID, 0)
 
     const { rerender, unmount } = render(tag)
     await act(() => rerender(tag))
@@ -114,7 +110,6 @@ describe('spawnAvatarReceptor', () => {
 
     assert(hasComponent(entity, TransformComponent))
     assert(hasComponent(entity, AvatarComponent))
-    assert(hasComponent(entity, NameComponent))
     assert(hasComponent(entity, AvatarAnimationComponent))
     assert(hasComponent(entity, AvatarControllerComponent))
     assert(hasComponent(entity, RigidBodyComponent))

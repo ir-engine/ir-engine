@@ -52,11 +52,11 @@ import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIC
 import { ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { addObjectToGroup, GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'

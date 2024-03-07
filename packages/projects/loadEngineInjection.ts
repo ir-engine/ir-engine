@@ -30,17 +30,15 @@ import { loadConfigForProject } from './loadConfigForProject'
 export const loadEngineInjection = async () => {
   const projects = await Engine.instance.api.service(projectsPath).find()
   return Promise.all(
-    projects
-      .map(async (project) => {
-        try {
-          const projectConfig = (await loadConfigForProject(project))!
-          if (typeof projectConfig.worldInjection !== 'function') return null!
-          return projectConfig.worldInjection()
-        } catch (e) {
-          console.error(`Failed to import world load event for project ${project} with reason ${e}`)
-          return null!
-        }
-      })
-      .filter(($) => !!$)
+    projects.map(async (project) => {
+      try {
+        const projectConfig = (await loadConfigForProject(project))!
+        if (typeof projectConfig.worldInjection !== 'function') return null!
+        return (await projectConfig.worldInjection()).default?.()
+      } catch (e) {
+        console.error(`Failed to import world load event for project ${project} with reason ${e}`)
+        return null!
+      }
+    })
   )
 }

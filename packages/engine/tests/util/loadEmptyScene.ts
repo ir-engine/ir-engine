@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'

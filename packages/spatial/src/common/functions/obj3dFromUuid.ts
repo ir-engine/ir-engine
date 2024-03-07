@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 
 export default function obj3dFromUuid(uuid: string) {
