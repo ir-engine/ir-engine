@@ -23,6 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+// ensure dependency modules are imported
+import '@etherealengine/hyperflux'
+
 import { Not, Types, getAllEntities } from 'bitecs'
 import {
   defineComponent,
