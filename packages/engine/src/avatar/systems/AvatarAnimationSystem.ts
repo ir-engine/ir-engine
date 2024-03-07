@@ -186,12 +186,12 @@ const execute = () => {
 
     const transform = getComponent(entity, TransformComponent)
 
-    /** place normalized rig in world space */
     const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
 
     if (headTargetBlendWeight) {
       const headTransform = getComponent(head, TransformComponent)
 
+      /** Place normalized rig in world space for ik calculations */
       normalizedRig.hips.node.traverse((node) => {
         node.scale.setScalar(1)
         node.updateMatrix()
@@ -201,12 +201,12 @@ const execute = () => {
       })
       const newWorldMatrix = transform.matrixWorld.clone()
       newWorldMatrix.elements[13] = rawRig.hips.node.position.y - transform.position.y
-      normalizedRig.hips.node.matrix.elements[13] = 0
+      normalizedRig.hips.node.matrix.setPosition(new Vector3())
       normalizedRig.hips.node.matrixWorld.multiplyMatrices(newWorldMatrix, normalizedRig.hips.node.matrix)
 
       normalizedRig.hips.node.position.set(
         headTransform.position.x,
-        headTransform.position.y - avatarComponent.torsoLength - 0.125,
+        headTransform.position.y - avatarComponent.torsoLength,
         headTransform.position.z
       )
 
@@ -214,7 +214,7 @@ const execute = () => {
       hipsForward.set(0, 0, 1)
       hipsForward.applyQuaternion(rigidbodyComponent.rotation)
       hipsForward.multiplyScalar(0.125)
-      normalizedRig.hips.node.position.sub(hipsForward)
+      //normalizedRig.hips.node.position.sub(hipsForward)
 
       // convert to local space
       normalizedRig.hips.node.position.applyMatrix4(mat4.copy(transform.matrixWorld).invert())
