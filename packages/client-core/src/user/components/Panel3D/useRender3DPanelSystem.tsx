@@ -80,10 +80,7 @@ const initializePreviewPanel = (id: string) => {
   setComponent(cameraEntity, TransformComponent, { position: new Vector3(0, 0, 0) })
   setComponent(cameraEntity, VisibleComponent, true)
   setComponent(cameraEntity, NameComponent, '3D Preview Camera for ' + id)
-  setComponent(cameraEntity, CameraOrbitComponent, {
-    inputEntity: defineQuery([InputSourceComponent])().pop(),
-    refocus: true
-  })
+  setComponent(cameraEntity, CameraOrbitComponent, { refocus: true })
   setComponent(cameraEntity, ObjectLayerMaskComponent)
   ObjectLayerMaskComponent.setLayer(cameraEntity, ObjectLayers.AssetPreview)
   const previewEntity = createEntity()

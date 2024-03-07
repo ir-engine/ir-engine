@@ -23,26 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Vector2 } from 'three'
-import { InputSourceComponent } from './InputSourceComponent'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { WebGLRenderer } from 'three'
 
-export const InputPointerComponent = defineComponent({
-  name: 'InputPointerComponent',
+export const RendererComponent = defineComponent({
+  name: 'RendererComponent',
 
-  onInit: () => {
+  onInit() {
     return {
-      pointerId: -1 as number,
-      position: new Vector2(),
-      lastPosition: new Vector2(),
-      movement: new Vector2(),
-      canvas: undefined! as HTMLCanvasElement
+      renderer: null! as WebGLRenderer
     }
   },
 
-  onSet(entity, component, args: { pointerId: number; canvas: HTMLCanvasElement }) {
-    component.pointerId.set(args.pointerId)
-    component.canvas.set(args.canvas)
-    setComponent(entity, InputSourceComponent, {})
+  onSet(entity, component, json) {
+    json?.renderer && component.renderer.set(json.renderer)
   }
 })

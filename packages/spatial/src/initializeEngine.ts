@@ -35,6 +35,7 @@ import { NameComponent } from './common/NameComponent'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 import { addObjectToGroup } from './renderer/components/GroupComponent'
 import { setObjectLayers } from './renderer/components/ObjectLayerComponent'
+import { RendererComponent } from './renderer/components/RendererComponent'
 import { VisibleComponent } from './renderer/components/VisibleComponent'
 import { ObjectLayers } from './renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from './transform/components/EntityTree'
@@ -81,6 +82,7 @@ export const createEngine = () => {
   if (isClient) {
     EngineRenderer.instance = new EngineRenderer()
     EngineRenderer.instance.initialize()
+    setComponent(Engine.instance.cameraEntity, RendererComponent, { renderer: EngineRenderer.instance.renderer })
   }
   Engine.instance.engineTimer = Timer(
     (time, xrFrame) => {

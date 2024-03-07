@@ -31,6 +31,7 @@ import { Engine, UndefinedEntity } from '@etherealengine/ecs'
 import { defineComponent, setComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import type { VRMHumanBoneName } from '@pixiv/three-vrm'
+import matches from 'ts-matches'
 import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { ReferenceSpace, XRState } from './XRState'
@@ -175,6 +176,38 @@ export const XRHandJointToIndexMap = XRJointBones.reduce(
 
 export const XRHandComponent = defineComponent({
   name: 'XRHandComponent'
+})
+
+export const XRLeftHandComponent = defineComponent({
+  name: 'XRLeftHandComponent',
+
+  onInit: (entity) => {
+    return {
+      hand: null! as XRHand,
+      rotations: new Float32Array(4 * 19)
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (matches.object.test(json.hand)) component.hand.set(json.hand)
+  }
+})
+
+export const XRRightHandComponent = defineComponent({
+  name: 'XRRightHandComponent',
+
+  onInit: (entity) => {
+    return {
+      hand: null! as XRHand,
+      rotations: new Float32Array(4 * 19)
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (matches.object.test(json.hand)) component.hand.set(json.hand)
+  }
 })
 
 export const XRHitTestComponent = defineComponent({

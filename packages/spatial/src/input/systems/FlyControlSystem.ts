@@ -26,21 +26,22 @@ Ethereal Engine. All Rights Reserved.
 import { Quaternion, Vector3 } from 'three'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 
 import { InputSystemGroup } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getState } from '@etherealengine/hyperflux'
-import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
 import { FlyControlComponent } from '../../camera/components/FlyControlComponent'
-import { V_010 } from '../../common/constants/MathConstants'
+import { V_000, V_010 } from '../../common/constants/MathConstants'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { InputComponent } from '../components/InputComponent'
+import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 
 const EPSILON = 10e-5
-const flyControlQuery = defineQuery([FlyControlComponent])
+const flyControlQuery = defineQuery([FlyControlComponent, TransformComponent, InputComponent])
+const movement = new Vector3()
 const direction = new Vector3()
 const tempVec3 = new Vector3()
 const quat = new Quaternion()
@@ -48,29 +49,30 @@ const candidateWorldQuat = new Quaternion()
 const pointers = defineQuery([InputPointerComponent])
 
 const execute = () => {
-  const inputPointerEntity = pointers()[0]
-  if (!inputPointerEntity) {
-    return
-  }
-
-  const inputSource = getComponent(inputPointerEntity, InputSourceComponent)
-  const inputPointer = getComponent(inputPointerEntity, InputPointerComponent)
-
-  if (!inputSource.buttons.SecondaryClick?.pressed && !inputSource.buttons.PrimaryClick?.pressed) return
-
   for (const entity of flyControlQuery()) {
     const flyControlComponent = getComponent(entity, FlyControlComponent)
-    const transform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+    const transform = getComponent(entity, TransformComponent)
+    const input = getComponent(entity, InputComponent)
 
-    const inputState = inputSource.buttons
+    movement.copy(V_000)
+    for (const eid of input.inputSources) {
+      const inputSource = getComponent(eid, InputSourceComponent)
+      const pointer = getComponent(eid, InputPointerComponent)
+      if (inputSource.buttons.PrimaryClick?.pressed) {
+        movement.x += pointer.movement.x
+        movement.y += pointer.movement.y
+      }
+    }
 
-    const mouseMovement = inputPointer.movement
+    if (movement.lengthSq() < EPSILON) continue
+
+    const buttons = InputSourceComponent.getMergedButtons(input.inputSources)
 
     // rotate about the camera's local x axis
     candidateWorldQuat.multiplyQuaternions(
       quat.setFromAxisAngle(
         tempVec3.set(1, 0, 0).applyQuaternion(transform.rotation),
-        mouseMovement.y * flyControlComponent.lookSensitivity
+        movement.y * flyControlComponent.lookSensitivity
       ),
       transform.rotation
     )
@@ -89,20 +91,20 @@ const execute = () => {
 
     // rotate about the world y axis
     candidateWorldQuat.multiplyQuaternions(
-      quat.setFromAxisAngle(V_010, -mouseMovement.x * flyControlComponent.lookSensitivity),
+      quat.setFromAxisAngle(V_010, -movement.x * flyControlComponent.lookSensitivity),
       transform.rotation
     )
 
     transform.rotation.copy(candidateWorldQuat)
 
-    const lateralMovement = (inputState.KeyD?.pressed ? 1 : 0) + (inputState.KeyA?.pressed ? -1 : 0)
-    const forwardMovement = (inputState.KeyS?.pressed ? 1 : 0) + (inputState.KeyW?.pressed ? -1 : 0)
-    const upwardMovement = (inputState.KeyE?.pressed ? 1 : 0) + (inputState.KeyQ?.pressed ? -1 : 0)
+    const lateralMovement = (buttons.KeyD?.pressed ? 1 : 0) + (buttons.KeyA?.pressed ? -1 : 0)
+    const forwardMovement = (buttons.KeyS?.pressed ? 1 : 0) + (buttons.KeyW?.pressed ? -1 : 0)
+    const upwardMovement = (buttons.KeyE?.pressed ? 1 : 0) + (buttons.KeyQ?.pressed ? -1 : 0)
 
     // translate
     direction.set(lateralMovement, 0, forwardMovement)
     direction.applyQuaternion(transform.rotation)
-    const boostSpeed = inputState.ShiftLeft?.pressed ? flyControlComponent.boostSpeed : 1
+    const boostSpeed = buttons.ShiftLeft?.pressed ? flyControlComponent.boostSpeed : 1
     const deltaSeconds = getState(ECSState).deltaSeconds
     const speed = deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
 

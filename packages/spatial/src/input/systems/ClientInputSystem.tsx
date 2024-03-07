@@ -184,6 +184,7 @@ const execute = () => {
   for (const sourceEid of inputSources()) {
     const capturedButtons = hasComponent(sourceEid, InputSourceButtonsCapturedComponent)
     const capturedAxes = hasComponent(sourceEid, InputSourceAxesCapturedComponent)
+    const pointer = getOptionalComponent(sourceEid, InputPointerComponent)
 
     if (!capturedButtons || !capturedAxes) {
       let assignedInputEntity = UndefinedEntity as Entity
@@ -360,7 +361,6 @@ const usePointerInputSources = (canvas = EngineRenderer.instance.renderer.domEle
     // const pointerEntities = new Map<number, Entity>()
 
     const emulatedInputSourceEntity = createEntity()
-    setComponent(emulatedInputSourceEntity, InputSourceComponent, {})
     setComponent(emulatedInputSourceEntity, NameComponent, 'InputSource-emulated-pointer')
     setComponent(emulatedInputSourceEntity, InputPointerComponent, { pointerId: 0, canvas })
     const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)

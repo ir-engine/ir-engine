@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { Entity, UndefinedEntity, defineComponent } from '@etherealengine/ecs'
 import { defineState } from '@etherealengine/hyperflux'
-import { matchesEntity } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { Vector3 } from 'three'
 import matches from 'ts-matches'
 
@@ -49,7 +48,6 @@ export const CameraOrbitComponent = defineComponent({
       isOrbiting: false,
       refocus: false,
       cameraOrbitCenter: new Vector3(),
-      inputEntity: UndefinedEntity,
       disabled: false
     }
   },
@@ -63,7 +61,6 @@ export const CameraOrbitComponent = defineComponent({
     if (matches.number.test(json.cursorDeltaY)) component.cursorDeltaY.set(json.cursorDeltaY)
     if (matches.boolean.test(json.isOrbiting)) component.isOrbiting.set(json.isOrbiting)
     if (matches.boolean.test(json.refocus)) component.refocus.set(json.refocus)
-    if (matchesEntity.test(json.inputEntity)) component.inputEntity.set(json.inputEntity)
     if (matches.boolean.test(json.disabled)) component.disabled.set(json.disabled)
   }
 })
