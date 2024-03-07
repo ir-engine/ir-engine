@@ -94,7 +94,7 @@ type Resource = {
   metadata: Metadata
 }
 
-const debug = true
+const debug = false
 const debugLog = debug
   ? (message?: any, ...optionalParams: any[]) => {
       console.log(message)
