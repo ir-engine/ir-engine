@@ -23,6 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+// ensure dependency modules are imported
+import '@etherealengine/ecs'
+
 import * as VideoConstants from './src/constants/VideoConstants'
 export * from './src/DataChannelRegistry'
 export * from './src/EntityNetworkState'
