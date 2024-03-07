@@ -95,6 +95,7 @@ const AdminRoutes = () => {
   const scopes = admin?.scopes?.value
 
   useEffect(() => {
+    console.log('Routes: ', DefaultAdminRoutes)
     allowedRoutes.set(DefaultAdminRoutes)
   }, [])
 
