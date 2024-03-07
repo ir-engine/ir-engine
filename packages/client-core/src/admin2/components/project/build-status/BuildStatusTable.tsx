@@ -32,8 +32,8 @@ import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHo
 import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { HiEye } from 'react-icons/hi2'
-import DataTable from '../../common/Table'
-import { BuildStatusRowType, buildStatusColumns } from '../../common/constants/build-status'
+import DataTable from '../../../common/Table'
+import { BuildStatusRowType, buildStatusColumns } from '../../../common/constants/build-status'
 
 const BuildStatusBadgeVariant = {
   success: 'success',

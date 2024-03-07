@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { useHookstate } from '@etherealengine/hyperflux'
 import React from 'react'
-import BuildStatusTab from './BuildStatusTab'
 import ProjectTab from './ProjectTab'
+import BuildStatusTab from './build-status/BuildStatusTab'
 
 export default function AdminProject() {
   const selectedTab = useHookstate<'projects' | 'buildStatus'>('projects')
