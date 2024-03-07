@@ -41,16 +41,15 @@ import { TransformMode } from '@etherealengine/engine/src/scene/constants/transf
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
-import { PresentationSystemGroup, UndefinedEntity } from '@etherealengine/ecs'
+import { PresentationSystemGroup, UUIDComponent, UndefinedEntity } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { SceneSnapshotAction, SceneSnapshotState } from '@etherealengine/engine/src/scene/Scene'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
 import { TransformComponent } from '@etherealengine/spatial'
 import {
   ActiveOrbitCamera,
   CameraOrbitComponent
 } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
@@ -284,12 +283,12 @@ const execute = () => {
     if (buttons.PrimaryClick?.up && inputSource.assignedButtonEntity) {
       let clickedEntity = inputSource.assignedButtonEntity
       while (
-        !hasComponent(clickedEntity, SourceComponent) &&
+        !hasComponent(clickedEntity, SceneComponent) &&
         getOptionalComponent(clickedEntity, EntityTreeComponent)?.parentEntity
       ) {
         clickedEntity = getComponent(clickedEntity, EntityTreeComponent).parentEntity!
       }
-      if (hasComponent(clickedEntity, SourceComponent)) {
+      if (hasComponent(clickedEntity, SceneComponent)) {
         SelectionState.updateSelection([getComponent(clickedEntity, UUIDComponent)])
       }
     }

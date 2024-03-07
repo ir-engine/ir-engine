@@ -27,14 +27,14 @@ import { getComponent, hasComponent, removeComponent, setComponent } from '@ethe
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
+import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
 import { useEffect } from 'react'
 import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
 import { TransformGizmoControlledComponent } from '../classes/TransformGizmoControlledComponent'
 import { controlUpdate, gizmoUpdate, planeUpdate } from '../functions/gizmoHelper'
 import { SelectionState } from '../services/SelectionServices'
 
-const sceneQuery = defineQuery([SceneObjectComponent])
+const sceneQuery = defineQuery([SceneComponent])
 const controlQuery = defineQuery([TransformGizmoControlComponent])
 
 const execute = () => {

@@ -1,6 +1,15 @@
 {
   "components": {
     "location": {
+      "columns": {
+        "name": "Name",
+        "sceneId": "Scene",
+        "maxUsersPerInstance": "Max Users Per Instance",
+        "locationType": "Type",
+        "tags": "Tags",
+        "videoEnabled": "Video Enabled",
+        "action": "Action"
+      },
       "lbl-name": "Name",
       "lbl-maxuser": "Max Users",
       "lbl-scene": "Scene",
@@ -12,7 +21,10 @@
       "lbl-se": "Screen Sharing Enabled",
       "lbl-fe": "Face Streaming Enabled",
       "createLocation": "Create Location",
+      "updateLocation": "Update Location",
+      "removeLocation": "Remove Location",
       "type": "Type",
+      "selectScene": "Select a Scene",
       "sceneCantEmpty": "Scene can't be empty",
       "maxUserCantEmpty": "Max users can't be empty",
       "nameCantEmpty": "Name can't be empty",
@@ -23,7 +35,8 @@
       "typeRequired": "Type is required",
       "confirmLocationDelete": "Do you want to delete location",
       "lobby": "Lobby",
-      "featured": "Featured"
+      "featured": "Featured",
+      "locations": "Locations"
     },
     "bot": {
       "uniqueCommand": "Command should be unique",
@@ -407,6 +420,20 @@
       "homepageLinkButtonEnabled": "Show link button on homepage",
       "homepageLinkButtonRedirect": "URL of homepage link button",
       "homepageLinkButtonText": "Text of homepage link button",
+      "audioMaxBitrate": "User Audio max bitrate (kbps)",
+      "videoCodec": "User video codec",
+      "videoMaxResolution": "User webcam max resolution",
+      "videoFHD": "1920x1080",
+      "videoHD": "1280x720",
+      "videoFWVGA": "854x480",
+      "videoNHD": "640x360",
+      "videoLowResMaxBitrate": "User low-res video max bitrate (kbps)",
+      "videoMidResMaxBitrate": "User mid-res video max bitrate (kbps)",
+      "videoHighResMaxBitrate": "User high-res video max bitrate (kbps)",
+      "screenshareCodec": "Screenshare video codec",
+      "screenshareLowResMaxBitrate": "Screenshare low-res video max bitrate (kbps)",
+      "screenshareMidResMaxBitrate": "Screenshare mid-res video max bitrate (kbps)",
+      "screenshareHighResMaxBitrate": "Screenshare high-res video max bitrate (kbps)",
       "privacyPolicy": "Privacy Policy",
       "taskServer": {
         "taskServer": "Task Server",

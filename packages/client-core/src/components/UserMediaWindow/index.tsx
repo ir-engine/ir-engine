@@ -44,22 +44,23 @@ import { AuthState } from '@etherealengine/client-core/src/user/services/AuthSer
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
+import { MediaSettingsState } from '@etherealengine/engine/src/audio/MediaSettingsState'
 import { applyScreenshareToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
 import { NO_PROXY, State, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
-import { MediaSettingsState } from '@etherealengine/spatial/src/networking/MediaSettingsState'
-import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
-import { UserName } from '@etherealengine/common/src/schema.type.module'
+import { UserName, userPath } from '@etherealengine/common/src/schema.type.module'
 import { useExecute } from '@etherealengine/ecs'
 import { MotionCaptureSystem, timeSeriesMocapData } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkState, VideoConstants } from '@etherealengine/network'
+import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { drawPoseToCanvas } from '@etherealengine/ui/src/pages/Capture'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
+import { AdminClientSettingsState } from '../../admin/services/Setting/ClientSettingService'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
@@ -71,6 +72,8 @@ interface Props {
   peerID: PeerID
   type: 'screen' | 'cam'
 }
+
+const MAX_RES_TO_USE_TOP_LAYER = 540 //If under 540p, use the topmost video layer, otherwise use layer n-1
 
 const useDrawMocapLandmarks = (
   videoElement: HTMLVideoElement,
@@ -353,11 +356,12 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     _volume.set(value)
   }
 
-  const usernames = useHookstate(getMutableState(WorldState).userNames)
+  const user = useGet(userPath, userId)
+
   const getUsername = () => {
     if (isSelf && !isScreen) return t('user:person.you')
     if (isSelf && isScreen) return t('user:person.yourScreen')
-    const username = userId ? usernames.get(NO_PROXY)[userId] : 'A User'
+    const username = user.data?.name ?? 'A User'
     if (!isSelf && isScreen) return username + "'s Screen"
     return username
   }
@@ -498,6 +502,9 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
     const encodings = videoStream.rtpParameters.encodings
 
     const immersiveMedia = getMutableState(MediaSettingsState).immersiveMedia
+    const clientSettingState = getMutableState(AdminClientSettingsState)
+    const { maxResolution } = clientSettingState.client[0].mediaSettings.video.value
+    const resolution = VideoConstants.VIDEO_CONSTRAINTS[maxResolution] || VideoConstants.VIDEO_CONSTRAINTS.hd
     if (isPiP || immersiveMedia.value) {
       let maxLayer
       const scalabilityMode = encodings && encodings[0].scalabilityMode
@@ -510,11 +517,16 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
       // If we're in immersive media mode, using max-resolution video for everyone could overwhelm some devices.
       // If there are more than 2 layers, then use layer n-1 to balance quality and performance
       // (immersive video bubbles are bigger than the flat bubbles, so low-quality video will be more noticeable).
-      // If we're not, then use the highest layer when opening PiP for a video
+      // If we're not, then the highest layer is still probably more than necessary, so use the n-1 layer unless the
+      // n layer is under a specified constant
       setPreferredConsumerLayer(
         mediaNetwork,
         videoStream as ConsumerExtension,
-        immersiveMedia && maxLayer > 1 ? maxLayer - 1 : maxLayer
+        (immersiveMedia.value && maxLayer) > 1
+          ? maxLayer - 1
+          : (!isScreen && resolution.height.ideal) > MAX_RES_TO_USE_TOP_LAYER
+          ? maxLayer - 1
+          : maxLayer
       )
     }
     // Standard video bubbles in flat/non-immersive mode should use the lowest quality layer for performance reasons

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Euler, Material, MathUtils, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import {
   Component,
   ComponentJSONIDMap,
@@ -44,7 +44,6 @@ import { TransformSpace } from '@etherealengine/engine/src/scene/constants/trans
 import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
 import { materialFromId } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import obj3dFromUuid from '@etherealengine/spatial/src/common/functions/obj3dFromUuid'
 import {
   EntityTreeComponent,
@@ -55,8 +54,7 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 
 import { ComponentJsonType, SceneID } from '@etherealengine/common/src/schema.type.module'
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
-import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { EditorHelperState } from '../services/EditorHelperState'
@@ -73,9 +71,9 @@ const addOrRemoveComponent = <C extends Component<any, any>>(entities: Entity[],
 
   const scenes: Record<SceneID, Entity[]> = {}
   for (const entity of entities) {
-    const source = getComponent(entity, SourceComponent)
-    scenes[source] ??= []
-    scenes[source].push(entity)
+    const sceneID = getComponent(entity, SceneComponent)
+    scenes[sceneID] ??= []
+    scenes[sceneID].push(entity)
   }
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
@@ -128,7 +126,7 @@ const modifyProperty = <C extends Component<any, any>>(
 
   const scenes: Record<SceneID, Entity[]> = {}
   for (const entity of entities) {
-    const source = getComponent(entity, SourceComponent)
+    const source = getComponent(entity, SceneComponent)
     scenes[source] ??= []
     scenes[source].push(entity)
   }
@@ -568,7 +566,7 @@ const removeObject = (entities: Entity[]) => {
     const uuidsToDelete = iterateEntityNode(
       entity,
       (entity) => getComponent(entity, UUIDComponent),
-      (entity) => hasComponent(entity, SceneObjectComponent) && hasComponent(entity, UUIDComponent),
+      (entity) => hasComponent(entity, SceneComponent) && hasComponent(entity, UUIDComponent),
       false,
       false
     )
@@ -643,7 +641,7 @@ const addToSelection = (entities: EntityUUID[]) => {
 const commitTransformSave = (entities: Entity[]) => {
   const scenes: Record<SceneID, Entity[]> = {}
   for (const entity of entities) {
-    const source = getComponent(entity, SourceComponent)
+    const source = getComponent(entity, SceneComponent)
     scenes[source] ??= []
     scenes[source].push(entity)
   }

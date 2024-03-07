@@ -63,6 +63,8 @@ export const clientDbToSchema = (rawData: ClientSettingDatabaseType): ClientSett
     themeModes = JSON.parse(themeModes)
   }
 
+  if (typeof rawData.mediaSettings === 'string') rawData.mediaSettings = JSON.parse(rawData.mediaSettings)
+
   return {
     ...rawData,
     appSocialLinks,
@@ -101,7 +103,8 @@ export const clientSettingDataResolver = resolve<ClientSettingDatabaseType, Hook
         ...rawData,
         appSocialLinks: JSON.stringify(rawData.appSocialLinks),
         themeSettings: JSON.stringify(rawData.themeSettings),
-        themeModes: JSON.stringify(rawData.themeModes)
+        themeModes: JSON.stringify(rawData.themeModes),
+        mediaSettings: JSON.stringify(rawData.mediaSettings)
       }
     }
   }
@@ -118,7 +121,8 @@ export const clientSettingPatchResolver = resolve<ClientSettingType, HookContext
         ...rawData,
         appSocialLinks: JSON.stringify(rawData.appSocialLinks),
         themeSettings: JSON.stringify(rawData.themeSettings),
-        themeModes: JSON.stringify(rawData.themeModes)
+        themeModes: JSON.stringify(rawData.themeModes),
+        mediaSettings: JSON.stringify(rawData.mediaSettings)
       }
     }
   }

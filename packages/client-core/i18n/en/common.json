@@ -121,7 +121,6 @@
     "validation-error": "Please input valid {{type}}",
     "login-error": "Failed to login"
   },
-  "exploreRedirect": "Explore Worlds",
   "table": {
     "refetching": "Refetching Data...",
     "noData": "Data is Empty"
@@ -130,5 +129,9 @@
     "placeholder": "Type or paste email addresses and press `Enter`...",
     "alreadyAdded": "{{email}} has already been added!",
     "invalidEmail": "{{email}} is not a valid email address!"
-  }
+  },
+  "select": {
+    "fetching": "Fetching options..."
+  },
+  "exploreRedirect": "Explore Worlds"
 }

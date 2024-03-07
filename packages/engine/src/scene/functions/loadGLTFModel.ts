@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AnimationMixer, Bone, InstancedMesh, Mesh, Object3D, Scene, SkinnedMesh } from 'three'
+import { Bone, InstancedMesh, Mesh, Object3D, Scene, SkinnedMesh } from 'three'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJsonType, EntityJsonType } from '@etherealengine/common/src/schema.type.module'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import {
   ComponentJSONIDMap,
   ComponentMap,
@@ -39,7 +39,6 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -50,15 +49,14 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { FrustumCullCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { BoneComponent } from '../../avatar/components/BoneComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
-import { MeshBVHComponent } from '../components/MeshBVHComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
-import { SceneObjectComponent } from '../components/SceneObjectComponent'
+import { SceneComponent } from '../components/SceneComponent'
+import { getModelSceneID } from './loaders/ModelFunctions'
 
 export const parseECSData = (data: [string, any][]): ComponentJsonType[] => {
   const components: { [key: string]: any } = {}
@@ -143,7 +141,6 @@ export const parseObjectComponentsFromGLTF = (
 
 export const parseGLTFModel = (entity: Entity, scene: Scene) => {
   const model = getComponent(entity, ModelComponent)
-  setComponent(entity, MeshBVHComponent)
 
   scene.updateMatrixWorld(true)
   computeTransformMatrix(entity)
@@ -159,14 +156,6 @@ export const parseGLTFModel = (entity: Entity, scene: Scene) => {
       const uuid = obj.uuid as EntityUUID
       const eJson = generateEntityJsonFromObject(entity, obj, entityJson[uuid])
       entityJson[uuid] = eJson
-    })
-  }
-
-  // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
-  if (scene.animations?.length) {
-    setComponent(entity, AnimationComponent, {
-      mixer: new AnimationMixer(scene),
-      animations: scene.animations
     })
   }
 
@@ -230,12 +219,10 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     components: []
   }
 
-  for (const component of eJson.components) {
-    if (ComponentJSONIDMap.has(component.name))
-      setComponent(objEntity, ComponentJSONIDMap.get(component.name)!, component.props)
-  }
   eJson.parent = getComponent(parentEntity, UUIDComponent)
-  setComponent(objEntity, SceneObjectComponent)
+
+  const sceneID = getModelSceneID(rootEntity)
+  setComponent(objEntity, SceneComponent, sceneID)
   setComponent(objEntity, EntityTreeComponent, {
     parentEntity,
     uuid
@@ -251,6 +238,12 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     scale: obj.scale.clone()
   })
   computeTransformMatrix(objEntity)
+
+  for (const component of eJson.components) {
+    if (ComponentJSONIDMap.has(component.name))
+      setComponent(objEntity, ComponentJSONIDMap.get(component.name)!, component.props)
+  }
+
   eJson.components.push({
     name: TransformComponent.jsonID,
     props: {

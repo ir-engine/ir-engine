@@ -28,22 +28,22 @@ import { useEffect } from 'react'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
-import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import {
+  DataChannelType,
+  Network,
+  NetworkState,
+  addDataChannelHandler,
+  removeDataChannelHandler
+} from '@etherealengine/network'
 
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 
 import { NormalizedLandmarkList } from '@mediapipe/pose'
 
+import { RingBuffer } from '@etherealengine/common/src/utils/RingBuffer'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { RingBuffer } from '@etherealengine/spatial/src/common/classes/RingBuffer'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
-import { Network } from '@etherealengine/spatial/src/networking/classes/Network'
-import {
-  addDataChannelHandler,
-  removeDataChannelHandler
-} from '@etherealengine/spatial/src/networking/systems/DataChannelRegistry'
 import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
