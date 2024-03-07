@@ -328,8 +328,8 @@ export const addClientInputListeners = (canvas = EngineRenderer.instance.rendere
   return () => {
     inputSources().map((eid) => removeEntity(eid))
 
-    canvas.removeEventListener('DOMMouseScroll', preventDefault, false)
-    canvas.removeEventListener('keydown', preventDefaultKeyDown, false)
+    window.removeEventListener('DOMMouseScroll', preventDefault, false)
+    window.removeEventListener('keydown', preventDefaultKeyDown, false)
     canvas.removeEventListener('gesturestart', preventDefault)
     canvas.removeEventListener('contextmenu', preventDefault)
 
