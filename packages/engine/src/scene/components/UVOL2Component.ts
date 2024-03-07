@@ -1622,6 +1622,8 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   const isWaiting = useRef(false)
 
   const update = () => {
+    mesh.updateMatrixWorld(true)
+
     const delta = getState(ECSState).deltaSeconds
     if (
       component.loadingEffectStarted.value &&
