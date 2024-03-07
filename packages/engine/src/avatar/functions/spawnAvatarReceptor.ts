@@ -35,7 +35,6 @@ import {
 import { getState } from '@etherealengine/hyperflux'
 import { NetworkObjectComponent, NetworkObjectSendPeriodicUpdatesTag } from '@etherealengine/network'
 import { setTargetCameraRotation } from '@etherealengine/spatial/src/camera/functions/CameraFunctions'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { CollisionComponent } from '@etherealengine/spatial/src/physics/components/CollisionComponent'
@@ -132,7 +131,6 @@ export const createAvatarCollider = (entity: Entity) => {
     position: new Vector3(0, halfHeight + 0.25, 0),
     scale: new Vector3(avatarRadius, halfHeight - avatarRadius - 0.25, avatarRadius)
   })
-  setComponent(colliderEntity, NameComponent, getComponent(entity, NameComponent) + ' Collider')
   setComponent(colliderEntity, ColliderComponent, {
     shape: Shapes.Capsule,
     collisionLayer: CollisionGroups.Avatars,

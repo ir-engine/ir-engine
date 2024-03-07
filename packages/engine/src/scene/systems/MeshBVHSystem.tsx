@@ -69,12 +69,12 @@ const MeshBVHChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   const bvhDebug = useHookstate(getMutableState(RendererState).bvhDebug)
   const model = useOptionalComponent(props.rootEntity, ModelComponent)
   const generated = useHookstate(false)
-
-  const abortControllerState = useHookstate(new AbortController())
+  const mesh = useOptionalComponent(props.entity, MeshComponent)
 
   useEffect(() => {
-    const abortController = abortControllerState.value
     const mesh = getOptionalComponent(props.entity, MeshComponent)
+    if (!mesh) return
+    const abortController = new AbortController()
     if (ValidMeshForBVH(mesh)) {
       generateMeshBVH(mesh!, abortController.signal).then(() => {
         if (abortController.signal.aborted) return
@@ -84,7 +84,7 @@ const MeshBVHChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
     return () => {
       abortController.abort()
     }
-  }, [])
+  }, [mesh])
 
   useEffect(() => {
     const occlusion =
