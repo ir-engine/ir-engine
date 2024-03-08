@@ -7,6 +7,9 @@
     "processing": "Processing",
     "retry": "Retry",
     "close": "Close",
+    "continue": "Continue",
+    "configure": "Configure",
+    "back": "Back",
     "submit": "Submit",
     "search": "Search"
   },
