@@ -36,9 +36,9 @@ interface IResourceColumn extends ITableHeadCell {
 
 export const resourceColumns: IResourceColumn[] = [
   { id: 'id', label: t('admin:components.resources.columns.id') },
-  { id: 'key', label: t('admin:components.resources.columns.key') },
-  { id: 'mimeType', label: t('admin:components.resources.columns.mimeType') },
-  { id: 'project', label: t('admin:components.resources.columns.project') },
+  { id: 'key', sortable: true, label: t('admin:components.resources.columns.key') },
+  { id: 'mimeType', sortable: true, label: t('admin:components.resources.columns.mimeType') },
+  { id: 'project', sortable: true, label: t('admin:components.resources.columns.project') },
   {
     id: 'action',
     label: t('admin:components.resources.columns.action')

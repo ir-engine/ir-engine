@@ -30,6 +30,8 @@ import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMagnifyingGlass, HiPlus } from 'react-icons/hi2'
+import { PopoverState } from '../../../common/services/PopoverState'
+import CreateResourceModal from './CreateResourceModal'
 import ResourceTable from './ResourceTable'
 
 export default function Resources() {
@@ -64,7 +66,13 @@ export default function Resources() {
             containerClassname="w-1/5 block"
             icon={<HiMagnifyingGlass />}
           />
-          <Button startIcon={<HiPlus />} size="small">
+          <Button
+            startIcon={<HiPlus />}
+            size="small"
+            onClick={() => {
+              PopoverState.showPopupover(<CreateResourceModal />)
+            }}
+          >
             {t('user:resource.createResource')}
           </Button>
         </div>
