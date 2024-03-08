@@ -29,6 +29,7 @@ import {
   defineComponent,
   getMutableComponent,
   getOptionalComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
@@ -785,6 +786,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
 
     Promise.allSettled(promises).then((values) => {
+      if (!hasComponent(entity, UVOL2Component)) return // Component might have been removed
       if (!geometryBuffer.has(target)) {
         geometryBuffer.set(target, [])
       }
@@ -851,6 +853,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
 
     Promise.allSettled(promises).then((values) => {
+      if (!hasComponent(entity, UVOL2Component)) return // Component might have been removed
       if (!geometryBuffer.has(target)) {
         geometryBuffer.set(target, [])
       }
@@ -1081,6 +1084,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
 
     Promise.allSettled(promises).then((values) => {
+      if (!hasComponent(entity, UVOL2Component)) return // Component might have been removed
       if (component.forceFetchTextures.value) {
         component.forceFetchTextures.set(false)
       }
