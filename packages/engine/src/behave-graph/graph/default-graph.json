@@ -2,7 +2,7 @@
   "nodes": [
     {
       "id": "4bb99f89-11c4-471e-ba46-f507d86ffc93",
-      "type": "flow/lifecycle/onTick",
+      "type": "lifecycle/onTick",
       "metadata": {
         "positionX": "4.753700030301175",
         "positionY": "-330.7364926607548"
@@ -10,7 +10,7 @@
     },
     {
       "id": "0",
-      "type": "flow/lifecycle/onStart",
+      "type": "lifecycle/onStart",
       "metadata": {
         "positionX": "2.1104424778760915",
         "positionY": "-501.2300884955752"
