@@ -19,7 +19,7 @@ set -e
 #
 # @description
 # - Automatically adds `universe` and `docker's APT` repositories to the system (required by docker-desktop)
-# - Automatically installs git, curl, nvm, node18, ca-certificates
+# - Automatically installs git, curl, nvm, nodeLTS, ca-certificates
 # - Guides the user on how to download the latest docker-desktop .deb file.
 #   Continues installing docker-desktop after the user has downloaded the file and presses enter.
 # - Clones EE's main repository (@important does NOT use --depth=1)
@@ -44,6 +44,21 @@ if [[ $(lsb_release -si) -ne "Ubuntu" ]] ; then
   esac
 fi
 
+echo ""
+info "This script is going to:"
+echo "1. Add/activate the universe and docker APT repositories to the system (required for docker-desktop)"
+echo "2. Install git, curl, nvm, ca-certificates and nodeLTS"
+echo "3. Instruct you on how to download docker-desktop"
+echo "4. Install docker-desktop with the file you downloaded while the script waited for your input"
+echo "5. Clone Ethereal Engine's repository to the folder $(pwd)/etherealengine"
+echo "6. Install all npm dependencies that Ethereal Engine needs"
+echo ""
+read -r -n1 -p 'Do you want to continue? [y/n] ' choice
+case "$choice" in
+  y|Y) info "Running Ethereal Engine's Ubuntu installer" ;;
+  n|N|*) exit 1 ;;
+esac
+
 
 # Install requirements automatically without user prompt
 info "Installing requirements..."
@@ -62,9 +77,9 @@ wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 source $HOME/.bashrc  # This line is what requires this script to be run from an interactive shell
 nvm --version         # This line will crash if the script is not run with `bash -i`
 
-# Install Node18
+# Install NodeLTS
 info "Installing node..."
-nvm install 18
+nvm install --lts
 info "Checking npm version"
 npm --version
 info "Checking node version"
@@ -101,13 +116,23 @@ do
     *) echo ""; continue;;
   esac
 done
-sudo apt install $(find -type f -path "./docker-desktop-*.deb")
+dockerFile=$(find -type f -path "./docker-desktop-*.deb")
+info "Installing docker-desktop from file:  $dockerFile"
+sudo apt install $dockerFile
+info "Launching docker-desktop"
 systemctl --user start docker-desktop
 
 # Install the engine
 info "Installing Ethereal Engine into folder $(pwd)/etherealengine ..."
 git clone https://github.com/EtherealEngine/etherealengine
+info "Changing folder to $(pwd)/etherealengine"
 cd etherealengine
+info "Creating a new .env file at $(pwd)/.env.local"
 cp .env.local.default .env.local
+info "Running the command 'npm install' inside the folder $(pwd)"
 npm install
+echo ""
+info "Ethereal Engine has been successfully installed into $(pwd)."
+echo "   You can now run it by executing the command:"
+echo "   npm run reinit && npm run dev"
 
