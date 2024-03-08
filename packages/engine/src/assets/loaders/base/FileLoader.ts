@@ -146,7 +146,6 @@ class FileLoader<TData = unknown> extends Loader {
                   .then(({ done, value }) => {
                     if (done) {
                       controller.close()
-                      return
                     } else {
                       loaded += value.byteLength
 
