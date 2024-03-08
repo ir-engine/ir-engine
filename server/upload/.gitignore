@@ -1,4 +1,4 @@
-# Ignore everything in this directory
+# Ignore everything in this directory but make sure the directory itself stays around - needed for npm run local
 *
 # Except this file
 !.gitignore
