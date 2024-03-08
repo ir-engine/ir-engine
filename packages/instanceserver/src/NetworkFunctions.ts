@@ -340,6 +340,21 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerI
             } as any
           )
         })
+        .catch((err) => {
+          app.service(messagePath).create(
+            {
+              instanceId: instanceServerState.instance.id,
+              text: `A user left`,
+              isNotification: true,
+              senderId: null
+            },
+            {
+              [identityProviderPath]: {
+                userId: userId
+              }
+            } as any
+          )
+        })
     }
     NetworkPeerFunctions.destroyPeer(network, peerID)
     updatePeers(network)
