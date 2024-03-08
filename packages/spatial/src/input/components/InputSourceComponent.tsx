@@ -133,6 +133,21 @@ export const InputSourceComponent = defineComponent({
     ) as ButtonStateMap
   },
 
+  getMergedAxes(inputSourceEntities: Entity[]) {
+    const axes = [0, 0, 0, 0] as [number, number, number, number]
+    for (const eid of inputSourceEntities) {
+      const inputSource = getComponent(eid, InputSourceComponent)
+      if (inputSource.source.gamepad?.axes) {
+        for (let i = 0; i < 4; i++) {
+          // keep the largest value (positive or negative)
+          const newAxis = inputSource.source.gamepad?.axes[i] ?? 0
+          axes[i] = Math.abs(axes[i]) > Math.abs(newAxis) ? axes[i] : newAxis
+        }
+      }
+    }
+    return axes
+  },
+
   entitiesByInputSource: new WeakMap<XRInputSource, Entity>(),
 
   captureButtons: (targetEntity: Entity, handedness = handednesses) => {

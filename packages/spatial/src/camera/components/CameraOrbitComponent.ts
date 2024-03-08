@@ -23,17 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, UndefinedEntity, defineComponent } from '@etherealengine/ecs'
-import { defineState } from '@etherealengine/hyperflux'
+import { Entity, defineComponent } from '@etherealengine/ecs'
 import { Vector3 } from 'three'
 import matches from 'ts-matches'
-
-export const ActiveOrbitCamera = defineState({
-  name: 'ActiveOrbitCamera',
-  initial: () => {
-    return UndefinedEntity
-  }
-})
 
 export const CameraOrbitComponent = defineComponent({
   name: 'CameraOrbitComponent',
