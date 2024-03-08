@@ -95,16 +95,16 @@ const execute = () => {
     readDataPacket(network, packet, jitterBufferTaskList)
   }
 
-  jitterBufferTaskList.sort(oldestFirstComparator)
+  // jitterBufferTaskList.sort(oldestFirstComparator)
 
-  const targetFixedTime = ecsState.simulationTime + jitterBufferDelay
+  // const targetFixedTime = ecsState.simulationTime + jitterBufferDelay
 
-  for (const [index, { simulationTime, read }] of jitterBufferTaskList.slice().entries()) {
-    if (simulationTime <= targetFixedTime) {
-      read()
-      jitterBufferTaskList.splice(index, 1)
-    }
-  }
+  // for (const [index, { simulationTime, read }] of jitterBufferTaskList.slice().entries()) {
+  //   if (simulationTime <= targetFixedTime) {
+  //     read()
+  //     jitterBufferTaskList.splice(index, 1)
+  //   }
+  // }
 }
 
 const reactor = () => {

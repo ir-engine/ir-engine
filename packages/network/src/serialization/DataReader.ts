@@ -247,10 +247,13 @@ export const readDataPacket = (network: Network, packet: ArrayBuffer, jitterBuff
   const fromPeerID = network.peerIndexToPeerID[peerIndex]
   const isLoopback = !!fromPeerID && fromPeerID === Engine.instance.peerID
   if (!fromUserID || isLoopback) return
-  jitterBufferTaskList.push({
-    simulationTime,
-    read: () => {
-      readEntities(view, network, packet.byteLength, fromUserID)
-    }
-  })
+
+  readEntities(view, network, packet.byteLength, fromUserID)
+  /** @todo reassess jitter buffer */
+  // jitterBufferTaskList.push({
+  //   simulationTime,
+  //   read: () => {
+  //     readEntities(view, network, packet.byteLength, fromUserID)
+  //   }
+  // })
 }
