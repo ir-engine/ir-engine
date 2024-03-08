@@ -51,7 +51,9 @@ import {
   PlaneGeometry,
   SRGBColorSpace,
   ShaderMaterial,
-  Texture
+  Sphere,
+  Texture,
+  Vector3
 } from 'three'
 import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
@@ -319,6 +321,7 @@ function UVOL1Reactor() {
                 throw new Error('VDEBUG Entity ${entity} Invalid geometry frame: ' + i.toString())
               }
 
+              geometry.boundingSphere = new Sphere().set(new Vector3(), Infinity)
               meshBuffer.set(i, geometry)
               pendingRequests.current -= 1
 

@@ -39,6 +39,7 @@ import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformGizmoTagComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { useHookstate } from '@hookstate/core'
 import { useEffect } from 'react'
 import { Box3, Vector3 } from 'three'
@@ -69,6 +70,8 @@ export const TransformGizmoControlledComponent = defineComponent({
       setComponent(pivotEntity, TransformComponent)
       setComponent(pivotEntity, VisibleComponent)
       setComponent(pivotEntity, EntityTreeComponent)
+      setComponent(pivotEntity, TransformGizmoTagComponent)
+
       /*addObjectToGroup(
         pivotEntity,
         new Mesh(new SphereGeometry(1.5, 32, 32), new MeshBasicMaterial({ color: 0xff0000 }))
@@ -89,13 +92,18 @@ export const TransformGizmoControlledComponent = defineComponent({
         visualEntity: gizmoVisualEntity,
         planeEntity: gizmoPlaneEntity
       })
+      setComponent(gizmoControlEntity, TransformGizmoTagComponent)
+      setComponent(gizmoControlEntity, VisibleComponent)
+
       transformGizmoControlledComponent.controller.set(gizmoControlEntity)
 
       setComponent(gizmoVisualEntity, NameComponent, 'gizmoVisualEntity')
       setComponent(gizmoVisualEntity, TransformGizmoVisualComponent)
+      setComponent(gizmoVisualEntity, TransformGizmoTagComponent)
       setComponent(gizmoVisualEntity, VisibleComponent)
 
       setComponent(gizmoPlaneEntity, NameComponent, 'gizmoPlaneEntity')
+      setComponent(gizmoPlaneEntity, TransformGizmoTagComponent)
       setComponent(gizmoPlaneEntity, VisibleComponent) // needed for raycasting
 
       return () => {
