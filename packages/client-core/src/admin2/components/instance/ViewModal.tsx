@@ -115,7 +115,7 @@ export default function ViewUsersModal({ instanceId }: { instanceId: string }) {
                       kickUser(kickData.get())
                     }}
                   >
-                    Kick
+                    {t('admin:components.instance.kick')}
                   </Button>
                 </TableCell>
                 <TableCell>
@@ -129,7 +129,7 @@ export default function ViewUsersModal({ instanceId }: { instanceId: string }) {
                       kickUser(kickData.get())
                     }}
                   >
-                    Ban
+                    {t('admin:components.instance.ban')}
                   </Button>
                 </TableCell>
               </TableRow>

@@ -32,7 +32,6 @@ import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { LoadingCircle } from '../../../components/LoadingCircle'
 
 export default function PatchServerModal() {
   const { t } = useTranslation()
@@ -41,11 +40,12 @@ export default function PatchServerModal() {
     locationError: '',
     count: 1
   })
+  const modalProcessing = useHookstate(false)
 
   const handleSubmit = () => {
+    modalProcessing.set(true)
     patchInstanceserver({ locationId: state.locationId.value as LocationID, count: state.count.value })
       .then(() => {
-        console.log('success')
         PopoverState.hidePopupover()
       })
       .catch((e) => {
@@ -71,20 +71,17 @@ export default function PatchServerModal() {
       onClose={() => {
         PopoverState.hidePopupover()
       }}
+      submitLoading={modalProcessing.value}
     >
-      {adminLocations.status === 'success' ? (
-        <Select
-          options={locationsMenu}
-          currentValue={state.locationId.value}
-          onChange={(value) => {
-            state.locationId.set(value)
-          }}
-          className="mb-5"
-          label={t('admin:components.instance.location')}
-        ></Select>
-      ) : (
-        <LoadingCircle />
-      )}
+      <Select
+        options={locationsMenu}
+        currentValue={state.locationId.value}
+        onChange={(value) => {
+          state.locationId.set(value)
+        }}
+        className="mb-5"
+        label={t('admin:components.instance.location')}
+      ></Select>
       <Input
         type="number"
         value={state.count.value}

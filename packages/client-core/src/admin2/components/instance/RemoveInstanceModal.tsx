@@ -27,6 +27,7 @@ import { PopoverState } from '@etherealengine/client-core/src/common/services/Po
 import { instancePath } from '@etherealengine/common/src/schema.type.module'
 import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
+import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -54,7 +55,7 @@ export default function RemoveInstanceModal({ instanceId }: { instanceId: string
         PopoverState.hidePopupover()
       }}
     >
-      <h2>{`Remove this instance (${instanceId}) ?`}</h2>
+      <Text component="h2">{`${t('admin:components.instance.confirmInstanceDelete')} (${instanceId}) ?`}</Text>
       {error.value ? <p className="mt-2 text-rose-700">{error.value}</p> : null}
     </Modal>
   )

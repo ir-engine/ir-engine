@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { lazy } from 'react'
+import { HiOutlineCube } from 'react-icons/hi'
 import { HiMapPin, HiOutlineTableCells, HiUserCircle } from 'react-icons/hi2'
-import { IoCubeOutline } from 'react-icons/io5'
 import { RiSendPlaneFill } from 'react-icons/ri'
 import { AdminRouteStateType } from '../admin/AllowedAdminRoutesState'
 
@@ -73,6 +73,6 @@ export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
     scope: 'instance',
     component: Instances,
     access: false,
-    icon: <IoCubeOutline />
+    icon: <HiOutlineCube />
   }
 }

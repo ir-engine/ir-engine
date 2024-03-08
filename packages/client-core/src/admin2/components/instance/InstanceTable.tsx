@@ -71,7 +71,7 @@ export default function InstanceTable({ search }: { search: string }) {
           </Button>
           <Button className="bg-transparent	">
             <BsTrash3
-              color="#FB7185"
+              className="text-[#FB7185]"
               onClick={() => {
                 PopoverState.showPopupover(<RemoveInstanceModal instanceId={row.id} />)
               }}
