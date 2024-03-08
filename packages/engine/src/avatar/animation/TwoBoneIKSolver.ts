@@ -228,9 +228,9 @@ export const blendIKChain = (entity: Entity, bones: VRMHumanBoneName[], weight) 
   for (const bone of bones) {
     const boneMatrices = rigComponent.ikMatrices[bone]
     if (boneMatrices) {
-      const node = rigComponent.vrm.humanoid.getNormalizedBoneNode(bone)
+      const node = rigComponent.vrm.humanoid.getNormalizedBoneNode(bone)!
       nodeQuaternion.setFromRotationMatrix(boneMatrices.local)
-      node?.quaternion.slerp(nodeQuaternion, weight)
+      node.quaternion.fastSlerp(nodeQuaternion, weight)
     }
   }
 }
