@@ -29,8 +29,7 @@ import { EntityUUID } from '@etherealengine/ecs'
 
 import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { setComponent } from '@etherealengine/ecs'
-import { UUIDComponent } from '@etherealengine/network'
+import { UUIDComponent, setComponent } from '@etherealengine/ecs'
 import React, { useLayoutEffect } from 'react'
 import { TransformComponent } from '../SpatialModule'
 import { SpawnObjectActions } from './SpawnObjectActions'

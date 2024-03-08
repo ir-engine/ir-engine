@@ -39,20 +39,19 @@ import {
 } from 'three'
 
 import { EntityUUID } from '@etherealengine/ecs'
-import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getMutableComponent,
-  hasComponent,
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { UUIDComponent } from '@etherealengine/network'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
@@ -62,7 +61,6 @@ import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { EnvMapBakeComponent, applyBoxProjection } from './EnvMapBakeComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { SceneComponent } from './SceneComponent'
 
 const tempColor = new Color()
 
@@ -94,13 +92,13 @@ export const EnvmapComponent = defineComponent({
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
      */
-    if (
-      isClient &&
-      !getState(SceneState).sceneLoaded &&
-      hasComponent(entity, SceneComponent) &&
-      component.type.value !== EnvMapSourceType.None
-    )
-      SceneAssetPendingTagComponent.addResource(entity, EnvmapComponent.jsonID)
+    // if (
+    //   isClient &&
+    //   !getState(SceneState).sceneLoaded &&
+    //   hasComponent(entity, SceneComponent) &&
+    //   component.type.value !== EnvMapSourceType.None
+    // )
+    //   SceneAssetPendingTagComponent.addResource(entity, EnvmapComponent.jsonID)
   },
 
   toJSON: (entity, component) => {

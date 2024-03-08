@@ -32,11 +32,11 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { emoteAnimations, preloadedAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import { dispatchAction } from '@etherealengine/hyperflux'
-import { UUIDComponent } from '@etherealengine/network'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from './EmoteMenu.module.scss'
 

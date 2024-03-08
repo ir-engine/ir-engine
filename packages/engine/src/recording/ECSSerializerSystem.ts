@@ -23,19 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, EntityUUID, getComponent } from '@etherealengine/ecs'
+import { Entity, EntityUUID, getComponent, UUIDComponent } from '@etherealengine/ecs'
 import {
-  SerializationSchema,
-  UUIDComponent,
-  ViewCursor,
   checkBitflag,
   createViewCursor,
   readUint32,
   readUint8,
   rewindViewCursor,
+  SerializationSchema,
   sliceViewCursor,
   spaceUint32,
-  spaceUint8
+  spaceUint8,
+  ViewCursor
 } from '@etherealengine/network'
 
 export type SerializedChunk = {

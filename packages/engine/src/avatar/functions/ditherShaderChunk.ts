@@ -23,7 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// ensure dependency modules are imported
-import '@etherealengine/network'
+/** glsl */
+export const ditheringVertexUniform = `
+varying vec3 vWorldPosition;
+uniform bool useWorldSpace;
+`
 
-export * from './src/SpatialModule'
+/** glsl */
+export const ditheringVertex = `
+vWorldPosition = useWorldSpace ? (modelMatrix * vec4( transformed, 1.0 )).xyz : position.xyz;
+`
+
+/** glsl */
+export const ditheringFragUniform = `
+varying vec3 vWorldPosition;
+uniform vec3 ditheringCenter;
+uniform float ditheringExponent;
+uniform float ditheringDistance;
+`
+
+/** glsl */
+export const ditheringAlphatestChunk = `
+// sample sine at screen space coordinates for dithering pattern
+float dither = sin( gl_FragCoord.x * 2.0)*sin( gl_FragCoord.y * 2.0);
+float distance = length(ditheringCenter - vWorldPosition)*1.5;
+dither += pow(ditheringDistance/distance, ditheringExponent)-1.0;
+diffuseColor.a = smoothstep( alphaTest, alphaTest + fwidth( diffuseColor.a ), diffuseColor.a );
+diffuseColor.a -= max(dither, 0.0);
+
+if ( diffuseColor.a == 0.0 ) discard;
+
+if ( diffuseColor.a < alphaTest ) discard;
+    `
