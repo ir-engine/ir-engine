@@ -82,7 +82,7 @@ export default function ResourceTable({ search }: { search: string }) {
               PopoverState.showPopupover(<DeleteResourceModal resourceId={el.id} resourceKey={el.key} />)
             }}
           >
-            <BsTrash3 color="#FB7185" />
+            <BsTrash3 className="text-color-[#FB7185]" />
           </Button>
         </div>
       )

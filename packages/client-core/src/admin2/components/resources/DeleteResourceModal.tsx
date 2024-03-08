@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import { useHookstate } from '@hookstate/core'
@@ -52,12 +51,9 @@ export default function DeleteResourceModal({ resourceId, resourceKey }: { resou
       }}
       onClose={!modalProcessing.value ? () => PopoverState.hidePopupover() : undefined}
       hideFooter={modalProcessing.value}
+      submitLoading={modalProcessing.value}
     >
-      {modalProcessing.value ? (
-        <LoadingCircle className="h-[10vh]" />
-      ) : (
-        <Text>{`${t('admin:components.resources.confirmResourceDelete')} '${resourceKey}'?`}</Text>
-      )}
+      <Text>{`${t('admin:components.resources.confirmResourceDelete')} '${resourceKey}'?`}</Text>
     </Modal>
   )
 }

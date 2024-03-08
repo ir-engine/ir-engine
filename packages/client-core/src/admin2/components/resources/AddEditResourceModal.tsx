@@ -77,27 +77,16 @@ export default function CreateResourceModal({
   const error = useHookstate('')
 
   const state = useHookstate({
-    id: undefined as string | undefined,
-    name: '',
-    mimeType: '',
-    project: '',
-    source: 'file',
+    id: selectedResource?.id ? selectedResource.id : '',
+    name: selectedResource?.key ? selectedResource.key : '',
+    mimeType: selectedResource?.mimeType ? selectedResource.mimeType : '',
+    project: selectedResource?.project ? selectedResource.project : '',
+    source: 'url' as 'url' | 'file',
     resourceFile: undefined as File | undefined,
-    resourceURL: ''
+    resourceURL: selectedResource?.url ? selectedResource.url : ''
   })
 
   const previewPanelRef = React.useRef()
-
-  useEffect(() => {
-    if (mode === 'edit' && selectedResource) {
-      state.id.set(selectedResource?.id)
-      state.name.set(selectedResource?.key)
-      state.mimeType.set(selectedResource?.mimeType)
-      state.project.set(selectedResource?.project)
-      state.source.set('url')
-      state.resourceURL.set(selectedResource?.url)
-    }
-  }, [])
 
   useEffect(() => {
     if (state.source.value === 'file' && state.resourceFile.value) {
@@ -192,7 +181,7 @@ export default function CreateResourceModal({
       />
       <Button fullWidth className="mb-4">
         <label className="block w-full cursor-pointer">
-          Select Files
+          {t('admin:components.resources.selectFile')}
           <input
             className="mb-4 hidden"
             type="file"
