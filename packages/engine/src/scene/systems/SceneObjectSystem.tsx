@@ -62,6 +62,7 @@ import {
   FrustumCullCameraComponent
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
+import { ResourceManager } from '../../assets/state/ResourceState'
 import { registerMaterial, unregisterMaterial } from '../../scene/materials/functions/MaterialLibraryFunctions'
 import { ModelComponent, useMeshOrModel } from '../components/ModelComponent'
 import { SceneComponent } from '../components/SceneComponent'
@@ -151,15 +152,7 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
       ? getModelSceneID(entity)
       : getOptionalComponent(entity, SceneComponent)
     return () => {
-      // if (obj.isProxified) {
-      //   disposeObject3D(obj)
-      // } else {
-      //   iterateObject3D(
-      //     obj,
-      //     disposeObject3D,
-      //     (obj: Object3D) => getOptionalComponent(obj.entity, SceneComponent) === source
-      //   )
-      // }
+      ResourceManager.unloadObj(obj, source)
     }
   }, [])
 

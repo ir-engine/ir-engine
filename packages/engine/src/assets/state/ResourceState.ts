@@ -23,20 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '@etherealengine/ecs'
+import { SceneID } from '@etherealengine/common/src/schema.type.module'
+import { Engine, Entity, getOptionalComponent } from '@etherealengine/ecs'
 import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import {
   Cache,
   CompressedTexture,
   DefaultLoadingManager,
   InstancedMesh,
+  Light,
   LoadingManager,
   Material,
   Mesh,
+  Object3D,
   SkinnedMesh,
   Texture
 } from 'three'
+import { SceneComponent } from '../../scene/components/SceneComponent'
 import { SourceType } from '../../scene/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../scene/materials/functions/MaterialLibraryFunctions'
 import { AssetLoader, LoadingArgs } from '../classes/AssetLoader'
@@ -389,8 +394,8 @@ const Callbacks = {
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
     onUnload: (asset: Mesh, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
       const skinnedMesh = asset as SkinnedMesh
-      if (skinnedMesh.isSkinnedMesh) {
-        skinnedMesh.skeleton?.dispose()
+      if (skinnedMesh.isSkinnedMesh && skinnedMesh.skeleton) {
+        skinnedMesh.skeleton.dispose()
       }
 
       // InstancedMesh or anything with a dispose function
@@ -534,6 +539,23 @@ const unload = (url: string, entity: Entity, uuid?: string) => {
   }
 }
 
+const unloadObj = (obj: Object3D, sceneID: SceneID | undefined) => {
+  const remove = (obj: Object3D) => {
+    const light = obj as Light // anything with dispose function
+    if (typeof light.dispose === 'function') light.dispose()
+
+    const scene = Engine.instance.scene
+    const index = scene.children.indexOf(obj)
+    if (index > -1) scene.children.splice(index, 1)
+  }
+
+  if (obj.isProxified) {
+    remove(obj)
+  } else {
+    iterateObject3D(obj, remove, (obj: Object3D) => getOptionalComponent(obj.entity, SceneComponent) === sceneID)
+  }
+}
+
 const removeReferencedResources = (resource: State<Resource>) => {
   const resourceState = getMutableState(ResourceState)
   const referencedAssets = resourceState.referencedAssets
@@ -585,6 +607,7 @@ const removeResource = (id: string) => {
 export const ResourceManager = {
   load,
   unload,
+  unloadObj,
   update,
   setDefaultLoadingManager
 }
