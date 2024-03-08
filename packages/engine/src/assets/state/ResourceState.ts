@@ -473,8 +473,11 @@ const load = <T extends AssetType>(
       onProgress(request)
     },
     (error) => {
-      resource.status.set(ResourceStatus.Error)
-      callbacks.onError(error, resource)
+      console.warn(`ResourceManager:load error loading ${resourceType} at url ${url} for entity ${entity}`)
+      if (resource && resource.value && resource.status.value) {
+        resource.status.set(ResourceStatus.Error)
+        callbacks.onError(error, resource)
+      }
       onError(error)
       unload(url, entity, uuid)
     },
