@@ -35,6 +35,7 @@ import { RESOURCE_PAGE_LIMIT } from '../../../admin/services/ResourceService'
 import { PopoverState } from '../../../common/services/PopoverState'
 import DataTable from '../../common/Table'
 import { resourceColumns } from '../../common/constants/resources'
+import AddEditResourceModal from './AddEditResourceModal'
 import DeleteResourceModal from './DeleteResourceModal'
 
 export default function ResourceTable({ search }: { search: string }) {
@@ -68,7 +69,13 @@ export default function ResourceTable({ search }: { search: string }) {
       project: el.project,
       action: (
         <div>
-          <Button>{t('admin:components.resources.preview')}</Button>
+          <Button
+            onClick={() => {
+              PopoverState.showPopupover(<AddEditResourceModal mode="edit" selectedResource={el} />)
+            }}
+          >
+            {t('admin:components.resources.preview')}
+          </Button>
           <Button
             className="bg-transparent"
             onClick={() => {

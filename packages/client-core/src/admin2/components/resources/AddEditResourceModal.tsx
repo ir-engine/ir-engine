@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { AssetsPreviewPanel } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
 import {
   AssetTypeToMimeType,
@@ -63,13 +64,20 @@ const getNameAndType = async (url: string) => {
   }
 }
 
-export default function CreateResourceModal() {
+export default function CreateResourceModal({
+  selectedResource,
+  mode
+}: {
+  selectedResource?: StaticResourceType
+  mode: 'create' | 'edit'
+}) {
   const { t } = useTranslation()
 
   const modalProcessing = useHookstate(false)
   const error = useHookstate('')
 
   const state = useHookstate({
+    id: undefined as string | undefined,
     name: '',
     mimeType: '',
     project: '',
@@ -79,6 +87,17 @@ export default function CreateResourceModal() {
   })
 
   const previewPanelRef = React.useRef()
+
+  useEffect(() => {
+    if (mode === 'edit' && selectedResource) {
+      state.id.set(selectedResource?.id)
+      state.name.set(selectedResource?.key)
+      state.mimeType.set(selectedResource?.mimeType)
+      state.project.set(selectedResource?.project)
+      state.source.set('url')
+      state.resourceURL.set(selectedResource?.url)
+    }
+  }, [])
 
   useEffect(() => {
     if (state.source.value === 'file' && state.resourceFile.value) {

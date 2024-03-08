@@ -31,7 +31,7 @@ import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMagnifyingGlass, HiPlus } from 'react-icons/hi2'
 import { PopoverState } from '../../../common/services/PopoverState'
-import CreateResourceModal from './CreateResourceModal'
+import AddEditResourceModal from './AddEditResourceModal'
 import ResourceTable from './ResourceTable'
 
 export default function Resources() {
@@ -70,7 +70,7 @@ export default function Resources() {
             startIcon={<HiPlus />}
             size="small"
             onClick={() => {
-              PopoverState.showPopupover(<CreateResourceModal />)
+              PopoverState.showPopupover(<AddEditResourceModal mode="create" />)
             }}
           >
             {t('user:resource.createResource')}
