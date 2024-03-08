@@ -23,11 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import { FC, useEffect } from 'react'
 import { AnimationMixer, BoxGeometry, CapsuleGeometry, CylinderGeometry, Group, Scene, SphereGeometry } from 'three'
 
-import { NO_PROXY, createState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { QueryReactor, UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -42,10 +43,8 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { Shape } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
@@ -53,28 +52,26 @@ import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRender
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { VRM } from '@pixiv/three-vrm'
+import { Not } from 'bitecs'
 import React from 'react'
 import { AssetType } from '../../assets/enum/AssetType'
 import { useGLTF } from '../../assets/functions/resourceHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
-import { autoconvertMixamoAvatar, isAvaturn } from '../../avatar/functions/avatarFunctions'
+import { autoconvertMixamoAvatar } from '../../avatar/functions/avatarFunctions'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
-import { getModelSceneID } from '../functions/loaders/ModelFunctions'
+import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
 import { EnvmapComponent } from './EnvmapComponent'
 import { ObjectGridSnapComponent } from './ObjectGridSnapComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { SceneObjectComponent } from './SceneObjectComponent'
+import { SceneComponent } from './SceneComponent'
 import { ShadowComponent } from './ShadowComponent'
-import { SourceComponent } from './SourceComponent'
-
-const entitiesInModelHierarchy = {} as Record<Entity, Entity[]>
 
 export const ModelComponent = defineComponent({
-  name: 'Model Component',
-  jsonID: 'gltf-model',
+  name: 'ModelComponent',
+  jsonID: 'EE_model',
 
   onInit: (entity) => {
     return {
@@ -83,7 +80,8 @@ export const ModelComponent = defineComponent({
       /** optional, only for bone matchable avatars */
       convertToVRM: false as boolean,
       // internal
-      scene: null as Scene | null,
+      assetTypeOverride: null as null | AssetType,
+      scene: null as Group | null,
       asset: null as VRM | GLTF | null
     }
   },
@@ -109,30 +107,25 @@ export const ModelComponent = defineComponent({
      */
     if (
       !getState(SceneState).sceneLoaded &&
-      hasComponent(entity, SceneObjectComponent) &&
+      hasComponent(entity, SceneComponent) &&
       component.src.value &&
-      !component.scene.value
+      !component.asset.value
     )
       SceneAssetPendingTagComponent.addResource(entity, component.src.value)
   },
 
   errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
 
-  reactor: ModelReactor,
-
-  /** Tracks all child entities loaded by this model */
-  entitiesInModelHierarchyState: createState(entitiesInModelHierarchy),
-  entitiesInModelHierarchy: entitiesInModelHierarchy as Readonly<typeof entitiesInModelHierarchy>
+  reactor: ModelReactor
 })
 
 function ModelReactor(): JSX.Element {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
+  const uuidComponent = useOptionalComponent(entity, UUIDComponent)
 
-  /** @todo this is a hack */
-  const override = !isAvaturn(modelComponent.src.value) ? undefined : AssetType.glB
   const [gltf, unload, error, progress] = useGLTF(modelComponent.src.value, entity, {
-    forceAssetType: override,
+    forceAssetType: modelComponent.assetTypeOverride.value,
     ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
   })
 
@@ -165,7 +158,15 @@ function ModelReactor(): JSX.Element {
 
   useEffect(() => {
     const loadedAsset = gltf.get(NO_PROXY)
-    if (!loadedAsset) return
+    if (!loadedAsset) {
+      if (!hasComponent(entity, GroupComponent)) {
+        const obj3d = new Group()
+        obj3d.entity = entity
+        addObjectToGroup(entity, obj3d)
+        proxifyParentChildRelationships(obj3d)
+      }
+      return
+    }
 
     if (typeof loadedAsset !== 'object') {
       addError(entity, ModelComponent, 'INVALID_SOURCE', 'Invalid URL')
@@ -183,13 +184,6 @@ function ModelReactor(): JSX.Element {
         mixer: new AnimationMixer(boneMatchedAsset.humanoid.normalizedHumanBonesRoot)
       })
 
-    if (!hasComponent(entity, GroupComponent)) {
-      const obj3d = new Group()
-      obj3d.entity = entity
-      addObjectToGroup(entity, obj3d)
-      proxifyParentChildRelationships(obj3d)
-    }
-
     modelComponent.asset.set(boneMatchedAsset)
   }, [gltf])
 
@@ -203,11 +197,9 @@ function ModelReactor(): JSX.Element {
 
     removeError(entity, ModelComponent, 'INVALID_SOURCE')
     removeError(entity, ModelComponent, 'LOADING_ERROR')
-    const sceneObj = group[0] as Scene
+    const sceneObj = group[0] as Group
 
     sceneObj.userData.src = model.src
-    sceneObj.userData.sceneID = getModelSceneID(entity)
-    //sceneObj.userData.type === 'glb' && delete asset.scene.userData.type
     modelComponent.scene.set(sceneObj)
   }, [modelComponent.asset])
 
@@ -250,20 +242,21 @@ function ModelReactor(): JSX.Element {
           SceneAssetPendingTagComponent.removeResource(entity, src)
         })
 
+    const gltf = asset as GLTF
+    if (gltf.animations?.length) scene.animations = gltf.animations
+    if (scene.animations?.length) {
+      setComponent(entity, AnimationComponent, {
+        mixer: new AnimationMixer(scene),
+        animations: scene.animations
+      })
+    }
     return () => {
-      getMutableState(SceneState).scenes[uuid].set(none)
+      SceneState.unloadScene(uuid)
     }
   }, [modelComponent.scene])
 
-  const childQuery = useQuery([SourceComponent])
-  useEffect(() => {
-    const modelSceneID = getModelSceneID(entity)
-    ModelComponent.entitiesInModelHierarchyState[entity].set(
-      childQuery.filter((e) => getComponent(e, SourceComponent) === modelSceneID)
-    )
-  }, [JSON.stringify(childQuery)])
-
-  const childEntities = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
+  const sceneInstanceID = useModelSceneID(entity)
+  const childEntities = useHookstate(SceneComponent.entitiesBySceneState[sceneInstanceID])
 
   return (
     <>
@@ -344,13 +337,34 @@ const ThreeToPhysics = {
 export const useMeshOrModel = (entity: Entity) => {
   const meshComponent = useOptionalComponent(entity, MeshComponent)
   const modelComponent = useOptionalComponent(entity, ModelComponent)
-  const sourceComponent = useOptionalComponent(entity, SourceComponent)
-  const isEntityHierarchyOrMesh = (!sourceComponent && !!meshComponent) || !!modelComponent
+  const sceneComponent = useOptionalComponent(entity, SceneComponent)
+  const isEntityHierarchyOrMesh = (!sceneComponent && !!meshComponent) || !!modelComponent
   return isEntityHierarchyOrMesh
 }
 
-export const useContainsMesh = (entity: Entity) => {
-  const meshComponent = useOptionalComponent(entity, MeshComponent)
-  const childEntities = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
-  return !!meshComponent || !!childEntities.value?.find((e: Entity) => getComponent(e, MeshComponent))
+export const MeshOrModelQuery = (props: { ChildReactor: FC<{ entity: Entity; rootEntity: Entity }> }) => {
+  const ModelReactor = () => {
+    const entity = useEntityContext()
+    const sceneInstanceID = useModelSceneID(entity)
+    const childEntities = useHookstate(SceneComponent.entitiesBySceneState[sceneInstanceID])
+    return (
+      <>
+        {childEntities.value?.map((childEntity) => (
+          <props.ChildReactor entity={childEntity} rootEntity={entity} key={childEntity} />
+        ))}
+      </>
+    )
+  }
+
+  const MeshReactor = () => {
+    const entity = useEntityContext()
+    return <props.ChildReactor entity={entity} rootEntity={entity} key={entity} />
+  }
+
+  return (
+    <>
+      <QueryReactor Components={[ModelComponent]} ChildEntityReactor={ModelReactor} />
+      <QueryReactor Components={[Not(SceneComponent), MeshComponent]} ChildEntityReactor={MeshReactor} />
+    </>
+  )
 }

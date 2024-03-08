@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineComponent } from '@etherealengine/ecs'
+import { EntityUUID, defineComponent } from '@etherealengine/ecs'
 import { NO_PROXY } from '@etherealengine/hyperflux'
 import matches from 'ts-matches'
 

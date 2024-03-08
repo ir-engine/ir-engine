@@ -28,9 +28,9 @@ import { ArrowHelper, BackSide, Euler, Mesh, MeshBasicMaterial, Quaternion, Sphe
 
 import { NO_PROXY, defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { portalPath } from '@etherealengine/common/src/schema.type.module'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import {
   ComponentType,
   defineComponent,
@@ -42,15 +42,15 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { matches } from '@etherealengine/hyperflux'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { V_100 } from '@etherealengine/spatial/src/common/constants/MathConstants'
-import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
+import { Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import {
@@ -85,7 +85,7 @@ export const PortalState = defineState({
 
 export const PortalComponent = defineComponent({
   name: 'PortalComponent',
-  jsonID: 'portal',
+  jsonID: 'EE_portal',
 
   onInit: (entity) => {
     return {
@@ -162,7 +162,7 @@ export const PortalComponent = defineComponent({
       if (hasComponent(entity, RigidBodyComponent)) return
       setComponent(entity, RigidBodyComponent, { type: 'fixed' })
       setComponent(entity, ColliderComponent, {
-        shape: 'box',
+        shape: Shapes.Sphere,
         collisionLayer: CollisionGroups.Trigger,
         collisionMask: CollisionGroups.Avatars
       })
@@ -197,6 +197,7 @@ export const PortalComponent = defineComponent({
 
       return () => {
         removeEntity(helperEntity)
+        if (!hasComponent(entity, PortalComponent)) return
         portalComponent.helperEntity.set(none)
       }
     }, [debugEnabled])
@@ -204,9 +205,8 @@ export const PortalComponent = defineComponent({
     useEffect(() => {
       if (portalComponent.previewType.value !== PortalPreviewTypeSpherical) return
 
-      const portalMesh = new Mesh(new SphereGeometry(1.5, 32, 32), new MeshBasicMaterial({ side: BackSide }))
+      const portalMesh = new Mesh(new SphereGeometry(1, 32, 32), new MeshBasicMaterial({ side: BackSide }))
       enableObjectLayer(portalMesh, ObjectLayers.Camera, true)
-      portalMesh.geometry.translate(0, 1.5, 0)
       portalComponent.mesh.set(portalMesh)
       addObjectToGroup(entity, portalMesh)
 

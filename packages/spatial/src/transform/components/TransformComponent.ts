@@ -55,7 +55,7 @@ export const TransformSchema = {
 
 export const TransformComponent = defineComponent({
   name: 'TransformComponent',
-  jsonID: 'transform',
+  jsonID: 'EE_transform',
   schema: TransformSchema,
 
   onInit: (entity) => {
@@ -373,3 +373,5 @@ export const setFromRotationMatrix = (entity: Entity, m: Matrix4) => {
     TransformComponent.rotation.z[entity] = 0.25 * s
   }
 }
+
+export const TransformGizmoTagComponent = defineComponent({ name: 'TransformGizmoTag' })

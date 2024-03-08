@@ -35,13 +35,11 @@ import {
 } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { setComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, setComponent } from '@etherealengine/ecs'
 import { AssetPreviewCameraComponent } from '@etherealengine/engine/src/camera/components/AssetPreviewCameraComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
@@ -106,7 +104,11 @@ export const ModelPreviewPanel = (props) => {
           <h1 className={styles.error}>{error.value}</h1>
         </div>
       )}
-      <div id="modelPreview" ref={panelRef} style={{ minHeight: '250px', width: '100%', height: '100%' }}></div>
+      <div
+        id="modelPreview"
+        ref={panelRef}
+        style={{ minHeight: '250px', width: '100%', height: '100%', ...props.style }}
+      ></div>
     </>
   )
 }

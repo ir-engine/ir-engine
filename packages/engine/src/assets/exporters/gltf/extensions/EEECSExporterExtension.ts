@@ -32,7 +32,7 @@ import {
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { Object3D } from 'three'
-import { SceneObjectComponent } from '../../../../scene/components/SceneObjectComponent'
+import { SceneComponent } from '../../../../scene/components/SceneComponent'
 import { GLTFExporterPlugin } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -42,7 +42,7 @@ export class EEECSExporterExtension extends ExporterExtension implements GLTFExp
   writeNode(object: Object3D, nodeDef: { [key: string]: any }) {
     if (!object.entity) return
     const entity = object.entity
-    if (!hasComponent(entity, SceneObjectComponent)) return
+    if (!hasComponent(entity, SceneComponent)) return
     //const gltfLoaded = getComponent(entity, GLTFLoadedComponent)
     const components = getAllComponents(entity)
     if (hasComponent(entity, NameComponent)) {
@@ -57,7 +57,7 @@ export class EEECSExporterExtension extends ExporterExtension implements GLTFExp
         continue
       const compData = serializeComponent(entity, component)
       if (!compData) continue
-      const extensionName = component.jsonID.startsWith('EE_') ? component.jsonID : `EE_${component.jsonID}`
+      const extensionName = component.jsonID
       nodeDef.extensions = nodeDef.extensions ?? {}
       nodeDef.extensions[extensionName] = compData
       this.writer.extensionsUsed[extensionName] = true

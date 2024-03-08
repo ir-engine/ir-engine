@@ -6,7 +6,8 @@ import {
   ComponentType,
   getComponent,
   getMutableComponent,
-  getOptionalComponent
+  getOptionalComponent,
+  hasComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
@@ -126,8 +127,10 @@ export function setMeshVariant(entity: Entity) {
     AssetLoader.load(src, {}, (gltf) => {
       const mesh = getFirstMesh(gltf.scene)
       if (!mesh) return
+      if (!hasComponent(entity, MeshComponent)) return
       meshComponent.geometry = mesh.geometry
       meshComponent.material = mesh.material
+      getMutableComponent(entity, MeshComponent).set((val) => val) // reactivly update mesh
     })
   }
 }
@@ -145,8 +148,10 @@ export function setInstancedMeshVariant(entity: Entity) {
     AssetLoader.load(deviceVariant.src, {}, (gltf) => {
       const mesh = getFirstMesh(gltf.scene)
       if (!mesh) return
+      if (!hasComponent(entity, MeshComponent)) return
       meshComponent.geometry = mesh.geometry
       meshComponent.material = mesh.material
+      getMutableComponent(entity, MeshComponent).set((val) => val) // reactivly update mesh
     })
   } else if (variantComponent.heuristic === 'DISTANCE') {
     const referencedVariants: VariantLevel[] = []

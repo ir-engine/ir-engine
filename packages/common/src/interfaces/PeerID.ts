@@ -33,5 +33,4 @@ export type PeersUpdateType = {
   peerIndex: number
   userID: UserID
   userIndex: number
-  name: string
 }

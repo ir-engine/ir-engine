@@ -64,9 +64,9 @@ import {
   getState,
   syncStateWithLocalStorage
 } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/network'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { throttle } from '@etherealengine/spatial/src/common/functions/FunctionHelpers'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import Header from '@etherealengine/ui/src/components/tailwind/Header'
 import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
@@ -89,7 +89,7 @@ export const startPlayback = async (recordingID: RecordingID, twin = true, fromS
   // ) as DataProducer
   // if (getState(PlaybackState).recordingID && dataProducer) {
   //   dispatchAction(
-  //     MediaProducerActions.producerClosed({
+  //     MediasoupMediaProducerActions.producerClosed({
   //       producerID: dataProducer.id,
   //       $network: network.id,
   //       $topic: network.topic

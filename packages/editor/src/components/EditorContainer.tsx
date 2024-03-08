@@ -355,7 +355,7 @@ const tabs = [
 const EditorContainer = () => {
   const { sceneName, projectName, sceneID } = useHookstate(getMutableState(EditorState))
   const { sceneLoaded, sceneModified } = useHookstate(getMutableState(SceneState))
-  const activeScene = useHookstate(getMutableState(SceneState).activeScene)
+  const { scenes } = useHookstate(getMutableState(SceneState))
 
   const sceneLoading = sceneID.value && !sceneLoaded.value
 
@@ -422,11 +422,12 @@ const EditorContainer = () => {
   }, [sceneID])
 
   useEffect(() => {
-    if (!activeScene.value) return
-    const scene = getState(SceneState).scenes[activeScene.value]
-    sceneName.set(scene.metadata.name)
-    projectName.set(scene.metadata.project)
-  }, [activeScene])
+    if (!sceneID.value) return
+    const scene = getState(SceneState).scenes[sceneID.value]
+    if (!scene) return
+    sceneName.set(scene.name)
+    projectName.set(scene.project)
+  }, [sceneID.value, scenes.keys])
 
   useEffect(() => {
     if (!dockPanelRef.current) return

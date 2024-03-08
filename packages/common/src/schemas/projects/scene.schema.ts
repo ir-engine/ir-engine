@@ -19,8 +19,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
+import { EntityUUID } from '@etherealengine/ecs'
 import type { Static } from '@feathersjs/typebox'
 import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
 import { TypedRecord, TypedString } from '../../types/TypeboxUtils'
@@ -49,7 +49,6 @@ export const entityJsonSchema = Type.Object(
         format: 'uuid'
       })
     ]),
-    type: Type.Optional(Type.String()),
     components: Type.Array(Type.Ref(componentJsonSchema)),
     parent: Type.Optional(
       TypedString<EntityUUID>({

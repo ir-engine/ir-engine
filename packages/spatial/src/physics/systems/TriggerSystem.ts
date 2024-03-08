@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { CollisionComponent } from '@etherealengine/spatial/src/physics/components/CollisionComponent'
 import { PhysicsSystem } from '@etherealengine/spatial/src/physics/systems/PhysicsSystem'
 import { ColliderHitEvent, CollisionEvents } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
