@@ -37,7 +37,7 @@ import { RendererState } from '@etherealengine/spatial/src/renderer/RendererStat
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
-import { Material, Vector3 } from 'three'
+import { FrontSide, Material, Vector3 } from 'three'
 import matches from 'ts-matches'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import {
@@ -55,6 +55,7 @@ export const TransparencyDitheringComponent = defineComponent({
       ditheringExponent: 5,
       center: new Vector3(),
       useWorldSpace: true,
+      overrideFaceCulling: false,
       //internal
       matIds: [] as string[]
     }
@@ -66,6 +67,7 @@ export const TransparencyDitheringComponent = defineComponent({
     if (matches.number.test(json.ditheringExponent)) component.ditheringExponent.set(json.ditheringExponent)
     if (matchesVector3.test(json.center)) component.center.set(new Vector3().copy(json.center))
     if (matches.boolean.test(json.useWorldSpace)) component.useWorldSpace.set(json.useWorldSpace)
+    if (matches.boolean.test(json.overrideFaceCulling)) component.overrideFaceCulling.set(json.overrideFaceCulling)
   },
 
   reactor: () => {
@@ -76,7 +78,7 @@ export const TransparencyDitheringComponent = defineComponent({
     const transparencyDitheringComponent = useComponent(entity, TransparencyDitheringComponent)
     /** Injects dithering logic into avatar materials */
     useEffect(() => {
-      const { ditheringExponent, ditheringDistance, center, useWorldSpace, matIds } = getComponent(
+      const { ditheringExponent, ditheringDistance, center, useWorldSpace, matIds, overrideFaceCulling } = getComponent(
         entity,
         TransparencyDitheringComponent
       )
@@ -92,7 +94,14 @@ export const TransparencyDitheringComponent = defineComponent({
             (plugin: PluginObjectType) => plugin.id === 'transparency-dithering'
           )
           if (plugin !== undefined && plugin !== -1) material.plugins!.splice(plugin, 1)
-          injectDitheringLogic(material, ditheringDistance, ditheringExponent, center, useWorldSpace)
+          injectDitheringLogic(
+            material,
+            ditheringDistance,
+            ditheringExponent,
+            center,
+            useWorldSpace,
+            overrideFaceCulling
+          )
           if (material.shader.uniforms.useWorldSpace) material.shader.uniforms.useWorldSpace.value = useWorldSpace
           if (material.shader.uniforms.ditheringDistance)
             material.shader.uniforms.ditheringDistance.value = ditheringDistance
@@ -117,9 +126,12 @@ const injectDitheringLogic = (
   ditheringDistance: number,
   ditheringExponent: number,
   center: Vector3,
-  useWorldSpace: boolean
+  useWorldSpace: boolean,
+  overrideCulling: boolean
 ) => {
   material.alphaTest = 0.5
+  if (overrideCulling) material.side = FrontSide
+  console.log(overrideCulling)
   addOBCPlugin(material, {
     id: 'transparency-dithering',
     priority: 10,
