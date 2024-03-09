@@ -45,6 +45,7 @@ import { getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
 import config from '@etherealengine/common/src/config'
 import { StaticResourceType } from '@etherealengine/common/src/schema.type.module'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { defineComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -158,6 +159,8 @@ function flipNormals<G extends BufferGeometry>(geometry: G) {
 }
 
 export function ImageReactor() {
+  if (!isClient) return null
+
   const entity = useEntityContext()
   const image = useComponent(entity, ImageComponent)
   const texture = useHookstate(null as Texture | null)
