@@ -1233,6 +1233,15 @@ export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
 
   console.log(mediaStreamState.screenVideoProducer.value, mediaStreamState.screenShareVideoPaused.value)
   if (mediaStreamState.screenVideoProducer.value) {
+    dispatchAction(
+      MediasoupMediaProducerActions.producerPaused({
+        producerID: mediaStreamState.screenVideoProducer.value.id,
+        globalMute: false,
+        paused: true,
+        $network: network.id,
+        $topic: network.topic
+      })
+    )
     await mediaStreamState.screenVideoProducer.value.pause()
     mediaStreamState.screenShareVideoPaused.set(true)
     dispatchAction(
@@ -1247,6 +1256,15 @@ export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
   }
 
   if (mediaStreamState.screenAudioProducer.value) {
+    dispatchAction(
+      MediasoupMediaProducerActions.producerPaused({
+        producerID: mediaStreamState.screenAudioProducer.value.id,
+        globalMute: false,
+        paused: true,
+        $network: network.id,
+        $topic: network.topic
+      })
+    )
     dispatchAction(
       MediasoupMediaProducerActions.producerClosed({
         producerID: mediaStreamState.screenAudioProducer.value.id,
