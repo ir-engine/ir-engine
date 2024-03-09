@@ -45,8 +45,10 @@ uniform float ditheringDistance;
 /** glsl */
 export const ditheringAlphatestChunk = `
 // sample sine at screen space coordinates for dithering pattern
+float distance = length(ditheringCenter - vWorldPosition);
+
+
 float dither = sin( gl_FragCoord.x * 2.0)*sin( gl_FragCoord.y * 2.0);
-float distance = length(ditheringCenter - vWorldPosition)*1.5;
 dither += pow(ditheringDistance/distance, ditheringExponent)-1.0;
 diffuseColor.a = smoothstep( alphaTest, alphaTest + fwidth( diffuseColor.a ), diffuseColor.a );
 diffuseColor.a -= max(dither, 0.0);
