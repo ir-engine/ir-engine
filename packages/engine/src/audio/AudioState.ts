@@ -48,7 +48,7 @@ export const AudioState = defineState({
       music: null! as GainNode,
       soundEffects: null! as GainNode
     },
-    masterVolume: 0.5,
+    masterVolume: 0.1,
     microphoneGain: 0.5,
     positionalMedia: false,
     usePositionalMedia: 'auto' as 'auto' | 'off' | 'on',
