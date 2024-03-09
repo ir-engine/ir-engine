@@ -331,7 +331,7 @@ const execute = () => {
   else ditheringCenter.copy(getComponent(Engine.instance.cameraEntity, TransformComponent).position)
   ditheringComponent.useWorldSpace.set(!cameraAttached)
   ditheringComponent.center.set(ditheringCenter)
-  ditheringComponent.ditheringDistance.set(cameraAttached ? 0.3 : 0.45)
+  ditheringComponent.ditheringDistance.set(cameraAttached ? 0.2 : 0.45)
   const cameraComponent = getOptionalComponent(Engine.instance.cameraEntity, FollowCameraComponent)
   if (!cameraComponent) return
   const hasDecapComponent = hasComponent(localClientEntity, AvatarHeadDecapComponent)

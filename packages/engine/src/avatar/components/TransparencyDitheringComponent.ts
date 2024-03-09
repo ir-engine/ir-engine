@@ -52,7 +52,7 @@ export const TransparencyDitheringComponent = defineComponent({
   onInit: (entity) => {
     return {
       ditheringDistance: 0.1,
-      ditheringExponent: 2,
+      ditheringExponent: 2.5,
       center: new Vector3(),
       useWorldSpace: true,
       overrideFaceCulling: false,
