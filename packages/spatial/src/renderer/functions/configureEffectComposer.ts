@@ -30,6 +30,7 @@ import {
   EdgeDetectionMode,
   EffectComposer,
   EffectPass,
+  NormalPass,
   OutlineEffect,
   RenderPass,
   SMAAEffect,
@@ -38,7 +39,6 @@ import {
 } from 'postprocessing'
 import { VelocityDepthNormalPass } from 'realism-effects'
 import { DepthTexture, NearestFilter, PerspectiveCamera, RGBAFormat, UnsignedIntType, WebGLRenderTarget } from 'three'
-import { CustomNormalPass } from '../passes/CustomNormalPass'
 
 import { getState } from '@etherealengine/hyperflux'
 
@@ -105,7 +105,7 @@ export const configureEffectComposer = (
 
   const effectKeys = Object.keys(EffectMap)
 
-  const normalPass = new CustomNormalPass(scene, camera)
+  const normalPass = new NormalPass(scene, camera)
 
   const depthDownsamplingPass = new DepthDownsamplingPass({
     normalBuffer: normalPass.texture,
