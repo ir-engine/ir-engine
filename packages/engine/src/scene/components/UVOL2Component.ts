@@ -43,8 +43,6 @@ import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getState } from '@etherealengine/hyperflux'
 import { isIPhone, isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import { startTransition, useEffect, useMemo, useRef } from 'react'
 import {
@@ -76,9 +74,7 @@ import { PlayMode } from '../constants/PlayMode'
 import {
   ASTCTextureTarget,
   AudioFileFormat,
-  DRACOTarget,
   FORMAT_TO_EXTENSION,
-  GLBTarget,
   GeometryFormat,
   KTX2TextureTarget,
   PlayerManifest,
@@ -211,10 +207,41 @@ const getDefines = (manifest: PlayerManifest) => {
   return requiredDefines
 }
 
-const MAX_TOLERABLE_GAP = 0.2 // seconds
-type TimeRange = {
+export type BufferMetadata = {
   start: number
   end: number
+  fetchTime: number
+  pending: boolean
+}
+
+const MAX_TOLERABLE_GAP = 1 / 30 // a single frame at 30fps
+export const confirmBufferedRange = (
+  buffered: BufferMetadata[],
+  start: number,
+  end: number,
+  gapTolerance = MAX_TOLERABLE_GAP,
+  excludePending = true
+) => {
+  let gap = 0,
+    previousEnd = -1
+  if (excludePending) buffered = buffered.filter((el) => !excludePending || !el.pending)
+  if (buffered.length === 0) return false
+  if (buffered[0].start > start) return false
+  if (buffered[buffered.length - 1].end < end) return false
+  for (const el of buffered) {
+    if (el.start <= start) {
+      if (el.end >= end) {
+        return true
+      } else {
+        previousEnd = el.end
+      }
+    } else {
+      gap = el.start - previousEnd
+      if (gap > gapTolerance) return false
+      previousEnd = el.end
+    }
+  }
+  return true
 }
 
 export const UVOL2Component = defineComponent({
@@ -232,7 +259,7 @@ export const UVOL2Component = defineComponent({
         targets: [] as string[],
         userTarget: -1, // -1 implies 'auto'
         currentTarget: 0,
-        buffered: [] as TimeRange[],
+        buffered: [] as BufferMetadata[],
         pendingRequests: 0
       },
       textureInfo: {
@@ -241,35 +268,35 @@ export const UVOL2Component = defineComponent({
           targets: [] as string[],
           userTarget: -1,
           currentTarget: 0,
-          buffered: [] as TimeRange[],
+          buffered: [] as BufferMetadata[],
           pendingRequests: 0
         },
         normal: {
           targets: [] as string[],
           userTarget: -1,
           currentTarget: 0,
-          buffered: [] as TimeRange[],
+          buffered: [] as BufferMetadata[],
           pendingRequests: 0
         },
         metallicRoughness: {
           targets: [] as string[],
           userTarget: -1,
           currentTarget: 0,
-          buffered: [] as TimeRange[],
+          buffered: [] as BufferMetadata[],
           pendingRequests: 0
         },
         emissive: {
           targets: [] as string[],
           userTarget: -1,
           currentTarget: 0,
-          buffered: [] as TimeRange[],
+          buffered: [] as BufferMetadata[],
           pendingRequests: 0
         },
         occlusion: {
           targets: [] as string[],
           userTarget: -1,
           currentTarget: 0,
-          buffered: [] as TimeRange[],
+          buffered: [] as BufferMetadata[],
           pendingRequests: 0
         }
       },
@@ -307,33 +334,12 @@ export const UVOL2Component = defineComponent({
     if (!component) return false
     end = Math.min(end, component.data.duration)
 
-    const checkBuffered = (buffered: TimeRange[], start: number, end: number) => {
-      let gap = 0,
-        previousEnd = -1
-      if (buffered.length === 0) return false
-      if (buffered[0].start > start) return false
-      if (buffered[buffered.length - 1].end < end) return false
-      for (const el of buffered) {
-        if (el.start <= start) {
-          if (el.end >= end) {
-            return true
-          } else {
-            previousEnd = el.end
-          }
-        } else {
-          gap += el.start - previousEnd
-          if (gap > MAX_TOLERABLE_GAP) return false
-          previousEnd = el.end
-        }
-      }
-      return true
-    }
-
-    if (!checkBuffered(component.geometryInfo.buffered, start, end)) return false
+    if (!confirmBufferedRange(component.geometryInfo.buffered, start, end, MAX_TOLERABLE_GAP, true)) return false
 
     if (!component.useVideoTexture) {
       for (const textureType of component.textureInfo.textureTypes)
-        if (!checkBuffered(component.textureInfo[textureType].buffered, start, end)) return false
+        if (!confirmBufferedRange(component.textureInfo[textureType].buffered, start, end, MAX_TOLERABLE_GAP, true))
+          return false
     }
 
     return true
@@ -342,21 +348,22 @@ export const UVOL2Component = defineComponent({
   reactor: UVOL2Reactor
 })
 
-const loadGeometryAsync = (url: string, targetData: DRACOTarget | GLBTarget | UniformSolveTarget) => {
-  return new Promise<BufferGeometry | Mesh>((resolve, reject) => {
-    const format = targetData.format
-    if (format === 'draco') {
-      getState(AssetLoaderState).gltfLoader.dracoLoader?.load(url, (geometry: BufferGeometry) => {
-        resolve(geometry)
-      })
-    } else if (format === 'glb' || format === 'uniform-solve') {
-      getState(AssetLoaderState).gltfLoader.load(url, ({ scene }: GLTF) => {
-        const mesh = getFirstMesh(scene)!
-        resolve(mesh)
-      })
-    } else {
-      reject('Invalid format')
-    }
+const loadDraco = (url: string) => {
+  return new Promise<{ geometry: BufferGeometry; fetchTime: number }>((resolve, reject) => {
+    const startTime = performance.now()
+    getState(AssetLoaderState).gltfLoader.dracoLoader?.load(url, (geometry: BufferGeometry) => {
+      resolve({ geometry, fetchTime: performance.now() - startTime })
+    })
+  })
+}
+
+const loadGLB = (url: string) => {
+  return new Promise<{ mesh: Mesh; fetchTime: number }>((resolve, reject) => {
+    const startTime = performance.now()
+    getState(AssetLoaderState).gltfLoader.load(url, ({ scene }: GLTF) => {
+      const mesh = getFirstMesh(scene)!
+      resolve({ mesh, fetchTime: performance.now() - startTime })
+    })
   })
 }
 
@@ -575,7 +582,6 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     _group.add(mesh)
     return _group
   }, [])
-  setObjectLayers(group, ObjectLayers.UVOL)
 
   useEffect(() => {
     if (volumetric.useLoadingEffect.value) {
@@ -755,90 +761,60 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
   }, [shadow])
 
-  const fetchNonUniformSolveGeometry = (startFrame: number, endFrame: number, target: string) => {
-    // TODO: Needs thorough testing
-    const targetData = component.data.value.geometry.targets[target]
-    const promises: Promise<Mesh | BufferGeometry>[] = []
+  // const fetchNonUniformSolveGeometry = (startFrame: number, endFrame: number, target: string) => {
+  //   // TODO: Needs thorough testing
+  //   const targetData = component.data.value.geometry.targets[target]
+  //   const executionStartTime = performance.now()
 
-    const executionStartTime = engineState.elapsedSeconds
+  //   for (let i = startFrame; i <= endFrame; i++) {
+  //     const frameURL = resolvePath(
+  //       component.data.value.geometry.path,
+  //       component.manifestPath.value,
+  //       targetData.format,
+  //       target,
+  //       i
+  //     )
 
-    // const currentStartTime = startFrame / targetData.frameRate
-    // if (
-    //   component.geometryInfo.buffered.length === 0 ||
-    //   currentStartTime - component.geometryInfo.buffered.slice(-1)[0].end.value > MAX_TOLERABLE_GAP
-    // ) {
-    //   component.geometryInfo.buffered.merge([
-    //     {
-    //       start: currentStartTime,
-    //       end: currentStartTime
-    //     }
-    //   ])
-    // }
+  //     const currentFrame = i
 
-    for (let i = startFrame; i <= endFrame; i++) {
-      const frameURL = resolvePath(
-        component.data.value.geometry.path,
-        component.manifestPath.value,
-        targetData.format,
-        target,
-        i
-      )
-      component.geometryInfo.pendingRequests.set((p) => p + 1)
-      loadGeometryAsync(frameURL, targetData).then((values) => {
-        if (!hasComponent(entity, UVOL2Component)) return // Component might have been removed
-        if (!geometryBuffer.has(target)) {
-          geometryBuffer.set(target, [])
-        }
-        const frameData = geometryBuffer.get(target)!
-        values.forEach((result, j) => {
-          const model = result.status === 'fulfilled' ? (result.value as Mesh) : null
-          if (!model) {
-            return
-          }
-          const i = j + startFrame
-          frameData[i] = model as BufferGeometry | Mesh<BufferGeometry, Material>
+  //     component.geometryInfo.pendingRequests.set((p) => p + 1)
 
-          component.geometryInfo.buffered[bufferedIndex].end.set((i + 1) / targetData.frameRate)
-          component.geometryInfo.pendingRequests.set((p) => p - 1)
+  //     const start = currentFrame / targetData.frameRate
+  //     const end = (currentFrame + 1) / targetData.frameRate
+  //     const metadata = {start,end, fetchTime:-1, pending:true}
 
-          if (!component.firstGeometryFrameLoaded.value) {
-            component.firstGeometryFrameLoaded.set(true)
-          }
-          if (!component.initialGeometryBuffersLoaded.value && (i + 1) / targetData.frameRate >= minBufferToStart) {
-            component.initialGeometryBuffersLoaded.set(true)
-          }
-        })
+  //     component.geometryInfo.buffered.merge([metadata])
 
-        component.geometryInfo.buffered
+  //     loadDraco(frameURL).then(({geometry, fetchTime}) => {
+  //       if (!hasComponent(entity, UVOL2Component)) return // Component might have been removed
+  //       if (!geometryBuffer.has(target)) geometryBuffer.set(target, [])
 
-        const playTime =
-          component.geometryInfo.buffered[bufferedIndex].end.value -
-          component.geometryInfo.buffered[bufferedIndex].start.value
-        const fetchTime = engineState.elapsedSeconds - executionStartTime
-        const metric = fetchTime / playTime
-        adjustGeometryTarget(metric)
-      })
-    }
-  }
+  //       const frameData = geometryBuffer.get(target)!
+  //       frameData[currentFrame] = geometry as BufferGeometry | Mesh<BufferGeometry, Material>
 
-  const fetchUniformSolveGeometry = (startSegment: number, endSegment: number, target: string, extraTime: number) => {
+  //       const playTime = end - start
+
+  //       metadata.pending = false
+  //       component.geometryInfo.pendingRequests.set((p) => p - 1)
+  //       component.firstGeometryFrameLoaded.set(true)
+
+  //       if (!component.initialGeometryBuffersLoaded.value && (i + 1) / targetData.frameRate >= minBufferToStart) {
+  //         component.initialGeometryBuffersLoaded.set(true)
+  //       }
+
+  //       const metric = fetchTime / playTime
+  //       adjustGeometryTarget(metric)
+  //     }).finally(() => {
+  //       component.geometryInfo.pendingRequests.set((p) => p - 1)
+  //     })
+  //   }
+  // }
+
+  const fetchUniformSolveGeometry = (startTime: number, endTime: number, target: string) => {
     const targetData = component.data.value.geometry.targets[target] as UniformSolveTarget
-    const promises: Promise<Mesh | BufferGeometry>[] = []
-
-    const executionStartTime = engineState.elapsedSeconds
-
-    // const currentStartTime = startSegment * targetData.settings.segmentSize
-    // if (
-    //   component.geometryInfo.buffered.length === 0 ||
-    //   currentStartTime - component.geometryInfo.buffered.slice(-1)[0].end.value > MAX_TOLERABLE_GAP
-    // ) {
-    //   component.geometryInfo.buffered.merge([
-    //     {
-    //       start: currentStartTime,
-    //       end: currentStartTime
-    //     }
-    //   ])
-    // }
+    const segmentFrameCount = targetData.segmentFrameCount
+    const startSegment = Math.floor((startTime * targetData.frameRate) / segmentFrameCount)
+    const endSegment = Math.floor((endTime * targetData.frameRate) / segmentFrameCount)
 
     const bufferedIndex = component.geometryInfo.buffered.length - 1
 
@@ -851,25 +827,21 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         i
       )
       component.geometryInfo.pendingRequests.set((p) => p + 1)
-      promises.push(loadGeometryAsync(segmentURL, targetData))
-    }
 
-    Promise.allSettled(promises).then((values) => {
-      if (!hasComponent(entity, UVOL2Component)) return // Component might have been removed
-      if (!geometryBuffer.has(target)) {
-        geometryBuffer.set(target, [])
-      }
-      const frameData = geometryBuffer.get(target)!
-      values.forEach((result, j) => {
-        const model = result.status === 'fulfilled' ? (result.value as Mesh) : null
-        if (!model) {
-          return
-        }
-        const i = j + startSegment
-        const positionMorphAttributes = model.geometry.morphAttributes.position as InterleavedBufferAttribute[]
-        const normalMorphAttributes = model.geometry.morphAttributes.normal as InterleavedBufferAttribute[]
+      const segmentOffset = i * targetData.segmentFrameCount
+      const start = segmentOffset / targetData.frameRate
+      const end = start + targetData.settings.segmentSize
+
+      if (confirmBufferedRange(component.geometryInfo.buffered.value, start, end, MAX_TOLERABLE_GAP)) continue
+
+      loadGLB(segmentURL).then(({ mesh: segmentMesh, fetchTime }) => {
+        if (!hasComponent(entity, UVOL2Component)) return // Component might have been removed
+        if (!geometryBuffer.has(target)) geometryBuffer.set(target, [])
+
+        const frameData = geometryBuffer.get(target)!
+        const positionMorphAttributes = segmentMesh.geometry.morphAttributes.position as InterleavedBufferAttribute[]
+        const normalMorphAttributes = segmentMesh.geometry.morphAttributes.normal as InterleavedBufferAttribute[]
         const segmentDuration = positionMorphAttributes.length / targetData.frameRate
-        const segmentOffset = i * targetData.segmentFrameCount
 
         positionMorphAttributes.forEach((attr, index) => {
           const key = createKey(target, segmentOffset + index)
@@ -881,31 +853,27 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
           } else {
             frameData[segmentOffset + index] = { position: attr }
           }
-          component.geometryInfo.buffered.merge([
-            {
-              start: (segmentOffset + index) / targetData.frameRate,
-              end: (segmentOffset + index + 1) / targetData.frameRate
-            }
-          ])
         })
+
+        component.geometryInfo.buffered.merge([{ start, end, fetchTime }])
 
         if (
           !mesh.geometry.attributes.position ||
-          !model.geometry.attributes.position ||
-          mesh.geometry.attributes.position.array.length !== model.geometry.attributes.position.array.length
+          !segmentMesh.geometry.attributes.position ||
+          mesh.geometry.attributes.position.array.length !== segmentMesh.geometry.attributes.position.array.length
         ) {
-          for (const attr of Object.keys(model.geometry.attributes)) {
-            mesh.geometry.attributes[attr] = model.geometry.attributes[attr]
+          for (const attr of Object.keys(segmentMesh.geometry.attributes)) {
+            mesh.geometry.attributes[attr] = segmentMesh.geometry.attributes[attr]
             mesh.geometry.attributes[attr].needsUpdate = true
           }
         }
 
-        model.geometry.morphAttributes = {}
+        segmentMesh.geometry.morphAttributes = {}
         if (!component.firstGeometryFrameLoaded.value) {
           // @ts-ignore
-          mesh.copy(model)
-          repeat.copy((model.material as MeshStandardMaterial).map?.repeat ?? repeat)
-          offset.copy((model.material as MeshStandardMaterial).map?.offset ?? offset)
+          mesh.copy(segmentMesh)
+          repeat.copy((segmentMesh.material as MeshStandardMaterial).map?.repeat ?? repeat)
+          offset.copy((segmentMesh.material as MeshStandardMaterial).map?.offset ?? offset)
           mesh.material = material
           component.firstGeometryFrameLoaded.set(true)
         }
@@ -915,18 +883,22 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         const _currentBufferedDuration =
           component.geometryInfo.buffered[bufferedIndex].end.value -
           component.geometryInfo.buffered[bufferedIndex].start.value
-        if (!component.initialGeometryBuffersLoaded.value && _currentBufferedDuration >= minBufferToStart) {
+
+        if (
+          confirmBufferedRange(component.geometryInfo.buffered.value, startSegment, startSegment + minBufferToStart)
+        ) {
           component.initialGeometryBuffersLoaded.set(true)
         }
-      })
+        // if (!component.initialGeometryBuffersLoaded.value && _currentBufferedDuration >= minBufferToStart) {
+        // }
 
-      const playTime =
-        component.geometryInfo.buffered[bufferedIndex].end.value -
-        component.geometryInfo.buffered[bufferedIndex].start.value
-      const fetchTime = engineState.elapsedSeconds - executionStartTime
-      const metric = fetchTime / playTime
-      adjustGeometryTarget(metric)
-    })
+        const playTime =
+          component.geometryInfo.buffered[bufferedIndex].end.value -
+          component.geometryInfo.buffered[bufferedIndex].start.value
+        const metric = fetchTime / playTime
+        adjustGeometryTarget(metric)
+      })
+    }
   }
 
   const adjustGeometryTarget = (metric: number) => {
@@ -970,46 +942,29 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   }
 
   const fetchGeometry = () => {
-    const currentTime = volumetric.currentTrackInfo.currentTime.value
-    const currentBufferIndex = component.geometryInfo.buffered.findIndex((tr) => {
-      return tr.start.value <= currentTime && tr.end.value >= currentTime
-    })
-
-    // add up all the time of all following continous buffer segments
-    const remainingBufferedTime = component.geometryInfo.buffered.value.slice(currentBufferIndex).reduce((acc, tr) => {
-      return acc + tr.end - tr.start
-    }, 0)
-
-    if (remainingBufferedTime >= Math.min(bufferThreshold, maxBufferHealth)) return
-
+    const fetchStartTime = volumetric.currentTrackInfo.currentTime.value
+    const fetchEndTime = fetchStartTime + maxBufferHealth
     const target = component.geometryInfo.targets.value[component.geometryInfo.currentTarget.value]
-
     const targetData = component.data.value.geometry.targets[target]
-    const frameRate = targetData.frameRate
-    const frameCount = targetData.frameCount
+    // const frameRate = targetData.frameRate
+    // const frameCount = targetData.frameCount
 
-    const startFrame = Math.round(component.geometryInfo.buffered[currentBufferIndex].end.value * frameRate)
-    if (startFrame >= frameCount) return // fetched all frames
+    // const startFrame = Math.round(component.geometryInfo.buffered[currentBufferIndex].end.value * frameRate)
+    // if (startFrame >= frameCount) return // fetched all frames
 
-    const framesToFetch = Math.round((maxBufferHealth - remainingBufferedTime) * frameRate)
-    const endFrame = Math.min(startFrame + framesToFetch, frameCount - 1)
+    // const framesToFetch = Math.round((maxBufferHealth - remainingBufferedTime) * frameRate)
+    // const endFrame = Math.min(startFrame + framesToFetch, frameCount - 1)
 
     if (targetData.format === 'uniform-solve') {
-      const segmentFrameCount = targetData.segmentFrameCount
-      const startSegment = Math.floor(startFrame / segmentFrameCount)
-      const endSegment = Math.floor(endFrame / segmentFrameCount)
-      const startFrameTime = startFrame / frameRate
-      const startSegmentTime = startSegment * targetData.settings.segmentSize
+      // const segmentFrameCount = targetData.segmentFrameCount
+      // const startSegment = Math.floor(startFrame / segmentFrameCount)
+      // const endSegment = Math.floor(endFrame / segmentFrameCount)
+      // const startFrameTime = startFrame / frameRate
+      // const startSegmentTime = startSegment * targetData.settings.segmentSize
 
-      /**
-       * 'extraTime' worth buffers are fetched again, possibly with different target
-       * this happens when there is a change in segment size
-       * to avoid adding this part to bufferHealth again, subtract it.
-       */
-      const extraTime = startFrameTime - startSegmentTime
-      fetchUniformSolveGeometry(startSegment, endSegment, target, extraTime)
+      fetchUniformSolveGeometry(fetchStartTime, fetchEndTime, target)
     } else {
-      fetchNonUniformSolveGeometry(startFrame, endFrame, target)
+      // fetchNonUniformSolveGeometry(startFrame, endFrame, target)
     }
   }
 
