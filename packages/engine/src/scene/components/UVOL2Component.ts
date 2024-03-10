@@ -762,20 +762,19 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
     const executionStartTime = engineState.elapsedSeconds
 
-    const currentStartTime = startFrame / targetData.frameRate
-    if (
-      component.geometryInfo.buffered.length === 0 ||
-      currentStartTime - component.geometryInfo.buffered.slice(-1)[0].end.value > MAX_TOLERABLE_GAP
-    ) {
-      component.geometryInfo.buffered.merge([
-        {
-          start: currentStartTime,
-          end: currentStartTime
-        }
-      ])
-    }
+    // const currentStartTime = startFrame / targetData.frameRate
+    // if (
+    //   component.geometryInfo.buffered.length === 0 ||
+    //   currentStartTime - component.geometryInfo.buffered.slice(-1)[0].end.value > MAX_TOLERABLE_GAP
+    // ) {
+    //   component.geometryInfo.buffered.merge([
+    //     {
+    //       start: currentStartTime,
+    //       end: currentStartTime
+    //     }
+    //   ])
+    // }
 
-    const bufferedIndex = component.geometryInfo.buffered.length - 1
     for (let i = startFrame; i <= endFrame; i++) {
       const frameURL = resolvePath(
         component.data.value.geometry.path,
@@ -785,41 +784,41 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         i
       )
       component.geometryInfo.pendingRequests.set((p) => p + 1)
-      promises.push(loadGeometryAsync(frameURL, targetData))
-    }
-
-    Promise.allSettled(promises).then((values) => {
-      if (!hasComponent(entity, UVOL2Component)) return // Component might have been removed
-      if (!geometryBuffer.has(target)) {
-        geometryBuffer.set(target, [])
-      }
-      const frameData = geometryBuffer.get(target)!
-      values.forEach((result, j) => {
-        const model = result.status === 'fulfilled' ? (result.value as Mesh) : null
-        if (!model) {
-          return
+      loadGeometryAsync(frameURL, targetData).then((values) => {
+        if (!hasComponent(entity, UVOL2Component)) return // Component might have been removed
+        if (!geometryBuffer.has(target)) {
+          geometryBuffer.set(target, [])
         }
-        const i = j + startFrame
-        frameData[i] = model as BufferGeometry | Mesh<BufferGeometry, Material>
+        const frameData = geometryBuffer.get(target)!
+        values.forEach((result, j) => {
+          const model = result.status === 'fulfilled' ? (result.value as Mesh) : null
+          if (!model) {
+            return
+          }
+          const i = j + startFrame
+          frameData[i] = model as BufferGeometry | Mesh<BufferGeometry, Material>
 
-        component.geometryInfo.buffered[bufferedIndex].end.set((i + 1) / targetData.frameRate)
-        component.geometryInfo.pendingRequests.set((p) => p - 1)
+          component.geometryInfo.buffered[bufferedIndex].end.set((i + 1) / targetData.frameRate)
+          component.geometryInfo.pendingRequests.set((p) => p - 1)
 
-        if (!component.firstGeometryFrameLoaded.value) {
-          component.firstGeometryFrameLoaded.set(true)
-        }
-        if (!component.initialGeometryBuffersLoaded.value && (i + 1) / targetData.frameRate >= minBufferToStart) {
-          component.initialGeometryBuffersLoaded.set(true)
-        }
+          if (!component.firstGeometryFrameLoaded.value) {
+            component.firstGeometryFrameLoaded.set(true)
+          }
+          if (!component.initialGeometryBuffersLoaded.value && (i + 1) / targetData.frameRate >= minBufferToStart) {
+            component.initialGeometryBuffersLoaded.set(true)
+          }
+        })
+
+        component.geometryInfo.buffered
+
+        const playTime =
+          component.geometryInfo.buffered[bufferedIndex].end.value -
+          component.geometryInfo.buffered[bufferedIndex].start.value
+        const fetchTime = engineState.elapsedSeconds - executionStartTime
+        const metric = fetchTime / playTime
+        adjustGeometryTarget(metric)
       })
-
-      const playTime =
-        component.geometryInfo.buffered[bufferedIndex].end.value -
-        component.geometryInfo.buffered[bufferedIndex].start.value
-      const fetchTime = engineState.elapsedSeconds - executionStartTime
-      const metric = fetchTime / playTime
-      adjustGeometryTarget(metric)
-    })
+    }
   }
 
   const fetchUniformSolveGeometry = (startSegment: number, endSegment: number, target: string, extraTime: number) => {
@@ -828,18 +827,18 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
     const executionStartTime = engineState.elapsedSeconds
 
-    const currentStartTime = startSegment * targetData.settings.segmentSize
-    if (
-      component.geometryInfo.buffered.length === 0 ||
-      currentStartTime - component.geometryInfo.buffered.slice(-1)[0].end.value > MAX_TOLERABLE_GAP
-    ) {
-      component.geometryInfo.buffered.merge([
-        {
-          start: currentStartTime,
-          end: currentStartTime
-        }
-      ])
-    }
+    // const currentStartTime = startSegment * targetData.settings.segmentSize
+    // if (
+    //   component.geometryInfo.buffered.length === 0 ||
+    //   currentStartTime - component.geometryInfo.buffered.slice(-1)[0].end.value > MAX_TOLERABLE_GAP
+    // ) {
+    //   component.geometryInfo.buffered.merge([
+    //     {
+    //       start: currentStartTime,
+    //       end: currentStartTime
+    //     }
+    //   ])
+    // }
 
     const bufferedIndex = component.geometryInfo.buffered.length - 1
 
@@ -882,7 +881,12 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
           } else {
             frameData[segmentOffset + index] = { position: attr }
           }
-          component.geometryInfo.buffered[bufferedIndex].end.set((segmentOffset + index + 1) / targetData.frameRate)
+          component.geometryInfo.buffered.merge([
+            {
+              start: (segmentOffset + index) / targetData.frameRate,
+              end: (segmentOffset + index + 1) / targetData.frameRate
+            }
+          ])
         })
 
         if (
@@ -966,30 +970,17 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   }
 
   const fetchGeometry = () => {
-    if (component.geometryInfo.pendingRequests.value > 0) return
-    let relevantTimeRangeIndex = component.geometryInfo.buffered.findIndex((tr) => {
-      if (
-        tr.start.value <= volumetric.currentTrackInfo.currentTime.value &&
-        tr.end.value >= volumetric.currentTrackInfo.currentTime.value
-      ) {
-        return true
-      }
+    const currentTime = volumetric.currentTrackInfo.currentTime.value
+    const currentBufferIndex = component.geometryInfo.buffered.findIndex((tr) => {
+      return tr.start.value <= currentTime && tr.end.value >= currentTime
     })
-    if (relevantTimeRangeIndex === -1) {
-      component.geometryInfo.buffered.merge([
-        {
-          start: volumetric.currentTrackInfo.mediaStartTime.value,
-          end: volumetric.currentTrackInfo.mediaStartTime.value
-        }
-      ])
-      relevantTimeRangeIndex = component.geometryInfo.buffered.length - 1
-    }
 
-    const currentBufferLength =
-      component.geometryInfo.buffered[relevantTimeRangeIndex].end.value - volumetric.currentTrackInfo.currentTime.value
-    if (currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth)) {
-      return
-    }
+    // add up all the time of all following continous buffer segments
+    const remainingBufferedTime = component.geometryInfo.buffered.value.slice(currentBufferIndex).reduce((acc, tr) => {
+      return acc + tr.end - tr.start
+    }, 0)
+
+    if (remainingBufferedTime >= Math.min(bufferThreshold, maxBufferHealth)) return
 
     const target = component.geometryInfo.targets.value[component.geometryInfo.currentTarget.value]
 
@@ -997,13 +988,10 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     const frameRate = targetData.frameRate
     const frameCount = targetData.frameCount
 
-    const startFrame = Math.round(component.geometryInfo.buffered[relevantTimeRangeIndex].end.value * frameRate)
-    if (startFrame >= frameCount) {
-      // fetched all frames
-      return
-    }
+    const startFrame = Math.round(component.geometryInfo.buffered[currentBufferIndex].end.value * frameRate)
+    if (startFrame >= frameCount) return // fetched all frames
 
-    const framesToFetch = Math.round((maxBufferHealth - currentBufferLength) * frameRate)
+    const framesToFetch = Math.round((maxBufferHealth - remainingBufferedTime) * frameRate)
     const endFrame = Math.min(startFrame + framesToFetch, frameCount - 1)
 
     if (targetData.format === 'uniform-solve') {
