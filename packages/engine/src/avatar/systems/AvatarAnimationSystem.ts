@@ -345,7 +345,7 @@ const execute = () => {
   )
   const cameraComponent = getOptionalComponent(Engine.instance.cameraEntity, FollowCameraComponent)
   ditheringComponent.ditheringLocalDistance.set(
-    cameraComponent && !cameraAttached ? Math.max(Math.pow(cameraComponent.distance * 5, 3), 3) : 3.25
+    cameraComponent && !cameraAttached ? Math.max(Math.pow(cameraComponent.distance * 5, 2.5), 3) : 3.25
   )
   ditheringComponent.ditheringLocalExponent.set(cameraAttached ? 12 : 8)
   if (!cameraComponent) return
