@@ -913,12 +913,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
           }
 
           if (
-            confirmBufferedRange(
-              component.geometryInfo.buffered.value,
-              startSegment,
-              startSegment + minBufferToStart,
-              false
-            )
+            confirmBufferedRange(component.geometryInfo.buffered.value, startTime, startTime + minBufferToPlay, false)
           ) {
             component.initialGeometryBuffersLoaded.set(true)
           }
@@ -1052,11 +1047,12 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
           sortAndMergeBufferMetadata(bufferMetadata, MAX_TOLERABLE_GAP)
           adjustTextureTarget(textureType)
 
-          if ((i + 1) / targetData.frameRate >= minBufferToStart && !component.initialTextureBuffersLoaded.value) {
-            component.initialTextureBuffersLoaded.set(true)
-          }
           if (!component.firstTextureFrameLoaded.value) {
             component.firstTextureFrameLoaded.set(true)
+          }
+
+          if (confirmBufferedRange(bufferMetadata.value, fetchStartTime, fetchStartTime + minBufferToPlay, false)) {
+            component.initialTextureBuffersLoaded.set(true)
           }
         })
         .catch(() => {})
