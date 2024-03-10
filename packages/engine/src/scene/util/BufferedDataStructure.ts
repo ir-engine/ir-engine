@@ -37,20 +37,37 @@ class BufferData {
     this._data = data
   }
 
-  // [1, 2, 3, 3, 3, 4, 5, 6, 7, 8, 9, 10]
-  lower_bound(value: number) {
+  lower_bound(startValue: number) {
     let start = 0
     let end = this._data.length - 1
 
-    let result = -1
+    let result = this._data.length
 
     while (start <= end) {
       const pivot = Math.floor((start + end) / 2)
-      if (this._data[pivot].start <= value) {
+      if (this._data[pivot].start <= startValue) {
         result = pivot
         start = pivot + 1
       } else {
         end = pivot - 1
+      }
+    }
+    return result
+  }
+
+  upper_bound(endValue: number) {
+    let start = 0
+    let end = this._data.length - 1
+
+    let result = this._data.length
+
+    while (start <= end) {
+      const pivot = Math.floor((start + end) / 2)
+      if (this._data[pivot].end > endValue) {
+        result = pivot
+        end = pivot - 1
+      } else {
+        start = pivot + 1
       }
     }
     return result
@@ -68,7 +85,7 @@ class BufferData {
   addData(x1: number, y1: number, fetchTime: number, pending: boolean) {
     const position = this.lower_bound(x1)
 
-    if (position === -1) {
+    if (position === this._data.length) {
       this._data.unshift({ start: x1, end: y1, fetchTime, pending })
       this.updateEnd(0)
     } else {
