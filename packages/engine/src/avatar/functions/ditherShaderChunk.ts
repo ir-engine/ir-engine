@@ -23,31 +23,45 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/** glsl */
+/** glsl, vertex uniforms */
 export const ditheringVertexUniform = `
 varying vec3 vWorldPosition;
-uniform bool useWorldSpace;
+varying vec3 vLocalPosition;
+uniform bool useWorldCenter;
+uniform bool useLocalCenter;
 `
 
-/** glsl */
+/** glsl, vertex main */
 export const ditheringVertex = `
-vWorldPosition = useWorldSpace ? (modelMatrix * vec4( transformed, 1.0 )).xyz : position.xyz;
+if(useWorldCenter) vWorldPosition = (modelMatrix * vec4( transformed, 1.0 )).xyz;
+if(useLocalCenter) vLocalPosition = position.xyz;
 `
 
-/** glsl */
+/** glsl, fragment uniforms */
 export const ditheringFragUniform = `
 varying vec3 vWorldPosition;
-uniform vec3 ditheringCenter;
+varying vec3 vLocalPosition; 
+uniform bool useWorldCenter;
+uniform bool useLocalCenter;
+uniform vec3 ditheringWorldCenter;
+uniform vec3 ditheringLocalCenter;
 uniform float ditheringExponent;
 uniform float ditheringDistance;
 `
 
-/** glsl */
+/** glsl, fragment main */
 export const ditheringAlphatestChunk = `
 // sample sine at screen space coordinates for dithering pattern
-float dither = sin( gl_FragCoord.x * 2.0)*sin( gl_FragCoord.y * 2.0);
-float distance = length(ditheringCenter - vWorldPosition)*1.5;
-dither += pow(ditheringDistance/distance, ditheringExponent)-1.0;
+float distance = 1.0;
+if(useWorldCenter) distance *= pow(clamp(ditheringDistance*length(ditheringWorldCenter - vWorldPosition), 0.0, 1.0),ditheringExponent);
+if(useLocalCenter) distance *= pow(clamp(ditheringDistance*length(ditheringLocalCenter - vLocalPosition), 0.0, 1.0),ditheringExponent);
+
+float dither = (sin( gl_FragCoord.x * 2.0)*sin( gl_FragCoord.y * 2.0));
+
+dither += 2.0;
+dither *= 0.5;
+dither -= distance;
+
 diffuseColor.a = smoothstep( alphaTest, alphaTest + fwidth( diffuseColor.a ), diffuseColor.a );
 diffuseColor.a -= max(dither, 0.0);
 
