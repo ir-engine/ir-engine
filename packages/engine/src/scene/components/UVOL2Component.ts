@@ -230,7 +230,7 @@ export const UVOL2Component = defineComponent({
         targets: [] as string[],
         userTarget: -1, // -1 implies 'auto'
         currentTarget: 0,
-        buffered: new BufferData([]),
+        buffered: new BufferData([], MAX_TOLERABLE_GAP),
         pendingRequests: 0
       },
       textureInfo: {
@@ -239,35 +239,35 @@ export const UVOL2Component = defineComponent({
           targets: [] as string[],
           userTarget: -1,
           currentTarget: 0,
-          buffered: new BufferData([]),
+          buffered: new BufferData([], MAX_TOLERABLE_GAP),
           pendingRequests: 0
         },
         normal: {
           targets: [] as string[],
           userTarget: -1,
           currentTarget: 0,
-          buffered: new BufferData([]),
+          buffered: new BufferData([], MAX_TOLERABLE_GAP),
           pendingRequests: 0
         },
         metallicRoughness: {
           targets: [] as string[],
           userTarget: -1,
           currentTarget: 0,
-          buffered: new BufferData([]),
+          buffered: new BufferData([], MAX_TOLERABLE_GAP),
           pendingRequests: 0
         },
         emissive: {
           targets: [] as string[],
           userTarget: -1,
           currentTarget: 0,
-          buffered: new BufferData([]),
+          buffered: new BufferData([], MAX_TOLERABLE_GAP),
           pendingRequests: 0
         },
         occlusion: {
           targets: [] as string[],
           userTarget: -1,
           currentTarget: 0,
-          buffered: new BufferData([]),
+          buffered: new BufferData([], MAX_TOLERABLE_GAP),
           pendingRequests: 0
         }
       },
@@ -329,6 +329,24 @@ export const UVOL2Component = defineComponent({
     }
 
     return true
+  },
+
+  maxPlayableTimeWithoutBuffering: (buffered: BufferData, from: number, includePending: boolean) => {
+    const startPosition = buffered.lower_bound(from)
+    if (startPosition === buffered._data.length) {
+      return -1
+    }
+    if (buffered._data[startPosition].pending && !includePending) {
+      return from
+    }
+    let endPosition = startPosition
+    while (endPosition < buffered._data.length) {
+      if (!includePending && buffered._data[endPosition].pending) {
+        break
+      }
+      endPosition++
+    }
+    return buffered._data[endPosition - 1].end
   },
 
   reactor: UVOL2Reactor
