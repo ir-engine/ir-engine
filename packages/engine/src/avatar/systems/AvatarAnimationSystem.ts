@@ -336,12 +336,18 @@ const execute = () => {
   const ditheringComponent = getOptionalMutableComponent(localClientEntity, TransparencyDitheringComponent)
   if (!ditheringComponent) return
   const cameraAttached = getState(XRControlsState).isCameraAttachedToAvatar
-  if (cameraAttached) ditheringCenter.set(0, getComponent(localClientEntity, AvatarComponent).eyeHeight, 0)
-  else ditheringCenter.copy(getComponent(Engine.instance.cameraEntity, TransformComponent).position)
-  ditheringComponent.useWorldSpace.set(!cameraAttached)
-  ditheringComponent.center.set(ditheringCenter)
-  ditheringComponent.ditheringDistance.set(cameraAttached ? 0.3 : 0.45)
+
+  ditheringComponent.useWorldCenter.set(!cameraAttached)
+  ditheringComponent.worldCenter.set(getComponent(Engine.instance.cameraEntity, TransformComponent).position)
+  const avatarComponent = getComponent(localClientEntity, AvatarComponent)
+  ditheringComponent.localCenter.set(
+    ditheringCenter.set(0, cameraAttached ? avatarComponent.avatarHeight : avatarComponent.eyeHeight, 0)
+  )
   const cameraComponent = getOptionalComponent(Engine.instance.cameraEntity, FollowCameraComponent)
+  ditheringComponent.ditheringLocalDistance.set(
+    cameraComponent && !cameraAttached ? Math.max(Math.pow(cameraComponent.distance * 5, 2.5), 3) : 3.25
+  )
+  ditheringComponent.ditheringLocalExponent.set(cameraAttached ? 12 : 8)
   if (!cameraComponent) return
   const hasDecapComponent = hasComponent(localClientEntity, AvatarHeadDecapComponent)
   if (hasDecapComponent) cameraComponent.offset.setZ(Math.min(cameraComponent.offset.z + deltaSeconds, eyeOffset))

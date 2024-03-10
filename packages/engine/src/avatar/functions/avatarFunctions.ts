@@ -187,7 +187,7 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
  */
 export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   if (entity == Engine.instance.localClientEntity)
-    setComponent(entity, TransparencyDitheringComponent, { overrideFaceCulling: true })
+    setComponent(entity, TransparencyDitheringComponent, { overrideFaceCulling: true, useLocalCenter: true })
 
   setComponent(entity, AvatarRigComponent, {
     normalizedRig: model.humanoid.normalizedHumanBones,
