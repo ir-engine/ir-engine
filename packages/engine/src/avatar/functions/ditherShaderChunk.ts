@@ -60,12 +60,13 @@ if(useLocalCenter) distance *= pow(clamp(ditheringLocalDistance*length(dithering
 
 float dither = (sin( gl_FragCoord.x * 2.0)*sin( gl_FragCoord.y * 2.0));
 
-dither += 2.0;
+dither += 1.0;
 dither *= 0.5;
 dither -= distance;
 
+if(1.0-dither <= 1.0) discard;
+
 diffuseColor.a = smoothstep( alphaTest, alphaTest + fwidth( diffuseColor.a ), diffuseColor.a );
-diffuseColor.a -= max(dither, 0.0);
 
 if ( diffuseColor.a == 0.0 ) discard;
 
