@@ -79,6 +79,8 @@ class BufferData {
     let index = insertIndex + 1
     while (index < this._data.length && this._data[insertIndex].end + this._maxGap >= this._data[index].start) {
       this._data[insertIndex].end = Math.max(this._data[insertIndex].end, this._data[index].end)
+      this._data[insertIndex].fetchTime = this._data[insertIndex].fetchTime + this._data[index].fetchTime
+      this._data[insertIndex].pending = this._data[insertIndex].pending || this._data[index].pending
       index++
     }
     this._data.splice(insertIndex + 1, index - insertIndex - 1)
@@ -96,6 +98,8 @@ class BufferData {
           // do nothing
         } else {
           this._data[position].end = newEnd
+          this._data[position].fetchTime = this._data[position].fetchTime + fetchTime
+          this._data[position].pending = this._data[position].pending || pending
           this.updateEnd(position)
         }
       } else {
@@ -104,10 +108,14 @@ class BufferData {
             // do nothing
           } else {
             this._data[position].end = newEnd
+            this._data[position].fetchTime = this._data[position].fetchTime + fetchTime
+            this._data[position].pending = this._data[position].pending || pending
             this.updateEnd(position)
           }
         } else if (this._data[position].end === newStart || newStart - this._data[position].end <= this._maxGap) {
-          this._data[position].end = newEnd
+          this._data[position].end = Math.max(this._data[position].end, newEnd)
+          this._data[position].fetchTime = this._data[position].fetchTime + fetchTime
+          this._data[position].pending = this._data[position].pending || pending
           this.updateEnd(position)
         } else {
           this._data.splice(position + 1, 0, { start: newStart, end: newEnd, fetchTime, pending })
