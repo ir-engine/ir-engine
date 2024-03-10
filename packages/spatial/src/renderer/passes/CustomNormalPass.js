@@ -27,7 +27,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { Color, MeshNormalMaterial, NearestFilter, WebGLRenderTarget } from "three";
 import { Resolution, RenderPass, Pass } from "postprocessing";
-import { defineQuery } from "@etherealengine/ecs";
 import { ObjectLayers } from "../constants/ObjectLayers";
 /**
  * A pass that renders the normals of a given scene.
