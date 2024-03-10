@@ -43,8 +43,6 @@ import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getState } from '@etherealengine/hyperflux'
 import { isIPhone, isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import { startTransition, useEffect, useMemo, useRef } from 'react'
 import {
@@ -575,7 +573,6 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     _group.add(mesh)
     return _group
   }, [])
-  setObjectLayers(group, ObjectLayers.UVOL)
 
   useEffect(() => {
     if (volumetric.useLoadingEffect.value) {
