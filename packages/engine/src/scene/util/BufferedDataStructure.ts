@@ -32,9 +32,11 @@ interface BufferMetaData {
 
 class BufferData {
   public _data: BufferMetaData[] = []
+  public _maxGap = 0
 
-  constructor(data: any[] = []) {
+  constructor(data: any[] = [], maxGap = 0) {
     this._data = data
+    this._maxGap = maxGap
   }
 
   lower_bound(startValue: number) {
@@ -75,41 +77,40 @@ class BufferData {
 
   updateEnd(insertIndex: number) {
     let index = insertIndex + 1
-    while (index < this._data.length && this._data[insertIndex].end >= this._data[index].start) {
+    while (index < this._data.length && this._data[insertIndex].end + this._maxGap >= this._data[index].start) {
       this._data[insertIndex].end = Math.max(this._data[insertIndex].end, this._data[index].end)
       index++
     }
     this._data.splice(insertIndex + 1, index - insertIndex - 1)
   }
 
-  addData(x1: number, y1: number, fetchTime: number, pending: boolean) {
-    const position = this.lower_bound(x1)
+  addData(newStart: number, newEnd: number, fetchTime: number, pending: boolean) {
+    const position = this.lower_bound(newStart)
 
     if (position === this._data.length) {
-      this._data.unshift({ start: x1, end: y1, fetchTime, pending })
+      this._data.unshift({ start: newStart, end: newEnd, fetchTime, pending })
       this.updateEnd(0)
     } else {
-      if (this._data[position].start === x1) {
-        if (this._data[position].end >= y1) {
+      if (this._data[position].start === newStart) {
+        if (this._data[position].end >= newEnd) {
           // do nothing
         } else {
-          this._data[position].end = y1
+          this._data[position].end = newEnd
           this.updateEnd(position)
         }
       } else {
-        if (this._data[position].end > x1) {
-          // ignore x1, update end
-          if (this._data[position].end >= y1) {
+        if (this._data[position].end > newStart) {
+          if (this._data[position].end >= newEnd) {
             // do nothing
           } else {
-            this._data[position].end = y1
+            this._data[position].end = newEnd
             this.updateEnd(position)
           }
-        } else if (this._data[position].end === x1) {
-          this._data[position].end = y1
+        } else if (this._data[position].end === newStart || newStart - this._data[position].end <= this._maxGap) {
+          this._data[position].end = newEnd
           this.updateEnd(position)
         } else {
-          this._data.splice(position + 1, 0, { start: x1, end: y1, fetchTime, pending })
+          this._data.splice(position + 1, 0, { start: newStart, end: newEnd, fetchTime, pending })
           this.updateEnd(position + 1)
         }
       }
