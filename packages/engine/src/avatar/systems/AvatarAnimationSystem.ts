@@ -344,10 +344,10 @@ const execute = () => {
     ditheringCenter.set(0, cameraAttached ? avatarComponent.avatarHeight : avatarComponent.eyeHeight, 0)
   )
   const cameraComponent = getOptionalComponent(Engine.instance.cameraEntity, FollowCameraComponent)
-  ditheringComponent.ditheringDistance.set(
-    cameraComponent && !cameraAttached ? Math.max(Math.pow(cameraComponent.distance * 5, 3), 3) : 4
+  ditheringComponent.ditheringLocalDistance.set(
+    cameraComponent && !cameraAttached ? Math.max(Math.pow(cameraComponent.distance * 5, 3), 3) : 3.75
   )
-  ditheringComponent.ditheringExponent.set(cameraAttached ? 12 : 8)
+  ditheringComponent.ditheringLocalExponent.set(cameraAttached ? 12 : 8)
   if (!cameraComponent) return
   const hasDecapComponent = hasComponent(localClientEntity, AvatarHeadDecapComponent)
   if (hasDecapComponent) cameraComponent.offset.setZ(Math.min(cameraComponent.offset.z + deltaSeconds, eyeOffset))

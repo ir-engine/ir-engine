@@ -45,16 +45,18 @@ uniform bool useWorldCenter;
 uniform bool useLocalCenter;
 uniform vec3 ditheringWorldCenter;
 uniform vec3 ditheringLocalCenter;
-uniform float ditheringExponent;
-uniform float ditheringDistance;
+uniform float ditheringWorldExponent;
+uniform float ditheringLocalExponent;
+uniform float ditheringWorldDistance;
+uniform float ditheringLocalDistance;
 `
 
 /** glsl, fragment main */
 export const ditheringAlphatestChunk = `
 // sample sine at screen space coordinates for dithering pattern
 float distance = 1.0;
-if(useWorldCenter) distance *= pow(clamp(ditheringDistance*length(ditheringWorldCenter - vWorldPosition), 0.0, 1.0),ditheringExponent);
-if(useLocalCenter) distance *= pow(clamp(ditheringDistance*length(ditheringLocalCenter - vLocalPosition), 0.0, 1.0),ditheringExponent);
+if(useWorldCenter) distance *= pow(clamp(ditheringWorldDistance*length(ditheringWorldCenter - vWorldPosition), 0.0, 1.0),ditheringWorldExponent);
+if(useLocalCenter) distance *= pow(clamp(ditheringLocalDistance*length(ditheringLocalCenter - vLocalPosition), 0.0, 1.0),ditheringLocalExponent);
 
 float dither = (sin( gl_FragCoord.x * 2.0)*sin( gl_FragCoord.y * 2.0));
 

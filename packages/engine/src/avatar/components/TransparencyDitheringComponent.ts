@@ -51,8 +51,10 @@ export const TransparencyDitheringComponent = defineComponent({
   name: 'TransparencyDitheringComponent',
   onInit: (entity) => {
     return {
-      ditheringDistance: 0.3,
-      ditheringExponent: 12,
+      ditheringWorldDistance: 3,
+      ditheringWorldExponent: 12,
+      ditheringLocalDistance: 20,
+      ditheringLocalExponent: 8,
       worldCenter: new Vector3(),
       localCenter: new Vector3(),
       useWorldCenter: true,
@@ -65,8 +67,14 @@ export const TransparencyDitheringComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (matches.number.test(json.ditheringDistance)) component.ditheringDistance.set(json.ditheringDistance)
-    if (matches.number.test(json.ditheringExponent)) component.ditheringExponent.set(json.ditheringExponent)
+    if (matches.number.test(json.ditheringWorldDistance))
+      component.ditheringWorldDistance.set(json.ditheringWorldDistance)
+    if (matches.number.test(json.ditheringWorldExponent))
+      component.ditheringWorldExponent.set(json.ditheringWorldExponent)
+    if (matches.number.test(json.ditheringLocalDistance))
+      component.ditheringLocalDistance.set(json.ditheringLocalDistance)
+    if (matches.number.test(json.ditheringLocalExponent))
+      component.ditheringLocalExponent.set(json.ditheringLocalExponent)
     if (matchesVector3.test(json.worldCenter)) component.worldCenter.set(new Vector3().copy(json.worldCenter))
     if (matchesVector3.test(json.localCenter)) component.localCenter.set(new Vector3().copy(json.localCenter))
     if (matches.boolean.test(json.useWorldCenter)) component.useWorldCenter.set(json.useWorldCenter)
@@ -74,6 +82,7 @@ export const TransparencyDitheringComponent = defineComponent({
     if (matches.boolean.test(json.overrideFaceCulling)) component.overrideFaceCulling.set(json.overrideFaceCulling)
   },
 
+  /**@todo refactor this reactor and when we call obc function */
   reactor: () => {
     const entity = useEntityContext()
     const modelComponent = useComponent(entity, ModelComponent)
@@ -83,8 +92,10 @@ export const TransparencyDitheringComponent = defineComponent({
     /** Injects dithering logic into avatar materials */
     useEffect(() => {
       const {
-        ditheringExponent,
-        ditheringDistance,
+        ditheringWorldExponent,
+        ditheringWorldDistance,
+        ditheringLocalDistance,
+        ditheringLocalExponent,
         worldCenter,
         localCenter,
         useWorldCenter,
@@ -92,6 +103,7 @@ export const TransparencyDitheringComponent = defineComponent({
         matIds,
         overrideFaceCulling
       } = getComponent(entity, TransparencyDitheringComponent)
+      const ditherComponent = getComponent(entity, TransparencyDitheringComponent)
       transparencyDitheringComponent.matIds.forEach((id) => id.set(none))
       iterateEntityNode(entity, (node) => {
         const mesh = getOptionalComponent(node, MeshComponent)
@@ -106,8 +118,10 @@ export const TransparencyDitheringComponent = defineComponent({
           if (plugin !== undefined && plugin !== -1) material.plugins!.splice(plugin, 1)
           injectDitheringLogic(
             material,
-            ditheringDistance,
-            ditheringExponent,
+            ditheringWorldExponent,
+            ditheringWorldDistance,
+            ditheringLocalDistance,
+            ditheringLocalExponent,
             worldCenter,
             localCenter,
             useWorldCenter,
@@ -116,10 +130,14 @@ export const TransparencyDitheringComponent = defineComponent({
           )
           if (material.shader.uniforms.useWorldCenter) material.shader.uniforms.useWorldCenter.value = useWorldCenter
           if (material.shader.uniforms.useLocalCenter) material.shader.uniforms.useLocalCenter.value = useLocalCenter
-          if (material.shader.uniforms.ditheringDistance)
-            material.shader.uniforms.ditheringDistance.value = ditheringDistance
-          if (material.shader.uniforms.ditheringExponent)
-            material.shader.uniforms.ditheringExponent.value = ditheringExponent
+          if (material.shader.uniforms.ditheringWorldDistance)
+            material.shader.uniforms.ditheringWorldDistance.value = ditheringWorldDistance
+          if (material.shader.uniforms.ditheringWorldExponent)
+            material.shader.uniforms.ditheringWorldExponent.value = ditheringWorldExponent
+          if (material.shader.uniforms.ditheringLocalDistance)
+            material.shader.uniforms.ditheringLocalDistance.value = ditheringLocalDistance
+          if (material.shader.uniforms.ditheringLocalExponent)
+            material.shader.uniforms.ditheringLocalExponent.value = ditheringLocalExponent
         }
       })
     }, [
@@ -130,8 +148,8 @@ export const TransparencyDitheringComponent = defineComponent({
       transparencyDitheringComponent.localCenter,
       transparencyDitheringComponent.useWorldCenter,
       transparencyDitheringComponent.useLocalCenter,
-      transparencyDitheringComponent.ditheringDistance,
-      transparencyDitheringComponent.ditheringExponent
+      transparencyDitheringComponent.ditheringWorldDistance,
+      transparencyDitheringComponent.ditheringWorldExponent
     ])
     return null
   }
@@ -139,8 +157,10 @@ export const TransparencyDitheringComponent = defineComponent({
 
 const injectDitheringLogic = (
   material: Material,
-  ditheringDistance: number,
-  ditheringExponent: number,
+  ditheringWorldExponent: number,
+  ditheringWorldDistance: number,
+  ditheringLocalDistance: number,
+  ditheringLocalExponent: number,
   worldCenter: Vector3,
   localCenter: Vector3,
   useWorldCenter: boolean,
@@ -178,8 +198,10 @@ const injectDitheringLogic = (
       shader.uniforms.ditheringLocalCenter = {
         value: localCenter
       }
-      shader.uniforms.ditheringDistance = { value: ditheringDistance }
-      shader.uniforms.ditheringExponent = { value: ditheringExponent }
+      shader.uniforms.ditheringWorldExponent = { value: ditheringWorldExponent }
+      shader.uniforms.ditheringWorldDistance = { value: ditheringWorldDistance }
+      shader.uniforms.ditheringLocalExponent = { value: ditheringLocalExponent }
+      shader.uniforms.ditheringLocalDistance = { value: ditheringLocalDistance }
       shader.uniforms.useLocalCenter = { value: useLocalCenter }
       shader.uniforms.useWorldCenter = { value: useWorldCenter }
       shader.uniforms.worldCenter = { value: worldCenter }
