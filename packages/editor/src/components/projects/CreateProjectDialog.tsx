@@ -103,7 +103,7 @@ export const CreateProjectDialog = ({ open, onSuccess, onClose }: Props): any =>
                 }
               }}
               value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
+              onChange={(e) => setProjectName(e.target.value.toLowerCase())}
               onKeyDown={handleSubmitOnEnter}
             />
             {error && error.length > 0 && <h2 className={styles.errorMessage}>{error}</h2>}
