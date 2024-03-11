@@ -155,8 +155,7 @@ export function registerComponentGetters() {
         const entity = Number.parseInt(read('entity')) as Entity
 
         const props = getComponent(entity, component)
-        const outputs = Object.entries(node.out).splice(2)
-
+        const outputs = Object.entries(node.out).splice(1)
         if (typeof props !== 'object') {
           write(outputs[outputs.length - 1][0] as any, EnginetoNodetype(props))
         } else {

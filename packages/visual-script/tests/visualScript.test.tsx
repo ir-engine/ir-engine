@@ -37,6 +37,7 @@ import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import booleanTestVisualScript from './assets/boolean-test-visual-script.json'
 import decisionTestVisualScript from './assets/decision-test-visual-script.json'
 import defaultVisualScript from './assets/default-visual-script.json'
+import entityTestVisualScript from './assets/entity-test-visual-script.json'
 import floatTestVisualScript from './assets/float-test-visual-script.json'
 import integerTestVisualScript from './assets/integer-test-visual-script.json'
 import rateRepeatTestVisualScript from './assets/rate-repeat-test-visual-script.json'
@@ -47,7 +48,8 @@ import vec3TestVisualScript from './assets/vec3-test-visual-script.json'
 import vec4TestVisualScript from './assets/vec4-test-visual-script.json'
 
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
-import { SystemDefinitions } from '@etherealengine/ecs'
+import { EntityUUID, SystemDefinitions, UUIDComponent } from '@etherealengine/ecs'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
@@ -264,6 +266,34 @@ describe('visual Script', () => {
 
     await waitForConsoleLog(successMessage).then((result) => {
       assert(result.includes(successMessage))
+    })
+  })
+
+  it('test entity nodes script', async () => {
+    const entity = createEntity()
+    const visualScript = parseStorageProviderURLs(entityTestVisualScript) as unknown as GraphJSON
+    setComponent(entity, VisualScriptComponent, { visualScript: visualScript, run: true })
+    const messageSequence = ['added', 'uuid', 'deleted', 'passed']
+
+    await waitForConsoleLog(messageSequence[0]).then((result) => {
+      assert(result.includes(messageSequence[0]))
+    })
+
+    let newEntity
+    await waitForConsoleLog(messageSequence[1]).then((result) => {
+      const message = result.split(' ')
+      const uuid = message[message.length - 1] as EntityUUID
+      newEntity = UUIDComponent.getEntityByUUID(uuid)
+      assert(newEntity !== undefined)
+      assert(getComponent(newEntity, NameComponent) === 'test')
+    })
+
+    await waitForConsoleLog(messageSequence[2]).then((result) => {
+      assert(result.includes(messageSequence[2]))
+    })
+
+    await waitForConsoleLog(messageSequence[3]).then((result) => {
+      assert(result.includes(messageSequence[3]))
     })
   })
 
