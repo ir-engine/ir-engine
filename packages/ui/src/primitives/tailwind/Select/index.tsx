@@ -71,7 +71,7 @@ const Select = <T extends OptionValueType>({
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     selectLabel.set(e.target.value)
-    const newOptions: SelectOptionsType = []
+    const newOptions: SelectProps<T>['options'] = []
     for (let i = 0; i < options.length; i++) {
       if (options[i].label.toLowerCase().startsWith(e.target.value.toLowerCase())) {
         newOptions.push(options[i])
