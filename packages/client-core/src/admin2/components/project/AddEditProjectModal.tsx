@@ -44,9 +44,41 @@ import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 import { useHookstate } from '@hookstate/core'
+import { t } from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { CiCircleCheck, CiCircleRemove, CiWarning } from 'react-icons/ci'
+
+const autoUpdateIntervalOptions = [
+  {
+    value: '*/5 * * * *',
+    label: `5 ${t('admin:components.project.minutes')}`
+  },
+  {
+    value: '*/30 * * * *',
+    label: `30 ${t('admin:components.project.minutes')}`
+  },
+  {
+    value: '0 * * * *',
+    label: `1 ${t('admin:components.project.hour')}`
+  },
+  {
+    value: '0 */3 * * *',
+    label: `3 ${t('admin:components.project.hours')}`
+  },
+  {
+    value: '0 */6 * * *',
+    label: `6 ${t('admin:components.project.hours')}`
+  },
+  {
+    value: '0 */12 * * *',
+    label: `12 ${t('admin:components.project.hours')}`
+  },
+  {
+    value: '0 0 * * *',
+    label: `1 ${t('admin:components.project.day')}`
+  }
+]
 
 export default function AddEditProjectModal({
   update,
@@ -493,36 +525,7 @@ export default function AddEditProjectModal({
                   <div className="w-1/2">
                     <Select
                       label={t('admin:components.project.autoUpdateInterval')}
-                      options={[
-                        {
-                          value: '*/5 * * * *',
-                          name: `5 ${t('admin:components.project.minutes')}`
-                        },
-                        {
-                          value: '*/30 * * * *',
-                          name: `30 ${t('admin:components.project.minutes')}`
-                        },
-                        {
-                          value: '0 * * * *',
-                          name: `1 ${t('admin:components.project.hour')}`
-                        },
-                        {
-                          value: '0 */3 * * *',
-                          name: `3 ${t('admin:components.project.hours')}`
-                        },
-                        {
-                          value: '0 */6 * * *',
-                          name: `6 ${t('admin:components.project.hours')}`
-                        },
-                        {
-                          value: '0 */12 * * *',
-                          name: `12 ${t('admin:components.project.hours')}`
-                        },
-                        {
-                          value: '0 0 * * *',
-                          name: `1 ${t('admin:components.project.day')}`
-                        }
-                      ]}
+                      options={autoUpdateIntervalOptions}
                       currentValue={projectUpdateStatus.value?.updateSchedule || DefaultUpdateSchedule}
                       onChange={(value) => ProjectUpdateService.setUpdateSchedule(project.name, value)}
                     />

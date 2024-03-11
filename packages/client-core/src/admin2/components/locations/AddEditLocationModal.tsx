@@ -137,15 +137,15 @@ export default function AddEditLocationModal({ location }: { location?: Location
         <Select
           label={t('admin:components.location.lbl-scene')}
           currentValue={scene.value}
-          onChange={scene.set}
+          onChange={(value) => scene.set(value)}
           disabled={adminSceneState.retrieving.value}
           options={
             adminSceneState.retrieving.value
-              ? [{ value: '', name: t('common:select.fetching') }]
+              ? [{ value: '', label: t('common:select.fetching') }]
               : [
-                  { value: '', name: t('admin:components.location.selectScene'), disabled: true },
+                  { value: '', label: t('admin:components.location.selectScene'), disabled: true },
                   ...adminSceneState.scenes.value.map((scene) => ({
-                    name: `${scene.name} (${scene.project})`,
+                    label: `${scene.name} (${scene.project})`,
                     value: `${scene.project}/${scene.name}`
                   }))
                 ]

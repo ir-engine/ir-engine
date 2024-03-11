@@ -58,7 +58,7 @@ export default function PatchServerModal() {
 
   const locationsMenu = adminLocations.data.map((el) => {
     return {
-      name: el.name,
+      label: el.name,
       value: el.id
     }
   })
