@@ -987,7 +987,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
   const fetchGeometry = () => {
     const fetchStartTime = volumetric.currentTrackInfo.currentTime.value
-    const fetchEndTime = fetchStartTime + maxBufferHealth
+    const fetchEndTime = Math.min(fetchStartTime + maxBufferHealth, component.data.duration.value)
     const target = component.geometryInfo.targets.value[component.geometryInfo.currentTarget.value]
     const targetData = component.data.value.geometry.targets[target]
     if (targetData.format === 'uniform-solve') {
@@ -999,7 +999,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
   const fetchTextures = (textureType: TextureType) => {
     const fetchStartTime = volumetric.currentTrackInfo.currentTime.value
-    const fetchEndTime = fetchStartTime + maxBufferHealth
+    const fetchEndTime = Math.min(fetchStartTime + maxBufferHealth, component.data.duration.value)
     const targetIndex = component.textureInfo[textureType].currentTarget.value
     const target = component.textureInfo[textureType].targets[targetIndex].value
     const targetData = component.data.texture[textureType].value?.targets[target]
