@@ -149,7 +149,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       className="w-[50vw]"
       onSubmit={handleSubmit}
       onClose={() => PopoverState.hidePopupover()}
-      submitLoading={true}
+      submitLoading={submitLoading.value}
     >
       <div className="relative grid w-full gap-6">
         {errors.serviceError.value ? <p className="mt-2 text-rose-700">{errors.serviceError.value}</p> : null}
