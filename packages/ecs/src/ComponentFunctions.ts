@@ -339,7 +339,8 @@ export const setComponent = <C extends Component>(
   if (!bitECS.entityExists(HyperFlux.store, entity)) {
     throw new Error('[setComponent]: entity does not exist')
   }
-  if (!hasComponent(entity, Component)) {
+  const componentExists = hasComponent(entity, Component)
+  if (!componentExists) {
     const value = Component.onInit(entity)
 
     if (!Component.stateMap[entity]) {
@@ -349,31 +350,29 @@ export const setComponent = <C extends Component>(
     }
 
     bitECS.addComponent(HyperFlux.store, Component, entity, false) // don't clear data on-add
-
-    if (Component.reactor && !Component.reactorMap.has(entity)) {
-      const root = startReactor(() => {
-        return React.createElement(
-          EntityContext.Provider,
-          { value: entity },
-          React.createElement(Component.reactor!, {})
-        )
-      }) as ReactorRoot
-      root['entity'] = entity
-      root['component'] = Component.name
-      Component.reactorMap.set(entity, root)
-    }
   }
+
   if (Component.resources)
     for (const key of Component.resources) {
       if (args && !!args[key]) {
         Component.pendingResources.merge([key])
       }
     }
-  // startTransition(() => {
+
   Component.onSet(entity, Component.stateMap[entity]!, args as Readonly<SerializedComponentType<C>>)
+
+  if (!componentExists && Component.reactor && !Component.reactorMap.has(entity)) {
+    const root = startReactor(() => {
+      return React.createElement(EntityContext.Provider, { value: entity }, React.createElement(Component.reactor!, {}))
+    }) as ReactorRoot
+    root['entity'] = entity
+    root['component'] = Component.name
+    Component.reactorMap.set(entity, root)
+    return
+  }
+
   const root = Component.reactorMap.get(entity)
   root?.run()
-  // })
 }
 
 /**
@@ -422,18 +421,15 @@ export const hasComponent = <C extends Component>(entity: Entity, component: C) 
   return bitECS.hasComponent(HyperFlux.store, component, entity)
 }
 
-export const removeComponent = async <C extends Component>(entity: Entity, component: C) => {
+export const removeComponent = <C extends Component>(entity: Entity, component: C) => {
   if (!hasComponent(entity, component)) return
   component.onRemove(entity, component.stateMap[entity]!)
   bitECS.removeComponent(HyperFlux.store, component, entity, false)
   const root = component.reactorMap.get(entity)
   component.reactorMap.delete(entity)
-  // we need to wait for the reactor to stop before removing the state, otherwise
-  // we can trigger errors in useEffect cleanup functions
-  if (root?.isRunning) await root.stop()
-  // NOTE: we may need to perform cleanup after a timeout here in case there
-  // are other reactors also referencing this state in their cleanup functions
-  if (!hasComponent(entity, component)) component.stateMap[entity]?.set(none)
+  if (root?.isRunning) root.stop()
+  /** clear state data after reactor stops, to ensure hookstate is still referenceable */
+  component.stateMap[entity]?.set(none)
 }
 
 /**
@@ -490,15 +486,13 @@ export const getAllComponentData = (entity: Entity): { [name: string]: Component
 }
 
 export const removeAllComponents = (entity: Entity) => {
-  const promises = [] as Promise<void>[]
   try {
     for (const component of bitECS.getEntityComponents(HyperFlux.store, entity)) {
-      promises.push(removeComponent(entity, component as Component))
+      removeComponent(entity, component as Component)
     }
   } catch (_) {
     // entity does not exist
   }
-  return promises
 }
 
 export const serializeComponent = <C extends Component<any, any, any>>(entity: Entity, Component: C) => {

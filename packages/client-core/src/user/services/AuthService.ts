@@ -60,7 +60,6 @@ import {
   userSettingPath
 } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
 import { AuthenticationResult } from '@feathersjs/authentication'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -657,11 +656,6 @@ export const AuthService = {
         if (!user.id) return
 
         const selfUser = getMutableState(AuthState).user
-
-        if (user.name) {
-          const worldState = getMutableState(WorldState)
-          worldState.userNames[user.id].set(user.name)
-        }
 
         if (selfUser.id.value === user.id) {
           getMutableState(AuthState).user.merge(user)

@@ -31,7 +31,7 @@ import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState } from '@etherealengine/hyperflux'
 
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkState } from '@etherealengine/network'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 import { FilteredUsersState } from '../../transports/FilteredUsersSystem'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
@@ -82,7 +82,9 @@ export const useMediaWindows = () => {
         })
 
       const userScreens = consumers
-        .filter(([peerID, { cam, screen }]) => peerIDs.includes(peerID) && screen?.videoStream)
+        .filter(
+          ([peerID, { cam, screen }]) => peerIDs.includes(peerID) && screen?.videoStream && !screen?.videoStream?.closed
+        )
         .map(([peerID]) => {
           return { peerID, type: 'screen' as const }
         })

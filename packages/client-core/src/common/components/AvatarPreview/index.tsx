@@ -41,8 +41,7 @@ import { SxProps, Theme } from '@mui/material/styles'
 
 import styles from './index.module.scss'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { setComponent, UndefinedEntity } from '@etherealengine/ecs'
+import { EntityUUID, setComponent, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
 import { defaultAnimationPath, preloadedAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { AssetPreviewCameraComponent } from '@etherealengine/engine/src/camera/components/AssetPreviewCameraComponent'
@@ -51,7 +50,6 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { EnvMapSourceType } from '@etherealengine/engine/src/scene/constants/EnvMapEnum'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'

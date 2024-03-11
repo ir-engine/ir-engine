@@ -36,16 +36,15 @@ import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { createQueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { MediaSettingsState } from '@etherealengine/spatial/src/networking/MediaSettingsState'
-import { NetworkState, webcamAudioDataChannelType } from '@etherealengine/spatial/src/networking/NetworkState'
-import {
-  NetworkObjectComponent,
-  NetworkObjectOwnedTag
-} from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
+import { MediaSettingsState } from '@etherealengine/engine/src/audio/MediaSettingsState'
 import {
   MediasoupMediaProducerConsumerState,
-  MediasoupMediaProducersConsumersObjectsState
-} from '@etherealengine/spatial/src/networking/systems/MediasoupMediaProducerConsumerState'
+  MediasoupMediaProducersConsumersObjectsState,
+  NetworkObjectComponent,
+  NetworkObjectOwnedTag,
+  NetworkState,
+  webcamAudioDataChannelType
+} from '@etherealengine/network'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'

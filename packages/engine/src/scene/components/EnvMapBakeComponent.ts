@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import { useLayoutEffect } from 'react'
 import {
   Mesh,
   MeshLambertMaterial,
@@ -36,11 +36,17 @@ import {
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  hasComponent,
+  setComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { matches } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -104,7 +110,7 @@ export const EnvMapBakeComponent = defineComponent({
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const bake = useComponent(entity, EnvMapBakeComponent)
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (!debugEnabled.value) return
 
       const helper = new Mesh(new SphereGeometry(0.75), new MeshPhysicalMaterial({ roughness: 0, metalness: 1 }))
@@ -120,6 +126,7 @@ export const EnvMapBakeComponent = defineComponent({
 
       return () => {
         removeEntity(helperEntity)
+        if (!hasComponent(entity, EnvMapBakeComponent)) return
         bake.helperEntity.set(none)
       }
     }, [debugEnabled])

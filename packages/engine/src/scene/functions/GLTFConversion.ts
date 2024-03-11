@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { MathUtils, Object3D } from 'three'
 
 import config from '@etherealengine/common/src/config'
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 
 import { EntityJsonType, SceneJsonType } from '@etherealengine/common/src/schema.type.module'
-import { sceneRelativePathIdentifier } from '@etherealengine/spatial/src/common/functions/parseSceneJSON'
+import { sceneRelativePathIdentifier } from '@etherealengine/common/src/utils/parseSceneJSON'
 
 export const nodeToEntityJson = (node: any): EntityJsonType => {
   const parentId = node.extras?.parent ? { parent: node.extras.parent } : {}

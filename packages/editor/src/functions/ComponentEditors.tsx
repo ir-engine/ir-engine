@@ -44,7 +44,6 @@ import { PortalComponent } from '@etherealengine/engine/src/scene/components/Por
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
-import { SceneTagComponent } from '@etherealengine/engine/src/scene/components/SceneTagComponent'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
@@ -76,6 +75,7 @@ import BehaveGraphNodeEditor from '../components/properties/BehaveGraphNodeEdito
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 
+import { AudioAnalysisComponent } from '@etherealengine/engine/src/scene/components/AudioAnalysisComponent'
 import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
@@ -85,6 +85,7 @@ import { defineState } from '@etherealengine/hyperflux'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
+import { AudioAnalysisEditor } from '../components/properties/AudioAnalysisEditor'
 import ColliderComponentEditor from '../components/properties/ColliderComponentEditor'
 import LinkNodeEditor from '../components/properties/LinkNodeEditor'
 import LoopAnimationNodeEditor from '../components/properties/LoopAnimationNodeEditor'
@@ -104,7 +105,6 @@ import PrimitiveGeometryNodeEditor from '../components/properties/PrimitiveGeome
 import { RenderSettingsEditor } from '../components/properties/RenderSettingsEditor'
 import RigidBodyComponentEditor from '../components/properties/RigidbodyComponentEditor'
 import SDFEditor from '../components/properties/SDFEditor'
-import SceneNodeEditor from '../components/properties/SceneNodeEditor'
 import ScenePreviewCameraNodeEditor from '../components/properties/ScenePreviewCameraNodeEditor'
 import { SceneSettingsEditor } from '../components/properties/SceneSettingsEditor'
 import ShadowProperties from '../components/properties/ShadowProperties'
@@ -150,13 +150,13 @@ export const ComponentEditorsState = defineState({
       [RigidBodyComponent.name]: RigidBodyComponentEditor,
       [ColliderComponent.name]: ColliderComponentEditor,
       [TriggerComponent.name]: TriggerComponentEditor,
-      [SceneTagComponent.name]: SceneNodeEditor,
       [ScenePreviewCameraComponent.name]: ScenePreviewCameraNodeEditor,
       [SkyboxComponent.name]: SkyboxNodeEditor,
       [SpawnPointComponent.name]: SpawnPointNodeEditor,
       [MediaComponent.name]: MediaNodeEditor,
       [ImageComponent.name]: ImageNodeEditor,
       [PositionalAudioComponent.name]: PositionalAudioNodeEditor,
+      [AudioAnalysisComponent.name]: AudioAnalysisEditor,
       [VideoComponent.name]: VideoNodeEditor,
       [VolumetricComponent.name]: VolumetricNodeEditor,
       // [CloudComponent.name]: CloudsNodeEditor,

@@ -31,7 +31,7 @@ import {
   makeInNOutFunctionDesc
 } from '@behave-graph/core'
 import { toQuat, toVector3 } from '@behave-graph/scene'
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { ComponentMap, getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
@@ -39,16 +39,13 @@ import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { getState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { copyTransformToRigidBody } from '@etherealengine/spatial/src/physics/systems/PhysicsPreTransformSystem'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { cloneDeep, isEqual, uniqueId } from 'lodash'
 import { teleportAvatar } from '../../../../../avatar/functions/moveAvatar'
-import { SceneObjectComponent } from '../../../../../scene/components/SceneObjectComponent'
+import { SceneComponent } from '../../../../../scene/components/SceneComponent'
 import { addEntityToScene } from '../helper/entityHelper'
 
 type State = {
@@ -58,7 +55,8 @@ const initialState = (): State => ({
   systemUUID: '' as SystemUUID
 })
 
-const sceneQuery = defineQuery([SceneObjectComponent])
+const sceneQuery = defineQuery([SceneComponent])
+
 export const getEntity = makeFunctionNodeDefinition({
   typeName: 'engine/entity/getEntityInScene',
   category: NodeCategory.Query,
@@ -72,7 +70,7 @@ export const getEntity = makeFunctionNodeDefinition({
       return {
         valueType: 'string',
         choices: choices,
-        defaultValue: getComponent(SceneState.getRootEntity(getState(SceneState).activeScene!), UUIDComponent)
+        defaultValue: ''
       }
     }
   },
@@ -157,7 +155,7 @@ export const addEntity = makeFlowNodeDefinition({
       return {
         valueType: 'string',
         choices: choices,
-        defaultValue: getComponent(SceneState.getRootEntity(getState(SceneState).activeScene!), UUIDComponent)
+        defaultValue: ''
       }
     },
     componentName: (_, graphApi) => {

@@ -27,11 +27,11 @@ import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import { useAllComponents, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { Popover } from '@mui/material'
 import { ComponentEditorsState } from '../../functions/ComponentEditors'

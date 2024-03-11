@@ -37,8 +37,8 @@ import { LocationState } from '@etherealengine/client-core/src/social/services/L
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/network'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 
 import Component from './index'
 
@@ -53,10 +53,7 @@ import 'tailwindcss/tailwind.css'
 const initializeEngineForRecorder = async () => {
   // const projects = API.instance.client.service(projectsPath).find()
   // await loadEngineInjection(await projects)
-  getMutableState(SceneState).merge({
-    sceneLoading: false,
-    sceneLoaded: true
-  })
+  getMutableState(SceneState).sceneLoaded.set(true)
 }
 
 const argTypes = {}

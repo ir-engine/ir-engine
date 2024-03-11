@@ -29,17 +29,16 @@ import { useEffect } from 'react'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { localConfig } from '@etherealengine/server-core/src/config'
-import serverLogger from '@etherealengine/server-core/src/ServerLogger'
 import {
   NetworkState,
   PeerMediaType,
   screenshareAudioDataChannelType,
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
-} from '@etherealengine/spatial/src/networking/NetworkState'
+} from '@etherealengine/network'
+import { config } from '@etherealengine/server-core/src/config'
+import serverLogger from '@etherealengine/server-core/src/ServerLogger'
 
-import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import {
   RecordingID,
   recordingResourceUploadPath,
@@ -49,6 +48,7 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { RecordingAPIState } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { getMutableState, none } from '@etherealengine/hyperflux'
+import { DataChannelType } from '@etherealengine/network'
 import { PassThrough } from 'stream'
 import { startFFMPEG } from './FFMPEG'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
@@ -63,11 +63,11 @@ export const createTransport = async (router: Router, port: number, rtcpPort: nu
     // FFmpeg don't support RTP/RTCP multiplexing ("a=rtcp-mux" in SDP)
     rtcpMux: false,
 
-    listenIp: localConfig.mediasoup.plainTransport.listenIp
+    listenIp: config.mediasoup.plainTransport.listenIp
   })
 
   await transport.connect({
-    ip: localConfig.mediasoup.recording.ip,
+    ip: config.mediasoup.recording.ip,
     port,
     rtcpPort
   })

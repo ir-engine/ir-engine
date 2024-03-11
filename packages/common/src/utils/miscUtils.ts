@@ -143,6 +143,14 @@ export function relativePathTo(src: string, dst: string): string {
   return relativePathArray.join('/')
 }
 
-export const toCapitalCase = (str: string) => {
-  return str.charAt(0).toUpperCase() + str.slice(1)
+/**
+ * Converts a string to title case. For example, "hello world" becomes "Hello World".
+ * Reference: https://stackoverflow.com/a/196991
+ * @param source
+ * @returns
+ */
+export const toCapitalCase = (source: string) => {
+  return source.replace(/\w\S*/g, function (txt) {
+    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+  })
 }

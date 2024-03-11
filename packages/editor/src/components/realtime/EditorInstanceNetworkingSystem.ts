@@ -27,7 +27,7 @@ import { useEffect } from 'react'
 
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkState } from '@etherealengine/network'
 
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 

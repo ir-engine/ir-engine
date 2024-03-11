@@ -25,26 +25,25 @@ Ethereal Engine. All Rights Reserved.
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import React, { useEffect } from 'react'
 
-import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
-import { NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
-import { DataChannelRegistryState } from '@etherealengine/spatial/src/networking/systems/DataChannelRegistry'
 import {
+  DataChannelRegistryState,
+  DataChannelType,
   MediasoupDataConsumerActions,
-  MediasoupDataProducerActions
-} from '@etherealengine/spatial/src/networking/systems/MediasoupDataProducerConsumerState'
-import {
-  MediaProducerActions,
-  MediasoupMediaConsumerActions
-} from '@etherealengine/spatial/src/networking/systems/MediasoupMediaProducerConsumerState'
-import { MediasoupTransportActions } from '@etherealengine/spatial/src/networking/systems/MediasoupTransportState'
+  MediasoupDataProducerActions,
+  MediasoupMediaConsumerActions,
+  MediasoupMediaProducerActions,
+  MediasoupTransportActions,
+  NetworkState,
+  NetworkTopics
+} from '@etherealengine/network'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import {
   createOutgoingDataProducer,
+  handleCloseConsumer,
+  handleCloseProducer,
   handleConsumeData,
   handleConsumerSetLayers,
   handleProduceData,
@@ -58,7 +57,9 @@ import {
 /** @todo replace this with event sourcing */
 const requestConsumerActionQueue = defineActionQueue(MediasoupMediaConsumerActions.requestConsumer.matches)
 const consumerLayersActionQueue = defineActionQueue(MediasoupMediaConsumerActions.consumerLayers.matches)
-const requestProducerActionQueue = defineActionQueue(MediaProducerActions.requestProducer.matches)
+const requestProducerActionQueue = defineActionQueue(MediasoupMediaProducerActions.requestProducer.matches)
+const closeProducerActionQueue = defineActionQueue(MediasoupMediaProducerActions.producerClosed.matches)
+const closeConsumerActionQueue = defineActionQueue(MediasoupMediaConsumerActions.consumerClosed.matches)
 
 const dataRequestProducerActionQueue = defineActionQueue(MediasoupDataProducerActions.requestProducer.matches)
 const dataRequestConsumerActionQueue = defineActionQueue(MediasoupDataConsumerActions.requestConsumer.matches)
@@ -68,9 +69,6 @@ const requestTransportConnectActionQueue = defineActionQueue(MediasoupTransportA
 const transportCloseActionQueue = defineActionQueue(MediasoupTransportActions.transportClosed.matches)
 
 const execute = () => {
-  // queues will accumulate actions until the scene is loaded, then they will be processed
-  if (!getState(SceneState).sceneLoaded) return
-
   for (const action of requestConsumerActionQueue()) {
     handleRequestConsumer(action)
   }
@@ -79,6 +77,12 @@ const execute = () => {
   }
   for (const action of requestProducerActionQueue()) {
     handleRequestProducer(action)
+  }
+  for (const action of closeConsumerActionQueue()) {
+    handleCloseConsumer(action)
+  }
+  for (const action of closeProducerActionQueue()) {
+    handleCloseProducer(action)
   }
 
   for (const action of dataRequestProducerActionQueue()) {

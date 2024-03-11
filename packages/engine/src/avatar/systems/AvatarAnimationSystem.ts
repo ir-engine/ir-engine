@@ -23,9 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
-
+import config from '@etherealengine/common/src/config'
+import {
+  ECSState,
+  Engine,
+  Entity,
+  EntityUUID,
+  UUIDComponent,
+  defineQuery,
+  defineSystem,
+  getComponent,
+  getOptionalComponent,
+  getOptionalMutableComponent,
+  hasComponent
+} from '@etherealengine/ecs'
 import {
   NO_PROXY,
   defineState,
@@ -35,34 +46,21 @@ import {
   useHookstate,
   useMutableState
 } from '@etherealengine/hyperflux'
-
-import config from '@etherealengine/common/src/config'
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import {
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
+import { NetworkState } from '@etherealengine/network'
+import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import {
   createPriorityQueue,
   createSortAndApplyPriorityQueue
 } from '@etherealengine/spatial/src/common/functions/PriorityQueue'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TransformSystem } from '@etherealengine/spatial/src/transform/TransformModule'
 import { compareDistanceToCamera } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { XRLeftHandComponent, XRRightHandComponent } from '@etherealengine/spatial/src/xr/XRComponents'
 import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
-import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
+import { VRMHumanBoneList } from '@pixiv/three-vrm'
+import { useEffect } from 'react'
+import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { useBatchGLTF } from '../../assets/functions/resourceHooks'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
@@ -70,12 +68,13 @@ import { AvatarHeadDecapComponent, AvatarIKTargetComponent } from '.././componen
 import { AnimationState } from '../AnimationManager'
 import { IKSerialization } from '../IKSerialization'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
-import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
+import { blendIKChain, solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets, preloadedAnimations } from '../animation/Util'
 import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { getArmIKHint } from '../animation/getArmIKHint'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
+import { TransparencyDitheringComponent } from '../components/TransparencyDitheringComponent'
 import { retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 import { LocalAvatarState } from '../state/AvatarState'
@@ -107,6 +106,8 @@ const _vector3 = new Vector3()
 const _hint = new Vector3()
 const mat4 = new Matrix4()
 const hipsForward = new Vector3(0, 0, 1)
+const ditheringCenter = new Vector3()
+const eyeOffset = 0.25
 
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(avatarComponentQuery, compareDistanceToCamera)
 
@@ -150,6 +151,7 @@ const execute = () => {
       avatarAnimationEntities.push(_entity)
     }
   }
+
   updateAnimationGraph(avatarAnimationEntities)
 
   for (const entity of avatarAnimationEntities) {
@@ -186,8 +188,10 @@ const execute = () => {
     const transform = getComponent(entity, TransformComponent)
 
     const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
+
     if (headTargetBlendWeight) {
       const headTransform = getComponent(head, TransformComponent)
+
       normalizedRig.hips.node.position.set(
         headTransform.position.x,
         headTransform.position.y - avatarComponent.torsoLength - 0.125,
@@ -211,6 +215,24 @@ const execute = () => {
         normalizedRig.spine.node.getWorldQuaternion(_quat).invert(),
         _quat2
       )
+
+      /** Place normalized rig in world space for ik calculations */
+      const newWorldMatrix = transform.matrixWorld.clone()
+      newWorldMatrix.elements[13] = rawRig.hips.node.position.y - transform.position.y
+      normalizedRig.hips.node.matrix.setPosition(new Vector3())
+      normalizedRig.hips.node.matrixWorld.multiplyMatrices(newWorldMatrix, normalizedRig.hips.node.matrix)
+      for (const boneName of VRMHumanBoneList) {
+        const bone = rigComponent.vrm.humanoid.getNormalizedBoneNode(boneName)
+        if (!bone) continue
+        bone.scale.setScalar(1)
+        bone.updateMatrix()
+        if (boneName === 'hips') continue
+        bone.updateMatrixWorld()
+        const worldMatrix = rawRig[boneName]!.node.matrixWorld.elements
+        bone.matrixWorld.elements[13] = worldMatrix[13]
+        bone.matrixWorld.elements[12] = worldMatrix[12]
+        bone.matrixWorld.elements[14] = worldMatrix[14]
+      }
     }
 
     if (rightHandTargetBlendWeight && rightHandTransform) {
@@ -224,17 +246,16 @@ const execute = () => {
       )
 
       solveTwoBoneIK(
-        VRMHumanBoneName.RightUpperArm,
-        VRMHumanBoneName.RightLowerArm,
-        VRMHumanBoneName.RightHand,
-        rigComponent.vrm,
+        normalizedRig.rightUpperArm.node.parent!.matrixWorld,
+        rigComponent.ikMatrices.rightUpperArm!,
+        rigComponent.ikMatrices.rightLowerArm!,
+        rigComponent.ikMatrices.rightHand!,
         rightHandTransform.position,
         rightHandTransform.rotation,
-        null,
-        _hint,
-        rightHandTargetBlendWeight,
-        rightHandTargetBlendWeight
+        _hint
       )
+
+      blendIKChain(entity, ['rightUpperArm', 'rightLowerArm', 'rightHand'], rightHandTargetBlendWeight)
     }
 
     if (leftHandTargetBlendWeight && leftHandTransform) {
@@ -246,18 +267,18 @@ const execute = () => {
         'left',
         _hint
       )
+
       solveTwoBoneIK(
-        VRMHumanBoneName.LeftUpperArm,
-        VRMHumanBoneName.LeftLowerArm,
-        VRMHumanBoneName.LeftHand,
-        rigComponent.vrm,
+        normalizedRig.leftUpperArm.node.parent!.matrixWorld,
+        rigComponent.ikMatrices.leftUpperArm!,
+        rigComponent.ikMatrices.leftLowerArm!,
+        rigComponent.ikMatrices.leftHand!,
         leftHandTransform.position,
         leftHandTransform.rotation,
-        null,
-        _hint,
-        leftHandTargetBlendWeight,
-        leftHandTargetBlendWeight
+        _hint
       )
+
+      blendIKChain(entity, ['leftUpperArm', 'leftLowerArm', 'leftHand'], leftHandTargetBlendWeight)
     }
 
     if (rightFootTargetBlendWeight && rightFootTransform) {
@@ -267,37 +288,35 @@ const execute = () => {
         .add(transform.position)
 
       solveTwoBoneIK(
-        VRMHumanBoneName.RightUpperLeg,
-        VRMHumanBoneName.RightLowerLeg,
-        VRMHumanBoneName.RightFoot,
-        rigComponent.vrm,
+        normalizedRig.hips.node.matrixWorld,
+        rigComponent.ikMatrices.rightUpperLeg!,
+        rigComponent.ikMatrices.rightLowerLeg!,
+        rigComponent.ikMatrices.rightFoot!,
         rightFootTransform.position,
         rightFootTransform.rotation,
-        null,
-        _hint,
-        rightFootTargetBlendWeight,
-        rightFootTargetBlendWeight
+        _hint
       )
+
+      blendIKChain(entity, ['rightUpperLeg', 'rightLowerLeg', 'rightFoot'], rightFootTargetBlendWeight)
     }
 
     if (leftFootTargetBlendWeight && leftFootTransform) {
       _hint
-        .set(avatarComponent.footGap * 1.5, 0, 1)
+        .set(-avatarComponent.footGap * 1.5, 0, 1)
         .applyQuaternion(transform.rotation)
         .add(transform.position)
 
       solveTwoBoneIK(
-        VRMHumanBoneName.LeftUpperLeg,
-        VRMHumanBoneName.LeftLowerLeg,
-        VRMHumanBoneName.LeftFoot,
-        rigComponent.vrm,
+        normalizedRig.hips.node.matrixWorld,
+        rigComponent.ikMatrices.leftUpperLeg!,
+        rigComponent.ikMatrices.leftLowerLeg!,
+        rigComponent.ikMatrices.leftFoot!,
         leftFootTransform.position,
         leftFootTransform.rotation,
-        null,
-        _hint,
-        leftFootTargetBlendWeight,
-        leftFootTargetBlendWeight
+        _hint
       )
+
+      blendIKChain(entity, ['leftUpperLeg', 'leftLowerLeg', 'leftFoot'], leftFootTargetBlendWeight)
     }
 
     if (hasComponent(entity, XRRightHandComponent)) {
@@ -309,16 +328,24 @@ const execute = () => {
     }
 
     updateVRMRetargeting(rigComponent.vrm, entity)
-
-    /** temporary hack for normalized bones to work with ik solves */
-    if (headTargetBlendWeight)
-      for (const boneName of VRMHumanBoneList) {
-        if (normalizedRig[boneName]) {
-          if (boneName == 'hips') normalizedRig[boneName]!.node.matrixWorld.copy(transform.matrixWorld)
-          else normalizedRig[boneName]!.node.updateMatrixWorld()
-        }
-      }
   }
+
+  //update local client entity's dithering component and camera attached logic
+  const localClientEntity = Engine.instance.localClientEntity
+  if (!localClientEntity) return
+  const ditheringComponent = getOptionalMutableComponent(localClientEntity, TransparencyDitheringComponent)
+  if (!ditheringComponent) return
+  const cameraAttached = getState(XRControlsState).isCameraAttachedToAvatar
+  if (cameraAttached) ditheringCenter.set(0, getComponent(localClientEntity, AvatarComponent).eyeHeight, 0)
+  else ditheringCenter.copy(getComponent(Engine.instance.cameraEntity, TransformComponent).position)
+  ditheringComponent.useWorldSpace.set(!cameraAttached)
+  ditheringComponent.center.set(ditheringCenter)
+  ditheringComponent.ditheringDistance.set(cameraAttached ? 0.3 : 0.45)
+  const cameraComponent = getOptionalComponent(Engine.instance.cameraEntity, FollowCameraComponent)
+  if (!cameraComponent) return
+  const hasDecapComponent = hasComponent(localClientEntity, AvatarHeadDecapComponent)
+  if (hasDecapComponent) cameraComponent.offset.setZ(Math.min(cameraComponent.offset.z + deltaSeconds, eyeOffset))
+  else cameraComponent.offset.setZ(Math.max(cameraComponent.offset.z - deltaSeconds, 0))
 }
 
 const reactor = () => {
@@ -379,12 +406,6 @@ const reactor = () => {
 
     const entity = Engine.instance.localClientEntity
     if (!entity) return
-
-    if (isCameraAttachedToAvatar.value) {
-      setComponent(entity, AvatarHeadDecapComponent, true)
-    } else {
-      removeComponent(entity, AvatarHeadDecapComponent)
-    }
   }, [isCameraAttachedToAvatar, session])
 
   useEffect(() => {

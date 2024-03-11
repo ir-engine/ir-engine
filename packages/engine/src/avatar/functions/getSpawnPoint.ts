@@ -27,10 +27,9 @@ import { Quaternion, Vector3 } from 'three'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
 

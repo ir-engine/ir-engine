@@ -39,7 +39,7 @@ import {
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { ChannelID, ChannelType, channelPath, messagePath } from '@etherealengine/common/src/schema.type.module'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkState } from '@etherealengine/network'
 import { Resizable } from 're-resizable'
 import { FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa'
 import { HiPhone, HiPhoneMissedCall } from 'react-icons/hi'
