@@ -47,7 +47,7 @@ export const Constant = makeInNOutFunctionDesc({
 })
 
 export const Create = makeInNOutFunctionDesc({
-  name: 'math/float/covert/toVec3',
+  name: 'math/float/convert/toVec3',
   label: 'Float to Vec3',
   in: [{ x: 'float' }, { y: 'float' }, { z: 'float' }],
   out: 'vec3',

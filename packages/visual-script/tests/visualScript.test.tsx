@@ -42,6 +42,9 @@ import integerTestVisualScript from './assets/integer-test-visual-script.json'
 import rateRepeatTestVisualScript from './assets/rate-repeat-test-visual-script.json'
 import stringTestVisualScript from './assets/string-test-visual-script.json'
 import variableTestVisualScript from './assets/variable-test-visual-script.json'
+import vec2TestVisualScript from './assets/vec2-test-visual-script.json'
+import vec3TestVisualScript from './assets/vec3-test-visual-script.json'
+import vec4TestVisualScript from './assets/vec4-test-visual-script.json'
 
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import { SystemDefinitions } from '@etherealengine/ecs'
@@ -233,6 +236,57 @@ describe('visual Script', () => {
 
     unmount()
   })
+
+  it('test vec2 nodes script', async () => {
+    const entity = createEntity()
+    const visualScript = parseStorageProviderURLs(vec2TestVisualScript) as unknown as GraphJSON
+    setComponent(entity, VisualScriptComponent, { visualScript: visualScript, run: true })
+
+    await waitForConsoleLog(successMessage).then((result) => {
+      assert(result.includes(successMessage))
+    })
+  })
+
+  it('test vec3 nodes script', async () => {
+    const entity = createEntity()
+    const visualScript = parseStorageProviderURLs(vec3TestVisualScript) as unknown as GraphJSON
+    setComponent(entity, VisualScriptComponent, { visualScript: visualScript, run: true })
+
+    await waitForConsoleLog(successMessage).then((result) => {
+      assert(result.includes(successMessage))
+    })
+  })
+
+  it('test vec4 nodes script', async () => {
+    const entity = createEntity()
+    const visualScript = parseStorageProviderURLs(vec4TestVisualScript) as unknown as GraphJSON
+    setComponent(entity, VisualScriptComponent, { visualScript: visualScript, run: true })
+
+    await waitForConsoleLog(successMessage).then((result) => {
+      assert(result.includes(successMessage))
+    })
+  })
+
+  // these are too basic
+  /*it('test euler nodes script', async () => {
+    const entity = createEntity()
+    const visualScript = parseStorageProviderURLs(integerTestVisualScript) as unknown as GraphJSON
+    setComponent(entity, VisualScriptComponent, { visualScript: visualScript, run: true })
+
+    await waitForConsoleLog(successMessage).then((result) => {
+      assert(result.includes(successMessage))
+    })
+  })
+
+  it('test quat nodes script', async () => {
+    const entity = createEntity()
+    const visualScript = parseStorageProviderURLs(integerTestVisualScript) as unknown as GraphJSON
+    setComponent(entity, VisualScriptComponent, { visualScript: visualScript, run: true })
+
+    await waitForConsoleLog(successMessage).then((result) => {
+      assert(result.includes(successMessage))
+    })
+  })*/
 
   afterEach(() => {
     consoleSpy.restore()
