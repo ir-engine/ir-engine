@@ -73,7 +73,7 @@ export default function Avatars() {
               PopoverState.showPopupover(<AddEditAvatarModal />)
             }}
           >
-            {t('admin:components.project.addProject')}
+            {t('admin:components.avatar.add')}
           </Button>
         </div>
       </div>

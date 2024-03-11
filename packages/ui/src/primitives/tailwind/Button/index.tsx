@@ -67,7 +67,6 @@ const Button = ({
     'flex items-center justify-between',
     'font-medium text-white',
     'transition ease-in-out',
-    'inline-flex items-center justify-center',
     'disabled:cursor-not-allowed',
     sizes[size],
     variants[variant],

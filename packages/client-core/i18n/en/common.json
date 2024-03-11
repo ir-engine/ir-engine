@@ -124,6 +124,10 @@
     "validation-error": "Please input valid {{type}}",
     "login-error": "Failed to login"
   },
+  "table": {
+    "refetching": "Refetching Data...",
+    "noData": "Data is Empty"
+  },
   "multiEmailInput": {
     "placeholder": "Type or paste email addresses and press `Enter`...",
     "alreadyAdded": "{{email}} has already been added!",
