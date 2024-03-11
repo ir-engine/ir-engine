@@ -81,7 +81,7 @@ export default function PatchServerModal() {
         }}
         className="mb-5"
         label={t('admin:components.instance.location')}
-      ></Select>
+      />
       <Input
         type="number"
         value={state.count.value}
@@ -89,7 +89,7 @@ export default function PatchServerModal() {
           state.count.set(parseInt(e.target.value))
         }}
         label={t('admin:components.instance.count')}
-      ></Input>
+      />
     </Modal>
   )
 }

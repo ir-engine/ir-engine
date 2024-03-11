@@ -36,14 +36,17 @@ export default function RemoveInstanceModal({ instanceId }: { instanceId: string
   const { t } = useTranslation()
   const removeInstance = useMutation(instancePath).remove
   const error = useHookstate('')
+  const modalProcessing = useHookstate(false)
 
   const submitRemoveInstance = async () => {
     try {
+      modalProcessing.set(true)
       await removeInstance(instanceId)
       PopoverState.hidePopupover()
     } catch (e) {
       error.set(e.message)
     }
+    modalProcessing.set(false)
   }
 
   return (
@@ -54,6 +57,7 @@ export default function RemoveInstanceModal({ instanceId }: { instanceId: string
       onClose={() => {
         PopoverState.hidePopupover()
       }}
+      submitLoading={modalProcessing.value}
     >
       <Text component="h2">{`${t('admin:components.instance.confirmInstanceDelete')} (${instanceId}) ?`}</Text>
       {error.value ? <p className="mt-2 text-rose-700">{error.value}</p> : null}

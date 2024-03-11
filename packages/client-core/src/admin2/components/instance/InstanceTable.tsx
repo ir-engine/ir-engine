@@ -69,7 +69,7 @@ export default function InstanceTable({ search }: { search: string }) {
           >
             {t('admin:components.instance.actions.view')}
           </Button>
-          <Button className="bg-transparent	">
+          <Button className="bg-transparent">
             <BsTrash3
               className="text-[#FB7185]"
               onClick={() => {
