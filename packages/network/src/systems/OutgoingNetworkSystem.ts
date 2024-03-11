@@ -28,7 +28,7 @@ import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { Network } from '../Network'
-import { NetworkObjectComponent } from '../NetworkObjectComponent'
+import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../NetworkObjectComponent'
 import { NetworkState } from '../NetworkState'
 import { createDataWriter } from '../serialization/DataWriter'
 import { ecsDataChannelType } from './IncomingNetworkSystem'
@@ -37,7 +37,7 @@ import { ecsDataChannelType } from './IncomingNetworkSystem'
  * QUERIES *
  **********/
 
-export const networkQuery = defineQuery([NetworkObjectComponent])
+export const networkQuery = defineQuery([NetworkObjectComponent, NetworkObjectAuthorityTag])
 
 const serializeAndSend = (serialize: ReturnType<typeof createDataWriter>) => {
   const ents = networkQuery()
