@@ -126,7 +126,7 @@ const AdminRoutes = () => {
   }
 
   return (
-    <main className="pointer-events-auto mt-6 flex gap-1.5">
+    <main className="bg-theme-primary pointer-events-auto mt-6 flex gap-1.5">
       <AdminSideBar />
       <div className="w-[80%]">
         <Routes>

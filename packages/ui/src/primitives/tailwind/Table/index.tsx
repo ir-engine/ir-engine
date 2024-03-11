@@ -37,7 +37,7 @@ const TableHeaderCell = ({ className, children, ...props }: TableCellProps) => {
   const twClassName = twMerge(
     'text-neutral-600 dark:text-white',
     'p-4',
-    'border border-neutral-300 dark:border-[0.5px] dark:border-[#2B2C30]',
+    'border-theme-primary border border-[0.5px]',
     className
   )
   return (
@@ -67,7 +67,7 @@ const TableHeadRow = ({
 const TableCell = ({ className, children, ...props }: TableCellProps) => {
   const twClassName = twMerge(
     'p-4',
-    'border border-neutral-300 dark:border-[0.5px] dark:border-[#2B2C30]',
+    'border-theme-primary border border-[0.5px]',
     'text-left text-neutral-600 dark:text-white',
     className
   )

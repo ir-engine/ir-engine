@@ -60,7 +60,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
   ) => {
     const twClassname = twMerge(
       'text-base font-normal tracking-tight',
-      'textshadow-sm border-theme-primary bg-theme-primary flex h-9 w-full rounded-lg border px-3.5 py-5 transition-colors',
+      'textshadow-sm border-theme-primary bg-theme-surfaceInput flex h-9 w-full rounded-lg border px-3.5 py-5 transition-colors',
       'file:bg-theme-primary file:border-0 file:text-sm file:font-medium',
       'dark:[color-scheme:dark]',
       'focus-visible:ring-ring placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50',

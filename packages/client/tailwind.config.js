@@ -47,14 +47,16 @@ module.exports = {
           primary: "var(--bg-primary)",
           secondary: "var(--bg-secondary)",
           highlight: "var(--bg-highlight)",
-          surfaceMain: "var(--bg-surface-main)"
+          surfaceInput: "var(--bg-surface-input)",
+          surfaceMain: "var(--bg-surface-main)",
+          buttonTertiary: "var(--bg-button-tertiary)"
         }
       },
       borderColor: {
         theme: {
           primary: "var(--border-primary)"
         }
-      }
+      },
     }
   }
 }

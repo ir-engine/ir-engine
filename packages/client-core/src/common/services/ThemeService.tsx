@@ -33,9 +33,13 @@ const lightTheme = {
   'bg-secondary': '#FFFFFF',
   'bg-highlight': '#FFFFFF',
   'bg-surface-main': '#F5F5F5',
+  'bg-surface-input': '#FFFFFF',
+  'bg-button-tertiary': '#D4DFF7',
+
   'text-primary': '#262626',
   'text-secondary': '#6B7280',
   'text-highlight': '#FFFFFF',
+
   'border-primary': '#E5E7EB'
 }
 
@@ -44,9 +48,13 @@ const darkTheme = {
   'bg-secondary': '#1A1B1E',
   'bg-highlight': '#212226',
   'bg-surface-main': '#1A1B1E',
+  'bg-surface-input': '#141619',
+  'bg-button-tertiary': '#2A3753',
+
   'text-primary': '#F5F5F5',
   'text-secondary': '#D4D4D4',
   'text-highlight': '#FFFFFF',
+
   'border-primary': '#2B2C30'
 }
 
