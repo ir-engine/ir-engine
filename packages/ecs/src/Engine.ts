@@ -29,10 +29,8 @@ import { ReactorReconciler, createHyperStore, getState } from '@etherealengine/h
 import { HyperFlux, HyperStore, disposeStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 import * as bitECS from 'bitecs'
 
-import type { FeathersApplication } from '@feathersjs/feathers'
-
-import type { ServiceTypes } from '@etherealengine/common/declarations'
-
+import { ServiceTypes } from '@etherealengine/common/declarations'
+import { FeathersApplication } from '@feathersjs/feathers'
 import { getAllEntities } from 'bitecs'
 import { Group, Scene } from 'three'
 import { ECSState } from './ECSState'

@@ -30,6 +30,7 @@ import path from 'path'
 import url from 'url'
 
 import { oembedPath } from '@etherealengine/common/src/schemas/media/oembed.schema'
+import { allowedDomainsPath } from '@etherealengine/common/src/schemas/networking/allowed-domains.schema'
 import { routePath } from '@etherealengine/common/src/schemas/route/route.schema'
 import { acceptInvitePath } from '@etherealengine/common/src/schemas/user/accept-invite.schema'
 import { discordBotAuthPath } from '@etherealengine/common/src/schemas/user/discord-bot-auth.schema'
@@ -260,6 +261,7 @@ const authentication = {
     'auth',
     'oauth/:provider',
     'authentication',
+    allowedDomainsPath,
     oembedPath,
     githubRepoAccessWebhookPath,
     { path: identityProviderPath, methods: ['create'] },

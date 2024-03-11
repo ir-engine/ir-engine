@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { viteCommonjs } from '@originjs/vite-plugin-commonjs'
 import packageRoot from 'app-root-path'
 import dotenv from 'dotenv'
-import fs from 'fs'
+import fs, { readFileSync, writeFileSync } from 'fs'
 import lodash from 'lodash'
 import path from 'path'
 import { UserConfig, defineConfig } from 'vite'
@@ -36,6 +36,7 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import svgr from 'vite-plugin-svgr'
 const { isArray, mergeWith } = lodash
 
+import appRootPath from 'app-root-path'
 import manifest from './manifest.default.json'
 import PWA from './pwa.config'
 import { getClientSetting } from './scripts/getClientSettings'
@@ -230,6 +231,23 @@ const resetSWFiles = () => {
   deleteDirFilesUsingPattern(/workbox-/, './public/')
 }
 
+const updateRootCookieAccessorDomain = (isDevOrLocal) => {
+  const localStorageAccessor = readFileSync(
+    path.join(appRootPath.path, 'packages', 'client', 'public', 'root-cookie-accessor-template.html')
+  ).toString()
+
+  const apiUrl =
+    isDevOrLocal && process.env.VITE_LOCAL_NGINX !== 'true'
+      ? `https://${process.env.VITE_SERVER_HOST}:${process.env.VITE_SERVER_PORT}`
+      : `https://${process.env.VITE_SERVER_HOST}`
+  const updated = localStorageAccessor.replace(/<API_URL>/g, apiUrl)
+
+  writeFileSync(
+    path.join(appRootPath.path, 'packages', 'client', 'public', 'root-cookie-accessor.html'),
+    Buffer.from(updated)
+  )
+}
+
 export default defineConfig(async () => {
   dotenv.config({
     path: packageRoot.path + '/.env.local'
@@ -240,6 +258,8 @@ export default defineConfig(async () => {
   resetSWFiles()
 
   const isDevOrLocal = process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true'
+
+  updateRootCookieAccessorDomain(isDevOrLocal)
 
   let base = `https://${process.env['APP_HOST'] ? process.env['APP_HOST'] : process.env['VITE_APP_HOST']}/`
 
@@ -260,7 +280,7 @@ export default defineConfig(async () => {
     define: define,
     server: {
       proxy: {},
-      cors: isDevOrLocal ? false : true,
+      cors: !isDevOrLocal,
       hmr:
         process.env.VITE_HMR === 'true'
           ? {
@@ -316,7 +336,8 @@ export default defineConfig(async () => {
               ? 'dev-sw.js?dev-sw'
               : 'service-worker.js'
             : '',
-        paymentPointer: coilSetting?.paymentPointer || ''
+        paymentPointer: coilSetting?.paymentPointer || '',
+        rootCookieAccessor: `${clientSetting.url}/root-cookie-accessor.html`
       }),
       viteCompression({
         filter: /\.(js|mjs|json|css)$/i,
@@ -334,7 +355,7 @@ export default defineConfig(async () => {
     },
     build: {
       target: 'esnext',
-      sourcemap: process.env.VITE_SOURCEMAPS === 'true' ? true : false,
+      sourcemap: process.env.VITE_SOURCEMAPS === 'true',
       minify: 'terser',
       dynamicImportVarsOptions: {
         warnOnError: true

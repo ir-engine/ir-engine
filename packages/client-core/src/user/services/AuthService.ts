@@ -32,7 +32,15 @@ import config, { validateEmail, validatePhoneNumber } from '@etherealengine/comm
 import { AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
 import multiLogger from '@etherealengine/common/src/logger'
 import { AuthStrategiesType } from '@etherealengine/common/src/schema.type.module'
-import { defineState, getMutableState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
+import {
+  defineState,
+  getMutableState,
+  getState,
+  stateNamespaceKey,
+  syncStateWithLocalStorage
+} from '@etherealengine/hyperflux'
+
+import { Static, Type } from '@feathersjs/typebox'
 
 import {
   AvatarID,
@@ -61,12 +69,14 @@ import {
 } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AuthenticationResult } from '@feathersjs/authentication'
-import { API } from '../../API'
+import { FeathersClient } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { LocationState } from '../../social/services/LocationService'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
 export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
+
+const api = Engine.instance.api as FeathersClient
 
 export const UserSeed: UserType = {
   id: '' as UserID,
@@ -109,6 +119,13 @@ export const UserSeed: UserType = {
   lastLogin: null
 }
 
+export const hasAccessSchema = Type.Object({
+  hasStorageAccess: Type.Boolean(),
+  cookieSet: Type.Boolean()
+})
+
+export interface HasAccessType extends Static<typeof hasAccessSchema> {}
+
 const resolveWalletUser = (credentials: any): UserType => {
   return {
     ...UserSeed,
@@ -117,6 +134,114 @@ const resolveWalletUser = (credentials: any): UserType => {
     avatarId: credentials.user.id,
     // avatarUrl: credentials.user.icon,
     apiKey: credentials.user.apiKey || { id: '', token: '', userId: '' as UserID }
+  }
+}
+
+const waitForToken = async (win, clientUrl): Promise<string> => {
+  return new Promise((resolve) => {
+    win.postMessage(
+      JSON.stringify({
+        key: `${stateNamespaceKey}.AuthState.authUser`,
+        method: 'get'
+      }),
+      clientUrl
+    )
+    const getIframeResponse = function (e) {
+      if (e.origin !== clientUrl) return
+      if (e?.data) {
+        try {
+          const value = JSON.parse(e.data)
+          if (value?.accessToken != null) {
+            window.removeEventListener('message', getIframeResponse)
+            resolve(value?.accessToken)
+          }
+        } catch {
+          resolve('')
+        }
+      } else resolve(e)
+    }
+    window.addEventListener('message', getIframeResponse)
+  })
+}
+
+const getToken = async (): Promise<string> => {
+  let gotResponse = false
+  const iframe = document.getElementById('root-cookie-accessor') as HTMLFrameElement
+  let win
+  try {
+    win = iframe!.contentWindow
+  } catch (e) {
+    win = iframe!.contentWindow
+  }
+
+  window.addEventListener('message', (e) => {
+    if (e?.data) {
+      try {
+        const value = JSON.parse(e.data)
+        if (value?.invalidDomain != null) {
+          localStorage.setItem('invalidCrossOriginDomain', 'true')
+        }
+      } catch (err) {
+        //
+      }
+    }
+  })
+
+  const clientUrl = config.client.clientUrl
+  let iteration = 0
+  const hasAccess = (await new Promise((resolve) => {
+    const checkAccessInterval = setInterval(() => {
+      if (iteration > 4) {
+        clearInterval(checkAccessInterval)
+        resolve({ cookieSet: false, hasStorageAccess: false })
+      }
+      if (!gotResponse) {
+        iteration++
+        win.postMessage(JSON.stringify({ method: 'checkAccess' }), clientUrl)
+      } else clearInterval(checkAccessInterval)
+    }, 100)
+    const hasAccessListener = async function (e) {
+      gotResponse = true
+      window.removeEventListener('message', hasAccessListener)
+      if (!e.data) resolve({ hasStorageAccess: false, cookieSet: false })
+      const data = JSON.parse(e.data)
+      resolve(data)
+    }
+    window.addEventListener('message', hasAccessListener)
+  })) as HasAccessType
+
+  if (!hasAccess.cookieSet || !hasAccess.hasStorageAccess) {
+    const skipCheck = localStorage.getItem('skipCrossOriginCookieCheck')
+    const invalidCrossOriginDomain = localStorage.getItem('invalidCrossOriginDomain')
+    if (skipCheck === 'true' || invalidCrossOriginDomain === 'true') {
+      const authState = getMutableState(AuthState)
+      const accessToken = authState?.authUser?.accessToken?.value
+      return Promise.resolve(accessToken?.length > 0 ? accessToken : '')
+    } else {
+      iframe.style.display = 'block'
+      return await new Promise((resolve) => {
+        const clickResponseListener = async function (e) {
+          try {
+            window.removeEventListener('message', clickResponseListener)
+            const parsed = !e.data ? {} : JSON.parse(e.data)
+            if (parsed.skipCrossOriginCookieCheck != null) {
+              localStorage.setItem('skipCrossOriginCookieCheck', parsed.skipCrossOriginCookieCheck)
+              iframe.style.display = 'none'
+              resolve('')
+            } else {
+              const token = await waitForToken(win, clientUrl)
+              iframe.style.display = 'none'
+              resolve(token)
+            }
+          } catch (err) {
+            //Do nothing
+          }
+        }
+        window.addEventListener('message', clickResponseListener)
+      })
+    }
+  } else {
+    return waitForToken(win, clientUrl)
   }
 }
 
@@ -152,21 +277,40 @@ export interface LinkedInLoginForm {
   email: string
 }
 
+export const writeAuthUserToIframe = () => {
+  const iframe = document.getElementById('root-cookie-accessor') as HTMLFrameElement
+  let win
+  try {
+    win = iframe!.contentWindow
+  } catch (e) {
+    win = iframe!.contentWindow
+  }
+
+  win.postMessage(
+    JSON.stringify({
+      key: `${stateNamespaceKey}.${AuthState.name}.authUser`,
+      method: 'set',
+      data: getState(AuthState).authUser
+    }),
+    config.client.clientUrl
+  )
+}
+
 /**
  * Resets the current user's accessToken to a new random guest token.
  */
 async function _resetToGuestToken(options = { reset: true }) {
   if (options.reset) {
-    await API.instance.client.authentication.reset()
+    await api.authentication.reset()
   }
-  const newProvider = await Engine.instance.api.service(identityProviderPath).create({
+  const newProvider = await api.service(identityProviderPath).create({
     type: 'guest',
     token: v1(),
     userId: '' as UserID
   })
   const accessToken = newProvider.accessToken!
-  console.log(`Created new guest accessToken: ${accessToken}`)
-  await API.instance.client.authentication.setAccessToken(accessToken as string)
+  await api.authentication.setAccessToken(accessToken as string)
+  writeAuthUserToIframe()
   return accessToken
 }
 
@@ -175,29 +319,25 @@ export const AuthService = {
     // Oauth callbacks may be running when a guest identity-provider has been deleted.
     // This would normally cause doLoginAuto to make a guest user, which we do not want.
     // Instead, just skip it on oauth callbacks, and the callback handler will log them in.
-    // The client and auth settigns will not be needed on these routes
+    // The client and auth settings will not be needed on these routes
     if (/auth\/oauth/.test(location.pathname)) return
     const authState = getMutableState(AuthState)
     try {
-      const accessToken = !forceClientAuthReset && authState?.authUser?.accessToken?.value
+      const rootDomainToken = await getToken()
 
-      if (forceClientAuthReset) {
-        await API.instance.client.authentication.reset()
-      }
-      if (accessToken) {
-        await API.instance.client.authentication.setAccessToken(accessToken as string)
-      } else {
-        await _resetToGuestToken({ reset: false })
-      }
+      if (forceClientAuthReset) await api.authentication.reset()
+
+      if (rootDomainToken?.length > 0) await api.authentication.setAccessToken(rootDomainToken as string)
+      else await _resetToGuestToken({ reset: false })
 
       let res: AuthenticationResult
       try {
-        res = await API.instance.client.reAuthenticate()
+        res = await api.reAuthenticate()
       } catch (err) {
         if (err.className === 'not-found' || (err.className === 'not-authenticated' && err.message === 'jwt expired')) {
           authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
           await _resetToGuestToken()
-          res = await API.instance.client.reAuthenticate()
+          res = await api.reAuthenticate()
         } else {
           logger.error(err, 'Error re-authenticating')
           throw err
@@ -209,18 +349,20 @@ export const AuthService = {
         if (!identityProvider?.id) {
           authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
           await _resetToGuestToken()
-          res = await API.instance.client.reAuthenticate()
+          res = await api.reAuthenticate()
         }
         const authUser = resolveAuthUser(res)
         // authUser is now { accessToken, authentication, identityProvider }
         authState.merge({ authUser })
-        await AuthService.loadUserData(authUser.identityProvider?.userId)
+        writeAuthUserToIframe()
+        await AuthService.loadUserData(authUser.identityProvider.userId)
       } else {
         logger.warn('No response received from reAuthenticate()!')
       }
     } catch (err) {
       logger.error(err, 'Error on resolving auth user in doLoginAuto, logging out')
       authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
+      writeAuthUserToIframe()
 
       // if (window.location.pathname !== '/') {
       //   window.location.href = '/';
@@ -230,15 +372,14 @@ export const AuthService = {
 
   async loadUserData(userId: UserID) {
     try {
-      const client = API.instance.client
-      const user = await client.service(userPath).get(userId)
+      const user = await api.service(userPath).get(userId)
       if (!user.userSetting) {
-        const settingsRes = (await client
+        const settingsRes = (await api
           .service(userSettingPath)
           .find({ query: { userId: userId } })) as Paginated<UserSettingType>
 
         if (settingsRes.total === 0) {
-          user.userSetting = await client.service(userSettingPath).create({ userId: userId })
+          user.userSetting = await api.service(userSettingPath).create({ userId: userId })
         } else {
           user.userSetting = settingsRes.data[0]
         }
@@ -262,7 +403,7 @@ export const AuthService = {
     authState.merge({ isProcessing: true, error: '' })
 
     try {
-      const authenticationResult = await API.instance.client.authenticate({
+      const authenticationResult = await api.authenticate({
         strategy: 'local',
         email: form.email,
         password: form.password
@@ -307,7 +448,6 @@ export const AuthService = {
       authState.merge({ isProcessing: true, error: '' })
 
       const credentials: any = parseUserWalletCredentials(vprResult)
-      console.log(credentials)
 
       const walletUser = resolveWalletUser(credentials)
       const authUser = {
@@ -324,8 +464,7 @@ export const AuthService = {
       }
 
       // TODO: This is temp until we move completely to XR wallet #6453
-      const oldId = authState.user.id.value
-      walletUser.id = oldId
+      walletUser.id = authState.user.id.value
 
       // loadXRAvatarForUpdatedUser(walletUser)
       authState.merge({ isLoggedIn: true, user: walletUser, authUser })
@@ -362,24 +501,24 @@ export const AuthService = {
   },
 
   async removeUserOAuth(service: string) {
-    const ipResult = (await Engine.instance.api.service(identityProviderPath).find()) as Paginated<IdentityProviderType>
+    const ipResult = (await api.service(identityProviderPath).find()) as Paginated<IdentityProviderType>
     const ipToRemove = ipResult.data.find((ip) => ip.type === service)
     if (ipToRemove) {
       if (ipResult.total === 1) {
         NotificationService.dispatchNotify('You can not remove your last login method.', { variant: 'warning' })
       } else {
         const otherIp = ipResult.data.find((ip) => ip.type !== service)
-        const newTokenResult = await Engine.instance.api.service(generateTokenPath).create({
+        const newTokenResult = await api.service(generateTokenPath).create({
           type: otherIp!.type,
           token: otherIp!.token
         })
 
         if (newTokenResult?.token) {
           getMutableState(AuthState).merge({ isProcessing: true, error: '' })
-          await API.instance.client.authentication.setAccessToken(newTokenResult.token)
-          const res = await API.instance.client.reAuthenticate(true)
+          await api.authentication.setAccessToken(newTokenResult.token)
+          const res = await api.reAuthenticate(true)
           const authUser = resolveAuthUser(res)
-          await Engine.instance.api.service(identityProviderPath).remove(ipToRemove.id)
+          await api.service(identityProviderPath).remove(ipToRemove.id)
           const authState = getMutableState(AuthState)
           authState.merge({ authUser })
           await AuthService.loadUserData(authUser.identityProvider.userId)
@@ -393,14 +532,15 @@ export const AuthService = {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
     try {
-      await API.instance.client.authentication.setAccessToken(accessToken as string)
-      const res = await API.instance.client.authenticate({
+      await api.authentication.setAccessToken(accessToken as string)
+      const res = await api.authenticate({
         strategy: 'jwt',
         accessToken
       })
 
       const authUser = resolveAuthUser(res)
       authState.merge({ authUser })
+      writeAuthUserToIframe()
       await AuthService.loadUserData(authUser.identityProvider?.userId)
       authState.merge({ isProcessing: false, error: '' })
       let timeoutTimer = 0
@@ -409,8 +549,7 @@ export const AuthService = {
       // in properly. This interval waits to make sure the token has been updated before redirecting
       const waitForTokenStored = setInterval(() => {
         timeoutTimer += TIMEOUT_INTERVAL
-        const authData = authState
-        const storedToken = authData.authUser?.accessToken?.value
+        const storedToken = authState.authUser?.accessToken?.value
         if (storedToken === accessToken) {
           clearInterval(waitForTokenStored)
           window.location.href = redirectSuccess
@@ -430,7 +569,7 @@ export const AuthService = {
 
   async loginUserMagicLink(token, redirectSuccess, redirectError) {
     try {
-      const res = await Engine.instance.api.service(loginPath).get(token)
+      const res = await api.service(loginPath).get(token)
       await AuthService.loginUserByJwt(res.token!, '/', '/')
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -443,12 +582,13 @@ export const AuthService = {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
     try {
-      await API.instance.client.logout()
+      await api.logout()
       authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
     } catch (_) {
       authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
     } finally {
       authState.merge({ isProcessing: false, error: '' })
+      writeAuthUserToIframe()
       AuthService.doLoginAuto(true)
     }
   },
@@ -457,7 +597,7 @@ export const AuthService = {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
     try {
-      const identityProvider: any = await Engine.instance.api.service(identityProviderPath).create({
+      const identityProvider: any = await api.service(identityProviderPath).create({
         token: form.email,
         type: 'password',
         userId: '' as UserID
@@ -516,7 +656,7 @@ export const AuthService = {
     }
 
     try {
-      await Engine.instance.api.service(magicLinkPath).create({ type, [paramName]: emailPhone })
+      await api.service(magicLinkPath).create({ type, [paramName]: emailPhone })
       NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.success-msg'), { variant: 'success' })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -530,7 +670,7 @@ export const AuthService = {
     authState.merge({ isProcessing: true, error: '' })
 
     try {
-      const identityProvider = await Engine.instance.api.service(identityProviderPath).create({
+      const identityProvider = await api.service(identityProviderPath).create({
         token: form.email,
         type: 'password',
         userId: '' as UserID
@@ -548,7 +688,7 @@ export const AuthService = {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
     try {
-      const identityProvider = (await Engine.instance.api.service(magicLinkPath).create({
+      const identityProvider = (await api.service(magicLinkPath).create({
         email,
         type: 'email',
         userId
@@ -574,7 +714,7 @@ export const AuthService = {
     }
 
     try {
-      const identityProvider = (await Engine.instance.api.service(magicLinkPath).create({
+      const identityProvider = (await api.service(magicLinkPath).create({
         mobile: sendPhone,
         type: 'sms',
         userId
@@ -600,7 +740,7 @@ export const AuthService = {
   async removeConnection(identityProviderId: number, userId: UserID) {
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     try {
-      await Engine.instance.api.service(identityProviderPath).remove(identityProviderId)
+      await api.service(identityProviderPath).remove(identityProviderId)
       return AuthService.loadUserData(userId)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -614,45 +754,41 @@ export const AuthService = {
   },
 
   async updateUserSettings(id: UserSettingID, data: UserSettingPatch) {
-    const response = await Engine.instance.api.service(userSettingPath).patch(id, data)
+    const response = await api.service(userSettingPath).patch(id, data)
     getMutableState(AuthState).user.userSetting.merge(response)
   },
 
   async removeUser(userId: UserID) {
-    await Engine.instance.api.service(userPath).remove(userId)
+    await api.service(userPath).remove(userId)
     AuthService.logoutUser()
   },
 
   async updateApiKey() {
-    const userApiKey = (await Engine.instance.api.service(userApiKeyPath).find()) as Paginated<UserApiKeyType>
+    const userApiKey = (await api.service(userApiKeyPath).find()) as Paginated<UserApiKeyType>
 
     let apiKey: UserApiKeyType | undefined
     if (userApiKey.data.length > 0) {
-      apiKey = await Engine.instance.api.service(userApiKeyPath).patch(userApiKey.data[0].id, {})
+      apiKey = await api.service(userApiKeyPath).patch(userApiKey.data[0].id, {})
     } else {
-      apiKey = await Engine.instance.api.service(userApiKeyPath).create({})
+      apiKey = await api.service(userApiKeyPath).create({})
     }
 
     getMutableState(AuthState).user.merge({ apiKey })
   },
 
   async updateUsername(userId: UserID, name: UserName) {
-    const { name: updatedName } = (await Engine.instance.api
-      .service(userPath)
-      .patch(userId, { name: name })) as UserType
+    const { name: updatedName } = (await api.service(userPath).patch(userId, { name: name })) as UserType
     NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg'), { variant: 'success' })
     getMutableState(AuthState).user.merge({ name: updatedName })
   },
 
   async createLoginToken() {
-    return Engine.instance.api.service(loginTokenPath).create({})
+    return api.service(loginTokenPath).create({})
   },
 
   useAPIListeners: () => {
     useEffect(() => {
       const userPatchedListener = (user: UserPublicPatch | UserPatch) => {
-        console.log('USER PATCHED %o', user)
-
         if (!user.id) return
 
         const selfUser = getMutableState(AuthState).user
@@ -663,14 +799,12 @@ export const AuthService = {
       }
 
       const userAvatarPatchedListener = async (userAvatar: UserAvatarPatch) => {
-        console.log('USER AVATAR PATCHED %o', userAvatar)
-
         if (!userAvatar.userId) return
 
         const selfUser = getMutableState(AuthState).user
 
         if (selfUser.id.value === userAvatar.userId) {
-          const user = await Engine.instance.api.service(userPath).get(userAvatar.userId)
+          const user = await api.service(userPath).get(userAvatar.userId)
           getMutableState(AuthState).user.merge(user)
         }
       }
@@ -681,19 +815,19 @@ export const AuthService = {
         const locationBan = params.locationBan
         if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
           const userId = selfUser.id ?? ''
-          const user = await Engine.instance.api.service(userPath).get(userId)
+          const user = await api.service(userPath).get(userId)
           getMutableState(AuthState).merge({ user })
         }
       }
 
-      Engine.instance.api.service(userPath).on('patched', userPatchedListener)
-      Engine.instance.api.service(userAvatarPath).on('patched', userAvatarPatchedListener)
-      Engine.instance.api.service(locationBanPath).on('created', locationBanCreatedListener)
+      api.service(userPath).on('patched', userPatchedListener)
+      api.service(userAvatarPath).on('patched', userAvatarPatchedListener)
+      api.service(locationBanPath).on('created', locationBanCreatedListener)
 
       return () => {
-        Engine.instance.api.service(userPath).off('patched', userPatchedListener)
-        Engine.instance.api.service(userAvatarPath).off('patched', userAvatarPatchedListener)
-        Engine.instance.api.service(locationBanPath).off('created', locationBanCreatedListener)
+        api.service(userPath).off('patched', userPatchedListener)
+        api.service(userAvatarPath).off('patched', userAvatarPatchedListener)
+        api.service(locationBanPath).off('created', locationBanCreatedListener)
       }
     }, [])
   }
@@ -703,8 +837,6 @@ export const AuthService = {
  * @param vprResult {any} See `loginUserByXRWallet()`'s docstring.
  */
 function parseUserWalletCredentials(vprResult: any) {
-  console.log('PARSING:', vprResult)
-
   const {
     data: { presentation: vp }
   } = vprResult

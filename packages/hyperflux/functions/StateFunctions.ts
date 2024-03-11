@@ -27,7 +27,6 @@ import { createState, SetInitialStateAction, State, useHookstate } from '@hookst
 import type { Object as _Object, Function, String } from 'ts-toolbelt'
 
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
-import multiLogger from '@etherealengine/common/src/logger'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { resolveObject } from '@etherealengine/common/src/utils/resolveObject'
 
@@ -36,8 +35,6 @@ import { startReactor } from './ReactorFunctions'
 import { HyperFlux, HyperStore } from './StoreFunctions'
 
 export * from '@hookstate/core'
-
-const logger = multiLogger.child({ component: 'hyperflux:State' })
 
 export const NO_PROXY = { noproxy: true }
 export const NO_PROXY_STEALTH = { noproxy: true, stealth: true }
@@ -103,7 +100,7 @@ export function useMutableState<S, R extends ReceptorMap, P extends string>(
   return useHookstate(resolvedState) as any
 }
 
-const stateNamespaceKey = 'ee.hyperflux'
+export const stateNamespaceKey = 'ee.hyperflux'
 
 /**
  * Automatically synchronises specific root paths of a hyperflux state definition with the localStorage.

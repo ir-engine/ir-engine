@@ -41,7 +41,7 @@ import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
-import { API } from '../../../../API'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { LocationSeed } from '../../../../social/services/LocationService'
 import styles from '../index.module.scss'
 
@@ -69,7 +69,7 @@ const LocationMenu = (props: Props) => {
   }, [])
 
   const fetchLocations = (page: number, rows: number, search?: string) => {
-    API.instance.client
+    Engine.instance.api
       .service(locationPath)
       .find({
         query: {

@@ -23,22 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import AllowedDomains from './allowed-domains/allowed-domains'
-import InstanceActive from './instance-active/instance-active'
-import InstanceAttendance from './instance-attendance/instance-attendance'
-import InstanceAuthorizedUser from './instance-authorized-user/instance-authorized-user'
-import InstanceProvision from './instance-provision/instance-provision'
-import Instance from './instance/instance'
-import InstanceServerLoad from './instanceserver-load/instanceserver-load.service'
-import InstanceServerProvision from './instanceserver-provision/instanceserver-provision.service'
+import { Type } from '@feathersjs/typebox'
 
-export default [
-  AllowedDomains,
-  Instance,
-  InstanceServerLoad,
-  InstanceServerProvision,
-  InstanceProvision,
-  InstanceAttendance,
-  InstanceAuthorizedUser,
-  InstanceActive
-]
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+
+export const allowedDomainsPath = 'allowed-domains'
+
+export const allowedDomainsMethods = ['find'] as const
+
+export const allowedDomainsSchema = Type.Boolean()
+export interface AllowedDomainsType {}

@@ -51,7 +51,7 @@ import 'tailwindcss/tailwind.css'
 // import { useLocation } from 'react-router-dom'
 
 const initializeEngineForRecorder = async () => {
-  // const projects = API.instance.client.service(projectsPath).find()
+  // const projects = Engine.instance.api.service(projectsPath).find()
   // await loadEngineInjection(await projects)
   getMutableState(SceneState).sceneLoaded.set(true)
 }
