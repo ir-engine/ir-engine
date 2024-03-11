@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
 import { State, useHookstate } from '@etherealengine/hyperflux'
-import React, { useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoMdClose } from 'react-icons/io'
 import Input from '../Input'
@@ -117,16 +118,7 @@ const MultiEmailInput = ({ emailList, error, label, disabled }: LabelProps) => {
     return true
   }
 
-  useEffect(() => {
-    console.log('debug1 the ref was', ref)
-    const onClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        addToEmailList()
-      }
-    }
-    document.addEventListener('mousedown', onClickOutside)
-    return () => document.removeEventListener('mousedown', onClickOutside)
-  }, [ref])
+  useClickOutside(ref, addToEmailList)
 
   let errorLabel = state.errorLabel.value || error
 

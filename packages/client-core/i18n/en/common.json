@@ -133,8 +133,11 @@
     "alreadyAdded": "{{email}} has already been added!",
     "invalidEmail": "{{email}} is not a valid email address!"
   },
+  "exploreRedirect": "Explore Worlds",
   "select": {
-    "fetching": "Fetching options..."
-  },
-  "exploreRedirect": "Explore Worlds"
+    "fetching": "Fetching options...",
+    "filter": "Filter options",
+    "selectOption": "Select Option",
+    "selectOptions": "Select Options"
+  }
 }
