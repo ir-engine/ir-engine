@@ -36,6 +36,8 @@ const Projects = lazy(() => import('./components/project'))
 
 const Locations = lazy(() => import('./components/locations'))
 
+const Resources = lazy(() => import('./components/resources'))
+
 export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
   projects: {
     name: 'user:dashboard.projects',
@@ -64,5 +66,12 @@ export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
     component: Locations,
     access: false,
     icon: <HiMapPin />
+  },
+  resources: {
+    name: 'user:dashboard.resources',
+    scope: 'static_resource',
+    component: Resources,
+    access: false,
+    icon: <HiOutlineTableCells />
   }
 }

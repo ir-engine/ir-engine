@@ -181,6 +181,7 @@ const execute = () => {
   for (const entity of visibleXRUIQuery()) {
     const xrui = getComponent(entity, XRUIComponent)
     xrui.update()
+    xrui.updateWorldMatrix(true, true)
   }
 
   /** @todo remove this once XRUI no longer forces it internally */
