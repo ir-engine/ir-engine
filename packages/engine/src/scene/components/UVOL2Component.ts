@@ -29,6 +29,7 @@ import {
   defineComponent,
   getMutableComponent,
   getOptionalComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
@@ -42,6 +43,8 @@ import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getState } from '@etherealengine/hyperflux'
 import { isIPhone, isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import { startTransition, useEffect, useMemo, useRef } from 'react'
 import {
@@ -572,6 +575,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     _group.add(mesh)
     return _group
   }, [])
+  setObjectLayers(group, ObjectLayers.UVOL)
 
   useEffect(() => {
     if (volumetric.useLoadingEffect.value) {
@@ -668,24 +672,24 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     volumetric.currentTrackInfo.currentTime.set(volumetric.currentTrackInfo.mediaStartTime.value)
     volumetric.currentTrackInfo.duration.set(sortedManifest.duration)
 
-    if (isClient && !isMobile && !isMobileXRHeadset) {
-      // Client's device is desktop.
-      // Fetch the highest quality textures & geometry
+    // if (isClient && !isMobile && !isMobileXRHeadset) {
+    //   // Client's device is desktop.
+    //   // Fetch the highest quality textures & geometry
 
-      const targetsCount = component.geometryInfo.targets.value.length
-      component.geometryInfo.merge({
-        userTarget: targetsCount - 1,
-        currentTarget: targetsCount - 1
-      })
+    //   const targetsCount = component.geometryInfo.targets.value.length
+    //   component.geometryInfo.merge({
+    //     userTarget: targetsCount - 1,
+    //     currentTarget: targetsCount - 1
+    //   })
 
-      component.textureInfo.textureTypes.value.forEach((textureType) => {
-        const targetsCount = component.textureInfo[textureType].targets.value.length
-        component.textureInfo[textureType].merge({
-          currentTarget: targetsCount - 1,
-          userTarget: targetsCount - 1
-        })
-      })
-    }
+    //   component.textureInfo.textureTypes.value.forEach((textureType) => {
+    //     const targetsCount = component.textureInfo[textureType].targets.value.length
+    //     component.textureInfo[textureType].merge({
+    //       currentTarget: targetsCount - 1,
+    //       userTarget: targetsCount - 1
+    //     })
+    //   })
+    // }
 
     const intervalId = setInterval(bufferLoop, 500)
     bufferLoop() // calling now because setInterval will call after 1 second
@@ -785,6 +789,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
 
     Promise.allSettled(promises).then((values) => {
+      if (!hasComponent(entity, UVOL2Component)) return // Component might have been removed
       if (!geometryBuffer.has(target)) {
         geometryBuffer.set(target, [])
       }
@@ -851,6 +856,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
 
     Promise.allSettled(promises).then((values) => {
+      if (!hasComponent(entity, UVOL2Component)) return // Component might have been removed
       if (!geometryBuffer.has(target)) {
         geometryBuffer.set(target, [])
       }
@@ -1081,6 +1087,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
 
     Promise.allSettled(promises).then((values) => {
+      if (!hasComponent(entity, UVOL2Component)) return // Component might have been removed
       if (component.forceFetchTextures.value) {
         component.forceFetchTextures.set(false)
       }
@@ -1099,7 +1106,11 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         }
         const i = j + startFrame
         frameData[i] = texture
-        component.textureInfo[textureType].buffered[relevantTimeRangeIndex].end.set((i + 1) / frameRate)
+        if (frameRate > 0) {
+          component.textureInfo[textureType].buffered[relevantTimeRangeIndex].end.set((i + 1) / frameRate)
+        } else {
+          component.textureInfo[textureType].buffered[relevantTimeRangeIndex].end.set(component.data.duration.value)
+        }
         component.textureInfo[textureType].pendingRequests.set((p) => p - 1)
 
         if ((i + 1) / targetData.frameRate >= minBufferToStart && !component.initialTextureBuffersLoaded.value) {
@@ -1618,6 +1629,8 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
   const isWaiting = useRef(false)
 
   const update = () => {
+    mesh.updateMatrixWorld(true)
+
     const delta = getState(ECSState).deltaSeconds
     if (
       component.loadingEffectStarted.value &&

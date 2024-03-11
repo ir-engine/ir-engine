@@ -43,10 +43,13 @@
   "types": "lib/",
   "dependencies": {
     "@etherealengine/common": "^1.6.0",
+    "@etherealengine/ecs": "^1.6.0",
     "@etherealengine/engine": "^1.6.0",
     "@etherealengine/hyperflux": "^1.6.0",
+    "@etherealengine/network": "^1.6.0",
     "@etherealengine/projects": "^1.6.0",
     "@etherealengine/server-core": "^1.6.0",
+    "@etherealengine/spatial": "^1.6.0",
     "@feathersjs/feathers": "5.0.5",
     "@feathersjs/koa": "5.0.5",
     "@feathersjs/primus-client": "4.5.15",

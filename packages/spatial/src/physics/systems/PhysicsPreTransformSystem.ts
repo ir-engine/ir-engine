@@ -34,10 +34,10 @@ import {
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { getState } from '@etherealengine/hyperflux'
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import { TransformComponent, TransformSystem } from '../../SpatialModule'
 import { V_000 } from '../../common/constants/MathConstants'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
-import { computeTransformMatrix, isDirty } from '../../transform/systems/TransformSystem'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformSystem, computeTransformMatrix, isDirty } from '../../transform/systems/TransformSystem'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 
