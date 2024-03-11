@@ -7,6 +7,9 @@
     "processing": "Processing",
     "retry": "Retry",
     "close": "Close",
+    "continue": "Continue",
+    "configure": "Configure",
+    "back": "Back",
     "submit": "Submit",
     "search": "Search"
   },
@@ -120,6 +123,10 @@
     "loading-error": "Failed to load user data",
     "validation-error": "Please input valid {{type}}",
     "login-error": "Failed to login"
+  },
+  "table": {
+    "refetching": "Refetching Data...",
+    "noData": "Data is Empty"
   },
   "multiEmailInput": {
     "placeholder": "Type or paste email addresses and press `Enter`...",

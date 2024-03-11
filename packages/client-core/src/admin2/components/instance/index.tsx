@@ -23,18 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiMagnifyingGlass, HiPlus } from 'react-icons/hi2'
-import AddEditAvatarModal from './AddEditAvatarModal'
-import AvatarTable from './AvatarTable'
+import { HiMagnifyingGlass } from 'react-icons/hi2'
+import { PopoverState } from '../../../common/services/PopoverState'
+import InstanceTable from './InstanceTable'
+import PatchServerModal from './PatchServerModal'
 
-export default function Avatars() {
+export default function Invites() {
   const { t } = useTranslation()
   const search = useHookstate({ local: '', query: '' })
   const debouncedSearchQueryRef = useRef<ReturnType<typeof setTimeout>>()
@@ -45,7 +45,7 @@ export default function Avatars() {
     <>
       <div>
         <Text fontSize="xl" className="mb-6">
-          {t('admin:components.avatar.avatars')}
+          {t('admin:components.instance.instances')}
         </Text>
         <div className="mb-4 flex justify-between">
           <Input
@@ -67,17 +67,15 @@ export default function Avatars() {
             icon={<HiMagnifyingGlass />}
           />
           <Button
-            startIcon={<HiPlus />}
-            size="small"
             onClick={() => {
-              PopoverState.showPopupover(<AddEditAvatarModal />)
+              PopoverState.showPopupover(<PatchServerModal />)
             }}
           >
-            {t('admin:components.avatar.add')}
+            {t('admin:components.setting.patchInstanceserver')}
           </Button>
         </div>
       </div>
-      <AvatarTable search={search.query.value} />
+      <InstanceTable search={search.query.value} />
     </>
   )
 }

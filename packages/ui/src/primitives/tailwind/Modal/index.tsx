@@ -37,6 +37,10 @@ export interface ModalProps {
   className?: string
   children: ReactNode
   submitLoading?: boolean
+  closeButtonDisabled?: boolean
+  submitButtonDisabled?: boolean
+  closeButtonText?: string
+  submitButtonText?: string
   onClose?: () => void
   onSubmit?: () => void
 }
@@ -58,40 +62,66 @@ export const ModalHeader = ({ title, onClose }: { closeIcon?: boolean; title?: s
 export const ModalFooter = ({
   onCancel,
   onSubmit,
-  submitLoading
+  submitLoading,
+  closeButtonDisabled,
+  submitButtonDisabled,
+  closeButtonText,
+  submitButtonText
 }: {
   onCancel?: () => void
   onSubmit?: () => void
   submitLoading?: boolean
+  closeButtonDisabled?: boolean
+  submitButtonDisabled?: boolean
+  closeButtonText?: string
+  submitButtonText?: string
 }) => {
   const { t } = useTranslation()
   return (
     <div className="border-t-theme-primary grid grid-flow-col border-t px-6 py-5">
-      <Button variant="outline" onClick={onCancel}>
-        {t('common:components.cancel')}
+      <Button variant="outline" disabled={closeButtonDisabled} onClick={onCancel}>
+        {closeButtonText || t('common:components.cancel')}
       </Button>
       {onSubmit && (
         <Button
           endIcon={submitLoading ? <LoadingCircle className="h-6 w-6" /> : undefined}
-          disabled={submitLoading}
+          disabled={submitButtonDisabled || submitLoading}
           onClick={onSubmit}
           className="place-self-end"
         >
-          {t('common:components.confirm')}
+          {submitButtonText || t('common:components.confirm')}
         </Button>
       )}
     </div>
   )
 }
 
-const Modal = ({ title, onClose, onSubmit, hideFooter, children, className, submitLoading }: ModalProps) => {
+const Modal = ({
+  title,
+  onClose,
+  onSubmit,
+  hideFooter,
+  children,
+  className,
+  submitLoading,
+  closeButtonText,
+  submitButtonText
+}: ModalProps) => {
   const twClassName = twMerge('relative max-h-full w-full max-w-2xl p-4', className)
   return (
     <div className={twClassName}>
       <div className="bg-theme-primary relative rounded-lg shadow">
         {onClose && <ModalHeader title={title} onClose={onClose} />}
         <div className="w-full px-10 py-6">{children}</div>
-        {!hideFooter && <ModalFooter onCancel={onClose} onSubmit={onSubmit} submitLoading={submitLoading} />}
+        {!hideFooter && (
+          <ModalFooter
+            closeButtonText={closeButtonText}
+            submitButtonText={submitButtonText}
+            onCancel={onClose}
+            onSubmit={onSubmit}
+            submitLoading={submitLoading}
+          />
+        )}
       </div>
     </div>
   )

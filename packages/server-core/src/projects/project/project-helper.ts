@@ -1062,7 +1062,7 @@ export async function getProjectPushJobBody(
   }
   return {
     metadata: {
-      name: `${process.env.RELEASE_NAME}-${project.name}-gh-push`,
+      name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-gh-push`,
       labels: {
         'etherealengine/projectPusher': 'true',
         'etherealengine/projectField': project.name,
@@ -1082,7 +1082,7 @@ export async function getProjectPushJobBody(
           serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
           containers: [
             {
-              name: `${process.env.RELEASE_NAME}-${project.name}-push`,
+              name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-push`,
               image,
               imagePullPolicy: 'IfNotPresent',
               command,
@@ -1101,7 +1101,7 @@ export async function getProjectPushJobBody(
 export const getCronJobBody = (project: ProjectType, image: string): object => {
   return {
     metadata: {
-      name: `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
+      name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-auto-update`,
       labels: {
         'etherealengine/projectUpdater': 'true',
         'etherealengine/autoUpdate': 'true',
@@ -1131,7 +1131,7 @@ export const getCronJobBody = (project: ProjectType, image: string): object => {
               serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
               containers: [
                 {
-                  name: `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
+                  name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-auto-update`,
                   image,
                   imagePullPolicy: 'IfNotPresent',
                   command: [

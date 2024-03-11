@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
@@ -31,10 +30,11 @@ import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMagnifyingGlass, HiPlus } from 'react-icons/hi2'
-import AddEditAvatarModal from './AddEditAvatarModal'
-import AvatarTable from './AvatarTable'
+import { PopoverState } from '../../../common/services/PopoverState'
+import AddEditResourceModal from './AddEditResourceModal'
+import ResourceTable from './ResourceTable'
 
-export default function Avatars() {
+export default function Resources() {
   const { t } = useTranslation()
   const search = useHookstate({ local: '', query: '' })
   const debouncedSearchQueryRef = useRef<ReturnType<typeof setTimeout>>()
@@ -45,7 +45,7 @@ export default function Avatars() {
     <>
       <div>
         <Text fontSize="xl" className="mb-6">
-          {t('admin:components.avatar.avatars')}
+          {t('admin:components.resources.resources')}
         </Text>
         <div className="mb-4 flex justify-between">
           <Input
@@ -70,14 +70,14 @@ export default function Avatars() {
             startIcon={<HiPlus />}
             size="small"
             onClick={() => {
-              PopoverState.showPopupover(<AddEditAvatarModal />)
+              PopoverState.showPopupover(<AddEditResourceModal mode="create" />)
             }}
           >
-            {t('admin:components.avatar.add')}
+            {t('user:resource.createResource')}
           </Button>
         </div>
       </div>
-      <AvatarTable search={search.query.value} />
+      <ResourceTable search={search.query.value} />
     </>
   )
 }

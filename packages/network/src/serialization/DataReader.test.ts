@@ -513,7 +513,7 @@ describe('DataReader', () => {
 
     view.cursor = 0
 
-    readEntity(view, network, userId, Object.values(getState(NetworkState).networkSchema))
+    readEntity(view, network, peerId, Object.values(getState(NetworkState).networkSchema))
 
     strictEqual(TransformComponent.position.x[entity], posX)
     strictEqual(TransformComponent.position.y[entity], posY)
@@ -534,7 +534,7 @@ describe('DataReader', () => {
 
     view.cursor = 0
 
-    readEntity(view, network, userId, Object.values(getState(NetworkState).networkSchema))
+    readEntity(view, network, peerId, Object.values(getState(NetworkState).networkSchema))
 
     strictEqual(TransformComponent.position.x[entity], 0)
     strictEqual(TransformComponent.position.y[entity], posY)
@@ -584,7 +584,7 @@ describe('DataReader', () => {
     transform.rotation.set(0, 0, 0, 0)
 
     // read entity will populate data stored in 'view'
-    readEntity(view, network, userID, Object.values(getState(NetworkState).networkSchema))
+    readEntity(view, network, peerID, Object.values(getState(NetworkState).networkSchema))
 
     // should no repopulate as we own this entity
     strictEqual(TransformComponent.position.x[entity], 0)
@@ -652,9 +652,99 @@ describe('DataReader', () => {
     transform.rotation.set(0, 0, 0, 0)
 
     // read entity will populate data stored in 'view'
-    readEntity(view, network, userID, Object.values(getState(NetworkState).networkSchema))
+    readEntity(view, network, peerID, Object.values(getState(NetworkState).networkSchema))
 
     // should no repopulate as entity is not listed in network entities
+    strictEqual(TransformComponent.position.x[entity], 0)
+    strictEqual(TransformComponent.position.y[entity], 0)
+    strictEqual(TransformComponent.position.z[entity], 0)
+    strictEqual(TransformComponent.rotation.x[entity], 0)
+    strictEqual(TransformComponent.rotation.y[entity], 0)
+    strictEqual(TransformComponent.rotation.z[entity], 0)
+    strictEqual(TransformComponent.rotation.w[entity], 0)
+
+    // should update the view cursor accordingly
+    strictEqual(
+      view.cursor,
+      // network id
+      Uint32Array.BYTES_PER_ELEMENT +
+        // owner index
+        Uint32Array.BYTES_PER_ELEMENT +
+        // change mask for entity
+        Uint8Array.BYTES_PER_ELEMENT +
+        // change mask for transform
+        Uint8Array.BYTES_PER_ELEMENT +
+        // change mask for position
+        Uint8Array.BYTES_PER_ELEMENT +
+        // transform position
+        Float64Array.BYTES_PER_ELEMENT * 3 +
+        // change mask for rotation
+        Uint8Array.BYTES_PER_ELEMENT +
+        // transform rotation
+        Float64Array.BYTES_PER_ELEMENT * 4
+    )
+  })
+
+  it('should not readEntity if peer is not the authority of the entity', () => {
+    const view = createViewCursor()
+    const entity = createEntity()
+    const networkId = 5678 as NetworkId
+    const userID = 'user id' as UserID
+    const peerID = 'peer id' as PeerID
+    const peerID2 = 'peer id 2' as PeerID
+
+    Engine.instance.userID = userID
+    const userIndex = 0
+    const peerIndex = 0
+    const peer2Index = 1
+
+    NetworkObjectComponent.networkId[entity] = networkId
+
+    const network = NetworkState.worldNetwork as Network
+    network.userIndexToUserID[userIndex] = userID
+    network.userIDToUserIndex[userID] = userIndex
+    network.peerIndexToPeerID[peerIndex] = peerID
+    network.peerIDToPeerIndex[peerID] = peerIndex
+    network.peerIndexToPeerID[peer2Index] = peerID2
+    network.peerIDToPeerIndex[peerID2] = peer2Index
+
+    const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
+
+    setComponent(entity, TransformComponent)
+    const transform = getComponent(entity, TransformComponent)
+    transform.position.set(x, y, z)
+    transform.rotation.set(x, y, z, w)
+
+    setComponent(entity, NetworkObjectComponent, {
+      networkId,
+      ownerPeer: peerID,
+      authorityPeerID: peerID,
+      ownerId: userID
+    })
+
+    setComponent(entity, NetworkObjectAuthorityTag)
+
+    writeEntity(view, networkId, peerIndex, entity, Object.values(getState(NetworkState).networkSchema))
+
+    view.cursor = 0
+
+    // reset data on transform component
+    transform.position.set(0, 0, 0)
+    transform.rotation.set(0, 0, 0, 0)
+
+    setComponent(entity, NetworkObjectComponent, {
+      networkId,
+      ownerPeer: peerID,
+      authorityPeerID: peerID2,
+      ownerId: userID
+    })
+
+    removeComponent(entity, NetworkObjectAuthorityTag)
+
+    // read entity will populate data stored in 'view'
+    readEntity(view, network, peerID, Object.values(getState(NetworkState).networkSchema))
+
+    // should no repopulate as we own this entity
     strictEqual(TransformComponent.position.x[entity], 0)
     strictEqual(TransformComponent.position.y[entity], 0)
     strictEqual(TransformComponent.position.z[entity], 0)
@@ -742,7 +832,7 @@ describe('DataReader', () => {
     const packet = sliceViewCursor(writeView)
 
     const readView = createViewCursor(packet)
-    readEntities(readView, network, packet.byteLength, userId)
+    readEntities(readView, network, packet.byteLength, peerID)
 
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i]
@@ -860,9 +950,9 @@ describe('DataReader', () => {
     }
 
     const view = createViewCursor(packet)
-    const fromUserID = network.userIndexToUserID[userIndex]!
+    const fromPeerID = network.peerIndexToPeerID[peerIndex]!
     readMetadata(view)
-    readEntities(view, network, packet.byteLength, fromUserID)
+    readEntities(view, network, packet.byteLength, fromPeerID)
 
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i]
