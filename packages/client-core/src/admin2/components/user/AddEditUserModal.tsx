@@ -34,7 +34,6 @@ import { useFind, useMutation } from '@etherealengine/spatial/src/common/functio
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Label from '@etherealengine/ui/src/primitives/tailwind/Label'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import MultiSelect from '@etherealengine/ui/src/primitives/tailwind/MultiSelect'
 import Select, { SelectProps } from '@etherealengine/ui/src/primitives/tailwind/Select'
@@ -44,7 +43,8 @@ import AccountIdentifiers from './AccountIdentifiers'
 
 const getDefaultErrors = () => ({
   name: '',
-  avatarId: ''
+  avatarId: '',
+  serviceError: ''
 })
 
 export default function AddEditUserModal({ user }: { user?: UserType }) {
@@ -98,6 +98,8 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
   const scopes = useHookstate(user?.scopes || [])
 
   const handleSubmit = async () => {
+    errors.set(getDefaultErrors())
+
     if (!name.value) {
       errors.name.set(t('admin:components.user.nameCantEmpty'))
     }
@@ -115,11 +117,17 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       scopes: scopes.value
     }
     submitLoading.set(true)
-    if (user?.id) {
-      await userMutation.patch(user.id, userData).then(() => PopoverState.hidePopupover())
-    } else {
-      await userMutation.create(userData).then(() => PopoverState.hidePopupover())
+    try {
+      if (user?.id) {
+        await userMutation.patch(user.id, userData)
+      } else {
+        await userMutation.create(userData)
+      }
+      PopoverState.hidePopupover()
+    } catch (error) {
+      errors.serviceError.set(error.message)
     }
+
     submitLoading.set(false)
   }
 
@@ -141,12 +149,10 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       className="w-[50vw]"
       onSubmit={handleSubmit}
       onClose={() => PopoverState.hidePopupover()}
-      submitLoading={submitLoading.value}
+      submitLoading={true}
     >
       <div className="relative grid w-full gap-6">
-        {submitLoading.value && (
-          <LoadingCircle className="absolute left-1/2 top-1/2 z-50 my-auto h-1/6 w-1/6 -translate-x-1/2 -translate-y-1/2 cursor-wait" />
-        )}
+        {errors.serviceError.value ? <p className="mt-2 text-rose-700">{errors.serviceError.value}</p> : null}
         <Input
           label={t('admin:components.user.name')}
           placeholder={t('admin:components.user.namePlaceholder')}
