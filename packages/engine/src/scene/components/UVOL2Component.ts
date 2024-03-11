@@ -1428,6 +1428,15 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
               oldGeometry.setAttribute(attribute.normal.name + '.normal', attribute.normal)
             }
             delete frameData[frameNo]
+
+            relevantBufferIndex = component.geometryInfo.buffered.findIndex((tr) => {
+              if (tr.start.value <= frameTime && tr.end.value >= frameTime && tr.fetchTime.value > -1) {
+                return true
+              }
+            })
+            if (relevantBufferIndex !== -1) {
+              component.geometryInfo.buffered[relevantBufferIndex].start.set((parseInt(frameNo) + 1) / frameRate)
+            }
             //
 
             // const isInIndex =
@@ -1522,7 +1531,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     let relevantBufferIndex = -1
     for (const target in component.data.value.texture[textureType]?.targets) {
       const frameData = currentTextureBuffer.get(target)
-      if (!frameData || frameData.length === 0) return
+      if (!frameData || frameData.length === 0) continue
       const frameRate = component.data.value.texture[textureType]?.targets[target].frameRate as number
       if (frameData && frameData.length > 0) {
         for (const frameNo in frameData) {
@@ -1532,17 +1541,28 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
             texture.dispose()
             delete frameData[frameNo]
 
-            const isInIndex =
-              relevantBufferIndex !== -1 &&
-              component.textureInfo[textureType].buffered[relevantBufferIndex].start.value <= frameTime &&
-              component.textureInfo[textureType].buffered[relevantBufferIndex].end.value >= frameTime
-            if (!isInIndex) {
-              relevantBufferIndex = component.textureInfo[textureType].buffered.findIndex((tr) => {
-                if (tr.start.value <= frameTime && tr.end.value >= frameTime) {
-                  return true
-                }
-              })
-            }
+            // const isInIndex =
+            //   relevantBufferIndex !== -1 &&
+            //   component.textureInfo[textureType].buffered[relevantBufferIndex].start.value <= frameTime &&
+            //   component.textureInfo[textureType].buffered[relevantBufferIndex].end.value >= frameTime
+            // if (!isInIndex) {
+            //   relevantBufferIndex = component.textureInfo[textureType].buffered.findIndex((tr) => {
+            //     if (tr.start.value <= frameTime && tr.end.value >= frameTime) {
+            //       return true
+            //     }
+            //   })
+            // }
+            // if (relevantBufferIndex !== -1) {
+            //   component.textureInfo[textureType].buffered[relevantBufferIndex].start.set(
+            //     (parseInt(frameNo) + 1) / frameRate
+            //   )
+            // }
+
+            relevantBufferIndex = component.textureInfo[textureType].buffered.findIndex((tr) => {
+              if (tr.start.value <= frameTime && tr.end.value >= frameTime && tr.fetchTime.value > -1) {
+                return true
+              }
+            })
             if (relevantBufferIndex !== -1) {
               component.textureInfo[textureType].buffered[relevantBufferIndex].start.set(
                 (parseInt(frameNo) + 1) / frameRate
