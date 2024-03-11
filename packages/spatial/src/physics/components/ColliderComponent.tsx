@@ -150,6 +150,8 @@ function ColliderComponentRigidbodyReactor(props: { entity: Entity; rigidbodyEnt
     const collider = Physics.attachCollider(physicsWorld, colliderDesc, rigidbody)
     colliderComponent.collider.set(collider)
 
+    console.trace('TESTT COLLIDER', Date.now())
+
     return () => {
       if (entityExists(props.entity) && hasComponent(props.entity, ColliderComponent)) {
         colliderComponent.collider.set(null)

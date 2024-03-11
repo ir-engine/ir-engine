@@ -166,7 +166,7 @@ export interface Component<
   onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove: (entity: Entity, component: State<ComponentType>) => void
   resources?: Array<keyof ComponentType>
-  pendingResources: State<Array<keyof ComponentType>>
+  pendingResources: State<Array<ComponentType[keyof ComponentType]>>
   reactor?: HookableFunction<React.FC>
   reactorMap: Map<Entity, ReactorRoot>
   stateMap: Record<Entity, State<ComponentType> | undefined>
@@ -351,13 +351,6 @@ export const setComponent = <C extends Component>(
 
     bitECS.addComponent(HyperFlux.store, Component, entity, false) // don't clear data on-add
   }
-
-  if (Component.resources)
-    for (const key of Component.resources) {
-      if (args && !!args[key]) {
-        Component.pendingResources.merge([key])
-      }
-    }
 
   Component.onSet(entity, Component.stateMap[entity]!, args as Readonly<SerializedComponentType<C>>)
 

@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, UndefinedEntity } from '@etherealengine/ecs'
+import { Entity, UUIDComponent, UndefinedEntity, getOptionalComponent } from '@etherealengine/ecs'
 import { State, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { Texture } from 'three'
 import { getVariant } from '../../scene/functions/loaders/VariantFunctions'
 import { LoadingArgs } from '../classes/AssetLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
-import { AssetType, ResourceManager, ResourceType } from '../state/ResourceState'
+import { AssetType, ResourceManager, ResourceProgressState, ResourceType } from '../state/ResourceState'
 
 function createAbortController(url: string, callback: () => void): AbortController {
   const controller = new AbortController()
@@ -73,6 +73,13 @@ function useLoader<T extends AssetType>(
     }
 
     if (!url) return
+
+    if (entity) {
+      const uuid = getOptionalComponent(entity, UUIDComponent)
+      if (uuid) {
+        ResourceProgressState.addResource(uuid, url)
+      }
+    }
     const controller = createAbortController(url, unload)
     let completed = false
 
@@ -84,13 +91,25 @@ function useLoader<T extends AssetType>(
       (response) => {
         completed = true
         value.set(response)
+        if (entity) {
+          const uuid = getOptionalComponent(entity, UUIDComponent)
+          if (uuid) ResourceProgressState.removeResource(uuid, url)
+        }
       },
       (request) => {
         progress.set(request)
+        if (entity) {
+          const uuid = getOptionalComponent(entity, UUIDComponent)
+          if (uuid) ResourceProgressState.updateResource(uuid, url, request.loaded, request.total)
+        }
       },
       (err) => {
         completed = true
         error.set(err)
+        if (entity) {
+          const uuid = getOptionalComponent(entity, UUIDComponent)
+          if (uuid) ResourceProgressState.removeResource(uuid, url)
+        }
       },
       controller.signal
     )

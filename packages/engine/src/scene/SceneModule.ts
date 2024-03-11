@@ -67,7 +67,7 @@ import { MeshBVHSystem } from './systems/MeshBVHSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
 import { PortalSystem } from './systems/PortalSystem'
 import { SDFSystem } from './systems/SDFSystem'
-import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
+// import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
 import { SceneObjectDynamicLoadSystem } from './systems/SceneObjectDynamicLoadSystem'
 import { SceneObjectSystem } from './systems/SceneObjectSystem'
 import { ShadowSystem } from './systems/ShadowSystem'
@@ -123,7 +123,7 @@ export {
   MeshBVHSystem,
   ParticleSystem,
   PortalSystem,
-  SceneLoadingSystem,
+  // SceneLoadingSystem,
   SceneObjectDynamicLoadSystem,
   SceneObjectSystem,
   SDFSystem,

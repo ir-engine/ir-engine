@@ -57,6 +57,7 @@ import React from 'react'
 import { AssetType } from '../../assets/enum/AssetType'
 import { useGLTF } from '../../assets/functions/resourceHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import { ResourceProgressState } from '../../assets/state/ResourceState'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { autoconvertMixamoAvatar } from '../../avatar/functions/avatarFunctions'
@@ -102,20 +103,11 @@ export const ModelComponent = defineComponent({
     if (typeof json.cameraOcclusion === 'boolean') component.cameraOcclusion.set(json.cameraOcclusion)
     if (typeof json.convertToVRM === 'boolean') component.convertToVRM.set(json.convertToVRM)
 
-    /**
-     * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
-     * - REPLACED with Component.resources & resolveComponentResource
-     */
-    // if (
-    //   !getState(SceneState).sceneLoaded &&
-    //   hasComponent(entity, SceneObjectComponent) &&
-    //   component.src.value &&
-    //   !component.scene.value
-    // )
-    //   SceneAssetPendingTagComponent.addResource(entity, component.src.value)
-  },
+    console.trace('scene resources onset', entity, json.src)
 
-  resources: ['src'],
+    if (hasComponent(entity, UUIDComponent) && json.src && hasComponent(entity, SceneComponent))
+      ResourceProgressState.addResource(getComponent(entity, UUIDComponent), json.src)
+  },
 
   errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
 
@@ -125,7 +117,8 @@ export const ModelComponent = defineComponent({
 function ModelReactor(): JSX.Element {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
-  const uuidComponent = useOptionalComponent(entity, UUIDComponent)
+
+  console.trace('scene resources', entity, modelComponent.src.value)
 
   const [gltf, unload, error, progress] = useGLTF(modelComponent.src.value, entity, {
     forceAssetType: modelComponent.assetTypeOverride.value,

@@ -59,6 +59,7 @@ import { migrateOldColliders } from './functions/migrateOldColliders'
 import { migrateOldComponentJSONIDs } from './functions/migrateOldComponentJSONIDs'
 import { migrateSceneSettings } from './functions/migrateSceneSettings'
 import { serializeEntity } from './functions/serializeWorld'
+import { SceneLoadingReactor } from './systems/SceneLoadingSystem'
 
 export interface SceneSnapshotInterface {
   data: SceneJsonType
@@ -275,5 +276,5 @@ const SceneSnapshotReactor = (props: { sceneID: SceneID }) => {
     )
   }, [sceneState.index])
 
-  return null
+  return <SceneLoadingReactor />
 }
