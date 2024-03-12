@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import i18n from 'i18next'
 import { lazy, useEffect } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { routePath, RouteType } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -89,7 +89,6 @@ export const useCustomRoutes = () => {
 
   const navigate = useNavigate()
   const routerState = useHookstate(getMutableState(RouterState))
-  const [searchParams, setSearchParams] = useSearchParams()
 
   useEffect(() => {
     getCustomRoutes().then((routes) => {
@@ -104,23 +103,21 @@ export const useCustomRoutes = () => {
   }, [location.pathname])
 
   useEffect(() => {
-    if (routerState.queryParams.value) {
-      setSearchParams(routerState.queryParams.value)
-    }
-  }, [routerState.queryParams])
-
-  useEffect(() => {
     if (location.pathname !== routerState.pathname.value) {
-      navigate(routerState.pathname.value)
+      if (routerState.queryParams.value) {
+        navigate(`${routerState.pathname.value}?${new URLSearchParams(routerState.queryParams.value)}`)
+      } else {
+        navigate(routerState.pathname.value)
+      }
     }
-  }, [routerState.pathname])
+  }, [routerState.pathname, routerState.queryParams])
 
   useEffect(() => {
-    const pathname = searchParams.get('redirectUrl')
-    if (pathname) {
-      routerState.pathname.set(pathname)
+    const redirectUrl = new URLSearchParams(window.location.search).get('redirectUrl')
+    if (redirectUrl) {
+      RouterState.navigate(redirectUrl)
     }
-  }, [searchParams])
+  }, [])
 
   return customRoutes.get(NO_PROXY)
 }
