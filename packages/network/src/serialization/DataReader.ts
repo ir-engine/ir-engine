@@ -26,9 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { TypedArray } from 'bitecs'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
-import { UserID } from '@etherealengine/common/src/schema.type.module'
 
-import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { JitterBufferEntry, Network } from '../Network'
@@ -203,7 +203,7 @@ export const readCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, e
 export const readEntity = (
   v: ViewCursor,
   network: Network,
-  fromUserId: UserID,
+  fromPeerID: PeerID,
   serializationSchema: SerializationSchema[]
 ) => {
   const netId = readUint32(v) as NetworkId
@@ -213,7 +213,11 @@ export const readEntity = (
   const ownerPeer = network.peerIndexToPeerID[ownerPeerIndex]!
 
   let entity = NetworkObjectComponent.getNetworkObject(ownerPeer, netId)
-  if (entity && hasComponent(entity, NetworkObjectAuthorityTag)) entity = UndefinedEntity
+  if (
+    (entity && getComponent(entity, NetworkObjectComponent).authorityPeerID !== fromPeerID) ||
+    hasComponent(entity, NetworkObjectAuthorityTag)
+  )
+    entity = UndefinedEntity
 
   let b = 0
 
@@ -222,12 +226,12 @@ export const readEntity = (
   }
 }
 
-export const readEntities = (v: ViewCursor, network: Network, byteLength: number, fromUserID: UserID) => {
+export const readEntities = (v: ViewCursor, network: Network, byteLength: number, fromPeerID: PeerID) => {
   const entitySchema = NetworkState.orderedNetworkSchema
   while (v.cursor < byteLength) {
     const count = readUint32(v)
     for (let i = 0; i < count; i++) {
-      readEntity(v, network, fromUserID, entitySchema)
+      readEntity(v, network, fromPeerID, entitySchema)
     }
   }
 }
@@ -250,7 +254,7 @@ export const readDataPacket = (network: Network, packet: ArrayBuffer, jitterBuff
   jitterBufferTaskList.push({
     simulationTime,
     read: () => {
-      readEntities(view, network, packet.byteLength, fromUserID)
+      readEntities(view, network, packet.byteLength, fromPeerID)
     }
   })
 }
