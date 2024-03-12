@@ -67,8 +67,6 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
   const adminProjects = adminProjectState.projects
   const engineCommit = adminProjectState.builderInfo.engineCommit
 
-  ProjectService.useAPIListeners()
-
   const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState))
 
   const handleClose = () => {
