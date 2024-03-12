@@ -47,7 +47,7 @@ case "$(uname -s)" in
     mkdir ./certs/tailscale
     tailscale cert --cert-file certs/tailscale/cert.pem --key-file certs/tailscale/key.pem $domain 2>&1>/dev/null
     chmod 644 ./certs/tailscale/cert.pem
-    chmod 644 ./certs/tailscale/key.pem
+    chmod 600 ./certs/tailscale/key.pem
     instructions
      ;;
    CYGWIN*|MINGW32*|MSYS*|MINGW*)
