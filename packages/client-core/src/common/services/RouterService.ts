@@ -89,7 +89,7 @@ export const useCustomRoutes = () => {
 
   const navigate = useNavigate()
   const routerState = useHookstate(getMutableState(RouterState))
-  const [_, setSearchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
 
   useEffect(() => {
     getCustomRoutes().then((routes) => {
@@ -114,6 +114,13 @@ export const useCustomRoutes = () => {
       navigate(routerState.pathname.value)
     }
   }, [routerState.pathname])
+
+  useEffect(() => {
+    const pathname = searchParams.get('redirectUrl')
+    if (pathname) {
+      routerState.pathname.set(pathname)
+    }
+  }, [searchParams])
 
   return customRoutes.get(NO_PROXY)
 }
