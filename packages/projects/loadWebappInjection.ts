@@ -23,21 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { projectsPath } from '@etherealengine/common/src/schema.type.module'
+import { ProjectType, projectPath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { loadConfigForProject } from './loadConfigForProject'
 
 export const loadWebappInjection = async () => {
-  const projects = await Engine.instance.api.service(projectsPath).find()
+  const projects: ProjectType[] = await Engine.instance.api.service(projectPath).find({ paginate: false })
   return (
     await Promise.all(
       projects.map(async (project) => {
         try {
-          const projectConfig = (await loadConfigForProject(project))!
+          const projectConfig = (await loadConfigForProject(project.name))!
           if (typeof projectConfig.webappInjection !== 'function') return null!
           return (await projectConfig.webappInjection()).default
         } catch (e) {
-          console.error(`Failed to import webapp load event for project ${project} with reason ${e}`)
+          console.error(`Failed to import webapp load event for project ${project.name} with reason ${e}`)
           return null!
         }
       })
