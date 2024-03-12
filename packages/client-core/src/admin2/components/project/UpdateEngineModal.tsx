@@ -65,7 +65,7 @@ export default function UpdateEngineModal() {
     })
     return {
       value: builderTag.tag,
-      name: `Commit ${builderTag.commitSHA?.slice(0, 8)} -- ${
+      label: `Commit ${builderTag.commitSHA?.slice(0, 8)} -- ${
         builderTag.tag === engineCommit ? '(Current) ' : ''
       }Version ${builderTag.engineVersion} -- Pushed ${pushedDate}`
     }

@@ -23,75 +23,82 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
 import { useHookstate } from '@etherealengine/hyperflux'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import Input from '../Input'
 
-export interface SelectProps {
+type OptionValueType = string | number
+
+export type SelectOptionsType = { label: string; value: any; disabled?: boolean }[]
+
+export interface SelectProps<T extends OptionValueType> {
   label?: string
   className?: string
   error?: string
   description?: string
-  currentValue: any
-  options: { name: string; value: any; disabled?: boolean }[]
-  onChange: (value: any) => void
+  options: { label: string; value: T; disabled?: boolean }[]
+  currentValue: T
+  onChange: (value: T) => void
   placeholder?: string
   disabled?: boolean
+  menuClassname?: string
 }
 
-const Select = ({
+const Select = <T extends OptionValueType>({
   className,
   label,
   error,
   description,
-  currentValue,
   options,
+  currentValue,
   onChange,
   placeholder,
-  disabled
-}: SelectProps) => {
-  const twClassName = twMerge('bg-theme-primary relative', className)
-
-  const selectedOption = useHookstate(currentValue)
-  const filteredOptions = useHookstate(options)
+  disabled,
+  menuClassname
+}: SelectProps<T>) => {
+  const ref = useRef<HTMLDivElement>(null)
+  const { t } = useTranslation()
 
   const showOptions = useHookstate(false)
+  const filteredOptions = useHookstate(options)
+  useEffect(() => {
+    filteredOptions.set(options)
+  }, [options])
 
-  placeholder = placeholder || 'Select an Option'
-
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     selectLabel.set(e.target.value)
-    const newOptions: {
-      name: string
-      value: any
-    }[] = []
+    const newOptions: SelectProps<T>['options'] = []
     for (let i = 0; i < options.length; i++) {
-      if (options[i].name.toLowerCase().startsWith(e.target.value.toLowerCase())) {
+      if (options[i].label.toLowerCase().startsWith(e.target.value.toLowerCase())) {
         newOptions.push(options[i])
       }
     }
     filteredOptions.set(newOptions)
   }
 
+  const selectLabel = useHookstate('')
   useEffect(() => {
-    filteredOptions.set(options)
-  }, [options])
+    const labelName = options.find((option) => option.value === currentValue)?.label
+    if (labelName) selectLabel.set(labelName)
+  }, [currentValue, options])
 
-  const selectLabel = useHookstate(options.find((option) => option.value === currentValue)?.name || '')
+  useClickOutside(ref, () => showOptions.set(false))
 
   return (
-    <div className={twClassName}>
+    <div className={twMerge('bg-theme-primary relative', className)}>
       <Input
         disabled={disabled}
         label={label}
         description={description}
         error={error}
         className="cursor-pointer"
-        placeholder={placeholder}
+        placeholder={placeholder || t('common:select.selectOption')}
         value={selectLabel.value}
-        onChange={handleOnChange}
+        onChange={handleSearch}
         onClick={() => {
           showOptions.set(!showOptions.value)
         }}
@@ -103,27 +110,27 @@ const Select = ({
         }`}
       />
       <div
+        ref={ref}
         className={`border-theme-primary bg-theme-secondary absolute z-10 mt-2 w-full rounded border ${
           showOptions.value ? 'visible' : 'hidden'
         }`}
       >
-        <ul className="hover:[&>li]:bg-theme-primary max-h-[140px] overflow-auto [&>li]:cursor-pointer [&>li]:px-4 [&>li]:py-2 [&>li]:text-gray-500">
+        <ul className={twMerge('max-h-40 overflow-auto [&>li]:px-4 [&>li]:py-2 [&>li]:text-gray-200', menuClassname)}>
           {filteredOptions.value.map((option) => (
             <li
               key={option.value}
               value={option.value}
-              onClick={() => {
-                selectedOption.set(option.value)
-                showOptions.set(false)
-                onChange?.(option.value)
-                selectLabel.set(option.name)
-              }}
               className={twMerge(
-                'text-theme-primary hover:text-theme-highlight cursor-pointer px-4 py-2',
-                option.disabled && 'cursor-not-allowed'
+                'text-theme-primary cursor-pointer px-4 py-2',
+                option.disabled ? 'cursor-not-allowed' : 'hover:text-theme-highlight hover:bg-theme-primary'
               )}
+              onClick={() => {
+                if (option.disabled) return
+                showOptions.set(false)
+                onChange(option.value)
+              }}
             >
-              {option.name}
+              {option.label}
             </li>
           ))}
         </ul>

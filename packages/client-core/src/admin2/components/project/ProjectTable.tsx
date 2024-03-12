@@ -78,11 +78,11 @@ export default function ProjectTable() {
     const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)[project.name]).value
 
     return (
-      <div className="flex items-center justify-around">
+      <div className="flex items-center justify-around p-1">
         <Button
           startIcon={<GrGithub />}
           size="small"
-          className="mr-2 h-min bg-[#61759f] dark:bg-[#2A3753]"
+          className="mr-2 h-min whitespace-pre bg-[#61759f] dark:bg-[#2A3753]"
           onClick={() => {
             showConfirmDialog(
               project,
@@ -106,7 +106,7 @@ export default function ProjectTable() {
         <Button
           startIcon={<GrEdit />}
           size="small"
-          className="mr-2 h-min bg-[#61759f] dark:bg-[#2A3753]"
+          className="mr-2 h-min whitespace-pre bg-[#61759f] dark:bg-[#2A3753]"
           onClick={() => {
             PopoverState.showPopupover(
               <AddEditProjectModal
@@ -140,7 +140,7 @@ export default function ProjectTable() {
         <Button
           startIcon={<IoPeopleOutline />}
           size="small"
-          className="mr-2 h-min bg-[#61759f] dark:bg-[#2A3753]"
+          className="mr-2 h-min whitespace-pre bg-[#61759f] dark:bg-[#2A3753]"
           onClick={() => PopoverState.showPopupover(<ManageUserPermissionModal project={project} />)}
         >
           {t('admin:components.project.actions.access')}
@@ -148,7 +148,7 @@ export default function ProjectTable() {
         <Button
           startIcon={<IoTerminalOutline />}
           size="small"
-          className="mr-2 h-min bg-[#61759f] dark:bg-[#2A3753]"
+          className="mr-2 h-min whitespace-pre bg-[#61759f] dark:bg-[#2A3753]"
           onClick={() => {
             showConfirmDialog(
               project,
@@ -163,13 +163,17 @@ export default function ProjectTable() {
         >
           {t('admin:components.project.actions.invalidateCache')}
         </Button>
-        <Button startIcon={<IoFolderOutline />} size="small" className="mr-2 h-min bg-[#61759f] dark:bg-[#2A3753]">
+        <Button
+          startIcon={<IoFolderOutline />}
+          size="small"
+          className="mr-2 h-min whitespace-pre bg-[#61759f] dark:bg-[#2A3753]"
+        >
           {t('admin:components.common.view')}
         </Button>
         <Button
           startIcon={<RiDeleteBinLine />}
           size="small"
-          className="h-min bg-[#61759f] dark:bg-[#2A3753]"
+          className="h-min whitespace-pre bg-[#61759f] dark:bg-[#2A3753]"
           onClick={() => {
             showConfirmDialog(
               project,
