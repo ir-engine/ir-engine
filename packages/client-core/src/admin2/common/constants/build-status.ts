@@ -39,6 +39,6 @@ export const buildStatusColumns: IBuildStatusColumn[] = [
   { id: 'status', label: t('admin:components.buildStatus.columns.status') },
   { id: 'commitSHA', label: t('admin:components.buildStatus.columns.commitSHA') },
   { id: 'logs', label: t('admin:components.buildStatus.columns.logs') },
-  { id: 'dateStarted', label: t('admin:components.buildStatus.columns.dateStarted') },
-  { id: 'dateEnded', label: t('admin:components.buildStatus.columns.dateEnded') }
+  { id: 'dateStarted', label: t('admin:components.buildStatus.columns.dateStarted'), sortable: true },
+  { id: 'dateEnded', label: t('admin:components.buildStatus.columns.dateEnded'), sortable: true }
 ]
