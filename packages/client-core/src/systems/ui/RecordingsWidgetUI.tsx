@@ -361,7 +361,7 @@ const RecordingsList = () => {
               label={
                 <PlayIcon
                   style={{ display: 'block', width: '24px', height: '24px' }}
-                  className="min-h-6 min-w-6 block"
+                  className="block min-h-6 min-w-6"
                 />
               }
             />
@@ -373,7 +373,7 @@ const RecordingsList = () => {
               label={
                 <PlusCircleIcon
                   style={{ display: 'block', width: '24px', height: '24px' }}
-                  className="min-h-6 min-w-6 block"
+                  className="block min-h-6 min-w-6"
                 />
               }
             />
