@@ -1311,7 +1311,7 @@ export const checkProjectAutoUpdate = async (app: Application, projectName: stri
   } else if (project.updateType === 'commit') {
     const commits = await getProjectCommits(app, project.sourceRepo!, {
       user,
-      query: { branchName: project.branchName! }
+      query: { branchName: project.sourceBranch! }
     })
     if (commits && commits[0].commitSHA !== project.commitSHA) commitSHA = commits[0].commitSHA
   }

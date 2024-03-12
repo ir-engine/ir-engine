@@ -56,7 +56,6 @@ export const projectSchema = Type.Object(
     thumbnail: Type.Optional(Type.String()),
     repositoryPath: Type.String(),
     version: Type.Optional(Type.String()),
-    branchName: Type.Optional(Type.String()),
     engineVersion: Type.Optional(Type.String()),
     description: Type.Optional(Type.String()),
     settings: Type.Optional(Type.Array(Type.Ref(projectSettingSchema))),
@@ -131,7 +130,6 @@ export const projectQuerySchema = Type.Intersect(
         destinationURL: Type.Optional(Type.String()),
         existingProject: Type.Optional(Type.Boolean()),
         inputProjectURL: Type.Optional(Type.String()),
-        branchName: Type.Optional(Type.String()),
         selectedSHA: Type.Optional(Type.String()),
         allowed: Type.Optional(Type.Boolean()),
         reset: Type.Optional(Type.Boolean())
