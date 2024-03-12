@@ -727,6 +727,10 @@ export async function handleRequestProducer(
       })
     )
 
+    getMutableState(MediasoupMediaProducersConsumersObjectsState).producers.merge({
+      [producer.id]: producer
+    })
+
     producer.observer.on('close', () => {
       getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[producer.id].set(none)
     })
@@ -793,7 +797,6 @@ export const handleRequestConsumer = async (
     producer = Object.values(getState(MediasoupMediaProducerConsumerState)[network.id].producers).find(
       (p) => p.peerID === mediaPeerId && p.mediaTag === mediaTag
     )
-    const producerConsumerObjects = getState(MediasoupMediaProducersConsumersObjectsState)
   } catch (err) {
     console.log('error getting producer', getState(MediasoupMediaProducerConsumerState), network.id, err)
     return
@@ -871,6 +874,50 @@ export const handleRequestConsumer = async (
     )
   } catch (err) {
     logger.error(err, 'Error consuming transport %o.', transport)
+  }
+}
+
+export const handleCloseProducer = async (
+  action: typeof MediasoupMediaProducerActions.producerClosed.matches._TYPE
+) => {
+  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
+
+  const { producerID } = action
+
+  let producer
+  try {
+    producer = Object.values(getState(MediasoupMediaProducersConsumersObjectsState).producers).find(
+      (p) => p.id === producerID
+    )
+  } catch (err) {
+    console.log('error getting producer', getState(MediasoupMediaProducersConsumersObjectsState), network.id, err)
+    return
+  }
+
+  if (producer) {
+    await producer.close()
+  }
+}
+
+export const handleCloseConsumer = async (
+  action: typeof MediasoupMediaConsumerActions.consumerClosed.matches._TYPE
+) => {
+  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
+
+  const { consumerID } = action
+
+  let consumer
+  try {
+    consumer = Object.values(getState(MediasoupMediaProducersConsumersObjectsState).consumers).find(
+      (p) => p.id === consumerID
+    )
+  } catch (err) {
+    console.log('error getting consumer', getState(MediasoupMediaProducersConsumersObjectsState), network.id, err)
+    return
+  }
+
+  if (consumer) {
+    await consumer.close()
   }
 }
 

@@ -31,7 +31,6 @@ import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperfl
 import { AllowedAdminRoutesState } from '../admin/AllowedAdminRoutesState'
 import { AuthState } from '../user/services/AuthService'
 import Projects from './components/project'
-import { DefaultAdminRoutes } from './DefaultAdminRoutes'
 
 import { ThemeState } from '@etherealengine/client-core/src/common/services/ThemeService'
 import '@etherealengine/engine/src/EngineModule'
@@ -40,6 +39,7 @@ import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
 import { useTranslation } from 'react-i18next'
 import { HiArrowRightOnRectangle } from 'react-icons/hi2'
 import { RouterState } from '../common/services/RouterService'
+import { DefaultAdminRoutes } from './DefaultAdminRoutes'
 
 const $allowed = lazy(() => import('@etherealengine/client-core/src/admin/allowedRoutes'))
 

@@ -265,7 +265,7 @@ const checkIfProjectExists = async (context: HookContext<ProjectService>) => {
 
   const data: ProjectData[] = Array.isArray(context.data) ? context.data : [context.data]
 
-  context.projectName = cleanString(data[0].name!)
+  context.projectName = cleanString(data[0].name!).toLowerCase()
 
   const projectExists = (await context.service._find({
     query: { name: context.projectName, $limit: 1 }

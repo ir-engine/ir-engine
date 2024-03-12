@@ -56,7 +56,7 @@ const TableHeadRow = ({
   className?: string
   children: JSX.Element | JSX.Element[]
 }) => {
-  const twClassName = twMerge('text-left uppercase', 'bg-neutral-100 dark:bg-[#212226]', className)
+  const twClassName = twMerge('text-left capitalize', 'bg-neutral-100 dark:bg-[#212226]', className)
   return (
     <thead className={theadClassName}>
       <tr className={twClassName}>{children}</tr>
@@ -105,21 +105,16 @@ const TableBody = ({ className, children, ...props }: TableSectionProps) => {
 }
 
 interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
+  containerClassname?: string
   className?: string
   children?: ReactNode
 }
 
-const Table = ({ className, children }: TableProps) => {
-  const twClassName = twMerge('min-w-full border-collapse overflow-x-auto rounded-md text-sm', className)
+const Table = ({ containerClassname, className, children }: TableProps) => {
+  const twClassname = twMerge('w-full border-collapse whitespace-nowrap rounded-md text-sm', className)
   return (
-    <div className="flex flex-col">
-      <div className="overflow-x-auto">
-        <div className=" inline-block min-w-full align-middle">
-          <div className="overflow-hidden">
-            <table className={twClassName}>{children}</table>
-          </div>
-        </div>
-      </div>
+    <div className={twMerge('mr-2 overflow-x-auto', containerClassname)}>
+      <table className={twClassname}>{children}</table>
     </div>
   )
 }
@@ -138,62 +133,58 @@ const TablePagination = ({
   onPageChange: (newPage: number) => void
 }) => {
   return (
-    <tfoot className="flex-column flex flex-wrap items-center justify-between pt-4 md:flex-row">
-      <tr>
-        <td>
-          <ul className="inline-flex h-8 -space-x-px text-sm rtl:space-x-reverse">
-            <li>
-              <button
-                disabled={currentPage === 0}
-                onClick={() => onPageChange(0)}
-                className="bg-theme-surfaceMain flex h-8 items-center justify-center rounded-s-lg border border-gray-300 px-3 leading-tight text-gray-500 hover:enabled:bg-gray-100 hover:enabled:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:enabled:text-white"
-              >
-                <HiRewind />
-              </button>
-            </li>
-            <li>
-              <button
-                disabled={currentPage === 0}
-                className="bg-theme-surfaceMain flex h-8 items-center justify-center border border-gray-300 px-3 leading-tight text-gray-500 hover:enabled:bg-gray-100 hover:enabled:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:enabled:text-white"
-                onClick={() => onPageChange(Math.max(0, currentPage - 1))}
-              >
-                <GoChevronLeft />
-              </button>
-            </li>
-            {[...Array(Math.min(totalPages, steps)).keys()].map((page) => (
-              <li key={page}>
-                <button
-                  onClick={() => onPageChange(page)}
-                  className={`bg-theme-surfaceMain flex h-8 items-center justify-center border border-gray-300 px-3 leading-tight text-gray-500 hover:enabled:bg-gray-100 hover:enabled:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:enabled:text-white ${
-                    currentPage === page ? 'bg-blue-50 dark:bg-gray-500' : ''
-                  }`}
-                >
-                  {page + 1}
-                </button>
-              </li>
-            ))}
-            <li>
-              <button
-                disabled={currentPage === totalPages - 1}
-                onClick={() => onPageChange(Math.min(totalPages - 1, currentPage + 1))}
-                className="bg-theme-surfaceMain flex h-8 items-center justify-center border border-gray-300 px-3 leading-tight text-gray-500 hover:enabled:bg-gray-100 hover:enabled:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:enabled:text-white"
-              >
-                <GoChevronRight />
-              </button>
-            </li>
-            <li>
-              <button
-                disabled={currentPage === totalPages - 1}
-                onClick={() => onPageChange(totalPages - 1)}
-                className="bg-theme-surfaceMain flex h-8 items-center justify-center rounded-e-lg border border-gray-300 px-3 leading-tight text-gray-500 hover:enabled:bg-gray-100 hover:enabled:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:enabled:text-white"
-              >
-                <HiFastForward />
-              </button>
-            </li>
-          </ul>
-        </td>
-      </tr>
-    </tfoot>
+    <div className="flex-column mb-2 flex flex-wrap items-center justify-between pt-4 md:flex-row">
+      <ul className="inline-flex h-8 -space-x-px text-sm rtl:space-x-reverse">
+        <li>
+          <button
+            disabled={currentPage === 0}
+            onClick={() => onPageChange(0)}
+            className="bg-theme-surfaceMain flex h-8 items-center justify-center rounded-s-lg border border-gray-300 px-3 leading-tight text-gray-500 hover:enabled:bg-gray-100 hover:enabled:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:enabled:text-white"
+          >
+            <HiRewind />
+          </button>
+        </li>
+        <li>
+          <button
+            disabled={currentPage === 0}
+            className="bg-theme-surfaceMain flex h-8 items-center justify-center border border-gray-300 px-3 leading-tight text-gray-500 hover:enabled:bg-gray-100 hover:enabled:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:enabled:text-white"
+            onClick={() => onPageChange(Math.max(0, currentPage - 1))}
+          >
+            <GoChevronLeft />
+          </button>
+        </li>
+        {[...Array(Math.min(totalPages, steps)).keys()].map((page) => (
+          <li key={page}>
+            <button
+              onClick={() => onPageChange(page)}
+              className={`bg-theme-surfaceMain flex h-8 items-center justify-center border border-gray-300 px-3 leading-tight text-gray-500 hover:enabled:bg-gray-100 hover:enabled:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:enabled:text-white ${
+                currentPage === page ? 'bg-blue-50 dark:bg-gray-500' : ''
+              }`}
+            >
+              {page + 1}
+            </button>
+          </li>
+        ))}
+        <li>
+          <button
+            disabled={currentPage === totalPages - 1}
+            onClick={() => onPageChange(Math.min(totalPages - 1, currentPage + 1))}
+            className="bg-theme-surfaceMain flex h-8 items-center justify-center border border-gray-300 px-3 leading-tight text-gray-500 hover:enabled:bg-gray-100 hover:enabled:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:enabled:text-white"
+          >
+            <GoChevronRight />
+          </button>
+        </li>
+        <li>
+          <button
+            disabled={currentPage === totalPages - 1}
+            onClick={() => onPageChange(totalPages - 1)}
+            className="bg-theme-surfaceMain flex h-8 items-center justify-center rounded-e-lg border border-gray-300 px-3 leading-tight text-gray-500 hover:enabled:bg-gray-100 hover:enabled:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:enabled:text-white"
+          >
+            <HiFastForward />
+          </button>
+        </li>
+      </ul>
+    </div>
   )
 }
 
