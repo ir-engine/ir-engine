@@ -23,8 +23,8 @@ fi
 #echo "PRUNED"
 #docker buildx version
 #
-docker context create etherealengine-$PACKAGE
-docker buildx create --driver=docker-container etherealengine-$PACKAGE --name etherealengine-$PACKAGE --driver-opt "image=moby/buildkit:v0.12.0"
+docker context create etherealengine-$PACKAGE-context
+docker buildx create --driver=docker-container etherealengine-$PACKAGE-context --name etherealengine-$PACKAGE --driver-opt "image=moby/buildkit:v0.13.0"
 
 BUILD_START_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 echo "Starting ${PACKAGE} build at ${BUILD_START_TIME}"
