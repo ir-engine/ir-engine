@@ -123,6 +123,7 @@ export const projectQuerySchema = Type.Intersect(
     // Add additional query properties here
     Type.Object(
       {
+        paginate: Type.Optional(Type.Boolean()),
         action: Type.Optional(Type.String()),
         sourceURL: Type.Optional(Type.String()),
         destinationURL: Type.Optional(Type.String()),
