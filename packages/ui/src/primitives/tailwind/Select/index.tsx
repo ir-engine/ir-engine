@@ -31,20 +31,24 @@ import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import Input from '../Input'
 
-export interface SelectProps {
+type OptionValueType = string | number
+
+export type SelectOptionsType = { label: string; value: any; disabled?: boolean }[]
+
+export interface SelectProps<T extends OptionValueType> {
   label?: string
   className?: string
   error?: string
   description?: string
-  options: { name: string; value: any; disabled?: boolean }[]
-  currentValue: any
-  onChange: (value: any) => void
+  options: { label: string; value: T; disabled?: boolean }[]
+  currentValue: T
+  onChange: (value: T) => void
   placeholder?: string
   disabled?: boolean
   menuClassname?: string
 }
 
-const Select = ({
+const Select = <T extends OptionValueType>({
   className,
   label,
   error,
@@ -55,7 +59,7 @@ const Select = ({
   placeholder,
   disabled,
   menuClassname
-}: SelectProps) => {
+}: SelectProps<T>) => {
   const ref = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
 
@@ -67,12 +71,9 @@ const Select = ({
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     selectLabel.set(e.target.value)
-    const newOptions: {
-      name: string
-      value: any
-    }[] = []
+    const newOptions: SelectProps<T>['options'] = []
     for (let i = 0; i < options.length; i++) {
-      if (options[i].name.toLowerCase().startsWith(e.target.value.toLowerCase())) {
+      if (options[i].label.toLowerCase().startsWith(e.target.value.toLowerCase())) {
         newOptions.push(options[i])
       }
     }
@@ -81,7 +82,7 @@ const Select = ({
 
   const selectLabel = useHookstate('')
   useEffect(() => {
-    const labelName = options.find((option) => option.value === currentValue)?.name
+    const labelName = options.find((option) => option.value === currentValue)?.label
     if (labelName) selectLabel.set(labelName)
   }, [currentValue, options])
 
@@ -129,7 +130,7 @@ const Select = ({
                 onChange(option.value)
               }}
             >
-              {option.name}
+              {option.label}
             </li>
           ))}
         </ul>
