@@ -718,7 +718,10 @@ export const getProjectCommits = async (
 
     const enginePackageJson = getEnginePackageJson()
     const repoResponse = await octoKit.rest.repos.get({ owner, repo })
+    console.log('params branchName', params!.query!.branchName)
+    console.log('repoResponse', repoResponse)
     const branchName = params!.query!.branchName || (repoResponse as any).default_branch
+    console.log('branchName', branchName)
     const headResponse = await octoKit.rest.repos.listCommits({
       owner,
       repo,
