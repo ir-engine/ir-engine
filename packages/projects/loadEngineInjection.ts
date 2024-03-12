@@ -28,7 +28,9 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { loadConfigForProject } from './loadConfigForProject'
 
 export const loadEngineInjection = async () => {
-  const projects: ProjectType[] = await Engine.instance.api.service(projectPath).find({ paginate: false })
+  const projects = (await Engine.instance.api
+    .service(projectPath)
+    .find({ query: { paginate: false } })) as any as ProjectType[]
   return Promise.all(
     projects.map(async (project) => {
       try {
