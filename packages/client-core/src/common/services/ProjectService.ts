@@ -77,7 +77,6 @@ export const ProjectState = defineState({
 export const ProjectService = {
   fetchProjects: async () => {
     try {
-      console.trace('fetch projects')
       const projects = (await Engine.instance.api.service(projectPath).find({
         query: {
           action: 'admin',
