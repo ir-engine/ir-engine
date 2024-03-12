@@ -23,21 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@etherealengine/hyperflux'
-import React from 'react'
-import ProjectTab from './ProjectTab'
-import BuildStatusTab from './build-status/BuildStatusTab'
+import { t } from 'i18next'
+import { ITableHeadCell } from '../Table'
 
-export default function AdminProject() {
-  const selectedTab = useHookstate<'projects' | 'buildStatus'>('projects')
+type IdType = 'id' | 'status' | 'dateStarted' | 'dateEnded' | 'logs' | 'commitSHA'
 
-  return (
-    <>
-      {selectedTab.value === 'projects' ? (
-        <ProjectTab selectedTab={selectedTab} />
-      ) : (
-        <BuildStatusTab selectedTab={selectedTab} />
-      )}
-    </>
-  )
+export type BuildStatusRowType = Record<IdType, string | JSX.Element | undefined>
+
+interface IBuildStatusColumn extends ITableHeadCell {
+  id: IdType
 }
+
+export const buildStatusColumns: IBuildStatusColumn[] = [
+  { id: 'id', label: t('admin:components.buildStatus.columns.id') },
+  { id: 'status', label: t('admin:components.buildStatus.columns.status') },
+  { id: 'commitSHA', label: t('admin:components.buildStatus.columns.commitSHA') },
+  { id: 'logs', label: t('admin:components.buildStatus.columns.logs') },
+  { id: 'dateStarted', label: t('admin:components.buildStatus.columns.dateStarted'), sortable: true },
+  { id: 'dateEnded', label: t('admin:components.buildStatus.columns.dateEnded'), sortable: true }
+]

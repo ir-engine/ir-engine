@@ -23,48 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
-import React, { useEffect, useRef } from 'react'
+import { StateMethods } from '@etherealengine/hyperflux'
+import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiCheck, HiDocument } from 'react-icons/hi2'
-import Button from '../Button'
+import BuildStatusTable from './BuildStatusTable'
 
-export interface CopyTextProps extends React.HTMLAttributes<HTMLTextAreaElement> {
-  text: string
-  className?: string
-  size?: 'small' | 'medium' | 'large'
-}
-
-const CopyText = ({ text, className, size = 'small' }: CopyTextProps) => {
+export default function BuildStatusTab({ selectedTab }: { selectedTab: StateMethods<'projects' | 'buildStatus'> }) {
   const { t } = useTranslation()
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const buttonIcon = useHookstate(<HiDocument />)
-
-  const copyText = () => {
-    navigator.clipboard.writeText(text)
-    buttonIcon.set(<HiCheck />)
-    if (timeoutRef.current) clearTimeout(timeoutRef.current)
-    timeoutRef.current = setTimeout(() => {
-      buttonIcon.set(<HiDocument />)
-    }, 2000)
-  }
-
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current)
-    }
-  }, [])
 
   return (
-    <Button
-      title={t('common:components.copyText')}
-      variant="outline"
-      size={size}
-      onClick={copyText}
-      className={className}
-      startIcon={buttonIcon.get(NO_PROXY)}
-    />
+    <div>
+      <Text className="mb-6" fontSize="xl">
+        {t('admin:components.buildStatus.buildStatus')}
+      </Text>
+      <div className="mb-4 flex justify-between gap-2">
+        <div className="flex gap-2">
+          <div className="flex items-center border-b border-b-transparent transition-all hover:border-b-blue-400">
+            <button onClick={() => selectedTab.set('projects')} className="p-3 text-sm">
+              {t('admin:components.common.all')}
+            </button>
+          </div>
+          <div className="flex items-center border-b border-b-blue-400">
+            <span className="p-3 text-sm">{t('admin:components.project.buildStatus')}</span>
+          </div>
+        </div>
+      </div>
+      <BuildStatusTable />
+    </div>
   )
 }
-
-export default CopyText
