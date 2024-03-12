@@ -61,7 +61,7 @@ export const ProjectState = defineState({
   initial: () => ({
     projects: [] as Array<ProjectType>,
     updateNeeded: true,
-    rebuilding: true,
+    rebuilding: false,
     succeeded: false,
     failed: false,
     builderTags: [] as Array<ProjectBuilderTagsType>,
