@@ -39,10 +39,12 @@ import {
   ProjectUpdateParams
 } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { getDateTimeSql, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import { getState } from '@etherealengine/hyperflux'
 import { KnexAdapterOptions, KnexAdapterParams, KnexService } from '@feathersjs/knex'
 import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
+import { ServerMode, ServerState } from '../../ServerState'
 import config from '../../appconfig'
 import {
   deleteProjectFilesInStorageProvider,
@@ -133,6 +135,8 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
    * On dev, sync the db with any projects installed locally
    */
   async _fetchDevLocalProjects() {
+    if (getState(ServerState).serverMode !== ServerMode.API) return
+
     const data = (await super._find({ paginate: false })) as ProjectType[]
 
     if (!fs.existsSync(projectsRootFolder)) {

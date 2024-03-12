@@ -209,25 +209,25 @@ describe('FeathersHooks', () => {
       assert.strictEqual(data[2]?.name, 'Jack')
     })
 
-    // it('should update data', async () => {
-    //   const { result, rerender } = renderHook(() => {
-    //     return useMutation(userPath)
-    //   })
-    //   await act(() => {
-    //     rerender()
-    //   })
-    //   await act(() => {
-    //     result.current.update('1', { name: 'Jack' } as any)
-    //   })
-    //   const findHook = renderHook(() => {
-    //     return useFind(userPath)
-    //   })
-    //   await act(() => {
-    //     findHook.rerender()
-    //   })
-    //   const { data } = findHook.result.current
-    //   assert.strictEqual(data[0]?.name, 'Jack')
-    // })
+    it('should update data', async () => {
+      const { result, rerender } = renderHook(() => {
+        return useMutation(userPath)
+      })
+      await act(() => {
+        rerender()
+      })
+      await act(() => {
+        result.current.update('1', { name: 'Jack' } as any)
+      })
+      const findHook = renderHook(() => {
+        return useFind(userPath)
+      })
+      await act(() => {
+        findHook.rerender()
+      })
+      const { data } = findHook.result.current
+      assert.strictEqual(data[0]?.name, 'Jack')
+    })
 
     it('should patch data', async () => {
       const { result, rerender } = renderHook(() => {
@@ -318,43 +318,43 @@ describe('FeathersHooks', () => {
       })
     })
 
-    // describe('on updated', () => {
-    //   it('should populate data', async () => {
-    //     const { result, rerender } = renderHook(() => {
-    //       return useFind(userPath)
-    //     })
-    //     await act(() => {
-    //       rerender()
-    //     })
-    //     await act(() => {
-    //       Engine.instance.api.service(userPath).update('1', { name: 'Jack' })
-    //     })
-    //     await act(() => {
-    //       rerender()
-    //     })
-    //     assert.strictEqual(result.current.data[0]?.name, 'Jack')
-    //   })
+    describe('on updated', () => {
+      it('should populate data', async () => {
+        const { result, rerender } = renderHook(() => {
+          return useFind(userPath)
+        })
+        await act(() => {
+          rerender()
+        })
+        await act(() => {
+          Engine.instance.api.service(userPath).update('1', { name: 'Jack' as UserName })
+        })
+        await act(() => {
+          rerender()
+        })
+        assert.strictEqual(result.current.data[0]?.name, 'Jack')
+      })
 
-    //   it('should populate get query', async () => {
-    //     const result = createState({} as any)
-    //     const { rerender } = renderHook(() => {
-    //       const data = useGet(userPath, '1')
-    //       useEffect(() => {
-    //         result.set(data)
-    //       }, [data.data?.name])
-    //     })
-    //     await act(() => {
-    //       rerender()
-    //     })
-    //     await act(() => {
-    //       Engine.instance.api.service(userPath).update('1', { name: 'Jack' })
-    //     })
-    //     await act(() => {
-    //       rerender()
-    //     })
-    //     assert.strictEqual(result.value.data?.name, 'Jack')
-    //   })
-    // })
+      it('should populate get query', async () => {
+        const result = createState({} as any)
+        const { rerender } = renderHook(() => {
+          const data = useGet(userPath, '1')
+          useEffect(() => {
+            result.set(data)
+          }, [data.data?.name])
+        })
+        await act(() => {
+          rerender()
+        })
+        await act(() => {
+          Engine.instance.api.service(userPath).update('1', { name: 'Jack' as UserName })
+        })
+        await act(() => {
+          rerender()
+        })
+        assert.strictEqual(result.value.data?.name, 'Jack')
+      })
+    })
 
     describe('on patched', () => {
       it('should populate data', async () => {
