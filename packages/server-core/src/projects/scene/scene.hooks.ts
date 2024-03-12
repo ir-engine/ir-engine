@@ -446,7 +446,22 @@ const setSceneSaveResult = async (context: HookContext<SceneService>) => {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
-  const { name, directory } = context.data as SceneCreateData
+  const { name, directory, project } = context.data as SceneCreateData
+
+  console.log('project name on scene save', project)
+
+  const projectResult = await context.app.service(projectPath).find({
+    query: {
+      name: project
+    }
+  })
+
+  console.log('projectResult', projectResult)
+
+  if (projectResult.total > 0)
+    await context.app.service(projectPath).patch(projectResult.data[0].id, {
+      hasLocalChanges: true
+    })
 
   // return scene id for update hooks
   context.result = { id: `${directory!.split('/')[1]}/${name}` } as SceneUpdate

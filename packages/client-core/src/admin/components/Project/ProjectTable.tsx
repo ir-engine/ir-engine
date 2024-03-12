@@ -240,6 +240,11 @@ const ProjectTable = ({ className }: Props) => {
               <Icon type="ErrorOutline" sx={{ marginLeft: 1 }} className={styles.orangeColor} />
             </Tooltip>
           )}
+          {Boolean(el.hasLocalChanges) && (
+              <Tooltip title={t('admin:components.project.hasLocalChanges')} arrow>
+                <Icon type="ErrorOutline" sx={{ marginLeft: 1 }} className={styles.goldColor} />
+              </Tooltip>
+          )}
         </Box>
       ),
       projectVersion: (

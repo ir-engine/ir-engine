@@ -391,7 +391,7 @@ const uploadToRepo = async (
   //Create the new commit with all of the file changes
   const newCommit = await createNewCommit(octo, org, repo, commitMessage, newTree.sha, currentCommit.commitSha)
 
-  await app.service(projectPath).patch(project.id, { commitSHA: newCommit.sha, commitDate: toDateTimeSql(new Date()) })
+  await app.service(projectPath).patch(project.id, { commitSHA: newCommit.sha, commitDate: toDateTimeSql(new Date()), hasLocalChanges: false })
 
   try {
     //This pushes the commit to the main branch in GitHub
