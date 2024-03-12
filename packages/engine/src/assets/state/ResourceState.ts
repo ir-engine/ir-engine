@@ -154,7 +154,7 @@ const onItemLoadedFor = <T extends AssetType>(url: string, resourceType: Resourc
   const resources = resourceState.nested('resources')
   const referencedAssets = resourceState.nested('referencedAssets')
   if (!resources[url].value) {
-    console.warn('ResourceManager:loadedFor asset loaded for asset that is not loaded: ' + url)
+    // console.warn('ResourceManager:loadedFor asset loaded for asset that is not loaded: ' + url)
     return
   }
 
