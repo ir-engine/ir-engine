@@ -23,9 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  ComponentMap,
+  getComponent,
+  getOptionalComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { createEntity, entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import {
   VisualScriptComponent,
   VisualScriptDomain,
@@ -37,7 +42,7 @@ import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import booleanTestVisualScript from './assets/boolean-test-visual-script.json'
 import decisionTestVisualScript from './assets/decision-test-visual-script.json'
 import defaultVisualScript from './assets/default-visual-script.json'
-import entityTestVisualScript from './assets/entity-test-visual-script.json'
+import entityComponentTestVisualScript from './assets/entity-component-test-visual-script.json'
 import floatTestVisualScript from './assets/float-test-visual-script.json'
 import integerTestVisualScript from './assets/integer-test-visual-script.json'
 import rateRepeatTestVisualScript from './assets/rate-repeat-test-visual-script.json'
@@ -48,8 +53,9 @@ import vec3TestVisualScript from './assets/vec3-test-visual-script.json'
 import vec4TestVisualScript from './assets/vec4-test-visual-script.json'
 
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
-import { EntityUUID, SystemDefinitions, UUIDComponent } from '@etherealengine/ecs'
+import { Entity, EntityUUID, SystemDefinitions, UUIDComponent } from '@etherealengine/ecs'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
@@ -221,7 +227,6 @@ describe('visual Script', () => {
       assert(result.includes('variableUsevariableGet'))
     })
     const systemAsyncUUID = getOnAsyncExecuteSystemUUID()
-    console.log('variableSet', systemAsyncUUID)
     SystemDefinitions.get(systemAsyncUUID)!.execute()
 
     await act(() => rerender(useVariableTag))
@@ -271,30 +276,75 @@ describe('visual Script', () => {
 
   it('test entity nodes script', async () => {
     const entity = createEntity()
-    const visualScript = parseStorageProviderURLs(entityTestVisualScript) as unknown as GraphJSON
+    const visualScript = parseStorageProviderURLs(entityComponentTestVisualScript) as unknown as GraphJSON
     setComponent(entity, VisualScriptComponent, { visualScript: visualScript, run: true })
-    const messageSequence = ['added', 'uuid', 'deleted', 'passed']
+    const messageSequence = [
+      'entity added',
+      'uuid',
+      'component added',
+      'component modified',
+      'component deleted',
+      'tag added',
+      'tag deleted',
+      'entity deleted',
+      'passed'
+    ]
 
-    await waitForConsoleLog(messageSequence[0]).then((result) => {
-      assert(result.includes(messageSequence[0]))
-    })
+    let newEntity: Entity
+    let systemAsyncUUID
 
-    let newEntity
-    await waitForConsoleLog(messageSequence[1]).then((result) => {
-      const message = result.split(' ')
-      const uuid = message[message.length - 1] as EntityUUID
-      newEntity = UUIDComponent.getEntityByUUID(uuid)
-      assert(newEntity !== undefined)
-      assert(getComponent(newEntity, NameComponent) === 'test')
-    })
-
-    await waitForConsoleLog(messageSequence[2]).then((result) => {
-      assert(result.includes(messageSequence[2]))
-    })
-
-    await waitForConsoleLog(messageSequence[3]).then((result) => {
-      assert(result.includes(messageSequence[3]))
-    })
+    for (const message of messageSequence) {
+      await waitForConsoleLog(message).then((result) => {
+        assert(result.includes(message))
+        switch (message) {
+          case messageSequence[1]: {
+            // uuid
+            const message = result.split(' ')
+            const uuid = message[message.length - 1] as EntityUUID
+            newEntity = UUIDComponent.getEntityByUUID(uuid)
+            assert(entityExists(newEntity))
+            assert(getComponent(newEntity, NameComponent) === 'test')
+            break
+          }
+          case messageSequence[2]: {
+            // component added
+            assert(getComponent(newEntity, InputComponent) !== undefined)
+            break
+          }
+          case messageSequence[3]: {
+            // component modified
+            const inputComponent = getComponent(newEntity, InputComponent)
+            assert(inputComponent !== undefined)
+            assert(inputComponent.grow)
+            systemAsyncUUID = getOnAsyncExecuteSystemUUID()
+            SystemDefinitions.get(systemAsyncUUID)!.execute()
+            break
+          }
+          case messageSequence[4]: {
+            // component deleted
+            const inputComponent = getOptionalComponent(newEntity, InputComponent)
+            assert(inputComponent === undefined)
+            break
+          }
+          case messageSequence[5]: {
+            // tag added
+            assert(getComponent(newEntity, ComponentMap.get('bg-tag.test')!) !== undefined)
+            //SystemDefinitions.get(systemAsyncUUID)!.execute()
+            break
+          }
+          case messageSequence[6]: {
+            // tag deleted
+            assert(getOptionalComponent(newEntity, ComponentMap.get('bg-tag.test')!) === undefined)
+            break
+          }
+          case messageSequence[7]: {
+            // entity deleted
+            assert(entityExists(newEntity) === false)
+            break
+          }
+        }
+      })
+    }
   })
 
   // these are too basic

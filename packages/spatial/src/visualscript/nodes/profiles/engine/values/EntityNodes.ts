@@ -108,7 +108,7 @@ export const getCameraEntity = makeFunctionNodeDefinition({
   }
 })
 
-export const onEntity = makeFlowNodeDefinition({
+export const entityExists = makeFlowNodeDefinition({
   typeName: 'logic/entity/exists',
   category: NodeCategory.Action,
   label: 'Entity exists',
@@ -118,9 +118,9 @@ export const onEntity = makeFlowNodeDefinition({
   },
   out: {
     flow: 'flow',
+    exists: 'boolean',
     entity: 'entity',
     uuid: 'string',
-    exists: 'bool',
     position: 'vec3',
     rotation: 'quat',
     scale: 'vec3',
@@ -196,7 +196,7 @@ export const deleteEntity = makeFlowNodeDefinition({
   label: 'Delete entity',
   in: {
     flow: 'flow',
-    entity: (_) => {
+    entityUUID: (_) => {
       const choices = sceneQuery().map((entity) => ({
         text: getComponent(entity, NameComponent),
         value: getComponent(entity, UUIDComponent) as string
@@ -211,7 +211,8 @@ export const deleteEntity = makeFlowNodeDefinition({
   out: { flow: 'flow' },
   initialState: undefined,
   triggered: ({ read, commit }) => {
-    const entity: Entity = read('entity')
+    const entityUUID: EntityUUID = read('entityUUID')
+    const entity = UUIDComponent.getEntityByUUID(entityUUID)
     removeEntity(entity)
     commit('flow')
   }
