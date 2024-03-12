@@ -36,31 +36,31 @@ export interface BadgeProps {
 
 const variantMap = {
   success: {
-    containerClass: 'bg-green-200	',
+    containerClass: 'bg-green-200	dark:bg-[#064E3B]',
     iconColor: '#15803d',
-    textClass: 'text-green-900'
+    textClass: 'text-green-900 dark:text-white'
   },
   danger: {
-    containerClass: 'bg-rose-200',
+    containerClass: 'bg-rose-200 dark:bg-[#744364]',
     iconColor: '#f43f5e',
-    textClass: 'text-rose-900'
+    textClass: 'text-rose-900 dark:text-white'
   },
   neutral: {
-    containerClass: 'bg-white',
+    containerClass: 'bg-white dark:bg-[#2B2C30]',
     iconColor: 'black',
-    textClass: 'text-black'
+    textClass: 'text-black dark:text-white'
   },
   warning: {
-    containerClass: 'bg-yellow-200',
+    containerClass: 'bg-yellow-200 dark:bg-yellow-600',
     iconColor: '#d6a407',
-    textClass: 'text-yellow-900	'
+    textClass: 'text-yellow-900 dark:text-white'
   }
 }
 
 const Badge = ({ label, className, textClassName, icon, variant }: BadgeProps) => {
   let twClassName = twMerge('flex h-fit items-center justify-around gap-x-1.5	rounded-full px-2.5 py-0.5', className)
 
-  let twTextClassName = twMerge('', textClassName)
+  let twTextClassName = textClassName
 
   let variantIconColor: null | string = null
 

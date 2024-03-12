@@ -140,5 +140,6 @@
     "filter": "Filter options",
     "selectOption": "Select Option",
     "selectOptions": "Select Options"
-  }
+  },
+  "timeAgo": "{{time}} ago"
 }
