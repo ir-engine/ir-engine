@@ -35,6 +35,8 @@ import { createEngine } from '../../initializeEngine'
 import { EventDispatcher } from '../classes/EventDispatcher'
 import { useFind, useGet, useMutation } from './FeathersHooks'
 
+let eventDispatcher: EventDispatcher
+
 describe('FeathersHooks', () => {
   beforeEach(() => {
     createEngine()
@@ -42,7 +44,7 @@ describe('FeathersHooks', () => {
       { id: '1', name: 'John' as UserName },
       { id: '2', name: 'Jane' as UserName }
     ]
-    const eventDispatcher = new EventDispatcher()
+    eventDispatcher = new EventDispatcher()
     ;(Engine.instance.api as any) = {
       service: () => {
         return {
@@ -429,6 +431,22 @@ describe('FeathersHooks', () => {
           rerender()
         })
         assert.strictEqual(result.value.data, null)
+      })
+    })
+
+    describe('should not create multiple listeners', () => {
+      it('should not create multiple listeners', async () => {
+        const { rerender } = renderHook(() => {
+          const data = useFind(userPath)
+          const data2 = useFind(userPath)
+        })
+        await act(() => {
+          rerender()
+        })
+        assert.strictEqual(eventDispatcher._listeners.created.length, 1)
+        assert.strictEqual(eventDispatcher._listeners.updated.length, 1)
+        assert.strictEqual(eventDispatcher._listeners.patched.length, 1)
+        assert.strictEqual(eventDispatcher._listeners.removed.length, 1)
       })
     })
   })
