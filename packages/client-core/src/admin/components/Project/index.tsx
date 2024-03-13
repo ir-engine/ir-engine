@@ -55,8 +55,6 @@ const Projects = () => {
   const buildStatusDrawerOpen = useHookstate(false)
   const isFirstRun = useHookstate(true)
 
-  ProjectService.useAPIListeners()
-
   const refreshGithubRepoAccess = () => {
     ProjectService.refreshGithubRepoAccess()
   }
@@ -81,7 +79,6 @@ const Projects = () => {
       interval = setInterval(ProjectService.checkReloadStatus, 10000)
     } else {
       clearInterval(interval)
-      ProjectService.fetchProjects()
     }
 
     return () => clearInterval(interval)
