@@ -1,7 +1,8 @@
-ARG ECR_URL
+ARG REPO_URL
 ARG REPO_NAME
 ARG STAGE
-FROM ${ECR_URL}/${REPO_NAME}-root:latest_${STAGE} as apiBuilder
+ARG TAG
+FROM ${REPO_URL}/${REPO_NAME}-root:${TAG} as apiBuilder
 
 # Create app directory
 WORKDIR /app
@@ -23,7 +24,7 @@ RUN rm -r packages/ui
 
 ENV APP_ENV=production
 
-FROM ${ECR_URL}/${REPO_NAME}-root:latest_${STAGE} as clientBuilder
+FROM ${REPO_URL}/${REPO_NAME}-root:${TAG} as clientBuilder
 
 # Create app directory
 WORKDIR /app
