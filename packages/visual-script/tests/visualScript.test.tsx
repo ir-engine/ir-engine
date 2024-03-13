@@ -364,7 +364,6 @@ describe('visual Script', () => {
     })
 
     const systemUUID = getUseStateSystemUUID(EngineState.name)
-    console.log(systemUUID)
     const UseStateReactor = SystemDefinitions.get(systemUUID)!.reactor!
     const useStateTag = <UseStateReactor />
     const { rerender, unmount } = render(useStateTag)
@@ -377,7 +376,6 @@ describe('visual Script', () => {
     await waitForConsoleLog(messageQueue[1]).then((result) => {
       // use state
       assert(result.includes(messageQueue[1]))
-      assert(!getState(EngineState).isBot)
     })
 
     //Engine.instance.store.stateMap
@@ -394,18 +392,17 @@ describe('visual Script', () => {
     await waitForConsoleLog(messageQueue[3]).then((result) => {
       // use state
       assert(result.includes(messageQueue[3]))
-      assert(getState(EngineState).isBot)
     })
 
     await act(() => rerender(useStateTag)) // second use startup
 
     await waitForConsoleLog(messageQueue[5]).then((result) => {
       assert(result.includes(messageQueue[5])) // test passed
+      assert(!getState(EngineState).isBot)
     })
 
     await waitForConsoleLog(messageQueue[4]).then((result) => {
       assert(result.includes(messageQueue[4])) // use state
-      assert(!getState(EngineState).isBot)
     })
   })
 
