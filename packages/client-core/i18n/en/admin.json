@@ -612,6 +612,14 @@
       "recording": "Recording",
       "confirmRecordingDelete": "Do you want to delete recording",
       "recordingFiles": "Recordings Files for:"
+    },
+    "route": {
+      "routes": "Routes",
+      "columns": {
+        "project": "Project",
+        "route": "Route",
+        "action": "Active"
+      }
     }
   }
 }
