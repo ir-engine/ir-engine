@@ -23,130 +23,89 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { Entity, defineComponent } from '@etherealengine/ecs'
+import { defineState, matches } from '@etherealengine/hyperflux'
+import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { Material, Vector3 } from 'three'
-import { ModelComponent } from '../../scene/components/ModelComponent'
-
-export type ditherPoint = { center: Vector3; distance: number; exponent: number; useTransformedWorldSpace: boolean }
+import {
+  ditheringAlphatestChunk,
+  ditheringFragUniform,
+  ditheringVertex,
+  ditheringVertexUniform
+} from '../functions/ditherShaderChunk'
 
 export enum ditherCalculationType {
   worldTransformed = 1,
   localPosition = 0
 }
 
-export const TransparencyDitheringComponent = defineComponent({
-  name: 'TransparencyDitheringComponent',
-  onInit: (entity) => {
-    return {
-      ditherPoint: new Vector3(),
-      pointDistance: 5,
-      pointExponent: 2,
-      calculationType: ditherCalculationType.worldTransformed,
-      //internal
-      matIds: [] as string[]
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    //if (matches.boolean.test(json.overrideFaceCulling)) component.overrideFaceCulling.set(json.overrideFaceCulling)
-  },
-
-  /**@todo refactor this reactor and when we call obc function */
-  reactor: () => {
-    const entity = useEntityContext()
-    const modelComponent = useComponent(entity, ModelComponent)
-    const entityComponent = useComponent(entity, EntityTreeComponent)
-    const useBasicMaterials = useHookstate(getMutableState(RendererState).forceBasicMaterials)
-    const transparencyDitheringComponent = useComponent(entity, TransparencyDitheringComponent)
-    /** Injects dithering logic into avatar materials */
-    // useEffect(() => {
-    //   const {
-    //     ditherPoints,
-    //     matIds,
-    //     overrideFaceCulling
-    //   } = getComponent(entity, TransparencyDitheringComponent)
-    //   const ditherComponent = getComponent(entity, TransparencyDitheringComponent)
-    //   transparencyDitheringComponent.matIds.forEach((id) => id.set(none))
-    //   iterateEntityNode(entity, (node) => {
-    //     const mesh = getOptionalComponent(node, MeshComponent)
-    //     if (!mesh) return
-    //     const material = mesh.material as Material
-    //     /** Account for meshes sharing the same material */
-    //     if (!matIds.find((id) => id === material.uuid)) {
-    //       transparencyDitheringComponent.matIds.set([...matIds, material.uuid])
-    //       const plugin = material.plugins?.findIndex(
-    //         (plugin: PluginObjectType) => plugin.id === 'transparency-dithering'
-    //       )
-    //       if (plugin !== undefined && plugin !== -1) material.plugins!.splice(plugin, 1)
-    //       injectDitheringLogic(
-    //         material,
-    //         ditherPoints,
-    //         overrideFaceCulling
-    //       )
-    //       // if (material.shader.uniforms.useWorldCenter) material.shader.uniforms.useWorldCenter.value = useWorldCenter
-    //       // if (material.shader.uniforms.useLocalCenter) material.shader.uniforms.useLocalCenter.value = useLocalCenter
-    //       // if (material.shader.uniforms.ditheringWorldDistance)
-    //       //   material.shader.uniforms.ditheringWorldDistance.value = ditheringWorldDistance
-    //       // if (material.shader.uniforms.ditheringWorldExponent)
-    //       //   material.shader.uniforms.ditheringWorldExponent.value = ditheringWorldExponent
-    //       // if (material.shader.uniforms.ditheringLocalDistance)
-    //       //   material.shader.uniforms.ditheringLocalDistance.value = ditheringLocalDistance
-    //       // if (material.shader.uniforms.ditheringLocalExponent)
-    //       //   material.shader.uniforms.ditheringLocalExponent.value = ditheringLocalExponent
-    //     }
-    //   })
-    // }, [
-    //   modelComponent.scene,
-    //   entityComponent.children,
-    //   useBasicMaterials,
-    //   transparencyDitheringComponent.ditherPoints,
-    // ])
-    return null
-  }
+export const transparencyDitheringState = defineState({
+  name: 'transparencyDitheringState',
+  initial: { materialIds: {} as Record<Entity, string[]> }
 })
 
-const injectDitheringLogic = (material: Material, ditherPoints: ditherPoint[], overrideCulling: boolean) => {
-  // material.alphaTest = 0.5
-  // if (overrideCulling) material.side = FrontSide
-  // addOBCPlugin(material, {
-  //   id: 'transparency-dithering',
-  //   priority: 10,
-  //   compile: (shader, renderer) => {
-  //     if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {
-  //       shader.vertexShader = shader.vertexShader.replace(
-  //         /#include <common>/,
-  //         '#include <common>\n' + ditheringVertexUniform
-  //       )
-  //     }
-  //     shader.vertexShader = shader.vertexShader.replace(
-  //       /#include <worldpos_vertex>/,
-  //       '	#include <worldpos_vertex>\n' + ditheringVertex
-  //     )
-  //     if (!shader.fragmentShader.startsWith('varying vec3 vWorldPosition'))
-  //       shader.fragmentShader = shader.fragmentShader.replace(
-  //         /#include <common>/,
-  //         '#include <common>\n' + ditheringFragUniform
-  //       )
-  //     shader.fragmentShader = shader.fragmentShader.replace(/#include <alphatest_fragment>/, ditheringAlphatestChunk)
-  //     shader.uniforms.ditheringWorldCenter = {
-  //       value: worldCenter
-  //     }
-  //     shader.uniforms.ditheringLocalCenter = {
-  //       value: localCenter
-  //     }
-  //     shader.uniforms.ditheringWorldExponent = { value: ditheringWorldExponent }
-  //     shader.uniforms.ditheringWorldDistance = { value: ditheringWorldDistance }
-  //     shader.uniforms.ditheringLocalExponent = { value: ditheringLocalExponent }
-  //     shader.uniforms.ditheringLocalDistance = { value: ditheringLocalDistance }
-  //     shader.uniforms.useLocalCenter = { value: useLocalCenter }
-  //     shader.uniforms.useWorldCenter = { value: useWorldCenter }
-  //     shader.uniforms.worldCenter = { value: worldCenter }
-  //     shader.uniforms.localCenter = { value: localCenter }
-  //     material.shader = shader
-  //   }
-  // })
+const maxDitherPoints = 2
+export const TransparencyDitheringComponent = Array.from({ length: maxDitherPoints }, (_, i) => {
+  return defineComponent({
+    name: `TransparencyDitheringComponent${i}`,
+    onInit: (entity) => {
+      return {
+        center: new Vector3(),
+        distance: 5,
+        exponent: 2,
+        calculationType: ditherCalculationType.worldTransformed
+      }
+    },
+
+    onSet: (entity, component, json) => {
+      if (!json) return
+      if (matchesVector3.test(json.center)) component.center.set(new Vector3().copy(json.center))
+      if (matches.number.test(json.distance)) component.distance.set(json.distance)
+      if (matches.number.test(json.exponent)) component.exponent.set(json.exponent)
+      if (matches.number.test(json.calculationType)) component.calculationType.set(json.calculationType)
+    }
+  })
+})
+
+const injectDitheringLogic = (material: Material, center: Vector3, distance: number, exponent: number) => {
+  material.alphaTest = 0.5
+  //if (overrideCulling) material.side = FrontSide
+  addOBCPlugin(material, {
+    id: 'transparency-dithering',
+    priority: 10,
+    compile: (shader, renderer) => {
+      if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {
+        shader.vertexShader = shader.vertexShader.replace(
+          /#include <common>/,
+          '#include <common>\n' + ditheringVertexUniform
+        )
+      }
+      shader.vertexShader = shader.vertexShader.replace(
+        /#include <worldpos_vertex>/,
+        '	#include <worldpos_vertex>\n' + ditheringVertex
+      )
+      if (!shader.fragmentShader.startsWith('varying vec3 vWorldPosition'))
+        shader.fragmentShader = shader.fragmentShader.replace(
+          /#include <common>/,
+          '#include <common>\n' + ditheringFragUniform
+        )
+      shader.fragmentShader = shader.fragmentShader.replace(/#include <alphatest_fragment>/, ditheringAlphatestChunk)
+      shader.uniforms.ditheringWorldCenter = {
+        value: new Vector3()
+      }
+      shader.uniforms.ditheringLocalCenter = {
+        value: new Vector3()
+      }
+      //  shader.uniforms.ditheringWorldExponent = { value: ditheringWorldExponent }
+      //  shader.uniforms.ditheringWorldDistance = { value: ditheringWorldDistance }
+      //  shader.uniforms.ditheringLocalExponent = { value: ditheringLocalExponent }
+      //  shader.uniforms.ditheringLocalDistance = { value: ditheringLocalDistance }
+      //  shader.uniforms.useLocalCenter = { value: useLocalCenter }
+      //  shader.uniforms.useWorldCenter = { value: useWorldCenter }
+      //  shader.uniforms.worldCenter = { value: worldCenter }
+      //  shader.uniforms.localCenter = { value: localCenter }
+      material.shader = shader
+    }
+  })
 }
