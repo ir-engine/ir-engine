@@ -718,7 +718,7 @@ export const getProjectCommits = async (
 
     const enginePackageJson = getEnginePackageJson()
     const repoResponse = await octoKit.rest.repos.get({ owner, repo })
-    const branchName = params!.query!.branchName || (repoResponse as any).default_branch
+    const branchName = params!.query!.sourceBranch || (repoResponse as any).default_branch
     const headResponse = await octoKit.rest.repos.listCommits({
       owner,
       repo,
@@ -1308,11 +1308,11 @@ export const checkProjectAutoUpdate = async (app: Application, projectName: stri
   } else if (project.updateType === 'commit') {
     const commits = await getProjectCommits(app, project.sourceRepo!, {
       user,
-      query: { branchName: project.branchName! }
+      query: { sourceBranch: project.sourceBranch! }
     })
     if (commits && commits[0].commitSHA !== project.commitSHA) commitSHA = commits[0].commitSHA
   }
-  if (commitSHA)
+  if (commitSHA && !project.hasLocalChanges)
     await app.service(projectPath).update(
       '',
       {
@@ -1542,6 +1542,7 @@ export const updateProject = async (
           enabled,
           repositoryPath,
           needsRebuild: data.needsRebuild ? data.needsRebuild : true,
+          hasLocalChanges: false,
           sourceRepo: data.sourceURL,
           sourceBranch: data.sourceBranch,
           updateType: data.updateType,
@@ -1559,6 +1560,7 @@ export const updateProject = async (
         {
           enabled,
           commitSHA,
+          hasLocalChanges: false,
           commitDate: toDateTimeSql(commitDate),
           sourceRepo: data.sourceURL,
           sourceBranch: data.sourceBranch,
