@@ -29,7 +29,7 @@ import { matches, Parser, Validator } from 'ts-matches'
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import multiLogger from '@etherealengine/common/src/logger'
-import { InstanceID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { deepEqual } from '@etherealengine/common/src/utils/deepEqual'
 
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
@@ -39,11 +39,10 @@ import { HyperFlux } from './StoreFunctions'
 
 const logger = multiLogger.child({ component: 'hyperflux:Action' })
 
-const matchesUserId = matches.string as Validator<unknown, UserID>
 const matchesPeerID = matches.string as Validator<unknown, PeerID>
 
 export { matches, Validator } from 'ts-matches'
-export { matchesUserId, matchesPeerID }
+export { matchesPeerID }
 
 export type Topic = OpaqueType<'topicId'> & string
 

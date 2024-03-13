@@ -49,8 +49,7 @@ import {
   defineState,
   dispatchAction,
   getMutableState,
-  getState,
-  matchesUserId
+  getState
 } from '@etherealengine/hyperflux'
 import {
   DataChannelRegistryState,
@@ -62,6 +61,7 @@ import {
   SerializationSchema,
   WorldNetworkAction,
   addDataChannelHandler,
+  matchesUserID,
   removeDataChannelHandler,
   updatePeers,
   webcamAudioDataChannelType,
@@ -96,7 +96,7 @@ export class ECSRecordingActions {
   static startPlayback = defineAction({
     type: 'ee.core.motioncapture.PLAY_RECORDING' as const,
     recordingID: matches.string as Validator<unknown, RecordingID>,
-    targetUser: matchesUserId.optional(),
+    targetUser: matchesUserID.optional(),
     autoplay: matches.boolean
   })
 

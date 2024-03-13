@@ -29,16 +29,15 @@ import {
   defineState,
   getMutableState,
   matches,
-  matchesUserId,
   matchesWithDefault,
   none
 } from '@etherealengine/hyperflux'
-import { NetworkTopics } from '@etherealengine/network'
+import { NetworkTopics, matchesUserID } from '@etherealengine/network'
 
 export class AvatarUIActions {
   static setUserTyping = defineAction({
     type: 'ee.client.avatar.USER_IS_TYPING',
-    userID: matchesWithDefault(matchesUserId, () => Engine.instance.userID),
+    userID: matchesWithDefault(matchesUserID, () => Engine.instance.userID),
     typing: matches.boolean,
     $topic: NetworkTopics.world
   })

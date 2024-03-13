@@ -23,18 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineAction, matchesPeerID, matchesUserId, matchesWithDefault } from '@etherealengine/hyperflux'
-
 import { Engine, matchesEntityUUID } from '@etherealengine/ecs'
+import { defineAction, matchesPeerID, matchesWithDefault } from '@etherealengine/hyperflux'
 import { NetworkTopics } from '../Network'
 import { NetworkObjectComponent, matchesNetworkId } from '../NetworkObjectComponent'
+import { matchesUserID } from './matchesUserID'
 
 export class WorldNetworkAction {
   static spawnEntity = defineAction({
     type: 'ee.network.SPAWN_ENTITY',
     entityUUID: matchesEntityUUID,
     networkId: matchesWithDefault(matchesNetworkId, () => NetworkObjectComponent.createNetworkId()),
-    ownerID: matchesWithDefault(matchesUserId, () => Engine.instance.userID),
+    ownerID: matchesWithDefault(matchesUserID, () => Engine.instance.userID),
     authorityPeerId: matchesPeerID.optional(),
     $cache: true,
     $topic: NetworkTopics.world
@@ -57,7 +57,7 @@ export class WorldNetworkAction {
 
   static transferAuthorityOfObject = defineAction({
     type: 'ee.engine.world.TRANSFER_AUTHORITY_OF_ENTITY',
-    ownerID: matchesUserId,
+    ownerID: matchesUserID,
     entityUUID: matchesEntityUUID,
     newAuthority: matchesPeerID,
     $topic: NetworkTopics.world,
