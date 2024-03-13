@@ -64,7 +64,7 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { Not } from 'bitecs'
 import React, { useEffect, useLayoutEffect } from 'react'
 import { Group } from 'three'
-import { ResourceProgressState } from '../../assets/state/ResourceState'
+import { ResourceProgressState, ResourceProgressType } from '../../assets/state/ResourceState'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneComponent } from '../components/SceneComponent'
@@ -115,54 +115,36 @@ const NetworkedSceneObjectReactor = () => {
 }
 
 const SceneReactor = (props: { sceneID: SceneID }) => {
-  // const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
-  // const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
   const entities = useHookstate(UUIDComponent.entitiesByUUIDState)
-
   const resourceProgressState = useHookstate(getMutableState(ResourceProgressState))
-
   const currentSceneSnapshotState = SceneState.useScene(props.sceneID)
   const sceneEntities = currentSceneSnapshotState.entities
   const rootUUID = currentSceneSnapshotState.root.value
-
-  // useEffect(() => {
-  //   if (getState(SceneState).sceneLoaded) return
-
-  //   const entitiesCount = sceneEntities.keys.map(UUIDComponent.getEntityByUUID).filter(Boolean).length
-  //   if (entitiesCount <= 1) return
-
-  //   const values = Object.values(assetLoadingState.value)
-  //   const total = values.reduce((acc, curr) => acc + curr.totalAmount, 0)
-  //   const loaded = values.reduce((acc, curr) => acc + curr.loadedAmount, 0)
-  //   const progress = !sceneAssetPendingTagQuery.length || total === 0 ? 100 : Math.round((100 * loaded) / total)
-
-  //   getMutableState(SceneState).loadingProgress.set(progress)
-
-  //   if (!sceneAssetPendingTagQuery.length && !getState(SceneState).sceneLoaded) {
-  //     getMutableState(SceneState).sceneLoaded.set(true)
-  //     SceneAssetPendingTagComponent.loadingProgress.set({})
-  //   }
-  // }, [sceneAssetPendingTagQuery.length, assetLoadingState, entities.keys])
 
   useLayoutEffect(() => {
     if (getState(SceneState).sceneLoaded) return
 
     const entitiesCount = sceneEntities.keys.map(UUIDComponent.getEntityByUUID).filter(Boolean).length
+    if (entitiesCount <= 1) return
 
-    const values = Object.values(resourceProgressState.value)
+    const pendingEntityResources = sceneEntities.keys
+      .map((key) => resourceProgressState.value[key])
+      .filter(Boolean) as ResourceProgressType[]
+    const values = Object.values(pendingEntityResources)
       .map((v) => Object.values(v))
       .flat()
     const total = values.reduce((acc, curr) => acc + curr.totalAmount, 0)
     const loaded = values.reduce((acc, curr) => acc + curr.loadedAmount, 0)
-    const progress = !resourceProgressState.keys.length || total === 0 ? 100 : Math.round((100 * loaded) / total)
+    if (total === 0 && loaded < 0) return
 
-    console.trace('scene resources', entitiesCount, progress, resourceProgressState.keys.length)
-    if (entitiesCount <= 1) return
+    const progress = Math.round((100 * loaded) / total)
+
+    console.log('Scene Loading Progress', values, progress, total, loaded)
 
     getMutableState(SceneState).loadingProgress.set(progress)
 
-    if (progress === 100 && !getState(SceneState).sceneLoaded) {
-      console.log('\n\n\n\nSCENE LOADED', sceneEntities.keys, entities.keys, resourceProgressState.keys)
+    if (total === loaded && !getState(SceneState).sceneLoaded) {
+      console.log('\n\n\n\nSCENE LOADED')
       getMutableState(SceneState).sceneLoaded.set(true)
       SceneAssetPendingTagComponent.loadingProgress.set({})
     }

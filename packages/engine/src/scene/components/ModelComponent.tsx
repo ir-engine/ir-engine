@@ -103,7 +103,7 @@ export const ModelComponent = defineComponent({
     if (typeof json.cameraOcclusion === 'boolean') component.cameraOcclusion.set(json.cameraOcclusion)
     if (typeof json.convertToVRM === 'boolean') component.convertToVRM.set(json.convertToVRM)
 
-    console.trace('scene resources onset', entity, json.src)
+    // console.trace('scene resources onset', entity, json.src)
 
     if (hasComponent(entity, UUIDComponent) && json.src && hasComponent(entity, SceneComponent))
       ResourceProgressState.addResource(getComponent(entity, UUIDComponent), json.src)
@@ -118,7 +118,7 @@ function ModelReactor(): JSX.Element {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
 
-  console.trace('scene resources', entity, modelComponent.src.value)
+  // console.trace('scene resources', entity, modelComponent.src.value)
 
   const [gltf, unload, error, progress] = useGLTF(modelComponent.src.value, entity, {
     forceAssetType: modelComponent.assetTypeOverride.value,
@@ -208,6 +208,7 @@ function ModelReactor(): JSX.Element {
     /**hotfix for gltf animations being stored in the root and not scene property */
     if (!asset.scene.animations.length && !(asset instanceof VRM)) asset.scene.animations = asset.animations
 
+    console.log('loaded gltf', asset)
     const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene)
     const uuid = getModelSceneID(entity)
 

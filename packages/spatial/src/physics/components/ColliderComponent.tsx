@@ -76,6 +76,7 @@ export const ColliderComponent = defineComponent({
     if (typeof json.restitution === 'number') component.restitution.set(json.restitution)
     if (typeof json.collisionLayer === 'number') component.collisionLayer.set(json.collisionLayer)
     if (typeof json.collisionMask === 'number') component.collisionMask.set(json.collisionMask)
+    console.trace('collider onset', Date.now())
   },
 
   toJSON(entity, component) {
