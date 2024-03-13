@@ -74,7 +74,6 @@ export const CaptureLocation = () => {
   const avatarQuery = useQuery([AvatarControllerComponent, RigidBodyComponent])
 
   useEffect(() => {
-    console.log(avatarQuery)
     removeComponent(avatarQuery[0], AvatarControllerComponent)
     if (hasComponent(avatarQuery[0], RigidBodyComponent))
       getMutableComponent(avatarQuery[0], RigidBodyComponent).type.set('fixed')
