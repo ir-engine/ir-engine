@@ -37,8 +37,7 @@ import {
 } from 'mediasoup/node/lib/types'
 import os from 'os'
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { PeerID, State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { MediaStreamAppData, NetworkState } from '@etherealengine/network'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'

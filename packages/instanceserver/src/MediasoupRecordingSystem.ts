@@ -27,8 +27,8 @@ import { createHash } from 'crypto'
 import { Consumer, PlainTransport, Router } from 'mediasoup/node/lib/types'
 import { useEffect } from 'react'
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { PeerID } from '@etherealengine/hyperflux'
 import {
   NetworkState,
   PeerMediaType,

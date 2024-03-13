@@ -26,10 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID } from '@etherealengine/ecs'
-import { ReactorReconciler } from '@etherealengine/hyperflux'
+import { PeerID, ReactorReconciler } from '@etherealengine/hyperflux'
 import { applyIncomingActions, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { UUIDComponent } from '@etherealengine/ecs'

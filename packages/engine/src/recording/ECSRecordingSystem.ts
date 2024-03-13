@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import multiLogger from '@etherealengine/common/src/logger'
 import {
   AvatarID,
@@ -43,6 +42,7 @@ import {
   SerializedChunk
 } from '@etherealengine/engine/src/recording/ECSSerializerSystem'
 import {
+  PeerID,
   Topic,
   defineAction,
   defineActionQueue,

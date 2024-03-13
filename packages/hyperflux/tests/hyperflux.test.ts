@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { PeerID } from '@etherealengine/hyperflux'
 import matches from 'ts-matches'
 import {
   applyIncomingActions,

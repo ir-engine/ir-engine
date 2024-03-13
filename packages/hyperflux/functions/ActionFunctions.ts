@@ -27,7 +27,6 @@ import { MathUtils } from 'three'
 import { matches, Parser, Validator } from 'ts-matches'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import multiLogger from '@etherealengine/common/src/logger'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { deepEqual } from '@etherealengine/common/src/utils/deepEqual'
@@ -38,6 +37,8 @@ import { setInitialState, StateDefinitions } from './StateFunctions'
 import { HyperFlux } from './StoreFunctions'
 
 const logger = multiLogger.child({ component: 'hyperflux:Action' })
+
+export type PeerID = OpaqueType<'PeerID'> & string
 
 const matchesPeerID = matches.string as Validator<unknown, PeerID>
 

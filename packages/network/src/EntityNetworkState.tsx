@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { EntityUUID } from '@etherealengine/ecs'
+import { PeerID } from '@etherealengine/hyperflux'
 
 import { defineState, dispatchAction, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 

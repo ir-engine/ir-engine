@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import {
   Action,
+  PeerID,
   addOutgoingTopicIfNecessary,
   clearOutgoingActions,
   dispatchAction,
