@@ -45,7 +45,7 @@ const matchesPeerID = matches.string as Validator<unknown, PeerID>
 export { matches, Validator } from 'ts-matches'
 export { matchesPeerID }
 
-export type Topic = OpaqueType<'topicId'> & string
+export type Topic = OpaqueType<'Topic'> & string
 
 export type Action = {
   /**
