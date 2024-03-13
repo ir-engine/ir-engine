@@ -564,6 +564,7 @@ const updateProjectJob = async (context: HookContext) => {
       if (result.total > 0) returned = result.data[0]
       else throw new BadRequest('Project did not exist after update')
       returned.needsRebuild = typeof data.needsRebuild === 'boolean' ? data.needsRebuild : true
+      returned.hasLocalChanges = false
       context.result = returned
     } catch (err) {
       console.log('Error: project did not exist after completing update', projectName, err)
