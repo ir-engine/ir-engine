@@ -23,12 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineAction, defineState, getMutableState, matches, none } from '@etherealengine/hyperflux'
+import { Engine } from '@etherealengine/ecs'
+import {
+  defineAction,
+  defineState,
+  getMutableState,
+  matches,
+  matchesUserId,
+  matchesWithDefault,
+  none
+} from '@etherealengine/hyperflux'
 import { NetworkTopics } from '@etherealengine/network'
 
 export class AvatarUIActions {
   static setUserTyping = defineAction({
     type: 'ee.client.avatar.USER_IS_TYPING',
+    userID: matchesWithDefault(matchesUserId, () => Engine.instance.userID),
     typing: matches.boolean,
     $topic: NetworkTopics.world
   })
@@ -44,7 +54,7 @@ export const AvatarUIState = defineState({
   receptors: {
     onSetUserType: AvatarUIActions.setUserTyping.receive((action) => {
       const state = getMutableState(AvatarUIState)
-      state.usersTyping[action.$from].set(action.typing ? true : none)
+      state.usersTyping[action.userID].set(action.typing ? true : none)
     })
   }
 })

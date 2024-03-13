@@ -85,7 +85,7 @@ describe('EntityNetworkState', () => {
 
       dispatchAction(
         WorldNetworkAction.spawnEntity({
-          $from: NetworkState.worldNetwork.hostId, // from  host
+          ownerID: NetworkState.worldNetwork.hostId, // from  host
           networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: Engine.instance.peerID,
@@ -131,7 +131,7 @@ describe('EntityNetworkState', () => {
 
       dispatchAction(
         WorldNetworkAction.spawnEntity({
-          $from: userId, // from  user
+          ownerID: userId, // from  user
           networkId: objNetId,
           $peer: Engine.instance.peerID,
           entityUUID: Engine.instance.peerID as any as EntityUUID
@@ -178,7 +178,7 @@ describe('EntityNetworkState', () => {
 
       dispatchAction(
         WorldNetworkAction.spawnEntity({
-          $from: userId2, // from other user
+          ownerID: userId2, // from other user
           networkId: objNetId,
           $peer: peerID3,
           $topic: NetworkTopics.world,
@@ -258,7 +258,7 @@ describe('EntityNetworkState', () => {
 
       dispatchAction(
         WorldNetworkAction.spawnEntity({
-          $from: userId,
+          ownerID: userId,
           networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: peerID,
@@ -283,7 +283,6 @@ describe('EntityNetworkState', () => {
 
       dispatchAction(
         WorldNetworkAction.requestAuthorityOverObject({
-          $from: userId,
           entityUUID: peerID as any as EntityUUID,
           $topic: NetworkTopics.world,
           newAuthority: peerID2
@@ -328,7 +327,7 @@ describe('EntityNetworkState', () => {
 
     dispatchAction(
       WorldNetworkAction.spawnEntity({
-        $from: hostUserId, // from  host
+        ownerID: hostUserId, // from  host
         networkId: objNetId,
         $topic: NetworkTopics.world,
         $peer: Engine.instance.peerID,
@@ -353,7 +352,6 @@ describe('EntityNetworkState', () => {
 
     dispatchAction(
       WorldNetworkAction.requestAuthorityOverObject({
-        $from: userId, // from user
         entityUUID: Engine.instance.peerID as any as EntityUUID,
         $topic: NetworkTopics.world,
         newAuthority: peerID2
@@ -399,7 +397,7 @@ describe('EntityNetworkState', () => {
     for (let i = 0; i < 10000; i++) {
       dispatchAction(
         WorldNetworkAction.spawnEntity({
-          $from: hostUserId, // from  host
+          ownerID: hostUserId, // from  host
           networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: Engine.instance.peerID,
@@ -423,7 +421,7 @@ describe('EntityNetworkState', () => {
 
     dispatchAction(
       WorldNetworkAction.spawnEntity({
-        $from: hostUserId, // from  host
+        ownerID: hostUserId, // from  host
         networkId: objNetId,
         $topic: NetworkTopics.world,
         $peer: Engine.instance.peerID,

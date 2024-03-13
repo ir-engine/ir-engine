@@ -77,7 +77,6 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
     dispatchAction(
       AvatarNetworkAction.spawn({
-        $from: Engine.instance.userID,
         networkId: networkObject.networkId,
         position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942),
         rotation: new Quaternion(),

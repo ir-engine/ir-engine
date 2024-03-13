@@ -41,11 +41,6 @@ export interface HyperStore {
    */
   forwardingTopics: Set<Topic>
   /**
-   * A function which returns the dispatch id assigned to actions
-   * @deprecated can be derived from agentId via mapping
-   * */
-  getDispatchId: () => string
-  /**
    * The agent id
    */
   peerID: PeerID
@@ -104,7 +99,6 @@ export class HyperFlux {
 }
 
 export function createHyperStore(options: {
-  getDispatchId: () => string
   getDispatchTime: () => number
   defaultDispatchDelay?: () => number
   getCurrentReactorRoot?: () => ReactorRoot | undefined
@@ -112,7 +106,6 @@ export function createHyperStore(options: {
   const store: HyperStore = {
     defaultTopic: 'default' as Topic,
     forwardingTopics: new Set<Topic>(),
-    getDispatchId: options.getDispatchId,
     getDispatchTime: options.getDispatchTime,
     defaultDispatchDelay: options.defaultDispatchDelay ?? (() => 0),
     getCurrentReactorRoot: options.getCurrentReactorRoot ?? (() => undefined),

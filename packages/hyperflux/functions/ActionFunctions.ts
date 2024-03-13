@@ -60,7 +60,7 @@ export type ActionCacheOptions =
   | boolean
   | {
       /**
-       * If non-falsy, remove previous actions in the cache that match `$from` and `type` fields,
+       * If non-falsy, remove previous actions in the cache that match `$peer` and `type` fields,
        * and any specified fields
        */
       removePrevious?: boolean | string[]
@@ -81,12 +81,6 @@ export type ActionOptions = {
    * Will be undefined if dispatched locally or not in a network
    */
   $peer?: PeerID
-
-  /**
-   * The id of the sender
-   * @deprecated see getDispatchId
-   */
-  $from?: UserID
 
   /**
    * The intended recipients
@@ -296,7 +290,6 @@ export function defineAction<Shape extends Omit<ActionShape<Action>, keyof Actio
       ]) as [string, any]
     )
     const action = {
-      $from: HyperFlux.store?.getDispatchId(),
       ...allValuesNull,
       ...Object.fromEntries([...optionEntries, ...literalEntries]),
       ...defaultValues,
@@ -332,10 +325,8 @@ export function defineAction<Shape extends Omit<ActionShape<Action>, keyof Actio
 export const dispatchAction = <A extends Action>(_action: A) => {
   const action = JSON.parse(JSON.stringify(_action))
 
-  const storeId = HyperFlux.store.getDispatchId()
   const agentId = HyperFlux.store.peerID
 
-  action.$from = action.$from ?? (storeId as UserID)
   action.$peer = action.$peer ?? agentId
   action.$to = action.$to ?? 'all'
   action.$time = action.$time ?? HyperFlux.store.getDispatchTime() + HyperFlux.store.defaultDispatchDelay()
@@ -378,8 +369,7 @@ const _updateCachedActions = (incomingAction: Required<ResolvedActionType>) => {
 
       if (remove) {
         for (const a of [...cachedActions]) {
-          // TODO - is it safe to change $from to $peer here?
-          if (a.$from === incomingAction.$from && a.type === incomingAction.type) {
+          if (a.$peer === incomingAction.$peer && a.type === incomingAction.type) {
             if (remove === true) {
               const idx = cachedActions.indexOf(a)
               cachedActions.splice(idx, 1)

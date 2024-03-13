@@ -107,11 +107,11 @@ const NetworkedSceneObjectReactor = () => {
     const isHostingWorldNetwork = !!NetworkState.worldNetwork?.isHosting
     dispatchAction(
       SpawnObjectActions.spawnObject({
-        $from: SceneUser,
-        $time: isHostingWorldNetwork ? undefined : 0,
+        ownerID: SceneUser,
         entityUUID: uuid,
         position: transform.position.clone(),
         rotation: transform.rotation.clone(),
+        $time: isHostingWorldNetwork ? undefined : 0,
         $topic: isHostingWorldNetwork ? NetworkTopics.world : undefined
       })
     )

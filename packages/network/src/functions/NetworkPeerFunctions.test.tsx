@@ -154,7 +154,7 @@ describe('NetworkPeerFunctions', () => {
 
       dispatchAction(
         SpawnObjectActions.spawnObject({
-          $from: userId, // from  user
+          ownerID: userId, // from  user
           networkId: networkId,
           $peer: anotherPeerID,
           entityUUID: 'some uuid' as EntityUUID
