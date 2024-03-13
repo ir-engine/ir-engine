@@ -124,7 +124,6 @@ export const AudioAnalysisComponent = defineComponent({
           const analyser = audioContext.createAnalyser()
           analyser.fftSize = 2 ** 5
           audioObject.source.connect(analyser)
-          analyser.connect(audioContext.destination)
           audioAnaylsisComponent.session.set({
             analyser,
             frequencyData: new Uint8Array(analyser.frequencyBinCount)
