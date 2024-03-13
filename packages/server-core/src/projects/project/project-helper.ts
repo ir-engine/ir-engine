@@ -202,7 +202,7 @@ export const updateBuilder = async (
 export const checkBuilderService = async (app: Application): Promise<{ failed: boolean; succeeded: boolean }> => {
   const jobStatus = {
     failed: false,
-    succeeded: false
+    succeeded: !config.kubernetes.enabled // if no k8s, assume success
   }
   const k8DefaultClient = getState(ServerState).k8DefaultClient
   const k8BatchClient = getState(ServerState).k8BatchClient
@@ -1062,7 +1062,7 @@ export async function getProjectPushJobBody(
   }
   return {
     metadata: {
-      name: `${process.env.RELEASE_NAME}-${project.name}-gh-push`,
+      name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-gh-push`,
       labels: {
         'etherealengine/projectPusher': 'true',
         'etherealengine/projectField': project.name,
@@ -1082,7 +1082,7 @@ export async function getProjectPushJobBody(
           serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
           containers: [
             {
-              name: `${process.env.RELEASE_NAME}-${project.name}-push`,
+              name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-push`,
               image,
               imagePullPolicy: 'IfNotPresent',
               command,
@@ -1101,7 +1101,7 @@ export async function getProjectPushJobBody(
 export const getCronJobBody = (project: ProjectType, image: string): object => {
   return {
     metadata: {
-      name: `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
+      name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-auto-update`,
       labels: {
         'etherealengine/projectUpdater': 'true',
         'etherealengine/autoUpdate': 'true',
@@ -1131,7 +1131,7 @@ export const getCronJobBody = (project: ProjectType, image: string): object => {
               serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
               containers: [
                 {
-                  name: `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
+                  name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-auto-update`,
                   image,
                   imagePullPolicy: 'IfNotPresent',
                   command: [
@@ -1697,7 +1697,7 @@ export const uploadLocalProjectToProvider = async (
 
     for (const item of manifest) {
       if (existingKeySet.has(item.key)) {
-        logger.info(`Skipping upload of static resource: "${item.key}"`)
+        // logger.info(`Skipping upload of static resource: "${item.key}"`)
         continue
       }
       const url = getCachedURL(item.key, cacheDomain)
@@ -1729,7 +1729,7 @@ export const uploadLocalProjectToProvider = async (
         ...newResource,
         url
       })
-      logger.info(`Uploaded static resource ${item.key} from resources.json`)
+      // logger.info(`Uploaded static resource ${item.key} from resources.json`)
     }
   }
 
@@ -1761,7 +1761,7 @@ export const uploadLocalProjectToProvider = async (
         if (filePathRelative.startsWith('/assets/') && staticResourceClasses.includes(thisFileClass)) {
           const hash = createStaticResourceHash(fileResult)
           if (existingContentSet.has(resourceKey(key, hash))) {
-            logger.info(`Skipping upload of static resource of class ${thisFileClass}: "${key}"`)
+            // logger.info(`Skipping upload of static resource of class ${thisFileClass}: "${key}"`)
           } else {
             if (existingKeySet.has(key)) {
               logger.info(`Updating static resource of class ${thisFileClass}: "${key}"`)
@@ -1791,7 +1791,7 @@ export const uploadLocalProjectToProvider = async (
                 tags: [thisFileClass]
               })
             }
-            logger.info(`Uploaded static resource of class ${thisFileClass}: "${key}"`)
+            // logger.info(`Uploaded static resource of class ${thisFileClass}: "${key}"`)
           }
         }
       }
