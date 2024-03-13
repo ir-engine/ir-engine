@@ -346,7 +346,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerI
               instanceId: instanceServerState.instance.id,
               text: `A user left`,
               isNotification: true,
-              senderId: null
+              senderId: undefined
             },
             {
               [identityProviderPath]: {
