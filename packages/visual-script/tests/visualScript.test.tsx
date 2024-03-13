@@ -35,6 +35,7 @@ import {
   VisualScriptComponent,
   VisualScriptDomain,
   getOnExecuteSystemUUID,
+  getUseStateSystemUUID,
   getUseVariableSystemUUID,
   registerEngineProfile
 } from '@etherealengine/spatial'
@@ -46,6 +47,7 @@ import entityComponentTestVisualScript from './assets/entity-component-test-visu
 import floatTestVisualScript from './assets/float-test-visual-script.json'
 import integerTestVisualScript from './assets/integer-test-visual-script.json'
 import rateRepeatTestVisualScript from './assets/rate-repeat-test-visual-script.json'
+import stateTestVisualScript from './assets/state-test-visual-script.json'
 import stringTestVisualScript from './assets/string-test-visual-script.json'
 import variableTestVisualScript from './assets/variable-test-visual-script.json'
 import vec2TestVisualScript from './assets/vec2-test-visual-script.json'
@@ -53,7 +55,9 @@ import vec3TestVisualScript from './assets/vec3-test-visual-script.json'
 import vec4TestVisualScript from './assets/vec4-test-visual-script.json'
 
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
-import { Entity, EntityUUID, SystemDefinitions, UUIDComponent } from '@etherealengine/ecs'
+import { Entity, EntityUUID, SystemDefinitions, UUIDComponent, destroySystem } from '@etherealengine/ecs'
+import { getState } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { act, render } from '@testing-library/react'
@@ -65,6 +69,7 @@ import { GraphJSON, VisualScriptState, getOnAsyncExecuteSystemUUID } from '../sr
 describe('visual Script', () => {
   let consoleSpy: Sinon.SinonSpy
   let consoleErrorSpy: Sinon.SinonSpy // Spy on console.error
+  let systemAsyncUUID
   const successMessage = 'pass'
   const waitForConsoleLog = (successMessage = 'pass') =>
     new Promise<string>((resolve, reject) => {
@@ -205,12 +210,84 @@ describe('visual Script', () => {
     done = true
   })
 
+  it('test entity and component nodes script', async () => {
+    const entity = createEntity()
+    const visualScript = parseStorageProviderURLs(entityComponentTestVisualScript) as unknown as GraphJSON
+    setComponent(entity, VisualScriptComponent, { visualScript: visualScript, run: true })
+    const messageSequence = [
+      'entity added',
+      'uuid',
+      'component added',
+      'component modified',
+      'component deleted',
+      'tag added',
+      'tag deleted',
+      'entity deleted',
+      'passed'
+    ]
+
+    let newEntity: Entity
+    console.log()
+    for (const message of messageSequence) {
+      await waitForConsoleLog(message).then((result) => {
+        assert(result.includes(message))
+        switch (message) {
+          case messageSequence[1]: {
+            // uuid
+            const message = result.split(' ')
+            const uuid = message[message.length - 1] as EntityUUID
+            newEntity = UUIDComponent.getEntityByUUID(uuid)
+            assert(entityExists(newEntity))
+            assert(getComponent(newEntity, NameComponent) === 'test')
+            break
+          }
+          case messageSequence[2]: {
+            // component added
+            assert(getComponent(newEntity, InputComponent) !== undefined)
+            break
+          }
+          case messageSequence[3]: {
+            // component modified
+            const inputComponent = getComponent(newEntity, InputComponent)
+            assert(inputComponent !== undefined)
+            assert(inputComponent.grow)
+            systemAsyncUUID = getOnAsyncExecuteSystemUUID()
+            SystemDefinitions.get(systemAsyncUUID)!.execute()
+            break
+          }
+          case messageSequence[4]: {
+            // component deleted
+            const inputComponent = getOptionalComponent(newEntity, InputComponent)
+            assert(inputComponent === undefined)
+            break
+          }
+          case messageSequence[5]: {
+            // tag added
+            assert(getComponent(newEntity, ComponentMap.get('bg-tag.test')!) !== undefined)
+            SystemDefinitions.get(systemAsyncUUID)!.execute()
+            break
+          }
+          case messageSequence[6]: {
+            // tag deleted
+            assert(getOptionalComponent(newEntity, ComponentMap.get('bg-tag.test')!) === undefined)
+            break
+          }
+          case messageSequence[7]: {
+            // entity deleted
+            assert(entityExists(newEntity) === false)
+            break
+          }
+        }
+      })
+    }
+    destroySystem(systemAsyncUUID)
+  })
+
   it('test variable nodes script', async () => {
     const entity = createEntity()
     const visualScript = parseStorageProviderURLs(variableTestVisualScript) as unknown as GraphJSON
     setComponent(entity, VisualScriptComponent, { visualScript: visualScript, run: true })
 
-    console.log('variableGet')
     await waitForConsoleLog('variableGet').then((result) => {
       assert(result.includes('variableGet'))
     })
@@ -226,7 +303,8 @@ describe('visual Script', () => {
     await waitForConsoleLog('variableUsevariableGet').then((result) => {
       assert(result.includes('variableUsevariableGet'))
     })
-    const systemAsyncUUID = getOnAsyncExecuteSystemUUID()
+
+    systemAsyncUUID = getOnAsyncExecuteSystemUUID()
     SystemDefinitions.get(systemAsyncUUID)!.execute()
 
     await act(() => rerender(useVariableTag))
@@ -274,77 +352,61 @@ describe('visual Script', () => {
     })
   })
 
-  it('test entity nodes script', async () => {
+  it('test state nodes script', async () => {
     const entity = createEntity()
-    const visualScript = parseStorageProviderURLs(entityComponentTestVisualScript) as unknown as GraphJSON
+    const visualScript = parseStorageProviderURLs(stateTestVisualScript) as unknown as GraphJSON
     setComponent(entity, VisualScriptComponent, { visualScript: visualScript, run: true })
-    const messageSequence = [
-      'entity added',
-      'uuid',
-      'component added',
-      'component modified',
-      'component deleted',
-      'tag added',
-      'tag deleted',
-      'entity deleted',
-      'passed'
-    ]
+    const messageQueue = ['Get', 'Use', 'Set', 'Use', 'Use', 'passed']
 
-    let newEntity: Entity
-    let systemAsyncUUID
+    await waitForConsoleLog(messageQueue[0]).then((result) => {
+      // get state
+      assert(result.includes(messageQueue[0]))
+    })
 
-    for (const message of messageSequence) {
-      await waitForConsoleLog(message).then((result) => {
-        assert(result.includes(message))
-        switch (message) {
-          case messageSequence[1]: {
-            // uuid
-            const message = result.split(' ')
-            const uuid = message[message.length - 1] as EntityUUID
-            newEntity = UUIDComponent.getEntityByUUID(uuid)
-            assert(entityExists(newEntity))
-            assert(getComponent(newEntity, NameComponent) === 'test')
-            break
-          }
-          case messageSequence[2]: {
-            // component added
-            assert(getComponent(newEntity, InputComponent) !== undefined)
-            break
-          }
-          case messageSequence[3]: {
-            // component modified
-            const inputComponent = getComponent(newEntity, InputComponent)
-            assert(inputComponent !== undefined)
-            assert(inputComponent.grow)
-            systemAsyncUUID = getOnAsyncExecuteSystemUUID()
-            SystemDefinitions.get(systemAsyncUUID)!.execute()
-            break
-          }
-          case messageSequence[4]: {
-            // component deleted
-            const inputComponent = getOptionalComponent(newEntity, InputComponent)
-            assert(inputComponent === undefined)
-            break
-          }
-          case messageSequence[5]: {
-            // tag added
-            assert(getComponent(newEntity, ComponentMap.get('bg-tag.test')!) !== undefined)
-            //SystemDefinitions.get(systemAsyncUUID)!.execute()
-            break
-          }
-          case messageSequence[6]: {
-            // tag deleted
-            assert(getOptionalComponent(newEntity, ComponentMap.get('bg-tag.test')!) === undefined)
-            break
-          }
-          case messageSequence[7]: {
-            // entity deleted
-            assert(entityExists(newEntity) === false)
-            break
-          }
-        }
-      })
-    }
+    const systemUUID = getUseStateSystemUUID(EngineState.name)
+    console.log(systemUUID)
+    const UseStateReactor = SystemDefinitions.get(systemUUID)!.reactor!
+    const useStateTag = <UseStateReactor />
+    const { rerender, unmount } = render(useStateTag)
+
+    await act(() => rerender(useStateTag)) // first use on startup
+
+    systemAsyncUUID = getOnAsyncExecuteSystemUUID()
+    SystemDefinitions.get(systemAsyncUUID)!.execute()
+
+    await waitForConsoleLog(messageQueue[1]).then((result) => {
+      // use state
+      assert(result.includes(messageQueue[1]))
+      assert(!getState(EngineState).isBot)
+    })
+
+    //Engine.instance.store.stateMap
+
+    await waitForConsoleLog(messageQueue[2]).then((result) => {
+      // set state
+      assert(result.includes(messageQueue[2]))
+    })
+
+    await act(() => rerender(useStateTag)) // first change use
+
+    SystemDefinitions.get(systemAsyncUUID)!.execute()
+
+    await waitForConsoleLog(messageQueue[3]).then((result) => {
+      // use state
+      assert(result.includes(messageQueue[3]))
+      assert(getState(EngineState).isBot)
+    })
+
+    await act(() => rerender(useStateTag)) // second use startup
+
+    await waitForConsoleLog(messageQueue[5]).then((result) => {
+      assert(result.includes(messageQueue[5])) // test passed
+    })
+
+    await waitForConsoleLog(messageQueue[4]).then((result) => {
+      assert(result.includes(messageQueue[4])) // use state
+      assert(!getState(EngineState).isBot)
+    })
   })
 
   // these are too basic

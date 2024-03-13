@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 // as long as this continues to be triggered within the duration period, it will not fire.
 // based lousy on https://www.npmjs.com/package/debounce
 
-import { AsyncNode, Engine, IGraph, NodeDescription, Socket } from '../../../VisualScriptModule'
+import { AsyncNode, IGraph, NodeDescription, Socket, VisualScriptEngine } from '../../../VisualScriptModule'
 
 export class Debounce extends AsyncNode {
   public static Description = new NodeDescription(
@@ -47,7 +47,7 @@ export class Debounce extends AsyncNode {
 
   private triggerVersion = 0
 
-  triggered(engine: Engine, triggeringSocketName: string, finished: () => void) {
+  triggered(engine: VisualScriptEngine, triggeringSocketName: string, finished: () => void) {
     this.triggerVersion++
 
     // if cancelling, just increment triggerVersion and do not set a timer. :)

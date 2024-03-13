@@ -27,7 +27,7 @@ import { Assert } from '../Diagnostics/Assert'
 import { GraphNodes } from '../Graphs/Graph'
 import { Link } from '../Nodes/Link'
 import { INode, isAsyncNode, isFlowNode } from '../Nodes/NodeInstance'
-import { Engine } from './Engine'
+import { VisualScriptEngine } from './VisualScriptEngine'
 import { resolveSocketValue } from './resolveSocketValue'
 
 export class Fiber {
@@ -36,7 +36,7 @@ export class Fiber {
   public executionSteps = 0
 
   constructor(
-    public engine: Engine,
+    public engine: VisualScriptEngine,
     public nextEval: Link | null,
     fiberCompletedListener: (() => void) | undefined = undefined
   ) {

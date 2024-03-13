@@ -28,10 +28,10 @@ import {
   Easing,
   EasingFunctions,
   EasingModes,
-  Engine,
   IGraph,
   NodeDescription,
   Socket,
+  VisualScriptEngine,
   toCamelCase
 } from '../../../../VisualScriptModule'
 import { ILifecycleEventEmitter } from '../../../ProfilesModule'
@@ -85,7 +85,7 @@ export class EaseSceneProperty extends AsyncNode {
   private startTime = 0
   private onTick: (() => void) | undefined = undefined
 
-  triggered(engine: Engine, triggeringSocketName: string, finished: () => void) {
+  triggered(engine: VisualScriptEngine, triggeringSocketName: string, finished: () => void) {
     if (triggeringSocketName === 'cancel') {
       this.dispose()
       finished()

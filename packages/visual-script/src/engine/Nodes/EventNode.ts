@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Assert } from '../Diagnostics/Assert'
-import { Engine } from '../Execution/Engine'
+import { VisualScriptEngine } from '../Execution/VisualScriptEngine'
 import { IGraph } from '../Graphs/Graph'
 import { Socket } from '../Sockets/Socket'
 import { Node, NodeConfiguration } from './Node'
@@ -60,11 +60,11 @@ export class EventNode extends Node<NodeType.Event> implements IEventNode {
     Assert.mustBeTrue(this.outputs.some((socket) => socket.valueTypeName === 'flow'))
   }
 
-  init(engine: Engine) {
+  init(engine: VisualScriptEngine) {
     throw new Error('not implemented')
   }
 
-  dispose(engine: Engine) {
+  dispose(engine: VisualScriptEngine) {
     throw new Error('not implemented')
   }
 }
@@ -98,7 +98,7 @@ export class EventNodeInstance<TEventNodeDef extends IEventNodeDefinition>
     this.outputSocketKeys = nodeProps.outputs.map((s) => s.name)
   }
 
-  init = (engine: Engine): any => {
+  init = (engine: VisualScriptEngine): any => {
     this.state = this.initInner({
       read: this.readInput,
       write: this.writeOutput,

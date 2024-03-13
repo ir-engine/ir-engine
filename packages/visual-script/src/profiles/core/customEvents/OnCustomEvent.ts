@@ -26,13 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import {
   Assert,
   CustomEvent,
-  Engine,
   EventNode2,
   IGraph,
   NodeConfiguration,
   NodeDescription,
   NodeDescription2,
-  Socket
+  Socket,
+  VisualScriptEngine
 } from '../../../VisualScriptModule'
 
 export class OnCustomEvent extends EventNode2 {
@@ -69,7 +69,7 @@ export class OnCustomEvent extends EventNode2 {
   }
   private onCustomEvent: ((parameters: { [parameter: string]: any }) => void) | undefined = undefined
 
-  init(engine: Engine) {
+  init(engine: VisualScriptEngine) {
     Assert.mustBeTrue(this.onCustomEvent === undefined)
 
     this.onCustomEvent = (parameters) => {
@@ -86,7 +86,7 @@ export class OnCustomEvent extends EventNode2 {
     this.customEvent.eventEmitter.addListener(this.onCustomEvent)
   }
 
-  dispose(engine: Engine) {
+  dispose(engine: VisualScriptEngine) {
     Assert.mustBeTrue(this.onCustomEvent !== undefined)
 
     if (this.onCustomEvent !== undefined) {

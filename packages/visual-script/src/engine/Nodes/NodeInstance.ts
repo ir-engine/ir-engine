@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '../Execution/Engine'
 import { Fiber } from '../Execution/Fiber'
+import { VisualScriptEngine } from '../Execution/VisualScriptEngine'
 import { IGraph } from '../Graphs/Graph'
 import { Socket } from '../Sockets/Socket'
 import { NodeConfiguration } from './Node'
@@ -56,8 +56,8 @@ export interface IFunctionNode extends INode {
 
 export interface IEventNode extends INode {
   nodeType: NodeType.Event
-  init: (engine: Engine) => void
-  dispose: (engine: Engine) => void
+  init: (engine: VisualScriptEngine) => void
+  dispose: (engine: VisualScriptEngine) => void
 }
 
 export interface IFlowNode extends INode {
@@ -67,7 +67,7 @@ export interface IFlowNode extends INode {
 
 export interface IAsyncNode extends INode {
   nodeType: NodeType.Async
-  triggered: (engine: Engine, triggeringSocketName: string, finished: () => void) => void
+  triggered: (engine: VisualScriptEngine, triggeringSocketName: string, finished: () => void) => void
   dispose: () => void
 }
 

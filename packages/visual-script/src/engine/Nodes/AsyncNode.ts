@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Assert } from '../Diagnostics/Assert'
-import { Engine } from '../Execution/Engine'
+import { VisualScriptEngine } from '../Execution/VisualScriptEngine'
 import { IGraph } from '../Graphs/Graph'
 import { Socket } from '../Sockets/Socket'
 import { Node, NodeConfiguration } from './Node'
@@ -60,7 +60,7 @@ export class AsyncNode extends Node<NodeType.Async> {
     Assert.mustBeTrue(this.outputs.some((socket) => socket.valueTypeName === 'flow'))
   }
 
-  triggered(engine: Engine, triggeringSocketName: string, finished: () => void) {
+  triggered(engine: VisualScriptEngine, triggeringSocketName: string, finished: () => void) {
     throw new Error('not implemented')
   }
 
@@ -91,7 +91,11 @@ export class AsyncNodeInstance<TAsyncNodeDef extends IAsyncNodeDefinition>
     this.state = node.initialState
   }
 
-  triggered = (engine: Pick<Engine, 'commitToNewFiber'>, triggeringSocketName: string, finished: () => void) => {
+  triggered = (
+    engine: Pick<VisualScriptEngine, 'commitToNewFiber'>,
+    triggeringSocketName: string,
+    finished: () => void
+  ) => {
     this.triggeredInner({
       read: this.readInput,
       write: this.writeOutput,

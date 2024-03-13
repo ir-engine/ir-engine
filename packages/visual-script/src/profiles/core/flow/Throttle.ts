@@ -25,7 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 // based on the description here: https://blog.webdevsimplified.com/2022-03/debounce-vs-throttle/
 
-import { Assert, AsyncNode, Engine, IGraph, NodeCategory, NodeDescription, Socket } from '../../../VisualScriptModule'
+import {
+  Assert,
+  AsyncNode,
+  IGraph,
+  NodeCategory,
+  NodeDescription,
+  Socket,
+  VisualScriptEngine
+} from '../../../VisualScriptModule'
 
 export class Throttle extends AsyncNode {
   public static Description = new NodeDescription(
@@ -47,7 +55,7 @@ export class Throttle extends AsyncNode {
   private triggerVersion = 0
   private timeoutPending = false
 
-  triggered(engine: Engine, triggeringSocketName: string, finished: () => void) {
+  triggered(engine: VisualScriptEngine, triggeringSocketName: string, finished: () => void) {
     // if cancelling, just increment triggerVersion and do not set a timer. :)
     if (triggeringSocketName === 'cancel') {
       if (this.timeoutPending) {

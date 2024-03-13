@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PresentationSystemGroup, SystemUUID, defineSystem, executeSystem } from '@etherealengine/ecs'
+import { PresentationSystemGroup, SystemUUID, defineSystem } from '@etherealengine/ecs'
 import {
-  Engine,
   GraphJSON,
   GraphNodes,
   ILifecycleEventEmitter,
   IRegistry,
+  VisualScriptEngine,
   readGraphFromJSON
 } from '@etherealengine/visual-script'
 import { useCallback, useEffect, useState } from 'react'
@@ -50,7 +50,7 @@ export const useVisualScriptRunner = ({
   autoRun?: boolean
   registry: IRegistry
 }) => {
-  const [engine, setEngine] = useState<Engine>()
+  const [engine, setEngine] = useState<VisualScriptEngine>()
   const [run, setRun] = useState(autoRun)
 
   const play = useCallback(() => {
@@ -77,7 +77,8 @@ export const useVisualScriptRunner = ({
       console.error(e)
       return
     }
-    const engine = new Engine(visualScriptNodes)
+    const engine = new VisualScriptEngine(visualScriptNodes)
+
     setEngine(engine)
 
     return () => {
@@ -96,7 +97,6 @@ export const useVisualScriptRunner = ({
       return
     }
     eventEmitter.startEvent.emit()
-
     if (engine.asyncNodes.length) {
       if (system === undefined) {
         systemCounter++
@@ -109,11 +109,12 @@ export const useVisualScriptRunner = ({
           insert: { after: PresentationSystemGroup }
         })
         system = systemUUID
-      } else {
-        executeSystem(system)
       }
     }
-
+    return () => {
+      if (system === undefined) return
+      system = undefined // setting variable to undefined will destroy the system
+    }
     // start up
   }, [engine, registry.dependencies?.ILifecycleEventEmitter, run])
 

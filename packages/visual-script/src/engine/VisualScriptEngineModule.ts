@@ -28,9 +28,9 @@ export * from './Diagnostics/Logger'
 export * from './Easing'
 export * from './Events/CustomEvent'
 export * from './Events/EventEmitter'
-// loading & execution
-export * from './Execution/Engine'
 export * from './Execution/Fiber'
+// loading & execution
+export * from './Execution/VisualScriptEngine'
 // main data model
 export * from './Graphs/Graph'
 // json types

@@ -33,7 +33,7 @@ import { sleep } from '../sleep'
 import { Fiber } from './Fiber'
 import { resolveSocketValue } from './resolveSocketValue'
 
-export class Engine {
+export class VisualScriptEngine {
   // tracking the next node+input socket to execute.
   private readonly fiberQueue: Fiber[] = []
   public readonly asyncNodes: IAsyncNode[] = []

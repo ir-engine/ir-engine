@@ -26,9 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { Assert } from '../Diagnostics/Assert'
 import { isFunctionNode } from '../Nodes/NodeInstance'
 import { Socket } from '../Sockets/Socket'
-import { Engine } from './Engine'
+import { VisualScriptEngine } from './VisualScriptEngine'
 
-export function resolveSocketValue(engine: Engine, inputSocket: Socket): number {
+export function resolveSocketValue(engine: VisualScriptEngine, inputSocket: Socket): number {
   // if it has no links, leave value on input socket alone.
   if (inputSocket.links.length === 0) {
     return 0

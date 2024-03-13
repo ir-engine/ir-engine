@@ -26,7 +26,14 @@ Ethereal Engine. All Rights Reserved.
 // ASYNC - asynchronous evaluation
 // also called "delay"
 
-import { AsyncNode, Engine, IGraph, NodeDescription, NodeDescription2, Socket } from '../../../VisualScriptModule'
+import {
+  AsyncNode,
+  IGraph,
+  NodeDescription,
+  NodeDescription2,
+  Socket,
+  VisualScriptEngine
+} from '../../../VisualScriptModule'
 
 export class Delay extends AsyncNode {
   public static Description = new NodeDescription2({
@@ -47,7 +54,7 @@ export class Delay extends AsyncNode {
 
   private timeoutPending = false
 
-  triggered(engine: Engine, triggeringSocketName: string, finished: () => void) {
+  triggered(engine: VisualScriptEngine, triggeringSocketName: string, finished: () => void) {
     // if there is a valid timeout running, leave it.
     if (this.timeoutPending) {
       return

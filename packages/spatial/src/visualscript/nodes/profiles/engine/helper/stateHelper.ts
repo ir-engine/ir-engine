@@ -33,7 +33,6 @@ import {
   makeEventNodeDefinition,
   makeFlowNodeDefinition
 } from '@etherealengine/visual-script'
-import { uniqueId } from 'lodash'
 import { useEffect } from 'react'
 import { EnginetoNodetype, NodetoEnginetype, getSocketType } from './commonHelper'
 
@@ -136,6 +135,7 @@ export function registerStateGetters() {
   return getters
 }
 
+let useStateSystemCounter = 0
 type State = {
   systemUUID: SystemUUID
 }
@@ -143,6 +143,10 @@ type State = {
 const initialState = (): State => ({
   systemUUID: '' as SystemUUID
 })
+
+const useStateSystemUUID = `visual-script-use-`
+export const getUseStateSystemUUID = (stateName) =>
+  (useStateSystemUUID + `${stateName}` + useStateSystemCounter) as SystemUUID
 
 export function registerStateListeners() {
   const getters: NodeDefinition[] = []
@@ -167,14 +171,12 @@ export function registerStateListeners() {
       },
       initialState: initialState(),
       init: ({ read, write, commit }) => {
-        const valueOutputs = Object.entries(node.out)
-          .splice(1)
-          .filter(([output, type]) => type !== 'flow') as any
-        const flowOutputs = Object.entries(node.out)
-          .splice(1)
-          .filter(([output, type]) => type === 'flow') as any
+        const valueOutputs = Object.entries(node.out).filter(([output, type]) => type !== 'flow') as any
+        const flowOutputs = Object.entries(node.out).filter(([output, type]) => type === 'flow') as any
+        useStateSystemCounter++
+        console.log('stateName', getUseStateSystemUUID(stateName))
         const systemUUID = defineSystem({
-          uuid: `visual-script-use-${stateName}` + uniqueId(),
+          uuid: getUseStateSystemUUID(stateName),
           insert: { with: InputSystemGroup },
           execute: () => {},
           reactor: () => {

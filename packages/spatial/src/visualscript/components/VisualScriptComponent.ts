@@ -89,7 +89,7 @@ export const VisualScriptComponent = defineComponent({
       autoRun: canPlay,
       registry
     })
-    //console.log('visualScriptRunner', visualScriptRunner)
+
     useEffect(() => {
       if (visualScript.disabled.value) return
       visualScript.run.value ? visualScriptRunner.play() : visualScriptRunner.pause()
