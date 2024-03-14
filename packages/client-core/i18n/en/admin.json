@@ -609,7 +609,15 @@
       "viewLogs": "View Logs"
     },
     "recording": {
-      "recording": "Recording",
+      "columns": {
+        "id": "Recording ID",
+        "user": "User",
+        "ended": "Ended",
+        "schema": "Schema",
+        "preview": "Preview",
+        "action": "Action"
+      },
+      "recording": "Recordings",
       "confirmRecordingDelete": "Do you want to delete recording",
       "recordingFiles": "Recordings Files for:"
     }

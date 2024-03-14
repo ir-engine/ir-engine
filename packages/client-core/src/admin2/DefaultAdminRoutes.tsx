@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { lazy } from 'react'
 import { HiOutlineCube } from 'react-icons/hi'
-import { HiMapPin, HiOutlineTableCells, HiServer, HiUser, HiUserCircle } from 'react-icons/hi2'
+import { HiMapPin, HiOutlineTableCells, HiPlay, HiServer, HiUser, HiUserCircle } from 'react-icons/hi2'
 import { RiSendPlaneFill } from 'react-icons/ri'
 import { AdminRouteStateType } from '../admin/AllowedAdminRoutesState'
 
@@ -44,6 +44,8 @@ const Servers = lazy(() => import('./components/server'))
 const Instances = lazy(() => import('./components/instance'))
 
 const Resources = lazy(() => import('./components/resources'))
+
+const Recordings = lazy(() => import('./components/recordings'))
 
 export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
   projects: {
@@ -101,5 +103,12 @@ export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
     component: Resources,
     access: false,
     icon: <HiOutlineTableCells />
+  },
+  recordings: {
+    name: 'user:dashboard.recordings',
+    scope: 'recording',
+    component: Recordings,
+    access: false,
+    icon: <HiPlay />
   }
 }
