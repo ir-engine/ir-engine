@@ -25,9 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable max-len */
 
-import { IRegistry, NodeDefinition, ValueTypeMap, getNodeDescriptions, memo } from '@etherealengine/visual-script'
-import { GetSceneProperty, SetSceneProperty } from '@etherealengine/visual-script/src/profiles/ProfilesModule'
-import { getStringConversionsForValueType } from '@etherealengine/visual-script/src/profiles/registerSerializersForValueType'
+import {
+  GetSceneProperty,
+  IRegistry,
+  NodeDefinition,
+  SetSceneProperty,
+  ValueTypeMap,
+  getNodeDescriptions,
+  getStringConversionsForValueType,
+  memo
+} from '@etherealengine/visual-script'
 import { OnButton } from './EngineProfileModule'
 import { OnAxis } from './events/onAxis'
 import { OnCollision } from './events/onCollision'
