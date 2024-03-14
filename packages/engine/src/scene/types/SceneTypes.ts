@@ -23,14 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserID } from '../schemas/user/user.schema'
-import { OpaqueType } from './OpaqueType'
+import { EntityUUID } from '@etherealengine/ecs'
 
-export type PeerID = OpaqueType<'PeerID'> & string
+export type ComponentJsonType = {
+  name: string
+  props?: any
+}
 
-export type PeersUpdateType = {
-  peerID: PeerID
-  peerIndex: number
-  userID: UserID
-  userIndex: number
+export type EntityJsonType = {
+  name: string | EntityUUID
+  components: ComponentJsonType[]
+  parent?: EntityUUID
+  index?: number
+}
+
+export type SceneJsonType = {
+  entities: Record<EntityUUID, EntityJsonType>
+  root: EntityUUID
+  version: number
 }

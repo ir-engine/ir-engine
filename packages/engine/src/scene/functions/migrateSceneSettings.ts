@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityJsonType, SceneJsonType } from '@etherealengine/common/src/schema.type.module'
 import { v4 as uuid } from 'uuid'
+import { EntityJsonType, SceneJsonType } from '../types/SceneTypes'
 
 // puts the scene settings from the the root entity into a sub entity
 export const migrateSceneSettings = (json: SceneJsonType) => {
