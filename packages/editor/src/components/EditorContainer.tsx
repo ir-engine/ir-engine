@@ -52,6 +52,7 @@ import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import './EditorContainer.css'
 import AssetDropZone from './assets/AssetDropZone'
+import ImportSettingsPanel from './assets/ImportSettingsPanel'
 import { ProjectBrowserPanelTab } from './assets/ProjectBrowserPanel'
 import { SceneAssetsPanelTab } from './assets/SceneAssetsPanel'
 import { ScenePanelTab } from './assets/ScenesPanel'
@@ -198,6 +199,10 @@ const onSaveAs = async () => {
   }
 }
 
+const onImportSettings = () => {
+  DialogState.setDialog(<ImportSettingsPanel />)
+}
+
 const onImportAsset = async () => {
   const { projectName } = getState(EditorState)
 
@@ -283,6 +288,10 @@ const generateToolbarMenu = () => {
     {
       name: t('editor:menubar.saveAs'),
       action: onSaveAs
+    },
+    {
+      name: t('editor:menubar.importSettings'),
+      action: onImportSettings
     },
     {
       name: t('editor:menubar.importAsset'),

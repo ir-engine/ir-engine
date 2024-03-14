@@ -27,6 +27,7 @@ import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { Engine, Entity, getOptionalComponent } from '@etherealengine/ecs'
 import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
+import { PerformanceState } from '@etherealengine/spatial/src/renderer/PerformanceState'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import {
   Cache,
@@ -48,6 +49,13 @@ import { AssetLoader, LoadingArgs } from '../classes/AssetLoader'
 import { Geometry } from '../constants/Geometry'
 import { ResourceLoadingManager } from '../loaders/base/ResourceLoadingManager'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
+
+//isProxified: used to check if an object is proxified
+declare module 'three/src/core/Object3D' {
+  export interface Object3D {
+    readonly isProxified: true | undefined
+  }
+}
 
 Cache.enabled = true
 
@@ -422,6 +430,19 @@ const Callbacks = {
   }
 }
 
+const checkBudgets = () => {
+  const resourceState = getState(ResourceState)
+  const performanceState = getState(PerformanceState)
+  const maxVerts = performanceState.budgets.maxVerticies
+  const maxBuffer = performanceState.budgets.maxBufferSize
+  const currVerts = resourceState.totalVertexCount
+  const currBuff = resourceState.totalBufferCount
+  if (currVerts > maxVerts)
+    console.warn('ResourceState:GLTF:onLoad Exceeded vertex budget, budget: ' + maxVerts + ', loaded: ' + currVerts)
+  if (currBuff > maxBuffer)
+    console.warn('ResourceState:GLTF:onLoad Exceeded buffer budget, budget: ' + maxBuffer + ', loaded: ' + currBuff)
+}
+
 const load = <T extends AssetType>(
   url: string,
   resourceType: ResourceType,
@@ -466,6 +487,7 @@ const load = <T extends AssetType>(
       resource.asset.set(response)
       callbacks.onLoad(response, resource, resourceState)
       debugLog('ResourceManager:load Loaded resource: ' + url + ' for entity: ' + entity)
+      checkBudgets()
       onLoad(response)
     },
     (request) => {

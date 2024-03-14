@@ -27,7 +27,6 @@ import { Entity, UndefinedEntity } from '@etherealengine/ecs'
 import { State, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { MathUtils, Texture } from 'three'
-import { getVariant } from '../../scene/functions/loaders/VariantFunctions'
 import { LoadingArgs } from '../classes/AssetLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { AssetType, ResourceManager, ResourceType } from '../state/ResourceState'
@@ -196,10 +195,6 @@ export function useGLTF(
   params?: LoadingArgs,
   onUnload?: (url: string) => void
 ): [State<GLTF | null>, () => void, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>] {
-  const variantUrl = getVariant(entity)
-  if (variantUrl) {
-    url = variantUrl
-  }
   return useLoader<GLTF>(url, ResourceType.GLTF, entity, params, onUnload)
 }
 
@@ -214,6 +209,14 @@ export function useBatchGLTF(
   State<(ProgressEvent<EventTarget> | null)[]>
 ] {
   return useBatchLoader<GLTF>(urls, ResourceType.GLTF, entity, params)
+}
+
+export async function getGLTFAsync(
+  url: string,
+  entity?: Entity,
+  params?: LoadingArgs
+): Promise<[GLTF | null, () => void, ErrorEvent | Error | null]> {
+  return getLoader<GLTF>(url, ResourceType.GLTF, entity, params)
 }
 
 export function useTexture(
