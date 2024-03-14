@@ -64,16 +64,17 @@ const Radios = <T extends OptionValueType>({
   value,
   options,
   onChange,
-  className
+  className,
+  horizontal
 }: {
   value: T
   options: { label: string; value: T }[]
   onChange: (value: T) => void
   className?: string
-  horizantal?: boolean
+  horizontal?: boolean
 }) => {
   return (
-    <div className={twMerge('grid gap-6', className)}>
+    <div className={twMerge(`grid gap-6 ${horizontal ? 'grid-flow-col' : ''}`, className)}>
       {options.map(({ label, value: optionValue }) => (
         <Radio
           key={label}

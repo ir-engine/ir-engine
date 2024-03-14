@@ -272,7 +272,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
             {spawnSelected.value && (
               <>
                 <Radios
-                  className="grid-flow-col"
+                  horizontal
                   options={spawnTypeOptions.map((option) => ({
                     value: option,
                     label: t(`admin:components.invite.${option}`)

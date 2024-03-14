@@ -176,8 +176,9 @@ export default function CreateResourceModal({
           { label: 'URL', value: 'url' },
           { label: 'File', value: 'file' }
         ]}
+        horizontal
         onChange={(value) => state.source.set(value)}
-        className="mb-4 grid-flow-col"
+        className="mb-4"
       />
       <Button fullWidth className="mb-4">
         <label className="block w-full cursor-pointer">
