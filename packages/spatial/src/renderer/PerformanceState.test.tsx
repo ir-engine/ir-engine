@@ -31,7 +31,7 @@ import React, { useEffect } from 'react'
 import { act } from 'react-dom/test-utils'
 import sinon from 'sinon'
 import { createEngine } from '../initializeEngine'
-import { PerformanceState, buildPerformanceState, decrementPerformance, incrementPerformance } from './PerformanceState'
+import { PerformanceManager, PerformanceState } from './PerformanceState'
 import { EngineRenderer } from './WebGLRendererSystem'
 
 describe('PerformanceState', () => {
@@ -76,7 +76,7 @@ describe('PerformanceState', () => {
   })
 
   it('Builds Performance State', (done) => {
-    buildPerformanceState(mockRenderer, () => {
+    PerformanceManager.buildPerformanceState(mockRenderer, () => {
       const performanceState = getState(PerformanceState)
       const budgets = performanceState.budgets
       assert(budgets.max3DTextureSize === 1000)
@@ -108,7 +108,7 @@ describe('PerformanceState', () => {
     const { rerender, unmount } = render(<Reactor />)
     const clock = sinon.useFakeTimers()
     act(async () => {
-      decrementPerformance()
+      PerformanceManager.decrementPerformance()
       clock.tick(3000)
       rerender(<Reactor />)
       clock.restore()
@@ -139,7 +139,7 @@ describe('PerformanceState', () => {
     const { rerender, unmount } = render(<Reactor />)
     const clock = sinon.useFakeTimers()
     act(async () => {
-      incrementPerformance()
+      PerformanceManager.incrementPerformance()
       clock.tick(3000)
       rerender(<Reactor />)
       clock.restore()
@@ -169,8 +169,8 @@ describe('PerformanceState', () => {
     const { rerender, unmount } = render(<Reactor />)
     const clock = sinon.useFakeTimers()
     act(async () => {
-      decrementPerformance()
-      decrementPerformance()
+      PerformanceManager.decrementPerformance()
+      PerformanceManager.decrementPerformance()
       clock.tick(3000)
       rerender(<Reactor />)
       clock.restore()
