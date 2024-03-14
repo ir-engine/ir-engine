@@ -93,6 +93,8 @@ export type ResourceTransforms = {
   images: ImageTransformParameters[]
 }
 
+export type ModelFormat = 'glb' | 'gltf' | 'vrm'
+
 export type ModelTransformParameters = ExtractedImageTransformParameters & {
   src: string
   dst: string
@@ -131,7 +133,10 @@ export type ModelTransformParameters = ExtractedImageTransformParameters & {
     options: DracoOptions
   }
 
-  modelFormat: 'glb' | 'gltf' | 'vrm'
+  simplifyRatio: number
+  simplifyErrorThreshold: number
+
+  modelFormat: ModelFormat
 
   resources: ResourceTransforms
 }
@@ -194,6 +199,8 @@ export const DefaultModelTransformParameters: ModelTransformParameters = {
   mipmap: true,
   textureCompressionQuality: 128,
   maxTextureSize: 1024,
+  simplifyRatio: 1.0,
+  simplifyErrorThreshold: 0.001,
   resources: {
     geometries: [],
     images: []

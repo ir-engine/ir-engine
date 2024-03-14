@@ -6,11 +6,13 @@ import {
   ComponentType,
   getComponent,
   getMutableComponent,
-  getOptionalComponent,
+  getOptionalMutableComponent,
   hasComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { State, getState } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import {
@@ -21,11 +23,11 @@ import {
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
-import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { pathResolver } from '../../../assets/functions/pathResolver'
+import { getGLTFAsync } from '../../../assets/functions/resourceHooks'
 import { InstancingComponent } from '../../components/InstancingComponent'
 import { ModelComponent } from '../../components/ModelComponent'
-import { VariantComponent, VariantLevel } from '../../components/VariantComponent'
+import { Heuristic, VariantComponent, VariantLevel, distanceBased } from '../../components/VariantComponent'
 import getFirstMesh from '../../util/meshUtils'
 
 /*
@@ -53,35 +55,48 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-function getModelVariant(
+export function updateModelVariant(
   entity: Entity,
-  variantComponent: ComponentType<typeof VariantComponent>,
-  modelComponent: ComponentType<typeof ModelComponent>
-): string | null {
-  if (variantComponent.heuristic === 'DEVICE') {
+  variantComponent: State<ComponentType<typeof VariantComponent>>,
+  modelComponent: State<ComponentType<typeof ModelComponent>>
+) {
+  if (variantComponent.heuristic.value === Heuristic.DEVICE) {
     const targetDevice = isMobile || isMobileXRHeadset ? 'MOBILE' : 'DESKTOP'
     //get model src to mobile variant src
-    const deviceVariant = variantComponent.levels.find((level) => level.metadata['device'] === targetDevice)
-    const modelRelativePath = pathResolver().exec(modelComponent.src)?.[2]
-    const deviceRelativePath = deviceVariant ? pathResolver().exec(deviceVariant.src)?.[2] : ''
-    if (deviceVariant && modelRelativePath !== deviceRelativePath) return deviceVariant.src
-  } else if (variantComponent.heuristic === 'DISTANCE') {
+    const levelIndex = variantComponent.levels.findIndex((level) => level.metadata['device'] === targetDevice)
+    if (levelIndex < 0) return
+    const deviceVariant = variantComponent.levels[levelIndex]
+    const modelRelativePath = pathResolver().exec(modelComponent.src.value)?.[2]
+    const deviceRelativePath = deviceVariant ? pathResolver().exec(deviceVariant.src.value)?.[2] : ''
+    if (deviceVariant && modelRelativePath !== deviceRelativePath) {
+      variantComponent.currentLevel.set(levelIndex)
+    }
+  } else if (distanceBased(variantComponent.value)) {
     const distance = DistanceFromCameraComponent.squaredDistance[entity]
     for (let i = 0; i < variantComponent.levels.length; i++) {
-      const level = variantComponent.levels[i]
+      const level = variantComponent.levels[i].value
       if ([level.metadata['minDistance'], level.metadata['maxDistance']].includes(undefined)) continue
       const minDistance = Math.pow(level.metadata['minDistance'], 2)
       const maxDistance = Math.pow(level.metadata['maxDistance'], 2)
       const useLevel = minDistance <= distance && distance <= maxDistance
-      if (useLevel && level.src) return level.src
+      if (useLevel && level.src) {
+        if (variantComponent.heuristic.value === Heuristic.BUDGET) {
+          if (i >= variantComponent.budgetLevel.value) variantComponent.currentLevel.set(i)
+          else variantComponent.currentLevel.set(variantComponent.budgetLevel.value)
+        } else variantComponent.currentLevel.set(i)
+        break
+      }
     }
+  } else if (
+    variantComponent.heuristic.value === Heuristic.BUDGET &&
+    variantComponent.budgetLevel.value != variantComponent.currentLevel.value
+  ) {
+    variantComponent.currentLevel.set(variantComponent.budgetLevel.value)
   }
-
-  return null
 }
 
 function getMeshVariant(entity: Entity, variantComponent: ComponentType<typeof VariantComponent>): string | null {
-  if (variantComponent.heuristic === 'DEVICE') {
+  if (variantComponent.heuristic === Heuristic.DEVICE) {
     const targetDevice = isMobileXRHeadset ? 'XR' : isMobile ? 'MOBILE' : 'DESKTOP'
     //get model src to mobile variant src
     const deviceVariant = variantComponent.levels.find((level) => level.metadata['device'] === targetDevice)
@@ -91,17 +106,25 @@ function getMeshVariant(entity: Entity, variantComponent: ComponentType<typeof V
   return null
 }
 
-export function getVariant(entity?: Entity): string | null {
-  if (!entity) return null
-  const variantComponent = getOptionalComponent(entity, VariantComponent)
+export function updateVariant(entity?: Entity) {
+  if (!entity || getState(EngineState).isEditing) return null
+  const variantComponent = getOptionalMutableComponent(entity, VariantComponent)
   if (!variantComponent) return null
 
-  const modelComponent = getOptionalComponent(entity, ModelComponent)
-  const meshComponent = getOptionalComponent(entity, MeshComponent)
+  const modelComponent = getOptionalMutableComponent(entity, ModelComponent)
+  if (modelComponent) updateModelVariant(entity, variantComponent, modelComponent)
+}
 
-  if (modelComponent) return getModelVariant(entity, variantComponent, modelComponent)
-  else if (meshComponent) return getMeshVariant(entity, variantComponent)
-  else return null
+/**
+ * Handles setting LOD level for variant components of models based on performance offset
+ * @param entity
+ * @param performanceOffset
+ */
+export function setModelVariantLOD(entity: Entity, performanceOffset: number) {
+  console.log('VariantFunctions:setModelVariantLOD performanceOffset: ' + performanceOffset)
+  const variantComponent = getMutableComponent(entity, VariantComponent)
+  if (variantComponent.heuristic.value === Heuristic.BUDGET)
+    variantComponent.budgetLevel.set(Math.min(performanceOffset, variantComponent.levels.length - 1))
 }
 
 /**
@@ -112,48 +135,44 @@ export function setModelVariant(entity: Entity) {
   const variantComponent = getMutableComponent(entity, VariantComponent)
   const modelComponent = getMutableComponent(entity, ModelComponent)
 
-  const src = getModelVariant(entity, variantComponent.value, modelComponent.value)
-  if (src && modelComponent.src.value !== src) modelComponent.src.set(src)
-
-  variantComponent.calculated.set(true)
+  updateModelVariant(entity, variantComponent, modelComponent)
 }
 
-export function setMeshVariant(entity: Entity) {
+export async function setMeshVariant(entity: Entity) {
   const variantComponent = getComponent(entity, VariantComponent)
   const meshComponent = getComponent(entity, MeshComponent)
 
   const src = getMeshVariant(entity, variantComponent)
-  if (src) {
-    AssetLoader.load(src, {}, (gltf) => {
-      const mesh = getFirstMesh(gltf.scene)
-      if (!mesh) return
-      if (!hasComponent(entity, MeshComponent)) return
-      meshComponent.geometry = mesh.geometry
-      meshComponent.material = mesh.material
-      getMutableComponent(entity, MeshComponent).set((val) => val) // reactivly update mesh
-    })
-  }
+  if (!src) return
+  const [gltf] = await getGLTFAsync(src, entity)
+  if (!gltf) return
+  const mesh = getFirstMesh(gltf.scene)
+  if (!mesh) return
+  if (!hasComponent(entity, MeshComponent)) return
+  meshComponent.geometry = mesh.geometry
+  meshComponent.material = mesh.material
+  getMutableComponent(entity, MeshComponent).set((val) => val) // reactivly update mesh
 }
 
-export function setInstancedMeshVariant(entity: Entity) {
+export async function setInstancedMeshVariant(entity: Entity) {
   const variantComponent = getComponent(entity, VariantComponent)
   const meshComponent = getComponent(entity, MeshComponent)
   const instancingComponent = getComponent(entity, InstancingComponent)
   const transformComponent = getComponent(entity, TransformComponent)
-  if (variantComponent.heuristic === 'DEVICE') {
+  if (variantComponent.heuristic === Heuristic.DEVICE) {
     const targetDevice = isMobileXRHeadset ? 'XR' : isMobile ? 'MOBILE' : 'DESKTOP'
     //set model src to mobile variant src
     const deviceVariant = variantComponent.levels.find((level) => level.metadata['device'] === targetDevice)
     if (!deviceVariant) return
-    AssetLoader.load(deviceVariant.src, {}, (gltf) => {
-      const mesh = getFirstMesh(gltf.scene)
-      if (!mesh) return
-      if (!hasComponent(entity, MeshComponent)) return
-      meshComponent.geometry = mesh.geometry
-      meshComponent.material = mesh.material
-      getMutableComponent(entity, MeshComponent).set((val) => val) // reactivly update mesh
-    })
-  } else if (variantComponent.heuristic === 'DISTANCE') {
+    const [gltf] = await getGLTFAsync(deviceVariant.src, entity)
+    if (!gltf) return
+    const mesh = getFirstMesh(gltf.scene)
+    if (!mesh) return
+    if (!hasComponent(entity, MeshComponent)) return
+    meshComponent.geometry = mesh.geometry
+    meshComponent.material = mesh.material
+    getMutableComponent(entity, MeshComponent).set((val) => val) // reactivly update mesh
+  } else if (variantComponent.heuristic === Heuristic.DISTANCE) {
     const referencedVariants: VariantLevel[] = []
     const variantIndices: number[] = []
     const cameraPosition = getComponent(Engine.instance.cameraEntity, TransformComponent).position
@@ -214,31 +233,32 @@ export function setInstancedMeshVariant(entity: Entity) {
       const placeholder = new Object3D()
       placeholder.userData['variant'] = { src: referencedVariant.src, index: variantIndices[i] }
       addObjectToGroup(entity, placeholder)
-      AssetLoader.load(referencedVariant.src, {}, (gltf) => {
-        const minDistance = referencedVariant.metadata['minDistance']
-        const maxDistance = referencedVariant.metadata['maxDistance']
-        const mesh = getFirstMesh(gltf.scene)
-        if (!mesh) return
-        //convert to instanced mesh, using existing instance matrix
-        const instancedMesh =
-          mesh instanceof InstancedMesh
-            ? mesh
-            : new InstancedMesh(mesh.geometry, mesh.material, instancingComponent.instanceMatrix.count)
-        instancedMesh.instanceMatrix = instancingComponent.instanceMatrix
-        instancedMesh.frustumCulled = false
+      const [gltf] = await getGLTFAsync(referencedVariant.src, entity)
+      if (!gltf) return
+      const minDistance = referencedVariant.metadata['minDistance']
+      const maxDistance = referencedVariant.metadata['maxDistance']
+      const mesh = getFirstMesh(gltf.scene)
+      if (!mesh) return
+      //convert to instanced mesh, using existing instance matrix
+      const instancedMesh =
+        mesh instanceof InstancedMesh
+          ? mesh
+          : new InstancedMesh(mesh.geometry, mesh.material, instancingComponent.instanceMatrix.count)
+      instancedMesh.instanceMatrix = instancingComponent.instanceMatrix
+      instancedMesh.frustumCulled = false
 
-        //add distance culling shader plugin
-        const materials: Material[] = Array.isArray(instancedMesh.material)
-          ? instancedMesh.material
-          : [instancedMesh.material]
-        for (const material of materials) {
-          addOBCPlugin(material, {
-            id: 'lod-culling',
-            priority: 1,
-            compile: (shader, renderer) => {
-              shader.fragmentShader = shader.fragmentShader.replace(
-                'void main() {\n',
-                `
+      //add distance culling shader plugin
+      const materials: Material[] = Array.isArray(instancedMesh.material)
+        ? instancedMesh.material
+        : [instancedMesh.material]
+      for (const material of materials) {
+        addOBCPlugin(material, {
+          id: 'lod-culling',
+          priority: 1,
+          compile: (shader, renderer) => {
+            shader.fragmentShader = shader.fragmentShader.replace(
+              'void main() {\n',
+              `
       void main() {
         float maxDistance = ${maxDistance.toFixed(1)};
         float minDistance = ${minDistance.toFixed(1)};
@@ -249,20 +269,19 @@ export function setInstancedMeshVariant(entity: Entity) {
           discard;
         }
     `
-              )
-            }
-          })
-        }
-        //add variant metadata to mesh
-        instancedMesh.userData['variant'] = {
-          src: referencedVariant.src,
-          index: variantIndices[i]
-        }
-        //remove placeholder
-        removeObjectFromGroup(entity, placeholder)
-        //add to group
-        addObjectToGroup(entity, instancedMesh)
-      })
+            )
+          }
+        })
+      }
+      //add variant metadata to mesh
+      instancedMesh.userData['variant'] = {
+        src: referencedVariant.src,
+        index: variantIndices[i]
+      }
+      //remove placeholder
+      removeObjectFromGroup(entity, placeholder)
+      //add to group
+      addObjectToGroup(entity, instancedMesh)
     }
   }
 }

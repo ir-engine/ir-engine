@@ -313,6 +313,7 @@ export const dropEntity = (grabberEntity: Entity): void => {
   } else {
     dispatchAction(
       WorldNetworkAction.transferAuthorityOfObject({
+        ownerID: Engine.instance.userID,
         entityUUID: getComponent(grabbedEntity, UUIDComponent),
         newAuthority: networkComponent.authorityPeerID
       })

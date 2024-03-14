@@ -37,7 +37,7 @@ import {
 } from '@etherealengine/hyperflux'
 import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
-import { ComponentJsonType, EntityJsonType, SceneID } from '@etherealengine/common/src/schema.type.module'
+import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import {
   ComponentJSONIDMap,
   Entity,
@@ -76,6 +76,7 @@ import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTa
 import { SceneComponent } from '../components/SceneComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { proxifyParentChildRelationships } from '../functions/loadGLTFModel'
+import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
 
 export const SceneLoadingReactor = () => {
   const scenes = useHookstate(getMutableState(SceneState).scenes)
@@ -107,11 +108,11 @@ const NetworkedSceneObjectReactor = () => {
     const isHostingWorldNetwork = !!NetworkState.worldNetwork?.isHosting
     dispatchAction(
       SpawnObjectActions.spawnObject({
-        $from: SceneUser,
-        $time: isHostingWorldNetwork ? undefined : 0,
+        ownerID: SceneUser,
         entityUUID: uuid,
         position: transform.position.clone(),
         rotation: transform.rotation.clone(),
+        $time: isHostingWorldNetwork ? undefined : 0,
         $topic: isHostingWorldNetwork ? NetworkTopics.world : undefined
       })
     )

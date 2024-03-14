@@ -26,12 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import _ from 'lodash'
 import { Spark } from 'primus'
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { EntityUUID } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, PeerID } from '@etherealengine/hyperflux'
 import { NetworkPeerFunctions, updatePeers } from '@etherealengine/network'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'

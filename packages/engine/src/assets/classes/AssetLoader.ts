@@ -443,6 +443,8 @@ export const AssetLoader = {
   isSupported,
   getLoader,
   assetLoadCallback,
+  /** @deprecated Use hooks from resourceHooks.ts instead **/
   load,
+  /** @deprecated Use hooks from resourceHooks.ts instead **/
   loadAsync
 }
