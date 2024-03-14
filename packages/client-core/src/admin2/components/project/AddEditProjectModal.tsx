@@ -513,10 +513,10 @@ export default function AddEditProjectModal({
                     <Radios
                       className="grid-flow-col"
                       options={[
-                        { name: t('admin:components.project.prod'), value: 'prod' },
-                        { name: t('admin:components.project.dev'), value: 'dev' }
+                        { label: t('admin:components.project.prod'), value: 'prod' },
+                        { label: t('admin:components.project.dev'), value: 'dev' }
                       ]}
-                      currentValue={projectUpdateStatus.value?.updateType === 'tag' ? 'prod' : 'dev'}
+                      value={projectUpdateStatus.value?.updateType === 'tag' ? 'prod' : 'dev'}
                       onChange={(value) =>
                         ProjectUpdateService.setUpdateType(project.name, value === 'prod' ? 'tag' : 'commit')
                       }

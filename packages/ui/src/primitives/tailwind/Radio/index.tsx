@@ -27,13 +27,13 @@ import React from 'react'
 import { twMerge } from 'tailwind-merge'
 
 export const Radio = ({
-  name,
+  label,
   value,
   onChange,
   selected,
   className
 }: {
-  name: string
+  label: string
   value: string | number
   onChange: React.ChangeEventHandler<HTMLInputElement>
   selected: boolean
@@ -46,39 +46,41 @@ export const Radio = ({
         type="radio"
         checked={selected}
         value={value}
-        name={name}
+        name={label}
         onChange={onChange}
         // className="before:content[''] relative h-5 w-5 cursor-pointer appearance-none rounded-full border border-blue-gray-200 text-blue-900 transition-all before:absolute before:top-2/4 before:left-2/4 before:block before:h-12 before:w-12 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-blue-gray-500 before:opacity-0 before:transition-opacity checked:border-blue-900 checked:before:bg-blue-900"
         className="shrink-0 rounded-full border-gray-200 text-blue-600 focus:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:checked:border-blue-500 dark:checked:bg-blue-500 dark:focus:ring-offset-gray-800"
       />
-      <label htmlFor={name} className="text-theme-primary ml-2 align-bottom text-sm font-medium">
-        {name}
+      <label htmlFor={label} className="text-theme-primary ml-2 align-bottom text-sm font-medium">
+        {label}
       </label>
     </div>
   )
 }
 
-const Radios = ({
-  currentValue,
+type OptionValueType = string | number
+
+const Radios = <T extends OptionValueType>({
+  value,
   options,
   onChange,
   className
 }: {
-  currentValue: any
-  options: { name: string; value: any }[]
-  onChange: (value: any) => void
+  value: T
+  options: { label: string; value: T }[]
+  onChange: (value: T) => void
   className?: string
   horizantal?: boolean
 }) => {
   return (
     <div className={twMerge('grid gap-6', className)}>
-      {options.map(({ name, value }) => (
+      {options.map(({ label, value: optionValue }) => (
         <Radio
-          key={name}
-          selected={currentValue === value}
-          name={name}
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
+          key={label}
+          selected={value === optionValue}
+          label={label}
+          value={optionValue}
+          onChange={(event) => onChange(event.target.value as T)}
         />
       ))}
     </div>
