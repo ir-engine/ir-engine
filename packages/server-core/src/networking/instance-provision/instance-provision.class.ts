@@ -635,7 +635,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
       const roomCode = params.query?.roomCode as RoomCode
       const createPrivateRoom = params.query?.createPrivateRoom
       const token = params.query?.token
-      const provisionConstraints = { 'metadata.labels.serverSize': params.serverSize }
+      const provisionConstraints = params.serverSize ? { 'metadata.labels.serverSize': params.serverSize } : undefined
       logger.info('instance-provision find %s %s %s %s', locationId, instanceId, channelId, roomCode)
       if (!token) throw new NotAuthenticated('No token provided')
       // Check if JWT resolves to a user
