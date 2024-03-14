@@ -76,29 +76,32 @@ describe('PerformanceState', () => {
   })
 
   it('Builds Performance State', (done) => {
-    PerformanceManager.buildPerformanceState(mockRenderer, () => {
-      const performanceState = getState(PerformanceState)
-      const budgets = performanceState.budgets
-      assert(budgets.max3DTextureSize === 1000)
-      assert(budgets.maxBufferSize === 54000000000)
-      assert(budgets.maxIndices === 8000)
-      assert(budgets.maxTextureSize === 2000)
-      assert(budgets.maxVerticies === 10000)
-      done()
-    })
+    PerformanceManager.buildPerformanceState(
+      mockRenderer,
+      () => {
+        const performanceState = getState(PerformanceState)
+        const budgets = performanceState.budgets
+        assert(budgets.max3DTextureSize === 1000)
+        assert(budgets.maxBufferSize === 54000000000)
+        assert(budgets.maxIndices === 8000)
+        assert(budgets.maxTextureSize === 2000)
+        assert(budgets.maxVerticies === 10000)
+        done()
+      },
+      { renderer: 'nvidia corporation, nvidia geforce rtx 3070/pcie/sse2, ' }
+    )
   })
 
   it('Increments performance offset', (done) => {
     const performanceState = getMutableState(PerformanceState)
     const initialOffset = performanceState.performanceOffset.value
-    assert(initialOffset === 0)
 
     const Reactor = () => {
       const performance = useHookstate(performanceState)
 
       useEffect(() => {
         if (initialOffset !== performance.performanceOffset.value) {
-          assert(performance.performanceOffset.value === 1)
+          assert(performance.performanceOffset.value === initialOffset + 1)
         }
       }, [performance.performanceOffset])
 
@@ -121,7 +124,6 @@ describe('PerformanceState', () => {
   it('Increments performance tier', (done) => {
     const performanceState = getMutableState(PerformanceState)
     const initialTier = performanceState.tier.value
-    assert(initialTier === 0)
 
     const Reactor = () => {
       const performance = useHookstate(performanceState)
@@ -129,7 +131,7 @@ describe('PerformanceState', () => {
       useEffect(() => {
         console.log('UseEffect: ' + initialTier)
         if (initialTier !== performance.tier.value) {
-          assert(performance.tier.value === 1)
+          assert(performance.tier.value === initialTier + 1)
         }
       }, [performanceState.tier])
 
@@ -152,16 +154,19 @@ describe('PerformanceState', () => {
   it('Debounces performance offset', (done) => {
     const performanceState = getMutableState(PerformanceState)
     const initialOffset = performanceState.performanceOffset.value
-    assert(initialOffset === 0)
+    const initialTier = performanceState.tier.value
 
     const Reactor = () => {
       const performance = useHookstate(performanceState)
 
       useEffect(() => {
         if (initialOffset !== performance.performanceOffset.value) {
-          assert(performance.performanceOffset.value === 1)
+          assert(performance.performanceOffset.value === initialOffset + 1)
         }
-      }, [performance.performanceOffset])
+        if (initialTier !== performance.tier.value) {
+          assert(performance.tier.value === initialTier - 1)
+        }
+      }, [performance.performanceOffset, performance.tier])
 
       return <></>
     }

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { profile } from '@etherealengine/ecs/src/Timer'
 import { State, defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 import { EngineRenderer, RenderSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { getGPUTier } from 'detect-gpu'
+import { GetGPUTier, getGPUTier } from 'detect-gpu'
 import { debounce } from 'lodash'
 import { SMAAPreset } from 'postprocessing'
 import { useEffect } from 'react'
@@ -240,13 +240,18 @@ const decrementPerformance = () => {
   )
 }
 
-const buildPerformanceState = async (renderer: EngineRenderer, onFinished: () => void) => {
+const buildPerformanceState = async (
+  renderer: EngineRenderer,
+  onFinished: () => void,
+  override?: GetGPUTier['override']
+) => {
   const performanceState = getMutableState(PerformanceState)
   const gpuTier = await getGPUTier({
     glContext: renderer.renderContext,
     desktopTiers: [0, 15, 30, 60, 120, 240],
     //Mobile is harder to determine, most phones lock benchmark rendering at 60fps
-    mobileTiers: [0, 15, 30, 45, 60, 75]
+    mobileTiers: [0, 15, 30, 45, 60, 75],
+    override
   })
   let tier = gpuTier.tier
   performanceState.isMobileGPU.set(gpuTier.isMobile)
