@@ -22,7 +22,7 @@
     "jsx": "react",
     "isolatedModules": true,
     "experimentalDecorators": true,
-    "allowSyntheticImports": true,
+    "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
     "declaration": true,
     "outDir": "./lib",
