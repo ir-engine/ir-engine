@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable max-len */
 
+import * as VolumetricNodes from '@etherealengine/engine/src/scene/components/VolumetricNodes'
 import {
   GetSceneProperty,
   IRegistry,
@@ -55,7 +56,6 @@ import { EntityValue } from './values/EntityValue'
 import * as QueryNodes from './values/QueryNodes'
 import * as SplineNodes from './values/SplineNodes'
 import * as VariableNodes from './values/VariableNodes'
-import * as VolumetricNodes from './values/VolumetricNodes'
 
 export const makeEngineDependencies = () => ({})
 

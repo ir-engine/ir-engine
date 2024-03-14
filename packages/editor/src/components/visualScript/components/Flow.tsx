@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useVisualScriptRunner } from '@etherealengine/spatial/src/visualscript/systems/useVisualScriptRunner'
+import { useVisualScriptRunner } from '@etherealengine/engine/src/visualscript/systems/useVisualScriptRunner'
 import { GraphJSON, IRegistry } from '@etherealengine/visual-script'
 import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'

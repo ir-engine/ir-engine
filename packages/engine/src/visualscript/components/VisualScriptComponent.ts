@@ -39,8 +39,8 @@ export enum VisualScriptDomain {
 }
 
 export const VisualScriptComponent = defineComponent({
-  name: 'EE_VisualScript',
-  jsonID: 'visual-script',
+  name: 'VisualScriptComponent',
+  jsonID: 'EE_visual_script',
 
   onInit: (entity) => {
     const domain = VisualScriptDomain.ECS
