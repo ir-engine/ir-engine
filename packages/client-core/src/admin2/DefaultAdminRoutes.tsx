@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { lazy } from 'react'
 import { HiOutlineCube } from 'react-icons/hi'
-import { HiGlobeAlt, HiMapPin, HiOutlineTableCells, HiServer, HiUser, HiUserCircle } from 'react-icons/hi2'
+import { HiMapPin, HiOutlineGlobeAlt, HiOutlineTableCells, HiServer, HiUser, HiUserCircle } from 'react-icons/hi2'
 import { RiSendPlaneFill } from 'react-icons/ri'
 import { AdminRouteStateType } from '../admin/AllowedAdminRoutesState'
 
@@ -109,6 +109,6 @@ export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
     scope: 'routes',
     component: Routes,
     access: false,
-    icon: <HiGlobeAlt />
+    icon: <HiOutlineGlobeAlt />
   }
 }
