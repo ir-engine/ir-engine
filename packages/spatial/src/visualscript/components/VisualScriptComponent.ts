@@ -32,7 +32,7 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { GraphJSON, VisualScriptState, defaultVisualScript } from '@etherealengine/visual-script'
 import { useEffect } from 'react'
-import { useVisualScriptRunner } from '../../../../visual-script/src/functions/useVisualScriptRunner'
+import { useVisualScriptRunner } from '../systems/useVisualScriptRunner'
 
 export enum VisualScriptDomain {
   'ECS' = 'ECS'

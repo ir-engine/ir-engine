@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Choices } from '@etherealengine/visual-script'
+import { Choices } from '../../../engine/Sockets/Socket'
 
 export interface IScene {
   getProperty(jsonPath: string, valueTypeName: string): any

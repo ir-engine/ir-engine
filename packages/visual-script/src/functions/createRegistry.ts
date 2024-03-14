@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EEScene } from '@etherealengine/spatial'
 import { DefaultLogger, ManualLifecycleEventEmitter, registerCoreProfile } from '../profiles/ProfilesModule'
+import { EEScene } from '../profiles/eeScene'
 import { registerSceneProfile } from '../profiles/scene/SceneProfileModule'
 import { registerStructProfile } from '../profiles/struct/StructProfileModule'
 

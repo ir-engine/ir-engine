@@ -60,11 +60,12 @@ import { getState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
+import { getOnAsyncExecuteSystemUUID } from '@etherealengine/spatial/src/visualscript/systems/useVisualScriptRunner'
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 import { default as Sinon, default as sinon } from 'sinon'
-import { GraphJSON, VisualScriptState, getOnAsyncExecuteSystemUUID } from '../src/VisualScriptModule'
+import { GraphJSON, VisualScriptState } from '../src/VisualScriptModule'
 
 describe('visual Script', () => {
   let consoleSpy: Sinon.SinonSpy

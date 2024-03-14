@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export * from './abstractions/drivers/eeScene'
 export * from './events/onAxis'
 export * from './events/onButton'
 export * from './events/onCollision'

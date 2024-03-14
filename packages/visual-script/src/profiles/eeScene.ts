@@ -23,22 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '@etherealengine/ecs/src/Engine'
+import { HyperFlux } from '@etherealengine/hyperflux'
+import { EventEmitter } from '../engine/Events/EventEmitter'
+import { ValueType } from '../engine/Values/ValueType'
 import {
   BooleanValue,
   ColorValue,
   EulerValue,
-  EventEmitter,
   FloatValue,
   IScene,
   IntegerValue,
   QuatValue,
   StringValue,
-  ValueType,
   Vec2Value,
   Vec3Value,
   Vec4Value
-} from '@etherealengine/visual-script'
+} from './ProfilesModule'
 
 export class EEScene implements IScene {
   public onSceneChanged = new EventEmitter<void>()
@@ -61,7 +61,7 @@ export class EEScene implements IScene {
         QuatValue
       ].map((valueType) => [valueType.name, valueType])
     )
-    Object.entries(Engine.instance.store.stateMap).forEach((stateType) => {
+    Object.entries(HyperFlux.store.stateMap).forEach((stateType) => {
       const properties = {}
       Object.keys(stateType[1]).forEach((property) => {
         properties[property] = property
