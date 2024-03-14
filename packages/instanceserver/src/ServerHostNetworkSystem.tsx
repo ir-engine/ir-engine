@@ -31,9 +31,9 @@ import { RecordingID } from '@etherealengine/common/src/schema.type.module'
 import { RecordingAPIState } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { getMutableState, none } from '@etherealengine/hyperflux'
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { recordingResourceUploadPath } from '@etherealengine/common/src/schema.type.module'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { PeerID } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 

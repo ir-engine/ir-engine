@@ -27,10 +27,15 @@ import assert, { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { AvatarID, UserID, UserName } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID } from '@etherealengine/ecs'
-import { applyIncomingActions, clearOutgoingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import {
+  PeerID,
+  applyIncomingActions,
+  clearOutgoingActions,
+  dispatchAction,
+  getMutableState
+} from '@etherealengine/hyperflux'
 
 import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
@@ -77,7 +82,6 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
     dispatchAction(
       AvatarNetworkAction.spawn({
-        $from: Engine.instance.userID,
         networkId: networkObject.networkId,
         position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942),
         rotation: new Quaternion(),
