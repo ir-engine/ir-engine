@@ -118,6 +118,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
       commitSHA,
       commitDate: toDateTimeSql(commitDate),
       needsRebuild: true,
+      hasLocalChanges: false,
       updateType: 'none' as ProjectType['updateType'],
       updateSchedule: DefaultUpdateSchedule,
       createdAt: await getDateTimeSql(),

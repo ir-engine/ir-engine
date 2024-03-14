@@ -66,7 +66,7 @@ describe('invite.service', () => {
         name: `test-location-name-${v1()}`,
         slugifiedName: '',
         sceneId: `test-invite-scene-${v1()}` as SceneID,
-        maxUsersPerInstance: 30,
+        maxUsersPerInstance: 20,
         locationSetting: {
           id: '',
           locationType: 'public',

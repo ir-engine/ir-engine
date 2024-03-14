@@ -23,30 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export function pathResolver() {
-  //const cacheRe = new RegExp(`(https://[^\\/]+)/projects/([^/]+)/(.*$)`)
-  const cacheRe = new RegExp(`.*/(?:projects|static-resources)/([^/]*)/((?:assets/|).*)`)
-  //                          1: project name -- 2: internal path
-  return cacheRe
+import { projectPath } from '@etherealengine/common/src/schema.type.module'
+import type { Knex } from 'knex'
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const hasLocalChangesColumnExists = await knex.schema.hasColumn(projectPath, 'hasLocalChanges')
+  if (!hasLocalChangesColumnExists) {
+    await knex.schema.alterTable(projectPath, async (table) => {
+      table.boolean('hasLocalChanges').defaultTo(false)
+    })
+  }
 }
 
-export function getBasePath(path: string) {
-  const regex = new RegExp(`(.*/(?:projects|static-resources)/[^/]*)`)
-  return regex.exec(path)![0]
-}
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const hasLocalChangesColumnExists = await knex.schema.hasColumn(projectPath, 'hasLocalChanges')
 
-export function getFileName(path: string) {
-  return /[^\\/]+$/.exec(path)?.[0] ?? ''
-}
-
-export function getRelativeURI(path: string) {
-  return pathResolver().exec(path)?.[2] ?? ''
-}
-
-export function getProjectName(path: string) {
-  return pathResolver().exec(path)?.[1] ?? ''
-}
-
-export function modelResourcesPath(modelName: string) {
-  return `model-resources/${modelName.split('.').at(-2)!}`
+  if (hasLocalChangesColumnExists) {
+    await knex.schema.alterTable(projectPath, async (table) => {
+      table.dropColumn('hasLocalChanges')
+    })
+  }
 }
