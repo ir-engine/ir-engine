@@ -44,6 +44,7 @@ then
     --build-arg ECR_URL=$ECR_URL \
     --build-arg REPO_NAME=$REPO_NAME \
     --build-arg STAGE=$STAGE \
+    --build-arg KUBERNETES=$KUBERNETES \
     --build-arg NODE_ENV=$NODE_ENV \
     --build-arg STORAGE_PROVIDER=$STORAGE_PROVIDER \
     --build-arg STORAGE_CLOUDFRONT_DOMAIN=$STORAGE_CLOUDFRONT_DOMAIN \
@@ -86,6 +87,7 @@ then
     --build-arg ECR_URL=$ECR_URL \
     --build-arg REPO_NAME=$REPO_NAME \
     --build-arg STAGE=$STAGE \
+    --build-arg KUBERNETES=$KUBERNETES \
     --build-arg NODE_ENV=$NODE_ENV \
     --build-arg STORAGE_PROVIDER=$STORAGE_PROVIDER \
     --build-arg STORAGE_CLOUDFRONT_DOMAIN=$STORAGE_CLOUDFRONT_DOMAIN \
@@ -130,6 +132,7 @@ else
     --build-arg ECR_URL=$ECR_URL \
     --build-arg REPO_NAME=$REPO_NAME \
     --build-arg STAGE=$STAGE \
+    --build-arg KUBERNETES=$KUBERNETES \
     --build-arg NODE_ENV=$NODE_ENV \
     --build-arg STORAGE_PROVIDER=$STORAGE_PROVIDER \
     --build-arg STORAGE_CLOUDFRONT_DOMAIN=$STORAGE_CLOUDFRONT_DOMAIN \
