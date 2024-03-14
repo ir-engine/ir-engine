@@ -120,7 +120,7 @@ export async function getFreeInstanceserver({
       returned = returned && releaseMatch != null && releaseMatch[1] === config.server.releaseName
     if (returned && provisionConstraints) {
       const keys = Object.keys(provisionConstraints)
-      for (let key of keys) {
+      for (const key of keys) {
         const constraint = provisionConstraints[key]
         const provisionFunction = Object.keys(constraint)[0]
         const provisionValue = constraint[provisionFunction]
@@ -462,7 +462,9 @@ export async function checkForDuplicatedAssignments({
   }
 }
 
-export interface InstanceProvisionParams extends KnexAdapterParams {}
+export interface InstanceProvisionParams extends KnexAdapterParams {
+  serverSize?: string
+}
 
 /**
  * A class for Instance Provision service
@@ -633,7 +635,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
       const roomCode = params.query?.roomCode as RoomCode
       const createPrivateRoom = params.query?.createPrivateRoom
       const token = params.query?.token
-      const provisionConstraints = params.query?.provisionConstraints
+      const provisionConstraints = { 'metadata.labels.serverSize': params.serverSize }
       logger.info('instance-provision find %s %s %s %s', locationId, instanceId, channelId, roomCode)
       if (!token) throw new NotAuthenticated('No token provided')
       // Check if JWT resolves to a user

@@ -45,8 +45,6 @@ const Project = () => {
   const projectState = useHookstate(getMutableState(ProjectState))
   const projects = projectState.projects
 
-  ProjectService.useAPIListeners()
-
   const settings = useHookstate<Array<ProjectSettingType> | []>([])
   const selectedProject = useHookstate(projects.get(NO_PROXY).length > 0 ? projects.get(NO_PROXY)[0].id : '')
 
@@ -55,8 +53,6 @@ const Project = () => {
   let projectSetting = project?.settings || []
 
   const patchProjectSetting = useMutation(projectPath).patch
-
-  ProjectService.useAPIListeners()
 
   useEffect(() => {
     ProjectService.fetchProjects()

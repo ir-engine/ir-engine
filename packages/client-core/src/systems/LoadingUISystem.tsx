@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
-import { BackSide, Color, CompressedTexture, Mesh, MeshBasicMaterial, SphereGeometry, Texture, Vector2 } from 'three'
+import { BackSide, Color, Mesh, MeshBasicMaterial, SphereGeometry, Vector2 } from 'three'
 
 import {
   getComponent,
@@ -36,9 +36,8 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { setVisibleComponent, VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
@@ -52,10 +51,11 @@ import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIC
 import { ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
-import { UUIDComponent } from '@etherealengine/network'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { addObjectToGroup, GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -122,6 +122,42 @@ const LoadingReactor = () => {
   const locationSceneID = locationState.currentLocation.location.sceneId.value
   const scene = SceneState.getScene(locationSceneID)
   const sceneEntity = UUIDComponent.useEntityByUUID(scene.scene.root)
+  const sceneComponent = getOptionalComponent(sceneEntity, SceneSettingsComponent)
+  const [loadingTexture, unload, error] = useTexture(sceneComponent ? sceneComponent.loadingScreenURL : '', sceneEntity)
+
+  useEffect(() => {
+    return unload
+  }, [])
+
+  useEffect(() => {
+    const texture = loadingTexture.get(NO_PROXY)
+    if (!texture) return
+
+    const mesh = getComponent(meshEntity, GroupComponent)[0] as any as Mesh<SphereGeometry, MeshBasicMaterial>
+    if (sceneComponent && sceneComponent.loadingScreenURL && mesh.userData.url !== sceneComponent.loadingScreenURL) {
+      mesh.userData.url = sceneComponent.loadingScreenURL
+    }
+
+    mesh.material.map = texture
+    mesh.material.needsUpdate = true
+    mesh.material.map.needsUpdate = true
+    EngineRenderer.instance.renderer
+      .compileAsync(mesh, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
+      .then(() => {
+        state.ready.set(true)
+      })
+      .catch((error) => {
+        console.error(error)
+        state.ready.set(true)
+      })
+  }, [loadingTexture])
+
+  useEffect(() => {
+    if (!error.value) return
+
+    console.error(error)
+    state.ready.set(true)
+  }, [error])
 
   /** Scene is loading */
   useEffect(() => {
@@ -139,54 +175,20 @@ const LoadingReactor = () => {
   useEffect(() => {
     if (!sceneEntity) return
 
-    const sceneComponent = getOptionalComponent(sceneEntity, SceneSettingsComponent)
-
     if (!sceneComponent) {
       state.ready.set(true)
       return
     }
 
-    const envmapURL = sceneComponent.loadingScreenURL
+    const colors = getState(LoadingUISystemState).ui.state.colors
+    colors.main.set(sceneComponent.primaryColor)
+    colors.background.set(sceneComponent.backgroundColor)
+    colors.alternate.set(sceneComponent.alternativeColor)
 
-    const mesh = getComponent(meshEntity, GroupComponent)[0] as any as Mesh<SphereGeometry, MeshBasicMaterial>
-    if (envmapURL && mesh.userData.url !== envmapURL) {
-      mesh.userData.url = envmapURL
-
-      /** Load envmap and parse colours */
-      AssetLoader.load(
-        envmapURL,
-        {},
-        (texture: Texture | CompressedTexture) => {
-          mesh.material.map = texture
-          mesh.material.needsUpdate = true
-          mesh.material.map.needsUpdate = true
-          EngineRenderer.instance.renderer
-            .compileAsync(mesh, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
-            .then(() => {
-              state.ready.set(true)
-            })
-            .catch((error) => {
-              console.error(error)
-              state.ready.set(true)
-            })
-        },
-        undefined,
-        (error: ErrorEvent) => {
-          console.error(error)
-          state.ready.set(true)
-        }
-      )
-
-      const colors = getState(LoadingUISystemState).ui.state.colors
-      colors.main.set(sceneComponent.primaryColor)
-      colors.background.set(sceneComponent.backgroundColor)
-      colors.alternate.set(sceneComponent.alternativeColor)
-
-      return () => {
-        colors.main.set('black')
-        colors.background.set('white')
-        colors.alternate.set('black')
-      }
+    return () => {
+      colors.main.set('black')
+      colors.background.set('white')
+      colors.alternate.set('black')
     }
   }, [sceneEntity])
 

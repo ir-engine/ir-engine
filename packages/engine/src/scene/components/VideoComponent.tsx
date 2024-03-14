@@ -28,7 +28,7 @@ import { DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, Side, Texture, Vecto
 
 import { defineState } from '@etherealengine/hyperflux'
 
-import { EntityUUID } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -38,7 +38,6 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { UUIDComponent } from '@etherealengine/network'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { createPriorityQueue } from '@etherealengine/spatial/src/common/functions/PriorityQueue'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'

@@ -26,11 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { EntityUUID } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
-import { UUIDComponent } from '@etherealengine/network'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 
 import VideocamIcon from '@mui/icons-material/Videocam'

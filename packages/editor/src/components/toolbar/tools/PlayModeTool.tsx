@@ -23,26 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
+import { BehaveGraphActions, graphQuery } from '@etherealengine/engine/src/behave-graph/systems/BehaveGraphSystem'
+import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { UUIDComponent, WorldNetworkAction } from '@etherealengine/network'
+import { WorldNetworkAction } from '@etherealengine/network'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
 import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
-
 import PauseIcon from '@mui/icons-material/Pause'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
-
-import { BehaveGraphActions, graphQuery } from '@etherealengine/engine/src/behave-graph/systems/BehaveGraphSystem'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'

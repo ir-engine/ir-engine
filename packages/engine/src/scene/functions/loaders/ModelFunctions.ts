@@ -27,6 +27,7 @@ import { DracoOptions } from '@gltf-transform/functions'
 import { Material, Texture } from 'three'
 
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
+import { UUIDComponent } from '@etherealengine/ecs'
 import {
   getComponent,
   getOptionalComponent,
@@ -34,7 +35,6 @@ import {
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { UUIDComponent } from '@etherealengine/network'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import {

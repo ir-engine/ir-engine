@@ -23,11 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import { FC, useEffect } from 'react'
 import { AnimationMixer, BoxGeometry, CapsuleGeometry, CylinderGeometry, Group, Scene, SphereGeometry } from 'three'
 
 import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { QueryReactor, UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -43,7 +44,6 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { UUIDComponent } from '@etherealengine/network'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
@@ -52,6 +52,7 @@ import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRender
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { VRM } from '@pixiv/three-vrm'
+import { Not } from 'bitecs'
 import React from 'react'
 import { AssetType } from '../../assets/enum/AssetType'
 import { useGLTF } from '../../assets/functions/resourceHooks'
@@ -110,7 +111,7 @@ export const ModelComponent = defineComponent({
       component.src.value &&
       !component.asset.value
     )
-      SceneAssetPendingTagComponent.addResource(entity, component.src.value)
+      SceneAssetPendingTagComponent.addResource(entity, ModelComponent.jsonID)
   },
 
   errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
@@ -152,7 +153,7 @@ function ModelReactor(): JSX.Element {
 
     console.error(err)
     addError(entity, ModelComponent, 'INVALID_SOURCE', err.message)
-    SceneAssetPendingTagComponent.removeResource(entity, modelComponent.src.value)
+    SceneAssetPendingTagComponent.removeResource(entity, ModelComponent.jsonID)
   }, [error])
 
   useEffect(() => {
@@ -238,7 +239,7 @@ function ModelReactor(): JSX.Element {
           addError(entity, ModelComponent, 'LOADING_ERROR', 'Error compiling model')
         })
         .finally(() => {
-          SceneAssetPendingTagComponent.removeResource(entity, src)
+          SceneAssetPendingTagComponent.removeResource(entity, ModelComponent.jsonID)
         })
 
     const gltf = asset as GLTF
@@ -273,7 +274,7 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
 
   useEffect(() => {
     SceneAssetPendingTagComponent.removeResource(props.entity, `${props.parentEntity}`)
-    SceneAssetPendingTagComponent.removeResource(props.parentEntity, modelComponent.src.value)
+    SceneAssetPendingTagComponent.removeResource(props.parentEntity, ModelComponent.jsonID)
   }, [])
 
   const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)
@@ -339,4 +340,31 @@ export const useMeshOrModel = (entity: Entity) => {
   const sceneComponent = useOptionalComponent(entity, SceneComponent)
   const isEntityHierarchyOrMesh = (!sceneComponent && !!meshComponent) || !!modelComponent
   return isEntityHierarchyOrMesh
+}
+
+export const MeshOrModelQuery = (props: { ChildReactor: FC<{ entity: Entity; rootEntity: Entity }> }) => {
+  const ModelReactor = () => {
+    const entity = useEntityContext()
+    const sceneInstanceID = useModelSceneID(entity)
+    const childEntities = useHookstate(SceneComponent.entitiesBySceneState[sceneInstanceID])
+    return (
+      <>
+        {childEntities.value?.map((childEntity) => (
+          <props.ChildReactor entity={childEntity} rootEntity={entity} key={childEntity} />
+        ))}
+      </>
+    )
+  }
+
+  const MeshReactor = () => {
+    const entity = useEntityContext()
+    return <props.ChildReactor entity={entity} rootEntity={entity} key={entity} />
+  }
+
+  return (
+    <>
+      <QueryReactor Components={[ModelComponent]} ChildEntityReactor={ModelReactor} />
+      <QueryReactor Components={[Not(SceneComponent), MeshComponent]} ChildEntityReactor={MeshReactor} />
+    </>
+  )
 }

@@ -23,12 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useLayoutEffect } from 'react'
-
-import { EntityUUID } from '@etherealengine/ecs'
-import { defineState, dispatchAction, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
-import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-
 import {
   AvatarID,
   AvatarType,
@@ -37,12 +31,16 @@ import {
   userPath
 } from '@etherealengine/common/src/schema.type.module'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { setComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, getOptionalComponent, setComponent } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
-import { UUIDComponent, WorldNetworkAction } from '@etherealengine/network'
+import { defineState, dispatchAction, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { WorldNetworkAction } from '@etherealengine/network'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { Paginated } from '@feathersjs/feathers'
+import React, { useEffect, useLayoutEffect } from 'react'
+import { AvatarColliderComponent } from '../components/AvatarControllerComponent'
 import { loadAvatarModelAsset, unloadAvatarForUser } from '../functions/avatarFunctions'
 import { spawnAvatarReceptor } from '../functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from './AvatarNetworkActions'
@@ -148,10 +146,14 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   }, [userAvatarDetails, entity])
 
   useEffect(() => {
-    if (!user.data) return
+    if (!user.data || !entity) return
     const userName = user.data.name
     setComponent(entity, NameComponent, userName + "'s avatar")
-  }, [user.data?.name])
+    const colliderEntity = getOptionalComponent(entity, AvatarColliderComponent)?.colliderEntity
+    if (colliderEntity) {
+      setComponent(colliderEntity, NameComponent, userName + "'s collider")
+    }
+  }, [user.data?.name, entity])
 
   return null
 }

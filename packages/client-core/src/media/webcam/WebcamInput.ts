@@ -28,12 +28,12 @@ import * as Comlink from 'comlink'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils/createWorkerFromCrossOriginURL'
+import { UUIDComponent } from '@etherealengine/ecs'
 import { getOptionalComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
-import { UUIDComponent } from '@etherealengine/network'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { WebcamInputComponent } from './WebcamInputComponent'
 

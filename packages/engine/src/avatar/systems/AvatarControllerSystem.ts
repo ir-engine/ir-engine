@@ -23,20 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineActionQueue, dispatchAction } from '@etherealengine/hyperflux'
-
 import {
+  Engine,
+  UUIDComponent,
+  defineQuery,
+  defineSystem,
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { getState } from '@etherealengine/hyperflux'
-import { NetworkObjectAuthorityTag, NetworkState, UUIDComponent, WorldNetworkAction } from '@etherealengine/network'
+} from '@etherealengine/ecs'
+import { defineActionQueue, dispatchAction, getState } from '@etherealengine/hyperflux'
+import { NetworkObjectAuthorityTag, NetworkState, WorldNetworkAction } from '@etherealengine/network'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
@@ -87,7 +86,7 @@ const execute = () => {
       const followCamera = getOptionalComponent(controller.cameraEntity, FollowCameraComponent)
       if (followCamera) {
         // todo calculate head size and use that as the bound #7263
-        if (followCamera.distance < 0.6) setComponent(entity, AvatarHeadDecapComponent, true)
+        if (followCamera.distance < 0.3) setComponent(entity, AvatarHeadDecapComponent, true)
         else removeComponent(entity, AvatarHeadDecapComponent)
       }
     }

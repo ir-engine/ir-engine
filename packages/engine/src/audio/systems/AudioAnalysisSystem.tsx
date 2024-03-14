@@ -23,10 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PresentationSystemGroup, defineQuery, defineSystem, getComponent } from '@etherealengine/ecs'
+import { PresentationSystemGroup, defineQuery, defineSystem, getComponent, setComponent } from '@etherealengine/ecs'
 import { AudioAnalysisComponent } from '../../scene/components/AudioAnalysisComponent'
 
 const audioAnalysisQuery = defineQuery([AudioAnalysisComponent])
+
+type VizRange = { start: number; end: number }
+type VizMult = (comp) => number
+const vizRanges: Map<VizRange, VizMult> = new Map([
+  [{ start: 0 / 3, end: 1 / 3 }, (comp) => comp.bassMultiplier * (comp.bassEnabled ? 1 : 0)],
+  [{ start: 1 / 3, end: 2 / 3 }, (comp) => comp.midMultiplier * (comp.midEnabled ? 1 : 0)],
+  [{ start: 2 / 3, end: 3 / 3 }, (comp) => comp.trebleMultiplier * (comp.trebleEnabled ? 1 : 0)]
+])
 
 export const AudioAnalysisSystem = defineSystem({
   uuid: 'ee.engine.AudioAnalysisSystem',
@@ -34,29 +42,24 @@ export const AudioAnalysisSystem = defineSystem({
   execute: () => {
     for (const entity of audioAnalysisQuery()) {
       const analysisComponent = getComponent(entity, AudioAnalysisComponent)
-      const helper = analysisComponent.analyser
-
-      if (helper) {
-        const bufferLength = helper.frequencyBinCount
-        const dataArray = new Uint8Array(bufferLength)
-        helper.getByteFrequencyData(dataArray)
-        const trebleRange = { start: 0, end: 342 }
-        const midRange = { start: 342, end: 684 }
-        const bassRange = { start: 684, end: bufferLength }
-
-        for (let i = 0; i < dataArray.length; i++) {
-          if (i >= bassRange.start && i < bassRange.end && analysisComponent.bassEnabled) {
-            dataArray[i] *= analysisComponent.bassMultiplier
-          } else if (i >= midRange.start && i < midRange.end && analysisComponent.midEnabled) {
-            dataArray[i] *= analysisComponent.midMultiplier
-          } else if (i >= trebleRange.start && i < trebleRange.end && analysisComponent.trebleEnabled) {
-            dataArray[i] *= analysisComponent.trebleMultiplier
-          } else {
-            dataArray[i] = 0
-          }
-        }
-        analysisComponent.dataArray = dataArray
+      const session = analysisComponent.session
+      if (session == null) {
+        continue
       }
+      const { analyser, frequencyData } = session
+      const bufferLength = analyser.frequencyBinCount
+      analyser.getByteFrequencyData(frequencyData)
+
+      for (const [range, mult] of vizRanges) {
+        const start = Math.floor(range.start * bufferLength)
+        const end = Math.floor(range.end * bufferLength)
+        const multiplier = mult(analysisComponent)
+        for (let i = start; i < end; i++) {
+          frequencyData[i] *= multiplier
+        }
+      }
+
+      setComponent(entity, AudioAnalysisComponent, { session })
     }
   }
 })

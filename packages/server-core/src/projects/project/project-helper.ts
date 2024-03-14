@@ -202,7 +202,7 @@ export const updateBuilder = async (
 export const checkBuilderService = async (app: Application): Promise<{ failed: boolean; succeeded: boolean }> => {
   const jobStatus = {
     failed: false,
-    succeeded: false
+    succeeded: !config.kubernetes.enabled // if no k8s, assume success
   }
   const k8DefaultClient = getState(ServerState).k8DefaultClient
   const k8BatchClient = getState(ServerState).k8BatchClient
@@ -718,7 +718,7 @@ export const getProjectCommits = async (
 
     const enginePackageJson = getEnginePackageJson()
     const repoResponse = await octoKit.rest.repos.get({ owner, repo })
-    const branchName = params!.query!.branchName || (repoResponse as any).default_branch
+    const branchName = params!.query!.sourceBranch || (repoResponse as any).default_branch
     const headResponse = await octoKit.rest.repos.listCommits({
       owner,
       repo,
@@ -1062,7 +1062,7 @@ export async function getProjectPushJobBody(
   }
   return {
     metadata: {
-      name: `${process.env.RELEASE_NAME}-${project.name}-gh-push`,
+      name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-gh-push`,
       labels: {
         'etherealengine/projectPusher': 'true',
         'etherealengine/projectField': project.name,
@@ -1082,7 +1082,7 @@ export async function getProjectPushJobBody(
           serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
           containers: [
             {
-              name: `${process.env.RELEASE_NAME}-${project.name}-push`,
+              name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-push`,
               image,
               imagePullPolicy: 'IfNotPresent',
               command,
@@ -1101,7 +1101,7 @@ export async function getProjectPushJobBody(
 export const getCronJobBody = (project: ProjectType, image: string): object => {
   return {
     metadata: {
-      name: `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
+      name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-auto-update`,
       labels: {
         'etherealengine/projectUpdater': 'true',
         'etherealengine/autoUpdate': 'true',
@@ -1131,7 +1131,7 @@ export const getCronJobBody = (project: ProjectType, image: string): object => {
               serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
               containers: [
                 {
-                  name: `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
+                  name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-auto-update`,
                   image,
                   imagePullPolicy: 'IfNotPresent',
                   command: [
@@ -1308,11 +1308,11 @@ export const checkProjectAutoUpdate = async (app: Application, projectName: stri
   } else if (project.updateType === 'commit') {
     const commits = await getProjectCommits(app, project.sourceRepo!, {
       user,
-      query: { branchName: project.branchName! }
+      query: { sourceBranch: project.sourceBranch! }
     })
     if (commits && commits[0].commitSHA !== project.commitSHA) commitSHA = commits[0].commitSHA
   }
-  if (commitSHA)
+  if (commitSHA && !project.hasLocalChanges)
     await app.service(projectPath).update(
       '',
       {
@@ -1542,6 +1542,7 @@ export const updateProject = async (
           enabled,
           repositoryPath,
           needsRebuild: data.needsRebuild ? data.needsRebuild : true,
+          hasLocalChanges: false,
           sourceRepo: data.sourceURL,
           sourceBranch: data.sourceBranch,
           updateType: data.updateType,
@@ -1559,6 +1560,7 @@ export const updateProject = async (
         {
           enabled,
           commitSHA,
+          hasLocalChanges: false,
           commitDate: toDateTimeSql(commitDate),
           sourceRepo: data.sourceURL,
           sourceBranch: data.sourceBranch,
@@ -1697,7 +1699,7 @@ export const uploadLocalProjectToProvider = async (
 
     for (const item of manifest) {
       if (existingKeySet.has(item.key)) {
-        logger.info(`Skipping upload of static resource: "${item.key}"`)
+        // logger.info(`Skipping upload of static resource: "${item.key}"`)
         continue
       }
       const url = getCachedURL(item.key, cacheDomain)
@@ -1729,7 +1731,7 @@ export const uploadLocalProjectToProvider = async (
         ...newResource,
         url
       })
-      logger.info(`Uploaded static resource ${item.key} from resources.json`)
+      // logger.info(`Uploaded static resource ${item.key} from resources.json`)
     }
   }
 
@@ -1761,7 +1763,7 @@ export const uploadLocalProjectToProvider = async (
         if (filePathRelative.startsWith('/assets/') && staticResourceClasses.includes(thisFileClass)) {
           const hash = createStaticResourceHash(fileResult)
           if (existingContentSet.has(resourceKey(key, hash))) {
-            logger.info(`Skipping upload of static resource of class ${thisFileClass}: "${key}"`)
+            // logger.info(`Skipping upload of static resource of class ${thisFileClass}: "${key}"`)
           } else {
             if (existingKeySet.has(key)) {
               logger.info(`Updating static resource of class ${thisFileClass}: "${key}"`)
@@ -1791,7 +1793,7 @@ export const uploadLocalProjectToProvider = async (
                 tags: [thisFileClass]
               })
             }
-            logger.info(`Uploaded static resource of class ${thisFileClass}: "${key}"`)
+            // logger.info(`Uploaded static resource of class ${thisFileClass}: "${key}"`)
           }
         }
       }

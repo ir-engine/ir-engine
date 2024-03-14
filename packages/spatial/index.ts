@@ -22,4 +22,8 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+
+// ensure dependency modules are imported
+import '@etherealengine/network'
+
 export * from './src/SpatialModule'
