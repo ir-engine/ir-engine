@@ -129,7 +129,6 @@ describe('PerformanceState', () => {
       const performance = useHookstate(performanceState)
 
       useEffect(() => {
-        console.log('UseEffect: ' + initialTier)
         if (initialTier !== performance.tier.value) {
           assert(performance.tier.value === initialTier + 1)
         }
