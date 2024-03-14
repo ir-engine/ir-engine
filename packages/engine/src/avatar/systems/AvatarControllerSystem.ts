@@ -34,39 +34,21 @@ import {
   removeComponent,
   setComponent
 } from '@etherealengine/ecs'
-import { defineActionQueue, dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 import { NetworkObjectAuthorityTag, NetworkState, WorldNetworkAction } from '@etherealengine/network'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { XRAction, XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
+import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 import { respawnAvatar } from '../functions/respawnAvatar'
 import { AvatarInputSystem } from './AvatarInputSystem'
 
-const controllerQuery = defineQuery([AvatarControllerComponent])
-const sessionChangedActions = defineActionQueue(XRAction.sessionChanged.matches)
+const controllerQuery = defineQuery([AvatarControllerComponent, NetworkObjectAuthorityTag])
 
 const execute = () => {
-  for (const action of sessionChangedActions()) {
-    if (action.active) {
-      for (const avatarEntity of controllerQuery()) {
-        const controller = getComponent(avatarEntity, AvatarControllerComponent)
-        removeComponent(controller.cameraEntity, FollowCameraComponent)
-      }
-    } else {
-      for (const avatarEntity of controllerQuery()) {
-        const controller = getComponent(avatarEntity, AvatarControllerComponent)
-        const targetCameraRotation = getComponent(controller.cameraEntity, TargetCameraRotationComponent)
-        setComponent(controller.cameraEntity, FollowCameraComponent, {
-          targetEntity: avatarEntity,
-          phi: targetCameraRotation.phi,
-          theta: targetCameraRotation.theta
-        })
-      }
-    }
-  }
+  const controlledEntities = controllerQuery()
 
   for (const avatarEntity of controllerQuery.enter()) {
     const controller = getComponent(avatarEntity, AvatarControllerComponent)
@@ -81,7 +63,7 @@ const execute = () => {
 
   /** @todo non-immersive camera should utilize isCameraAttachedToAvatar */
   if (!getState(XRControlsState).isCameraAttachedToAvatar)
-    for (const entity of controllerQuery()) {
+    for (const entity of controlledEntities) {
       const controller = getComponent(entity, AvatarControllerComponent)
       const followCamera = getOptionalComponent(controller.cameraEntity, FollowCameraComponent)
       if (followCamera) {
@@ -91,29 +73,27 @@ const execute = () => {
       }
     }
 
-  const controlledEntity = Engine.instance.localClientEntity
-
-  if (hasComponent(controlledEntity, AvatarControllerComponent)) {
-    const controller = getComponent(controlledEntity, AvatarControllerComponent)
+  for (const entity of controlledEntities) {
+    const controller = getComponent(entity, AvatarControllerComponent)
 
     if (!controller.movementCaptured.length) {
       if (
-        !hasComponent(controlledEntity, NetworkObjectAuthorityTag) &&
+        !hasComponent(entity, NetworkObjectAuthorityTag) &&
         NetworkState.worldNetwork &&
         controller.gamepadLocalInput.lengthSq() > 0
       ) {
         dispatchAction(
           WorldNetworkAction.transferAuthorityOfObject({
-            entityUUID: getComponent(controlledEntity, UUIDComponent),
+            entityUUID: getComponent(entity, UUIDComponent),
             newAuthority: Engine.instance.peerID
           })
         )
-        setComponent(controlledEntity, NetworkObjectAuthorityTag)
+        setComponent(entity, NetworkObjectAuthorityTag)
       }
     }
 
-    const rigidbody = getComponent(controlledEntity, RigidBodyComponent)
-    if (rigidbody.position.y < -10) respawnAvatar(controlledEntity)
+    const rigidbody = getComponent(entity, RigidBodyComponent)
+    if (rigidbody.position.y < -10) respawnAvatar(entity)
   }
 }
 

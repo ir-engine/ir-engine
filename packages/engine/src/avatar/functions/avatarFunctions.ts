@@ -44,7 +44,6 @@ import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
@@ -186,7 +185,8 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
  * successfully loaded.
  */
 export const setupAvatarForUser = (entity: Entity, model: VRM) => {
-  if (entity == Engine.instance.localClientEntity)
+  const localClientEntity = AvatarComponent.getSelfAvatarEntity()
+  if (entity == localClientEntity)
     setComponent(entity, TransparencyDitheringComponent, { overrideFaceCulling: true, useLocalCenter: true })
 
   setComponent(entity, AvatarRigComponent, {
@@ -209,7 +209,7 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
     })
   }
 
-  if (entity === Engine.instance.localClientEntity) getMutableState(LocalAvatarState).avatarReady.set(true)
+  if (entity === localClientEntity) getMutableState(LocalAvatarState).avatarReady.set(true)
 }
 
 export const retargetAvatarAnimations = (entity: Entity) => {

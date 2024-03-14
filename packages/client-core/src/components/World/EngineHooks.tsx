@@ -33,6 +33,7 @@ import multiLogger from '@etherealengine/common/src/logger'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { Engine, UUIDComponent, UndefinedEntity, getComponent } from '@etherealengine/ecs'
+import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { getRandomSpawnPoint, getSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/moveAvatar'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
@@ -111,8 +112,8 @@ export const useLocationSpawnAvatarWithDespawn = () => {
 }
 
 export const despawnSelfAvatar = () => {
-  const clientEntity = Engine.instance.localClientEntity
-  if (!clientEntity) return
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+  if (!selfAvatarEntity) return
 
   const network = NetworkState.worldNetwork
 
@@ -120,7 +121,7 @@ export const despawnSelfAvatar = () => {
 
   // if we are the last peer in the world for this user, destroy the object
   if (!peersCountForUser || peersCountForUser === 1) {
-    dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID: getComponent(clientEntity, UUIDComponent) }))
+    dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID: getComponent(selfAvatarEntity, UUIDComponent) }))
   }
 
   /** @todo this logic should be handled by the camera system */
@@ -167,7 +168,7 @@ export const usePortalTeleport = () => {
     const currentLocation = locationState.locationName.value.split('/')[1]
     if (currentLocation === activePortal.location || UUIDComponent.getEntityByUUID(activePortal.linkedPortalId)) {
       teleportAvatar(
-        Engine.instance.localClientEntity!,
+        AvatarComponent.getSelfAvatarEntity(),
         activePortal.remoteSpawnPosition,
         true
         // activePortal.remoteSpawnRotation
@@ -186,7 +187,7 @@ export const usePortalTeleport = () => {
     } else {
       getMutableState(PortalState).portalReady.set(true)
       // teleport player to where the portal spawn position is
-      teleportAvatar(Engine.instance.localClientEntity, activePortal.remoteSpawnPosition, true)
+      teleportAvatar(AvatarComponent.getSelfAvatarEntity(), activePortal.remoteSpawnPosition, true)
     }
   }, [portalState.activePortalEntity])
 

@@ -44,6 +44,7 @@ import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/componen
 import { copyTransformToRigidBody } from '@etherealengine/spatial/src/physics/systems/PhysicsPreTransformSystem'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { cloneDeep, isEqual, uniqueId } from 'lodash'
+import { AvatarComponent } from '../../../../../avatar/components/AvatarComponent'
 import { teleportAvatar } from '../../../../../avatar/functions/moveAvatar'
 import { SceneComponent } from '../../../../../scene/components/SceneComponent'
 import { addEntityToScene } from '../helper/entityHelper'
@@ -89,7 +90,7 @@ export const getLocalClientEntity = makeFunctionNodeDefinition({
   in: {},
   out: { entity: 'entity' },
   exec: ({ write, graph }) => {
-    const entity = Engine.instance.localClientEntity
+    const entity = AvatarComponent.getSelfAvatarEntity()
     write('entity', entity)
   }
 })
@@ -250,7 +251,7 @@ export const setEntityTransform = makeFlowNodeDefinition({
     const rotation = toQuat(read('rotation'))
     const scale = toVector3(read('scale'))
     const entity = Number(read('entity')) as Entity
-    if (entity === Engine.instance.localClientEntity) {
+    if (entity === AvatarComponent.getSelfAvatarEntity()) {
       teleportAvatar(entity, position!, true)
     } else {
       setComponent(entity, TransformComponent, { position: position!, rotation: rotation!, scale: scale! })

@@ -237,20 +237,17 @@ export const readEntities = (v: ViewCursor, network: Network, byteLength: number
 }
 
 export const readMetadata = (v: ViewCursor) => {
-  const userIndex = readUint32(v)
   const peerIndex = readUint32(v)
   const simulationTime = readFloat64(v)
-  // if (userIndex === world.peerIDToUserIndex.get(NetworkState.worldNetwork.hostId)! && !NetworkState.worldNetwork.isHosting) Engine.instance.fixedTick = fixedTick
-  return { userIndex, peerIndex, simulationTime }
+  return { peerIndex, simulationTime }
 }
 
 export const readDataPacket = (network: Network, packet: ArrayBuffer, jitterBufferTaskList: JitterBufferEntry[]) => {
   const view = createViewCursor(packet)
-  const { userIndex, peerIndex, simulationTime } = readMetadata(view)
-  const fromUserID = network.userIndexToUserID[userIndex]
+  const { peerIndex, simulationTime } = readMetadata(view)
   const fromPeerID = network.peerIndexToPeerID[peerIndex]
   const isLoopback = !!fromPeerID && fromPeerID === Engine.instance.peerID
-  if (!fromUserID || isLoopback) return
+  if (isLoopback) return
   jitterBufferTaskList.push({
     simulationTime,
     read: () => {

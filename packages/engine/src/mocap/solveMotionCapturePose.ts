@@ -45,7 +45,6 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { Mesh, MeshBasicMaterial } from 'three'
 
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -299,7 +298,7 @@ export function solveMotionCapturePose(
   MotionCaptureRigComponent.solvingLowerBody[entity] = estimatingLowerBody ? 1 : 0
   calculateGroundedFeet(worldLandmarks)
 
-  if (entity === Engine.instance.localClientEntity) {
+  if (entity === AvatarComponent.getSelfAvatarEntity()) {
     drawDebug(newLandmarks, avatarDebug)
     drawDebugScreen(newScreenlandmarks, !!newScreenlandmarks && avatarDebug)
     drawDebugFinal(worldLandmarks, avatarDebug)

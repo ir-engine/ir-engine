@@ -68,6 +68,7 @@ import {
   Vector3
 } from 'three'
 import { useTexture } from '../../assets/functions/resourceHooks'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { teleportAvatar } from '../../avatar/functions/moveAvatar'
 import { PortalComponent, PortalEffects, PortalState } from './PortalComponent'
 
@@ -256,7 +257,7 @@ export const HyperspaceTagComponent = defineComponent({
           getMutableState(PortalState).portalReady.set(true)
           const activePortal = getComponent(getState(PortalState).activePortalEntity, PortalComponent)
           // teleport player to where the portal spawn position is
-          teleportAvatar(Engine.instance.localClientEntity, activePortal!.remoteSpawnPosition, true)
+          teleportAvatar(AvatarComponent.getSelfAvatarEntity(), activePortal!.remoteSpawnPosition, true)
           camera.layers.disable(ObjectLayers.Scene)
           sceneVisible.set(false)
         }

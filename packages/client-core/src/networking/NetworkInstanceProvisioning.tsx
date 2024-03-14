@@ -46,7 +46,7 @@ import Groups from '@mui/icons-material/Groups'
 import { InstanceID, LocationID, RoomCode, SceneID } from '@etherealengine/common/src/schema.type.module'
 import { useTranslation } from 'react-i18next'
 import { FriendService } from '../social/services/FriendService'
-import { connectToNetwork } from '../transports/SocketWebRTCClientFunctions'
+import { connectToInstance } from '../transports/SocketWebRTCClientFunctions'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import FriendsMenu from '../user/components/UserMenu/menus/FriendsMenu'
 import MessagesMenu from '../user/components/UserMenu/menus/MessagesMenu'
@@ -163,7 +163,7 @@ export const WorldInstance = ({ id }: { id: InstanceID }) => {
   const worldInstance = useHookstate(getMutableState(LocationInstanceState).instances[id])
 
   useEffect(() => {
-    return connectToNetwork(
+    return connectToInstance(
       id,
       worldInstance.ipAddress.value,
       worldInstance.port.value,
@@ -228,7 +228,7 @@ export const MediaInstance = ({ id }: { id: InstanceID }) => {
   const mediaInstance = useHookstate(getMutableState(MediaInstanceState).instances[id])
 
   useEffect(() => {
-    return connectToNetwork(
+    return connectToInstance(
       id,
       mediaInstance.ipAddress.value,
       mediaInstance.port.value,

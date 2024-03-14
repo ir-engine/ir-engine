@@ -58,6 +58,7 @@ import {
 } from '@etherealengine/common/src/schema.type.module'
 import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
+import { AuthTask } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
 import { MediasoupTransportState, NetworkState } from '@etherealengine/network'
 import { SpawnPoseState } from '@etherealengine/spatial'
 import { InstanceServerState } from './InstanceServerState'
@@ -235,8 +236,9 @@ export const handleConnectingPeer = (
   return {
     routerRtpCapabilities: network.transport.routers[0].rtpCapabilities,
     peerIndex: network.peerIDToPeerIndex[peerID]!,
-    cachedActions
-  }
+    cachedActions,
+    hostPeerID: network.hostPeerID
+  } as Omit<AuthTask, 'status'>
 }
 
 const getUserSpawnFromInvite = async (

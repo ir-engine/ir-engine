@@ -28,6 +28,7 @@ import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
 import { BehaveGraphActions, graphQuery } from '@etherealengine/engine/src/behave-graph/systems/BehaveGraphSystem'
@@ -53,10 +54,9 @@ const PlayModeTool = () => {
   const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded).value
 
   const onTogglePlayMode = () => {
-    if (Engine.instance.localClientEntity) {
-      dispatchAction(
-        WorldNetworkAction.destroyEntity({ entityUUID: getComponent(Engine.instance.localClientEntity, UUIDComponent) })
-      )
+    const entity = AvatarComponent.getSelfAvatarEntity()
+    if (entity) {
+      dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID: getComponent(entity, UUIDComponent) }))
       const cameraComputed = getComponent(Engine.instance.cameraEntity, ComputedTransformComponent)
       removeEntity(cameraComputed.referenceEntity)
       removeComponent(Engine.instance.cameraEntity, ComputedTransformComponent)

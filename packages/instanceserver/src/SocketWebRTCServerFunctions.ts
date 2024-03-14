@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { Consumer, DataProducer, Producer, TransportInternal, WebRtcTransport } from 'mediasoup/node/lib/types'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getState } from '@etherealengine/hyperflux'
 import { Action, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { MediaStreamAppData, NetworkState, createNetwork } from '@etherealengine/network'
@@ -48,7 +47,7 @@ export type WebRTCTransportExtension = Omit<WebRtcTransport, 'appData'> & {
 export type ProducerExtension = Omit<Producer, 'appData'> & { appData: MediaStreamAppData }
 export type ConsumerExtension = Omit<Consumer, 'appData'> & { appData: MediaStreamAppData }
 
-export const initializeNetwork = async (app: Application, id: InstanceID, hostId: UserID, topic: Topic) => {
+export const initializeNetwork = async (app: Application, id: InstanceID, hostPeerID: PeerID, topic: Topic) => {
   const { workers, routers } = await startWebRTC()
 
   const outgoingDataTransport = await routers[0].createDirectTransport()
@@ -105,7 +104,7 @@ export const initializeNetwork = async (app: Application, id: InstanceID, hostId
     outgoingDataProducers: {} as Record<DataChannelType, DataProducer>
   }
 
-  const network = createNetwork(id, hostId, topic, transport)
+  const network = createNetwork(id, hostPeerID, topic, transport)
 
   return network
 }

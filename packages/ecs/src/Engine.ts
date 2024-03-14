@@ -92,11 +92,6 @@ export class Engine {
    * The camera entity
    */
   cameraEntity = UndefinedEntity
-
-  /**
-   * The local client entity
-   */
-  localClientEntity = UndefinedEntity
 }
 
 globalThis.Engine = Engine

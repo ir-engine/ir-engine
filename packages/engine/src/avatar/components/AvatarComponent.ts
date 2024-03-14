@@ -27,7 +27,8 @@ import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { defineComponent, getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { matches } from '@etherealengine/hyperflux'
-import { NetworkObjectComponent } from '@etherealengine/network'
+import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '@etherealengine/network'
+import { AvatarControllerComponent } from './AvatarControllerComponent'
 
 export const AvatarComponent = defineComponent({
   name: 'AvatarComponent',
@@ -76,7 +77,12 @@ export const AvatarComponent = defineComponent({
    */
   getUserAvatarEntity(userId: UserID) {
     return avatarNetworkObjectQuery().find((eid) => getComponent(eid, NetworkObjectComponent).ownerId === userId)!
+  },
+
+  getSelfAvatarEntity() {
+    return ownedAvatarQuery()[0]
   }
 })
 
 const avatarNetworkObjectQuery = defineQuery([NetworkObjectComponent, AvatarComponent])
+const ownedAvatarQuery = defineQuery([NetworkObjectAuthorityTag, AvatarComponent, AvatarControllerComponent])

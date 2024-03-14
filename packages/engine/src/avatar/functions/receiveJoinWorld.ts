@@ -30,6 +30,7 @@ import { EntityUUID } from '@etherealengine/ecs'
 import { dispatchAction } from '@etherealengine/hyperflux'
 import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { AvatarID, InviteCode } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
@@ -45,6 +46,7 @@ export enum AuthError {
 
 export type AuthTask = {
   status: 'success' | 'fail' | 'pending'
+  hostPeerID?: PeerID
   routerRtpCapabilities?: any
   cachedActions?: Required<Action>[]
   error?: AuthError

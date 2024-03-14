@@ -62,6 +62,7 @@ import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent
 import { autopilotSetPosition } from '.././functions/autopilotFunctions'
 import { translateAndRotateAvatar } from '.././functions/moveAvatar'
 import { AvatarAxesControlScheme, AvatarInputSettingsState } from '.././state/AvatarInputSettingsState'
+import { AvatarComponent } from '../components/AvatarComponent'
 import { applyInputSourcePoseToIKTargets } from '../functions/applyInputSourcePoseToIKTargets'
 import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 
@@ -98,7 +99,7 @@ export const AvatarAxesControlSchemeBehavior = {
     controller: ComponentType<typeof AvatarControllerComponent>,
     handdedness: XRHandedness
   ) => {
-    const localClientEntity = Engine.instance.localClientEntity
+    const localClientEntity = AvatarComponent.getSelfAvatarEntity()
     const [x, z] = getThumbstickOrThumbpadAxes(inputSource, handdedness)
 
     if (x === 0 && z === 0) {
@@ -133,7 +134,9 @@ const raycastComponentData = {
 } as RaycastArgs
 
 const onShiftLeft = () => {
-  const controller = getMutableComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
+  const entity = AvatarComponent.getSelfAvatarEntity()
+  if (!entity) return
+  const controller = getMutableComponent(entity, AvatarControllerComponent)
   controller.isWalking.set(!controller.isWalking.value)
 }
 
@@ -152,7 +155,8 @@ const isAvatarClicked = () => {
   if (hits.length) {
     const hit = hits[0]
     const hitEntity = (hit.body?.userData as any)?.entity as Entity
-    if (typeof hitEntity !== 'undefined' && hitEntity == Engine.instance.localClientEntity) {
+    const avatarEntity = AvatarComponent.getSelfAvatarEntity()
+    if (typeof hitEntity !== 'undefined' && hitEntity == avatarEntity) {
       return true
     }
   }
@@ -200,7 +204,7 @@ const walkableQuery = defineQuery([RigidBodyFixedTagComponent, InputComponent])
 let mouseMovedDuringPrimaryClick = false
 
 const execute = () => {
-  const { localClientEntity } = Engine.instance
+  const localClientEntity = AvatarComponent.getSelfAvatarEntity()
   if (!localClientEntity) return
 
   applyInputSourcePoseToIKTargets(localClientEntity)
@@ -234,7 +238,7 @@ const execute = () => {
 
           if (inputSourceComponent.buttons.PrimaryClick.up) {
             if (!mouseMovedDuringPrimaryClick) {
-              autopilotSetPosition(Engine.instance.localClientEntity)
+              autopilotSetPosition(localClientEntity)
             } else mouseMovedDuringPrimaryClick = false
           }
         }

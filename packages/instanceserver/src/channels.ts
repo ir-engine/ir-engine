@@ -273,7 +273,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
   HyperFlux.store.forwardingTopics.add(topic)
 
   await setupIPs()
-  const network = await initializeNetwork(app, hostId, hostId, topic)
+  const network = await initializeNetwork(app, hostId, Engine.instance.store.peerID, topic)
 
   addNetwork(network)
 
@@ -520,7 +520,7 @@ const shutdownServer = async (app: Application, instanceId: InstanceID, headers:
 const getActiveUsersCount = (app: Application, userToIgnore: UserType) => {
   const activeClients = Object.entries(getServerNetwork(app).peers)
   const activeUsers = [...activeClients].filter(
-    ([id, client]) => client.userId !== Engine.instance.userID && client.userId !== userToIgnore.id
+    ([id, client]) => client.peerID !== Engine.instance.store.peerID && client.userId !== userToIgnore.id
   )
   return activeUsers.length
 }
