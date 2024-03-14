@@ -275,9 +275,9 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
                   className="grid-flow-col"
                   options={spawnTypeOptions.map((option) => ({
                     value: option,
-                    name: t(`admin:components.invite.${option}`)
+                    label: t(`admin:components.invite.${option}`)
                   }))}
-                  currentValue={spawnType.value}
+                  value={spawnType.value}
                   onChange={(value) => spawnType.set(value)}
                 />
                 {spawnType.value === 'spawnPoint' && (

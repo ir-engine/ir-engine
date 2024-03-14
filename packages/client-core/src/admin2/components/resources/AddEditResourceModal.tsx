@@ -171,10 +171,10 @@ export default function CreateResourceModal({
         className="mb-4"
       />
       <Radio
-        currentValue={state.source.value}
+        value={state.source.value}
         options={[
-          { name: 'URL', value: 'url' },
-          { name: 'File', value: 'file' }
+          { label: 'URL', value: 'url' },
+          { label: 'File', value: 'file' }
         ]}
         onChange={(value) => state.source.set(value)}
         className="mb-4 grid-flow-col"
