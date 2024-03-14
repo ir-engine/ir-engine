@@ -127,7 +127,7 @@ export class Googlestrategy extends CustomOAuthStrategy {
       redirectConfig = {}
     }
     let { domain: redirectDomain, path: redirectPath, instanceId: redirectInstanceId } = redirectConfig
-    redirectDomain = `${redirectDomain}/auth/oauth/google` || config.authentication.callback.google
+    redirectDomain = redirectDomain ? `${redirectDomain}/auth/oauth/google` : config.authentication.callback.google
 
     if (data instanceof Error || Object.getPrototypeOf(data) === Error.prototype) {
       const err = data.message as string

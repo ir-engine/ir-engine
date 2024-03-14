@@ -82,7 +82,9 @@ export const useMediaWindows = () => {
         })
 
       const userScreens = consumers
-        .filter(([peerID, { cam, screen }]) => peerIDs.includes(peerID) && screen?.videoStream)
+        .filter(
+          ([peerID, { cam, screen }]) => peerIDs.includes(peerID) && screen?.videoStream && !screen?.videoStream?.closed
+        )
         .map(([peerID]) => {
           return { peerID, type: 'screen' as const }
         })

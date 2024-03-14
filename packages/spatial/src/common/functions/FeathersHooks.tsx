@@ -36,13 +36,14 @@ Ethereal Engine. All Rights Reserved.
  */
 
 import { Params, Query } from '@feathersjs/feathers'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo } from 'react'
 
 import { ServiceTypes } from '@etherealengine/common/declarations'
 import { NO_PROXY, State, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import React from 'react'
 
 export type Methods = 'find' | 'get' | 'create' | 'update' | 'patch' | 'remove'
 
@@ -82,8 +83,32 @@ export const FeathersState = defineState({
           error: ''
         }
       >
-    >
+    >,
+
+  reactor: () => {
+    const feathersState = useHookstate(getMutableState(FeathersState))
+    return (
+      <>
+        {feathersState.keys.map((serviceName: keyof ServiceTypes) => (
+          <FeathersChildReactor key={serviceName} serviceName={serviceName} />
+        ))}
+      </>
+    )
+  }
 })
+
+const FeathersChildReactor = (props: { serviceName: keyof ServiceTypes }) => {
+  const fetch = () => {
+    const feathersState = getState(FeathersState)
+    for (const queryId in feathersState[props.serviceName]) {
+      feathersState[props.serviceName][queryId].fetch()
+    }
+  }
+
+  useRealtime(props.serviceName, fetch)
+
+  return null
+}
 
 type Args = MethodArgs[Methods]
 
@@ -124,9 +149,7 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       })
   }
 
-  useRealtime(serviceName, fetch)
-
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (method === 'get' && !args[0]) return
     if (!state.get(NO_PROXY)[serviceName]) state[serviceName].set({})
     if (!state.get(NO_PROXY)[serviceName][queryId]) {
@@ -330,7 +353,7 @@ export function hashObject(obj) {
  * and update the cache as changes happen.
  */
 export function useRealtime(serviceName: keyof ServiceTypes, refetch: () => void) {
-  useEffect(() => {
+  useLayoutEffect(() => {
     const service = Engine.instance.api.service(serviceName)
 
     service.on('created', refetch)

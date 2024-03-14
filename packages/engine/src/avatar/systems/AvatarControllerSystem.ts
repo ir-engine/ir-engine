@@ -86,7 +86,7 @@ const execute = () => {
       const followCamera = getOptionalComponent(controller.cameraEntity, FollowCameraComponent)
       if (followCamera) {
         // todo calculate head size and use that as the bound #7263
-        if (followCamera.distance < 0.6) setComponent(entity, AvatarHeadDecapComponent, true)
+        if (followCamera.distance < 0.3) setComponent(entity, AvatarHeadDecapComponent, true)
         else removeComponent(entity, AvatarHeadDecapComponent)
       }
     }

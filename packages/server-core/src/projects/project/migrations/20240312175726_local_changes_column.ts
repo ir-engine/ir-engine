@@ -23,29 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { projectsPath } from '@etherealengine/common/src/schemas/projects/projects.schema'
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
-import assert from 'assert'
-import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
+import { projectPath } from '@etherealengine/common/src/schema.type.module'
+import type { Knex } from 'knex'
 
-describe('projects.test', () => {
-  let app: Application
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const hasLocalChangesColumnExists = await knex.schema.hasColumn(projectPath, 'hasLocalChanges')
+  if (!hasLocalChangesColumnExists) {
+    await knex.schema.alterTable(projectPath, async (table) => {
+      table.boolean('hasLocalChanges').defaultTo(false)
+    })
+  }
+}
 
-  before(async () => {
-    app = createFeathersKoaApp()
-    await app.setup()
-  })
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const hasLocalChangesColumnExists = await knex.schema.hasColumn(projectPath, 'hasLocalChanges')
 
-  after(async () => {
-    await destroyEngine()
-  })
-
-  it('should find the projects', async () => {
-    const foundProjects = await app.service(projectsPath).find()
-    assert.notEqual(
-      foundProjects.findIndex((project) => project === 'default-project'),
-      -1
-    )
-  })
-})
+  if (hasLocalChangesColumnExists) {
+    await knex.schema.alterTable(projectPath, async (table) => {
+      table.dropColumn('hasLocalChanges')
+    })
+  }
+}

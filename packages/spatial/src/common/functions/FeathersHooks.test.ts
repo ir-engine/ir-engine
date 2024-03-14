@@ -35,6 +35,8 @@ import { createEngine } from '../../initializeEngine'
 import { EventDispatcher } from '../classes/EventDispatcher'
 import { useFind, useGet, useMutation } from './FeathersHooks'
 
+let eventDispatcher: EventDispatcher
+
 describe('FeathersHooks', () => {
   beforeEach(() => {
     createEngine()
@@ -42,7 +44,7 @@ describe('FeathersHooks', () => {
       { id: '1', name: 'John' as UserName },
       { id: '2', name: 'Jane' as UserName }
     ]
-    const eventDispatcher = new EventDispatcher()
+    eventDispatcher = new EventDispatcher()
     ;(Engine.instance.api as any) = {
       service: () => {
         return {
@@ -209,25 +211,25 @@ describe('FeathersHooks', () => {
       assert.strictEqual(data[2]?.name, 'Jack')
     })
 
-    // it('should update data', async () => {
-    //   const { result, rerender } = renderHook(() => {
-    //     return useMutation(userPath)
-    //   })
-    //   await act(() => {
-    //     rerender()
-    //   })
-    //   await act(() => {
-    //     result.current.update('1', { name: 'Jack' } as any)
-    //   })
-    //   const findHook = renderHook(() => {
-    //     return useFind(userPath)
-    //   })
-    //   await act(() => {
-    //     findHook.rerender()
-    //   })
-    //   const { data } = findHook.result.current
-    //   assert.strictEqual(data[0]?.name, 'Jack')
-    // })
+    it('should update data', async () => {
+      const { result, rerender } = renderHook(() => {
+        return useMutation(userPath)
+      })
+      await act(() => {
+        rerender()
+      })
+      await act(() => {
+        result.current.update('1', { name: 'Jack' } as any)
+      })
+      const findHook = renderHook(() => {
+        return useFind(userPath)
+      })
+      await act(() => {
+        findHook.rerender()
+      })
+      const { data } = findHook.result.current
+      assert.strictEqual(data[0]?.name, 'Jack')
+    })
 
     it('should patch data', async () => {
       const { result, rerender } = renderHook(() => {
@@ -318,43 +320,43 @@ describe('FeathersHooks', () => {
       })
     })
 
-    // describe('on updated', () => {
-    //   it('should populate data', async () => {
-    //     const { result, rerender } = renderHook(() => {
-    //       return useFind(userPath)
-    //     })
-    //     await act(() => {
-    //       rerender()
-    //     })
-    //     await act(() => {
-    //       Engine.instance.api.service(userPath).update('1', { name: 'Jack' })
-    //     })
-    //     await act(() => {
-    //       rerender()
-    //     })
-    //     assert.strictEqual(result.current.data[0]?.name, 'Jack')
-    //   })
+    describe('on updated', () => {
+      it('should populate data', async () => {
+        const { result, rerender } = renderHook(() => {
+          return useFind(userPath)
+        })
+        await act(() => {
+          rerender()
+        })
+        await act(() => {
+          Engine.instance.api.service(userPath).update('1', { name: 'Jack' as UserName })
+        })
+        await act(() => {
+          rerender()
+        })
+        assert.strictEqual(result.current.data[0]?.name, 'Jack')
+      })
 
-    //   it('should populate get query', async () => {
-    //     const result = createState({} as any)
-    //     const { rerender } = renderHook(() => {
-    //       const data = useGet(userPath, '1')
-    //       useEffect(() => {
-    //         result.set(data)
-    //       }, [data.data?.name])
-    //     })
-    //     await act(() => {
-    //       rerender()
-    //     })
-    //     await act(() => {
-    //       Engine.instance.api.service(userPath).update('1', { name: 'Jack' })
-    //     })
-    //     await act(() => {
-    //       rerender()
-    //     })
-    //     assert.strictEqual(result.value.data?.name, 'Jack')
-    //   })
-    // })
+      it('should populate get query', async () => {
+        const result = createState({} as any)
+        const { rerender } = renderHook(() => {
+          const data = useGet(userPath, '1')
+          useEffect(() => {
+            result.set(data)
+          }, [data.data?.name])
+        })
+        await act(() => {
+          rerender()
+        })
+        await act(() => {
+          Engine.instance.api.service(userPath).update('1', { name: 'Jack' as UserName })
+        })
+        await act(() => {
+          rerender()
+        })
+        assert.strictEqual(result.value.data?.name, 'Jack')
+      })
+    })
 
     describe('on patched', () => {
       it('should populate data', async () => {
@@ -429,6 +431,22 @@ describe('FeathersHooks', () => {
           rerender()
         })
         assert.strictEqual(result.value.data, null)
+      })
+    })
+
+    describe('should not create multiple listeners', () => {
+      it('should not create multiple listeners', async () => {
+        const { rerender } = renderHook(() => {
+          const data = useFind(userPath)
+          const data2 = useFind(userPath)
+        })
+        await act(() => {
+          rerender()
+        })
+        assert.strictEqual(eventDispatcher._listeners.created.length, 1)
+        assert.strictEqual(eventDispatcher._listeners.updated.length, 1)
+        assert.strictEqual(eventDispatcher._listeners.patched.length, 1)
+        assert.strictEqual(eventDispatcher._listeners.removed.length, 1)
       })
     })
   })
