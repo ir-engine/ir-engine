@@ -26,21 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import { Entity, UndefinedEntity } from '@etherealengine/ecs'
 import { State, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { Texture } from 'three'
+import { MathUtils, Texture } from 'three'
 import { getVariant } from '../../scene/functions/loaders/VariantFunctions'
 import { LoadingArgs } from '../classes/AssetLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { AssetType, ResourceManager, ResourceType } from '../state/ResourceState'
-
-function createAbortController(url: string, callback: () => void): AbortController {
-  const controller = new AbortController()
-  controller.signal.onabort = (event) => {
-    console.warn('resourceHook: Aborted resource fetch for url: ' + url, event)
-    callback()
-  }
-
-  return controller
-}
 
 function useLoader<T extends AssetType>(
   url: string,
@@ -54,16 +44,18 @@ function useLoader<T extends AssetType>(
   const value = useHookstate<T | null>(null)
   const error = useHookstate<ErrorEvent | Error | null>(null)
   const progress = useHookstate<ProgressEvent<EventTarget> | null>(null)
+  const uuid = useHookstate<string>(MathUtils.generateUUID())
 
   const unload = () => {
-    if (url) ResourceManager.unload(url, entity)
+    if (url) ResourceManager.unload(url, entity, uuid.value)
   }
 
   useEffect(() => {
+    const controller = new AbortController()
     if (url !== urlState.value) {
       if (urlState.value) {
         const oldUrl = urlState.value
-        ResourceManager.unload(oldUrl, entity)
+        ResourceManager.unload(oldUrl, entity, uuid.value)
         value.set(null)
         progress.set(null)
         error.set(null)
@@ -73,7 +65,6 @@ function useLoader<T extends AssetType>(
     }
 
     if (!url) return
-    const controller = createAbortController(url, unload)
     let completed = false
 
     ResourceManager.load<T>(
@@ -89,14 +80,20 @@ function useLoader<T extends AssetType>(
         progress.set(request)
       },
       (err) => {
+        // Effect was unmounted, can't set error state safely
+        if (controller.signal.aborted) return
         completed = true
         error.set(err)
       },
-      controller.signal
+      controller.signal,
+      uuid.value
     )
 
     return () => {
-      if (!completed) controller.abort()
+      if (!completed)
+        controller.abort(
+          `resourceHooks:useLoader Component loading ${resourceType} at url ${url} for entity ${entity} was unmounted`
+        )
     }
   }, [url])
 
@@ -124,7 +121,7 @@ function useBatchLoader<T extends AssetType>(
 
   useEffect(() => {
     const completedArr = new Array(urls.length).fill(false) as boolean[]
-    const controller = createAbortController(urls.toString(), unload)
+    const controller = new AbortController()
 
     for (let i = 0; i < urls.length; i++) {
       const url = urls[i]
@@ -152,7 +149,9 @@ function useBatchLoader<T extends AssetType>(
     return () => {
       for (const completed of completedArr) {
         if (!completed) {
-          controller.abort()
+          controller.abort(
+            `resourceHooks:useBatchLoader Component loading ${resourceType} at urls ${urls.toString()} for entity ${entity} was unmounted`
+          )
           return
         }
       }
@@ -173,7 +172,7 @@ async function getLoader<T extends AssetType>(
   }
 
   return new Promise((resolve) => {
-    const controller = createAbortController(url, unload)
+    const controller = new AbortController()
     ResourceManager.load<T>(
       url,
       resourceType,
