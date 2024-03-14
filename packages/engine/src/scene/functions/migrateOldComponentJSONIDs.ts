@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneJsonType } from '@etherealengine/common/src/schema.type.module'
 import { ComponentJSONIDMap } from '@etherealengine/ecs'
+import { SceneJsonType } from '../types/SceneTypes'
 
 export const migrateOldComponentJSONIDs = (json: SceneJsonType) => {
   for (const [uuid, entityJson] of Object.entries(json.entities)) {

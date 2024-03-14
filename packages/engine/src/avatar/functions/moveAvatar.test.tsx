@@ -95,7 +95,6 @@ describe('moveAvatar function tests', () => {
 
     dispatchAction(
       AvatarNetworkAction.spawn({
-        $from: Engine.instance.userID,
         position: new Vector3(),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,
@@ -135,7 +134,6 @@ describe('moveAvatar function tests', () => {
 
     dispatchAction(
       AvatarNetworkAction.spawn({
-        $from: Engine.instance.userID,
         position: new Vector3(),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,
@@ -177,7 +175,6 @@ describe('moveAvatar function tests', () => {
 
     dispatchAction(
       AvatarNetworkAction.spawn({
-        $from: Engine.instance.userID,
         position: new Vector3(),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,
@@ -216,7 +213,6 @@ describe('moveAvatar function tests', () => {
 
     dispatchAction(
       AvatarNetworkAction.spawn({
-        $from: Engine.instance.userID,
         position: new Vector3(),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,

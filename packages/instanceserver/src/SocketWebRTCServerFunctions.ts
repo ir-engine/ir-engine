@@ -25,9 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Consumer, DataProducer, Producer, TransportInternal, WebRtcTransport } from 'mediasoup/node/lib/types'
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { getState } from '@etherealengine/hyperflux'
+import { PeerID, getState } from '@etherealengine/hyperflux'
 import { Action, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { MediaStreamAppData, NetworkState, createNetwork } from '@etherealengine/network'
 import { Application } from '@etherealengine/server-core/declarations'

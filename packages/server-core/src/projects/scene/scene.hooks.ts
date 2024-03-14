@@ -28,7 +28,6 @@ import {
   SceneCreateData,
   SceneDataType,
   SceneID,
-  SceneJsonType,
   ScenePatch,
   SceneQuery,
   SceneUpdate
@@ -380,11 +379,7 @@ const saveSceneInStorageProvider = async (context: HookContext<SceneService>) =>
   const newSceneJsonPath = `${directory}${name}.scene.json`
   await storageProvider.putObject({
     Key: newSceneJsonPath,
-    Body: Buffer.from(
-      JSON.stringify(
-        cleanStorageProviderURLs(context.parsedSceneData ?? (defaultSceneSeed as unknown as SceneJsonType))
-      )
-    ),
+    Body: Buffer.from(JSON.stringify(cleanStorageProviderURLs(context.parsedSceneData ?? defaultSceneSeed))),
     ContentType: 'application/json'
   })
 
@@ -422,11 +417,7 @@ const saveSceneLocally = async (context: HookContext<SceneService>) => {
 
     fs.writeFileSync(
       path.resolve(newSceneJsonPathLocal),
-      JSON.stringify(
-        cleanStorageProviderURLs(context.parsedSceneData ?? (defaultSceneSeed as unknown as SceneJsonType)),
-        null,
-        2
-      )
+      JSON.stringify(cleanStorageProviderURLs(context.parsedSceneData ?? defaultSceneSeed), null, 2)
     )
 
     if (thumbnailBuffer && Buffer.isBuffer(thumbnailBuffer)) {

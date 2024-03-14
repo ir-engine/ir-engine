@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { SceneDataType, SceneID, SceneMetadataType, scenePath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { SceneJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 export const SCENE_PAGE_LIMIT = 100
@@ -40,7 +41,7 @@ export const AdminSceneState = defineState({
     fetched: false,
     updateNeeded: true,
     lastFetched: Date.now(),
-    singleScene: { scene: {} } as SceneDataType
+    singleScene: { scene: {} } as Omit<SceneDataType, 'scene'> & { scene: SceneJsonType }
   })
 })
 
