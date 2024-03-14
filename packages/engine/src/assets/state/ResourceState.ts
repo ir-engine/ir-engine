@@ -50,6 +50,13 @@ import { Geometry } from '../constants/Geometry'
 import { ResourceLoadingManager } from '../loaders/base/ResourceLoadingManager'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 
+//isProxified: used to check if an object is proxified
+declare module 'three/src/core/Object3D' {
+  export interface Object3D {
+    readonly isProxified: true | undefined
+  }
+}
+
 Cache.enabled = true
 
 export enum ResourceStatus {
