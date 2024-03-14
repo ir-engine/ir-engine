@@ -14,7 +14,6 @@ instructions () {
   printf "Un Comment'${BLUE}STORAGE_PROVIDER=local${NC}'\n"
   printf "Change '${RED}CERT=certs/cert.pem${NC}' to '${BLUE}CERT=certs/tailscale/cert.pem${NC}'\n"
   printf "Change '${RED}KEY=certs/key.pem${NC}' to '${BLUE}KEY=certs/tailscale/key.pem${NC}'\n"
-  printf "Change '${RED}KEY=certs/key.pem${NC}' to '${BLUE}KEY=certs/tailscale/key.pem${NC}'\n"
 }
 
 # Colors
