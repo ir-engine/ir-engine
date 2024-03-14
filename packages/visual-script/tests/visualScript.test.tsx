@@ -23,23 +23,40 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import {
   ComponentMap,
+  Entity,
+  EntityUUID,
+  SystemDefinitions,
+  UUIDComponent,
+  createEntity,
+  destroyEngine,
+  destroySystem,
+  entityExists,
   getComponent,
   getOptionalComponent,
   setComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { createEntity, entityExists } from '@etherealengine/ecs/src/EntityFunctions'
+} from '@etherealengine/ecs'
 import {
   VisualScriptComponent,
   VisualScriptDomain,
+  getOnAsyncExecuteSystemUUID,
   getOnExecuteSystemUUID,
   getUseStateSystemUUID,
   getUseVariableSystemUUID,
   registerEngineProfile
-} from '@etherealengine/spatial'
+} from '@etherealengine/engine'
+import { getState } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
+import { act, render } from '@testing-library/react'
+import assert from 'assert'
+import React from 'react'
+import { default as Sinon, default as sinon } from 'sinon'
+import { GraphJSON, VisualScriptState } from '../src/VisualScriptModule'
 import booleanTestVisualScript from './assets/boolean-test-visual-script.json'
 import decisionTestVisualScript from './assets/decision-test-visual-script.json'
 import defaultVisualScript from './assets/default-visual-script.json'
@@ -53,19 +70,6 @@ import variableTestVisualScript from './assets/variable-test-visual-script.json'
 import vec2TestVisualScript from './assets/vec2-test-visual-script.json'
 import vec3TestVisualScript from './assets/vec3-test-visual-script.json'
 import vec4TestVisualScript from './assets/vec4-test-visual-script.json'
-
-import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
-import { Entity, EntityUUID, SystemDefinitions, UUIDComponent, destroySystem } from '@etherealengine/ecs'
-import { getState } from '@etherealengine/hyperflux'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { getOnAsyncExecuteSystemUUID } from '@etherealengine/spatial/src/visualscript/systems/useVisualScriptRunner'
-import { act, render } from '@testing-library/react'
-import assert from 'assert'
-import React from 'react'
-import { default as Sinon, default as sinon } from 'sinon'
-import { GraphJSON, VisualScriptState } from '../src/VisualScriptModule'
 
 describe('visual Script', () => {
   let consoleSpy: Sinon.SinonSpy
