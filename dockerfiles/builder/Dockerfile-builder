@@ -4,6 +4,11 @@ ARG STAGE
 FROM $ECR_URL/$REPO_NAME-root:latest_${STAGE} as builder
 
 COPY packages/server/package.json ./packages/server/
+COPY packages/server-core/package.json ./packages/server-core/
+COPY packages/spatial/package.json ./packages/spatial/
+COPY packages/visual-script/package.json ./packages/visual-script/
+COPY packages/xrui/package.json ./packages/xrui/
+
 RUN npm install --loglevel notice --legacy-peer-deps
 
 COPY . .
