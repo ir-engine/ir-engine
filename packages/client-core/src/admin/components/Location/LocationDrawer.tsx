@@ -213,9 +213,13 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
 
     if (validateForm(state.value, state.formErrors.value)) {
       if (mode === LocationDrawerMode.Create) {
-        locationMutation.create(data)
+        locationMutation.create(data).catch((error) => {
+          NotificationService.dispatchNotify(error.message, { variant: 'error' })
+        })
       } else if (selectedLocation) {
-        locationMutation.patch(selectedLocation.id, data)
+        locationMutation.patch(selectedLocation.id, data).catch((error) => {
+          NotificationService.dispatchNotify(error.message, { variant: 'error' })
+        })
         editMode.set(false)
       }
 
