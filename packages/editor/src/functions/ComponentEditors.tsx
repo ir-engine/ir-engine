@@ -69,8 +69,7 @@ import GroundPlaneNodeEditor from '../components/properties/GroundPlaneNodeEdito
 import HemisphereLightNodeEditor from '../components/properties/HemisphereLightNodeEditor'
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
 // import InstancingNodeEditor from '../components/properties/InstancingNodeEditor'
-import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
-import BehaveGraphNodeEditor from '../components/properties/BehaveGraphNodeEditor'
+import { VisualScriptNodeEditor } from '../components/properties/VisualScriptNodeEditor'
 
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
@@ -82,6 +81,7 @@ import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFCom
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
 import { defineState } from '@etherealengine/hyperflux'
+import { VisualScriptComponent } from '@etherealengine/spatial'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
@@ -171,7 +171,7 @@ export const ComponentEditorsState = defineState({
       [VariantComponent.name]: VariantNodeEditor,
       [SplineComponent.name]: SplineNodeEditor,
       [SplineTrackComponent.name]: SplineTrackNodeEditor,
-      [BehaveGraphComponent.name]: BehaveGraphNodeEditor,
+      [VisualScriptComponent.name]: VisualScriptNodeEditor,
       [LinkComponent.name]: LinkNodeEditor,
       [TextComponent.name]: TextNodeEditor
     } as Record<string, EditorComponentType>
