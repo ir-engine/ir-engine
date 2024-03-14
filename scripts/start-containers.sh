@@ -1,5 +1,5 @@
 #!/bin/bash
-source ../.env.local
+
 if which docker > /dev/null 2>&1
 then
     if which docker-compose > /dev/null 2>&1; then
@@ -17,7 +17,7 @@ then
     export COMPOSE_IGNORE_ORPHANS=true
 
     eval "$command_to_execute up -d"
-    if [[ -z "${STORAGE_PROVIDER}" || "${STORAGE_PROVIDER}" == 's3' ]]; then
+    if [[ -z "${IS_LOCAL_FS}" || "${IS_LOCAL_FS}" == 'false' ]]; then
         eval "$command_to_execute -f docker-compose-minio.yml up -d"
     fi
 else
