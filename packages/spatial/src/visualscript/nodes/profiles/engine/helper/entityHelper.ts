@@ -32,11 +32,11 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { MathUtils } from 'three'
-import { ComponentJsonType } from '../../../../../scene/types/SceneTypes'
 
 export const addEntityToScene = (
   componentJson: Array<ComponentJsonType>,
