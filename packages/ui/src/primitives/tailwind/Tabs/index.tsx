@@ -40,8 +40,11 @@ export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const Tabs = ({ tabsData, tabContainerClassName, tabClassName, ...props }: TabProps): JSX.Element => {
-  const twTabContainerClassName = twMerge('flex gap-2', tabContainerClassName || '')
-  const twTabClassName = twMerge('p-3 text-sm dark:hover:border-b dark:hover:border-b-blue-400', tabClassName || '')
+  const twTabContainerClassName = twMerge('flex gap-4', tabContainerClassName || '')
+  const twTabClassName = twMerge(
+    'text-theme-secondary p-3 text-sm dark:hover:border-b dark:hover:border-b-blue-400',
+    tabClassName || ''
+  )
   const currentTab = useHookstate(0)
 
   return (
@@ -54,7 +57,10 @@ const Tabs = ({ tabsData, tabContainerClassName, tabClassName, ...props }: TabPr
           {tabsData.map((tab, index) => (
             <button
               key={index}
-              className={twMerge(twTabClassName, currentTab.value === index ? 'border-b border-b-blue-400' : '')}
+              className={twMerge(
+                twTabClassName,
+                currentTab.value === index ? 'text-theme-primary border-b border-b-blue-400' : ''
+              )}
               onClick={() => {
                 currentTab.set(index)
               }}
