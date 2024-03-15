@@ -24,13 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { RigidBodyType } from '@dimforge/rapier3d-compat'
-import { ComponentJsonType, EntityJsonType } from '@etherealengine/common/src/schema.type.module'
 import { SerializedComponentType } from '@etherealengine/ecs'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { ColliderComponent as OldColliderComponent } from '../components/ColliderComponent'
 import { ModelComponent } from '../components/ModelComponent'
+import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
 
 /**
  * Converts old ColliderComponent to RigidbodyComponent, new ColliderComponent and TriggerComponent

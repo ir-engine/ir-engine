@@ -56,7 +56,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
 
       /* mock */
       const action = SpawnObjectActions.spawnObject({
-        $from: '0' as UserID,
+        ownerID: '0' as UserID,
         // incoming action from future
         $time: 2,
         $to: '0' as ActionRecipients,
@@ -83,7 +83,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
     it('should immediately apply incoming action from the past or present', () => {
       /* mock */
       const action = SpawnObjectActions.spawnObject({
-        $from: '0' as UserID,
+        ownerID: '0' as UserID,
         // incoming action from past
         $time: -1,
         $to: '0' as ActionRecipients,
@@ -105,7 +105,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
     it('should cache actions where $cache = true', () => {
       /* mock */
       const action = SpawnObjectActions.spawnObject({
-        $from: '0' as UserID,
+        ownerID: '0' as UserID,
         // incoming action from past
         $time: 0,
         $to: '0' as ActionRecipients,

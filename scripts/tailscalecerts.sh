@@ -30,7 +30,7 @@ case "$(uname -s)" in
         exit 1
     fi
     domain=$(/Applications/Tailscale.app/Contents/MacOS/Tailscale cert 2>&1 | grep -o '".*"' | sed 's/"//g')
-    mkdir ./certs/tailscale
+    mkdir -p ./certs/tailscale && chmod a+r ./certs/tailscale
     tailscale cert $domain 2>&1>/dev/null
     cp ~/Library/Containers/io.tailscale.ipn.macos/Data/$domain.crt certs/tailscale/cert.pem
     cp ~/Library/Containers/io.tailscale.ipn.macos/Data/$domain.key certs/tailscale/key.pem
@@ -44,10 +44,10 @@ case "$(uname -s)" in
         exit 1
     fi
     domain=$(tailscale cert 2>&1 | grep -o '".*"' | sed 's/"//g')
-    mkdir ./certs/tailscale
+    mkdir -p ./certs/tailscale && chmod a+r ./certs/tailscale
     tailscale cert --cert-file certs/tailscale/cert.pem --key-file certs/tailscale/key.pem $domain 2>&1>/dev/null
     chmod 644 ./certs/tailscale/cert.pem
-    chmod 600 ./certs/tailscale/key.pem
+    chmod 644 ./certs/tailscale/key.pem
     instructions
      ;;
    CYGWIN*|MINGW32*|MSYS*|MINGW*)
