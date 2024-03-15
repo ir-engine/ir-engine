@@ -70,7 +70,7 @@ export default function Channels() {
             containerClassname="w-1/5 block"
             icon={<HiMagnifyingGlass />}
           />
-          <div className="flex w-1/6 gap-4">
+          <div className="flex gap-4">
             {selectedChannels.length > 0 && (
               <div>
                 <Button
