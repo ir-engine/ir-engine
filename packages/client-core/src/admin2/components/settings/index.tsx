@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Tabs from '@etherealengine/ui/src/primitives/tailwind/Tabs'
-import React from 'react'
+import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ProjectTab from './tabs/project'
@@ -45,7 +45,7 @@ export default function Settings() {
 
   const openState = useHookstate([false, false, false, false, false, false, false, false, false])
 
-  const refs = useHookstate([
+  const refs = useRef([
     React.createRef(),
     React.createRef(),
     React.createRef(),
@@ -61,56 +61,56 @@ export default function Settings() {
     {
       title: t('admin:components.setting.settings'),
       tabLabel: t('admin:components.setting.project'),
-      bottomComponent: <ProjectTab ref={refs[0].get(NO_PROXY)} open={openState[0].value} />,
-      ref: refs[0].get(NO_PROXY)
+      bottomComponent: <ProjectTab ref={refs.current[0]} open={openState[0].value} />,
+      ref: refs.current[0]
     },
     {
       title: t('admin:components.setting.settings'),
       tabLabel: t('admin:components.setting.server'),
-      bottomComponent: <ServerTab ref={refs[1].get(NO_PROXY)} open={openState[1].value} />,
-      ref: refs[1].get(NO_PROXY)
+      bottomComponent: <ServerTab ref={refs.current[1]} open={openState[1].value} />,
+      ref: refs.current[1]
     },
     {
       title: t('admin:components.setting.settings'),
       tabLabel: t('admin:components.setting.helm.header'),
-      bottomComponent: <HelmTab ref={refs[2].get(NO_PROXY)} open={openState[2].value} />,
-      ref: refs[2].get(NO_PROXY)
+      bottomComponent: <HelmTab ref={refs.current[2]} open={openState[2].value} />,
+      ref: refs.current[2]
     },
     {
       title: t('admin:components.setting.settings'),
       tabLabel: t('admin:components.setting.client'),
-      bottomComponent: <ClientTab ref={refs[3].get(NO_PROXY)} open={openState[3].value} />,
-      ref: refs[3].get(NO_PROXY)
+      bottomComponent: <ClientTab ref={refs.current[3]} open={openState[3].value} />,
+      ref: refs.current[3]
     },
     {
       title: t('admin:components.setting.settings'),
       tabLabel: t('admin:components.setting.instanceServer'),
-      bottomComponent: <InstanceServerTab ref={refs[4].get(NO_PROXY)} open={openState[4].value} />,
-      ref: refs[4].get(NO_PROXY)
+      bottomComponent: <InstanceServerTab ref={refs.current[4]} open={openState[4].value} />,
+      ref: refs.current[4]
     },
     {
       title: t('admin:components.setting.settings'),
       tabLabel: t('admin:components.setting.taskServer.taskServer'),
-      bottomComponent: <TaskServerTab ref={refs[5].get(NO_PROXY)} open={openState[5].value} />,
-      ref: refs[5].get(NO_PROXY)
+      bottomComponent: <TaskServerTab ref={refs.current[5]} open={openState[5].value} />,
+      ref: refs.current[5]
     },
     {
       title: t('admin:components.setting.settings'),
       tabLabel: t('admin:components.setting.email'),
-      bottomComponent: <EmailTab ref={refs[6].get(NO_PROXY)} open={openState[6].value} />,
-      ref: refs[6].get(NO_PROXY)
+      bottomComponent: <EmailTab ref={refs.current[6]} open={openState[6].value} />,
+      ref: refs.current[6]
     },
     {
       title: t('admin:components.setting.settings'),
       tabLabel: t('admin:components.setting.authentication'),
-      bottomComponent: <AuthenticationTab ref={refs[7].get(NO_PROXY)} open={openState[7].value} />,
-      ref: refs[7].get(NO_PROXY)
+      bottomComponent: <AuthenticationTab ref={refs.current[7]} open={openState[7].value} />,
+      ref: refs.current[7]
     },
     {
       title: t('admin:components.setting.settings'),
       tabLabel: t('admin:components.setting.plugins'),
-      bottomComponent: <PluginsTab ref={refs[8].get(NO_PROXY)} open={openState[8].value} />,
-      ref: refs[8].get(NO_PROXY)
+      bottomComponent: <PluginsTab ref={refs.current[8]} open={openState[8].value} />,
+      ref: refs.current[8]
     }
   ]
 
