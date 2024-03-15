@@ -28,9 +28,9 @@ import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { VisualScriptActions, visualScriptQuery } from '@etherealengine/engine'
 import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
-import { BehaveGraphActions, graphQuery } from '@etherealengine/engine/src/behave-graph/systems/BehaveGraphSystem'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { WorldNetworkAction } from '@etherealengine/network'
@@ -63,8 +63,9 @@ const PlayModeTool = () => {
       removeComponent(Engine.instance.cameraEntity, FollowCameraComponent)
       removeComponent(Engine.instance.cameraEntity, TargetCameraRotationComponent)
       getMutableState(EngineState).isEditing.set(true)
-      graphQuery().forEach((entity) => dispatchAction(BehaveGraphActions.stop({ entity })))
-      // stop all behave graph logic
+      visualScriptQuery().forEach((entity) => dispatchAction(VisualScriptActions.stop({ entity })))
+
+      // stop all visual script logic
     } else {
       const avatarDetails = authState.user.avatar.value
 
@@ -78,8 +79,8 @@ const PlayModeTool = () => {
 
       // todo
       // getMutableState(EngineState).isEditing.set(false)
-      // run all behave graph logic
-      graphQuery().forEach((entity) => dispatchAction(BehaveGraphActions.execute({ entity })))
+      // run all visual script logic
+      visualScriptQuery().forEach((entity) => dispatchAction(VisualScriptActions.execute({ entity })))
     }
   }
 

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { ReactNode } from 'react'
 
 const panelIconStyles = {
   color: 'var(--textColor)',
@@ -119,7 +119,15 @@ export const PanelContent = ({ children }) => {
   return <div style={panelContentStyles as React.CSSProperties}>{children}</div>
 }
 
-const Panel = ({ icon, title, children, toolbarContent, ...rest }) => {
+interface PanelProps {
+  icon?: React.ElementType
+  title: string
+  toolbarContent?: React.ReactNode
+  children?: ReactNode
+  // Add any other props you want to accept
+}
+
+const Panel: React.FC<PanelProps> = ({ icon, title, children, toolbarContent, ...rest }) => {
   return (
     <PanelContainer {...rest}>
       <PanelToolbar>
