@@ -188,8 +188,8 @@ describe('PerformanceState', () => {
   it('Updates render settings reactively', (done) => {
     const performanceState = getMutableState(PerformanceState)
     const initialTier = performanceState.tier.value
-    let updatedTier = 0
-    if (updatedTier === initialTier) updatedTier += 1
+    let updatedTier = 5
+    if (updatedTier === initialTier) updatedTier -= 1
 
     const renderSettings = getState(RenderSettingsState)
     const engineSettings = getState(RendererState)
