@@ -191,8 +191,11 @@ describe('PerformanceState', () => {
     let updatedTier = 0
     if (updatedTier === initialTier) updatedTier += 1
 
-    const renderSettings = getMutableState(RenderSettingsState)
-    const engineSettings = getMutableState(RendererState)
+    const renderSettings = getState(RenderSettingsState)
+    const engineSettings = getState(RendererState)
+
+    const { smaaPreset } = renderSettings
+    const { shadowMapResolution } = engineSettings
 
     const Reactor = PerformanceState.reactor
 
@@ -202,6 +205,8 @@ describe('PerformanceState', () => {
       performanceState.tier.set(updatedTier as any)
       rerender(<Reactor />)
     }).then(() => {
+      assert(smaaPreset !== renderSettings.smaaPreset)
+      assert(shadowMapResolution !== engineSettings.shadowMapResolution)
       unmount()
       done()
     })
