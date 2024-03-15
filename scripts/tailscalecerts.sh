@@ -10,6 +10,8 @@ fi
 instructions () {
   printf "Open ${GREEN}/etherealengine/.env.local${NC}\n"
   printf "Change all '${RED}localhost${NC}' to '${BLUE}$domain${NC}'\n"
+  printf "Un Comment'${BLUE}VITE_FILE_SERVER=https://$domain:8642${NC}'\n"
+  printf "Un Comment'${BLUE}STORAGE_PROVIDER=local${NC}'\n"
   printf "Change '${RED}CERT=certs/cert.pem${NC}' to '${BLUE}CERT=certs/tailscale/cert.pem${NC}'\n"
   printf "Change '${RED}KEY=certs/key.pem${NC}' to '${BLUE}KEY=certs/tailscale/key.pem${NC}'\n"
 }
