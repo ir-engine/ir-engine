@@ -240,21 +240,21 @@ export const useNetwork = (props: { online?: boolean }) => {
   useEffect(() => {
     if (props.online) return
 
-    const userId = Engine.instance.userID
+    const userID = Engine.instance.userID
     const peerID = Engine.instance.peerID
     const userIndex = 1
     const peerIndex = 1
 
     const networkState = getMutableState(NetworkState)
-    networkState.hostIds.world.set(userId as any as InstanceID)
-    addNetwork(createNetwork(userId as any as InstanceID, userId, NetworkTopics.world))
+    networkState.hostIds.world.set(userID as any as InstanceID)
+    addNetwork(createNetwork(userID as any as InstanceID, peerID, NetworkTopics.world))
     addOutgoingTopicIfNecessary(NetworkTopics.world)
 
     NetworkState.worldNetworkState.authenticated.set(true)
     NetworkState.worldNetworkState.connected.set(true)
     NetworkState.worldNetworkState.ready.set(true)
 
-    NetworkPeerFunctions.createPeer(NetworkState.worldNetwork as Network, peerID, peerIndex, userId, userIndex)
+    NetworkPeerFunctions.createPeer(NetworkState.worldNetwork as Network, peerID, peerIndex, userID, userIndex)
 
     const network = NetworkState.worldNetwork as Network
 
