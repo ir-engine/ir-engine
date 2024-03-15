@@ -2,7 +2,7 @@ module "eks_engine_main" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.0"
 
-  cluster_name    = "${var.app_name}-ir-engine-main-${var.environment}"
+  cluster_name    = "${var.app_name}-${var.environment}"
   cluster_version = "1.29"
   cluster_endpoint_public_access  = true
   cluster_addons = {
@@ -51,22 +51,22 @@ module "eks_engine_main" {
   subnet_ids               = var.public_subnets
 
   create_cluster_security_group = true
-  cluster_security_group_additional_rules = [
-    {
+  cluster_security_group_additional_rules = {
+    ingress_udp = {
       type = "ingress"
       from_port = 7000
       to_port = 8000
       protocol = "udp"
       cidr_blocks = ["0.0.0.0/0"]
     },
-    {
+    ingress_tcp = {
       type = "ingress"
       from_port = 7000
       to_port = 8000
       protocol = "tcp"
       cidr_blocks = ["0.0.0.0/0"]
     }
-  ]
+  }
 
   # To add the current caller identity as an administrator, set true
 

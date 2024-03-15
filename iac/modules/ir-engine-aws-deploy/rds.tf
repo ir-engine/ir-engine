@@ -36,7 +36,7 @@ module "rds_sg" {
   version = "~> 5.0"
 
   name   = "${var.app_name}-rds-sg-${var.environment}"
-  vpc_id = var.rds_vpc_id
+  vpc_id = var.vpc_id
 
   ingress_cidr_blocks = [
     var.vpc_cidr,       // VPC CIDR

@@ -30,5 +30,5 @@ resource "aws_iam_policy" "app_admin_user_policy" {
 
 resource "aws_iam_user_policy_attachment" "iam_policy" {
   policy_arn = aws_iam_policy.app_admin_user_policy.arn
-  user       = aws_iam_user.s3_access_user.name
+  user       = aws_iam_user.app_admin_user.name
 }

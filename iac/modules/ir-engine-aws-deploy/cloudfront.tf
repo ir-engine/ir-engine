@@ -7,8 +7,8 @@ data "aws_cloudfront_origin_request_policy" "s3_origin_request_policy" {
 }
 
 resource "aws_cloudfront_response_headers_policy" "response_headers_policy" {
-  name    = "${var.app_name}-${var.bucket_name}-build-response-policy"
-  comment = "Response headers policy for ${var.bucket_name} build assets"
+  name    = "${aws_s3_bucket.s3_bucket.id}-response-policy"
+  comment = "Response headers policy for ${aws_s3_bucket.s3_bucket.id}"
 
   cors_config {
     access_control_allow_headers {
@@ -29,11 +29,19 @@ resource "aws_cloudfront_response_headers_policy" "response_headers_policy" {
   }
 }
 
-resource "aws_cloudfront_distribution" "build_assets_cdn" {
+resource "aws_cloudfront_origin_access_control" "s3_origin_access" {
+  name                              = aws_s3_bucket.s3_bucket.bucket_regional_domain_name
+  description                       = "origin access for ${aws_s3_bucket.s3_bucket.id}"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
+resource "aws_cloudfront_distribution" "assets_cdn" {
   enabled = true
-  comment = "${var.app_name}-${var.bucket_name} build assets CDN"
+  comment = "${aws_s3_bucket.s3_bucket.id} CDN"
   origin {
-    origin_id                = "${var.app_name}-${var.bucket_name}-s3"
+    origin_id                = "${var.app_name}-${aws_s3_bucket.s3_bucket.id}-s3"
     domain_name              = aws_s3_bucket.s3_bucket.bucket_regional_domain_name
     origin_access_control_id = aws_cloudfront_origin_access_control.s3_origin_access.id
     # origin_path = "/"
@@ -53,7 +61,7 @@ resource "aws_cloudfront_distribution" "build_assets_cdn" {
   default_cache_behavior {
     allowed_methods            = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cached_methods             = ["HEAD", "GET", "OPTIONS"]
-    target_origin_id           = "${var.app_name}-${var.bucket_name}-s3"
+    target_origin_id           = "${var.app_name}-${aws_s3_bucket.s3_bucket.id}-s3"
     cache_policy_id            = data.aws_cloudfront_cache_policy.caching_optimized_cache_policy.id
     origin_request_policy_id   = data.aws_cloudfront_origin_request_policy.s3_origin_request_policy.id
     response_headers_policy_id = aws_cloudfront_response_headers_policy.response_headers_policy.id
@@ -66,3 +74,4 @@ resource "aws_cloudfront_distribution" "build_assets_cdn" {
 
   tags = var.default_tags
 }
+

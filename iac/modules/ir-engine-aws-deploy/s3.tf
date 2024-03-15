@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "s3_bucket" {
-  bucket = "${var.app_name}-${var.bucket_name}"
+  bucket = "${var.app_name}-assets-${var.environment}"
   lifecycle {
     prevent_destroy = true
   }
@@ -65,8 +65,7 @@ data "aws_iam_policy_document" "s3_bucket_policy_data" {
     condition {
       test     = "StringEquals"
       variable = "AWS:SourceArn"
-
-      values = [aws_cloudfront_distribution.build_assets_cdn.arn]
+      values = [aws_cloudfront_distribution.assets_cdn.arn]
     }
   }
   statement {
@@ -75,7 +74,7 @@ data "aws_iam_policy_document" "s3_bucket_policy_data" {
     principals {
       type = "AWS"
       identifiers = [
-        aws_iam_user.s3_access_user.arn
+        aws_iam_user.app_admin_user.arn
       ]
     }
     actions = ["s3:*"]
@@ -90,12 +89,4 @@ data "aws_iam_policy_document" "s3_bucket_policy_data" {
 resource "aws_s3_bucket_policy" "s3_bucket_policy" {
   bucket = aws_s3_bucket.s3_bucket.id
   policy = data.aws_iam_policy_document.s3_bucket_policy_data.json
-}
-
-resource "aws_cloudfront_origin_access_control" "s3_origin_access" {
-  name                              = aws_s3_bucket.s3_bucket.bucket_regional_domain_name
-  description                       = "origin access for ${var.app_name}-${var.bucket_name}"
-  origin_access_control_origin_type = "s3"
-  signing_behavior                  = "always"
-  signing_protocol                  = "sigv4"
 }

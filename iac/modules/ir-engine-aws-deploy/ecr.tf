@@ -1,11 +1,11 @@
 locals {
-  ecr_repos = [
+  ecr_repos = toset([
     "etherealengine-${var.environment}-builder",
     "etherealengine-${var.environment}-api",
     "etherealengine-${var.environment}-client",
     "etherealengine-${var.environment}-instanceserver",
     "etherealengine-${var.environment}-taskserver"
-  ]
+  ])
 }
 
 module "ecr" {
@@ -17,8 +17,7 @@ module "ecr" {
   repository_type = "private"
   repository_image_tag_mutability = "MUTABLE"
 
-  # TODO: Update to include caller identity
-  repository_read_write_access_arns = []
+  repository_read_write_access_arns = [var.ecr_read_write_access_arn]
 
   create_lifecycle_policy = true
   repository_lifecycle_policy = jsonencode({
