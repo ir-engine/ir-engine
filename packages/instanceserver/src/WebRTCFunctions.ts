@@ -366,7 +366,7 @@ export async function handleWebRtcTransportCreate(
       direction,
       peerID
     ) as WebRTCTransportExtension
-    if (existingTransport) MediasoupTransportState.removeTransport(network.id, existingTransport.id)
+    if (existingTransport) throw new Error('Transport already exists for ' + peerID) //MediasoupTransportState.removeTransport(network.id, existingTransport.id)
 
     const newTransport = await createWebRtcTransport(network, {
       peerID: peerID,
@@ -413,7 +413,7 @@ export async function handleWebRtcTransportCreate(
       }
     }
     newTransport.observer.on('dtlsstatechange', (dtlsState) => {
-      if (dtlsState === 'closed') MediasoupTransportState.removeTransport(network.id, newTransport.id)
+      // if (dtlsState === 'closed') MediasoupTransportState.removeTransport(network.id, newTransport.id)
     })
 
     dispatchAction(
@@ -620,7 +620,7 @@ export async function handleWebRtcTransportClose(
 
   const { transportID } = action
 
-  MediasoupTransportState.removeTransport(network.id, transportID)
+  // MediasoupTransportState.removeTransport(network.id, transportID)
 }
 
 const transportsConnectPending = {} as { [transportID: string]: Promise<void> }

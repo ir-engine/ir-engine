@@ -81,10 +81,6 @@ function destroyPeer(network: Network, peerID: PeerID) {
   if (!userPeers.length) networkState.users[userID].set(none)
 }
 
-const destroyAllPeers = (network: Network) => {
-  for (const [peerID] of Object.entries(network.peers)) NetworkPeerFunctions.destroyPeer(network, peerID as PeerID)
-}
-
 function getCachedActionsForPeer(toPeerID: PeerID) {
   // send all cached and outgoing actions to joining user
   const cachedActions = [] as Required<Action>[]
@@ -99,6 +95,5 @@ function getCachedActionsForPeer(toPeerID: PeerID) {
 export const NetworkPeerFunctions = {
   createPeer,
   destroyPeer,
-  destroyAllPeers,
   getCachedActionsForPeer
 }

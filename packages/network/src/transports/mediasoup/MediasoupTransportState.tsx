@@ -34,12 +34,12 @@ import {
   getState,
   matches,
   matchesPeerID,
-  none
+  none,
+  useHookstate
 } from '@etherealengine/hyperflux'
+import React, { useLayoutEffect } from 'react'
 import { Network } from '../../Network'
-import { NetworkState } from '../../NetworkState'
-import { MediasoupDataProducerConsumerState } from './MediasoupDataProducerConsumerState'
-import { MediasoupMediaProducerConsumerState } from './MediasoupMediaProducerConsumerState'
+import { NetworkActions, NetworkState } from '../../NetworkState'
 
 export class MediasoupTransportActions {
   static requestTransport = defineAction({
@@ -99,7 +99,6 @@ export class MediasoupTransportActions {
 
 export const MediasoupTransportObjectsState = defineState({
   name: 'ee.engine.network.mediasoup.MediasoupTransportObjectsState',
-
   initial: {} as Record<string, any>
 })
 
@@ -107,7 +106,7 @@ export const MediasoupTransportState = defineState({
   name: 'ee.engine.network.mediasoup.MediasoupTransportState',
 
   initial: {} as Record<
-    string, // NetworkID
+    InstanceID,
     {
       [transportID: string]: {
         transportID: string
@@ -149,8 +148,17 @@ export const MediasoupTransportState = defineState({
       const network = action.$network
       const state = getMutableState(MediasoupTransportState)
       state[network][action.transportID].set(none)
-      if (!state[network].keys.length) {
-        state[network].set(none)
+      if (!state[network].keys.length) state[network].set(none)
+    }),
+
+    onUpdatePeers: NetworkActions.updatePeers.receive((action) => {
+      const state = getState(MediasoupTransportState)
+      for (const [networkID, transports] of Object.entries(state)) {
+        for (const transport of Object.values(transports)) {
+          if (action.peers.find((peer) => peer.peerID === transport.peerID)) continue
+          console.log('Transport peer not found:', transport.peerID)
+          getMutableState(MediasoupTransportState)[networkID][transport.transportID].set(none)
+        }
       }
     })
   },
@@ -171,26 +179,45 @@ export const MediasoupTransportState = defineState({
     return getState(MediasoupTransportObjectsState)[transport.transportID]
   },
 
-  removeTransport: (networkID: InstanceID, transportID: string) => {
-    const state = getMutableState(MediasoupTransportState)[networkID]
-    if (!state) return
-
-    if (getState(MediasoupDataProducerConsumerState)[networkID]?.[transportID])
-      getMutableState(MediasoupDataProducerConsumerState)[networkID][transportID].set(none)
-
-    if (getState(MediasoupMediaProducerConsumerState)[networkID]?.[transportID])
-      getMutableState(MediasoupMediaProducerConsumerState)[networkID][transportID].set(none)
-
-    const transport = state[transportID]
-    if (!transport) return
-
-    transport.set(none)
-
-    getState(MediasoupTransportObjectsState)[transportID].close()
-    getMutableState(MediasoupTransportObjectsState)[transportID].set(none)
-
-    if (!state.keys.length) {
-      state.set(none)
-    }
+  reactor: () => {
+    const networkIDs = useHookstate(getMutableState(MediasoupTransportState))
+    return (
+      <>
+        {networkIDs.keys.map((id: InstanceID) => (
+          <NetworkReactor key={id} networkID={id} />
+        ))}
+      </>
+    )
   }
 })
+
+const TransportReactor = (props: { networkID: InstanceID; transportID: string }) => {
+  const { transportID } = props
+
+  useLayoutEffect(() => {
+    return () => {
+      if (!getState(MediasoupTransportObjectsState)[transportID]) return
+      console.log('Closing transport:', transportID)
+      getState(MediasoupTransportObjectsState)[transportID].close()
+      getMutableState(MediasoupTransportObjectsState)[transportID].set(none)
+    }
+  }, [])
+
+  return null
+}
+
+const NetworkReactor = (props: { networkID: InstanceID }) => {
+  const { networkID } = props
+  const transports = useHookstate(getMutableState(MediasoupTransportState)[networkID])
+  const network = useHookstate(getMutableState(NetworkState).networks[networkID])
+
+  if (!network.value) return null
+
+  return (
+    <>
+      {transports.keys.map((transportID) => (
+        <TransportReactor key={transportID} networkID={networkID} transportID={transportID} />
+      ))}
+    </>
+  )
+}

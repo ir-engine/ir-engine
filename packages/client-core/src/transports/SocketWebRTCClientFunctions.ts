@@ -57,8 +57,8 @@ import {
   MediasoupTransportActions,
   MediasoupTransportObjectsState,
   MediasoupTransportState,
+  NetworkActions,
   NetworkConnectionParams,
-  NetworkPeerFunctions,
   NetworkState,
   NetworkTopics,
   VideoConstants,
@@ -139,8 +139,13 @@ export const promisedRequest = (network: SocketWebRTCClientNetwork, type: any, d
   })
 }
 
-const handleFailedConnection = (topic: Topic, instanceID: InstanceID) => {
-  console.log('handleFailedConnection', topic, instanceID)
+const instanceStillProvisioned = (instanceID: InstanceID, locationID?: LocationID, channelID?: ChannelID) =>
+  !!(
+    (locationID && getState(LocationInstanceState).instances[instanceID]) ||
+    (channelID && getState(MediaInstanceState).instances[instanceID])
+  )
+
+const unprovisionInstance = (topic: Topic, instanceID: InstanceID) => {
   if (topic === NetworkTopics.world) {
     const locationInstanceConnectionState = getMutableState(LocationInstanceState)
     locationInstanceConnectionState.instances[instanceID].set(none)
@@ -151,42 +156,18 @@ const handleFailedConnection = (topic: Topic, instanceID: InstanceID) => {
 }
 
 export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
-  if (!network.transport?.primus) return console.warn('No primus to close')
-
-  const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
-  networkState.connected.set(false)
-  networkState.authenticated.set(false)
-  networkState.ready.set(false)
-
-  if (getState(MediasoupTransportState)[network.id]) {
-    for (const transportID of Object.keys(getState(MediasoupTransportState)[network.id])) {
-      MediasoupTransportState.removeTransport(network.id, transportID)
-    }
-  }
-
-  network.transport.heartbeat && clearInterval(network.transport.heartbeat)
+  clearInterval(network.transport.heartbeat)
   network.transport.primus?.end()
   network.transport.primus?.removeAllListeners()
-  networkState.transport.primus.set(null!)
-}
-
-export const closeNetworkTransport = (network: SocketWebRTCClientNetwork) => {
-  if (!network.transport?.primus) return console.warn('No primus to close')
-
-  const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
-  networkState.transport.primus.set(null!)
-  networkState.authenticated.set(false)
-  networkState.ready.set(false)
-
-  if (getState(MediasoupTransportState)[network.id]) {
-    for (const transportID of Object.keys(getState(MediasoupTransportState)[network.id]))
-      MediasoupTransportState.removeTransport(network.id, transportID)
-  }
-
-  network.transport.heartbeat && clearInterval(network.transport.heartbeat)
-  network.transport.primus?.end()
-  network.transport.primus?.removeAllListeners()
-  networkState.transport.primus.set(null!)
+  removeNetwork(network)
+  /** Dispatch updatePeers to ensure event souce states know about this */
+  dispatchAction(
+    NetworkActions.updatePeers({
+      peers: [],
+      $topic: network.topic,
+      $network: network.id
+    })
+  )
 }
 
 export const initializeNetwork = (id: InstanceID, hostPeerID: PeerID, topic: Topic, primus: Primus) => {
@@ -252,25 +233,25 @@ export const connectToInstance = (
   instanceID: InstanceID,
   ipAddress: string,
   port: string,
-  locationId?: LocationID,
-  channelId?: ChannelID,
+  locationID?: LocationID,
+  channelID?: ChannelID,
   roomCode?: RoomCode
 ) => {
-  logger.info('Connecting to instance type: %o', { instanceID, ipAddress, port, locationId, channelId, roomCode })
+  logger.info('Connecting to instance type: %o', { instanceID, ipAddress, port, locationID, channelID, roomCode })
 
   const authState = getState(AuthState)
   const token = authState.authUser.accessToken
 
   const query: NetworkConnectionParams = {
     instanceID,
-    locationId,
-    channelId,
+    locationId: locationID,
+    channelId: channelID,
     roomCode,
     token
   }
 
-  if (locationId) delete query.channelId
-  if (channelId) delete query.locationId
+  if (locationID) delete query.channelId
+  if (channelID) delete query.locationId
   if (!roomCode) delete query.roomCode
 
   let primus: Primus
@@ -289,30 +270,33 @@ export const connectToInstance = (
       primus = new Primus(`${config.client.instanceserverUrl}?${queryString}`)
     }
   } catch (err) {
-    logger.error(err)
-    return handleFailedConnection(locationId ? NetworkTopics.world : NetworkTopics.media, instanceID)
+    logger.error('Failed to connect to primus', err)
+    // TODO: do we want to unprovision here?
+    return unprovisionInstance(locationID ? NetworkTopics.world : NetworkTopics.media, instanceID)
   }
 
   const connectionFailTimeout = setTimeout(() => {
     primus.off('incoming::open', onConnect)
     primus.removeAllListeners()
     primus.end()
-    handleFailedConnection(locationId ? NetworkTopics.world : NetworkTopics.media, instanceID)
+    /** If we still have the instance provisioned, we should try again */
+    if (instanceStillProvisioned(instanceID, locationID, channelID))
+      connectToInstance(instanceID, ipAddress, port, locationID, channelID, roomCode)
   }, 3000)
 
   let connecting = true
   let disconnected = false
 
   const onConnect = () => {
-    connecting = false
-
     primus.off('incoming::open', onConnect)
     logger.info('CONNECTED to port %o', { port })
 
     clearTimeout(connectionFailTimeout)
 
-    const topic = locationId ? NetworkTopics.world : NetworkTopics.media
-    authenticatePrimus(primus, instanceID, topic)
+    const topic = locationID ? NetworkTopics.world : NetworkTopics.media
+    authenticatePrimus(primus, instanceID, topic).then(() => {
+      connecting = false
+    })
 
     /** Server closed the connection. */
     const onDisconnect = () => {
@@ -324,8 +308,10 @@ export const connectToInstance = (
        * If we are disconnected (server closes our socket) rather than leave the network,
        * we just need to destroy and recreate the transport
        */
-      closeNetworkTransport(network)
-      connectToInstance(instanceID, ipAddress, port, locationId, channelId, roomCode)
+      closeNetwork(network)
+      /** If we still have the instance provisioned, we should try again */
+      if (instanceStillProvisioned(instanceID, locationID, channelID))
+        connectToInstance(instanceID, ipAddress, port, locationID, channelID, roomCode)
     }
     primus.on('incoming::end', onDisconnect)
   }
@@ -378,8 +364,8 @@ export async function authenticatePrimus(primus: Primus, instanceID: InstanceID,
       if (disconnected) {
         clearInterval(interval)
         resolve({ status: 'fail' })
-        primus.off('data', onAuthentication)
-        primus.removeListener('incoming::end', onDisconnect)
+        primus.removeAllListeners()
+        primus.end()
         return
       }
       primus.write(payload)
@@ -392,8 +378,9 @@ export async function authenticatePrimus(primus: Primus, instanceID: InstanceID,
   })
 
   if (status !== 'success') {
-    logger.error(status)
-    handleFailedConnection(topic, instanceID)
+    /** We failed to connect to be authenticated, we do not want to try again */
+    // TODO: do we want to unprovision here?
+    unprovisionInstance(topic, instanceID)
     return logger.error(new Error('Unable to connect with credentials' + error))
   }
 
@@ -420,9 +407,6 @@ export const connectToNetwork = async (
 
   const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
 
-  networkState.connected.set(true)
-  networkState.authenticated.set(true)
-
   network.transport.primus.on('data', (message) => {
     if (!message) return
     network.transport.onMessage(network.hostPeerID, message)
@@ -442,12 +426,6 @@ export const connectToNetwork = async (
     logger.info('Successfully loaded routerRtpCapabilities')
     networkState.transport.mediasoupLoaded.set(true)
   }
-
-  const transportSendID = MediasoupTransportState.getTransport(network.id, 'send', Engine.instance.store.peerID)
-  if (transportSendID) MediasoupTransportState.removeTransport(network.id, transportSendID)
-
-  const transportRecvID = MediasoupTransportState.getTransport(network.id, 'recv', Engine.instance.store.peerID)
-  if (transportRecvID) MediasoupTransportState.removeTransport(network.id, transportRecvID)
 
   dispatchAction(
     MediasoupTransportActions.requestTransport({
@@ -985,6 +963,7 @@ export const receiveConsumerHandler = async (
   }
 }
 
+/** @todo move these pause/resume/mute/unmute functions onto a state definition */
 export function pauseConsumer(network: SocketWebRTCClientNetwork, consumer: ConsumerExtension) {
   dispatchAction(
     MediasoupMediaConsumerActions.consumerPaused({
@@ -1142,20 +1121,17 @@ export const toggleScreenshareVideoPaused = async () => {
 }
 
 export function leaveNetwork(network: SocketWebRTCClientNetwork) {
-  try {
-    if (!network) return
-    closeNetwork(network)
+  if (!network) return
+  logger.info('Leaving network %o', { topic: network.topic, id: network.id })
 
-    NetworkPeerFunctions.destroyAllPeers(network)
-    removeNetwork(network)
+  try {
+    closeNetwork(network)
 
     if (network.topic === NetworkTopics.media) {
       clearPeerMediaChannels()
       getMutableState(NetworkState).hostIds.media.set(none)
-      getMutableState(MediaInstanceState).instances[network.id].set(none)
     } else {
       getMutableState(NetworkState).hostIds.world.set(none)
-      getMutableState(LocationInstanceState).instances[network.id].set(none)
       // if world has a media server connection
       if (NetworkState.mediaNetwork) {
         leaveNetwork(NetworkState.mediaNetwork as SocketWebRTCClientNetwork)

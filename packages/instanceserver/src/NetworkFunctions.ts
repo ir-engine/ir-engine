@@ -58,10 +58,10 @@ import {
 import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { AuthTask } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
-import { MediasoupTransportState, NetworkState } from '@etherealengine/network'
+import { NetworkState } from '@etherealengine/network'
 import { SpawnPoseState } from '@etherealengine/spatial'
 import { InstanceServerState } from './InstanceServerState'
-import { SocketWebRTCServerNetwork, WebRTCTransportExtension } from './SocketWebRTCServerFunctions'
+import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:network' })
 const isNameRegex = /instanceserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
@@ -360,10 +360,6 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerI
     NetworkPeerFunctions.destroyPeer(network, peerID)
     updatePeers(network)
     logger.info(`Disconnecting user ${userId} on spark ${peerID}`)
-    const recvTransport = MediasoupTransportState.getTransport(network.id, 'recv', peerID) as WebRTCTransportExtension
-    const sendTransport = MediasoupTransportState.getTransport(network.id, 'send', peerID) as WebRTCTransportExtension
-    if (recvTransport) MediasoupTransportState.removeTransport(network.id, recvTransport.id)
-    if (sendTransport) MediasoupTransportState.removeTransport(network.id, sendTransport.id)
   } else {
     logger.warn("Spark didn't match for disconnecting client.")
   }

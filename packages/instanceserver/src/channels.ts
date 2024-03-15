@@ -319,8 +319,6 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
   }
 
   const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCServerNetwork>
-  networkState.authenticated.set(true)
-  networkState.connected.set(true)
   networkState.ready.set(true)
 
   getMutableState(InstanceServerState).ready.set(true)
@@ -512,7 +510,7 @@ const shutdownServer = async (app: Application, instanceId: InstanceID, headers:
     }
     await serverState.agonesSDK.shutdown()
   } else {
-    restartInstanceServer()
+    restartInstanceServer(() => Promise.resolve())
   }
 }
 
@@ -655,21 +653,22 @@ export const onConnection = (app: Application) => async (connection: PrimusConne
   logger.info(`current room code: ${instanceServerState.instance?.roomCode} and new id: ${roomCode}`)
 
   if (isLocalServerNeedingNewLocation) {
-    await app.service(instancePath).patch(
-      instanceServerState.instance.id,
-      {
-        ended: true
-      },
-      { headers: connection.headers }
-    )
-    try {
-      if (instanceServerState.instance.channelId) {
-        await app.service(channelPath).remove(instanceServerState.instance.channelId)
+    restartInstanceServer(async () => {
+      try {
+        await app.service(instancePath).patch(
+          instanceServerState.instance.id,
+          {
+            ended: true
+          },
+          { headers: connection.headers }
+        )
+        if (instanceServerState.instance.channelId) {
+          await app.service(channelPath).remove(instanceServerState.instance.channelId)
+        }
+      } catch (e) {
+        //
       }
-    } catch (e) {
-      //
-    }
-    restartInstanceServer()
+    })
     return
   }
 

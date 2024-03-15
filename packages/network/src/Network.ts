@@ -119,16 +119,6 @@ export const createNetwork = <Ext>(
     id,
 
     /**
-     * The network socket connection is active
-     */
-    connected: false,
-
-    /**
-     * The network is authenticated
-     */
-    authenticated: false,
-
-    /**
      * The network is ready for sending messages and data
      */
     ready: false,

@@ -27,7 +27,6 @@ import { none, useHookstate } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
-import { leaveNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import multiLogger from '@etherealengine/common/src/logger'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
@@ -56,7 +55,6 @@ import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
 import { RouterState } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
-import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
 
@@ -149,7 +147,6 @@ export const useLinkTeleport = () => {
 
     // shut down connection with existing world instance server
     // leaving a world instance server will check if we are in a location media instance and shut that down too
-    leaveNetwork(NetworkState.worldNetwork as SocketWebRTCClientNetwork)
     getMutableState(LinkState).location.set(undefined)
   }, [linkState.location])
 }
@@ -250,8 +247,6 @@ export const useNetwork = (props: { online?: boolean }) => {
     addNetwork(createNetwork(userID as any as InstanceID, peerID, NetworkTopics.world))
     addOutgoingTopicIfNecessary(NetworkTopics.world)
 
-    NetworkState.worldNetworkState.authenticated.set(true)
-    NetworkState.worldNetworkState.connected.set(true)
     NetworkState.worldNetworkState.ready.set(true)
 
     NetworkPeerFunctions.createPeer(NetworkState.worldNetwork as Network, peerID, peerIndex, userID, userIndex)

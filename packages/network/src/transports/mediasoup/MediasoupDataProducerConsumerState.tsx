@@ -38,7 +38,8 @@ import {
 } from '@etherealengine/hyperflux'
 import React, { useEffect } from 'react'
 import { DataChannelType } from '../../DataChannelRegistry'
-import { MediasoupTransportObjectsState } from './MediasoupTransportState'
+import { NetworkState } from '../../NetworkState'
+import { MediasoupTransportActions, MediasoupTransportObjectsState } from './MediasoupTransportState'
 
 export class MediasoupDataProducerActions {
   static requestProducer = defineAction({
@@ -211,6 +212,25 @@ export const MediasoupDataProducerConsumerState = defineState({
       if (!state[networkID].consumers.keys.length && !state[networkID].consumers.keys.length) {
         state[networkID].set(none)
       }
+    }),
+
+    onTransportClosed: MediasoupTransportActions.transportClosed.receive((action) => {
+      const network = action.$network
+      // if the transport is closed, we need to close all producers and consumers for that transport
+      const state = getMutableState(MediasoupDataProducerConsumerState)[network]
+      if (!state) return
+
+      for (const producerID of Object.keys(state.producers)) {
+        if (state.producers[producerID].transportID.value !== action.transportID) continue
+        state.producers[producerID].set(none)
+      }
+
+      for (const consumerID of Object.keys(state.consumers)) {
+        if (state.consumers[consumerID].transportID.value !== action.transportID) continue
+        state.consumers[consumerID].set(none)
+      }
+
+      if (!state.producers.keys.length && !state.consumers.keys.length) state.set(none)
     })
   },
 
@@ -270,6 +290,9 @@ const NetworkReactor = (props: { networkID: InstanceID }) => {
   const { networkID } = props
   const producers = useHookstate(getMutableState(MediasoupDataProducerConsumerState)[networkID].producers)
   const consumers = useHookstate(getMutableState(MediasoupDataProducerConsumerState)[networkID].consumers)
+  const network = useHookstate(getMutableState(NetworkState).networks[networkID])
+
+  if (!network.value) return null
 
   return (
     <>

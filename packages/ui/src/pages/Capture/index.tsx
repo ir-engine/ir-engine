@@ -134,7 +134,7 @@ const useVideoStatus = () => {
   const videoPaused = useHookstate(getMutableState(MediaStreamState).videoPaused)
   const videoActive = !!videoStream.value && !videoPaused.value
   const mediaNetworkState = useMediaNetwork()
-  if (!mediaNetworkState?.connected?.value) return 'loading'
+  if (!mediaNetworkState?.ready?.value) return 'loading'
   if (!videoActive) return 'ready'
   return 'active'
 }
@@ -295,7 +295,7 @@ const CaptureMode = () => {
           <Button
             className="z-2 container absolute left-0 top-0 m-0 mx-auto h-full w-full bg-transparent p-0"
             onClick={() => {
-              if (mediaNetworkState?.connected?.value) toggleWebcamPaused()
+              if (mediaNetworkState?.ready?.value) toggleWebcamPaused()
             }}
           >
             <a>{!videoStream.value ? 'CLICK TO ENABLE VIDEO' : ''}</a>

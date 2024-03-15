@@ -50,7 +50,7 @@ const receiveIncomingActions = (network: Network, fromPeerID: PeerID, actions: R
 
 const sendActionsAsPeer = (network: Network) => {
   const outgoing = Engine.instance.store.actions.outgoing[network.topic]
-  if (!network.authenticated || !outgoing) return
+  if (!outgoing) return
   const actions = [...outgoing.queue]
   if (!actions.length) return
   for (const action of actions) {
@@ -65,8 +65,6 @@ const sendActionsAsPeer = (network: Network) => {
 }
 
 const sendActionsAsHost = (network: Network) => {
-  if (!network.authenticated) return
-
   addOutgoingTopicIfNecessary(network.topic)
 
   const actions = [...Engine.instance.store.actions.outgoing[network.topic].queue]

@@ -121,7 +121,7 @@ export const WorldInstanceProvisioning = () => {
   useEffect(() => {
     if (!networkConfigState.roomID.value && !networkConfigState.instanceID.value) return
 
-    if (worldNetworkState?.connected?.value) {
+    if (worldNetworkState?.ready?.value) {
       const parsed = new URL(window.location.href)
       const query = parsed.searchParams
 
@@ -134,21 +134,21 @@ export const WorldInstanceProvisioning = () => {
         window.history.replaceState({}, '', parsed.toString())
       }
     }
-  }, [worldNetworkState?.connected, locationInstances.keys.length, networkConfigState])
+  }, [worldNetworkState?.ready, locationInstances.keys.length, networkConfigState])
 
   /**
    * Request media server for this world server
    * @todo handle party logic
    */
   useEffect(() => {
-    if (!worldNetwork?.connected) return
+    if (!worldNetwork?.ready) return
 
     ChannelService.getInstanceChannel(worldNetwork.id)
 
     return () => {
       ChannelService.leaveInstanceChannel()
     }
-  }, [worldNetwork?.connected])
+  }, [worldNetwork?.ready])
 
   return (
     <>
@@ -210,7 +210,7 @@ export const MediaInstanceProvisioning = () => {
     // }
   }, [
     channelState.channels.channels?.length,
-    worldNetwork?.connected,
+    worldNetwork?.ready,
     mediaInstanceState.keys.length,
     channelState.targetChannelId
   ])
