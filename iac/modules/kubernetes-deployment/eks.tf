@@ -50,6 +50,24 @@ module "eks_engine_main" {
   vpc_id                   = var.vpc_id
   subnet_ids               = var.public_subnets
 
+  create_cluster_security_group = true
+  cluster_security_group_additional_rules = [
+    {
+      type = "ingress"
+      from_port = 7000
+      to_port = 8000
+      protocol = "udp"
+      cidr_blocks = ["0.0.0.0/0"]
+    },
+    {
+      type = "ingress"
+      from_port = 7000
+      to_port = 8000
+      protocol = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  ]
+
   # To add the current caller identity as an administrator, set true
 
   /*
