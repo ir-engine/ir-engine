@@ -40,7 +40,7 @@ import InstanceServerTab from './tabs/instanceServer'
 import ServerTab from './tabs/server'
 import TaskServerTab from './tabs/taskServer'
 
-const SettingsTabsData = [
+export const SettingsTabsData = [
   {
     label: t('admin:components.setting.project'),
     Component: ProjectTab
