@@ -136,7 +136,7 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity; index: 
   return null
 }
 
-const injectDitheringLogic = (material: Material, center: Vector3, distance: number, exponent: number) => {
+export const injectDitheringLogic = (material: Material, center: Vector3, distance: number, exponent: number) => {
   material.alphaTest = 0.5
   //if (overrideCulling) material.side = FrontSide
   addOBCPlugin(material, {

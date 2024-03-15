@@ -34,7 +34,8 @@ import {
   MeshStandardMaterial,
   Object3D,
   SkinnedMesh,
-  Texture
+  Texture,
+  Vector3
 } from 'three'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -65,6 +66,7 @@ import {
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import { ResourceManager } from '../../assets/state/ResourceState'
+import { injectDitheringLogic } from '../../avatar/components/TransparencyDitheringComponent'
 import { registerMaterial, unregisterMaterial } from '../../scene/materials/functions/MaterialLibraryFunctions'
 import { ModelComponent, useMeshOrModel } from '../components/ModelComponent'
 import { SceneComponent } from '../components/SceneComponent'
@@ -137,14 +139,11 @@ export function setupObject(obj: Object3D, forceBasicMaterials = false) {
       child.material = nuMaterial
       child.userData.lastMaterial = prevMaterial
 
-      /**hack for dithering effect until this is refactored */
+      /**dirty hack for dithering effect until this is refactored */
       const plugin = prevMaterial.plugins?.findIndex(
         (plugin: PluginObjectType) => plugin.id === 'transparency-dithering'
       )
-      if (plugin !== undefined && plugin !== -1)
-        nuMaterial.plugins
-          ? nuMaterial.plugins.push(prevMaterial.plugins[plugin])
-          : (nuMaterial.plugins = [prevMaterial.plugins[plugin]])
+      if (plugin !== undefined && plugin !== -1) injectDitheringLogic(nuMaterial, new Vector3(), 5, 2)
 
       prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src, prevMatEntry.parameters)
     }
