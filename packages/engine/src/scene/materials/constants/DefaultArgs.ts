@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Color, Texture } from 'three'
+import { Color, Euler, Quaternion, Texture, Vector2, Vector3, Vector4 } from 'three'
 
 export const BoolArg = { default: false, type: 'boolean' }
 
@@ -55,6 +55,18 @@ export function getDefaultType(value) {
       }
       if ((value as Color).isColor) {
         return 'color'
+      }
+      if ((value as Vector3).isVector3) {
+        return 'vec3'
+      }
+      if ((value as Vector2).isVector2) {
+        return 'vec2'
+      }
+      if ((value as Euler).isEuler) {
+        return 'euler'
+      }
+      if ((value as Quaternion).isQuaternion || (value as Vector4).isVector4) {
+        return 'vec4'
       }
       return ''
     //todo: vectors, selects, objects
