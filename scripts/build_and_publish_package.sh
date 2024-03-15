@@ -23,8 +23,8 @@ fi
 #echo "PRUNED"
 #docker buildx version
 #
-docker context create etherealengine-$PACKAGE
-docker buildx create --driver=docker-container etherealengine-$PACKAGE --name etherealengine-$PACKAGE --driver-opt "image=moby/buildkit:v0.12.0"
+docker context create etherealengine-$PACKAGE-context
+docker buildx create --driver=docker-container etherealengine-$PACKAGE-context --name etherealengine-$PACKAGE --driver-opt "image=moby/buildkit:v0.13.0"
 
 BUILD_START_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 echo "Starting ${PACKAGE} build at ${BUILD_START_TIME}"
@@ -44,6 +44,7 @@ then
     --build-arg ECR_URL=$ECR_URL \
     --build-arg REPO_NAME=$REPO_NAME \
     --build-arg STAGE=$STAGE \
+    --build-arg KUBERNETES=$KUBERNETES \
     --build-arg NODE_ENV=$NODE_ENV \
     --build-arg STORAGE_PROVIDER=$STORAGE_PROVIDER \
     --build-arg STORAGE_CLOUDFRONT_DOMAIN=$STORAGE_CLOUDFRONT_DOMAIN \
@@ -86,6 +87,7 @@ then
     --build-arg ECR_URL=$ECR_URL \
     --build-arg REPO_NAME=$REPO_NAME \
     --build-arg STAGE=$STAGE \
+    --build-arg KUBERNETES=$KUBERNETES \
     --build-arg NODE_ENV=$NODE_ENV \
     --build-arg STORAGE_PROVIDER=$STORAGE_PROVIDER \
     --build-arg STORAGE_CLOUDFRONT_DOMAIN=$STORAGE_CLOUDFRONT_DOMAIN \
@@ -130,6 +132,7 @@ else
     --build-arg ECR_URL=$ECR_URL \
     --build-arg REPO_NAME=$REPO_NAME \
     --build-arg STAGE=$STAGE \
+    --build-arg KUBERNETES=$KUBERNETES \
     --build-arg NODE_ENV=$NODE_ENV \
     --build-arg STORAGE_PROVIDER=$STORAGE_PROVIDER \
     --build-arg STORAGE_CLOUDFRONT_DOMAIN=$STORAGE_CLOUDFRONT_DOMAIN \

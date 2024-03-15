@@ -35,19 +35,19 @@ import Input from '../Input'
 import Label from '../Label'
 import Text from '../Text'
 
-export interface MultiSelectProps {
+export interface MultiSelectProps<T extends string | number> {
   label?: string
   className?: string
   error?: string
   description?: string
-  options: { name: string; value: any; disabled?: boolean }[]
-  selectedOptions: any[]
-  onChange: (values: any[]) => void
+  options: { label: string; value: T; disabled?: boolean }[]
+  selectedOptions: T[]
+  onChange: (values: T[]) => void
   placeholder?: string
   menuClassName?: string
 }
 
-const MultiSelect = ({
+const MultiSelect = <T extends string | number>({
   className,
   label,
   error,
@@ -57,7 +57,7 @@ const MultiSelect = ({
   onChange,
   placeholder,
   menuClassName
-}: MultiSelectProps) => {
+}: MultiSelectProps<T>) => {
   const { t } = useTranslation()
   const twClassName = twMerge('bg-theme-primary relative', className)
   const ref = useRef<HTMLDivElement>(null)
@@ -72,12 +72,9 @@ const MultiSelect = ({
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     searchInput.set(e.target.value)
-    const newOptions: {
-      name: string
-      value: any
-    }[] = []
+    const newOptions: MultiSelectProps<T>['options'] = []
     for (let i = 0; i < options.length; i++) {
-      if (options[i].name.toLowerCase().startsWith(e.target.value.toLowerCase())) {
+      if (options[i].label.toLowerCase().startsWith(e.target.value.toLowerCase())) {
         newOptions.push(options[i])
       }
     }
@@ -109,7 +106,7 @@ const MultiSelect = ({
             key={selectedOption}
             className="border-theme-primary m-1 flex h-7 items-center justify-center gap-1 rounded border bg-neutral-300 p-1 font-medium text-black"
           >
-            <Text className="text-black">{options.find((opt) => opt.value === selectedOption)?.name}</Text>
+            <Text className="text-black">{options.find((opt) => opt.value === selectedOption)?.label}</Text>
             <HiXCircle onClick={() => onChange(selectedOptions.filter((opt) => opt !== selectedOption))} />
           </div>
         ))}
@@ -148,7 +145,7 @@ const MultiSelect = ({
               }}
             >
               {option.disabled ? (
-                <Label>{option.name}</Label>
+                <Label>{option.label}</Label>
               ) : (
                 <Checkbox
                   onChange={(selected) => {
@@ -159,7 +156,7 @@ const MultiSelect = ({
                     }
                   }}
                   value={selectedOptions.some((opt) => opt && opt === option.value)}
-                  label={option.name}
+                  label={option.label}
                 />
               )}
             </li>

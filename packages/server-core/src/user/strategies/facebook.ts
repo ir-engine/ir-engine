@@ -127,7 +127,7 @@ export class FacebookStrategy extends CustomOAuthStrategy {
       redirectConfig = {}
     }
     let { domain: redirectDomain, path: redirectPath, instanceId: redirectInstanceId } = redirectConfig
-    redirectDomain = `${redirectDomain}/auth/oauth/facebook` || config.authentication.callback.facebook
+    redirectDomain = redirectDomain ? `${redirectDomain}/auth/oauth/facebook` : config.authentication.callback.facebook
 
     if (data instanceof Error || Object.getPrototypeOf(data) === Error.prototype) {
       const err = data.message as string

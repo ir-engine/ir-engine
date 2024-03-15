@@ -171,13 +171,14 @@ export default function CreateResourceModal({
         className="mb-4"
       />
       <Radio
-        currentValue={state.source.value}
+        value={state.source.value}
         options={[
-          { name: 'URL', value: 'url' },
-          { name: 'File', value: 'file' }
+          { label: 'URL', value: 'url' },
+          { label: 'File', value: 'file' }
         ]}
+        horizontal
         onChange={(value) => state.source.set(value)}
-        className="mb-4 grid-flow-col"
+        className="mb-4"
       />
       <Button fullWidth className="mb-4">
         <label className="block w-full cursor-pointer">

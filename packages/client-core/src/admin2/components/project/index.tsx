@@ -23,104 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ProjectUpdateState } from '@etherealengine/client-core/src/admin/services/ProjectUpdateService'
-import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { isDev } from '@etherealengine/common/src/config'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
-import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import React, { useEffect } from 'react'
+import Tabs from '@etherealengine/ui/src/primitives/tailwind/Tabs'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiArrowPath, HiPlus } from 'react-icons/hi2'
-import AddEditProjectModal from './AddEditProjectModal'
 import ProjectTable from './ProjectTable'
-import UpdateEngineModal from './UpdateEngineModal'
+import ProjectTopMenu from './ProjectTopMenu'
+import BuildStatusTable from './build-status/BuildStatusTable'
 
 export default function AdminProject() {
   const { t } = useTranslation()
-  const projectState = useHookstate(getMutableState(ProjectState))
-  const modalProcessing = useHookstate(false)
-
-  const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)['tempProject']).value
-
-  ProjectService.useAPIListeners()
-
-  useEffect(() => {
-    let interval
-
-    if (projectState.rebuilding.value) {
-      interval = setInterval(ProjectService.checkReloadStatus, 10000)
-    } else {
-      clearInterval(interval)
-      ProjectService.fetchProjects()
-    }
-
-    return () => clearInterval(interval)
-  }, [projectState.rebuilding.value])
 
   return (
-    <div>
-      <Text className="mb-6" fontSize="xl">
-        {t('admin:components.project.project')}
-      </Text>
-      <div className="mb-4 flex justify-between gap-2">
-        <div className="flex gap-2">
-          <div className="flex items-center border-b border-b-blue-400">
-            <button className="p-3 text-sm">{t('admin:components.common.all')}</button>
-          </div>
-          <button className="p-3 text-sm">{t('admin:components.project.buildStatus')}</button>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            startIcon={<HiArrowPath />}
-            size="small"
-            onClick={() => {
-              PopoverState.showPopupover(<UpdateEngineModal />)
-            }}
-            disabled={isDev}
-            endIcon={!isDev && projectState.rebuilding.value ? <LoadingCircle className="h-6 w-6" /> : undefined}
-          >
-            {!isDev && projectState.rebuilding.value
-              ? t('admin:components.project.rebuilding')
-              : t('admin:components.project.updateAndRebuild')}
-          </Button>
-          <Button
-            startIcon={<HiPlus />}
-            size="small"
-            onClick={() => {
-              PopoverState.showPopupover(
-                <AddEditProjectModal
-                  processing={modalProcessing.value}
-                  onSubmit={async () => {
-                    modalProcessing.set(true)
-                    await ProjectService.uploadProject({
-                      sourceURL: projectUpdateStatus.sourceURL,
-                      destinationURL: projectUpdateStatus.destinationURL,
-                      name: projectUpdateStatus.projectName,
-                      reset: true,
-                      commitSHA: projectUpdateStatus.selectedSHA,
-                      sourceBranch: projectUpdateStatus.selectedBranch,
-                      updateType: projectUpdateStatus.updateType,
-                      updateSchedule: projectUpdateStatus.updateSchedule
-                    }).catch((err) => {
-                      NotificationService.dispatchNotify(err.message, { variant: 'error' })
-                    })
-                    modalProcessing.set(false)
-                  }}
-                  submitDisabled={projectUpdateStatus ? projectUpdateStatus.submitDisabled : true}
-                  update={false}
-                />
-              )
-            }}
-          >
-            {t('admin:components.project.addProject')}
-          </Button>
-        </div>
-      </div>
-      <ProjectTable />
-    </div>
+    <Tabs
+      tabsData={[
+        {
+          title: t('admin:components.project.project'),
+          tabLabel: t('admin:components.common.all'),
+          rightComponent: <ProjectTopMenu />,
+          bottomComponent: <ProjectTable />
+        },
+        {
+          title: t('admin:components.buildStatus.buildStatus'),
+          tabLabel: t('admin:components.project.buildStatus'),
+          bottomComponent: <BuildStatusTable />
+        }
+      ]}
+    />
   )
 }

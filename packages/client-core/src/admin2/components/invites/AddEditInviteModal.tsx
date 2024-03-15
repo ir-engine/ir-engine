@@ -105,15 +105,15 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
         const position = transform.props.position
         return {
           value: id,
-          name: `${id} (x: ${position.x}, y: ${position.y}, z: ${position.z})`
+          label: `${id} (x: ${position.x}, y: ${position.y}, z: ${position.z})`
         }
       }
       return {
         value: id,
-        name: id
+        label: id
       }
     }),
-    { value: '', name: t('admin:components.invite.selectSpawnPoint'), disabled: true }
+    { value: '', label: t('admin:components.invite.selectSpawnPoint'), disabled: true }
   ]
 
   const handleSubmit = async () => {
@@ -227,7 +227,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
         )}
         <Select
           label={t('admin:components.invite.type')}
-          options={inviteTypeOptions.map((type) => ({ name: t(`admin:components.invite.${type}`), value: type }))}
+          options={inviteTypeOptions.map((type) => ({ label: t(`admin:components.invite.${type}`), value: type }))}
           currentValue={inviteType.value}
           onChange={(value) => inviteType.set(value)}
         />
@@ -235,11 +235,11 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
           <Select
             label={t('admin:components.invite.location')}
             options={[
+              { value: '', label: t('admin:components.invite.selectLocation'), disabled: true },
               ...adminLocations.map((location) => ({
                 value: location.id,
-                name: `${location.name} (${location.sceneId})`
-              })),
-              { value: '', name: t('admin:components.invite.selectLocation'), disabled: true }
+                label: `${location.name} (${location.sceneId})`
+              }))
             ]}
             currentValue={inviteLocation.value}
             onChange={(value) => inviteLocation.set(value)}
@@ -250,11 +250,11 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
           <Select
             label={t('admin:components.invite.instance')}
             options={[
+              { value: '', label: t('admin:components.invite.selectInstance'), disabled: true },
               ...adminInstances.map((instance) => ({
-                name: `${instance.id} (${instance.location.name})`,
+                label: `${instance.id} (${instance.location.name})`,
                 value: instance.id
-              })),
-              { value: '', name: t('admin:components.invite.selectInstance'), disabled: true }
+              }))
             ]}
             currentValue={inviteInstance.value}
             onChange={(value) => inviteInstance.set(value)}
@@ -272,12 +272,12 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
             {spawnSelected.value && (
               <>
                 <Radios
-                  className="grid-flow-col"
+                  horizontal
                   options={spawnTypeOptions.map((option) => ({
                     value: option,
-                    name: t(`admin:components.invite.${option}`)
+                    label: t(`admin:components.invite.${option}`)
                   }))}
-                  currentValue={spawnType.value}
+                  value={spawnType.value}
                   onChange={(value) => spawnType.set(value)}
                 />
                 {spawnType.value === 'spawnPoint' && (
@@ -292,11 +292,13 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
                   <Select
                     label={t('admin:components.invite.userPosition')}
                     options={[
-                      ...adminUsers.map((user) => ({
-                        value: user.inviteCode,
-                        name: `${user.name} (${user.inviteCode})`
-                      })),
-                      { name: t('admin:components.invite.selectUserPosition'), value: '', disabled: true }
+                      { label: t('admin:components.invite.selectUserPosition'), value: '', disabled: true },
+                      ...adminUsers
+                        .filter((user) => user.inviteCode)
+                        .map((user) => ({
+                          value: user.inviteCode!,
+                          label: `${user.name} (${user.inviteCode})`
+                        }))
                     ]}
                     currentValue={userPosition.value}
                     onChange={(value) => userPosition.set(value)}

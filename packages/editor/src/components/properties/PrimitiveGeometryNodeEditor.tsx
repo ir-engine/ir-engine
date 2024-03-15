@@ -115,7 +115,7 @@ export const PrimitiveGeometryNodeEditor: EditorComponentType = (props) => {
   const renderPrimitiveGeometrySettings = () => (
     <ParameterInput
       entity={`${props.entity}-primitive-geometry`}
-      values={(primitiveGeometry.geometry.value as any).parameters}
+      values={(primitiveGeometry.geometry.value as any)?.parameters ?? {}}
       onChange={(k) => (val) => {
         const params = primitiveGeometry.geometryParams.get(NO_PROXY)
         params[k] = val

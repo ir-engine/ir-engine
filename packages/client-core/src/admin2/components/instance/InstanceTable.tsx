@@ -35,7 +35,7 @@ import { instanceColumns } from '../../common/constants/instance'
 
 import { InstanceType } from '@etherealengine/common/src/schema.type.module'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import { BsTrash3 } from 'react-icons/bs'
+import { HiEye, HiTrash } from 'react-icons/hi2'
 import { PopoverState } from '../../../common/services/PopoverState'
 import RemoveInstanceModal from './RemoveInstanceModal'
 import ViewModal from './ViewModal'
@@ -63,15 +63,18 @@ export default function InstanceTable({ search }: { search: string }) {
       action: (
         <div className="flex w-full justify-around px-2 py-1">
           <Button
+            className="bg-[#61759f] dark:bg-[#2A3753]"
             onClick={() => {
               PopoverState.showPopupover(<ViewModal instanceId={row.id} />)
             }}
+            startIcon={<HiEye className="place-self-center" />}
+            size="small"
           >
             {t('admin:components.instance.actions.view')}
           </Button>
-          <Button className="bg-transparent">
-            <BsTrash3
-              className="text-[#FB7185]"
+          <Button className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0" rounded>
+            <HiTrash
+              className="place-self-center text-[#E11D48] dark:text-[#FB7185]"
               onClick={() => {
                 PopoverState.showPopupover(<RemoveInstanceModal instanceId={row.id} />)
               }}

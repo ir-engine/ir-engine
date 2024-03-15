@@ -159,7 +159,7 @@ export const MediasoupDataProducerConsumerState = defineState({
   receptors: {
     onProducerCreate: MediasoupDataProducerActions.producerCreated.receive((action) => {
       const state = getMutableState(MediasoupDataProducerConsumerState)
-      const networkID = action.$network as InstanceID
+      const networkID = action.$network
       if (!state.value[networkID]) {
         state.merge({ [networkID]: { producers: {}, consumers: {} } })
       }
@@ -177,7 +177,7 @@ export const MediasoupDataProducerConsumerState = defineState({
 
     onProducerClosed: MediasoupDataProducerActions.producerClosed.receive((action) => {
       const state = getMutableState(MediasoupDataProducerConsumerState)
-      const networkID = action.$network as InstanceID
+      const networkID = action.$network
       if (!state.value[networkID]) return
       state[networkID].producers[action.producerID].set(none)
       if (!state[networkID].producers.keys.length && !state[networkID].consumers.keys.length) {
@@ -187,7 +187,7 @@ export const MediasoupDataProducerConsumerState = defineState({
 
     onConsumerCreated: MediasoupDataConsumerActions.consumerCreated.receive((action) => {
       const state = getMutableState(MediasoupDataProducerConsumerState)
-      const networkID = action.$network as InstanceID
+      const networkID = action.$network
       if (!state.value[networkID]) {
         state.merge({ [networkID]: { producers: {}, consumers: {} } })
       }
@@ -205,7 +205,7 @@ export const MediasoupDataProducerConsumerState = defineState({
 
     onConsumerClosed: MediasoupDataConsumerActions.consumerClosed.receive((action) => {
       const state = getMutableState(MediasoupDataProducerConsumerState)
-      const networkID = action.$network as InstanceID
+      const networkID = action.$network
       if (!state.value[networkID]) return
       state[networkID].consumers[action.consumerID].set(none)
       if (!state[networkID].consumers.keys.length && !state[networkID].consumers.keys.length) {
