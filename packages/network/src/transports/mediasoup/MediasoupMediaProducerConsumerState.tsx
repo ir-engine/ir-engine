@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { ChannelID, InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   NO_PROXY_STEALTH,
+  PeerID,
   Validator,
   defineAction,
   defineState,
@@ -197,7 +197,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
   receptors: {
     onProducerCreated: MediasoupMediaProducerActions.producerCreated.receive((action) => {
       const state = getMutableState(MediasoupMediaProducerConsumerState)
-      const networkID = action.$network as InstanceID
+      const networkID = action.$network
       if (!state.value[networkID]) {
         state.merge({ [networkID]: { producers: {}, consumers: {} } })
       }
@@ -213,7 +213,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
     }),
 
     onProducerClosed: MediasoupMediaProducerActions.producerClosed.receive((action) => {
-      const networkID = action.$network as InstanceID
+      const networkID = action.$network
       const state = getMutableState(MediasoupMediaProducerConsumerState)
 
       state[networkID]?.producers[action.producerID].set(none)
@@ -225,7 +225,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
 
     onProducerPaused: MediasoupMediaProducerActions.producerPaused.receive((action) => {
       const state = getMutableState(MediasoupMediaProducerConsumerState)
-      const networkID = action.$network as InstanceID
+      const networkID = action.$network
       if (!state.value[networkID]?.producers[action.producerID]) return
 
       const producerState = state[networkID].producers[action.producerID]
@@ -249,7 +249,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
 
     onConsumerCreated: MediasoupMediaConsumerActions.consumerCreated.receive((action) => {
       const state = getMutableState(MediasoupMediaProducerConsumerState)
-      const networkID = action.$network as InstanceID
+      const networkID = action.$network
       if (!state.value[networkID]) {
         state.merge({ [networkID]: { producers: {}, consumers: {} } })
       }

@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import multiLogger from '@etherealengine/common/src/logger'
 import {
   AvatarID,
@@ -43,14 +42,14 @@ import {
   SerializedChunk
 } from '@etherealengine/engine/src/recording/ECSSerializerSystem'
 import {
+  PeerID,
   Topic,
   defineAction,
   defineActionQueue,
   defineState,
   dispatchAction,
   getMutableState,
-  getState,
-  matchesUserId
+  getState
 } from '@etherealengine/hyperflux'
 import {
   DataChannelRegistryState,
@@ -62,6 +61,7 @@ import {
   SerializationSchema,
   WorldNetworkAction,
   addDataChannelHandler,
+  matchesUserID,
   removeDataChannelHandler,
   updatePeers,
   webcamAudioDataChannelType,
@@ -96,7 +96,7 @@ export class ECSRecordingActions {
   static startPlayback = defineAction({
     type: 'ee.core.motioncapture.PLAY_RECORDING' as const,
     recordingID: matches.string as Validator<unknown, RecordingID>,
-    targetUser: matchesUserId.optional(),
+    targetUser: matchesUserID.optional(),
     autoplay: matches.boolean
   })
 
@@ -636,14 +636,13 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
             if (!UUIDComponent.getEntityByUUID(entityID) && isClone) {
               dispatchAction(
                 AvatarNetworkAction.spawn({
-                  $from: entityID,
+                  ownerID: entityID,
                   entityUUID: entityID,
                   avatarID: '' as AvatarID
                 })
               )
               dispatchAction(
                 AvatarNetworkAction.setAvatarID({
-                  $from: entityID,
                   avatarID: user.avatar.id!,
                   entityUUID: entityID
                 })

@@ -24,19 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import multiLogger from '@etherealengine/common/src/logger'
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CompressedTexture } from 'three'
 
 import MoreVert from '@mui/icons-material/MoreVert'
 import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { SceneDataType, SceneID } from '@etherealengine/common/src/schema.type.module'
+import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { TabData } from 'rc-dock'
@@ -74,7 +73,7 @@ export default function ScenesPanel() {
       const data = await getScenes(editorState.projectName.value!)
       for (let i = 0; i < data.length; i++) {
         const ktx2url = await getSceneURL(data[i].thumbnailUrl)
-        thumbnails.set(data[i].name, ktx2url)
+        thumbnails.set(data[i].name, ktx2url!)
       }
       setScenes(data ?? [])
     } catch (error) {
@@ -162,10 +161,12 @@ export default function ScenesPanel() {
   }
 
   const getSceneURL = async (url) => {
-    const texture = (await AssetLoader.loadAsync(url)) as CompressedTexture
-    const outUrl = (await createReadableTexture(texture, { url: true })) as string
-    texture.dispose()
-    return outUrl
+    const [texture, unload] = await getTextureAsync(url)
+    if (texture) {
+      const outUrl = (await createReadableTexture(texture, { url: true })) as string
+      unload()
+      return outUrl
+    }
   }
 
   return (

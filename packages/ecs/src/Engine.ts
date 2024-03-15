@@ -64,7 +64,6 @@ export class Engine {
 
   store = bitECS.createWorld(
     createHyperStore({
-      getDispatchId: () => Engine.instance.userID,
       getDispatchTime: () => getState(ECSState).simulationTime,
       getCurrentReactorRoot: () =>
         getState(SystemState).activeSystemReactors.get(getState(SystemState).currentSystemUUID)

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { PresentationSystemGroup } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
@@ -31,20 +31,32 @@ import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { PerformanceState } from '@etherealengine/spatial/src/renderer/PerformanceState'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { Not } from 'bitecs'
+import { useEffect } from 'react'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { VariantComponent } from '../components/VariantComponent'
-import { setInstancedMeshVariant, setMeshVariant, setModelVariant } from '../functions/loaders/VariantFunctions'
+import {
+  setInstancedMeshVariant,
+  setMeshVariant,
+  setModelVariant,
+  setModelVariantLOD
+} from '../functions/loaders/VariantFunctions'
 
 const updateFrequency = 0.1
 let lastUpdate = 0
 
-const modelVariantQuery = defineQuery([VariantComponent, ModelComponent, TransformComponent])
-const meshVariantQuery = defineQuery([VariantComponent, MeshComponent, TransformComponent, Not(InstancingComponent)])
-const instancedMeshVariantQuery = defineQuery([
+export const modelVariantQuery = defineQuery([VariantComponent, ModelComponent, TransformComponent])
+export const meshVariantQuery = defineQuery([
+  VariantComponent,
+  MeshComponent,
+  TransformComponent,
+  Not(InstancingComponent)
+])
+export const instancedMeshVariantQuery = defineQuery([
   VariantComponent,
   MeshComponent,
   TransformComponent,
@@ -71,8 +83,24 @@ function execute() {
   }
 }
 
+function reactor() {
+  const performanceState = useHookstate(getMutableState(PerformanceState))
+  const sceneState = useHookstate(getMutableState(SceneState))
+
+  useEffect(() => {
+    if (!sceneState.sceneLoaded.value || getState(EngineState).isEditing) return
+    const offset = performanceState.performanceOffset.value
+    for (const entity of modelVariantQuery()) {
+      setModelVariantLOD(entity, offset)
+    }
+  }, [performanceState.performanceOffset, sceneState.sceneLoaded])
+
+  return null
+}
+
 export const VariantSystem = defineSystem({
   uuid: 'ee.engine.scene.VariantSystem',
   insert: { after: PresentationSystemGroup },
-  execute
+  execute,
+  reactor
 })

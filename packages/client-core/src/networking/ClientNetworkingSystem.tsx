@@ -28,9 +28,9 @@ import React, { useEffect } from 'react'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { State, defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { PeerID } from '@etherealengine/hyperflux'
 import {
   MediasoupMediaConsumerActions,
   MediasoupTransportActions,

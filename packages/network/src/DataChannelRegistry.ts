@@ -24,8 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { PeerID, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { Network } from './Network'
 
 export type DataChannelType = OpaqueType<'DataChannelType'> & string

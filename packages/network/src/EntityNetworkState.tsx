@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { EntityUUID } from '@etherealengine/ecs'
+import { PeerID } from '@etherealengine/hyperflux'
 
 import { defineState, dispatchAction, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -55,7 +55,7 @@ export const EntityNetworkState = defineState({
     onSpawnObject: WorldNetworkAction.spawnEntity.receive((action) => {
       // const userId = getState(NetworkState).networks[action.$network].peers[action.$peer].userId
       getMutableState(EntityNetworkState)[action.entityUUID].merge({
-        ownerId: action.$from,
+        ownerId: action.ownerID,
         networkId: action.networkId,
         authorityPeerId: action.authorityPeerId ?? action.$peer,
         ownerPeer: action.$peer
@@ -67,9 +67,7 @@ export const EntityNetworkState = defineState({
     }),
 
     onTransferAuthorityOfObject: WorldNetworkAction.transferAuthorityOfObject.receive((action) => {
-      // const networkState = getState(NetworkState)
-      // const fromUserId = networkState.networks[action.$network].peers[action.$peer].userId
-      const fromUserId = action.$from
+      const fromUserId = action.ownerID
       const state = getMutableState(EntityNetworkState)
       const ownerUserId = state[action.entityUUID].ownerId.value
       if (fromUserId !== ownerUserId) return // Authority transfer can only be initiated by owner
@@ -136,6 +134,7 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
     console.log('Requesting authority over object', props.uuid, state.requestingPeerId.value)
     dispatchAction(
       WorldNetworkAction.transferAuthorityOfObject({
+        ownerID: state.ownerId.value,
         entityUUID: props.uuid,
         newAuthority: state.requestingPeerId.value
       })

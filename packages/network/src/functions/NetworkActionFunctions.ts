@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import {
   Action,
+  PeerID,
   addOutgoingTopicIfNecessary,
   clearOutgoingActions,
   dispatchAction,
@@ -37,9 +37,7 @@ import { NetworkState } from '../NetworkState'
 
 const receiveIncomingActions = (network: Network, fromPeerID: PeerID, actions: Required<Action>[]) => {
   if (network.isHosting) {
-    const networkPeer = network.peers[fromPeerID]
     for (const a of actions) {
-      a.$from = networkPeer.userId
       a.$network = network.id
       dispatchAction(a)
     }
