@@ -31,7 +31,7 @@ import { XYPosition, useReactFlow } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
 
 import { UndefinedEntity } from '@etherealengine/ecs'
-import { NodetoEnginetype } from '@etherealengine/spatial'
+import { NodetoEnginetype } from '@etherealengine/engine'
 import { VariableJSON, VisualScriptDomain, VisualScriptState } from '@etherealengine/visual-script'
 import { Button, PropertiesPanelButton } from '../../inputs/Button'
 import ParameterInput from '../../inputs/ParameterInput'
