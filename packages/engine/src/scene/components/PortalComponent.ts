@@ -221,11 +221,7 @@ export const PortalComponent = defineComponent({
       previewImageURL: string
     }>(null)
 
-    const [textureState, unload] = useTexture(portalDetails.value?.previewImageURL || '', entity)
-
-    useEffect(() => {
-      return unload
-    }, [])
+    const [textureState] = useTexture(portalDetails.value?.previewImageURL || '', entity)
 
     useEffect(() => {
       const texture = textureState.get(NO_PROXY)

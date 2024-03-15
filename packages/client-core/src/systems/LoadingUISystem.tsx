@@ -123,11 +123,7 @@ const LoadingReactor = () => {
   const scene = SceneState.getScene(locationSceneID)
   const sceneEntity = UUIDComponent.useEntityByUUID(scene.scene.root)
   const sceneComponent = getOptionalComponent(sceneEntity, SceneSettingsComponent)
-  const [loadingTexture, unload, error] = useTexture(sceneComponent ? sceneComponent.loadingScreenURL : '', sceneEntity)
-
-  useEffect(() => {
-    return unload
-  }, [])
+  const [loadingTexture, error] = useTexture(sceneComponent ? sceneComponent.loadingScreenURL : '', sceneEntity)
 
   useEffect(() => {
     const texture = loadingTexture.get(NO_PROXY)

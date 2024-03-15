@@ -482,12 +482,7 @@ export function MediaReactor() {
   )
 
   const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-  const [audioHelperTexture, unload] = useTexture(debugEnabled.value ? AUDIO_TEXTURE_PATH : '', entity)
-
-  useEffect(() => {
-    if (!audioHelperTexture.value) return
-    return unload
-  }, [audioHelperTexture])
+  const [audioHelperTexture] = useTexture(debugEnabled.value ? AUDIO_TEXTURE_PATH : '', entity)
 
   useEffect(() => {
     if (!debugEnabled.value) return

@@ -32,7 +32,8 @@ import { act } from 'react-dom/test-utils'
 import sinon from 'sinon'
 import { createEngine } from '../initializeEngine'
 import { PerformanceManager, PerformanceState } from './PerformanceState'
-import { EngineRenderer } from './WebGLRendererSystem'
+import { RendererState } from './RendererState'
+import { EngineRenderer, RenderSettingsState } from './WebGLRendererSystem'
 
 describe('PerformanceState', () => {
   const mockRenderer = {
@@ -178,6 +179,28 @@ describe('PerformanceState', () => {
       clock.tick(3000)
       rerender(<Reactor />)
       clock.restore()
+    }).then(() => {
+      unmount()
+      done()
+    })
+  })
+
+  it('Updates render settings reactively', (done) => {
+    const performanceState = getMutableState(PerformanceState)
+    const initialTier = performanceState.tier.value
+    let updatedTier = 0
+    if (updatedTier === initialTier) updatedTier += 1
+
+    const renderSettings = getMutableState(RenderSettingsState)
+    const engineSettings = getMutableState(RendererState)
+
+    const Reactor = PerformanceState.reactor
+
+    const { rerender, unmount } = render(<Reactor />)
+
+    act(async () => {
+      performanceState.tier.set(updatedTier as any)
+      rerender(<Reactor />)
     }).then(() => {
       unmount()
       done()

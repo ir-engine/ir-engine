@@ -206,11 +206,7 @@ export const LoopAnimationComponent = defineComponent({
       const model = getComponent(entity, ModelComponent)
     }, [modelComponent?.asset])
 
-    const [gltf, unload] = useGLTF(loopAnimationComponent.animationPack.value, entity)
-
-    useEffect(() => {
-      return unload
-    }, [])
+    const [gltf] = useGLTF(loopAnimationComponent.animationPack.value, entity)
 
     useEffect(() => {
       const asset = modelComponent?.asset.get(NO_PROXY) ?? null

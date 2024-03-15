@@ -124,16 +124,10 @@ function ModelReactor(): JSX.Element {
   const modelComponent = useComponent(entity, ModelComponent)
   const uuidComponent = useOptionalComponent(entity, UUIDComponent)
 
-  const [gltf, unload, error, progress] = useGLTF(modelComponent.src.value, entity, {
+  const [gltf, error, progress] = useGLTF(modelComponent.src.value, entity, {
     forceAssetType: modelComponent.assetTypeOverride.value,
     ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
   })
-
-  useEffect(() => {
-    /* unload should only be called when the component is unmounted
-      the useGLTF hook will handle unloading if the model source is changed ie. the user changes their avatar model */
-    return unload
-  }, [])
 
   useEffect(() => {
     const onprogress = progress.value

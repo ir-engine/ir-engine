@@ -802,13 +802,13 @@ export const ParticleSystemComponent = defineComponent({
     const component = componentState.value
     const batchRenderer = useHookstate(getMutableState(ParticleState).batchRenderer)
 
-    const [geoDependency, unloadGeo] = useGLTF(component.systemParameters.instancingGeometry!, entity, {}, (url) => {
+    const [geoDependency] = useGLTF(component.systemParameters.instancingGeometry!, entity, {}, (url) => {
       metadata.geometries.nested(url).set(none)
     })
-    const [shapeMesh, unloadMesh] = useGLTF(component.systemParameters.shape.mesh!, entity, {}, (url) => {
+    const [shapeMesh] = useGLTF(component.systemParameters.shape.mesh!, entity, {}, (url) => {
       metadata.geometries.nested(url).set(none)
     })
-    const [textureState, unloadTexture] = useTexture(component.systemParameters.texture!, entity, {}, (url) => {
+    const [textureState] = useTexture(component.systemParameters.texture!, entity, {}, (url) => {
       metadata.textures.nested(url).set(none)
       dudMaterial.map.set(none)
     })
@@ -826,12 +826,6 @@ export const ParticleSystemComponent = defineComponent({
       //add dud material
       componentState.systemParameters.material.set('dud')
       metadata.materials.nested('dud').set(dudMaterial.get(NO_PROXY))
-
-      return () => {
-        unloadGeo()
-        unloadMesh()
-        unloadTexture()
-      }
     }, [])
 
     useEffect(() => {

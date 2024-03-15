@@ -159,14 +159,13 @@ export function ImageReactor() {
   const image = useComponent(entity, ImageComponent)
   const texture = useHookstate(null as Texture | null)
 
-  const [textureState, unload, error] = useTexture(image.source.value, entity)
+  const [textureState, error] = useTexture(image.source.value, entity)
 
   useEffect(() => {
     const _texture = textureState.get(NO_PROXY)
     if (_texture) {
       texture.set(_texture)
       // SceneAssetPendingTagComponent.removeResource(entity, ImageComponent.jsonID)
-      return unload
     }
   }, [textureState])
 

@@ -70,12 +70,7 @@ export const SpawnPointComponent = defineComponent({
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const spawnPoint = useComponent(entity, SpawnPointComponent)
 
-    const [gltf, unload] = useGLTF(debugEnabled.value ? GLTF_PATH : '', entity)
-
-    // Only call unload when unmounted
-    useLayoutEffect(() => {
-      return unload
-    }, [])
+    const [gltf] = useGLTF(debugEnabled.value ? GLTF_PATH : '', entity)
 
     useLayoutEffect(() => {
       const scene = gltf.get(NO_PROXY)?.scene

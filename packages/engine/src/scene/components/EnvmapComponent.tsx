@@ -119,7 +119,7 @@ export const EnvmapComponent = defineComponent({
     const component = useComponent(entity, EnvmapComponent)
     const background = useHookstate(getMutableState(SceneState).background)
     const mesh = useOptionalComponent(entity, MeshComponent)?.value as Mesh<any, any> | null
-    const [envMapTexture, unload, error] = useTexture(
+    const [envMapTexture, error] = useTexture(
       component.envMapTextureType.value === EnvMapTextureType.Equirectangular ? component.envMapSourceURL.value : '',
       entity
     )
@@ -155,8 +155,6 @@ export const EnvmapComponent = defineComponent({
       texture.mapping = EquirectangularReflectionMapping
       component.envmap.set(texture)
       SceneAssetPendingTagComponent.removeResource(entity, EnvmapComponent.jsonID)
-
-      return unload
     }, [envMapTexture])
 
     useEffect(() => {
@@ -222,11 +220,7 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
   const bakeComponent = useComponent(bakeEntity, EnvMapBakeComponent)
   const group = useComponent(envmapEntity, GroupComponent)
   const renderState = useHookstate(getMutableState(RendererState))
-  const [envMaptexture, unload, error] = useTexture(bakeComponent.envMapOrigin.value, envmapEntity)
-
-  useEffect(() => {
-    return unload
-  }, [])
+  const [envMaptexture, error] = useTexture(bakeComponent.envMapOrigin.value, envmapEntity)
 
   /** @todo add an unmount cleanup for applyBoxprojection */
   useEffect(() => {

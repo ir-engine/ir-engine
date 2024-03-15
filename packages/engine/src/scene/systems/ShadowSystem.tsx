@@ -413,13 +413,7 @@ const reactor = () => {
 
   const useShadows = useShadowsEnabled()
 
-  const [shadowTexture, unload] = useTexture(
-    `${config.client.fileServer}/projects/default-project/assets/drop-shadow.png`
-  )
-
-  useEffect(() => {
-    return unload
-  }, [])
+  const [shadowTexture] = useTexture(`${config.client.fileServer}/projects/default-project/assets/drop-shadow.png`)
 
   useEffect(() => {
     const texture = shadowTexture.get(NO_PROXY)
