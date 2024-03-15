@@ -173,13 +173,23 @@
       }
     },
     "channel": {
+      "channels": "Channels",
+      "columns": {
+        "id": "Id",
+        "name": "Name",
+        "action": "Action"
+      },
       "instanceRequired": "Instance is required",
       "instanceCantEmpty": "Instance can't be empty",
       "instance": "Instance",
       "createOne": "Create One",
       "createChannel": "Create Channel",
+      "update": "Update Channel",
       "confirmChannelDelete": "Do you want to delete channel?",
-      "name": "Channel Name"
+      "confirmMultiChannelDelete": "Do you want to delete these channels?",
+      "name": "Channel Name",
+      "remove": "Remove Channel",
+      "removeChannels": "Remove Channels"
     },
     "project": {
       "columns": {
