@@ -511,7 +511,7 @@ export default function AddEditProjectModal({
                   <div className="w-1/2">
                     <Label className="mb-4">{t('admin:components.project.autoUpdateMode')}</Label>
                     <Radios
-                      className="grid-flow-col"
+                      horizontal
                       options={[
                         { label: t('admin:components.project.prod'), value: 'prod' },
                         { label: t('admin:components.project.dev'), value: 'dev' }

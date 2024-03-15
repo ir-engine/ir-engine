@@ -181,8 +181,8 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
             { label: 'URL', value: 'url' },
             { label: 'File', value: 'file' }
           ]}
+          horizontal
           onChange={(value) => avatarAssets.source.set(value)}
-          className="grid-flow-col"
         />
         {avatarAssets.source.value === 'url' && (
           <Input

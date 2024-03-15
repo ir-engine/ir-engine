@@ -234,6 +234,7 @@
       "confirmProjectDelete": "Do you want to delete project",
       "confirmPushProjectToGithub": "Do you want to push this project to its associated GitHub repository",
       "outdatedBuild": "This project has been updated locally since the last build",
+      "hasLocalChanges": "This project has local changes, and will not auto-update from GitHub if that is enabled in order to prevent accidental data loss",
       "userAccess": "User Access",
       "userInviteCode": "User Invite Code",
       "inviteCodeCantEmpty": "Invite code can't be empty",

@@ -259,10 +259,9 @@ export function solveMotionCapturePose(
         filteredLandmarks[i] = prevLandmarks[i]
         continue
       }
-      const visibility = ((newLandmarks[i].visibility ?? 0) + (prevLandmarks[i].visibility ?? 0)) / 2
-      const alpha = getState(ECSState).deltaSeconds * 15
+      const alpha = getState(ECSState).deltaSeconds * 10
       filteredLandmarks[i] = {
-        visibility,
+        visibility: MathUtils.lerp(prevLandmarks[i].visibility!, newLandmarks[i].visibility!, alpha),
         x: MathUtils.lerp(prevLandmarks[i].x, newLandmarks[i].x, alpha),
         y: MathUtils.lerp(prevLandmarks[i].y, newLandmarks[i].y, alpha),
         z: MathUtils.lerp(prevLandmarks[i].z, newLandmarks[i].z, alpha)

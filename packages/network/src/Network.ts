@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { PeerID } from '@etherealengine/hyperflux'
 
 import { InstanceID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { Topic } from '@etherealengine/hyperflux'

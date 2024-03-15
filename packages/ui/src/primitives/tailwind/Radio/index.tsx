@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
 
-export const Radio = ({
+export const RadioRoot = ({
   label,
   value,
   onChange,
@@ -60,22 +60,23 @@ export const Radio = ({
 
 type OptionValueType = string | number
 
-const Radios = <T extends OptionValueType>({
+const Radio = <T extends OptionValueType>({
   value,
   options,
   onChange,
-  className
+  className,
+  horizontal
 }: {
   value: T
   options: { label: string; value: T }[]
   onChange: (value: T) => void
   className?: string
-  horizantal?: boolean
+  horizontal?: boolean
 }) => {
   return (
-    <div className={twMerge('grid gap-6', className)}>
+    <div className={twMerge(`grid gap-6 ${horizontal ? 'grid-flow-col' : ''}`, className)}>
       {options.map(({ label, value: optionValue }) => (
-        <Radio
+        <RadioRoot
           key={label}
           selected={value === optionValue}
           label={label}
@@ -87,4 +88,4 @@ const Radios = <T extends OptionValueType>({
   )
 }
 
-export default Radios
+export default Radio
