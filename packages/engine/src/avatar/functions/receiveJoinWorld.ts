@@ -28,9 +28,8 @@ import { Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/ecs'
 import { dispatchAction } from '@etherealengine/hyperflux'
-import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
+import { Action, PeerID } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { AvatarID, InviteCode } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
@@ -69,13 +68,11 @@ export type SpawnInWorldProps = {
 export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
   const { avatarSpawnPose, avatarID } = props
   console.log('SPAWN IN WORLD', avatarSpawnPose, avatarID)
-  const entityUUID = Engine.instance.userID as string as EntityUUID
-  dispatchAction(AvatarNetworkAction.spawn({ ...avatarSpawnPose, avatarID, entityUUID }))
+  const entityUUID = Engine.instance.userID
   dispatchAction(
-    CameraActions.spawnCamera({
-      entityUUID: ('camera_' + entityUUID) as EntityUUID
-    })
+    AvatarNetworkAction.spawn({ ...avatarSpawnPose, avatarID, entityUUID: (entityUUID + '_avatar') as EntityUUID })
   )
+  dispatchAction(CameraActions.spawnCamera({ entityUUID: (entityUUID + '_camera') as EntityUUID }))
   createIkTargetsForLocalAvatar()
 }
 
