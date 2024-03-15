@@ -23,33 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Vector2 } from 'three'
-
-import { getState } from '@etherealengine/hyperflux'
-
 import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { throttle } from '@etherealengine/spatial/src/common/functions/FunctionHelpers'
-import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
-import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
-import { getThumbstickOrThumbpadAxes } from '../../avatar/systems/AvatarInputSystem'
-
-import { XRState } from '@etherealengine/spatial/src/xr/XRState'
-
-import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
-
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { getState } from '@etherealengine/hyperflux'
 import { CameraSettings } from '@etherealengine/spatial/src/camera/CameraState'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
 import { handleCameraZoom, setTargetCameraRotation } from '@etherealengine/spatial/src/camera/functions/CameraFunctions'
 import { switchCameraMode } from '@etherealengine/spatial/src/camera/functions/switchCameraMode'
 import { CameraMode } from '@etherealengine/spatial/src/camera/types/CameraMode'
+import { throttle } from '@etherealengine/spatial/src/common/functions/FunctionHelpers'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
+import { Vector2 } from 'three'
+import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
+import { getThumbstickOrThumbpadAxes } from '../../avatar/systems/AvatarInputSystem'
+import { AvatarComponent } from '../components/AvatarComponent'
 
 const avatarControllerQuery = defineQuery([AvatarControllerComponent])
 
@@ -112,7 +107,7 @@ const execute = () => {
   const deltaSeconds = getState(ECSState).deltaSeconds
   accumulator += deltaSeconds
 
-  const { localClientEntity } = Engine.instance
+  const localClientEntity = AvatarComponent.getSelfAvatarEntity()
   if (!localClientEntity) return
 
   const cameraSettings = getState(CameraSettings)

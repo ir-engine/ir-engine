@@ -109,6 +109,10 @@ export const createNetwork = <Ext>(
      */
     hostPeerID,
 
+    get hostUserID() {
+      return network.peers[network.hostPeerID]?.userId
+    },
+
     /**
      * The ID of this network, equivalent to the InstanceID of an instance
      */

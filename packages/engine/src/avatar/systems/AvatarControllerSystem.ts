@@ -36,10 +36,15 @@ import {
 } from '@etherealengine/ecs'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 import { NetworkObjectAuthorityTag, NetworkState, WorldNetworkAction } from '@etherealengine/network'
+import { TransformComponent, TransformSystem } from '@etherealengine/spatial'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { DistanceFromLocalClientComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+import { getDistanceSquaredFromTarget } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
+import { Vector3 } from 'three'
+import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 import { respawnAvatar } from '../functions/respawnAvatar'
@@ -103,3 +108,24 @@ export const AvatarControllerSystem = defineSystem({
   insert: { after: AvatarInputSystem },
   execute
 })
+
+const distanceFromLocalClientQuery = defineQuery([TransformComponent, DistanceFromLocalClientComponent])
+
+export const AvatarPostTransformSystem = defineSystem({
+  uuid: 'ee.engine.AvatarPostTransformSystem',
+  insert: { after: TransformSystem },
+  execute: () => {
+    const localClientEntity = AvatarComponent.getSelfAvatarEntity()
+    if (!localClientEntity) return
+    const localClientPosition = TransformComponent.getWorldPosition(localClientEntity, vec3)
+    if (localClientPosition) {
+      for (const entity of distanceFromLocalClientQuery())
+        DistanceFromLocalClientComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(
+          entity,
+          localClientPosition
+        )
+    }
+  }
+})
+
+const vec3 = new Vector3()
