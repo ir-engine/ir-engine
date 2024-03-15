@@ -483,6 +483,10 @@ const load = <T extends AssetType>(
     url,
     args,
     (response: T) => {
+      if (!resource || !resource.value) {
+        console.warn('ResourceManager:load Resource removed before load finished: ' + url + ' for entity: ' + entity)
+        return
+      }
       resource.status.set(ResourceStatus.Loaded)
       resource.asset.set(response)
       callbacks.onLoad(response, resource, resourceState)
