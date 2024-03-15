@@ -27,36 +27,39 @@ Ethereal Engine. All Rights Reserved.
 export const ditheringVertexUniform = `
 varying vec3 vWorldPosition;
 varying vec3 vLocalPosition;
-uniform bool useWorldCenter;
-uniform bool useLocalCenter;
+uniform int useWorldCalculation[4];
+uniform int maxDitherPoints;
 `
 
 /** glsl, vertex main */
 export const ditheringVertex = `
-if(useWorldCenter) vWorldPosition = (modelMatrix * vec4( transformed, 1.0 )).xyz;
-if(useLocalCenter) vLocalPosition = position.xyz;
+for(int i = 0; i < 4; i++){
+    if(useWorldCalculation[i] == 1) vWorldPosition = (modelMatrix * vec4( transformed, 1.0 )).xyz;
+    else vLocalPosition = position.xyz;
+    if(i > maxDitherPoints-1) break;
+}
 `
 
 /** glsl, fragment uniforms */
 export const ditheringFragUniform = `
 varying vec3 vWorldPosition;
 varying vec3 vLocalPosition; 
-uniform bool useWorldCenter;
-uniform bool useLocalCenter;
-uniform vec3 ditheringWorldCenter;
-uniform vec3 ditheringLocalCenter;
-uniform float ditheringWorldExponent;
-uniform float ditheringLocalExponent;
-uniform float ditheringWorldDistance;
-uniform float ditheringLocalDistance;
+
+uniform vec3 centers[4];
+uniform float exponents[4];
+uniform float distances[4];
+uniform int maxDitherPoints;
+
 `
 
 /** glsl, fragment main */
 export const ditheringAlphatestChunk = `
 // sample sine at screen space coordinates for dithering pattern
 float distance = 1.0;
-if(useWorldCenter) distance *= pow(clamp(ditheringWorldDistance*length(ditheringWorldCenter - vWorldPosition), 0.0, 1.0),ditheringWorldExponent);
-if(useLocalCenter) distance *= pow(clamp(ditheringLocalDistance*length(ditheringLocalCenter - vLocalPosition), 0.0, 1.0),ditheringLocalExponent);
+for(int i = 0; i < 4; i++){
+    distance *= pow(clamp(distances[i]*length(centers[i] - vWorldPosition), 0.0, 1.0), exponents[i]);
+    if(i > maxDitherPoints-1) break;
+}
 
 float dither = (sin( gl_FragCoord.x * 2.0)*sin( gl_FragCoord.y * 2.0));
 

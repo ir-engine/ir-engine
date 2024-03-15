@@ -53,6 +53,7 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
+import { PluginObjectType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
@@ -106,6 +107,7 @@ export const disposeObject3D = (obj: Object3D) => {
   if (typeof light.dispose === 'function') light.dispose()
 }
 
+/**@todo refactor this to use preprocessor directives instead of new cloned materials with different shaders */
 export function setupObject(obj: Object3D, forceBasicMaterials = false) {
   const child = obj as any as Mesh<any, any>
 
@@ -133,6 +135,16 @@ export function setupObject(obj: Object3D, forceBasicMaterials = false) {
 
       child.material = nuMaterial
       child.userData.lastMaterial = prevMaterial
+
+      /**hack for dithering effect until this is refactored */
+      const plugin = prevMaterial.plugins?.findIndex(
+        (plugin: PluginObjectType) => plugin.id === 'transparency-dithering'
+      )
+      if (plugin !== undefined && plugin !== -1)
+        nuMaterial.plugins
+          ? nuMaterial.plugins.push(prevMaterial.plugins[plugin])
+          : (nuMaterial.plugins = [prevMaterial.plugins[plugin]])
+
       prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src, prevMatEntry.parameters)
     }
   }

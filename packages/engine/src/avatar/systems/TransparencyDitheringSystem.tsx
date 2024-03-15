@@ -23,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, defineQuery, defineSystem, getComponent, useQuery } from '@etherealengine/ecs'
+import { Entity, defineQuery, defineSystem, getComponent } from '@etherealengine/ecs'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { useHookstate } from '@etherealengine/hyperflux'
-import React from 'react'
 import { SceneComponent } from '../../scene/components/SceneComponent'
 import { useModelSceneID } from '../../scene/functions/loaders/ModelFunctions'
 import { TransparencyDitheringComponent } from '../components/TransparencyDitheringComponent'
@@ -36,16 +35,6 @@ const execute = () => {
   for (const entity of TransparencyDitheringQuery()) {
     const ditherComponent = getComponent(entity, TransparencyDitheringComponent[0])
   }
-}
-const reactor = () => {
-  const entities = useQuery([TransparencyDitheringComponent[0]])
-  return (
-    <>
-      {entities.map((entity) => (
-        <DitherReactor key={entity} entity={entity} />
-      ))}
-    </>
-  )
 }
 
 const DitherReactor = (props: { entity: Entity }) => {
@@ -59,6 +48,5 @@ const DitherReactor = (props: { entity: Entity }) => {
 export const TransparencyDitheringSystem = defineSystem({
   uuid: 'TransparencyDitheringSystem',
   insert: { with: PresentationSystemGroup },
-  execute,
-  reactor
+  execute
 })

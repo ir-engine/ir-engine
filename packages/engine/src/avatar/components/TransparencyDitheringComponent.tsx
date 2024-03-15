@@ -23,11 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, defineComponent } from '@etherealengine/ecs'
-import { defineState, matches } from '@etherealengine/hyperflux'
+import { Entity, defineComponent, getOptionalComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
+import { defineState, getMutableState, matches, useHookstate } from '@etherealengine/hyperflux'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { isArray } from 'lodash'
+import React, { useEffect } from 'react'
 import { Material, Vector3 } from 'three'
+import { SceneComponent } from '../../scene/components/SceneComponent'
+import { useModelSceneID } from '../../scene/functions/loaders/ModelFunctions'
 import {
   ditheringAlphatestChunk,
   ditheringFragUniform,
@@ -45,16 +51,18 @@ export const transparencyDitheringState = defineState({
   initial: { materialIds: {} as Record<Entity, string[]> }
 })
 
-const maxDitherPoints = 2
+const maxDitherPoints = 4 //should be equal to the length of the vec3 array in the shader
 export const TransparencyDitheringComponent = Array.from({ length: maxDitherPoints }, (_, i) => {
   return defineComponent({
     name: `TransparencyDitheringComponent${i}`,
     onInit: (entity) => {
       return {
         center: new Vector3(),
-        distance: 5,
+        distance: 2,
         exponent: 2,
-        calculationType: ditherCalculationType.worldTransformed
+        calculationType: ditherCalculationType.worldTransformed,
+        //internal
+        materialIds: [] as string[]
       }
     },
 
@@ -64,9 +72,69 @@ export const TransparencyDitheringComponent = Array.from({ length: maxDitherPoin
       if (matches.number.test(json.distance)) component.distance.set(json.distance)
       if (matches.number.test(json.exponent)) component.exponent.set(json.exponent)
       if (matches.number.test(json.calculationType)) component.calculationType.set(json.calculationType)
+    },
+
+    reactor: () => {
+      const entity = useEntityContext()
+      return (
+        <>
+          <DitherRootReactor key={entity} entity={entity} index={i} />
+        </>
+      )
     }
   })
 })
+
+const DitherRootReactor = (props: { entity: Entity; index: number }) => {
+  const entity = props.entity
+  const sceneInstanceID = useModelSceneID(entity)
+  const childEntities = useHookstate(SceneComponent.entitiesBySceneState[sceneInstanceID])
+
+  return (
+    <>
+      {childEntities.value?.map((childEntity) => (
+        <DitherChildReactor key={childEntity} entity={childEntity} rootEntity={entity} index={props.index} />
+      ))}
+    </>
+  )
+}
+
+const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity; index: number }) => {
+  const { entity, rootEntity, index } = props
+  const ditherComponent = useComponent(rootEntity, TransparencyDitheringComponent[0])
+  const basicMaterials = useHookstate(getMutableState(RendererState).forceBasicMaterials)
+
+  useEffect(() => {
+    if (index > 0) return
+    const meshComponent = getOptionalComponent(entity, MeshComponent)
+    if (!meshComponent) return
+    const material = meshComponent.material
+    if (!isArray(material))
+      injectDitheringLogic(
+        material,
+        ditherComponent.center.value,
+        ditherComponent.distance.value,
+        ditherComponent.exponent.value
+      )
+  }, [basicMaterials])
+
+  useEffect(() => {
+    const meshComponent = getOptionalComponent(entity, MeshComponent)
+    if (!meshComponent) return
+    const material = meshComponent.material
+    if (!isArray(material)) {
+      if (material.shader.uniforms.centers) material.shader.uniforms.centers.value[index] = ditherComponent.center.value
+      if (material.shader.uniforms.exponents)
+        material.shader.uniforms.exponents.value[index] = ditherComponent.exponent.value
+      if (material.shader.uniforms.distances)
+        material.shader.uniforms.distances.value[index] = ditherComponent.distance.value
+      if (material.shader.uniforms.useWorldCalculation)
+        material.shader.uniforms.useWorldCalculation.value[index] = ditherComponent.calculationType.value
+    }
+  }, [ditherComponent.center, ditherComponent.distance, ditherComponent.exponent, ditherComponent.calculationType])
+
+  return null
+}
 
 const injectDitheringLogic = (material: Material, center: Vector3, distance: number, exponent: number) => {
   material.alphaTest = 0.5
@@ -91,20 +159,14 @@ const injectDitheringLogic = (material: Material, center: Vector3, distance: num
           '#include <common>\n' + ditheringFragUniform
         )
       shader.fragmentShader = shader.fragmentShader.replace(/#include <alphatest_fragment>/, ditheringAlphatestChunk)
-      shader.uniforms.ditheringWorldCenter = {
-        value: new Vector3()
+      shader.uniforms.centers = {
+        value: Array.from({ length: maxDitherPoints }, () => new Vector3())
       }
-      shader.uniforms.ditheringLocalCenter = {
-        value: new Vector3()
-      }
-      //  shader.uniforms.ditheringWorldExponent = { value: ditheringWorldExponent }
-      //  shader.uniforms.ditheringWorldDistance = { value: ditheringWorldDistance }
-      //  shader.uniforms.ditheringLocalExponent = { value: ditheringLocalExponent }
-      //  shader.uniforms.ditheringLocalDistance = { value: ditheringLocalDistance }
-      //  shader.uniforms.useLocalCenter = { value: useLocalCenter }
-      //  shader.uniforms.useWorldCenter = { value: useWorldCenter }
-      //  shader.uniforms.worldCenter = { value: worldCenter }
-      //  shader.uniforms.localCenter = { value: localCenter }
+      shader.uniforms.exponents = { value: Array.from({ length: maxDitherPoints }, () => exponent) }
+      shader.uniforms.distances = { value: Array.from({ length: maxDitherPoints }, () => distance) }
+      shader.uniforms.useWorldCalculation = { value: Array.from({ length: maxDitherPoints }, () => 1) }
+      shader.uniforms.maxDitherPoints = { value: 1 }
+
       material.shader = shader
     }
   })

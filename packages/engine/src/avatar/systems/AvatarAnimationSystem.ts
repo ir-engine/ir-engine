@@ -34,6 +34,7 @@ import {
   defineSystem,
   getComponent,
   getOptionalComponent,
+  getOptionalMutableComponent,
   hasComponent
 } from '@etherealengine/ecs'
 import {
@@ -46,6 +47,7 @@ import {
   useMutableState
 } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
+import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import {
   createPriorityQueue,
   createSortAndApplyPriorityQueue
@@ -62,7 +64,7 @@ import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { useBatchGLTF } from '../../assets/functions/resourceHooks'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
-import { AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
+import { AvatarHeadDecapComponent, AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
 import { AnimationState } from '../AnimationManager'
 import { IKSerialization } from '../IKSerialization'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
@@ -72,6 +74,7 @@ import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { getArmIKHint } from '../animation/getArmIKHint'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
+import { TransparencyDitheringComponent } from '../components/TransparencyDitheringComponent'
 import { retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 import { LocalAvatarState } from '../state/AvatarState'
@@ -328,27 +331,27 @@ const execute = () => {
   }
 
   //update local client entity's dithering component and camera attached logic
-  // const localClientEntity = Engine.instance.localClientEntity
-  // if (!localClientEntity) return
-  // const ditheringComponent = getOptionalMutableComponent(localClientEntity, TransparencyDitheringComponent)
-  // if (!ditheringComponent) return
-  // const cameraAttached = getState(XRControlsState).isCameraAttachedToAvatar
-
+  const localClientEntity = Engine.instance.localClientEntity
+  if (!localClientEntity) return
+  const ditheringComponent = getOptionalMutableComponent(localClientEntity, TransparencyDitheringComponent[0])
+  if (!ditheringComponent) return
+  const cameraAttached = getState(XRControlsState).isCameraAttachedToAvatar
+  ditheringComponent.center.set(getComponent(Engine.instance.cameraEntity, TransformComponent).position)
   // ditheringComponent.useWorldCenter.set(!cameraAttached)
   // ditheringComponent.worldCenter.set(getComponent(Engine.instance.cameraEntity, TransformComponent).position)
   // const avatarComponent = getComponent(localClientEntity, AvatarComponent)
   // ditheringComponent.localCenter.set(
   //   ditheringCenter.set(0, cameraAttached ? avatarComponent.avatarHeight : avatarComponent.eyeHeight, 0)
   // )
-  // const cameraComponent = getOptionalComponent(Engine.instance.cameraEntity, FollowCameraComponent)
+  const cameraComponent = getOptionalComponent(Engine.instance.cameraEntity, FollowCameraComponent)
   // ditheringComponent.ditheringLocalDistance.set(
   //   cameraComponent && !cameraAttached ? Math.max(Math.pow(cameraComponent.distance * 5, 2.5), 3) : 3.25
   // )
   // ditheringComponent.ditheringLocalExponent.set(cameraAttached ? 12 : 8)
-  // if (!cameraComponent) return
-  // const hasDecapComponent = hasComponent(localClientEntity, AvatarHeadDecapComponent)
-  // if (hasDecapComponent) cameraComponent.offset.setZ(Math.min(cameraComponent.offset.z + deltaSeconds, eyeOffset))
-  // else cameraComponent.offset.setZ(Math.max(cameraComponent.offset.z - deltaSeconds, 0))
+  if (!cameraComponent) return
+  const hasDecapComponent = hasComponent(localClientEntity, AvatarHeadDecapComponent)
+  if (hasDecapComponent) cameraComponent.offset.setZ(Math.min(cameraComponent.offset.z + deltaSeconds, eyeOffset))
+  else cameraComponent.offset.setZ(Math.max(cameraComponent.offset.z - deltaSeconds, 0))
 }
 
 const reactor = () => {
