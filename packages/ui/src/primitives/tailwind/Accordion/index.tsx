@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { State, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import React, { ReactNode, forwardRef, useEffect } from 'react'
 import { twMerge } from 'tailwind-merge'
 import Text from '../Text'
@@ -35,7 +35,7 @@ export interface AccordionProps extends React.HTMLAttributes<HTMLDivElement> {
   shrinkIcon: ReactNode
   children?: ReactNode
   className?: string
-  open?: State<boolean>
+  open?: boolean
 }
 
 const Accordion = forwardRef(
@@ -47,8 +47,8 @@ const Accordion = forwardRef(
     const openState = useHookstate(false)
 
     useEffect(() => {
-      console.log(`${title} Accordion: open state changed from parent: `, open?.value)
-      openState.set(!!open?.value)
+      console.log(`${title} Accordion: open state changed from parent: `, open)
+      openState.set(!!open)
     }, [open])
 
     return (

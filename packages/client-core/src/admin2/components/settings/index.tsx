@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import Tabs from '@etherealengine/ui/src/primitives/tailwind/Tabs'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ProjectTab from './tabs/project'
@@ -43,94 +43,80 @@ import TaskServerTab from './tabs/taskServer'
 export default function Settings() {
   const { t } = useTranslation()
 
-  const openState = useHookstate([] as boolean[])
+  const openState = useHookstate([false, false, false, false, false, false, false, false, false])
 
-  const refs = useHookstate([] as React.RefObject<HTMLDivElement>[])
+  const refs = useHookstate([
+    React.createRef(),
+    React.createRef(),
+    React.createRef(),
+    React.createRef(),
+    React.createRef(),
+    React.createRef(),
+    React.createRef(),
+    React.createRef(),
+    React.createRef()
+  ] as React.RefObject<HTMLDivElement>[])
 
-  const tabsData = useHookstate(
-    [] as {
-      title: string
-      tabLabel: string
-      bottomComponent: JSX.Element
-      ref: React.RefObject<HTMLDivElement>
-    }[]
-  )
-
-  useEffect(() => {
-    openState.set([false, false, false, false, false, false, false, false, false])
-    refs.set([
-      React.createRef(),
-      React.createRef(),
-      React.createRef(),
-      React.createRef(),
-      React.createRef(),
-      React.createRef(),
-      React.createRef(),
-      React.createRef(),
-      React.createRef()
-    ])
-    tabsData.set([
-      {
-        title: t('admin:components.setting.settings'),
-        tabLabel: t('admin:components.setting.project'),
-        bottomComponent: <ProjectTab ref={refs[0].get(NO_PROXY)} open={openState[0]} />,
-        ref: refs[0].get(NO_PROXY)
-      },
-      {
-        title: t('admin:components.setting.settings'),
-        tabLabel: t('admin:components.setting.server'),
-        bottomComponent: <ServerTab ref={refs[1].get(NO_PROXY)} open={openState[1]} />,
-        ref: refs[1].get(NO_PROXY)
-      },
-      {
-        title: t('admin:components.setting.settings'),
-        tabLabel: t('admin:components.setting.helm.header'),
-        bottomComponent: <HelmTab ref={refs[2].get(NO_PROXY)} open={openState[2]} />,
-        ref: refs[2].get(NO_PROXY)
-      },
-      {
-        title: t('admin:components.setting.settings'),
-        tabLabel: t('admin:components.setting.client'),
-        bottomComponent: <ClientTab ref={refs[3].get(NO_PROXY)} open={openState[3]} />,
-        ref: refs[3].get(NO_PROXY)
-      },
-      {
-        title: t('admin:components.setting.settings'),
-        tabLabel: t('admin:components.setting.instanceServer'),
-        bottomComponent: <InstanceServerTab ref={refs[4].get(NO_PROXY)} open={openState[4]} />,
-        ref: refs[4].get(NO_PROXY)
-      },
-      {
-        title: t('admin:components.setting.settings'),
-        tabLabel: t('admin:components.setting.taskServer.taskServer'),
-        bottomComponent: <TaskServerTab ref={refs[5].get(NO_PROXY)} open={openState[5]} />,
-        ref: refs[5].get(NO_PROXY)
-      },
-      {
-        title: t('admin:components.setting.settings'),
-        tabLabel: t('admin:components.setting.email'),
-        bottomComponent: <EmailTab ref={refs[6].get(NO_PROXY)} open={openState[6]} />,
-        ref: refs[6].get(NO_PROXY)
-      },
-      {
-        title: t('admin:components.setting.settings'),
-        tabLabel: t('admin:components.setting.authentication'),
-        bottomComponent: <AuthenticationTab ref={refs[7].get(NO_PROXY)} open={openState[7]} />,
-        ref: refs[7].get(NO_PROXY)
-      },
-      {
-        title: t('admin:components.setting.settings'),
-        tabLabel: t('admin:components.setting.plugins'),
-        bottomComponent: <PluginsTab ref={refs[8].get(NO_PROXY)} open={openState[8]} />,
-        ref: refs[8].get(NO_PROXY)
-      }
-    ])
-  }, [])
+  const tabsData = [
+    {
+      title: t('admin:components.setting.settings'),
+      tabLabel: t('admin:components.setting.project'),
+      bottomComponent: <ProjectTab ref={refs[0].get(NO_PROXY)} open={openState[0].value} />,
+      ref: refs[0].get(NO_PROXY)
+    },
+    {
+      title: t('admin:components.setting.settings'),
+      tabLabel: t('admin:components.setting.server'),
+      bottomComponent: <ServerTab ref={refs[1].get(NO_PROXY)} open={openState[1].value} />,
+      ref: refs[1].get(NO_PROXY)
+    },
+    {
+      title: t('admin:components.setting.settings'),
+      tabLabel: t('admin:components.setting.helm.header'),
+      bottomComponent: <HelmTab ref={refs[2].get(NO_PROXY)} open={openState[2].value} />,
+      ref: refs[2].get(NO_PROXY)
+    },
+    {
+      title: t('admin:components.setting.settings'),
+      tabLabel: t('admin:components.setting.client'),
+      bottomComponent: <ClientTab ref={refs[3].get(NO_PROXY)} open={openState[3].value} />,
+      ref: refs[3].get(NO_PROXY)
+    },
+    {
+      title: t('admin:components.setting.settings'),
+      tabLabel: t('admin:components.setting.instanceServer'),
+      bottomComponent: <InstanceServerTab ref={refs[4].get(NO_PROXY)} open={openState[4].value} />,
+      ref: refs[4].get(NO_PROXY)
+    },
+    {
+      title: t('admin:components.setting.settings'),
+      tabLabel: t('admin:components.setting.taskServer.taskServer'),
+      bottomComponent: <TaskServerTab ref={refs[5].get(NO_PROXY)} open={openState[5].value} />,
+      ref: refs[5].get(NO_PROXY)
+    },
+    {
+      title: t('admin:components.setting.settings'),
+      tabLabel: t('admin:components.setting.email'),
+      bottomComponent: <EmailTab ref={refs[6].get(NO_PROXY)} open={openState[6].value} />,
+      ref: refs[6].get(NO_PROXY)
+    },
+    {
+      title: t('admin:components.setting.settings'),
+      tabLabel: t('admin:components.setting.authentication'),
+      bottomComponent: <AuthenticationTab ref={refs[7].get(NO_PROXY)} open={openState[7].value} />,
+      ref: refs[7].get(NO_PROXY)
+    },
+    {
+      title: t('admin:components.setting.settings'),
+      tabLabel: t('admin:components.setting.plugins'),
+      bottomComponent: <PluginsTab ref={refs[8].get(NO_PROXY)} open={openState[8].value} />,
+      ref: refs[8].get(NO_PROXY)
+    }
+  ]
 
   const onTabChange = (index: number) => {
     openState.set(openState.value.map((_, i) => i === index))
-    console.log('New openState: ', openState.get(NO_PROXY))
   }
 
-  return <Tabs scrollable tabsData={tabsData.get(NO_PROXY)} onTabChange={onTabChange} />
+  return <Tabs scrollable tabsData={tabsData} onTabChange={onTabChange} />
 }

@@ -23,29 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { State } from '@etherealengine/hyperflux'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import React, { forwardRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
-const AuthenticationTab = forwardRef(
-  ({ open }: { open: State<boolean> }, ref: React.MutableRefObject<HTMLDivElement>) => {
-    const { t } = useTranslation()
+const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
+  const { t } = useTranslation()
 
-    return (
-      <Accordion
-        title={t('admin:components.setting.authentication')}
-        subtitle="Edit Project Settings"
-        expandIcon={<HiPlusSmall />}
-        shrinkIcon={<HiMinus />}
-        ref={ref}
-        open={open}
-      >
-        <p>Hey</p>
-      </Accordion>
-    )
-  }
-)
+  return (
+    <Accordion
+      title={t('admin:components.setting.authentication')}
+      subtitle="Edit Project Settings"
+      expandIcon={<HiPlusSmall />}
+      shrinkIcon={<HiMinus />}
+      ref={ref}
+      open={open}
+    >
+      <p>Hey</p>
+    </Accordion>
+  )
+})
 
 export default AuthenticationTab

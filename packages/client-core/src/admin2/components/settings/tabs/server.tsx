@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { State } from '@etherealengine/hyperflux'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import React, { forwardRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
-const ServerTab = forwardRef(({ open }: { open: State<boolean> }, ref: React.MutableRefObject<HTMLDivElement>) => {
+const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
 
   return (
