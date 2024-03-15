@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { VisualScriptComponent } from '@etherealengine/engine'
 import { getState } from '@etherealengine/hyperflux'
-import { VisualScriptComponent } from '@etherealengine/spatial'
 import { VisualScriptState } from '@etherealengine/visual-script'
 import { isEqual } from 'lodash'
 import React from 'react'

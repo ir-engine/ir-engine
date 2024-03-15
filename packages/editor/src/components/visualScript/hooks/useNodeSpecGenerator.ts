@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 // and caches the results.
 
 import { getComponent } from '@etherealengine/ecs'
-import { EngineVariableGet, EngineVariableSet, EngineVariableUse, VisualScriptComponent } from '@etherealengine/spatial'
+import { EngineVariableGet, EngineVariableSet, EngineVariableUse, VisualScriptComponent } from '@etherealengine/engine'
 import {
   IRegistry,
   NodeConfigurationJSON,
