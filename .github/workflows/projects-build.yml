@@ -2,7 +2,7 @@ name: projects-build
 on:
   push:
     branches:
-      [qat]
+      ["none"]
 jobs:
   secrets-gate:
     runs-on: ubuntu-latest
