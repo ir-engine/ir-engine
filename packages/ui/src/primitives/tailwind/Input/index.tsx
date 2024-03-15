@@ -73,7 +73,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className={twContainerClassname}>
         {label && <Label className="self-stretch">{label}</Label>}
-        <div className="relative w-full">
+        <div className="bg-theme-primary relative w-full">
           {icon && (
             <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5">{icon}</div>
           )}

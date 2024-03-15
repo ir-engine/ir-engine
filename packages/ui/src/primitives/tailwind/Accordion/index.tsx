@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@etherealengine/hyperflux'
-import React, { ReactNode } from 'react'
+import React, { ReactNode, forwardRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 import Text from '../Text'
 
@@ -37,42 +37,39 @@ export interface AccordionProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string
 }
 
-const Accordion = ({
-  title,
-  subtitle,
-  expandIcon,
-  shrinkIcon,
-  children,
-  className,
-  ...props
-}: AccordionProps): JSX.Element => {
-  const twClassName = twMerge('bg-theme-primary w-full rounded-2xl p-6 ', className)
-  const open = useHookstate(false)
+const Accordion = forwardRef(
+  (
+    { title, subtitle, expandIcon, shrinkIcon, children, className, ...props }: AccordionProps,
+    ref: React.MutableRefObject<HTMLDivElement>
+  ): JSX.Element => {
+    const twClassName = twMerge('bg-theme-primary w-full rounded-2xl p-6 ', className)
+    const openState = useHookstate(false)
 
-  return (
-    <div className={twClassName} {...props}>
-      <div
-        className="flex w-full cursor-pointer justify-between"
-        onClick={() => {
-          open.set((v) => !v)
-        }}
-      >
-        <Text component="h2" fontSize="lg" fontWeight="semibold">
-          {title}
-        </Text>
+    return (
+      <div className={twClassName} {...props} ref={ref}>
+        <div
+          className="flex w-full cursor-pointer justify-between"
+          onClick={() => {
+            openState.set((v) => !v)
+          }}
+        >
+          <Text component="h2" fontSize="lg" fontWeight="semibold">
+            {title}
+          </Text>
 
-        {open.value ? shrinkIcon : expandIcon}
+          {openState.value ? shrinkIcon : expandIcon}
+        </div>
+
+        {!openState.value && (
+          <Text component="h3" fontSize="base" fontWeight="light" className="mt-2 w-full dark:text-[#A3A3A3]">
+            {subtitle}
+          </Text>
+        )}
+
+        {openState.value && children}
       </div>
-
-      {!open.value && (
-        <Text component="h3" fontSize="base" fontWeight="light" className="mt-2 w-full dark:text-[#A3A3A3]">
-          {subtitle}
-        </Text>
-      )}
-
-      {open.value && children}
-    </div>
-  )
-}
+    )
+  }
+)
 
 export default Accordion
