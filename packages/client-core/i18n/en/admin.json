@@ -483,7 +483,8 @@
         "explainer": "To apply a new Helm chart version, Save here, then go to /admin/projects and then Rebuild",
         "builderHelmToDeploy": "Builder Helm chart to deploy",
         "mainHelmToDeploy": "Main Helm chart to deploy"
-      }
+      },
+      "plugins": "Plugins"
     },
     "avatar": {
       "columns": {

@@ -23,9 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { clientSettingPath } from '@etherealengine/common/src/schema.type.module'
 import React, { lazy } from 'react'
 import { HiOutlineCube } from 'react-icons/hi'
-import { HiMapPin, HiOutlineGlobeAlt, HiOutlineTableCells, HiServer, HiUser, HiUserCircle } from 'react-icons/hi2'
+import {
+  HiMapPin,
+  HiOutlineCog6Tooth,
+  HiOutlineGlobeAlt,
+  HiOutlineTableCells,
+  HiServer,
+  HiUser,
+  HiUserCircle
+} from 'react-icons/hi2'
 import { RiSendPlaneFill } from 'react-icons/ri'
 import { AdminRouteStateType } from '../admin/AllowedAdminRoutesState'
 
@@ -46,6 +55,8 @@ const Instances = lazy(() => import('./components/instance'))
 const Resources = lazy(() => import('./components/resources'))
 
 const Routes = lazy(() => import('./components/routes'))
+
+const Settings = lazy(() => import('./components/settings'))
 
 export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
   projects: {
@@ -110,5 +121,12 @@ export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
     component: Routes,
     access: false,
     icon: <HiOutlineGlobeAlt />
+  },
+  settings: {
+    name: 'user:dashboard.setting',
+    scope: ['settings', clientSettingPath],
+    component: Settings,
+    access: false,
+    icon: <HiOutlineCog6Tooth />
   }
 }
