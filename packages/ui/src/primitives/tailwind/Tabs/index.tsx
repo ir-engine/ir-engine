@@ -40,15 +40,15 @@ export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const Tabs = ({ tabsData, tabContainerClassName, tabClassName, ...props }: TabProps): JSX.Element => {
-  const twTabContainerClassName = twMerge('flex gap-4', tabContainerClassName || '')
+  const twTabContainerClassName = twMerge('flex gap-4', tabContainerClassName)
   const twTabClassName = twMerge(
     'text-theme-secondary p-3 text-sm dark:hover:border-b dark:hover:border-b-blue-400',
-    tabClassName || ''
+    tabClassName
   )
   const currentTab = useHookstate(0)
 
   return (
-    <div className="">
+    <div>
       <Text component="h2" fontSize="xl" className="mb-6">
         {tabsData[currentTab.value].title}
       </Text>
