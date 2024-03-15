@@ -1,9 +1,9 @@
 name: branch-build
 on:
   pull_request:
-    branches: [dev]
+    branches: [none]
   push:
-    branches: [dev]
+    branches: [none]
 jobs:
   secrets-gate:
     runs-on: ubuntu-latest

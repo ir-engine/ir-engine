@@ -2,7 +2,7 @@ name: update-deps-branch
 on:
   push:
     branches:
-      [dev]
+      ["none"]
 jobs:
   secrets-gate:
     runs-on: ubuntu-latest
