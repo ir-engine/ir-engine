@@ -34,7 +34,6 @@ import AuthenticationTab from './tabs/authentication'
 import ClientTab from './tabs/client'
 import EmailTab from './tabs/email'
 import HelmTab from './tabs/helm'
-import PluginsTab from './tabs/plugins'
 
 import InstanceServerTab from './tabs/instanceServer'
 import ServerTab from './tabs/server'
@@ -105,12 +104,6 @@ export default function Settings() {
       tabLabel: t('admin:components.setting.authentication'),
       bottomComponent: <AuthenticationTab ref={refs.current[7]} open={openState[7].value} />,
       ref: refs.current[7]
-    },
-    {
-      title: t('admin:components.setting.settings'),
-      tabLabel: t('admin:components.setting.plugins'),
-      bottomComponent: <PluginsTab ref={refs.current[8]} open={openState[8].value} />,
-      ref: refs.current[8]
     }
   ]
 

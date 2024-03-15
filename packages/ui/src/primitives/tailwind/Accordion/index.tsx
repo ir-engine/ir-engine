@@ -47,7 +47,6 @@ const Accordion = forwardRef(
     const openState = useHookstate(false)
 
     useEffect(() => {
-      console.log(`${title} Accordion: open state changed from parent: `, open)
       openState.set(!!open)
     }, [open])
 
