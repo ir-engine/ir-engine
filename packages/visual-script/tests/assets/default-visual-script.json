@@ -1,0 +1,60 @@
+{
+  "nodes": [
+    {
+      "id": "bb69f2db-bb8a-4505-8b0d-fc271b3a24fc",
+      "type": "debug/log",
+      "metadata": {
+        "positionX": "502.3536111014597",
+        "positionY": "-344.9273191898336"
+      },
+      "parameters": {
+        "text": {
+          "value": "tick"
+        }
+      }
+    },
+    {
+      "id": "4bb99f89-11c4-471e-ba46-f507d86ffc93",
+      "type": "flow/lifecycle/onExecute",
+      "metadata": {
+        "positionX": "4.753700030301175",
+        "positionY": "-330.7364926607548"
+      },
+      "flows": {
+        "flow": {
+          "nodeId": "bb69f2db-bb8a-4505-8b0d-fc271b3a24fc",
+          "socket": "flow"
+        }
+      }
+    },
+    {
+      "id": "0",
+      "type": "flow/lifecycle/onStart",
+      "metadata": {
+        "positionX": "2.1104424778760915",
+        "positionY": "-501.2300884955752"
+      },
+      "flows": {
+        "flow": {
+          "nodeId": "2",
+          "socket": "flow"
+        }
+      }
+    },
+    {
+      "id": "2",
+      "type": "debug/log",
+      "metadata": {
+        "positionX": "270.5933446233562",
+        "positionY": "-504.0538689099578"
+      },
+      "parameters": {
+        "text": {
+          "value": "test passed"
+        }
+      }
+    }
+  ],
+  "variables": [],
+  "customEvents": []
+}
