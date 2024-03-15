@@ -30,6 +30,7 @@ import {
   HiMapPin,
   HiOutlineCog6Tooth,
   HiOutlineGlobeAlt,
+  HiOutlineMegaphone,
   HiOutlineTableCells,
   HiServer,
   HiUser,
@@ -57,6 +58,8 @@ const Resources = lazy(() => import('./components/resources'))
 const Routes = lazy(() => import('./components/routes'))
 
 const Settings = lazy(() => import('./components/settings'))
+
+const Channels = lazy(() => import('./components/channel'))
 
 export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
   projects: {
@@ -128,5 +131,12 @@ export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
     component: Settings,
     access: false,
     icon: <HiOutlineCog6Tooth />
+  },
+  channel: {
+    name: 'user:dashboard.channels',
+    scope: 'channel',
+    component: Channels,
+    access: false,
+    icon: <HiOutlineMegaphone />
   }
 }
