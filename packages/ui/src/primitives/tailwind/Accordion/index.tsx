@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@etherealengine/hyperflux'
-import React, { ReactNode, forwardRef } from 'react'
+import { State, useHookstate } from '@etherealengine/hyperflux'
+import React, { ReactNode, forwardRef, useEffect } from 'react'
 import { twMerge } from 'tailwind-merge'
 import Text from '../Text'
 
@@ -35,15 +35,21 @@ export interface AccordionProps extends React.HTMLAttributes<HTMLDivElement> {
   shrinkIcon: ReactNode
   children?: ReactNode
   className?: string
+  open?: State<boolean>
 }
 
 const Accordion = forwardRef(
   (
-    { title, subtitle, expandIcon, shrinkIcon, children, className, ...props }: AccordionProps,
+    { title, subtitle, expandIcon, shrinkIcon, children, className, open, ...props }: AccordionProps,
     ref: React.MutableRefObject<HTMLDivElement>
   ): JSX.Element => {
     const twClassName = twMerge('bg-theme-primary w-full rounded-2xl p-6 ', className)
     const openState = useHookstate(false)
+
+    useEffect(() => {
+      console.log(`${title} Accordion: open state changed from parent: `, open?.value)
+      openState.set(!!open?.value)
+    }, [open])
 
     return (
       <div className={twClassName} {...props} ref={ref}>

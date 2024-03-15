@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { ProjectSettingType, projectPath } from '@etherealengine/common/src/schema.type.module'
-import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadConfigForProject } from '@etherealengine/projects/loadConfigForProject'
 import { useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
@@ -34,7 +34,8 @@ import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
-const ProjectTab = forwardRef((props, ref: React.MutableRefObject<HTMLDivElement>) => {
+// TODO
+const ProjectTab = forwardRef(({ open }: { open: State<boolean> }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
   const projectState = useHookstate(getMutableState(ProjectState))
   const projects = projectState.projects
@@ -86,6 +87,7 @@ const ProjectTab = forwardRef((props, ref: React.MutableRefObject<HTMLDivElement
       expandIcon={<HiPlusSmall />}
       shrinkIcon={<HiMinus />}
       ref={ref}
+      open={open}
     >
       <Select
         options={projectsMenu}
