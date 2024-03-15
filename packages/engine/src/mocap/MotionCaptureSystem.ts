@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { decode, encode } from 'msgpackr'
 import { useEffect } from 'react'
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { PeerID } from '@etherealengine/hyperflux'
 
 import {
   DataChannelType,

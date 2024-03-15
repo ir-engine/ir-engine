@@ -265,7 +265,7 @@ const checkIfProjectExists = async (context: HookContext<ProjectService>) => {
 
   const data: ProjectData[] = Array.isArray(context.data) ? context.data : [context.data]
 
-  context.projectName = cleanString(data[0].name!)
+  context.projectName = cleanString(data[0].name!).toLowerCase()
 
   const projectExists = (await context.service._find({
     query: { name: context.projectName, $limit: 1 }
@@ -564,6 +564,7 @@ const updateProjectJob = async (context: HookContext) => {
       if (result.total > 0) returned = result.data[0]
       else throw new BadRequest('Project did not exist after update')
       returned.needsRebuild = typeof data.needsRebuild === 'boolean' ? data.needsRebuild : true
+      returned.hasLocalChanges = false
       context.result = returned
     } catch (err) {
       console.log('Error: project did not exist after completing update', projectName, err)

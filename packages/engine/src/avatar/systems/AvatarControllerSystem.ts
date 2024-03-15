@@ -104,6 +104,7 @@ const execute = () => {
       ) {
         dispatchAction(
           WorldNetworkAction.transferAuthorityOfObject({
+            ownerID: Engine.instance.userID,
             entityUUID: getComponent(controlledEntity, UUIDComponent),
             newAuthority: Engine.instance.peerID
           })

@@ -54,16 +54,17 @@ import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { PluginObjectType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
-import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { GroupComponent, GroupQueryReactor } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { RenderOrderComponent } from '@etherealengine/spatial/src/renderer/components/RenderOrderComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import {
   DistanceFromCameraComponent,
   FrustumCullCameraComponent
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
+import { ResourceManager } from '../../assets/state/ResourceState'
 import { registerMaterial, unregisterMaterial } from '../../scene/materials/functions/MaterialLibraryFunctions'
 import { ModelComponent, useMeshOrModel } from '../components/ModelComponent'
 import { SceneComponent } from '../components/SceneComponent'
@@ -72,7 +73,7 @@ import { getModelSceneID } from '../functions/loaders/ModelFunctions'
 
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 
-export const disposeMaterial = (material: Material) => {
+const disposeMaterial = (material: Material) => {
   for (const [key, val] of Object.entries(material) as [string, Texture][]) {
     if (val && typeof val.dispose === 'function') {
       val.dispose()
@@ -151,6 +152,7 @@ export function setupObject(obj: Object3D, forceBasicMaterials = false) {
 }
 
 const groupQuery = defineQuery([GroupComponent])
+const renderOrder = defineQuery([RenderOrderComponent, GroupComponent, VisibleComponent])
 const updatableQuery = defineQuery([UpdatableComponent, CallbackComponent])
 
 function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
@@ -164,15 +166,7 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
       ? getModelSceneID(entity)
       : getOptionalComponent(entity, SceneComponent)
     return () => {
-      if (obj.isProxified) {
-        disposeObject3D(obj)
-      } else {
-        iterateObject3D(
-          obj,
-          disposeObject3D,
-          (obj: Object3D) => getOptionalComponent(obj.entity, SceneComponent) === source
-        )
-      }
+      ResourceManager.unloadObj(obj, source)
     }
   }, [])
 
@@ -205,6 +199,11 @@ const execute = () => {
       )
 
     for (const obj of group) obj.visible = visible
+  }
+
+  for (const entity of renderOrder()) {
+    const group = getComponent(entity, GroupComponent)
+    for (const obj of group) obj.renderOrder = RenderOrderComponent.renderOrder[entity]
   }
 }
 
