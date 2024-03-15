@@ -35,77 +35,59 @@ import ClientTab from './tabs/client'
 import EmailTab from './tabs/email'
 import HelmTab from './tabs/helm'
 
+import { t } from 'i18next'
 import InstanceServerTab from './tabs/instanceServer'
 import ServerTab from './tabs/server'
 import TaskServerTab from './tabs/taskServer'
 
+const SettingsTabsData = [
+  {
+    label: t('admin:components.setting.project'),
+    Component: ProjectTab
+  },
+  {
+    label: t('admin:components.setting.server'),
+    Component: ServerTab
+  },
+  {
+    label: t('admin:components.setting.helm.header'),
+    Component: HelmTab
+  },
+  {
+    label: t('admin:components.setting.client'),
+    Component: ClientTab
+  },
+  {
+    label: t('admin:components.setting.instanceServer'),
+    Component: InstanceServerTab
+  },
+  {
+    label: t('admin:components.setting.taskServer.taskServer'),
+    Component: TaskServerTab
+  },
+  {
+    label: t('admin:components.setting.email'),
+    Component: EmailTab
+  },
+  {
+    label: t('admin:components.setting.authentication'),
+    Component: AuthenticationTab
+  }
+]
+
 export default function Settings() {
   const { t } = useTranslation()
 
-  const openState = useHookstate([false, false, false, false, false, false, false, false, false])
+  const openState = useHookstate(SettingsTabsData.map(() => false))
 
-  const refs = useRef([
-    React.createRef(),
-    React.createRef(),
-    React.createRef(),
-    React.createRef(),
-    React.createRef(),
-    React.createRef(),
-    React.createRef(),
-    React.createRef(),
-    React.createRef()
-  ] as React.RefObject<HTMLDivElement>[])
+  const refs = useRef<React.RefObject<HTMLDivElement>[]>(SettingsTabsData.map(() => React.createRef()))
 
-  const tabsData = [
-    {
-      title: t('admin:components.setting.settings'),
-      tabLabel: t('admin:components.setting.project'),
-      bottomComponent: <ProjectTab ref={refs.current[0]} open={openState[0].value} />,
-      ref: refs.current[0]
-    },
-    {
-      title: t('admin:components.setting.settings'),
-      tabLabel: t('admin:components.setting.server'),
-      bottomComponent: <ServerTab ref={refs.current[1]} open={openState[1].value} />,
-      ref: refs.current[1]
-    },
-    {
-      title: t('admin:components.setting.settings'),
-      tabLabel: t('admin:components.setting.helm.header'),
-      bottomComponent: <HelmTab ref={refs.current[2]} open={openState[2].value} />,
-      ref: refs.current[2]
-    },
-    {
-      title: t('admin:components.setting.settings'),
-      tabLabel: t('admin:components.setting.client'),
-      bottomComponent: <ClientTab ref={refs.current[3]} open={openState[3].value} />,
-      ref: refs.current[3]
-    },
-    {
-      title: t('admin:components.setting.settings'),
-      tabLabel: t('admin:components.setting.instanceServer'),
-      bottomComponent: <InstanceServerTab ref={refs.current[4]} open={openState[4].value} />,
-      ref: refs.current[4]
-    },
-    {
-      title: t('admin:components.setting.settings'),
-      tabLabel: t('admin:components.setting.taskServer.taskServer'),
-      bottomComponent: <TaskServerTab ref={refs.current[5]} open={openState[5].value} />,
-      ref: refs.current[5]
-    },
-    {
-      title: t('admin:components.setting.settings'),
-      tabLabel: t('admin:components.setting.email'),
-      bottomComponent: <EmailTab ref={refs.current[6]} open={openState[6].value} />,
-      ref: refs.current[6]
-    },
-    {
-      title: t('admin:components.setting.settings'),
-      tabLabel: t('admin:components.setting.authentication'),
-      bottomComponent: <AuthenticationTab ref={refs.current[7]} open={openState[7].value} />,
-      ref: refs.current[7]
-    }
-  ]
+  const tabsData = SettingsTabsData.map((tabData, idx) => ({
+    title: t('admin:components.setting.settings'),
+    tabLabel: tabData.label,
+    bottomComponent: <tabData.Component ref={refs.current[idx]} open={openState[idx].value} />,
+    ref: refs.current[idx]
+  }))
 
   const onTabChange = (index: number) => {
     openState.set(openState.value.map((_, i) => i === index))
