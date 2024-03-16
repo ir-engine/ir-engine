@@ -251,24 +251,6 @@ export const handleConsumeData = async (action: typeof MediasoupDataConsumerActi
   }
 }
 
-export async function closeDataProducer(
-  network: SocketWebRTCServerNetwork,
-  dataProducerID: string,
-  peerID: PeerID
-): Promise<void> {
-  const dataProducer = getState(MediasoupDataProducersConsumersObjectsState).producers[dataProducerID]
-  if (!dataProducer) return logger.warn('Data producer not found for id: ' + dataProducerID)
-  dispatchAction(
-    MediasoupDataProducerActions.producerClosed({
-      producerID: dataProducer.id,
-      $topic: network.topic,
-      $network: network.id,
-      $to: peerID
-    })
-  )
-  dataProducer.close()
-}
-
 export async function createWebRtcTransport(
   network: SocketWebRTCServerNetwork,
   { peerID, direction, sctpCapabilities, channelId }: WebRtcTransportParams
@@ -342,6 +324,8 @@ export async function createInternalDataConsumer(
     dataConsumer.on('dataproducerclose', () => {
       dataConsumer.close()
     })
+
+    logger.info('Internal data consumer created for peerID: ' + peerID)
 
     return dataConsumer
   } catch (err) {
@@ -549,7 +533,17 @@ export async function handleProduceData(
     )
 
     // if our associated transport closes, close ourself, too
-    dataProducer.on('transportclose', () => closeDataProducer(network, dataProducer.id, peerID))
+    dataProducer.on('transportclose', () => {
+      dispatchAction(
+        MediasoupDataProducerActions.producerClosed({
+          producerID: dataProducer.id,
+          $topic: network.topic,
+          $network: network.id,
+          $to: peerID
+        })
+      )
+      dataProducer.close()
+    })
 
     getMutableState(MediasoupDataProducersConsumersObjectsState).producers[dataProducer.id].set(dataProducer)
 
@@ -611,16 +605,6 @@ export async function handleProduceData(
       })
     )
   }
-}
-
-export async function handleWebRtcTransportClose(
-  action: typeof MediasoupTransportActions.transportClosed.matches._TYPE
-) {
-  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
-
-  const { transportID } = action
-
-  // MediasoupTransportState.removeTransport(network.id, transportID)
 }
 
 const transportsConnectPending = {} as { [transportID: string]: Promise<void> }

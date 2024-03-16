@@ -42,8 +42,12 @@ import {
 import React, { useEffect } from 'react'
 
 import { DataChannelType } from '../../DataChannelRegistry'
-import { MediaStreamAppData, MediaTagType, NetworkState } from '../../NetworkState'
-import { MediasoupTransportActions, MediasoupTransportObjectsState } from './MediasoupTransportState'
+import { MediaStreamAppData, MediaTagType, NetworkActions, NetworkState } from '../../NetworkState'
+import {
+  MediasoupTransportActions,
+  MediasoupTransportObjectsState,
+  MediasoupTransportState
+} from './MediasoupTransportState'
 
 export class MediasoupMediaProducerActions {
   static requestProducer = defineAction({
@@ -308,6 +312,24 @@ export const MediasoupMediaProducerConsumerState = defineState({
       }
 
       if (!state.producers.keys.length && !state.consumers.keys.length) state.set(none)
+    }),
+
+    onUpdatePeers: NetworkActions.updatePeers.receive((action) => {
+      const state = getState(MediasoupMediaProducerConsumerState)
+      const producers = state[action.$network]?.producers
+      if (producers)
+        for (const producer of Object.values(producers)) {
+          const transport = getState(MediasoupTransportState)[action.$network][producer.transportID]
+          if (transport && action.peers.find((peer) => peer.peerID === transport.peerID)) continue
+          getMutableState(MediasoupMediaProducerConsumerState)[action.$network].producers[producer.producerID].set(none)
+        }
+      const consumers = state[action.$network]?.consumers
+      if (consumers)
+        for (const consumer of Object.values(consumers)) {
+          const transport = getState(MediasoupTransportState)[action.$network][consumer.transportID]
+          if (transport && action.peers.find((peer) => peer.peerID === transport.peerID)) continue
+          getMutableState(MediasoupMediaProducerConsumerState)[action.$network].consumers[consumer.consumerID].set(none)
+        }
     })
   },
 
