@@ -446,7 +446,6 @@
       "githubWebhookSecret": "Github Webhook Secret",
       "githubPrivateKey": "Github Private Key",
       "instanceserverUnreachableTimeoutSeconds": "Seconds for instanceserver to be considered unreachable",
-      "project": "Project",
       "patchInstanceserver": "Patch Instanceserver",
       "hub": "Hub",
       "placeholderText": "This is the input placeholder",
@@ -481,6 +480,12 @@
       "screenshareMidResMaxBitrate": "Screenshare mid-res video max bitrate (kbps)",
       "screenshareHighResMaxBitrate": "Screenshare high-res video max bitrate (kbps)",
       "privacyPolicy": "Privacy Policy",
+      "project": {
+        "header": "Project",
+        "submit": "Submit",
+        "clear": "Clear",
+        "noSettingsMessage": "No schema available in xrengine.config.ts"
+      },
       "taskServer": {
         "taskServer": "Task Server",
         "port": "Port",

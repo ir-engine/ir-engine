@@ -29,20 +29,28 @@ import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperfl
 import { loadConfigForProject } from '@etherealengine/projects/loadConfigForProject'
 import { useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
+import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
+import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
-// TODO
 const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
+  const state = useHookstate({
+    loading: false,
+    errorMessage: ''
+  })
   const projectState = useHookstate(getMutableState(ProjectState))
   const projects = projectState.projects
+
   const settings = useHookstate<Array<ProjectSettingType> | []>([])
-  const selectedProject = useHookstate(projects.get(NO_PROXY).length > 0 ? projects.get(NO_PROXY)[0].id : '')
-  const project = useGet(projectPath, selectedProject.value, { query: { $select: ['settings'] } }).data
-  let projectSetting = project?.settings || []
+  const selectedProjectId = useHookstate(projects.get(NO_PROXY).length > 0 ? projects.get(NO_PROXY)[0].id : '')
+
+  const project = useGet(projectPath, selectedProjectId.value, { query: { $select: ['settings'] } })
 
   const patchProjectSetting = useMutation(projectPath).patch
 
@@ -50,15 +58,29 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
     ProjectService.fetchProjects()
   }, [])
 
-  const projectsMenu = projects.value.map((el) => {
-    return {
-      label: el.name,
-      value: el.id
+  useEffect(() => {
+    if (selectedProjectId.value) {
+      resetSettingsFromSchema()
     }
-  })
+  }, [selectedProjectId])
+
+  useEffect(() => {
+    if (!project.data?.settings || !project.data?.settings.length) {
+      return
+    }
+
+    const tempSettings = JSON.parse(JSON.stringify(settings.value))
+    for (const [index, setting] of tempSettings.entries()) {
+      const savedSetting = project.data.settings.filter((item) => item.key === setting.key)
+      if (savedSetting.length > 0) {
+        tempSettings[index].value = savedSetting[0].value
+      }
+    }
+    settings.set(tempSettings)
+  }, [project.data?.settings])
 
   const resetSettingsFromSchema = async () => {
-    const projectName = projects.value.filter((proj) => proj.id === selectedProject.value)
+    const projectName = projects.value.filter((proj) => proj.id === selectedProjectId.value)
     const projectConfig = projectName?.length > 0 && (await loadConfigForProject(projectName[0].name))
 
     if (projectConfig && projectConfig?.settings) {
@@ -74,15 +96,35 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
     }
   }
 
-  useEffect(() => {
-    if (selectedProject.value) {
-      resetSettingsFromSchema()
+  const handleCancel = () => {
+    resetSettingsFromSchema()
+  }
+
+  const handleSubmit = () => {
+    state.loading.set(true)
+    patchProjectSetting(selectedProjectId.value, { settings: settings.value })
+      .then(() => {
+        state.set({ loading: false, errorMessage: '' })
+      })
+      .catch((err) => {
+        state.set({ loading: false, errorMessage: err.message })
+      })
+  }
+
+  const projectsMenu = projects.value.map((el) => {
+    return {
+      label: el.name,
+      value: el.id
     }
-  }, [selectedProject])
+  })
+
+  const handleSettingsChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    settings[index].nested('value').set(e.target.value)
+  }
 
   return (
     <Accordion
-      title={t('admin:components.setting.project')}
+      title={t('admin:components.setting.project.header')}
       subtitle="Edit Project Settings"
       expandIcon={<HiPlusSmall />}
       shrinkIcon={<HiMinus />}
@@ -91,13 +133,53 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
     >
       <Select
         options={projectsMenu}
-        currentValue={selectedProject.value}
+        currentValue={selectedProjectId.value}
         onChange={(value) => {
-          selectedProject.set(value)
+          console.log('selectedProject', value)
+          selectedProjectId.set(value)
         }}
-        // label={t('admin:components.setting.project')}
-        className="mt-6 max-w-[50%]"
+        label={t('admin:components.setting.project.header')}
+        className="mb-8 mt-6 max-w-[50%]"
       />
+
+      {settings?.length > 0 ? (
+        <>
+          {settings.value.map((setting, index) => (
+            <div className="mb-3 grid grid-cols-2 gap-2" key={index}>
+              <Input className="col-span-1" label="Key Name" disabled value={setting.key} />
+              <Input
+                className="col-span-1"
+                label="Value"
+                value={setting.value || ''}
+                onChange={(e) => handleSettingsChange(e, index)}
+              />
+            </div>
+          ))}
+          <div className="mb-3 grid grid-cols-4 gap-2">
+            <Button className="col-span-1 bg-red-600" fullWidth onClick={handleCancel}>
+              {t('admin:components.setting.project.clear')}
+            </Button>
+            <Button
+              className="col-span-1"
+              fullWidth
+              onClick={handleSubmit}
+              startIcon={state.loading.value && <LoadingCircle className="h-8 w-8" />}
+            >
+              {t('admin:components.setting.project.submit')}
+            </Button>
+          </div>
+        </>
+      ) : (
+        <Text component="h3" className="text-red-400">
+          {t('admin:components.setting.project.noSettingsMessage')}
+        </Text>
+      )}
+
+      {state.errorMessage.value && (
+        <Text component="h3" className="text-red-400">
+          {state.errorMessage.value}
+        </Text>
+      )}
     </Accordion>
   )
 })

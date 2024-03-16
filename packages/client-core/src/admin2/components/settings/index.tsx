@@ -42,7 +42,7 @@ import TaskServerTab from './tabs/taskServer'
 
 export const SettingsTabsData = [
   {
-    label: t('admin:components.setting.project'),
+    label: t('admin:components.setting.project.header'),
     Component: ProjectTab
   },
   {

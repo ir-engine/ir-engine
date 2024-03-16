@@ -60,7 +60,7 @@ const Select = <T extends OptionValueType>({
   disabled,
   menuClassname
 }: SelectProps<T>) => {
-  const ref = useRef<HTMLInputElement>(null)
+  const ref = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
 
   const showOptions = useHookstate(false)
@@ -89,9 +89,8 @@ const Select = <T extends OptionValueType>({
   useClickOutside(ref, () => showOptions.set(false))
 
   return (
-    <div className={twMerge('relative', className)}>
+    <div className={twMerge('relative', className)} ref={ref}>
       <Input
-        ref={ref}
         disabled={disabled}
         label={label}
         description={description}
