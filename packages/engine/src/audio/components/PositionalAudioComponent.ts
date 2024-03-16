@@ -134,6 +134,7 @@ export const PositionalAudioComponent = defineComponent({
       audioNodes.panner.coneOuterAngle = audio.coneOuterAngle.value
       audioNodes.panner.coneOuterGain = audio.coneOuterGain.value
     }, [
+      mediaElement?.element,
       audio.refDistance,
       audio.rolloffFactor,
       audio.maxDistance,

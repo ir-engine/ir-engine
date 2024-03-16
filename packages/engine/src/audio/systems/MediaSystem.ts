@@ -44,13 +44,6 @@ import { PositionalAudioComponent } from '../components/PositionalAudioComponent
 export class AudioEffectPlayer {
   static instance = new AudioEffectPlayer()
 
-  constructor() {
-    // only init when running in client
-    if (isClient) {
-      this.#init()
-    }
-  }
-
   static SOUNDS = {
     notification: '/sfx/notification.mp3',
     message: '/sfx/message.mp3',
@@ -65,37 +58,22 @@ export class AudioEffectPlayer {
     return buffer
   }
 
-  // pool of elements
-  #els: HTMLAudioElement[] = []
-
-  #init() {
-    if (this.#els.length) return
-    for (let i = 0; i < 20; i++) {
-      const audioElement = document.createElement('audio')
-      audioElement.crossOrigin = 'anonymous'
-      audioElement.loop = false
-      this.#els.push(audioElement)
-    }
-  }
-
   play = async (sound: string, volumeMultiplier = getState(AudioState).notificationVolume) => {
     await Promise.resolve()
-
-    if (!this.#els.length) return
 
     if (!this.bufferMap[sound]) {
       // create buffer if doesn't exist
       this.bufferMap[sound] = await AudioEffectPlayer?.instance?.loadBuffer(sound)
     }
 
-    const source = getState(AudioState).audioContext.createBufferSource()
+    const audioContext = getState(AudioState).audioContext
+    const source = audioContext.createBufferSource()
+    const gain = audioContext.createGain()
+    gain.gain.value = getState(AudioState).masterVolume * volumeMultiplier
     source.buffer = this.bufferMap[sound]
-    const el = this.#els.find((el) => el.paused) ?? this.#els[0]
-    el.volume = getState(AudioState).masterVolume * volumeMultiplier
-    if (el.src !== sound) el.src = sound
-    el.currentTime = 0
+    source.connect(gain)
+    gain.connect(audioContext.destination)
     source.start()
-    source.connect(getState(AudioState).audioContext.destination)
   }
 }
 
