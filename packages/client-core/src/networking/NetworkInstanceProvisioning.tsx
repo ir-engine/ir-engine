@@ -152,7 +152,7 @@ export const WorldInstanceProvisioning = () => {
 
   return (
     <>
-      {Object.keys(locationInstances.value).map((instanceId: InstanceID) => (
+      {locationInstances.keys.map((instanceId: InstanceID) => (
         <WorldInstance key={instanceId} id={instanceId} />
       ))}
     </>
@@ -160,16 +160,15 @@ export const WorldInstanceProvisioning = () => {
 }
 
 export const WorldInstance = ({ id }: { id: InstanceID }) => {
-  const worldInstance = useHookstate(getMutableState(LocationInstanceState).instances[id])
-
   useEffect(() => {
+    const worldInstance = getState(LocationInstanceState).instances[id]
     connectToInstance(
       id,
-      worldInstance.ipAddress.value,
-      worldInstance.port.value,
-      worldInstance.locationId.value,
+      worldInstance.ipAddress,
+      worldInstance.port,
+      worldInstance.locationId,
       undefined,
-      worldInstance.roomCode.value
+      worldInstance.roomCode
     )
 
     return () => {
@@ -222,7 +221,7 @@ export const MediaInstanceProvisioning = () => {
 
   return (
     <>
-      {Object.keys(mediaInstanceState.value).map((instanceId: InstanceID) => (
+      {mediaInstanceState.keys.map((instanceId: InstanceID) => (
         <MediaInstance key={instanceId} id={instanceId} />
       ))}
     </>
@@ -230,17 +229,21 @@ export const MediaInstanceProvisioning = () => {
 }
 
 export const MediaInstance = ({ id }: { id: InstanceID }) => {
-  const mediaInstance = useHookstate(getMutableState(MediaInstanceState).instances[id])
-
   useEffect(() => {
-    return connectToInstance(
+    const mediaInstance = getState(MediaInstanceState).instances[id]
+    connectToInstance(
       id,
-      mediaInstance.ipAddress.value,
-      mediaInstance.port.value,
+      mediaInstance.ipAddress,
+      mediaInstance.port,
       undefined,
-      mediaInstance.channelId.value,
-      mediaInstance.roomCode.value
+      mediaInstance.channelId,
+      mediaInstance.roomCode
     )
+
+    return () => {
+      const network = getState(NetworkState).networks[id] as SocketWebRTCClientNetwork | undefined
+      if (network) leaveNetwork(network)
+    }
   }, [])
 
   return null

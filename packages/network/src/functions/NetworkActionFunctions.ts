@@ -50,11 +50,12 @@ const receiveIncomingActions = (network: Network, fromPeerID: PeerID, actions: R
 
 const sendActionsAsPeer = (network: Network) => {
   const outgoing = Engine.instance.store.actions.outgoing[network.topic]
-  if (!outgoing) return
-  const actions = [...outgoing.queue]
-  if (!actions.length) return
-  for (const action of actions) {
+  if (!outgoing?.queue?.length) return
+  const actions = [] as Action[]
+  for (const action of outgoing.queue) {
     if (action.$network && !action.$topic && action.$network === network.id) action.$topic = network.topic
+    if (action.$to === Engine.instance.store.peerID) continue
+    actions.push(action)
   }
   // for (const peerID of network.peers) {
   network.transport.messageToPeer(

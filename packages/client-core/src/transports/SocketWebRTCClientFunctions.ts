@@ -160,10 +160,11 @@ export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
   network.transport.primus?.end()
   network.transport.primus?.removeAllListeners()
   removeNetwork(network)
-  /** Dispatch updatePeers to ensure event souce states know about this */
+  /** Dispatch updatePeers locally to ensure event souce states know about this */
   dispatchAction(
     NetworkActions.updatePeers({
       peers: [],
+      $to: Engine.instance.store.peerID,
       $topic: network.topic,
       $network: network.id
     })
@@ -284,9 +285,6 @@ export const connectToInstance = (
       connectToInstance(instanceID, ipAddress, port, locationID, channelID, roomCode)
   }, 3000)
 
-  let connecting = true
-  let disconnected = false
-
   const onConnect = () => {
     primus.off('incoming::open', onConnect)
     logger.info('CONNECTED to port %o', { port })
@@ -294,16 +292,14 @@ export const connectToInstance = (
     clearTimeout(connectionFailTimeout)
 
     const topic = locationID ? NetworkTopics.world : NetworkTopics.media
-    authenticatePrimus(primus, instanceID, topic).then(() => {
-      connecting = false
-    })
+    authenticatePrimus(primus, instanceID, topic)
 
     /** Server closed the connection. */
     const onDisconnect = () => {
       const network = getState(NetworkState).networks[instanceID] as SocketWebRTCClientNetwork
       if (!network) return logger.error('Disconnected from unconnected instance ' + instanceID)
 
-      logger.info('Disonnected from network %o', { topic: network.topic, id: network.id, disconnected })
+      logger.info('Disonnected from network %o', { topic: network.topic, id: network.id })
       /**
        * If we are disconnected (server closes our socket) rather than leave the network,
        * we just need to destroy and recreate the transport
