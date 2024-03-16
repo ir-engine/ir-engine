@@ -35,6 +35,7 @@ import { AvatarLoadingSystem } from './systems/AvatarLoadingSystem'
 import { AvatarMovementSystem } from './systems/AvatarMovementSystem'
 import { AvatarTeleportSystem } from './systems/AvatarTeleportSystem'
 import { ReferenceSpaceTransformSystem } from './systems/ReferenceSpaceTransformSystem'
+import { TransparencyDitheringSystem } from './systems/TransparencyDitheringSystem'
 
 export default {
   AvatarState,
@@ -48,5 +49,6 @@ export default {
   AvatarLoadingSystem,
   AvatarMovementSystem,
   AvatarTeleportSystem,
-  ReferenceSpaceTransformSystem
+  ReferenceSpaceTransformSystem,
+  TransparencyDitheringSystem
 }

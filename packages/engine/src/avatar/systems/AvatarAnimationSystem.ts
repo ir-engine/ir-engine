@@ -33,6 +33,7 @@ import {
   defineQuery,
   defineSystem,
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
   getOptionalMutableComponent,
   hasComponent
@@ -336,10 +337,16 @@ const execute = () => {
   const ditheringComponent = getOptionalMutableComponent(localClientEntity, TransparencyDitheringComponent[0])
   if (!ditheringComponent) return
   const cameraAttached = getState(XRControlsState).isCameraAttachedToAvatar
-  ditheringComponent.center.set(getComponent(Engine.instance.cameraEntity, TransformComponent).position)
+
+  const avatarComponent = getComponent(localClientEntity, AvatarComponent)
+  getMutableComponent(localClientEntity, TransparencyDitheringComponent[1]).center.set(
+    new Vector3(0, avatarComponent.avatarHeight, 0)
+  )
+  getMutableComponent(localClientEntity, TransparencyDitheringComponent[0]).center.set(
+    getComponent(Engine.instance.cameraEntity, TransformComponent).position
+  )
   // ditheringComponent.useWorldCenter.set(!cameraAttached)
   // ditheringComponent.worldCenter.set(getComponent(Engine.instance.cameraEntity, TransformComponent).position)
-  // const avatarComponent = getComponent(localClientEntity, AvatarComponent)
   // ditheringComponent.localCenter.set(
   //   ditheringCenter.set(0, cameraAttached ? avatarComponent.avatarHeight : avatarComponent.eyeHeight, 0)
   // )

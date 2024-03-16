@@ -27,17 +27,13 @@ Ethereal Engine. All Rights Reserved.
 export const ditheringVertexUniform = `
 varying vec3 vWorldPosition;
 varying vec3 vLocalPosition;
-uniform int useWorldCalculation[4];
 uniform int maxDitherPoints;
 `
 
 /** glsl, vertex main */
 export const ditheringVertex = `
-for(int i = 0; i < 4; i++){
-    if(useWorldCalculation[i] == 1) vWorldPosition = (modelMatrix * vec4( transformed, 1.0 )).xyz;
-    else vLocalPosition = position.xyz;
-    if(i > maxDitherPoints-1) break;
-}
+vWorldPosition = (modelMatrix * vec4( transformed, 1.0 )).xyz;
+vLocalPosition = position.xyz;
 `
 
 /** glsl, fragment uniforms */
@@ -49,7 +45,7 @@ uniform vec3 centers[4];
 uniform float exponents[4];
 uniform float distances[4];
 uniform int maxDitherPoints;
-
+uniform int useWorldCalculation[4];
 `
 
 /** glsl, fragment main */
@@ -57,7 +53,7 @@ export const ditheringAlphatestChunk = `
 // sample sine at screen space coordinates for dithering pattern
 float distance = 1.0;
 for(int i = 0; i < 4; i++){
-    distance *= pow(clamp(distances[i]*length(centers[i] - vWorldPosition), 0.0, 1.0), exponents[i]);
+    distance *= pow(clamp(distances[i]*length(centers[i] - (useWorldCalculation[i] == 1 ? vWorldPosition : vLocalPosition)), 0.0, 1.0), exponents[i]);
     if(i > maxDitherPoints-1) break;
 }
 

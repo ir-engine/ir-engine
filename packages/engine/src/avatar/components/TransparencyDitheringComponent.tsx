@@ -31,7 +31,7 @@ import { RendererState } from '@etherealengine/spatial/src/renderer/RendererStat
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { isArray } from 'lodash'
 import React, { useEffect } from 'react'
-import { Material, Vector3 } from 'three'
+import { FrontSide, Material, Vector3 } from 'three'
 import { SceneComponent } from '../../scene/components/SceneComponent'
 import { useModelSceneID } from '../../scene/functions/loaders/ModelFunctions'
 import {
@@ -51,7 +51,7 @@ export const transparencyDitheringState = defineState({
   initial: { materialIds: {} as Record<Entity, string[]> }
 })
 
-const maxDitherPoints = 4 //should be equal to the length of the vec3 array in the shader
+export const maxDitherPoints = 4 //should be equal to the length of the vec3 array in the shader
 export const TransparencyDitheringComponent = Array.from({ length: maxDitherPoints }, (_, i) => {
   return defineComponent({
     name: `TransparencyDitheringComponent${i}`,
@@ -101,7 +101,7 @@ const DitherRootReactor = (props: { entity: Entity; index: number }) => {
 
 const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity; index: number }) => {
   const { entity, rootEntity, index } = props
-  const ditherComponent = useComponent(rootEntity, TransparencyDitheringComponent[0])
+  const ditherComponent = useComponent(rootEntity, TransparencyDitheringComponent[index])
   const basicMaterials = useHookstate(getMutableState(RendererState).forceBasicMaterials)
 
   useEffect(() => {
@@ -109,36 +109,43 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity; index: 
     const meshComponent = getOptionalComponent(entity, MeshComponent)
     if (!meshComponent) return
     const material = meshComponent.material
-    if (!isArray(material))
+    const materialIds = ditherComponent.materialIds
+
+    if (!isArray(material)) {
+      ditherComponent.materialIds.set([...ditherComponent.materialIds.value, material.uuid])
       injectDitheringLogic(
         material,
         ditherComponent.center.value,
         ditherComponent.distance.value,
         ditherComponent.exponent.value
       )
+    }
   }, [basicMaterials])
 
-  useEffect(() => {
-    const meshComponent = getOptionalComponent(entity, MeshComponent)
-    if (!meshComponent) return
-    const material = meshComponent.material
-    if (!isArray(material)) {
-      if (material.shader.uniforms.centers) material.shader.uniforms.centers.value[index] = ditherComponent.center.value
-      if (material.shader.uniforms.exponents)
-        material.shader.uniforms.exponents.value[index] = ditherComponent.exponent.value
-      if (material.shader.uniforms.distances)
-        material.shader.uniforms.distances.value[index] = ditherComponent.distance.value
-      if (material.shader.uniforms.useWorldCalculation)
-        material.shader.uniforms.useWorldCalculation.value[index] = ditherComponent.calculationType.value
-    }
-  }, [ditherComponent.center, ditherComponent.distance, ditherComponent.exponent, ditherComponent.calculationType])
+  // useEffect(() => {
+  //   const meshComponent = getOptionalComponent(entity, MeshComponent)
+  //   if (!meshComponent) return
+  //   const updateMaterialUniforms = (material: Material) => {
+  //     if(!material.shader) return
+  //     if (material.shader.uniforms.centers) material.shader.uniforms.centers.value[index] = ditherComponent.center.value
+  //     if (material.shader.uniforms.exponents)
+  //       material.shader.uniforms.exponents.value[index] = ditherComponent.exponent.value
+  //     if (material.shader.uniforms.distances)
+  //       material.shader.uniforms.distances.value[index] = ditherComponent.distance.value
+  //     if (material.shader.uniforms.useWorldCalculation)
+  //       material.shader.uniforms.useWorldCalculation.value[index] = ditherComponent.calculationType.value
+  //   }
+  //   const material = meshComponent.material
+  //   if (!isArray(material)) updateMaterialUniforms(material)
+  //   else for(let i = 0; i < material.length; i++) updateMaterialUniforms(material[i])
+  // }, [ditherComponent.center, ditherComponent.distance, ditherComponent.exponent, ditherComponent.calculationType])
 
   return null
 }
 
 export const injectDitheringLogic = (material: Material, center: Vector3, distance: number, exponent: number) => {
   material.alphaTest = 0.5
-  //if (overrideCulling) material.side = FrontSide
+  material.side = FrontSide
   addOBCPlugin(material, {
     id: 'transparency-dithering',
     priority: 10,
