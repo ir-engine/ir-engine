@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useHookstate } from '@hookstate/core'
-import React, { RefObject, useEffect, useLayoutEffect, useRef } from 'react'
+import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { useResizableVideoCanvas } from '@etherealengine/client-core/src/hooks/useResizableVideoCanvas'
@@ -72,8 +72,7 @@ import Header from '@etherealengine/ui/src/components/tailwind/Header'
 import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
 import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
-import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
-import { NormalizedLandmarkList, Options, POSE_CONNECTIONS, Pose } from '@mediapipe/pose'
+import { DrawingUtils, FilesetResolver, NormalizedLandmark, PoseLandmarker } from '@mediapipe/tasks-vision'
 import ReactSlider from 'react-slider'
 import Button from '../../primitives/tailwind/Button'
 /**
@@ -176,7 +175,7 @@ const CaptureMode = () => {
   const detectingStatus = useHookstate(getMutableState(CaptureState).detectingStatus)
   const isDetecting = detectingStatus.value === 'active'
 
-  const poseDetector = useHookstate(null as null | Pose)
+  const poseDetector = useHookstate(null as null | PoseLandmarker)
 
   const processingFrame = useHookstate(false)
 
@@ -186,28 +185,36 @@ const CaptureMode = () => {
 
   const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
 
+  const visionWasm = useHookstate
   useEffect(() => {
     detectingStatus.set('loading')
-    const pose = new Pose({
-      locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
-      }
+    FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm').then((vision) => {
+      PoseLandmarker.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: `https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task`,
+          delegate: 'GPU'
+        },
+        runningMode: 'VIDEO'
+      }).then((pose) => {
+        pose.setOptions({ runningMode: 'VIDEO' }).then(() => detectingStatus.set('ready'))
+        poseDetector.set(pose)
+      })
     })
-    pose.setOptions({
-      // enableFaceGeometry: trackingSettings?.enableFaceGeometry,
-      selfieMode: displaySettings?.flipVideo,
-      modelComplexity: trackingSettings?.modelComplexity,
-      smoothLandmarks: trackingSettings?.smoothLandmarks,
-      enableSegmentation: trackingSettings?.enableSegmentation,
-      smoothSegmentation: trackingSettings?.smoothSegmentation,
-      // refineFaceLandmarks: trackingSettings?.refineFaceLandmarks,
-      minDetectionConfidence: trackingSettings?.minDetectionConfidence,
-      minTrackingConfidence: trackingSettings?.minTrackingConfidence
-    } as Options)
-    pose.initialize().then(() => {
-      detectingStatus.set('ready')
-    })
-    poseDetector.set(pose)
+    // pose.setOptions({
+    //   // enableFaceGeometry: trackingSettings?.enableFaceGeometry,
+    //   selfieMode: displaySettings?.flipVideo,
+    //   modelComplexity: trackingSettings?.modelComplexity,
+    //   /**@todo we use our own landmark smoothing, that needs to be configureable via tracking settings instead */
+    //   smoothLandmarks: false,
+    //   enableSegmentation: trackingSettings?.enableSegmentation,
+    //   smoothSegmentation: trackingSettings?.smoothSegmentation,
+    //   minDetectionConfidence: trackingSettings?.minDetectionConfidence,
+    //   minTrackingConfidence: trackingSettings?.minTrackingConfidence
+    // } as Options)
+    // pose.initialize().then(() => {
+    //   detectingStatus.set('ready')
+    // })
+    // poseDetector.set(pose)
   }, [])
 
   useEffect(() => {
@@ -225,10 +232,13 @@ const CaptureMode = () => {
 
   useVideoFrameCallback(videoRef.current, (videoTime, metadata) => {
     if (!poseDetector.value || processingFrame.value || detectingStatus.value !== 'active') return
+    const drawingUtils = new DrawingUtils(canvasCtxRef.current!)
 
-    processingFrame.set(true)
-    poseDetector.value.send({ image: videoRef.current! }).finally(() => {
-      processingFrame.set(false)
+    poseDetector.value.detectForVideo(videoRef.current, performance.now(), (result) => {
+      const worldLandmarks = result.worldLandmarks[0]
+      const landmarks = result.landmarks[0]
+      sendResults({ worldLandmarks, landmarks })
+      drawPoseToCanvas(result.landmarks, canvasCtxRef, canvasRef, drawingUtils)
     })
   })
 
@@ -241,23 +251,23 @@ const CaptureMode = () => {
 
     processingFrame.set(false)
 
-    poseDetector.value.onResults((results) => {
-      if (Object.keys(results).length === 0) return
+    // poseDetector.value.onResults((results) => {
+    //   if (Object.keys(results).length === 0) return
 
-      const { poseWorldLandmarks, poseLandmarks } = results
+    //   const { poseWorldLandmarks, poseLandmarks } = results
 
-      if (debugSettings?.throttleSend) {
-        throttledSend({ poseWorldLandmarks, poseLandmarks })
-      } else {
-        sendResults({ poseWorldLandmarks, poseLandmarks })
-      }
+    //   if (debugSettings?.throttleSend) {
+    //     throttledSend({ poseWorldLandmarks, poseLandmarks })
+    //   } else {
+    //     sendResults({ poseWorldLandmarks, poseLandmarks })
+    //   }
 
-      processingFrame.set(false)
+    //   processingFrame.set(false)
 
-      if (displaySettings?.show2dSkeleton) {
-        drawPoseToCanvas(canvasCtxRef, canvasRef!, poseLandmarks)
-      }
-    })
+    //   if (displaySettings?.show2dSkeleton) {
+    //     drawPoseToCanvas(canvasCtxRef, canvasRef!, poseLandmarks)
+    //   }
+    // })
 
     return () => {
       // detectingStatus.set('inactive')
@@ -342,77 +352,25 @@ const CaptureMode = () => {
   )
 }
 
-export const drawPoseToCanvas = (
+const drawPoseToCanvas = (
+  poseLandmarks: NormalizedLandmark[][],
   canvasCtxRef: React.MutableRefObject<CanvasRenderingContext2D | undefined>,
-  canvasRef: RefObject<HTMLCanvasElement>,
-  poseLandmarks: NormalizedLandmarkList
+  canvasRef: React.RefObject<HTMLCanvasElement | undefined>,
+  drawingUtils: DrawingUtils
 ) => {
   if (!canvasCtxRef.current || !canvasRef.current) return
-
-  //draw!!!
-  canvasCtxRef.current.save()
   canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
-  canvasCtxRef.current.globalCompositeOperation = 'source-over'
 
-  const lineWidth = canvasRef.current.width * 0.004
-  const radius = canvasRef.current.width * 0.002
-
-  // Pose Connections
-  drawConnectors(canvasCtxRef.current, poseLandmarks, POSE_CONNECTIONS, {
-    color: '#fff',
-    lineWidth: lineWidth
-  })
-  // Pose Landmarks
-  drawLandmarks(canvasCtxRef.current, poseLandmarks, {
-    color: '#fff',
-    radius: radius
-  })
-
-  // // Left Hand Connections
-  // drawConnectors(
-  //   canvasCtxRef.current,
-  //   leftHandLandmarks !== undefined ? leftHandLandmarks : [],
-  //   HAND_CONNECTIONS,
-  //   {
-  //     color: '#fff',
-  //     lineWidth: 4
-  //   }
-  // )
-
-  // // Left Hand Landmarks
-  // drawLandmarks(canvasCtxRef.current, leftHandLandmarks !== undefined ? leftHandLandmarks : [], {
-  //   color: '#fff',
-  //   radius: 2
-  // })
-
-  // // Right Hand Connections
-  // drawConnectors(
-  //   canvasCtxRef.current,
-  //   rightHandLandmarks !== undefined ? rightHandLandmarks : [],
-  //   HAND_CONNECTIONS,
-  //   {
-  //     color: '#fff',
-  //     lineWidth: 4
-  //   }
-  // )
-
-  // // Right Hand Landmarks
-  // drawLandmarks(canvasCtxRef.current, rightHandLandmarks !== undefined ? rightHandLandmarks : [], {
-  //   color: '#fff',
-  //   radius: 2
-  // })
-
-  // // Face Connections
-  // drawConnectors(canvasCtxRef.current, faceLandmarks, FACEMESH_TESSELATION, {
-  //   color: '#fff',
-  //   lineWidth: 1
-  // })
-  // Face Landmarks
-  // drawLandmarks(canvasCtxRef.current, faceLandmarks, {
-  //   color: '#fff',
-  //   lineWidth: 1
-  // })
-  canvasCtxRef.current.restore()
+  if (poseLandmarks && canvasCtxRef.current) {
+    for (let i = 0; i < poseLandmarks.length; i++) {
+      //use tasks-vision utils import for draw connectors
+      drawingUtils.drawConnectors(poseLandmarks[i], PoseLandmarker.POSE_CONNECTIONS, {
+        color: '#fff',
+        lineWidth: 2
+      })
+      drawingUtils.drawLandmarks(poseLandmarks[i], { color: '#fff', lineWidth: 3 })
+    }
+  }
 }
 
 const VideoPlayback = (props: {
@@ -461,7 +419,7 @@ const VideoPlayback = (props: {
       const currentTimeMS = currentTimeSeconds.value * 1000
       const frame = data.frames.find((frame) => frame.timecode > currentTimeMS)
       if (!frame) return
-      drawPoseToCanvas(canvasCtxRef, canvasRef, frame.data.results.poseLandmarks)
+      //drawPoseToCanvas(canvasCtxRef, canvasRef, frame.data.results.poseLandmarks)
     }
   }, [currentTimeSeconds])
 

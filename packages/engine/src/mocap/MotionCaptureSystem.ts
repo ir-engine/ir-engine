@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { decode, encode } from 'msgpackr'
 import { useEffect } from 'react'
 
-import { PeerID } from '@etherealengine/hyperflux'
+import { PeerID, getState } from '@etherealengine/hyperflux'
 
 import {
   DataChannelType,
@@ -38,13 +38,15 @@ import {
 
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 
-import { NormalizedLandmarkList } from '@mediapipe/pose'
+import { NormalizedLandmark } from '@mediapipe/pose'
 
 import { RingBuffer } from '@etherealengine/common/src/utils/RingBuffer'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { ECSState } from '@etherealengine/ecs'
 import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
+import { Quaternion } from 'three'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { AvatarAnimationSystem } from '../avatar/systems/AvatarAnimationSystem'
@@ -52,8 +54,8 @@ import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 import { solveMotionCapturePose } from './solveMotionCapturePose'
 
 export type MotionCaptureResults = {
-  poseWorldLandmarks: NormalizedLandmarkList
-  poseLandmarks: NormalizedLandmarkList
+  worldLandmarks: NormalizedLandmark[]
+  landmarks: NormalizedLandmark[]
 }
 
 export const sendResults = (results: MotionCaptureResults) => {
@@ -124,7 +126,7 @@ const execute = () => {
 
     timeSeriesMocapLastSeen.set(peerID, Date.now())
     setComponent(entity, MotionCaptureRigComponent)
-    solveMotionCapturePose(entity, data?.results.poseWorldLandmarks, data?.results.poseLandmarks)
+    solveMotionCapturePose(entity, data?.results.worldLandmarks, data?.results.landmarks)
     mocapData.clear() // TODO: add a predictive filter and remove this
   }
 
@@ -142,7 +144,7 @@ const execute = () => {
       const normalizedBone = rigComponent.vrm.humanoid.normalizedHumanBones[boneName]?.node
       if (!normalizedBone) continue
       if (!MotionCaptureRigComponent.solvingLowerBody[entity]) {
-        /**todo lower body solve logic should be on a per limb basis */
+        /**@todo lower body solve logic should be on a per limb basis */
         if (
           boneName == VRMHumanBoneName.LeftUpperLeg ||
           boneName == VRMHumanBoneName.RightUpperLeg ||
@@ -162,14 +164,31 @@ const execute = () => {
         MotionCaptureRigComponent.rig[boneName].w[entity] === 1
       }
 
-      normalizedBone.quaternion
+      const slerpedQuat = new Quaternion()
         .set(
-          MotionCaptureRigComponent.rig[boneName].x[entity],
-          MotionCaptureRigComponent.rig[boneName].y[entity],
-          MotionCaptureRigComponent.rig[boneName].z[entity],
-          MotionCaptureRigComponent.rig[boneName].w[entity]
+          MotionCaptureRigComponent.slerpedRig[boneName].x[entity],
+          MotionCaptureRigComponent.slerpedRig[boneName].y[entity],
+          MotionCaptureRigComponent.slerpedRig[boneName].z[entity],
+          MotionCaptureRigComponent.slerpedRig[boneName].w[entity]
         )
-        .normalize()
+        .fastSlerp(
+          new Quaternion()
+            .set(
+              MotionCaptureRigComponent.rig[boneName].x[entity],
+              MotionCaptureRigComponent.rig[boneName].y[entity],
+              MotionCaptureRigComponent.rig[boneName].z[entity],
+              MotionCaptureRigComponent.rig[boneName].w[entity]
+            )
+            .normalize(),
+          getState(ECSState).deltaSeconds * 30
+        )
+
+      normalizedBone.quaternion.copy(slerpedQuat)
+
+      MotionCaptureRigComponent.slerpedRig[boneName].x[entity] = slerpedQuat.x
+      MotionCaptureRigComponent.slerpedRig[boneName].y[entity] = slerpedQuat.y
+      MotionCaptureRigComponent.slerpedRig[boneName].z[entity] = slerpedQuat.z
+      MotionCaptureRigComponent.slerpedRig[boneName].w[entity] = slerpedQuat.w
 
       // if (!rigComponent.vrm.humanoid.normalizedRestPose[boneName]) continue
       // if (MotionCaptureRigComponent.solvingLowerBody[entity])

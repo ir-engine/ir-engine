@@ -57,7 +57,6 @@ import { useExecute } from '@etherealengine/ecs'
 import { MotionCaptureSystem, timeSeriesMocapData } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { NetworkState, VideoConstants } from '@etherealengine/network'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { drawPoseToCanvas } from '@etherealengine/ui/src/pages/Capture'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
 import { AdminClientSettingsState } from '../../admin/services/Setting/ClientSettingService'
 import { MediaStreamState } from '../../transports/MediaStreams'
@@ -97,7 +96,7 @@ const useDrawMocapLandmarks = (
               const lastMocapResult = mocapBuffer.getLast()
               if (lastMocapResult && lastMocapResult.timestamp !== lastTimestamp) {
                 lastTimestamp = lastMocapResult.timestamp
-                drawPoseToCanvas(canvasCtxRef, canvasRef, lastMocapResult.results.poseLandmarks)
+                //drawPoseToCanvas(canvasCtxRef, canvasRef, lastMocapResult.results.poseLandmarks)
                 return
               }
             }

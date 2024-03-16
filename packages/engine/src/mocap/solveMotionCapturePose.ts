@@ -249,17 +249,21 @@ const shouldEstimateLowerBody = (landmarks: NormalizedLandmark[], threshold = 0.
 
 export function solveMotionCapturePose(
   entity: Entity,
-  newLandmarks?: NormalizedLandmarkList,
-  newScreenlandmarks?: NormalizedLandmarkList
+  newLandmarks?: NormalizedLandmark[],
+  newScreenlandmarks?: NormalizedLandmark[]
 ) {
-  const keyframeInterpolation = (newLandmarks: NormalizedLandmarkList, prevLandmarks: NormalizedLandmarkList) => {
-    const filteredLandmarks = [] as NormalizedLandmarkList
+  const keyframeInterpolation = (
+    newLandmarks: NormalizedLandmark[],
+    prevLandmarks: NormalizedLandmark[],
+    alphaMultiplier: number
+  ) => {
+    const filteredLandmarks = [] as NormalizedLandmark[]
     for (let i = 0; i < newLandmarks.length; i++) {
       if (newLandmarks[i].visibility! < 0.1) {
         filteredLandmarks[i] = prevLandmarks[i]
         continue
       }
-      const alpha = getState(ECSState).deltaSeconds * 10
+      const alpha = getState(ECSState).deltaSeconds * alphaMultiplier
       filteredLandmarks[i] = {
         visibility: MathUtils.lerp(prevLandmarks[i].visibility!, newLandmarks[i].visibility!, alpha),
         x: MathUtils.lerp(prevLandmarks[i].x, newLandmarks[i].x, alpha),
@@ -287,8 +291,8 @@ export function solveMotionCapturePose(
   if (!mocapComponent.prevScreenLandmarks)
     mocapComponent.prevScreenLandmarks = newScreenlandmarks.map((landmark) => ({ ...landmark }))
 
-  const worldLandmarks = keyframeInterpolation(newLandmarks, mocapComponent.prevWorldLandmarks)
-  const screenLandmarks = keyframeInterpolation(newScreenlandmarks, mocapComponent.prevScreenLandmarks)
+  const worldLandmarks = keyframeInterpolation(newLandmarks, mocapComponent.prevWorldLandmarks, 50)
+  const screenLandmarks = keyframeInterpolation(newScreenlandmarks, mocapComponent.prevScreenLandmarks, 10)
 
   mocapComponent.prevWorldLandmarks = worldLandmarks
   mocapComponent.prevScreenLandmarks = screenLandmarks

@@ -145,6 +145,7 @@
     "@feathersjs/feathers": "5.0.5",
     "@feathersjs/schema": "5.0.5",
     "@feathersjs/typebox": "5.0.5",
+    "@mediapipe/tasks-vision": "^0.10.12",
     "app-root-path": "3.1.0",
     "cli": "1.0.1",
     "dotenv": "16.0.3",

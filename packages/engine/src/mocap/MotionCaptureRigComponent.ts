@@ -43,6 +43,10 @@ export const MotionCaptureRigComponent = defineComponent({
       VRMHumanBoneName,
       typeof QuaternionSchema
     >,
+    slerpedRig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, QuaternionSchema])) as Record<
+      VRMHumanBoneName,
+      typeof QuaternionSchema
+    >,
     hipPosition: Vector3Schema,
     hipRotation: QuaternionSchema,
     footOffset: 'f64',
