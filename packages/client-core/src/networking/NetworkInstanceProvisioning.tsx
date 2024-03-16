@@ -38,7 +38,7 @@ import {
 } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 
 import Groups from '@mui/icons-material/Groups'
@@ -46,7 +46,7 @@ import Groups from '@mui/icons-material/Groups'
 import { InstanceID, LocationID, RoomCode, SceneID } from '@etherealengine/common/src/schema.type.module'
 import { useTranslation } from 'react-i18next'
 import { FriendService } from '../social/services/FriendService'
-import { connectToInstance } from '../transports/SocketWebRTCClientFunctions'
+import { SocketWebRTCClientNetwork, connectToInstance, leaveNetwork } from '../transports/SocketWebRTCClientFunctions'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import FriendsMenu from '../user/components/UserMenu/menus/FriendsMenu'
 import MessagesMenu from '../user/components/UserMenu/menus/MessagesMenu'
@@ -163,7 +163,7 @@ export const WorldInstance = ({ id }: { id: InstanceID }) => {
   const worldInstance = useHookstate(getMutableState(LocationInstanceState).instances[id])
 
   useEffect(() => {
-    return connectToInstance(
+    connectToInstance(
       id,
       worldInstance.ipAddress.value,
       worldInstance.port.value,
@@ -171,6 +171,11 @@ export const WorldInstance = ({ id }: { id: InstanceID }) => {
       undefined,
       worldInstance.roomCode.value
     )
+
+    return () => {
+      const network = getState(NetworkState).networks[id] as SocketWebRTCClientNetwork | undefined
+      if (network) leaveNetwork(network)
+    }
   }, [])
 
   return null

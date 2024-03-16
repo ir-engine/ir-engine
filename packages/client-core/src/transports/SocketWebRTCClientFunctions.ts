@@ -316,19 +316,6 @@ export const connectToInstance = (
     primus.on('incoming::end', onDisconnect)
   }
   primus.on('incoming::open', onConnect)
-
-  return () => {
-    disconnected = true
-    if (connecting) {
-      primus.off('incoming::open', onConnect)
-      primus.removeAllListeners()
-      primus.end()
-      clearTimeout(connectionFailTimeout)
-    } else {
-      const network = getState(NetworkState).networks[instanceID] as SocketWebRTCClientNetwork
-      leaveNetwork(network)
-    }
-  }
 }
 
 export const getChannelIdFromTransport = (network: SocketWebRTCClientNetwork) => {
