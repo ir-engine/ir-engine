@@ -30,15 +30,20 @@ import {
   getComponent,
   getOptionalComponent
 } from '@etherealengine/ecs'
+import { getState } from '@etherealengine/hyperflux'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { materialFromId } from '../../scene/materials/functions/MaterialLibraryFunctions'
 import { TransparencyDitheringComponent, maxDitherPoints } from '../components/TransparencyDitheringComponent'
 
 const TransparencyDitheringQuery = defineQuery([TransparencyDitheringComponent[0]])
 const execute = () => {
+  const basicMaterials = getState(RendererState).forceBasicMaterials
+  const useBasicPrefix = basicMaterials ? 'basic-' : ''
+
   for (const entity of TransparencyDitheringQuery()) {
     const ditherComponent = getComponent(entity, TransparencyDitheringComponent[0])
     for (const id of ditherComponent.materialIds) {
-      const material = materialFromId(id).material
+      const material = materialFromId(useBasicPrefix + id).material
       for (let i = 0; i < maxDitherPoints; i++) {
         const ditherComponent = getOptionalComponent(entity, TransparencyDitheringComponent[i])
         if (!ditherComponent) break

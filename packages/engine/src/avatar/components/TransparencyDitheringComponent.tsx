@@ -112,7 +112,10 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity; index: 
     const materialIds = ditherComponent.materialIds
 
     if (!isArray(material)) {
-      ditherComponent.materialIds.set([...ditherComponent.materialIds.value, material.uuid])
+      //remove basic- prefix if it exists
+      const id = material.uuid.replace('basic-', '')
+      if (!materialIds.value.find((uuid) => uuid === id))
+        ditherComponent.materialIds.set([...materialIds.value, material.uuid])
       injectDitheringLogic(
         material,
         ditherComponent.center.value,
@@ -121,24 +124,6 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity; index: 
       )
     }
   }, [basicMaterials])
-
-  // useEffect(() => {
-  //   const meshComponent = getOptionalComponent(entity, MeshComponent)
-  //   if (!meshComponent) return
-  //   const updateMaterialUniforms = (material: Material) => {
-  //     if(!material.shader) return
-  //     if (material.shader.uniforms.centers) material.shader.uniforms.centers.value[index] = ditherComponent.center.value
-  //     if (material.shader.uniforms.exponents)
-  //       material.shader.uniforms.exponents.value[index] = ditherComponent.exponent.value
-  //     if (material.shader.uniforms.distances)
-  //       material.shader.uniforms.distances.value[index] = ditherComponent.distance.value
-  //     if (material.shader.uniforms.useWorldCalculation)
-  //       material.shader.uniforms.useWorldCalculation.value[index] = ditherComponent.calculationType.value
-  //   }
-  //   const material = meshComponent.material
-  //   if (!isArray(material)) updateMaterialUniforms(material)
-  //   else for(let i = 0; i < material.length; i++) updateMaterialUniforms(material[i])
-  // }, [ditherComponent.center, ditherComponent.distance, ditherComponent.exponent, ditherComponent.calculationType])
 
   return null
 }

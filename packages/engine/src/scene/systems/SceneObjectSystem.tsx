@@ -34,7 +34,8 @@ import {
   MeshStandardMaterial,
   Object3D,
   SkinnedMesh,
-  Texture
+  Texture,
+  Vector3
 } from 'three'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -53,6 +54,7 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
+import { PluginObjectType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { GroupComponent, GroupQueryReactor } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -64,6 +66,7 @@ import {
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import { ResourceManager } from '../../assets/state/ResourceState'
+import { injectDitheringLogic } from '../../avatar/components/TransparencyDitheringComponent'
 import { registerMaterial, unregisterMaterial } from '../../scene/materials/functions/MaterialLibraryFunctions'
 import { ModelComponent, useMeshOrModel } from '../components/ModelComponent'
 import { SceneComponent } from '../components/SceneComponent'
@@ -116,7 +119,9 @@ export function setupObject(obj: Object3D, forceBasicMaterials = false) {
     const shouldMakeBasic =
       (forceBasicMaterials || isMobileXRHeadset) && ExpensiveMaterials.has(child.material.constructor)
     if (!forceBasicMaterials && !isMobileXRHeadset && child.userData.lastMaterial) {
+      const prevEntry = unregisterMaterial(child.material)
       child.material = child.userData.lastMaterial
+      prevEntry && registerMaterial(child.userData.lastMaterial, prevEntry.src, prevEntry.parameters)
       delete child.userData.lastMaterial
     } else if (shouldMakeBasic && !child.userData.lastMaterial) {
       const prevMaterial = child.material
@@ -135,6 +140,14 @@ export function setupObject(obj: Object3D, forceBasicMaterials = false) {
 
       child.material = nuMaterial
       child.userData.lastMaterial = prevMaterial
+
+      nuMaterial.uuid = `basic-${prevMaterial.uuid}`
+
+      /**dirty hack for dithering effect until this is refactored */
+      const plugin = prevMaterial.plugins?.findIndex(
+        (plugin: PluginObjectType) => plugin.id === 'transparency-dithering'
+      )
+      if (plugin !== undefined && plugin !== -1) injectDitheringLogic(nuMaterial, new Vector3(), 5, 2)
 
       prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src, prevMatEntry.parameters)
     }
