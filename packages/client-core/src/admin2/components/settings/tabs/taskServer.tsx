@@ -23,13 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { taskServerSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
+import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import React, { forwardRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 const TaskServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
+
+  const settingTaskServer = useFind(taskServerSettingPath).data
 
   return (
     <Accordion
@@ -40,7 +45,21 @@ const TaskServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
       ref={ref}
       open={open}
     >
-      <p>Hey</p>
+      <div className="mt-6 grid grid-cols-2 gap-6">
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.taskServer.port')}
+          value={settingTaskServer.map((el) => el.port).join(', ')}
+          disabled
+        />
+
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.taskServer.processInterval')}
+          value={settingTaskServer.map((el) => el.processInterval).join(', ')}
+          disabled
+        />
+      </div>
     </Accordion>
   )
 })
