@@ -66,7 +66,6 @@ import {
 } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { throttle } from '@etherealengine/spatial/src/common/functions/FunctionHelpers'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import Header from '@etherealengine/ui/src/components/tailwind/Header'
 import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
@@ -179,13 +178,12 @@ const CaptureMode = () => {
 
   const processingFrame = useHookstate(false)
 
-  const videoStatus = useVideoStatus()
+  // const videoStatus = useVideoStatus()
 
   const { videoRef, canvasRef, canvasCtxRef, resizeCanvas } = useResizableVideoCanvas()
 
   const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
 
-  const visionWasm = useHookstate
   useEffect(() => {
     detectingStatus.set('loading')
     FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm').then((vision) => {
@@ -206,21 +204,6 @@ const CaptureMode = () => {
         poseDetector.set(pose)
       })
     })
-    // pose.setOptions({
-    //   // enableFaceGeometry: trackingSettings?.enableFaceGeometry,
-    //   selfieMode: displaySettings?.flipVideo,
-    //   modelComplexity: trackingSettings?.modelComplexity,
-    //   /**@todo we use our own landmark smoothing, that needs to be configureable via tracking settings instead */
-    //   smoothLandmarks: false,
-    //   enableSegmentation: trackingSettings?.enableSegmentation,
-    //   smoothSegmentation: trackingSettings?.smoothSegmentation,
-    //   minDetectionConfidence: trackingSettings?.minDetectionConfidence,
-    //   minTrackingConfidence: trackingSettings?.minTrackingConfidence
-    // } as Options)
-    // pose.initialize().then(() => {
-    //   detectingStatus.set('ready')
-    // })
-    // poseDetector.set(pose)
   }, [])
 
   useEffect(() => {
@@ -234,7 +217,7 @@ const CaptureMode = () => {
     resizeCanvas()
   }, [videoStream])
 
-  const throttledSend = throttle(sendResults, 1)
+  // const throttledSend = throttle(sendResults, 1)
 
   useVideoFrameCallback(videoRef.current, (videoTime, metadata) => {
     if (!poseDetector.value || processingFrame.value || detectingStatus.value !== 'active') return
