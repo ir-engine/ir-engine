@@ -65,7 +65,7 @@ import {
   POSE_LANDMARKS_NEUTRAL,
   POSE_LANDMARKS_RIGHT
 } from '@mediapipe/pose'
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 
@@ -77,6 +77,10 @@ const feetIndices = { rightFoot: 0, leftFoot: 1 }
 const feetGrounded = [false, false]
 const footAverageDifferenceThreshold = 0.05
 const footLevelDifferenceThreshold = 0.035
+
+//get all strings from the list containing 'leg' or 'foot'
+const lowerBody = VRMHumanBoneList.filter((bone) => /Leg|Foot/i.test(bone))
+
 /**calculates which feet are grounded. operates on the assumption that the user is on a plane,
  * such that the lowest foot with no vertical motion over the past 10 frames is always the grounded foot.
  */
@@ -383,6 +387,14 @@ export function solveMotionCapturePose(
     //check state, if we are still not set to track lower body, update that
     if (!MotionCaptureRigComponent.solvingLowerBody[entity]) {
       MotionCaptureRigComponent.solvingLowerBody[entity] = 1
+      //zero bone quats to filter them out in motion capture system
+      for (const boneName of lowerBody) {
+        //only leg bones
+        MotionCaptureRigComponent.rig[boneName].x[entity] = 0
+        MotionCaptureRigComponent.rig[boneName].y[entity] = 0
+        MotionCaptureRigComponent.rig[boneName].z[entity] = 0
+        MotionCaptureRigComponent.rig[boneName].w[entity] = 0
+      }
     }
   } else {
     if (MotionCaptureRigComponent.solvingLowerBody[entity]) {
@@ -397,7 +409,7 @@ export function solveMotionCapturePose(
     screenLandmarks[POSE_LANDMARKS.NOSE]
   )
 
-  //solveHand(
+  // solveHand(
   //  entity,
   //  lowestWorldY,
   //  screenLandmarks[POSE_LANDMARKS_LEFT.LEFT_WRIST],
@@ -405,8 +417,8 @@ export function solveMotionCapturePose(
   //  screenLandmarks[POSE_LANDMARKS_LEFT.LEFT_INDEX],
   //  VRMHumanBoneName.RightLowerArm,
   //  VRMHumanBoneName.RightHand
-  //)
-  //solveHand(
+  // )
+  // solveHand(
   //  entity,
   //  lowestWorldY,
   //  screenLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_WRIST],
@@ -414,7 +426,7 @@ export function solveMotionCapturePose(
   //  screenLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_INDEX],
   //  VRMHumanBoneName.LeftLowerArm,
   //  VRMHumanBoneName.LeftHand
-  //)
+  // )
 }
 
 const threshhold = 0.6
@@ -539,7 +551,7 @@ export const solveLimb = (
   mid: NormalizedLandmark,
   end: NormalizedLandmark,
   axis: Vector3,
-  parentTargetBoneName: VRMHumanBoneName,
+  parentTargetBoneName = null as VRMHumanBoneName | null,
   startTargetBoneName: VRMHumanBoneName,
   midTargetBoneName: VRMHumanBoneName,
   minimumVisibility = -1
@@ -557,6 +569,15 @@ export const solveLimb = (
 
   // convert to local space
   const startLocal = new Quaternion().copy(startQuaternion)
+  if (parentTargetBoneName)
+    startLocal.premultiply(
+      new Quaternion(
+        MotionCaptureRigComponent.rig[parentTargetBoneName].x[entity],
+        MotionCaptureRigComponent.rig[parentTargetBoneName].y[entity],
+        MotionCaptureRigComponent.rig[parentTargetBoneName].z[entity],
+        MotionCaptureRigComponent.rig[parentTargetBoneName].w[entity]
+      ).invert()
+    )
   const midLocal = new Quaternion().copy(midQuaternion).premultiply(startQuaternion.clone().invert())
 
   MotionCaptureRigComponent.rig[startTargetBoneName].x[entity] = startLocal.x

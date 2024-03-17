@@ -45,7 +45,7 @@ import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { ECSState } from '@etherealengine/ecs'
 import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
+import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { Quaternion } from 'three'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
@@ -143,18 +143,6 @@ const execute = () => {
     for (const boneName of VRMHumanBoneList) {
       const normalizedBone = rigComponent.vrm.humanoid.normalizedHumanBones[boneName]?.node
       if (!normalizedBone) continue
-      if (!MotionCaptureRigComponent.solvingLowerBody[entity]) {
-        /**@todo lower body solve logic should be on a per limb basis */
-        if (
-          boneName == VRMHumanBoneName.LeftUpperLeg ||
-          boneName == VRMHumanBoneName.RightUpperLeg ||
-          boneName == VRMHumanBoneName.LeftLowerLeg ||
-          boneName == VRMHumanBoneName.RightLowerLeg ||
-          boneName == VRMHumanBoneName.LeftFoot ||
-          boneName == VRMHumanBoneName.RightFoot
-        )
-          continue
-      }
       if (
         MotionCaptureRigComponent.rig[boneName].x[entity] === 0 &&
         MotionCaptureRigComponent.rig[boneName].y[entity] === 0 &&
@@ -162,6 +150,7 @@ const execute = () => {
         MotionCaptureRigComponent.rig[boneName].w[entity] === 0
       ) {
         MotionCaptureRigComponent.rig[boneName].w[entity] === 1
+        continue
       }
 
       const slerpedQuat = new Quaternion()
@@ -189,10 +178,6 @@ const execute = () => {
       MotionCaptureRigComponent.slerpedRig[boneName].y[entity] = slerpedQuat.y
       MotionCaptureRigComponent.slerpedRig[boneName].z[entity] = slerpedQuat.z
       MotionCaptureRigComponent.slerpedRig[boneName].w[entity] = slerpedQuat.w
-
-      // if (!rigComponent.vrm.humanoid.normalizedRestPose[boneName]) continue
-      // if (MotionCaptureRigComponent.solvingLowerBody[entity])
-      //   normalizedBone.position.fromArray(rigComponent.vrm.humanoid.normalizedRestPose[boneName]!.position as number[])
     }
 
     const hipBone = rigComponent.normalizedRig.hips.node
