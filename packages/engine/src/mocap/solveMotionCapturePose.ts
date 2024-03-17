@@ -261,19 +261,26 @@ export function solveMotionCapturePose(
     prevLandmarks: NormalizedLandmark[],
     alphaMultiplier: number
   ) => {
+    if (!prevLandmarks.length) return newLandmarks
     const filteredLandmarks = [] as NormalizedLandmark[]
+    const lowPassLandmarks = [] as NormalizedLandmark[]
     for (let i = 0; i < newLandmarks.length; i++) {
       if (newLandmarks[i].visibility! < 0.1) {
+        lowPassLandmarks[i] = prevLandmarks[i]
         filteredLandmarks[i] = prevLandmarks[i]
         continue
       }
       const alpha = getState(ECSState).deltaSeconds * alphaMultiplier
-
+      lowPassLandmarks[i] = {
+        x: MathUtils.lerp(prevLandmarks[i].x, newLandmarks[i].x, newLandmarks[i].visibility!),
+        y: MathUtils.lerp(prevLandmarks[i].y, newLandmarks[i].y, newLandmarks[i].visibility!),
+        z: MathUtils.lerp(prevLandmarks[i].z, newLandmarks[i].z, newLandmarks[i].visibility!)
+      }
       filteredLandmarks[i] = {
         visibility: MathUtils.lerp(prevLandmarks[i].visibility!, newLandmarks[i].visibility!, alpha),
-        x: MathUtils.lerp(prevLandmarks[i].x, newLandmarks[i].x, alpha),
-        y: MathUtils.lerp(prevLandmarks[i].y, newLandmarks[i].y, alpha),
-        z: MathUtils.lerp(prevLandmarks[i].z, newLandmarks[i].z, alpha)
+        x: MathUtils.lerp(prevLandmarks[i].x, lowPassLandmarks[i].x, alpha),
+        y: MathUtils.lerp(prevLandmarks[i].y, lowPassLandmarks[i].y, alpha),
+        z: MathUtils.lerp(prevLandmarks[i].z, lowPassLandmarks[i].z, alpha)
       }
     }
     return filteredLandmarks
@@ -296,7 +303,7 @@ export function solveMotionCapturePose(
   if (!mocapComponent.prevScreenLandmarks)
     mocapComponent.prevScreenLandmarks = newScreenlandmarks.map((landmark) => ({ ...landmark }))
 
-  const worldLandmarks = keyframeInterpolation(newLandmarks, mocapComponent.prevWorldLandmarks, 50)
+  const worldLandmarks = keyframeInterpolation(newLandmarks, mocapComponent.prevWorldLandmarks, 25)
   const screenLandmarks = keyframeInterpolation(newScreenlandmarks, mocapComponent.prevScreenLandmarks, 10)
 
   mocapComponent.prevWorldLandmarks = worldLandmarks
