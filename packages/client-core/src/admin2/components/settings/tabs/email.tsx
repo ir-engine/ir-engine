@@ -23,13 +23,96 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { emailSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { useHookstate } from '@etherealengine/hyperflux'
+import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
-import React, { forwardRef } from 'react'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
+import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
+import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
+import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
+  const state = useHookstate({
+    loading: false,
+    errorMessage: ''
+  })
+  const emailSetting = useFind(emailSettingPath).data.at(0)
+  const id = emailSetting?.id
+  const showPassword = useHookstate(false)
+  const smsNameCharacterLimit = useHookstate(emailSetting?.smsNameCharacterLimit)
+  const smtp = useHookstate(emailSetting?.smtp)
+  const auth = useHookstate(emailSetting?.smtp?.auth)
+  const from = useHookstate(emailSetting?.from)
+  const subject = useHookstate(emailSetting?.subject)
+
+  const patchEmailSetting = useMutation(emailSettingPath).patch
+
+  const handleSmtpSecure = (event) => {
+    smtp.set({ ...JSON.parse(JSON.stringify(smtp.value)), secure: event.target.checked })
+  }
+
+  const handleUpdateSmtp = (event, type) => {
+    smtp.set({
+      ...JSON.parse(JSON.stringify(smtp.value)),
+      [type]: event.target.value
+    })
+  }
+
+  const handleUpdateAuth = (event, type) => {
+    auth.set({
+      ...JSON.parse(JSON.stringify(auth.value)),
+      [type]: event.target.value
+    })
+  }
+
+  useEffect(() => {
+    if (emailSetting) {
+      smtp.set(emailSetting?.smtp)
+      auth.set(emailSetting?.smtp?.auth)
+      subject.set(emailSetting?.subject)
+      from.set(emailSetting?.from)
+    }
+  }, [emailSetting])
+
+  const handleSubmit = (event) => {
+    state.loading.set(true)
+    event.preventDefault()
+
+    if (!id || !smtp.value || !auth.value || !from.value || !subject.value) return
+
+    patchEmailSetting(id, {
+      smtp: { ...smtp.value, auth: auth.value },
+      from: from.value,
+      subject: subject.value
+    })
+      .then(() => {
+        state.set({ loading: false, errorMessage: '' })
+      })
+      .catch((e) => {
+        state.set({ loading: false, errorMessage: e.message })
+      })
+  }
+
+  const handleCancel = () => {
+    smtp.set(emailSetting?.smtp)
+    auth.set(emailSetting?.smtp?.auth)
+    subject.set(emailSetting?.subject)
+    from.set(emailSetting?.from)
+    smsNameCharacterLimit.set(emailSetting?.smsNameCharacterLimit)
+  }
+
+  const handleUpdateSubject = (event, type) => {
+    subject.set({
+      ...JSON.parse(JSON.stringify(subject.value)),
+      [type]: event.target.value
+    })
+  }
 
   return (
     <Accordion
@@ -40,7 +123,118 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
       ref={ref}
       open={open}
     >
-      <p>Hey</p>
+      <div className="my-4 grid grid-cols-2 gap-4">
+        <Text component="h2" fontSize="xl" fontWeight="semibold" className="col-span-full">
+          {t('admin:components.setting.smtp')}
+        </Text>
+        <Input
+          className="col-span-2"
+          label={t('admin:components.setting.host')}
+          value={smtp?.value?.host || ''}
+          onChange={(e) => handleUpdateSmtp(e, 'host')}
+        />
+
+        <Input
+          className="col-span-2"
+          label={t('admin:components.setting.port')}
+          value={smtp?.value?.port || ''}
+          onChange={(e) => handleUpdateSmtp(e, 'port')}
+        />
+      </div>
+
+      <div className="my-4 grid grid-cols-2 gap-4">
+        <Text component="h2" fontSize="xl" fontWeight="semibold" className="col-span-full">
+          {t('admin:components.setting.from')}
+        </Text>
+        <Input
+          className="col-span-2"
+          label={t('admin:components.setting.from')}
+          value={from?.value || ''}
+          onChange={(e) => from.set(e.target.value)}
+        />
+
+        <Toggle
+          className="col-span-2 mt-5"
+          label={t('admin:components.setting.secure')}
+          value={smtp?.value?.secure || false}
+          onChange={handleSmtpSecure}
+        />
+      </div>
+
+      <div className="my-4 grid grid-cols-2 gap-4">
+        <Text component="h2" fontSize="xl" fontWeight="semibold" className="col-span-full">
+          {t('admin:components.setting.auth')}
+        </Text>
+        <Input
+          className="col-span-2"
+          label={t('admin:components.setting.userName')}
+          value={auth?.value?.user || ''}
+          onChange={(e) => handleUpdateAuth(e, 'user')}
+        />
+
+        <Input
+          className="col-span-2"
+          label={t('admin:components.setting.password')}
+          value={auth?.value?.pass || ''}
+          type="password"
+          onChange={(e) => handleUpdateAuth(e, 'pass')}
+        />
+      </div>
+
+      <div className="my-4 grid grid-cols-2 gap-4">
+        <Text component="h2" fontSize="xl" fontWeight="semibold" className="col-span-full">
+          {t('admin:components.setting.subject')}
+        </Text>
+        <Input
+          className="col-span-2"
+          label={t('admin:components.setting.login')}
+          value={subject?.value?.login || ''}
+          onChange={(e) => handleUpdateSubject(e, 'login')}
+        />
+
+        <Input
+          className="col-span-2"
+          label={t('admin:components.setting.friend')}
+          value={subject?.value?.friend || ''}
+          onChange={(e) => handleUpdateSubject(e, 'friend')}
+        />
+
+        <Input
+          className="col-span-2"
+          label={t('admin:components.setting.channel')}
+          value={subject?.value?.channel || ''}
+          onChange={(e) => handleUpdateSubject(e, 'channel')}
+        />
+
+        <Input
+          className="col-span-2"
+          label={t('admin:components.setting.smsNameCharLimit')}
+          value={smsNameCharacterLimit?.value?.toString() || ''}
+          disabled
+        />
+
+        {state.errorMessage.value && (
+          <div className="col-span-full">
+            <Text component="h3" className="text-red-400">
+              {state.errorMessage.value}
+            </Text>
+          </div>
+        )}
+
+        <div className="col-span-1 grid grid grid-cols-4 gap-6">
+          <Button className="col-span-1 dark:bg-[#212226]" fullWidth onClick={handleCancel}>
+            {t('admin:components.common.cancel')}
+          </Button>
+          <Button
+            className="col-span-1 dark:bg-[#375DAF]"
+            fullWidth
+            onClick={handleSubmit}
+            startIcon={state.loading.value && <LoadingCircle className="h-6 w-6" />}
+          >
+            {t('admin:components.common.save')}
+          </Button>
+        </div>
+      </div>
     </Accordion>
   )
 })
