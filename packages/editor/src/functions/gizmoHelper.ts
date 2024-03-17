@@ -432,7 +432,7 @@ export function planeUpdate(gizmoEntity) {
     // If in rotate mode, make the plane parallel to camera
     setComponent(gizmoControl.planeEntity, TransformComponent, { rotation: camera.quaternion })
   } else {
-    _tempMatrix.lookAt(_tempVector.set(0, 0, 0), _dirVector, _alignVector)
+    _tempMatrix.lookAt(V_000, _dirVector, _alignVector)
     setComponent(gizmoControl.planeEntity, TransformComponent, {
       rotation: new Quaternion().setFromRotationMatrix(_tempMatrix)
     })
