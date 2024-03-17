@@ -53,7 +53,7 @@ const AdminSideBar = () => {
   const relativePath = fullPathName.split('/').slice(2).join('/')
 
   return (
-    <aside className="bg-theme-surfaceMain mx-8 rounded-lg px-2 py-4">
+    <aside className="bg-theme-primary mx-8 rounded-lg px-2 py-4">
       <ul className="space-y-2">
         {Object.entries(allowedRoutes)
           .filter(([_, sidebarItem]) => sidebarItem.access)
@@ -62,8 +62,8 @@ const AdminSideBar = () => {
               <li key={index}>
                 <Link to={path}>
                   <Button
-                    className={`text-theme-secondary flex w-72 items-center justify-start rounded-xl px-2 py-3 hover:bg-[#212226] ${
-                      relativePath === path ? 'bg-theme-primary' : 'bg-theme-surfaceMain'
+                    className={`text-theme-secondary	 flex w-72 items-center justify-start rounded-xl px-2 py-3 font-medium dark:hover:bg-[#212226] ${
+                      relativePath === path ? 'text-theme-primary font-semibold dark:bg-[#212226] ' : 'bg-primary'
                     }`}
                     startIcon={sidebarItem.icon}
                   >

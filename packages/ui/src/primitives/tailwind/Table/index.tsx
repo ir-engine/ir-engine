@@ -83,7 +83,7 @@ interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   children?: ReactNode
 }
 const TableRow = ({ className, children, ...props }: TableRowProps) => {
-  const twClassName = twMerge('even:bg-theme-surfaceMain odd:bg-gray-100 odd:dark:bg-[#212226]', className)
+  const twClassName = twMerge('odd:bg-theme-primary even:dark:bg-[#212226]', className)
   return (
     <tr className={twClassName} {...props}>
       {children}

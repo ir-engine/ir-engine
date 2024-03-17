@@ -40,10 +40,10 @@ const lightTheme = {
 }
 
 const darkTheme = {
-  'bg-primary': '#111113',
+  'bg-primary': '#1A1B1E',
   'bg-secondary': '#1A1B1E',
   'bg-highlight': '#212226',
-  'bg-surface-main': '#1A1B1E',
+  'bg-surface-main': '#111113',
   'text-primary': '#F5F5F5',
   'text-secondary': '#D4D4D4',
   'text-highlight': '#FFFFFF',
