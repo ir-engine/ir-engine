@@ -128,6 +128,10 @@ export function gizmoUpdate(gizmoEntity) {
   setVisibleComponent(gizmo.helper[TransformMode.rotate], gizmoControl.mode === TransformMode.rotate)
   setVisibleComponent(gizmo.helper[TransformMode.scale], gizmoControl.mode === TransformMode.scale)
 
+  setVisibleComponent(gizmo.picker[TransformMode.translate], gizmoControl.mode === TransformMode.translate)
+  setVisibleComponent(gizmo.picker[TransformMode.rotate], gizmoControl.mode === TransformMode.rotate)
+  setVisibleComponent(gizmo.picker[TransformMode.scale], gizmoControl.mode === TransformMode.scale)
+
   const gizmoObject = getComponent(gizmo.gizmo[gizmoControl.mode], GroupComponent)[0]
   const pickerObject = getComponent(gizmo.picker[gizmoControl.mode], GroupComponent)[0]
   const helperObject = getComponent(gizmo.helper[gizmoControl.mode], GroupComponent)[0]
