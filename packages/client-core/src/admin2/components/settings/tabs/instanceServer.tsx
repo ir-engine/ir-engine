@@ -23,13 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { instanceServerSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { useHookstate } from '@etherealengine/hyperflux'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
+import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
+import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 import React, { forwardRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
+  const instanceServerSettings = useFind(instanceServerSettingPath).data
+  const local = useHookstate(true)
 
   return (
     <Accordion
@@ -40,7 +47,76 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       ref={ref}
       open={open}
     >
-      <p>Hey</p>
+      {instanceServerSettings.map((el) => (
+        <div className="mt-6 grid grid-cols-2 gap-6">
+          <Input
+            className="col-span-1"
+            label={t('admin:components.setting.clientHost')}
+            value={el?.clientHost || ''}
+            disabled
+          />
+
+          <Input
+            className="col-span-1"
+            label={t('admin:components.setting.domain')}
+            value={el?.domain || ''}
+            disabled
+          />
+
+          <Input
+            className="col-span-1"
+            label={t('admin:components.setting.rtcStartPort')}
+            value={el?.rtcStartPort || ''}
+            disabled
+          />
+
+          <Input
+            className="col-span-1"
+            label={t('admin:components.setting.releaseName')}
+            value={el?.releaseName || ''}
+            disabled
+          />
+
+          <Input
+            className="col-span-1"
+            label={t('admin:components.setting.rtcEndPort')}
+            value={el?.rtcEndPort || ''}
+            disabled
+          />
+
+          <Input className="col-span-1" label={t('admin:components.setting.port')} value={el?.port || ''} disabled />
+
+          <Input
+            className="col-span-1"
+            label={t('admin:components.setting.rtcPortBlockSize')}
+            value={el?.rtcPortBlockSize || ''}
+            disabled
+          />
+
+          <Input className="col-span-1" label={t('admin:components.setting.mode')} value={el?.mode || ''} disabled />
+
+          <Input
+            className="col-span-1"
+            label={t('admin:components.setting.identifierDigits')}
+            value={el?.identifierDigits || ''}
+            disabled
+          />
+
+          <Input
+            className="col-span-1"
+            label={t('admin:components.setting.locationName')}
+            value={el?.locationName || ''}
+            disabled
+          />
+
+          <Toggle
+            label={t('admin:components.setting.local')}
+            value={local.value}
+            disabled
+            onChange={(value) => local.set(value)}
+          />
+        </div>
+      ))}
     </Accordion>
   )
 })
