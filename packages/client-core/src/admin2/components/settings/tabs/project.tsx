@@ -125,7 +125,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
   return (
     <Accordion
       title={t('admin:components.setting.project.header')}
-      subtitle="Edit Project Settings"
+      subtitle={t('admin:components.setting.project.subtitle')}
       expandIcon={<HiPlusSmall />}
       shrinkIcon={<HiMinus />}
       ref={ref}

@@ -46,7 +46,7 @@ export const SettingsTabsData = [
     Component: ProjectTab
   },
   {
-    label: t('admin:components.setting.server'),
+    label: t('admin:components.setting.server.header'),
     Component: ServerTab
   },
   {

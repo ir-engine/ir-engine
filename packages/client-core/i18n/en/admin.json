@@ -432,7 +432,6 @@
       "redis": "Redis",
       "enabled": "Enabled",
       "address": "Address",
-      "server": "Server",
       "hostName": "Host Name",
       "rootDirectory": "Root Directory",
       "publicDirectory": "Public Directory",
@@ -482,23 +481,30 @@
       "privacyPolicy": "Privacy Policy",
       "project": {
         "header": "Project",
+        "subtitle": "Edit Project Settings",
         "submit": "Submit",
         "clear": "Clear",
         "noSettingsMessage": "No schema available in xrengine.config.ts"
       },
-      "taskServer": {
-        "taskServer": "Task Server",
-        "port": "Port",
-        "processInterval": "Process Interval"
+      "server": {
+        "header": "Server",
+        "subtitle": "Edit Mode, Storage Provider, Host Name, Hub,etc."
       },
       "helm": {
         "header": "Helm Chart Versions",
+        "subtitle": "To apply a new Helm chart version, Save here, then go to /admin/projects and then Rebuild",
         "main": "Main deployment Helm version",
         "builder": "Builder deployment Helm version",
         "explainer": "To apply a new Helm chart version, Save here, then go to /admin/projects and then Rebuild",
         "builderHelmToDeploy": "Builder Helm chart to deploy",
         "mainHelmToDeploy": "Main Helm chart to deploy"
       },
+      "taskServer": {
+        "taskServer": "Task Server",
+        "port": "Port",
+        "processInterval": "Process Interval"
+      },
+      
       "plugins": "Plugins"
     },
     "avatar": {

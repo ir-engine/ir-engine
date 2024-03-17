@@ -81,8 +81,8 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
 
   return (
     <Accordion
-      title={t('admin:components.setting.server')}
-      subtitle="Edit Project Settings"
+      title={t('admin:components.setting.server.header')}
+      subtitle={t('admin:components.setting.server.subtitle')}
       expandIcon={<HiPlusSmall />}
       shrinkIcon={<HiMinus />}
       ref={ref}
@@ -235,11 +235,11 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         )}
 
         <div className="col-span-1 grid grid-cols-4 gap-6">
-          <Button className="col-span-1" fullWidth onClick={handleCancel}>
+          <Button className="col-span-1 dark:bg-[#212226]" fullWidth onClick={handleCancel}>
             {t('admin:components.common.cancel')}
           </Button>
           <Button
-            className="col-span-1"
+            className="col-span-1 dark:bg-[#375DAF]"
             fullWidth
             onClick={handleSubmit}
             startIcon={state.loading.value && <LoadingCircle className="h-6 w-6" />}
