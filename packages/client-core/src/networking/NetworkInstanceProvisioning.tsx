@@ -46,7 +46,7 @@ import Groups from '@mui/icons-material/Groups'
 import { InstanceID, LocationID, RoomCode, SceneID } from '@etherealengine/common/src/schema.type.module'
 import { useTranslation } from 'react-i18next'
 import { FriendService } from '../social/services/FriendService'
-import { SocketWebRTCClientNetwork, connectToInstance, leaveNetwork } from '../transports/SocketWebRTCClientFunctions'
+import { connectToInstance } from '../transports/SocketWebRTCClientFunctions'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import FriendsMenu from '../user/components/UserMenu/menus/FriendsMenu'
 import MessagesMenu from '../user/components/UserMenu/menus/MessagesMenu'
@@ -162,7 +162,7 @@ export const WorldInstanceProvisioning = () => {
 export const WorldInstance = ({ id }: { id: InstanceID }) => {
   useEffect(() => {
     const worldInstance = getState(LocationInstanceState).instances[id]
-    connectToInstance(
+    return connectToInstance(
       id,
       worldInstance.ipAddress,
       worldInstance.port,
@@ -170,11 +170,6 @@ export const WorldInstance = ({ id }: { id: InstanceID }) => {
       undefined,
       worldInstance.roomCode
     )
-
-    return () => {
-      const network = getState(NetworkState).networks[id] as SocketWebRTCClientNetwork | undefined
-      if (network) leaveNetwork(network)
-    }
   }, [])
 
   return null
@@ -231,7 +226,7 @@ export const MediaInstanceProvisioning = () => {
 export const MediaInstance = ({ id }: { id: InstanceID }) => {
   useEffect(() => {
     const mediaInstance = getState(MediaInstanceState).instances[id]
-    connectToInstance(
+    return connectToInstance(
       id,
       mediaInstance.ipAddress,
       mediaInstance.port,
@@ -239,11 +234,6 @@ export const MediaInstance = ({ id }: { id: InstanceID }) => {
       mediaInstance.channelId,
       mediaInstance.roomCode
     )
-
-    return () => {
-      const network = getState(NetworkState).networks[id] as SocketWebRTCClientNetwork | undefined
-      if (network) leaveNetwork(network)
-    }
   }, [])
 
   return null

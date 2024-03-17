@@ -158,7 +158,6 @@ const unprovisionInstance = (topic: Topic, instanceID: InstanceID) => {
 export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
   clearInterval(network.transport.heartbeat)
   network.transport.primus?.end()
-  network.transport.primus?.removeAllListeners()
   removeNetwork(network)
   /** Dispatch updatePeers locally to ensure event souce states know about this */
   dispatchAction(
@@ -238,80 +237,112 @@ export const connectToInstance = (
   channelID?: ChannelID,
   roomCode?: RoomCode
 ) => {
-  logger.info('Connecting to instance type: %o', { instanceID, ipAddress, port, locationID, channelID, roomCode })
+  let primus: Primus | undefined
+  let connectionFailTimeout: NodeJS.Timeout | undefined
+  let aborted = false
+  let connecting = true
 
-  const authState = getState(AuthState)
-  const token = authState.authUser.accessToken
+  // wrap the connect function in a closure to allow for recursive calls and single useEffect cleanup
+  const _connect = () => {
+    aborted = false
+    connecting = true
 
-  const query: NetworkConnectionParams = {
-    instanceID,
-    locationId: locationID,
-    channelId: channelID,
-    roomCode,
-    token
-  }
+    logger.info('Connecting to instance type: %o', { instanceID, ipAddress, port, locationID, channelID, roomCode })
 
-  if (locationID) delete query.channelId
-  if (channelID) delete query.locationId
-  if (!roomCode) delete query.roomCode
+    const authState = getState(AuthState)
+    const token = authState.authUser.accessToken
 
-  let primus: Primus
-
-  try {
-    if (
-      config.client.localBuild === 'true' ||
-      (config.client.appEnv === 'development' && config.client.localNginx !== 'true')
-    ) {
-      const queryString = new URLSearchParams(query).toString()
-      primus = new Primus(`https://${ipAddress as string}:${port.toString()}?${queryString}`)
-    } else {
-      query.address = ipAddress
-      query.port = port.toString()
-      const queryString = new URLSearchParams(query).toString()
-      primus = new Primus(`${config.client.instanceserverUrl}?${queryString}`)
+    const query: NetworkConnectionParams = {
+      instanceID,
+      locationId: locationID,
+      channelId: channelID,
+      roomCode,
+      token
     }
-  } catch (err) {
-    logger.error('Failed to connect to primus', err)
-    // TODO: do we want to unprovision here?
-    return unprovisionInstance(locationID ? NetworkTopics.world : NetworkTopics.media, instanceID)
-  }
 
-  const connectionFailTimeout = setTimeout(() => {
-    primus.off('incoming::open', onConnect)
-    primus.removeAllListeners()
-    primus.end()
-    /** If we still have the instance provisioned, we should try again */
-    if (instanceStillProvisioned(instanceID, locationID, channelID))
-      connectToInstance(instanceID, ipAddress, port, locationID, channelID, roomCode)
-  }, 3000)
+    if (locationID) delete query.channelId
+    if (channelID) delete query.locationId
+    if (!roomCode) delete query.roomCode
 
-  const onConnect = () => {
-    primus.off('incoming::open', onConnect)
-    logger.info('CONNECTED to port %o', { port })
+    try {
+      if (
+        config.client.localBuild === 'true' ||
+        (config.client.appEnv === 'development' && config.client.localNginx !== 'true')
+      ) {
+        const queryString = new URLSearchParams(query).toString()
+        primus = new Primus(`https://${ipAddress as string}:${port.toString()}?${queryString}`)
+      } else {
+        query.address = ipAddress
+        query.port = port.toString()
+        const queryString = new URLSearchParams(query).toString()
+        primus = new Primus(`${config.client.instanceserverUrl}?${queryString}`)
+      }
+    } catch (err) {
+      logger.error('Failed to connect to primus', err)
+      // TODO: do we want to unprovision here?
+      return unprovisionInstance(locationID ? NetworkTopics.world : NetworkTopics.media, instanceID)
+    }
 
-    clearTimeout(connectionFailTimeout)
-
-    const topic = locationID ? NetworkTopics.world : NetworkTopics.media
-    authenticatePrimus(primus, instanceID, topic)
-
-    /** Server closed the connection. */
-    const onDisconnect = () => {
-      const network = getState(NetworkState).networks[instanceID] as SocketWebRTCClientNetwork
-      if (!network) return logger.error('Disconnected from unconnected instance ' + instanceID)
-
-      logger.info('Disonnected from network %o', { topic: network.topic, id: network.id })
-      /**
-       * If we are disconnected (server closes our socket) rather than leave the network,
-       * we just need to destroy and recreate the transport
-       */
-      closeNetwork(network)
+    connectionFailTimeout = setTimeout(() => {
+      if (aborted || !primus) return
+      primus.removeAllListeners()
+      primus.end()
       /** If we still have the instance provisioned, we should try again */
-      if (instanceStillProvisioned(instanceID, locationID, channelID))
-        connectToInstance(instanceID, ipAddress, port, locationID, channelID, roomCode)
+      if (instanceStillProvisioned(instanceID, locationID, channelID)) _connect()
+    }, 3000)
+
+    const onConnect = () => {
+      if (aborted || !primus) return
+      connecting = false
+      primus.off('incoming::open', onConnect)
+      logger.info('CONNECTED to port %o', { port })
+
+      clearTimeout(connectionFailTimeout)
+
+      const topic = locationID ? NetworkTopics.world : NetworkTopics.media
+      authenticatePrimus(primus, instanceID, topic)
+
+      /** Server closed the connection. */
+      const onDisconnect = () => {
+        if (aborted) return
+        if (primus) {
+          primus.off('incoming::end', onDisconnect)
+          primus.off('end', onDisconnect)
+        }
+        const network = getState(NetworkState).networks[instanceID] as SocketWebRTCClientNetwork
+        if (!network) return logger.error('Disconnected from unconnected instance ' + instanceID)
+
+        logger.info('Disonnected from network %o', { topic: network.topic, id: network.id })
+        /**
+         * If we are disconnected (server closes our socket) rather than leave the network,
+         * we just need to destroy and recreate the transport
+         */
+        closeNetwork(network)
+        /** If we still have the instance provisioned, we should try again */
+        if (instanceStillProvisioned(instanceID, locationID, channelID)) _connect()
+      }
+      // incoming::end is emitted when the server closes the connection
+      primus.on('incoming::end', onDisconnect)
+      // end is emitted when the client closes the connection
+      primus.on('end', onDisconnect)
     }
-    primus.on('incoming::end', onDisconnect)
+    primus!.on('incoming::open', onConnect)
   }
-  primus.on('incoming::open', onConnect)
+
+  _connect()
+
+  return () => {
+    aborted = true
+    if (connecting) {
+      if (connectionFailTimeout) clearTimeout(connectionFailTimeout)
+      if (!primus) return
+      primus.removeAllListeners()
+      primus.end()
+    } else {
+      const network = getState(NetworkState).networks[instanceID] as SocketWebRTCClientNetwork | undefined
+      if (network) leaveNetwork(network)
+    }
+  }
 }
 
 export const getChannelIdFromTransport = (network: SocketWebRTCClientNetwork) => {
