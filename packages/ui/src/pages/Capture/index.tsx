@@ -196,7 +196,13 @@ const CaptureMode = () => {
         },
         runningMode: 'VIDEO'
       }).then((pose) => {
-        pose.setOptions({ runningMode: 'VIDEO' }).then(() => detectingStatus.set('ready'))
+        pose
+          .setOptions({
+            runningMode: 'VIDEO',
+            minTrackingConfidence: trackingSettings.minTrackingConfidence,
+            minPoseDetectionConfidence: trackingSettings.minDetectionConfidence
+          })
+          .then(() => detectingStatus.set('ready'))
         poseDetector.set(pose)
       })
     })
@@ -270,11 +276,11 @@ const CaptureMode = () => {
     // })
 
     return () => {
-      // detectingStatus.set('inactive')
-      // if (poseDetector.value) {
-      //   poseDetector.value.close()
-      // }
-      // poseDetector.set(null)
+      detectingStatus.set('inactive')
+      if (poseDetector.value) {
+        poseDetector.value.close()
+      }
+      poseDetector.set(null)
 
       if (canvasCtxRef.current && canvasRef.current) {
         canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
@@ -360,10 +366,10 @@ const drawPoseToCanvas = (
 ) => {
   if (!canvasCtxRef.current || !canvasRef.current) return
   canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
-
   if (poseLandmarks && canvasCtxRef.current) {
     for (let i = 0; i < poseLandmarks.length; i++) {
-      //use tasks-vision utils import for draw connectors
+      if (poseLandmarks[0][i].visibility < 0.98) continue
+      console.log(poseLandmarks[0][i].visibility)
       drawingUtils.drawConnectors(poseLandmarks[i], PoseLandmarker.POSE_CONNECTIONS, {
         color: '#fff',
         lineWidth: 2

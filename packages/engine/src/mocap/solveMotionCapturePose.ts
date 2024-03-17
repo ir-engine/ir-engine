@@ -264,6 +264,7 @@ export function solveMotionCapturePose(
         continue
       }
       const alpha = getState(ECSState).deltaSeconds * alphaMultiplier
+
       filteredLandmarks[i] = {
         visibility: MathUtils.lerp(prevLandmarks[i].visibility!, newLandmarks[i].visibility!, alpha),
         x: MathUtils.lerp(prevLandmarks[i].x, newLandmarks[i].x, alpha),
@@ -319,7 +320,8 @@ export function solveMotionCapturePose(
     new Vector3(-1, 0, 0),
     VRMHumanBoneName.Chest,
     VRMHumanBoneName.LeftUpperArm,
-    VRMHumanBoneName.LeftLowerArm
+    VRMHumanBoneName.LeftLowerArm,
+    0.75
   )
   solveLimb(
     entity,
@@ -330,7 +332,8 @@ export function solveMotionCapturePose(
     new Vector3(1, 0, 0),
     VRMHumanBoneName.Chest,
     VRMHumanBoneName.RightUpperArm,
-    VRMHumanBoneName.RightLowerArm
+    VRMHumanBoneName.RightLowerArm,
+    0.75
   )
   if (estimatingLowerBody) {
     solveLimb(
@@ -538,9 +541,12 @@ export const solveLimb = (
   axis: Vector3,
   parentTargetBoneName: VRMHumanBoneName,
   startTargetBoneName: VRMHumanBoneName,
-  midTargetBoneName: VRMHumanBoneName
+  midTargetBoneName: VRMHumanBoneName,
+  minimumVisibility = -1
 ) => {
   if (!start || !mid || !end) return
+
+  if (minimumVisibility > -1 && (start.visibility! + mid.visibility! + end.visibility!) / 3 < minimumVisibility) return
 
   startPoint.set(-start.x, lowestWorldY - start.y, -start.z)
   midPoint.set(-mid.x, lowestWorldY - mid.y, -mid.z)
