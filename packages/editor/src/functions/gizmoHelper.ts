@@ -699,9 +699,8 @@ function applyRotation(entity, gizmoControlComponent, axis, space) {
     _endNorm.copy(gizmoControlComponent.pointEnd.value).normalize()
 
     gizmoControlComponent.rotationAngle.set(
-      gizmoControlComponent.rotationAngle.value * _endNorm.cross(_startNorm).dot(gizmoControlComponent.eye.value) < 0
-        ? 1
-        : -1
+      gizmoControlComponent.rotationAngle.value *
+        (_endNorm.cross(_startNorm).dot(gizmoControlComponent.eye.value) < 0 ? 1 : -1)
     )
   }
 
