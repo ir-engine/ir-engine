@@ -83,7 +83,7 @@ interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   children?: ReactNode
 }
 const TableRow = ({ className, children, ...props }: TableRowProps) => {
-  const twClassName = twMerge('odd:bg-theme-primary even:dark:bg-[#212226]', className)
+  const twClassName = twMerge('odd:bg-theme-primary even:bg-theme-highlight', className)
   return (
     <tr className={twClassName} {...props}>
       {children}
@@ -111,9 +111,9 @@ interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
 }
 
 const Table = ({ containerClassname, className, children }: TableProps) => {
-  const twClassname = twMerge('w-full border-collapse whitespace-nowrap rounded-md text-sm', className)
+  const twClassname = twMerge('w-full border-collapse whitespace-nowrap text-sm', className)
   return (
-    <div className={twMerge('mr-2 overflow-x-auto', containerClassname)}>
+    <div className={twMerge('mr-2 overflow-x-auto rounded-md', containerClassname)}>
       <table className={twClassname}>{children}</table>
     </div>
   )

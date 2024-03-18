@@ -56,7 +56,8 @@ module.exports = {
           bannerInformative: "var(--bg-banner-informative)",
           tagGreen: "var(--bg-tag-green)",
           tagRed: "var(--bg-tag-red)",
-          tagYellow: "var(--bg-tag-yellow)"
+          tagYellow: "var(--bg-tag-yellow)",
+          selection: "var(--selection)"
         }
       },
       borderColor: {

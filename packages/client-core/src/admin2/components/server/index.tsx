@@ -85,7 +85,7 @@ export default function Servers() {
           >
             <Text fontSize="sm">{info.label}</Text>
             <Badge
-              className="bg-bluePrimary h-6 rounded-[90px]"
+              className="bg-bluePrimary h-6 rounded-[90px] text-white"
               label={`${info.pods.filter((inf) => inf.status === 'Running').length}/${info.pods.length}`}
             />
           </div>

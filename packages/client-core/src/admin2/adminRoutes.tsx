@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { lazy, useEffect } from 'react'
 import { Link, Route, Routes, useLocation } from 'react-router-dom'
 
-import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
 import { AllowedAdminRoutesState } from '../admin/AllowedAdminRoutesState'
 import { AuthState } from '../user/services/AuthService'
@@ -98,10 +98,21 @@ const AdminRoutes = () => {
 
   useEffect(() => {
     allowedRoutes.set(DefaultAdminRoutes)
-  }, [])
-
-  useEffect(() => {
     ThemeState.setTheme('dark')
+
+    // TODO: Remove this and add a proper theme switcher
+    const toggleTheme = (e: KeyboardEvent) => {
+      if (e.metaKey && e.key === 'c') {
+        const currentTheme = getState(ThemeState).theme
+        ThemeState.setTheme(currentTheme === 'dark' ? 'light' : 'dark')
+      }
+    }
+
+    window.addEventListener('keypress', toggleTheme)
+
+    return () => {
+      window.removeEventListener('keypress', toggleTheme)
+    }
   }, [])
 
   useEffect(() => {

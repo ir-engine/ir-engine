@@ -76,7 +76,7 @@ export default function ResourceTable({ search }: { search: string }) {
             rounded
             className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0"
           >
-            <HiEye className="place-self-center" />
+            <HiEye className="text-theme-primary place-self-center" />
           </Button>
           <Button
             rounded

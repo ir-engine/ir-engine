@@ -29,10 +29,10 @@ import React, { useEffect } from 'react'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 const lightTheme = {
-  'bg-primary': '#F5F5F5',
+  'bg-primary': '#FFFFFF',
   'bg-secondary': '#FFFFFF',
   'bg-highlight': '#F5F5F5',
-  'bg-surface-main': '#F5F5F5',
+  'bg-surface-main': '#F9FAFB',
   'bg-surface-input': '#FFFFFF',
   'bg-button-tertiary': '#D4DFF7',
   'bg-banner-informative': '#FFFBEB',
@@ -47,7 +47,8 @@ const lightTheme = {
   'icon-green': '#0D9488 ',
   'icon-red': '#E11D48',
 
-  'border-primary': '#E5E7EB'
+  'border-primary': '#E5E7EB',
+  selection: '#3166D0'
 }
 
 const darkTheme = {
@@ -69,7 +70,8 @@ const darkTheme = {
   'icon-green': '#0D9488 ',
   'icon-red': '#FB7185',
 
-  'border-primary': '#2B2C30'
+  'border-primary': '#2B2C30',
+  selection: '#1E4273'
 }
 
 const themes = {
