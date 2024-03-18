@@ -89,7 +89,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         </div>
         {description && <p className="text-theme-secondary self-stretch text-xs">{description}</p>}
         {error && (
-          <p className="inline-flex items-center gap-2.5 self-start text-sm text-[#E11D48]">
+          <p className="text-theme-iconRed inline-flex items-center gap-2.5 self-start text-sm">
             <HiXCircle /> {error}
           </p>
         )}

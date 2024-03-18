@@ -443,7 +443,7 @@ export default function AddEditProjectModal({
                 projectUpdateStatus.value?.selectedSHA.length > 0 &&
                 projectUpdateStatus.value?.commitData.length > 0 &&
                 !matchesEngineVersion && (
-                  <div className="flex items-center justify-center gap-3 rounded-lg bg-[#FFFBEB] p-4 dark:bg-[#D9770633]">
+                  <div className="bg-theme-bannerInformative flex items-center justify-center gap-3 rounded-lg p-4">
                     <div>
                       <CiWarning className="h-5 w-5 bg-transparent" />
                     </div>

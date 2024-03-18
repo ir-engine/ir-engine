@@ -85,7 +85,7 @@ export default function ResourceTable({ search }: { search: string }) {
               PopoverState.showPopupover(<DeleteResourceModal resourceId={el.id} resourceKey={el.key} />)
             }}
           >
-            <HiTrash className="place-self-center text-[#E11D48] dark:text-[#FB7185]" />
+            <HiTrash className="text-theme-iconRed place-self-center" />
           </Button>
         </div>
       )

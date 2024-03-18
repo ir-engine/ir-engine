@@ -63,7 +63,7 @@ export default function InstanceTable({ search }: { search: string }) {
       action: (
         <div className="flex w-full justify-around px-2 py-1">
           <Button
-            className="bg-[#61759f] dark:bg-[#2A3753]"
+            className="bg-theme-buttonTertiary"
             onClick={() => {
               PopoverState.showPopupover(<ViewModal instanceId={row.id} />)
             }}
@@ -74,7 +74,7 @@ export default function InstanceTable({ search }: { search: string }) {
           </Button>
           <Button className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0" rounded>
             <HiTrash
-              className="place-self-center text-[#E11D48] dark:text-[#FB7185]"
+              className="text-theme-iconRed place-self-center"
               onClick={() => {
                 PopoverState.showPopupover(<RemoveInstanceModal instanceId={row.id} />)
               }}

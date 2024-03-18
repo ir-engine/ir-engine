@@ -90,14 +90,14 @@ export default function LocationTable({ search }: { search: string }) {
             className="border-theme-primary grid h-8 w-8 rounded-full border"
             onClick={() => PopoverState.showPopupover(<AddEditLocationModal location={row} />)}
           >
-            <HiPencil className="place-self-center text-[#0D9488]" />
+            <HiPencil className="text-theme-iconGreen place-self-center" />
           </button>
           <button
             title={t('admin:components.common.delete')}
             className="border-theme-primary grid h-8 w-8 rounded-full border"
             onClick={() => PopoverState.showPopupover(<RemoveLocationModal location={row} />)}
           >
-            <HiTrash className="place-self-center text-[#E11D48] dark:text-[#FB7185]" />
+            <HiTrash className="text-theme-iconRed place-self-center" />
           </button>
         </div>
       )
