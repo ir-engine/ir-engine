@@ -17,6 +17,3 @@ npx ttab -t 'etherealengine-world-instanceserver' -d ../packages/instanceserver 
 
 ## Start channel instanceserver
 npx ttab -t 'etherealengine-channel-instanceserver' -d ../packages/instanceserver npm run dev-channel
-
-## Start file server
-npx ttab -t 'etherealengine-files' -d ../packages/server npm run serve-local-files
