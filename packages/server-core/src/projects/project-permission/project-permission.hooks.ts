@@ -45,6 +45,7 @@ import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
+import enableClientPagination from '../../hooks/enable-client-pagination'
 import { ProjectPermissionService } from './project-permission.class'
 import {
   projectPermissionDataResolver,
@@ -148,6 +149,9 @@ const checkUserScopes = async (context: HookContext<ProjectPermissionService>) =
 
 /**
  * Checks if the user has permissions for the project
+ * If they have some sort of permission, then they can see everyone else's permissions.
+ * If they do not, then it will add `userId: context.params.user.id` to the query, to prevent the user seeing
+ * any permissions, as that will force there to be no matches.
  * @param context
  * @returns
  */
@@ -214,7 +218,7 @@ export default {
       () => schemaHooks.validateQuery(projectPermissionQueryValidator),
       schemaHooks.resolveQuery(projectPermissionQueryResolver)
     ],
-    find: [iff(checkUserScopes, checkPermissionStatus)],
+    find: [enableClientPagination(), iff(checkUserScopes, checkPermissionStatus)],
     get: [],
     create: [
       iff(isProvider('external'), verifyProjectOwner()),
