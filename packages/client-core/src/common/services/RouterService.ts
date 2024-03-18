@@ -40,7 +40,7 @@ export const RouterState = defineState({
     pathname: location.pathname,
     queryParams: null as QueryParamsType | null
   }),
-  navigate: (pathname: string, queryParams: QueryParamsType | { redirectUrl: string } = {}) => {
+  navigate: (pathname: string, queryParams: QueryParamsType | { redirectUrl: string } | null = null) => {
     getMutableState(RouterState).set({
       pathname,
       queryParams
