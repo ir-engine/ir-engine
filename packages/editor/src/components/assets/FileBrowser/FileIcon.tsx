@@ -84,7 +84,7 @@ export const FileIcon = ({ file, showRibbon }: { file: FileDataType; showRibbon?
       ) : (
         <>
           <DescriptionIcon fontSize={'inherit'} />
-          {showRibbon && <span className={styles.extensionRibbon}>{file.type}</span>}
+          {file.type?.length > 0 && showRibbon && <span className={styles.extensionRibbon}>{file.type}</span>}
         </>
       )}
     </>
