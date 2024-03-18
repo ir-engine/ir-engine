@@ -74,6 +74,7 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { GrabbableComponent, GrabbedComponent, GrabberComponent } from '../components/GrabbableComponent'
@@ -225,7 +226,8 @@ const vec3 = new Vector3()
 
 export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
   const xruiTransform = getComponent(xrui.entity, TransformComponent)
-  if (!xruiTransform || !hasComponent(Engine.instance.localClientEntity, TransformComponent)) return
+  if (!xruiTransform) return
+
   TransformComponent.getWorldPosition(entity, xruiTransform.position)
 
   if (hasComponent(xrui.entity, VisibleComponent)) {
@@ -248,15 +250,18 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
       removeComponent(xrui.entity, VisibleComponent)
     }
   } else {
-    getAvatarBoneWorldPosition(Engine.instance.localClientEntity, VRMHumanBoneName.Chest, vec3)
-    const distance = vec3.distanceToSquared(xruiTransform.position)
-    const inRange = distance < getState(InteractState).maxDistance
-    if (transition.state === 'OUT' && inRange) {
-      transition.setState('IN')
-      setComponent(xrui.entity, VisibleComponent)
-    }
-    if (transition.state === 'IN' && !inRange) {
-      transition.setState('OUT')
+    const localClientEntity = AvatarComponent.getSelfAvatarEntity()
+    if (localClientEntity) {
+      getAvatarBoneWorldPosition(localClientEntity, VRMHumanBoneName.Chest, vec3)
+      const distance = vec3.distanceToSquared(xruiTransform.position)
+      const inRange = distance < getState(InteractState).maxDistance
+      if (transition.state === 'OUT' && inRange) {
+        transition.setState('IN')
+        setComponent(xrui.entity, VisibleComponent)
+      }
+      if (transition.state === 'IN' && !inRange) {
+        transition.setState('OUT')
+      }
     }
   }
   const deltaSeconds = getState(ECSState).deltaSeconds
@@ -333,22 +338,24 @@ const ownedGrabbableQuery = defineQuery([GrabbableComponent, NetworkObjectAuthor
 const grabbableQuery = defineQuery([GrabbableComponent])
 
 const onDrop = () => {
-  const grabber = getComponent(Engine.instance.localClientEntity, GrabberComponent)
+  const localClientEntity = AvatarComponent.getSelfAvatarEntity()
+  const grabber = getComponent(localClientEntity, GrabberComponent)
   const handedness = getState(InputState).preferredHand
   const grabbedEntity = grabber[handedness]!
   if (!grabbedEntity) return
-  dropEntity(Engine.instance.localClientEntity)
+  dropEntity(localClientEntity)
 }
 
 const onGrab = (targetEntity: Entity, handedness = getState(InputState).preferredHand) => {
+  const localClientEntity = AvatarComponent.getSelfAvatarEntity()
   if (!hasComponent(targetEntity, GrabbableComponent)) return
-  const grabber = getComponent(Engine.instance.localClientEntity, GrabberComponent)
+  const grabber = getComponent(localClientEntity, GrabberComponent)
   const grabbedEntity = grabber[handedness]!
   if (!grabbedEntity) return
   if (grabbedEntity) {
     onDrop()
   } else {
-    grabEntity(Engine.instance.localClientEntity, targetEntity, handedness)
+    grabEntity(localClientEntity, targetEntity, handedness)
   }
 }
 

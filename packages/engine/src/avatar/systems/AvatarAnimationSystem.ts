@@ -115,6 +115,8 @@ const execute = () => {
   const { priorityQueue, sortedTransformEntities, visualizers } = getState(AvatarAnimationState)
   const { elapsedSeconds, deltaSeconds } = getState(ECSState)
 
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+
   /** Calculate avatar locomotion animations outside of priority queue */
 
   for (const entity of avatarComponentQuery()) {
@@ -147,7 +149,7 @@ const execute = () => {
   const avatarAnimationEntities: Entity[] = []
   for (let i = 0; i < avatarAnimationQueryArr.length; i++) {
     const _entity = avatarAnimationQueryArr[i]
-    if (priorityQueue.priorityEntities.has(_entity) || _entity === Engine.instance.localClientEntity) {
+    if (priorityQueue.priorityEntities.has(_entity) || _entity === selfAvatarEntity) {
       avatarAnimationEntities.push(_entity)
     }
   }
@@ -331,15 +333,14 @@ const execute = () => {
   }
 
   //update local client entity's dithering component and camera attached logic
-  const localClientEntity = Engine.instance.localClientEntity
-  if (!localClientEntity) return
-  const ditheringComponent = getOptionalMutableComponent(localClientEntity, TransparencyDitheringComponent)
+  if (!selfAvatarEntity) return
+  const ditheringComponent = getOptionalMutableComponent(selfAvatarEntity, TransparencyDitheringComponent)
   if (!ditheringComponent) return
   const cameraAttached = getState(XRControlsState).isCameraAttachedToAvatar
 
   ditheringComponent.useWorldCenter.set(!cameraAttached)
   ditheringComponent.worldCenter.set(getComponent(Engine.instance.cameraEntity, TransformComponent).position)
-  const avatarComponent = getComponent(localClientEntity, AvatarComponent)
+  const avatarComponent = getComponent(selfAvatarEntity, AvatarComponent)
   ditheringComponent.localCenter.set(
     ditheringCenter.set(0, cameraAttached ? avatarComponent.avatarHeight : avatarComponent.eyeHeight, 0)
   )
@@ -349,7 +350,7 @@ const execute = () => {
   )
   ditheringComponent.ditheringLocalExponent.set(cameraAttached ? 12 : 8)
   if (!cameraComponent) return
-  const hasDecapComponent = hasComponent(localClientEntity, AvatarHeadDecapComponent)
+  const hasDecapComponent = hasComponent(selfAvatarEntity, AvatarHeadDecapComponent)
   if (hasDecapComponent) cameraComponent.offset.setZ(Math.min(cameraComponent.offset.z + deltaSeconds, eyeOffset))
   else cameraComponent.offset.setZ(Math.max(cameraComponent.offset.z - deltaSeconds, 0))
 }
@@ -402,24 +403,15 @@ const reactor = () => {
     }
   }, [])
 
-  const xrState = getMutableState(XRState)
-  const session = useHookstate(xrState.session)
-  const isCameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar)
   const userReady = useHookstate(getMutableState(LocalAvatarState).avatarReady)
 
   useEffect(() => {
-    if (!session.value) return
-
-    const entity = Engine.instance.localClientEntity
-    if (!entity) return
-  }, [isCameraAttachedToAvatar, session])
-
-  useEffect(() => {
-    if (!Engine.instance.localClientEntity) {
+    const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+    if (!selfAvatarEntity) {
       XRState.setTrackingSpace()
       return
     }
-    const eyeHeight = getComponent(Engine.instance.localClientEntity, AvatarComponent).eyeHeight
+    const eyeHeight = getComponent(selfAvatarEntity, AvatarComponent).eyeHeight
     getMutableState(XRState).userEyeHeight.set(eyeHeight)
     XRState.setTrackingSpace()
   }, [userReady])

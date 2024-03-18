@@ -27,7 +27,7 @@ import assert, { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
-import { AvatarID, UserID, UserName } from '@etherealengine/common/src/schema.type.module'
+import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID } from '@etherealengine/ecs'
 import {
   PeerID,
@@ -40,7 +40,7 @@ import {
 import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { Network, NetworkObjectComponent, NetworkState } from '@etherealengine/network'
+import { NetworkObjectComponent, NetworkPeerFunctions, NetworkState } from '@etherealengine/network'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
@@ -124,19 +124,12 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
   it('Can equip and unequip', async () => {
     const hostUserId = 'world' as UserID & PeerID
-    ;(NetworkState.worldNetwork as Network).hostId = hostUserId
+    NetworkState.worldNetwork.hostPeerID = hostUserId
     const hostIndex = 0
 
-    NetworkState.worldNetwork.peers[hostUserId] = {
-      peerID: hostUserId,
-      peerIndex: hostIndex,
-      userId: hostUserId,
-      userIndex: hostIndex
-    }
+    NetworkPeerFunctions.createPeer(NetworkState.worldNetwork, hostUserId, hostIndex, hostUserId, hostIndex)
 
     const userId = 'user id' as UserID
-    const userName = 'user name' as UserName
-    const userIndex = 1
     Engine.instance.userID = userId
 
     const grabbableEntity = createEntity()
@@ -147,7 +140,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     // network mock stuff
     // initially the object is owned by server
     setComponent(grabbableEntity, NetworkObjectComponent, {
-      ownerId: NetworkState.worldNetwork.hostId,
+      ownerId: NetworkState.worldNetwork.hostUserID,
       authorityPeerID: Engine.instance.peerID,
       networkId: 0 as NetworkId
     })

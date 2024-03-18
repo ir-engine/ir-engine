@@ -42,10 +42,9 @@ export const networkQuery = defineQuery([NetworkObjectComponent, NetworkObjectAu
 const serializeAndSend = (serialize: ReturnType<typeof createDataWriter>) => {
   const ents = networkQuery()
   if (ents.length > 0) {
-    const userID = Engine.instance.userID
     const network = NetworkState.worldNetwork as Network
     const peerID = Engine.instance.peerID
-    const data = serialize(network, userID, peerID, ents)
+    const data = serialize(network, peerID, ents)
 
     // todo: insert historian logic here
 

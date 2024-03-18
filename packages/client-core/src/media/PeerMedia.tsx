@@ -231,14 +231,17 @@ export const PeerMediaChannels = () => {
 
 export const PeerMediaConsumers = () => {
   const networkIDs = useHookstate(getMutableState(MediasoupMediaProducerConsumerState))
+  const networks = useHookstate(getMutableState(NetworkState).networks)
   const selfPeerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState)[Engine.instance.peerID])
   return (
     <>
       <PeerMediaChannels />
       {selfPeerMediaChannelState.value && <SelfMedia key={'SelfMedia'} />}
-      {networkIDs.keys.map((id: InstanceID) => (
-        <NetworkConsumers key={id} networkID={id} />
-      ))}
+      {networkIDs.keys
+        .filter((id) => !!networks[id])
+        .map((id: InstanceID) => (
+          <NetworkConsumers key={id} networkID={id} />
+        ))}
     </>
   )
 }
