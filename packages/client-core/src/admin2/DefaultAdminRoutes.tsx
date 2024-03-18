@@ -25,7 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { lazy } from 'react'
 import { HiOutlineCube } from 'react-icons/hi'
-import { HiMapPin, HiOutlineTableCells, HiUser, HiUserCircle } from 'react-icons/hi2'
+import {
+  HiMapPin,
+  HiOutlineGlobeAlt,
+  HiOutlineMegaphone,
+  HiOutlineTableCells,
+  HiServer,
+  HiUser,
+  HiUserCircle
+} from 'react-icons/hi2'
 import { RiSendPlaneFill } from 'react-icons/ri'
 import { AdminRouteStateType } from '../admin/AllowedAdminRoutesState'
 
@@ -39,9 +47,15 @@ const Users = lazy(() => import('./components/user'))
 
 const Locations = lazy(() => import('./components/locations'))
 
+const Servers = lazy(() => import('./components/server'))
+
 const Instances = lazy(() => import('./components/instance'))
 
 const Resources = lazy(() => import('./components/resources'))
+
+const Routes = lazy(() => import('./components/routes'))
+
+const Channels = lazy(() => import('./components/channel'))
 
 export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
   projects: {
@@ -79,6 +93,13 @@ export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
     access: false,
     icon: <HiMapPin />
   },
+  servers: {
+    name: 'user:dashboard.server',
+    scope: 'server',
+    component: Servers,
+    access: false,
+    icon: <HiServer />
+  },
   instances: {
     name: 'user:dashboard.instances',
     scope: 'instance',
@@ -92,5 +113,19 @@ export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
     component: Resources,
     access: false,
     icon: <HiOutlineTableCells />
+  },
+  routes: {
+    name: 'user:dashboard.routes',
+    scope: 'routes',
+    component: Routes,
+    access: false,
+    icon: <HiOutlineGlobeAlt />
+  },
+  channel: {
+    name: 'user:dashboard.channels',
+    scope: 'channel',
+    component: Channels,
+    access: false,
+    icon: <HiOutlineMegaphone />
   }
 }

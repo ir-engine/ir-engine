@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import config from '@etherealengine/common/src/config'
 import { PUBLIC_STUN_SERVERS } from '@etherealengine/common/src/constants/STUNServers'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import multiLogger from '@etherealengine/common/src/logger'
 import {
   ChannelID,
@@ -39,7 +38,7 @@ import {
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AuthTask } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
-import { State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { PeerID, State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import {
   Action,
   Topic,

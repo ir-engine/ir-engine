@@ -46,7 +46,7 @@ const sizes = {
 
 const variants = {
   primary: 'bg-blue-800',
-  outline: 'border border-solid border-theme-primary text-theme-primary dark:bg-[#212226]',
+  outline: 'border border-solid border-theme-primary text-theme-primary',
   danger: 'bg-red-600',
   success: 'bg-teal-700'
 }

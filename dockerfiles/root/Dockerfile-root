@@ -17,6 +17,7 @@ COPY packages/network/package.json ./packages/network/
 COPY packages/projects/package.json ./packages/projects/
 COPY packages/server-core/package.json ./packages/server-core/
 COPY packages/spatial/package.json ./packages/spatial/
+COPY packages/visual-script/package.json ./packages/visual-script/
 COPY packages/xrui/package.json ./packages/xrui/
 
 ARG NODE_ENV

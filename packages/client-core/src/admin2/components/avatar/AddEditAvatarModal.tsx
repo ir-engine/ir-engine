@@ -32,7 +32,7 @@ import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import DragNDrop from '@etherealengine/ui/src/primitives/tailwind/DragNDrop'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
-import Radio from '@etherealengine/ui/src/primitives/tailwind/Radio'
+import Radios from '@etherealengine/ui/src/primitives/tailwind/Radio'
 import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -175,14 +175,14 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
           value={avatarAssets.name.value}
           onChange={(event) => avatarAssets.name.set(event.target.value)}
         />
-        <Radio
-          currentValue={avatarAssets.source.value}
+        <Radios
+          value={avatarAssets.source.value}
           options={[
-            { name: 'URL', value: 'url' },
-            { name: 'File', value: 'file' }
+            { label: 'URL', value: 'url' },
+            { label: 'File', value: 'file' }
           ]}
+          horizontal
           onChange={(value) => avatarAssets.source.set(value)}
-          className="grid-flow-col"
         />
         {avatarAssets.source.value === 'url' && (
           <Input

@@ -30,7 +30,7 @@ import { StaticResourceType, staticResourcePath } from '@etherealengine/common/s
 
 import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import { BsTrash3 } from 'react-icons/bs'
+import { HiEye, HiTrash } from 'react-icons/hi2'
 import { RESOURCE_PAGE_LIMIT } from '../../../admin/services/ResourceService'
 import { PopoverState } from '../../../common/services/PopoverState'
 import DataTable from '../../common/Table'
@@ -68,21 +68,24 @@ export default function ResourceTable({ search }: { search: string }) {
       mimeType: el.mimeType,
       project: el.project,
       action: (
-        <div>
+        <div className="flex justify-around">
           <Button
             onClick={() => {
               PopoverState.showPopupover(<AddEditResourceModal mode="edit" selectedResource={el} />)
             }}
+            rounded
+            className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0"
           >
-            {t('admin:components.resources.preview')}
+            <HiEye className="place-self-center" />
           </Button>
           <Button
-            className="bg-transparent"
+            rounded
+            className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0"
             onClick={() => {
               PopoverState.showPopupover(<DeleteResourceModal resourceId={el.id} resourceKey={el.key} />)
             }}
           >
-            <BsTrash3 className="text-color-[#FB7185]" />
+            <HiTrash className="place-self-center text-[#E11D48] dark:text-[#FB7185]" />
           </Button>
         </div>
       )

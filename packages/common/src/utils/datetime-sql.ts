@@ -67,3 +67,29 @@ export const convertDateTimeSqlToLocal = (dateSql: string) => {
 
   return `${year}-${month}-${day}T${hours}:${minutes}`
 }
+
+export const timeAgo = (date: Date) => {
+  const now = Date.now()
+
+  const difference = now - date.getTime()
+
+  const seconds = Math.floor(difference / 1000) % 60
+  const minutes = Math.floor(difference / (1000 * 60)) % 60
+  const hours = Math.floor(difference / (1000 * 60 * 60)) % 24
+  const days = Math.floor(difference / (1000 * 60 * 60 * 24))
+
+  if (days > 0) {
+    return `${days} day${days > 1 ? 's' : ''}`
+  }
+  if (hours > 0) {
+    return `${hours} hour${hours > 1 ? 's' : ''}`
+  }
+  if (minutes > 0) {
+    return `${minutes} minute${minutes > 1 ? 's' : ''}`
+  }
+  if (seconds > 0) {
+    return `${seconds} second${seconds > 1 ? 's' : ''}`
+  }
+
+  return ''
+}

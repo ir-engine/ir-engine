@@ -95,7 +95,6 @@ describe('spawnAvatarReceptor', () => {
     // mock entity to apply incoming unreliable updates to
     dispatchAction(
       AvatarNetworkAction.spawn({
-        $from: Engine.instance.userID,
         position: new Vector3(),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,

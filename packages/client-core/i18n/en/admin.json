@@ -173,13 +173,23 @@
       }
     },
     "channel": {
+      "channels": "Channels",
+      "columns": {
+        "id": "Id",
+        "name": "Name",
+        "action": "Action"
+      },
       "instanceRequired": "Instance is required",
       "instanceCantEmpty": "Instance can't be empty",
       "instance": "Instance",
       "createOne": "Create One",
       "createChannel": "Create Channel",
+      "update": "Update Channel",
       "confirmChannelDelete": "Do you want to delete channel?",
-      "name": "Channel Name"
+      "confirmMultiChannelDelete": "Do you want to delete these channels?",
+      "name": "Channel Name",
+      "remove": "Remove Channel",
+      "removeChannels": "Remove Channels"
     },
     "project": {
       "columns": {
@@ -224,6 +234,7 @@
       "confirmProjectDelete": "Do you want to delete project",
       "confirmPushProjectToGithub": "Do you want to push this project to its associated GitHub repository",
       "outdatedBuild": "This project has been updated locally since the last build",
+      "hasLocalChanges": "This project has local changes, and will not auto-update from GitHub if that is enabled in order to prevent accidental data loss",
       "userAccess": "User Access",
       "userInviteCode": "User Invite Code",
       "inviteCodeCantEmpty": "Invite code can't be empty",
@@ -267,6 +278,19 @@
       "defaultProjectUpdateTooltip": "default-project is updated when engine is updated",
       "refreshGithubRepoAccess": "Refresh GitHub Repo Access",
       "refreshingGithubRepoAccess": "Refreshing"
+    },
+    "buildStatus": {
+      "columns": {
+        "id": "Build #",
+        "status": "Status",
+        "commitSHA":"Commit SHA",
+        "logs":"Logs",
+        "dateStarted": "Date Started",
+        "dateEnded": "Date Ended"
+      },
+      "buildStatus": "Build Status",
+      "running": "Running",
+      "viewLogs": "View Logs"
     },
     "instance": {
       "columns": {
@@ -564,30 +588,49 @@
       "selectScopes": "Select Scopes"
     },
     "server": {
+      "servers": "Servers",
       "loading": "Fetching Server Info",
       "loadingLogs": "Fetching Server Logs",
       "name": "Name",
       "status": "Status",
+      "serverStatus": {
+        "succeeded": "Succeeded",
+        "running": "Running",
+        "terminated": "Terminated"
+      },
       "type": "Type",
       "users": "Users",
       "instance": "Instance",
       "restarts": "Restarts",
       "containers": "Containers",
       "container": "Container",
-      "age": "Age",
+      "age": "Time",
       "logs": "Logs",
+      "serverLogs": "Server Logs",
+      "actions": "Actions",
       "autoRefresh": "Auto Refresh",
       "none": "None",
       "seconds": "seconds",
       "minute": "minute",
       "minutes": "minutes",
       "download": "Download",
-      "confirmPodDelete": "Do you want to delete pod"
+      "downloadLogs": "Download Logs",
+      "removePod": "Remove Pod",
+      "confirmPodDelete": "Do you want to delete pod",
+      "viewLogs": "View Logs"
     },
     "recording": {
       "recording": "Recording",
       "confirmRecordingDelete": "Do you want to delete recording",
       "recordingFiles": "Recordings Files for:"
+    },
+    "route": {
+      "routes": "Routes",
+      "columns": {
+        "project": "Project",
+        "route": "Route",
+        "action": "Active"
+      }
     }
   }
 }

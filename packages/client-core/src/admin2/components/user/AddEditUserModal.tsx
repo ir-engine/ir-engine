@@ -36,7 +36,7 @@ import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Label from '@etherealengine/ui/src/primitives/tailwind/Label'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import MultiSelect from '@etherealengine/ui/src/primitives/tailwind/MultiSelect'
-import Select, { SelectProps } from '@etherealengine/ui/src/primitives/tailwind/Select'
+import Select, { SelectOptionsType } from '@etherealengine/ui/src/primitives/tailwind/Select'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import AccountIdentifiers from './AccountIdentifiers'
@@ -56,37 +56,37 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       action: 'admin'
     }
   })
-  const avatarOptions =
+  const avatarOptions: SelectOptionsType =
     avatarsQuery.status === 'success'
       ? [
-          { name: t('admin:components.user.selectAvatar'), value: '', disabled: true },
-          ...avatarsQuery.data.map((av) => ({ name: av.name, value: av.id }))
+          { label: t('admin:components.user.selectAvatar'), value: '', disabled: true },
+          ...avatarsQuery.data.map((av) => ({ label: av.name, value: av.id }))
         ]
-      : [{ name: t('common:select.fetching'), value: '', disabled: true }]
+      : [{ label: t('common:select.fetching'), value: '', disabled: true }]
 
   const scopeTypesQuery = useFind(scopeTypePath, {
     query: {
       paginate: false
     }
   })
-  const scopeTypeOptions: SelectProps['options'] =
+  const scopeTypeOptions: SelectOptionsType =
     scopeTypesQuery.status === 'success'
       ? [
-          { name: t('admin:components.user.selectScopes'), value: '', disabled: true },
-          ...scopeTypesQuery.data.map((st) => ({ name: st.type, value: st.type }))
+          { label: t('admin:components.user.selectScopes'), value: '', disabled: true },
+          ...scopeTypesQuery.data.map((st) => ({ label: st.type, value: st.type }))
         ]
-      : [{ name: t('common:select.fetching'), value: '', disabled: true }]
+      : [{ label: t('common:select.fetching'), value: '', disabled: true }]
 
   if (user) {
     for (const scope of user.scopes || []) {
       const scopeExists = scopeTypeOptions.find((st) => st.value === scope.type)
       if (!scopeExists) {
-        scopeTypeOptions.push({ name: scope.type, value: scope.type })
+        scopeTypeOptions.push({ label: scope.type, value: scope.type })
       }
     }
 
     if (!avatarOptions.find((av) => av.value === user.avatarId)) {
-      avatarOptions.push({ name: user.avatar.name || user.avatarId, value: user.avatarId })
+      avatarOptions.push({ label: user.avatar.name || user.avatarId, value: user.avatarId })
     }
   }
 
@@ -149,7 +149,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       className="w-[50vw]"
       onSubmit={handleSubmit}
       onClose={() => PopoverState.hidePopupover()}
-      submitLoading={true}
+      submitLoading={submitLoading.value}
     >
       <div className="relative grid w-full gap-6">
         {errors.serviceError.value ? <p className="mt-2 text-rose-700">{errors.serviceError.value}</p> : null}
