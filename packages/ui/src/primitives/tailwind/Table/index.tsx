@@ -185,8 +185,7 @@ const TablePagination = ({
           <button
             disabled={currentPage === totalPages - 1}
             onClick={() => onPageChange(totalPages - 1)}
-            rounded-e-lg
-            className={commonClasses}
+            className={twMerge(commonClasses, 'rounded-e-lg')}
           >
             <HiFastForward />
           </button>
