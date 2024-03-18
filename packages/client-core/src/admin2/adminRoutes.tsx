@@ -63,7 +63,9 @@ const AdminSideBar = () => {
                 <Link to={path}>
                   <Button
                     className={`text-theme-secondary hover:bg-theme-highlight] flex w-72 items-center justify-start rounded-xl px-2 py-3 font-medium ${
-                      relativePath === path ? 'text-theme-primary bg-highlight font-semibold ' : 'bg-primary'
+                      relativePath === path
+                        ? 'text-theme-primary bg-theme-highlight font-semibold '
+                        : 'bg-theme-primary'
                     }`}
                     startIcon={sidebarItem.icon}
                   >
@@ -75,7 +77,7 @@ const AdminSideBar = () => {
           })}
         <li>
           <Button
-            className="bg-theme-surfaceMain text-theme-secondary hover:bg-theme-highlight my-2 flex items-center rounded-sm px-2 py-3"
+            className="bg-theme-primary text-theme-secondary my-2 flex items-center rounded-sm px-2 py-3"
             startIcon={<HiArrowRightOnRectangle />}
           >
             {t('admin:components.common.logOut')}
@@ -126,7 +128,7 @@ const AdminRoutes = () => {
   }
 
   return (
-    <main className="bg-theme-primary pointer-events-auto mt-6 flex gap-1.5">
+    <main className="pointer-events-auto mt-6 flex gap-1.5">
       <AdminSideBar />
       <div className="w-[80%]">
         <Routes>

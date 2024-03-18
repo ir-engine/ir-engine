@@ -139,7 +139,7 @@ const TablePagination = ({
           <button
             disabled={currentPage === 0}
             onClick={() => onPageChange(0)}
-            className="bg-theme-surfaceMain flex h-8 items-center justify-center rounded-s-lg border border-gray-300 px-3 leading-tight text-gray-500 hover:enabled:bg-gray-100 hover:enabled:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:enabled:text-white"
+            className="bg-theme-surfaceMain flex h-8 items-center justify-center rounded-s-lg border border-gray-300 px-3 leading-tight text-gray-500 hover:enabled:bg-gray-100 hover:enabled:text-gray-700 dark:border-gray-700 dark:text-white dark:hover:enabled:text-white"
           >
             <HiRewind />
           </button>
