@@ -110,6 +110,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
           />
 
           <Toggle
+            containerClassName="justify-start"
             label={t('admin:components.setting.local')}
             value={local.value}
             disabled

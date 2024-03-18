@@ -120,12 +120,12 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
         />
 
         <div className="col-span-1 mt-6 grid grid-cols-4 gap-6">
-          <Button className="col-span-1 dark:bg-[#212226]" onClick={handleCancel} fullWidth>
+          <Button className="bg-theme-highlight text-primary col-span-1" onClick={handleCancel} fullWidth>
             {t('admin:components.common.cancel')}
           </Button>
 
           <Button
-            className="col-span-1 dark:bg-[#375DAF]"
+            className="bg-bluePrimary col-span-1"
             onClick={handleSubmit}
             startIcon={state.loading.value && <LoadingCircle className="h-6 w-6" />}
             fullWidth

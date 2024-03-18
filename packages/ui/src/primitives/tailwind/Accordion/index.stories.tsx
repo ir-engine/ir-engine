@@ -54,10 +54,10 @@ export const Default = {
           <Input label="Process Interval" value="30" />
         </div>
         <div className="flex w-3/12 justify-between gap-4">
-          <Button fullWidth className="bg-[#212226]">
+          <Button fullWidth className="bg-theme-highlight">
             Cancel
           </Button>
-          <Button fullWidth className="bg-[#375DAF]">
+          <Button fullWidth className="bg-bluePrimary">
             Submit
           </Button>
         </div>
