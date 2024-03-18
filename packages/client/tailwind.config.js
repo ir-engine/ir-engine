@@ -34,9 +34,7 @@ module.exports = {
   darkMode: ["class", '[data-theme="dark"]'],
   important: true, // important in prod is must be
   theme: {
-    colors: {
-      bluePrimary: "#375DAF",
-    },
+    
     extend: {
       textColor: {
         theme: {
@@ -66,6 +64,9 @@ module.exports = {
           primary: "var(--border-primary)"
         }
       },
+      colors: {
+        bluePrimary: "#375DAF",
+      }
     }
   }
 }
