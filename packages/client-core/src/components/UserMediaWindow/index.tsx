@@ -85,6 +85,7 @@ const useDrawMocapLandmarks = (
   const drawingUtils = useHookstate(null as null | DrawingUtils)
   useEffect(() => {
     drawingUtils.set(new DrawingUtils(canvasCtxRef.current!))
+    canvasRef.current!.style.transform = `scaleX(-1)`
   })
   useExecute(
     () => {

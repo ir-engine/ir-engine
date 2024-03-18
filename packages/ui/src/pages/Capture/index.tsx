@@ -206,11 +206,6 @@ const CaptureMode = () => {
     })
   }, [])
 
-  // useEffect(() => {
-  //   const factor = displaySettings.flipVideo === true ? '-1' : '1'
-  //   videoRef.current!.style.transform = `scaleX(${factor})`
-  // }, [displaySettings.flipVideo])
-
   const drawingUtils = useHookstate(null as null | DrawingUtils)
   useEffect(() => {
     drawingUtils.set(new DrawingUtils(canvasCtxRef.current!))
@@ -272,10 +267,11 @@ const CaptureMode = () => {
             <Video
               ref={videoRef}
               className={twMerge('h-auto w-full opacity-100', !displaySettings?.showVideo && 'opacity-0')}
+              style={{ transform: 'scaleX(-1)' }}
             />
           </div>
           <div className="z-1 absolute left-0 top-0 h-auto min-w-full object-contain">
-            <Canvas ref={canvasRef} />
+            <Canvas ref={canvasRef} style={{ transform: 'scaleX(-1)' }} />
           </div>
           <Button
             className="z-2 container absolute left-0 top-0 m-0 mx-auto h-full w-full bg-transparent p-0"
