@@ -145,7 +145,7 @@ describe('NetworkPeerFunctions', () => {
       const userIndex = 1
       const peerIndex = 5
       const network = NetworkState.worldNetwork as Network
-      network.hostId = Engine.instance.userID
+      network.hostPeerID = Engine.instance.peerID
       getMutableState(NetworkState).hostIds.world.set(userId)
 
       NetworkPeerFunctions.createPeer(network, anotherPeerID, peerIndex, userId, userIndex)

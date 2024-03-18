@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import multiLogger from '@etherealengine/common/src/logger'
 import {
-  AvatarID,
   RecordingID,
   RecordingSchemaType,
   UserID,
@@ -637,14 +636,8 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
               dispatchAction(
                 AvatarNetworkAction.spawn({
                   ownerID: entityID,
-                  entityUUID: entityID,
-                  avatarID: '' as AvatarID
-                })
-              )
-              dispatchAction(
-                AvatarNetworkAction.setAvatarID({
-                  avatarID: user.avatar.id!,
-                  entityUUID: entityID
+                  entityUUID: (entityID + '_avatar') as EntityUUID,
+                  avatarID: user.avatar.id!
                 })
               )
               entitiesSpawned.push(entityID)

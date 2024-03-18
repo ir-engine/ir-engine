@@ -888,11 +888,10 @@ describe('DataReader', () => {
       })
     })
 
-    const packet = write(network, Engine.instance.userID, peerID, entities)
+    const packet = write(network, peerID, entities)
 
     const readView = createViewCursor(packet)
 
-    const _userIndex = readUint32(readView)
     const _peerIndex = readUint32(readView)
     const _simulationTime = readFloat64(readView)
 
@@ -1003,7 +1002,7 @@ describe('DataReader', () => {
       network.peerIndexToPeerID[peerIndex] = peerID
     })
 
-    const packet = write(network, Engine.instance.userID, peerID, entities)
+    const packet = write(network, peerID, entities)
 
     strictEqual(packet.byteLength, 0)
 
@@ -1089,7 +1088,7 @@ describe('DataReader', () => {
       })
     })
 
-    let packet = write(network, Engine.instance.userID, Engine.instance.peerID, entities)
+    let packet = write(network, Engine.instance.peerID, entities)
 
     strictEqual(packet.byteLength, 0)
 
@@ -1105,14 +1104,12 @@ describe('DataReader', () => {
     TransformComponent.position.y[entity] = 1
     TransformComponent.position.z[entity] = 1
 
-    packet = write(network, Engine.instance.userID, peerID, entities)
+    packet = write(network, peerID, entities)
 
     strictEqual(
       packet.byteLength,
-      // user id
+      // peer id
       Uint32Array.BYTES_PER_ELEMENT +
-        // peer id
-        Uint32Array.BYTES_PER_ELEMENT +
         // simulation time
         Float64Array.BYTES_PER_ELEMENT +
         // entity count
@@ -1133,7 +1130,6 @@ describe('DataReader', () => {
 
     readView = createViewCursor(packet)
 
-    const _userIndex = readUint32(readView)
     const _peerIndex = readUint32(readView)
     const _simulationTime = readFloat64(readView)
 

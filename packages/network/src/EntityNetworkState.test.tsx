@@ -84,11 +84,11 @@ describe('EntityNetworkState', () => {
 
       dispatchAction(
         WorldNetworkAction.spawnEntity({
-          ownerID: NetworkState.worldNetwork.hostId, // from  host
+          ownerID: network.hostUserID, // from  host
           networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: Engine.instance.peerID,
-          entityUUID: Engine.instance.peerID as any as EntityUUID
+          entityUUID: (Engine.instance.userID + '_entity') as any as EntityUUID
         })
       )
 

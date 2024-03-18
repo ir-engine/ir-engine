@@ -88,7 +88,7 @@ const useDrawMocapLandmarks = (
       const networkState = getState(NetworkState)
       if (networkState.hostIds.world) {
         const network = networkState.networks[networkState.hostIds.world]
-        if (network.peers[peerID]) {
+        if (network?.peers?.[peerID]) {
           const userID = network.peers[peerID].userId
           const peers = network.users[userID]
           for (const peer of peers) {

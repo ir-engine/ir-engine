@@ -27,10 +27,10 @@ Ethereal Engine. All Rights Reserved.
  * When using local dev, to properly test multiple worlds for portals we
  * need to programatically shut down and restart the instanceserver process.
  */
-export const restartInstanceServer = () => {
+export const restartInstanceServer = (cb: () => Promise<void>) => {
   require('child_process').spawn('npm', ['run', 'dev'], {
     cwd: process.cwd(),
     stdio: 'inherit'
   })
-  process.exit(0)
+  cb().then(() => process.exit(0))
 }

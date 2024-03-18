@@ -35,7 +35,7 @@ import { EntityUUID, UUIDComponent, getOptionalComponent, setComponent } from '@
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineState, dispatchAction, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
-import { WorldNetworkAction } from '@etherealengine/network'
+import { EntityNetworkState, WorldNetworkAction } from '@etherealengine/network'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { Paginated } from '@feathersjs/feathers'
@@ -85,7 +85,7 @@ export const AvatarState = defineState({
         dispatchAction(
           AvatarNetworkAction.setAvatarID({
             avatarID: avatarId as AvatarID,
-            entityUUID: Engine.instance.userID as any as EntityUUID
+            entityUUID: (Engine.instance.userID + '_avatar') as any as EntityUUID
           })
         )
       })
@@ -105,9 +105,10 @@ export const AvatarState = defineState({
 
 const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   const avatarID = useHookstate(getMutableState(AvatarState)[entityUUID].avatarID)
+  const ownerId = useHookstate(getMutableState(EntityNetworkState)[entityUUID].ownerId)
   const userAvatarDetails = useHookstate(null as string | null)
   const entity = UUIDComponent.useEntityByUUID(entityUUID)
-  const user = useGet(userPath, entityUUID)
+  const user = useGet(userPath, ownerId.value)
 
   useLayoutEffect(() => {
     if (!entity) return
