@@ -134,8 +134,6 @@ export class FileBrowserService
       file.url = getCachedURL(file.key, storageProvider.cacheDomain)
     })
 
-    console.log('debug1 the directory was', directory)
-
     if (params.provider && !isAdmin) {
       const knexClient: Knex = this.app.get('knexClient')
       const projectPermissions: { 'project-permission': ProjectPermissionType; project: ProjectType }[] =
