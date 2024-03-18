@@ -30,7 +30,7 @@ import { GetGPUTier, getGPUTier } from 'detect-gpu'
 import { debounce } from 'lodash'
 import { SMAAPreset } from 'postprocessing'
 import { useEffect } from 'react'
-import { Color, OrthographicCamera, Scene } from 'three'
+import { Camera, Scene } from 'three'
 import { EngineState } from '../EngineState'
 import { RendererState } from './RendererState'
 
@@ -75,7 +75,7 @@ export const PerformanceState = defineState({
     // The lower the performance the higher the offset
     performanceOffset: 0,
     isMobileGPU: false as boolean | undefined,
-    averageRenderTime: 0,
+    // averageRenderTime: 0,
     budgets: {
       maxTextureSize: 0,
       max3DTextureSize: 0,
@@ -100,6 +100,8 @@ export const PerformanceState = defineState({
   }
 })
 
+// API to get GPU timings, not currently in use due to poor support
+// Probably only useful right now as a debug metric for use in the editor
 const timeBeforeCheck = 3
 let timeAccum = 0
 let checkingRenderTime = false
@@ -112,7 +114,7 @@ const startGPUTiming = (renderer: EngineRenderer, dt: number): (() => void) => {
     checkingRenderTime = false
     timeAccum = 0
     const performanceState = getMutableState(PerformanceState)
-    performanceState.averageRenderTime.set((performanceState.averageRenderTime.value + renderTime) / 2)
+    // performanceState.averageRenderTime.set((performanceState.averageRenderTime.value + renderTime) / 2)
   })
 }
 
@@ -168,21 +170,7 @@ const timeRenderFrameGPU = (renderer: EngineRenderer, callback: (number) => void
   } else return fallback()
 }
 
-const timeRender = (renderer: EngineRenderer, scene: Scene, onFinished: (ms: number) => void) => {
-  const frustumSize = 500
-  const aspect = window.innerWidth / window.innerHeight
-  const camera = new OrthographicCamera(
-    (frustumSize * aspect) / -2,
-    (frustumSize * aspect) / 2,
-    frustumSize / 2,
-    frustumSize / -2,
-    1,
-    1000
-  )
-  camera.position.set(-200, 200, 200)
-  scene.background = new Color(0xf0f0f0)
-  scene.add(camera)
-
+const timeRender = (renderer: EngineRenderer, scene: Scene, camera: Camera, onFinished: (ms: number) => void) => {
   const end = timeRenderFrameGPU(renderer, (renderTime) => {
     onFinished(renderTime)
   })

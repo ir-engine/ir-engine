@@ -56,8 +56,8 @@ describe('ResourceHooks', () => {
 
       useEffect(() => {
         const err = error.value
-        const model = gltf.get(NO_PROXY)
         assert(!err)
+        const model = gltf.get(NO_PROXY)
         if (model) {
           const resourceState = getState(ResourceState)
           assert(resourceState.resources[gltfURL])
@@ -86,8 +86,8 @@ describe('ResourceHooks', () => {
 
       useEffect(() => {
         const err = error.value
-        const texture = tex.get(NO_PROXY)
         assert(!err)
+        const texture = tex.get(NO_PROXY)
         if (texture) {
           const resourceState = getState(ResourceState)
           assert(resourceState.resources[texURL])
@@ -138,8 +138,8 @@ describe('ResourceHooks', () => {
 
       useEffect(() => {
         const err = error.value
-        const model = gltf.get(NO_PROXY)
         assert(err)
+        const model = gltf.get(NO_PROXY)
         assert(!model)
       }, [gltf, error])
 
@@ -166,9 +166,9 @@ describe('ResourceHooks', () => {
       useEffect(() => {
         console.log('UseEffect: ' + src)
         const err = error.value
+        assert(!err)
         const model = gltf.get(NO_PROXY)
 
-        assert(!err)
         const resourceState = getState(ResourceState)
         if (src === gltfURL && model) {
           console.log('Model One Loaded')
