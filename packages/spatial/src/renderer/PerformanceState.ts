@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { profile } from '@etherealengine/ecs/src/Timer'
-import { State, defineState, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { State, defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 import { EngineRenderer, RenderSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GetGPUTier, getGPUTier } from 'detect-gpu'
 import { debounce } from 'lodash'
@@ -99,28 +99,6 @@ export const PerformanceState = defineState({
     }, [performanceState.tier])
   }
 })
-
-export const usePerformanceTier = () => {
-  const performanceState = useMutableState(PerformanceState)
-  const performanceTier = useHookstate(performanceState.tier.value)
-
-  useEffect(() => {
-    performanceTier.set(performanceState.tier.value)
-  }, [performanceState.tier])
-
-  return performanceTier
-}
-
-export const usePerformanceOffset = () => {
-  const performanceState = useMutableState(PerformanceState)
-  const performanceOffset = useHookstate(performanceState.performanceOffset.value)
-
-  useEffect(() => {
-    performanceOffset.set(performanceState.performanceOffset.value)
-  }, [performanceState.performanceOffset])
-
-  return performanceOffset
-}
 
 const timeBeforeCheck = 3
 let timeAccum = 0
