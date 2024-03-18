@@ -117,7 +117,7 @@ const DataTable = ({ query, columns, rows }: DataTableProps) => {
           <Text className="mx-1">{t('common:table.refetching')}</Text>
         </div>
       )}
-      <Table containerClassname="h-[80vh]">
+      <Table containerClassname="max-h-[75vh]">
         <TableHead
           order={order}
           orderBy={orderBy}
