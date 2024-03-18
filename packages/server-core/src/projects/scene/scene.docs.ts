@@ -24,11 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  componentJsonSchema,
-  entityJsonSchema,
   sceneCreateDataSchema,
   sceneDataSchema,
-  sceneJsonSchema,
   sceneMetadataCreateSchema,
   sceneMetadataSchema,
   scenePatchSchema,
@@ -39,9 +36,6 @@ import { createSwaggerServiceOptions } from 'feathers-swagger'
 
 export default createSwaggerServiceOptions({
   schemas: {
-    componentJsonSchema,
-    entityJsonSchema,
-    sceneJsonSchema,
     sceneMetadataSchema,
     sceneDataSchema,
     sceneCreateDataSchema,

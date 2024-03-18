@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
-import { SceneDataType, SceneID, SceneJsonType, UserID } from '@etherealengine/common/src/schema.type.module'
+import { SceneDataType, SceneID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID, UUIDComponent, entityExists } from '@etherealengine/ecs'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
@@ -35,6 +35,7 @@ import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { FogType } from '@etherealengine/engine/src/scene/constants/FogType'
 import { SceneLoadingSystem } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
+import { SceneJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import testSceneJson from '@etherealengine/engine/tests/assets/SceneLoadingTest.scene.json'
 import { applyIncomingActions, getMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'

@@ -38,10 +38,7 @@
       border-style: solid;
       border-width: 1px;
       width: 100%;
-      top: -10px;
-      right: 0;
-      left: 0;
-      bottom: 0;
+      inset: -10px 0 0;
       z-index: 0;
 
       legend {

@@ -23,13 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
-import { dispatchAction } from '@etherealengine/hyperflux'
-
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { dispatchAction } from '@etherealengine/hyperflux'
 import { Network } from '../Network'
-import { NetworkActions } from '../NetworkState'
+import { NetworkActions, PeersUpdateType } from '../NetworkState'
 import { NetworkActionFunctions } from '../functions/NetworkActionFunctions'
 
 /** Publish to connected peers that peer information has changed */

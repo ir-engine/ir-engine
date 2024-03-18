@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneDataType, SceneID, SceneJsonType, UserID } from '@etherealengine/common/src/schema.type.module'
+import { SceneDataType, SceneID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID, SystemDefinitions, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
@@ -56,7 +56,7 @@ const testScene = {
   thumbnailUrl: '',
   project: '',
   scenePath: 'test' as SceneID,
-  scene: testSceneJson as unknown as SceneJsonType
+  scene: testSceneJson
 } as SceneDataType
 
 const sceneID = 'test' as SceneID

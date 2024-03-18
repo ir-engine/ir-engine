@@ -32,7 +32,6 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 
-import { ComponentJsonType } from '@etherealengine/common/src/schema.type.module'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
@@ -47,6 +46,7 @@ import {
   unregisterMaterial,
   unregisterMaterialInstance
 } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
+import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { getState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
