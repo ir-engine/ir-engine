@@ -37,7 +37,7 @@ const TableHeaderCell = ({ className, children, ...props }: TableCellProps) => {
   const twClassName = twMerge(
     'text-neutral-600 dark:text-white',
     'p-4',
-    'border border-neutral-300 dark:border-[0.5px] dark:border-[#2B2C30]',
+    'border-theme-primary border border-[0.5px]',
     className
   )
   return (
@@ -56,7 +56,7 @@ const TableHeadRow = ({
   className?: string
   children: JSX.Element | JSX.Element[]
 }) => {
-  const twClassName = twMerge('text-left capitalize', 'bg-neutral-100 dark:bg-[#212226]', className)
+  const twClassName = twMerge('bg-theme-highlight text-left capitalize', className)
   return (
     <thead className={theadClassName}>
       <tr className={twClassName}>{children}</tr>
@@ -67,7 +67,7 @@ const TableHeadRow = ({
 const TableCell = ({ className, children, ...props }: TableCellProps) => {
   const twClassName = twMerge(
     'p-4',
-    'border border-neutral-300 dark:border-[0.5px] dark:border-[#2B2C30]',
+    'border-theme-primary border border-[0.5px]',
     'text-left text-neutral-600 dark:text-white',
     className
   )
@@ -83,7 +83,7 @@ interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   children?: ReactNode
 }
 const TableRow = ({ className, children, ...props }: TableRowProps) => {
-  const twClassName = twMerge('odd:bg-theme-primary even:dark:bg-[#212226]', className)
+  const twClassName = twMerge('odd:bg-theme-primary even:bg-theme-highlight', className)
   return (
     <tr className={twClassName} {...props}>
       {children}
@@ -111,9 +111,9 @@ interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
 }
 
 const Table = ({ containerClassname, className, children }: TableProps) => {
-  const twClassname = twMerge('w-full border-collapse whitespace-nowrap rounded-md text-sm', className)
+  const twClassname = twMerge('w-full border-collapse whitespace-nowrap text-sm', className)
   return (
-    <div className={twMerge('mr-2 overflow-x-auto', containerClassname)}>
+    <div className={twMerge('mr-2 overflow-x-auto rounded-md', containerClassname)}>
       <table className={twClassname}>{children}</table>
     </div>
   )
@@ -132,6 +132,15 @@ const TablePagination = ({
   steps?: number
   onPageChange: (newPage: number) => void
 }) => {
+  const commonClasses = twMerge(
+    'bg-theme-surfaceMain flex h-8 items-center justify-center border px-3 leading-tight',
+    'border-gray-300 dark:border-gray-600',
+    'text-gray-400 dark:text-gray-500',
+    'enabled:text-gray-600 dark:enabled:dark:text-gray-300',
+    'hover:enabled:bg-gray-200 dark:hover:enabled:bg-gray-700',
+    'hover:enabled:text-gray-700 dark:hover:enabled:text-gray-200'
+  )
+
   return (
     <div className="flex-column mb-2 flex flex-wrap items-center justify-between pt-4 md:flex-row">
       <ul className="inline-flex h-8 -space-x-px text-sm rtl:space-x-reverse">
@@ -139,7 +148,7 @@ const TablePagination = ({
           <button
             disabled={currentPage === 0}
             onClick={() => onPageChange(0)}
-            className="bg-theme-surfaceMain flex h-8 items-center justify-center rounded-s-lg border border-gray-300 px-3 leading-tight text-gray-500 hover:enabled:bg-gray-100 hover:enabled:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:enabled:text-white"
+            className={twMerge(commonClasses, 'rounded-s-lg')}
           >
             <HiRewind />
           </button>
@@ -147,7 +156,7 @@ const TablePagination = ({
         <li>
           <button
             disabled={currentPage === 0}
-            className="bg-theme-surfaceMain flex h-8 items-center justify-center border border-gray-300 px-3 leading-tight text-gray-500 hover:enabled:bg-gray-100 hover:enabled:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:enabled:text-white"
+            className={commonClasses}
             onClick={() => onPageChange(Math.max(0, currentPage - 1))}
           >
             <GoChevronLeft />
@@ -157,9 +166,7 @@ const TablePagination = ({
           <li key={page}>
             <button
               onClick={() => onPageChange(page)}
-              className={`bg-theme-surfaceMain flex h-8 items-center justify-center border border-gray-300 px-3 leading-tight text-gray-500 hover:enabled:bg-gray-100 hover:enabled:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:enabled:text-white ${
-                currentPage === page ? 'bg-blue-50 dark:bg-gray-500' : ''
-              }`}
+              className={twMerge(commonClasses, currentPage === page ? 'bg-gray-300 dark:bg-gray-600' : '')}
             >
               {page + 1}
             </button>
@@ -169,7 +176,7 @@ const TablePagination = ({
           <button
             disabled={currentPage === totalPages - 1}
             onClick={() => onPageChange(Math.min(totalPages - 1, currentPage + 1))}
-            className="bg-theme-surfaceMain flex h-8 items-center justify-center border border-gray-300 px-3 leading-tight text-gray-500 hover:enabled:bg-gray-100 hover:enabled:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:enabled:text-white"
+            className={commonClasses}
           >
             <GoChevronRight />
           </button>
@@ -178,7 +185,7 @@ const TablePagination = ({
           <button
             disabled={currentPage === totalPages - 1}
             onClick={() => onPageChange(totalPages - 1)}
-            className="bg-theme-surfaceMain flex h-8 items-center justify-center rounded-e-lg border border-gray-300 px-3 leading-tight text-gray-500 hover:enabled:bg-gray-100 hover:enabled:text-gray-700  dark:border-gray-700 dark:text-white dark:hover:enabled:text-white"
+            className={twMerge(commonClasses, 'rounded-e-lg')}
           >
             <HiFastForward />
           </button>

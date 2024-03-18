@@ -130,7 +130,7 @@ export default function UpdateEngineModal() {
 
           {updateProjects.value && (
             <>
-              <div className="flex items-center justify-center gap-3 rounded-lg bg-[#FFFBEB] p-4 dark:bg-[#D9770633]">
+              <div className="bg-theme-bannerInformative flex items-center justify-center gap-3 rounded-lg p-4">
                 <div>
                   <LuInfo className="h-5 w-5 bg-transparent" />
                 </div>
@@ -140,7 +140,7 @@ export default function UpdateEngineModal() {
                 {projectState.projects.value
                   .filter((project) => project.name !== 'default-project' && project.repositoryPath.length > 0)
                   .map((project) => (
-                    <div key={project.id} className="border-theme-primary border px-3.5 py-5 dark:bg-[#141619]">
+                    <div key={project.id} className="bg-theme-surfaceInput border-theme-primary border px-3.5 py-5">
                       <Checkbox
                         label={project.name}
                         value={projectsToUpdate.value.has(project.name)}

@@ -35,9 +35,9 @@ import RemoveServerModal from './RemoveServerModal'
 import ServerLogsModal from './ServerLogsModal'
 
 const containerColor = {
-  Succeeded: 'bg-green-200 dark:bg-[#064E3B]',
-  Running: 'bg-yellow-200 dark:bg-yellow-600',
-  Terminated: 'bg-rose-200 dark:bg-[#744364]'
+  Succeeded: 'bg-theme-tagGreen',
+  Running: 'bg-theme-tagYellow',
+  Terminated: 'bg-theme-tagRed'
 }
 
 function ServerStatus({ serverPodInfo }: { serverPodInfo: ServerPodInfoType }) {
@@ -87,7 +87,7 @@ export default function ServerTable({
         <div className="flex items-center gap-5">
           <Button
             size="small"
-            className="h-min bg-[#61759f] dark:bg-[#2A3753]"
+            className="bg-theme-buttonTertiary h-min"
             onClick={() => {
               PopoverState.showPopupover(
                 <ServerLogsModal podName={row.name} containerName={row.containers?.at(-1)?.name} />
@@ -99,7 +99,7 @@ export default function ServerTable({
           <Button
             variant="outline"
             className="border-0"
-            startIcon={<HiTrash className="text-[#E11D48] dark:text-[#FB7185]" />}
+            startIcon={<HiTrash className="text-theme-iconRed" />}
             onClick={() => PopoverState.showPopupover(<RemoveServerModal serverPodInfo={row} />)}
           />
         </div>

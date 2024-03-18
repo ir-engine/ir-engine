@@ -76,7 +76,7 @@ export default function ResourceTable({ search }: { search: string }) {
             rounded
             className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0"
           >
-            <HiEye className="place-self-center" />
+            <HiEye className="text-theme-primary place-self-center" />
           </Button>
           <Button
             rounded
@@ -85,7 +85,7 @@ export default function ResourceTable({ search }: { search: string }) {
               PopoverState.showPopupover(<DeleteResourceModal resourceId={el.id} resourceKey={el.key} />)
             }}
           >
-            <HiTrash className="place-self-center text-[#E11D48] dark:text-[#FB7185]" />
+            <HiTrash className="text-theme-iconRed place-self-center" />
           </Button>
         </div>
       )

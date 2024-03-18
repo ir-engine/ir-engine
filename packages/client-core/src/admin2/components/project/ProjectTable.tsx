@@ -82,7 +82,7 @@ export default function ProjectTable() {
         <Button
           startIcon={<GrGithub />}
           size="small"
-          className="mr-2 h-min whitespace-pre bg-[#61759f] dark:bg-[#2A3753]"
+          className="bg-theme-buttonTertiary mr-2 h-min whitespace-pre text-[#214AA6] dark:text-white"
           onClick={() => {
             showConfirmDialog(
               project,
@@ -106,7 +106,7 @@ export default function ProjectTable() {
         <Button
           startIcon={<GrEdit />}
           size="small"
-          className="mr-2 h-min whitespace-pre bg-[#61759f] dark:bg-[#2A3753]"
+          className="bg-theme-buttonTertiary mr-2 h-min whitespace-pre text-[#214AA6] dark:text-white"
           onClick={() => {
             PopoverState.showPopupover(
               <AddEditProjectModal
@@ -140,7 +140,7 @@ export default function ProjectTable() {
         <Button
           startIcon={<IoPeopleOutline />}
           size="small"
-          className="mr-2 h-min whitespace-pre bg-[#61759f] dark:bg-[#2A3753]"
+          className="bg-theme-buttonTertiary mr-2 h-min whitespace-pre text-[#214AA6] dark:text-white"
           onClick={() => PopoverState.showPopupover(<ManageUserPermissionModal project={project} />)}
         >
           {t('admin:components.project.actions.access')}
@@ -148,7 +148,7 @@ export default function ProjectTable() {
         <Button
           startIcon={<IoTerminalOutline />}
           size="small"
-          className="mr-2 h-min whitespace-pre bg-[#61759f] dark:bg-[#2A3753]"
+          className="bg-theme-buttonTertiary mr-2 h-min whitespace-pre text-[#214AA6] dark:text-white"
           onClick={() => {
             showConfirmDialog(
               project,
@@ -166,14 +166,14 @@ export default function ProjectTable() {
         <Button
           startIcon={<IoFolderOutline />}
           size="small"
-          className="mr-2 h-min whitespace-pre bg-[#61759f] dark:bg-[#2A3753]"
+          className="bg-theme-buttonTertiary mr-2 h-min whitespace-pre text-[#214AA6] dark:text-white"
         >
           {t('admin:components.common.view')}
         </Button>
         <Button
           startIcon={<RiDeleteBinLine />}
           size="small"
-          className="h-min whitespace-pre bg-[#61759f] dark:bg-[#2A3753]"
+          className="bg-theme-buttonTertiary h-min whitespace-pre text-[#214AA6] dark:text-white"
           onClick={() => {
             showConfirmDialog(
               project,

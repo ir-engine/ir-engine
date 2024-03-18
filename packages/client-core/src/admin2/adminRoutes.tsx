@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { lazy, useEffect } from 'react'
 import { Link, Route, Routes, useLocation } from 'react-router-dom'
 
-import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
 import { AllowedAdminRoutesState } from '../admin/AllowedAdminRoutesState'
 import { AuthState } from '../user/services/AuthService'
@@ -62,8 +62,10 @@ const AdminSideBar = () => {
               <li key={index}>
                 <Link to={path}>
                   <Button
-                    className={`text-theme-secondary	 flex w-72 items-center justify-start rounded-xl px-2 py-3 font-medium dark:hover:bg-[#212226] ${
-                      relativePath === path ? 'text-theme-primary font-semibold dark:bg-[#212226] ' : 'bg-primary'
+                    className={`text-theme-secondary hover:bg-theme-highlight] flex w-72 items-center justify-start rounded-xl px-2 py-3 font-medium ${
+                      relativePath === path
+                        ? 'text-theme-primary bg-theme-highlight font-semibold '
+                        : 'bg-theme-primary'
                     }`}
                     startIcon={sidebarItem.icon}
                   >
@@ -75,10 +77,10 @@ const AdminSideBar = () => {
           })}
         <li>
           <Button
-            className="bg-theme-surfaceMain text-theme-secondary my-2 flex items-center rounded-sm px-2 py-3 hover:bg-[#212226]"
+            className="bg-theme-primary text-theme-secondary my-2 flex items-center rounded-sm px-2 py-3"
             startIcon={<HiArrowRightOnRectangle />}
           >
-            Log Out
+            {t('admin:components.common.logOut')}
           </Button>
         </li>
       </ul>
@@ -96,10 +98,21 @@ const AdminRoutes = () => {
 
   useEffect(() => {
     allowedRoutes.set(DefaultAdminRoutes)
-  }, [])
-
-  useEffect(() => {
     ThemeState.setTheme('dark')
+
+    // TODO: Remove this and add a proper theme switcher
+    const toggleTheme = (e: KeyboardEvent) => {
+      if (e.metaKey && e.key === 'c') {
+        const currentTheme = getState(ThemeState).theme
+        ThemeState.setTheme(currentTheme === 'dark' ? 'light' : 'dark')
+      }
+    }
+
+    window.addEventListener('keypress', toggleTheme)
+
+    return () => {
+      window.removeEventListener('keypress', toggleTheme)
+    }
   }, [])
 
   useEffect(() => {
