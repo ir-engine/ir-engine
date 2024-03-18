@@ -30,6 +30,7 @@ import {
   BufferAttribute,
   BufferGeometry,
   Color,
+  Euler,
   LineBasicMaterial,
   LineSegments,
   MathUtils,
@@ -78,7 +79,7 @@ const footAverageDifferenceThreshold = 0.05
 const footLevelDifferenceThreshold = 0.035
 
 //get all strings from the list containing 'leg' or 'foot'
-const lowerBody = VRMHumanBoneList.filter((bone) => /Leg|Foot/i.test(bone))
+const lowerBody = VRMHumanBoneList.filter((bone) => /Leg|Foot|hips/i.test(bone))
 
 /**calculates which feet are grounded. operates on the assumption that the user is on a plane,
  * such that the lowest foot with no vertical motion over the past 10 frames is always the grounded foot.
@@ -303,7 +304,7 @@ export function solveMotionCapturePose(
   if (!mocapComponent.prevScreenLandmarks)
     mocapComponent.prevScreenLandmarks = newScreenlandmarks.map((landmark) => ({ ...landmark }))
 
-  const worldLandmarks = keyframeInterpolation(newLandmarks, mocapComponent.prevWorldLandmarks, 30)
+  const worldLandmarks = keyframeInterpolation(newLandmarks, mocapComponent.prevWorldLandmarks, 40)
   const screenLandmarks = keyframeInterpolation(newScreenlandmarks, mocapComponent.prevScreenLandmarks, 10)
 
   mocapComponent.prevWorldLandmarks = worldLandmarks
@@ -497,8 +498,15 @@ export const solveSpine = (
   const shoulderCenter = new Vector3().copy(shoulderLeft).add(shoulderRight).multiplyScalar(0.5)
   hipToShoulderQuaternion.setFromUnitVectors(V_010, vec3.subVectors(shoulderCenter, hipCenter).normalize())
 
-  const hipWorldQuaterion = getQuaternionFromPointsAlongPlane(hipright, hipleft, shoulderCenter, new Quaternion(), true)
-  //hipWorldQuaterion.multiply(new Quaternion().setFromEuler(new Euler(0, Math.PI, Math.PI)))
+  /**@todo better hips rotation calculation needed */
+  const hipWorldQuaterion = getQuaternionFromPointsAlongPlane(
+    hipright,
+    hipleft,
+    shoulderCenter,
+    new Quaternion(),
+    false
+  )
+  hipWorldQuaterion.multiply(new Quaternion().setFromEuler(new Euler(0, Math.PI, Math.PI)))
 
   // const restLegLeft = rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.LeftUpperLeg]!
   // const restLegRight = rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.RightUpperLeg]!
@@ -517,7 +525,7 @@ export const solveSpine = (
   } else {
     if (leftHip.visibility! + rightHip.visibility! > 1) spineRotation.copy(hipWorldQuaterion)
     else {
-      fallbackShoulderQuaternion.setFromUnitVectors(V_100, new Vector3().subVectors(shoulderLeft, shoulderRight))
+      fallbackShoulderQuaternion.setFromUnitVectors(V_100, new Vector3().subVectors(shoulderRight, shoulderLeft))
       spineRotation.copy(fallbackShoulderQuaternion)
     }
   }
