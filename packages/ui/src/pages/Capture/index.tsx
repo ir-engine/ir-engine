@@ -127,15 +127,15 @@ const sendResults = (results: MotionCaptureResults) => {
   network.transport.bufferToAll(mocapDataChannelType, Engine.instance.peerID, data)
 }
 
-const useVideoStatus = () => {
-  const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
-  const videoPaused = useHookstate(getMutableState(MediaStreamState).videoPaused)
-  const videoActive = !!videoStream.value && !videoPaused.value
-  const mediaNetworkState = useMediaNetwork()
-  if (!mediaNetworkState?.connected?.value) return 'loading'
-  if (!videoActive) return 'ready'
-  return 'active'
-}
+// const useVideoStatus = () => {
+//   const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
+//   const videoPaused = useHookstate(getMutableState(MediaStreamState).videoPaused)
+//   const videoActive = !!videoStream.value && !videoPaused.value
+//   const mediaNetworkState = useMediaNetwork()
+//   if (!mediaNetworkState?.connected?.value) return 'loading'
+//   if (!videoActive) return 'ready'
+//   return 'active'
+// }
 
 export const CaptureState = defineState({
   name: 'CaptureState',
@@ -206,10 +206,15 @@ const CaptureMode = () => {
     })
   }, [])
 
+  // useEffect(() => {
+  //   const factor = displaySettings.flipVideo === true ? '-1' : '1'
+  //   videoRef.current!.style.transform = `scaleX(${factor})`
+  // }, [displaySettings.flipVideo])
+
+  const drawingUtils = useHookstate(null as null | DrawingUtils)
   useEffect(() => {
-    const factor = displaySettings.flipVideo === true ? '-1' : '1'
-    videoRef.current!.style.transform = `scaleX(${factor})`
-  }, [displaySettings.flipVideo])
+    drawingUtils.set(new DrawingUtils(canvasCtxRef.current!))
+  }, [])
 
   useLayoutEffect(() => {
     canvasCtxRef.current = canvasRef.current!.getContext('2d')!
@@ -221,13 +226,12 @@ const CaptureMode = () => {
 
   useVideoFrameCallback(videoRef.current, (videoTime, metadata) => {
     if (!poseDetector.value || processingFrame.value || detectingStatus.value !== 'active') return
-    const drawingUtils = new DrawingUtils(canvasCtxRef.current!)
 
     poseDetector.value.detectForVideo(videoRef.current, performance.now(), (result) => {
       const worldLandmarks = result.worldLandmarks[0]
       const landmarks = result.landmarks[0]
       sendResults({ worldLandmarks, landmarks })
-      drawPoseToCanvas(result.landmarks, canvasCtxRef, canvasRef, drawingUtils)
+      drawingUtils.value && drawPoseToCanvas(result.landmarks, canvasCtxRef, canvasRef, drawingUtils.value)
     })
   })
 
@@ -239,24 +243,6 @@ const CaptureMode = () => {
     }
 
     processingFrame.set(false)
-
-    // poseDetector.value.onResults((results) => {
-    //   if (Object.keys(results).length === 0) return
-
-    //   const { poseWorldLandmarks, poseLandmarks } = results
-
-    //   if (debugSettings?.throttleSend) {
-    //     throttledSend({ poseWorldLandmarks, poseLandmarks })
-    //   } else {
-    //     sendResults({ poseWorldLandmarks, poseLandmarks })
-    //   }
-
-    //   processingFrame.set(false)
-
-    //   if (displaySettings?.show2dSkeleton) {
-    //     drawPoseToCanvas(canvasCtxRef, canvasRef!, poseLandmarks)
-    //   }
-    // })
 
     return () => {
       detectingStatus.set('inactive')
@@ -341,7 +327,7 @@ const CaptureMode = () => {
   )
 }
 
-const drawPoseToCanvas = (
+export const drawPoseToCanvas = (
   poseLandmarks: NormalizedLandmark[][],
   canvasCtxRef: React.MutableRefObject<CanvasRenderingContext2D | undefined>,
   canvasRef: React.RefObject<HTMLCanvasElement | undefined>,
@@ -351,8 +337,6 @@ const drawPoseToCanvas = (
   canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
   if (poseLandmarks && canvasCtxRef.current) {
     for (let i = 0; i < poseLandmarks.length; i++) {
-      if (poseLandmarks[0][i].visibility < 0.98) continue
-      console.log(poseLandmarks[0][i].visibility)
       drawingUtils.drawConnectors(poseLandmarks[i], PoseLandmarker.POSE_CONNECTIONS, {
         color: '#fff',
         lineWidth: 2

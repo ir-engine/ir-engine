@@ -57,14 +57,13 @@ import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/compon
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import {
-  NormalizedLandmark,
-  NormalizedLandmarkList,
   POSE_CONNECTIONS,
   POSE_LANDMARKS,
   POSE_LANDMARKS_LEFT,
   POSE_LANDMARKS_NEUTRAL,
   POSE_LANDMARKS_RIGHT
 } from '@mediapipe/pose'
+import { NormalizedLandmark } from '@mediapipe/tasks-vision'
 import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
@@ -147,7 +146,7 @@ const drawMocapDebug = (label: string) => {
   const colAttr = new BufferAttribute(new Float32Array(POSE_CONNECTIONS.length * 2 * 4).fill(1), 4)
   positionLineSegment.geometry.setAttribute('color', colAttr)
 
-  return (landmarks?: NormalizedLandmarkList, debugEnabled?: boolean) => {
+  return (landmarks?: NormalizedLandmark[], debugEnabled?: boolean) => {
     if (!debugEnabled) {
       for (const [key, entity] of Object.entries(debugEntities)) {
         delete debugEntities[key]
@@ -272,12 +271,13 @@ export function solveMotionCapturePose(
       }
       const alpha = getState(ECSState).deltaSeconds * alphaMultiplier
       lowPassLandmarks[i] = {
+        visibility: MathUtils.lerp(prevLandmarks[i].visibility!, newLandmarks[i].visibility!, alpha),
         x: MathUtils.lerp(prevLandmarks[i].x, newLandmarks[i].x, newLandmarks[i].visibility!),
         y: MathUtils.lerp(prevLandmarks[i].y, newLandmarks[i].y, newLandmarks[i].visibility!),
         z: MathUtils.lerp(prevLandmarks[i].z, newLandmarks[i].z, newLandmarks[i].visibility!)
       }
       filteredLandmarks[i] = {
-        visibility: MathUtils.lerp(prevLandmarks[i].visibility!, newLandmarks[i].visibility!, alpha),
+        visibility: MathUtils.lerp(prevLandmarks[i].visibility!, lowPassLandmarks[i].visibility!, alpha),
         x: MathUtils.lerp(prevLandmarks[i].x, lowPassLandmarks[i].x, alpha),
         y: MathUtils.lerp(prevLandmarks[i].y, lowPassLandmarks[i].y, alpha),
         z: MathUtils.lerp(prevLandmarks[i].z, lowPassLandmarks[i].z, alpha)
@@ -303,7 +303,7 @@ export function solveMotionCapturePose(
   if (!mocapComponent.prevScreenLandmarks)
     mocapComponent.prevScreenLandmarks = newScreenlandmarks.map((landmark) => ({ ...landmark }))
 
-  const worldLandmarks = keyframeInterpolation(newLandmarks, mocapComponent.prevWorldLandmarks, 25)
+  const worldLandmarks = keyframeInterpolation(newLandmarks, mocapComponent.prevWorldLandmarks, 40)
   const screenLandmarks = keyframeInterpolation(newScreenlandmarks, mocapComponent.prevScreenLandmarks, 10)
 
   mocapComponent.prevWorldLandmarks = worldLandmarks
@@ -455,7 +455,7 @@ const spineRotation = new Quaternion(),
 export const solveSpine = (
   entity: Entity,
   lowestWorldY: number,
-  landmarks: NormalizedLandmarkList,
+  landmarks: NormalizedLandmark[],
   trackingLowerBody: boolean
 ) => {
   const rig = getComponent(entity, AvatarRigComponent)

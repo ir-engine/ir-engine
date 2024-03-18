@@ -38,13 +38,12 @@ import {
 
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 
-import { NormalizedLandmark } from '@mediapipe/pose'
-
 import { RingBuffer } from '@etherealengine/common/src/utils/RingBuffer'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { ECSState } from '@etherealengine/ecs'
 import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { NormalizedLandmark } from '@mediapipe/tasks-vision'
 import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { Quaternion } from 'three'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
@@ -169,7 +168,7 @@ const execute = () => {
               MotionCaptureRigComponent.rig[boneName].w[entity]
             )
             .normalize(),
-          getState(ECSState).deltaSeconds * 30
+          getState(ECSState).deltaSeconds * 50
         )
 
       normalizedBone.quaternion.copy(slerpedQuat)
