@@ -157,7 +157,7 @@ const MultiEmailInput = ({ emailList, error, label, disabled }: LabelProps) => {
         ref={ref}
       />
 
-      {errorLabel && <p className="error text-[#E11D48]">{errorLabel}</p>}
+      {errorLabel && <p className="error text-theme-iconRed">{errorLabel}</p>}
     </>
   )
 }

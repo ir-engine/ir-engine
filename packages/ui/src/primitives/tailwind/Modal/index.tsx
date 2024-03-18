@@ -112,7 +112,9 @@ const Modal = ({
   className,
   submitLoading,
   closeButtonText,
-  submitButtonText
+  submitButtonText,
+  closeButtonDisabled,
+  submitButtonDisabled
 }: ModalProps) => {
   const twClassName = twMerge('relative max-h-full w-full max-w-2xl p-4', className)
   return (
@@ -124,6 +126,8 @@ const Modal = ({
           <ModalFooter
             closeButtonText={closeButtonText}
             submitButtonText={submitButtonText}
+            closeButtonDisabled={closeButtonDisabled}
+            submitButtonDisabled={submitButtonDisabled}
             onCancel={onClose}
             onSubmit={onSubmit}
             submitLoading={submitLoading}

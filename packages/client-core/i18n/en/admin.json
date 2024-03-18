@@ -83,7 +83,8 @@
       "refresh": "Refresh",
       "name": "Name",
       "fillRequiredFields": "Please fill all required field",
-      "fixErrorFields": "Please fix all errors"
+      "fixErrorFields": "Please fix all errors",
+      "logOut": "Log Out"
     },
     "analytics": {
       "loading": "Loading analytics...",
