@@ -303,7 +303,7 @@ export function solveMotionCapturePose(
   if (!mocapComponent.prevScreenLandmarks)
     mocapComponent.prevScreenLandmarks = newScreenlandmarks.map((landmark) => ({ ...landmark }))
 
-  const worldLandmarks = keyframeInterpolation(newLandmarks, mocapComponent.prevWorldLandmarks, 40)
+  const worldLandmarks = keyframeInterpolation(newLandmarks, mocapComponent.prevWorldLandmarks, 30)
   const screenLandmarks = keyframeInterpolation(newScreenlandmarks, mocapComponent.prevScreenLandmarks, 10)
 
   mocapComponent.prevWorldLandmarks = worldLandmarks
@@ -325,9 +325,9 @@ export function solveMotionCapturePose(
   solveLimb(
     entity,
     lowestWorldY,
-    worldLandmarks[POSE_LANDMARKS.RIGHT_SHOULDER],
-    worldLandmarks[POSE_LANDMARKS.RIGHT_ELBOW],
-    worldLandmarks[POSE_LANDMARKS.RIGHT_WRIST],
+    worldLandmarks[POSE_LANDMARKS.LEFT_SHOULDER],
+    worldLandmarks[POSE_LANDMARKS.LEFT_ELBOW],
+    worldLandmarks[POSE_LANDMARKS.LEFT_WRIST],
     new Vector3(-1, 0, 0),
     VRMHumanBoneName.Chest,
     VRMHumanBoneName.LeftUpperArm,
@@ -337,9 +337,9 @@ export function solveMotionCapturePose(
   solveLimb(
     entity,
     lowestWorldY,
-    worldLandmarks[POSE_LANDMARKS.LEFT_SHOULDER],
-    worldLandmarks[POSE_LANDMARKS.LEFT_ELBOW],
-    worldLandmarks[POSE_LANDMARKS.LEFT_WRIST],
+    worldLandmarks[POSE_LANDMARKS.RIGHT_SHOULDER],
+    worldLandmarks[POSE_LANDMARKS.RIGHT_ELBOW],
+    worldLandmarks[POSE_LANDMARKS.RIGHT_WRIST],
     new Vector3(1, 0, 0),
     VRMHumanBoneName.Chest,
     VRMHumanBoneName.RightUpperArm,
@@ -350,9 +350,9 @@ export function solveMotionCapturePose(
     solveLimb(
       entity,
       lowestWorldY,
-      screenLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_HIP],
-      screenLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_KNEE],
-      screenLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
+      screenLandmarks[POSE_LANDMARKS_LEFT.LEFT_HIP],
+      screenLandmarks[POSE_LANDMARKS_LEFT.LEFT_KNEE],
+      screenLandmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
       new Vector3(0, 1, 0),
       VRMHumanBoneName.Hips,
       VRMHumanBoneName.LeftUpperLeg,
@@ -361,9 +361,9 @@ export function solveMotionCapturePose(
     solveLimb(
       entity,
       lowestWorldY,
-      screenLandmarks[POSE_LANDMARKS_LEFT.LEFT_HIP],
-      screenLandmarks[POSE_LANDMARKS_LEFT.LEFT_KNEE],
-      screenLandmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
+      screenLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_HIP],
+      screenLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_KNEE],
+      screenLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
       new Vector3(0, 1, 0),
       VRMHumanBoneName.Hips,
       VRMHumanBoneName.RightUpperLeg,
@@ -394,18 +394,18 @@ export function solveMotionCapturePose(
     //check state, if we are still not set to track lower body, update that
     if (!MotionCaptureRigComponent.solvingLowerBody[entity]) {
       MotionCaptureRigComponent.solvingLowerBody[entity] = 1
-      //zero bone quats to filter them out in motion capture system
-      for (const boneName of lowerBody) {
-        //only leg bones
-        MotionCaptureRigComponent.rig[boneName].x[entity] = 0
-        MotionCaptureRigComponent.rig[boneName].y[entity] = 0
-        MotionCaptureRigComponent.rig[boneName].z[entity] = 0
-        MotionCaptureRigComponent.rig[boneName].w[entity] = 0
-      }
     }
   } else {
     if (MotionCaptureRigComponent.solvingLowerBody[entity]) {
       MotionCaptureRigComponent.solvingLowerBody[entity] = 0
+    }
+    //zero bone quats to filter them out in motion capture system
+    for (const boneName of lowerBody) {
+      //only leg bones
+      MotionCaptureRigComponent.rig[boneName].x[entity] = 0
+      MotionCaptureRigComponent.rig[boneName].y[entity] = 0
+      MotionCaptureRigComponent.rig[boneName].z[entity] = 0
+      MotionCaptureRigComponent.rig[boneName].w[entity] = 0
     }
   }
 
@@ -567,9 +567,9 @@ export const solveLimb = (
 
   if (minimumVisibility > -1 && (start.visibility! + mid.visibility! + end.visibility!) / 3 < minimumVisibility) return
 
-  startPoint.set(-start.x, lowestWorldY - start.y, -start.z)
-  midPoint.set(-mid.x, lowestWorldY - mid.y, -mid.z)
-  endPoint.set(-end.x, lowestWorldY - end.y, -end.z)
+  startPoint.set(start.x, lowestWorldY - start.y, -start.z)
+  midPoint.set(mid.x, lowestWorldY - mid.y, -mid.z)
+  endPoint.set(end.x, lowestWorldY - end.y, -end.z)
 
   const startQuaternion = new Quaternion().setFromUnitVectors(axis, vec3.subVectors(startPoint, midPoint).normalize())
   const midQuaternion = new Quaternion().setFromUnitVectors(axis, vec3.subVectors(midPoint, endPoint).normalize())

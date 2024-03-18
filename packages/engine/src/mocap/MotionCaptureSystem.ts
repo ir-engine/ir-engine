@@ -168,7 +168,7 @@ const execute = () => {
               MotionCaptureRigComponent.rig[boneName].w[entity]
             )
             .normalize(),
-          getState(ECSState).deltaSeconds * 50
+          getState(ECSState).deltaSeconds * 35
         )
 
       normalizedBone.quaternion.copy(slerpedQuat)
