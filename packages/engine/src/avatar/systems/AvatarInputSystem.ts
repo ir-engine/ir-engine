@@ -61,6 +61,7 @@ import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent
 import { autopilotSetPosition } from '.././functions/autopilotFunctions'
 import { translateAndRotateAvatar } from '.././functions/moveAvatar'
 import { AvatarAxesControlScheme, AvatarInputSettingsState } from '.././state/AvatarInputSettingsState'
+import { AvatarComponent } from '../components/AvatarComponent'
 import { applyInputSourcePoseToIKTargets } from '../functions/applyInputSourcePoseToIKTargets'
 import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 
@@ -97,13 +98,13 @@ export const AvatarAxesControlSchemeBehavior = {
     controller: ComponentType<typeof AvatarControllerComponent>,
     handdedness: XRHandedness
   ) => {
-    const localClientEntity = Engine.instance.localClientEntity
+    const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
     const [x, z] = getThumbstickOrThumbpadAxes(inputSource, handdedness)
 
     if (x === 0 && z === 0) {
       InputSourceAxesDidReset.set(inputSource, true)
-      if (inputSource.handedness === getOptionalComponent(localClientEntity, AvatarTeleportComponent)?.side)
-        removeComponent(localClientEntity, AvatarTeleportComponent)
+      if (inputSource.handedness === getOptionalComponent(selfAvatarEntity, AvatarTeleportComponent)?.side)
+        removeComponent(selfAvatarEntity, AvatarTeleportComponent)
     }
 
     if (!InputSourceAxesDidReset.get(inputSource)) return
@@ -113,10 +114,10 @@ export const AvatarAxesControlSchemeBehavior = {
 
     if (canRotate) {
       const angle = (Math.PI / 6) * (x > 0 ? -1 : 1) // 30 degrees
-      translateAndRotateAvatar(localClientEntity, V_000, _quat.setFromAxisAngle(V_010, angle))
+      translateAndRotateAvatar(selfAvatarEntity, V_000, _quat.setFromAxisAngle(V_010, angle))
       InputSourceAxesDidReset.set(inputSource, false)
     } else if (canTeleport) {
-      setComponent(localClientEntity, AvatarTeleportComponent, { side: inputSource.handedness })
+      setComponent(selfAvatarEntity, AvatarTeleportComponent, { side: inputSource.handedness })
       InputSourceAxesDidReset.set(inputSource, false)
     }
   }
@@ -132,7 +133,9 @@ const raycastComponentData = {
 } as RaycastArgs
 
 const onShiftLeft = () => {
-  const controller = getMutableComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
+  const entity = AvatarComponent.getSelfAvatarEntity()
+  if (!entity) return
+  const controller = getMutableComponent(entity, AvatarControllerComponent)
   controller.isWalking.set(!controller.isWalking.value)
 }
 
@@ -151,7 +154,8 @@ const onKeyP = () => {
 //   if (hits.length) {
 //     const hit = hits[0]
 //     const hitEntity = (hit.body?.userData as any)?.entity as Entity
-//     if (typeof hitEntity !== 'undefined' && hitEntity == Engine.instance.localClientEntity) {
+//     const avatarEntity = AvatarComponent.getSelfAvatarEntity()
+//     if (typeof hitEntity !== 'undefined' && hitEntity == avatarEntity) {
 //       return true
 //     }
 //   }
@@ -201,18 +205,18 @@ const walkableQuery = defineQuery([RigidBodyFixedTagComponent, InputComponent])
 let mouseMovedDuringPrimaryClick = false
 
 const execute = () => {
-  const { localClientEntity } = Engine.instance
-  if (!localClientEntity) return
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+  if (!selfAvatarEntity) return
 
-  applyInputSourcePoseToIKTargets(localClientEntity)
+  applyInputSourcePoseToIKTargets(Engine.instance.userID)
 
   const { deltaSeconds } = getState(ECSState)
-  setIkFootTarget(localClientEntity, deltaSeconds)
+  setIkFootTarget(Engine.instance.userID, deltaSeconds)
 
   const inputState = getState(InputState)
   const avatarInputSettings = getState(AvatarInputSettingsState)
 
-  const controller = getComponent(localClientEntity, AvatarControllerComponent)
+  const controller = getComponent(selfAvatarEntity, AvatarControllerComponent)
   const nonCapturedInputSourceEntities = InputSourceComponent.nonCapturedInputSourceQuery()
 
   const { isCameraAttachedToAvatar, isMovementControlsEnabled } = getState(XRControlsState)
@@ -236,7 +240,7 @@ const execute = () => {
 
           if (inputSourceComponent.buttons.PrimaryClick.up) {
             if (!mouseMovedDuringPrimaryClick) {
-              autopilotSetPosition(Engine.instance.localClientEntity)
+              autopilotSetPosition(selfAvatarEntity)
             } else mouseMovedDuringPrimaryClick = false
           }
         }

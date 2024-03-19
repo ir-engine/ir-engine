@@ -42,12 +42,13 @@ import {
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import {
   createOutgoingDataProducer,
+  handleCloseConsumer,
+  handleCloseProducer,
   handleConsumeData,
   handleConsumerSetLayers,
   handleProduceData,
   handleRequestConsumer,
   handleRequestProducer,
-  handleWebRtcTransportClose,
   handleWebRtcTransportConnect,
   handleWebRtcTransportCreate
 } from './WebRTCFunctions'
@@ -56,6 +57,8 @@ import {
 const requestConsumerActionQueue = defineActionQueue(MediasoupMediaConsumerActions.requestConsumer.matches)
 const consumerLayersActionQueue = defineActionQueue(MediasoupMediaConsumerActions.consumerLayers.matches)
 const requestProducerActionQueue = defineActionQueue(MediasoupMediaProducerActions.requestProducer.matches)
+const closeProducerActionQueue = defineActionQueue(MediasoupMediaProducerActions.producerClosed.matches)
+const closeConsumerActionQueue = defineActionQueue(MediasoupMediaConsumerActions.consumerClosed.matches)
 
 const dataRequestProducerActionQueue = defineActionQueue(MediasoupDataProducerActions.requestProducer.matches)
 const dataRequestConsumerActionQueue = defineActionQueue(MediasoupDataConsumerActions.requestConsumer.matches)
@@ -74,6 +77,12 @@ const execute = () => {
   for (const action of requestProducerActionQueue()) {
     handleRequestProducer(action)
   }
+  for (const action of closeConsumerActionQueue()) {
+    handleCloseConsumer(action)
+  }
+  for (const action of closeProducerActionQueue()) {
+    handleCloseProducer(action)
+  }
 
   for (const action of dataRequestProducerActionQueue()) {
     handleProduceData(action)
@@ -87,9 +96,6 @@ const execute = () => {
   }
   for (const action of requestTransportConnectActionQueue()) {
     handleWebRtcTransportConnect(action)
-  }
-  for (const action of transportCloseActionQueue()) {
-    handleWebRtcTransportClose(action)
   }
 }
 

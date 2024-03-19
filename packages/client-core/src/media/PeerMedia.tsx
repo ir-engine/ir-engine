@@ -25,9 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { PeerID, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import {
   NetworkState,
   screenshareAudioDataChannelType,
@@ -113,7 +112,7 @@ const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
 const SelfMedia = () => {
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
 
-  const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState)[Engine.instance.peerID])
+  const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState)[Engine.instance.store.peerID])
 
   useEffect(() => {
     peerMediaChannelState.cam.audioStream.set(mediaStreamState.camAudioProducer.value)
@@ -217,7 +216,7 @@ export const PeerMediaChannels = () => {
   useEffect(() => {
     const mediaChannelPeers = mediaNetwork?.peers?.keys?.length
       ? Array.from(mediaNetwork.peers.keys as PeerID[]).filter((peerID) => peerID !== mediaNetwork.value.hostPeerID)
-      : [Engine.instance.peerID]
+      : [Engine.instance.store.peerID]
     mediaPeers.set(mediaChannelPeers)
   }, [mediaNetwork?.peers?.keys?.length])
 
@@ -232,14 +231,17 @@ export const PeerMediaChannels = () => {
 
 export const PeerMediaConsumers = () => {
   const networkIDs = useHookstate(getMutableState(MediasoupMediaProducerConsumerState))
-  const selfPeerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState)[Engine.instance.peerID])
+  const networks = useHookstate(getMutableState(NetworkState).networks)
+  const selfPeerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState)[Engine.instance.store.peerID])
   return (
     <>
       <PeerMediaChannels />
       {selfPeerMediaChannelState.value && <SelfMedia key={'SelfMedia'} />}
-      {networkIDs.keys.map((id: InstanceID) => (
-        <NetworkConsumers key={id} networkID={id} />
-      ))}
+      {networkIDs.keys
+        .filter((id) => !!networks[id])
+        .map((id: InstanceID) => (
+          <NetworkConsumers key={id} networkID={id} />
+        ))}
     </>
   )
 }

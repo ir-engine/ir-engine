@@ -39,10 +39,9 @@ import {
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserName, userPath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { PeerID, State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { t } from 'i18next'
@@ -57,7 +56,7 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
 
   const isSelf =
     !mediaNetwork ||
-    peerID === Engine.instance.peerID ||
+    peerID === Engine.instance.store.peerID ||
     (mediaNetwork?.peers &&
       Object.values(mediaNetwork.peers).find((peer) => peer.userId === Engine.instance.userID)?.peerID === peerID) ||
     peerID === 'self'

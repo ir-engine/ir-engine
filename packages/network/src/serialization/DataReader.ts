@@ -26,11 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import { TypedArray } from 'bitecs'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
-import { UserID } from '@etherealengine/common/src/schema.type.module'
 
-import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { PeerID } from '@etherealengine/hyperflux'
 import { JitterBufferEntry, Network } from '../Network'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../NetworkObjectComponent'
 import { NetworkState } from '../NetworkState'
@@ -203,7 +203,7 @@ export const readCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, e
 export const readEntity = (
   v: ViewCursor,
   network: Network,
-  fromUserId: UserID,
+  fromPeerID: PeerID,
   serializationSchema: SerializationSchema[]
 ) => {
   const netId = readUint32(v) as NetworkId
@@ -213,7 +213,11 @@ export const readEntity = (
   const ownerPeer = network.peerIndexToPeerID[ownerPeerIndex]!
 
   let entity = NetworkObjectComponent.getNetworkObject(ownerPeer, netId)
-  if (entity && hasComponent(entity, NetworkObjectAuthorityTag)) entity = UndefinedEntity
+  if (
+    (entity && getComponent(entity, NetworkObjectComponent).authorityPeerID !== fromPeerID) ||
+    hasComponent(entity, NetworkObjectAuthorityTag)
+  )
+    entity = UndefinedEntity
 
   let b = 0
 
@@ -222,35 +226,32 @@ export const readEntity = (
   }
 }
 
-export const readEntities = (v: ViewCursor, network: Network, byteLength: number, fromUserID: UserID) => {
+export const readEntities = (v: ViewCursor, network: Network, byteLength: number, fromPeerID: PeerID) => {
   const entitySchema = NetworkState.orderedNetworkSchema
   while (v.cursor < byteLength) {
     const count = readUint32(v)
     for (let i = 0; i < count; i++) {
-      readEntity(v, network, fromUserID, entitySchema)
+      readEntity(v, network, fromPeerID, entitySchema)
     }
   }
 }
 
 export const readMetadata = (v: ViewCursor) => {
-  const userIndex = readUint32(v)
   const peerIndex = readUint32(v)
   const simulationTime = readFloat64(v)
-  // if (userIndex === world.peerIDToUserIndex.get(NetworkState.worldNetwork.hostId)! && !NetworkState.worldNetwork.isHosting) Engine.instance.fixedTick = fixedTick
-  return { userIndex, peerIndex, simulationTime }
+  return { peerIndex, simulationTime }
 }
 
 export const readDataPacket = (network: Network, packet: ArrayBuffer, jitterBufferTaskList: JitterBufferEntry[]) => {
   const view = createViewCursor(packet)
-  const { userIndex, peerIndex, simulationTime } = readMetadata(view)
-  const fromUserID = network.userIndexToUserID[userIndex]
+  const { peerIndex, simulationTime } = readMetadata(view)
   const fromPeerID = network.peerIndexToPeerID[peerIndex]
-  const isLoopback = !!fromPeerID && fromPeerID === Engine.instance.peerID
-  if (!fromUserID || isLoopback) return
+  const isLoopback = !!fromPeerID && fromPeerID === Engine.instance.store.peerID
+  if (isLoopback) return
   jitterBufferTaskList.push({
     simulationTime,
     read: () => {
-      readEntities(view, network, packet.byteLength, fromUserID)
+      readEntities(view, network, packet.byteLength, fromPeerID)
     }
   })
 }

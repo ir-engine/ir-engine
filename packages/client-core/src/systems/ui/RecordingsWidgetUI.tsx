@@ -28,7 +28,7 @@ import { State, useHookstate } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { PeerID } from '@etherealengine/hyperflux'
 import { PlayIcon, PlusCircleIcon } from '@heroicons/react/24/solid'
 
 import { RecordingType, recordingPath } from '@etherealengine/common/src/schema.type.module'

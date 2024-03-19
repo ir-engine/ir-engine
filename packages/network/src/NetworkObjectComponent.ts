@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import ECS, {
   Component,
@@ -40,7 +39,7 @@ import ECS, {
   useComponent,
   useEntityContext
 } from '@etherealengine/ecs'
-import { Validator, matches } from '@etherealengine/hyperflux'
+import { PeerID, Validator, matches } from '@etherealengine/hyperflux'
 import type { ISchema } from 'bitecs'
 import { useLayoutEffect } from 'react'
 
@@ -90,7 +89,7 @@ export const NetworkObjectComponent = defineComponent({
     const networkObject = useComponent(entity, NetworkObjectComponent)
 
     useLayoutEffect(() => {
-      if (networkObject.authorityPeerID.value === Engine.instance.peerID)
+      if (networkObject.authorityPeerID.value === Engine.instance.store.peerID)
         setComponent(entity, NetworkObjectAuthorityTag)
       else removeComponent(entity, NetworkObjectAuthorityTag)
     }, [networkObject.authorityPeerID])

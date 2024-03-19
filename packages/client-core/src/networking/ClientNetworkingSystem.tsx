@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React, { useLayoutEffect } from 'react'
 
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { State, defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { PeerID } from '@etherealengine/hyperflux'
 import {
   MediasoupMediaConsumerActions,
   MediasoupTransportActions,
@@ -74,9 +74,12 @@ const execute = () => {
 
 const NetworkConnectionReactor = (props: { networkID: InstanceID }) => {
   const transportState = useHookstate(getMutableState(MediasoupTransportObjectsState))
+  const networkState = useHookstate(
+    getMutableState(NetworkState).networks[props.networkID]
+  ) as State<SocketWebRTCClientNetwork>
 
-  useEffect(() => {
-    const networkState = getMutableState(NetworkState).networks[props.networkID] as State<SocketWebRTCClientNetwork>
+  useLayoutEffect(() => {
+    if (!networkState.value) return
     const topic = networkState.topic.value
     const topicEnabled = getState(NetworkState).config[topic]
     if (topicEnabled) {
@@ -86,7 +89,7 @@ const NetworkConnectionReactor = (props: { networkID: InstanceID }) => {
     } else {
       networkState.ready.set(true)
     }
-  }, [transportState])
+  }, [transportState, networkState])
 
   return null
 }

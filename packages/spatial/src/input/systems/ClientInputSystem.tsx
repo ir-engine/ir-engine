@@ -168,6 +168,11 @@ const execute = () => {
 
   // update xr input sources
   const xrFrame = getState(XRState).xrFrame
+  const physicsState = getState(PhysicsState)
+  inputRaycast.excludeRigidBody = physicsState.cameraAttachedRigidbodyEntity
+    ? getOptionalComponent(physicsState.cameraAttachedRigidbodyEntity, RigidBodyComponent)?.body
+    : undefined
+
   for (const eid of xrSpaces()) {
     const space = getComponent(eid, XRSpaceComponent)
     const pose = xrFrame?.getPose(space.space, space.baseSpace)
@@ -195,7 +200,6 @@ const execute = () => {
       const sourceRotation = TransformComponent.getWorldRotation(sourceEid, quat)
       inputRaycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceRotation)
       TransformComponent.getWorldPosition(sourceEid, inputRaycast.origin).addScaledVector(inputRaycast.direction, -0.01)
-      inputRaycast.excludeRigidBody = getOptionalComponent(Engine.instance.localClientEntity, RigidBodyComponent)?.body
       inputRay.set(inputRaycast.origin, inputRaycast.direction)
       const pickerObj = gizmoPickerObjects() // gizmo heuristic
       const inputObj = inputObjects()

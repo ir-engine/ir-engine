@@ -41,12 +41,11 @@ import {
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import { MediaSettingsState } from '@etherealengine/engine/src/audio/MediaSettingsState'
 import { applyScreenshareToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
-import { NO_PROXY, State, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, PeerID, State, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
@@ -60,6 +59,7 @@ import { NetworkState, VideoConstants } from '@etherealengine/network'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { drawPoseToCanvas } from '@etherealengine/ui/src/pages/Capture'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
+import { DrawingUtils } from '@mediapipe/tasks-vision'
 import { AdminClientSettingsState } from '../../admin/services/Setting/ClientSettingService'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
@@ -82,14 +82,18 @@ const useDrawMocapLandmarks = (
   peerID: PeerID
 ) => {
   let lastTimestamp = 0
-
+  const drawingUtils = useHookstate(null as null | DrawingUtils)
+  useEffect(() => {
+    drawingUtils.set(new DrawingUtils(canvasCtxRef.current!))
+    canvasRef.current!.style.transform = `scaleX(-1)`
+  })
   useExecute(
     () => {
       if (videoElement.paused || videoElement.ended || !videoElement.currentTime) return
       const networkState = getState(NetworkState)
       if (networkState.hostIds.world) {
         const network = networkState.networks[networkState.hostIds.world]
-        if (network.peers[peerID]) {
+        if (network?.peers?.[peerID]) {
           const userID = network.peers[peerID].userId
           const peers = network.users[userID]
           for (const peer of peers) {
@@ -98,7 +102,8 @@ const useDrawMocapLandmarks = (
               const lastMocapResult = mocapBuffer.getLast()
               if (lastMocapResult && lastMocapResult.timestamp !== lastTimestamp) {
                 lastTimestamp = lastMocapResult.timestamp
-                drawPoseToCanvas(canvasCtxRef, canvasRef, lastMocapResult.results.poseLandmarks)
+                drawingUtils.value &&
+                  drawPoseToCanvas([lastMocapResult.results.landmarks], canvasCtxRef, canvasRef, drawingUtils.value)
                 return
               }
             }
@@ -153,7 +158,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const mediaNetwork = NetworkState.mediaNetwork
   const isSelf =
     !mediaNetwork ||
-    peerID === Engine.instance.peerID ||
+    peerID === Engine.instance.store.peerID ||
     (mediaNetwork?.peers &&
       Object.values(mediaNetwork.peers).find((peer) => peer.userId === selfUser.id)?.peerID === peerID) ||
     peerID === 'self'

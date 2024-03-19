@@ -35,12 +35,12 @@ import {
   removeComponent,
   setComponent
 } from './ComponentFunctions'
-import { Engine, destroyEngine } from './Engine'
+import { destroyEngine, startEngine } from './Engine'
 import { createEntity } from './EntityFunctions'
 
 describe('ComponentFunctions', async () => {
   beforeEach(() => {
-    Engine.instance = new Engine()
+    startEngine()
     ComponentMap.clear()
   })
 

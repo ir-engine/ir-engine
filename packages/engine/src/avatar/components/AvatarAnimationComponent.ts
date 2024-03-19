@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM, VRMHumanBones } from '@pixiv/three-vrm'
+import { VRM, VRMHumanBoneName, VRMHumanBones } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import { AnimationAction, SkeletonHelper, Vector3 } from 'three'
+import { AnimationAction, Matrix4, SkeletonHelper, Vector3 } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -38,7 +37,6 @@ import {
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, entityExists, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { matches } from '@etherealengine/hyperflux'
@@ -62,6 +60,7 @@ import {
   setupAvatarProportions
 } from '../functions/avatarFunctions'
 import { AvatarState } from '../state/AvatarNetworkState'
+import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
 export const AvatarAnimationComponent = defineComponent({
@@ -95,6 +94,7 @@ export const AvatarAnimationComponent = defineComponent({
   }
 })
 
+export type Matrices = { local: Matrix4; world: Matrix4 }
 export const AvatarRigComponent = defineComponent({
   name: 'AvatarRigComponent',
 
@@ -104,8 +104,8 @@ export const AvatarRigComponent = defineComponent({
       normalizedRig: null! as VRMHumanBones,
       /** contains the raw bone quaternions */
       rawRig: null! as VRMHumanBones,
-      /** clone of the normalized rig that is used for the ik pass */
-      ikRig: null! as VRMHumanBones,
+      /** contains ik solve data */
+      ikMatrices: {} as Record<VRMHumanBoneName, Matrices>,
       helperEntity: null as Entity | null,
       /** The VRM model */
       vrm: null! as VRM,
@@ -117,7 +117,6 @@ export const AvatarRigComponent = defineComponent({
     if (!json) return
     if (matches.object.test(json.normalizedRig)) component.normalizedRig.set(json.normalizedRig)
     if (matches.object.test(json.rawRig)) component.rawRig.set(json.rawRig)
-    if (matches.object.test(json.ikRig)) component.ikRig.set(json.ikRig)
     if (matches.object.test(json.vrm)) component.vrm.set(json.vrm as VRM)
     if (matches.string.test(json.avatarURL)) component.avatarURL.set(json.avatarURL)
   },
@@ -195,7 +194,7 @@ export const AvatarRigComponent = defineComponent({
         retargetAvatarAnimations(entity)
       } catch (e) {
         console.error('Failed to load avatar', e)
-        if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
+        if (entity === AvatarComponent.getSelfAvatarEntity()) AvatarState.selectRandomAvatar()
       }
     }, [rigComponent.vrm])
 

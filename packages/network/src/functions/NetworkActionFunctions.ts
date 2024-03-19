@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import {
   Action,
+  PeerID,
   addOutgoingTopicIfNecessary,
   clearOutgoingActions,
   dispatchAction,
@@ -37,9 +37,7 @@ import { NetworkState } from '../NetworkState'
 
 const receiveIncomingActions = (network: Network, fromPeerID: PeerID, actions: Required<Action>[]) => {
   if (network.isHosting) {
-    const networkPeer = network.peers[fromPeerID]
     for (const a of actions) {
-      a.$from = networkPeer.userId
       a.$network = network.id
       dispatchAction(a)
     }
@@ -52,11 +50,12 @@ const receiveIncomingActions = (network: Network, fromPeerID: PeerID, actions: R
 
 const sendActionsAsPeer = (network: Network) => {
   const outgoing = Engine.instance.store.actions.outgoing[network.topic]
-  if (!network.authenticated || !outgoing) return
-  const actions = [...outgoing.queue]
-  if (!actions.length) return
-  for (const action of actions) {
+  if (!outgoing?.queue?.length) return
+  const actions = [] as Action[]
+  for (const action of outgoing.queue) {
     if (action.$network && !action.$topic && action.$network === network.id) action.$topic = network.topic
+    if (action.$to === Engine.instance.store.peerID) continue
+    actions.push(action)
   }
   // for (const peerID of network.peers) {
   network.transport.messageToPeer(
@@ -67,8 +66,6 @@ const sendActionsAsPeer = (network: Network) => {
 }
 
 const sendActionsAsHost = (network: Network) => {
-  if (!network.authenticated) return
-
   addOutgoingTopicIfNecessary(network.topic)
 
   const actions = [...Engine.instance.store.actions.outgoing[network.topic].queue]
@@ -101,7 +98,7 @@ const sendActionsAsHost = (network: Network) => {
 const sendOutgoingActions = () => {
   for (const network of Object.values(getState(NetworkState).networks)) {
     try {
-      if (Engine.instance.userID === network.hostId) sendActionsAsHost(network as Network)
+      if (Engine.instance.store.peerID === network.hostPeerID) sendActionsAsHost(network as Network)
       else sendActionsAsPeer(network as Network)
     } catch (e) {
       console.error(e)
