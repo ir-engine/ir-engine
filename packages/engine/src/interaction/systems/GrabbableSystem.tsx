@@ -184,7 +184,7 @@ const GrabbableReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
 export function transferAuthorityOfObjectReceptor(
   action: ReturnType<typeof WorldNetworkAction.transferAuthorityOfObject>
 ) {
-  if (action.newAuthority !== Engine.instance.peerID) return
+  if (action.newAuthority !== Engine.instance.store.peerID) return
   const grabbableEntity = UUIDComponent.getEntityByUUID(action.entityUUID)
   if (hasComponent(grabbableEntity, GrabbableComponent)) {
     const grabberUserId = NetworkState.worldNetwork.peers[action.newAuthority]?.userId
@@ -280,7 +280,7 @@ export const grabEntity = (grabberEntity: Entity, grabbedEntity: Entity, attachm
   // todo, do we ever need to handle this in offline contexts?
   if (!NetworkState.worldNetwork) return console.warn('[GrabbableSystem] no world network found')
   const networkComponent = getComponent(grabbedEntity, NetworkObjectComponent)
-  if (networkComponent.authorityPeerID === Engine.instance.peerID) {
+  if (networkComponent.authorityPeerID === Engine.instance.store.peerID) {
     dispatchAction(
       GrabbableNetworkAction.setGrabbedObject({
         entityUUID: getComponent(grabbedEntity, UUIDComponent),
@@ -293,7 +293,7 @@ export const grabEntity = (grabberEntity: Entity, grabbedEntity: Entity, attachm
     dispatchAction(
       WorldNetworkAction.requestAuthorityOverObject({
         entityUUID: getComponent(grabbedEntity, UUIDComponent),
-        newAuthority: Engine.instance.peerID,
+        newAuthority: Engine.instance.store.peerID,
         $to: networkComponent.ownerPeer
       })
     )
@@ -307,7 +307,7 @@ export const dropEntity = (grabberEntity: Entity): void => {
   const grabbedEntity = grabberComponent[handedness]!
   if (!grabbedEntity) return
   const networkComponent = getComponent(grabbedEntity, NetworkObjectComponent)
-  if (networkComponent.authorityPeerID === Engine.instance.peerID) {
+  if (networkComponent.authorityPeerID === Engine.instance.store.peerID) {
     dispatchAction(
       GrabbableNetworkAction.setGrabbedObject({
         entityUUID: getComponent(grabbedEntity, UUIDComponent),

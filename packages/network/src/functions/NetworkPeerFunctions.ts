@@ -59,7 +59,8 @@ function destroyPeer(network: Network, peerID: PeerID) {
   if (!network.peers[peerID])
     return console.warn(`[NetworkPeerFunctions]: tried to remove client with peerID ${peerID} that doesn't exit`)
 
-  if (peerID === Engine.instance.peerID) return console.warn(`[NetworkPeerFunctions]: tried to remove local client`)
+  if (peerID === Engine.instance.store.peerID)
+    return console.warn(`[NetworkPeerFunctions]: tried to remove local client`)
 
   // reactively set
   const userID = network.peers[peerID]!.userId

@@ -1088,7 +1088,7 @@ describe('DataReader', () => {
       })
     })
 
-    let packet = write(network, Engine.instance.peerID, entities)
+    let packet = write(network, Engine.instance.store.peerID, entities)
 
     strictEqual(packet.byteLength, 0)
 

@@ -56,7 +56,7 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
 
   const isSelf =
     !mediaNetwork ||
-    peerID === Engine.instance.peerID ||
+    peerID === Engine.instance.store.peerID ||
     (mediaNetwork?.peers &&
       Object.values(mediaNetwork.peers).find((peer) => peer.userId === Engine.instance.userID)?.peerID === peerID) ||
     peerID === 'self'

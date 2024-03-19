@@ -40,7 +40,7 @@
     },
     {
       "id": "5265a10a-d520-4c53-bbfe-39134a041378",
-      "type": "engine/state/EngineState/get",
+      "type": "engine/state/ECSState/get",
       "metadata": {
         "positionX": "-534.4906518000652",
         "positionY": "-37.24277941783964"
@@ -82,26 +82,26 @@
         "a": {
           "link": {
             "nodeId": "09ebc85f-e04b-4743-8319-e5be93715aa9",
-            "socket": "isBot"
+            "socket": "periodicUpdateFrequency"
           }
         }
       }
     },
     {
       "id": "f977c7f3-fa60-44fb-9f89-5885965e9d69",
-      "type": "engine/state/EngineState/set",
+      "type": "engine/state/ECSState/set",
       "metadata": {
         "positionX": "881.2643280370345",
         "positionY": "-33.1321466115612"
       },
       "parameters": {
-        "isBot": {
+        "periodicUpdateFrequency": {
           "value": false
         },
-        "publicPath": {
+        "frameTime": {
           "link": {
             "nodeId": "5265a10a-d520-4c53-bbfe-39134a041378",
-            "socket": "publicPath"
+            "socket": "frameTime"
           }
         }
       },
@@ -155,7 +155,7 @@
         "a": {
           "link": {
             "nodeId": "5265a10a-d520-4c53-bbfe-39134a041378",
-            "socket": "isBot"
+            "socket": "periodicUpdateFrequency"
           }
         }
       }
@@ -219,13 +219,13 @@
     },
     {
       "id": "09ebc85f-e04b-4743-8319-e5be93715aa9",
-      "type": "engine/state/EngineState/use",
+      "type": "engine/state/ECSState/use",
       "metadata": {
         "positionX": "-48.906347594147576",
         "positionY": "211.07543676284212"
       },
       "flows": {
-        "isBotChange": {
+        "periodicUpdateFrequencyChange": {
           "nodeId": "a5665f3e-9b5d-42a8-a30f-e3009ecd62b1",
           "socket": "flow"
         }
@@ -233,19 +233,19 @@
     },
     {
       "id": "3b1b5fd0-818a-474b-acc8-85eae348072c",
-      "type": "engine/state/EngineState/set",
+      "type": "engine/state/ECSState/set",
       "metadata": {
         "positionX": "190.21622163665714",
         "positionY": "-41.946323670103"
       },
       "parameters": {
-        "isBot": {
+        "periodicUpdateFrequency": {
           "value": true
         },
-        "publicPath": {
+        "frameTime": {
           "link": {
             "nodeId": "5265a10a-d520-4c53-bbfe-39134a041378",
-            "socket": "publicPath"
+            "socket": "frameTime"
           }
         }
       },
