@@ -35,6 +35,7 @@ import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
+import Password from '../../../common/Password'
 
 const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
@@ -44,7 +45,6 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
   })
   const emailSetting = useFind(emailSettingPath).data.at(0)
   const id = emailSetting?.id
-  const showPassword = useHookstate(false)
   const smsNameCharacterLimit = useHookstate(emailSetting?.smsNameCharacterLimit)
   const smtp = useHookstate(emailSetting?.smtp)
   const auth = useHookstate(emailSetting?.smtp?.auth)
@@ -53,8 +53,8 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
 
   const patchEmailSetting = useMutation(emailSettingPath).patch
 
-  const handleSmtpSecure = (event) => {
-    smtp.set({ ...JSON.parse(JSON.stringify(smtp.value)), secure: event.target.checked })
+  const handleSmtpSecure = (value) => {
+    smtp.set({ ...JSON.parse(JSON.stringify(smtp.value)), secure: value })
   }
 
   const handleUpdateSmtp = (event, type) => {
@@ -155,6 +155,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
 
         <Toggle
           className="col-span-2 mt-5"
+          labelClassName="mt-5"
           label={t('admin:components.setting.secure')}
           value={smtp?.value?.secure || false}
           onChange={handleSmtpSecure}
@@ -172,11 +173,10 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
           onChange={(e) => handleUpdateAuth(e, 'user')}
         />
 
-        <Input
+        <Password
           className="col-span-2"
           label={t('admin:components.setting.password')}
           value={auth?.value?.pass || ''}
-          type="password"
           onChange={(e) => handleUpdateAuth(e, 'pass')}
         />
       </div>

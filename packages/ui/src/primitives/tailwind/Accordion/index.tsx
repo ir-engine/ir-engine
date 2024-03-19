@@ -58,7 +58,7 @@ const Accordion = forwardRef(
             openState.set((v) => !v)
           }}
         >
-          <Text component="h2" fontSize="lg" fontWeight="semibold">
+          <Text component="h2" fontSize="xl" fontWeight="semibold">
             {title}
           </Text>
 

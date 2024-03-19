@@ -68,7 +68,7 @@ export default function Channels() {
             }}
             className="bg-theme-primary"
             containerClassname="w-1/5 block"
-            icon={<HiMagnifyingGlass />}
+            startComponent={<HiMagnifyingGlass />}
           />
           <div className="flex gap-4">
             {selectedChannels.length > 0 && (

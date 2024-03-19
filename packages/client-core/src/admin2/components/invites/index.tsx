@@ -68,7 +68,7 @@ export default function Invites() {
             }}
             className="bg-theme-primary"
             containerClassname="w-1/5 block"
-            icon={<HiMagnifyingGlass />}
+            startComponent={<HiMagnifyingGlass />}
           />
           <div className="flex w-1/6 gap-4">
             {selectedInvites.length > 0 && (

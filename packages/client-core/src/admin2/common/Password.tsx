@@ -23,24 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { twMerge } from 'tailwind-merge'
+import { useHookstate } from '@etherealengine/hyperflux'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import Input, { InputProps } from '@etherealengine/ui/src/primitives/tailwind/Input'
+import React, { forwardRef } from 'react'
+import { HiOutlineEye, HiOutlineEyeSlash } from 'react-icons/hi2'
 
-export interface LabelProps extends React.HtmlHTMLAttributes<HTMLLabelElement> {
-  className?: string
-}
+const Password = forwardRef<HTMLInputElement, InputProps>((props: InputProps, ref: React.Ref<HTMLInputElement>) => {
+  const show = useHookstate(false)
 
-const Label = ({ className, children }: LabelProps) => {
+  const toggleShow = () => {
+    show.set(!show.value)
+  }
+
   return (
-    <label
-      className={twMerge(
-        'text-theme-secondary inline-block text-sm font-medium capitalize leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
-        className
-      )}
-    >
-      {children}
-    </label>
+    <Input
+      ref={ref}
+      {...props}
+      type={show.value ? 'text' : 'password'}
+      endComponent={
+        <Button onClick={toggleShow} className="bg-transperant pointer-events-auto px-0">
+          {show.value ? (
+            <HiOutlineEyeSlash className="text-theme-primary" />
+          ) : (
+            <HiOutlineEye className="text-theme-primary" />
+          )}
+        </Button>
+      }
+    />
   )
-}
+})
 
-export default Label
+export default Password

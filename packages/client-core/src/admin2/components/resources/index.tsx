@@ -64,7 +64,7 @@ export default function Resources() {
             }}
             className="bg-theme-primary"
             containerClassname="w-1/5 block"
-            icon={<HiMagnifyingGlass />}
+            startComponent={<HiMagnifyingGlass />}
           />
           <Button
             startIcon={<HiPlus />}
