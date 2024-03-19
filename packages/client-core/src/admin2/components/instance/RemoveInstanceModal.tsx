@@ -39,6 +39,7 @@ export default function RemoveInstanceModal({ instanceId }: { instanceId: string
   const modalProcessing = useHookstate(false)
 
   const submitRemoveInstance = async () => {
+    error.set('')
     try {
       modalProcessing.set(true)
       await removeInstance(instanceId)
@@ -54,9 +55,7 @@ export default function RemoveInstanceModal({ instanceId }: { instanceId: string
       title={t('admin:components.setting.patchInstanceserver')}
       className="w-[50vw]"
       onSubmit={submitRemoveInstance}
-      onClose={() => {
-        PopoverState.hidePopupover()
-      }}
+      onClose={PopoverState.hidePopupover}
       submitLoading={modalProcessing.value}
     >
       <Text component="h2">{`${t('admin:components.instance.confirmInstanceDelete')} (${instanceId}) ?`}</Text>

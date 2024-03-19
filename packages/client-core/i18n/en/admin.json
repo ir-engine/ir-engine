@@ -314,7 +314,8 @@
       "kick": "Kick",
       "ban": "Ban",
       "kickDuration": "Kick Duration",
-      "confirmUserBan": "Are you sure you want to ban this user?"
+      "confirmUserBan": "Are you sure you want to ban this user?",
+      "noInstanceUsers": "No users in this instance"
     },
     "resources": {
       "columns": {
@@ -509,6 +510,8 @@
       "source": "Source",
       "file": "File",
       "url": "Url",
+      "uploadAvatar": "Upload Avatar Model",
+      "avatarUrlPreview": "Enter Avatar URL to preview",
       "add": "Add Avatar",
       "update": "Update Avatar",
       "view": "View Avatar",
@@ -518,8 +521,12 @@
       "avatarUrl": "Avatar URL",
       "thumbnailUrl": "Thumbnail URL",
       "selectAvatar": "Select Avatar",
+      "replaceAvatar": "Replace Avatar",
       "selectThumbnail": "Select Thumbnail",
+      "replaceThumbnail": "Replace Thumbnail",
       "saveThumbnail": "Generate Thumbnail",
+      "uploadThumbnail": "Upload Thumbnail",
+      "thumbnailURLPreview": "Enter thumbnail URL to preview",
       "saveThumbnailTooltip": "Generate thumbnail from avatar preview",
       "nameCantEmpty": "Name can't be empty",
       "avatarUrlCantEmpty": "Avatar url can't be empty",

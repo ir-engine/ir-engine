@@ -63,11 +63,11 @@ export default function InstanceTable({ search }: { search: string }) {
       action: (
         <div className="flex w-full justify-around px-2 py-1">
           <Button
-            className="bg-theme-buttonTertiary text-[#214AA6] dark:text-white"
+            className="bg-theme-buttonTertiary text-blue-700 dark:text-white"
             onClick={() => {
               PopoverState.showPopupover(<ViewModal instanceId={row.id} />)
             }}
-            startIcon={<HiEye className="place-self-center text-[#214AA6] dark:text-white" />}
+            startIcon={<HiEye className="place-self-center text-blue-700 dark:text-white" />}
             size="small"
           >
             {t('admin:components.instance.actions.view')}
