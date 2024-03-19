@@ -81,17 +81,19 @@ export const SystemDagView = (props: { uuid: SystemUUID }) => {
   useHookstate(getMutableState(ECSState).frameTime).value
   const performanceProfilingEnabled = useHookstate(getMutableState(SystemState).performanceProfilingEnabled)
 
-  const data = expandSystemToTree(SystemDefinitions.get(props.uuid)!)
-
   return (
     <JSONTree
-      data={data}
+      data={expandSystemToTree(SystemDefinitions.get(props.uuid)!)}
       labelRenderer={(raw, ...keyPath) => {
         const label = raw[0]
-        if (label === 'preSystems' || label === 'subSystems' || label === 'postSystems')
-          return <span style={{ color: 'green' }}>{t(`common:debug.${label}`)}</span>
-        if (label === 'uuid') return <span style={{ color: 'black' }}>{t(`common:debug.${label}`)}</span>
-        return <span style={{ color: 'black' }}>{label}</span>
+        const isInnerSystem = label === 'preSystems' || label === 'subSystems' || label === 'postSystems'
+        const isUuid = label === 'uuid'
+
+        return (
+          <span style={{ color: isInnerSystem ? 'green' : 'black' }}>
+            {isInnerSystem || isUuid ? t(`common:debug.${label}`) : label}
+          </span>
+        )
       }}
       valueRenderer={(raw, value, ...keyPath) => {
         const system = SystemDefinitions.get(value as SystemUUID)!
@@ -99,14 +101,12 @@ export const SystemDagView = (props: { uuid: SystemUUID }) => {
         const targetTimestep = getState(ECSState).simulationTimestep / 2
 
         const renderSystemDuration = () => {
-          if (typeof system.systemDuration === 'number') {
-            const color = convertSystemExecutionTimeToColor(system.systemDuration, targetTimestep)
-            return (
-              <span key={system.uuid} style={{ color: color }}>
-                {`${Math.round(system.systemDuration * 1000) / 1000} ms`}
-              </span>
-            )
-          }
+          const color = convertSystemExecutionTimeToColor(system.avgSystemDuration, targetTimestep)
+          return (
+            <span key={system.uuid} style={{ color: color }}>
+              {`${Math.round(system.avgSystemDuration * 1000) / 1000} ms`}
+            </span>
+          )
         }
 
         return (
@@ -122,7 +122,7 @@ export const SystemDagView = (props: { uuid: SystemUUID }) => {
           </>
         )
       }}
-      shouldExpandNodeInitially={() => true}
+      shouldExpandNodeInitially={() => false}
     />
   )
 }

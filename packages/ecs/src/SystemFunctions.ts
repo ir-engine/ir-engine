@@ -72,7 +72,8 @@ export interface System {
   postSystems: SystemUUID[]
   sceneSystem?: boolean
   // debug
-  systemDuration?: number
+  systemDuration: number
+  avgSystemDuration: number
 }
 
 export const SystemDefinitions = new Map<SystemUUID, System>()
@@ -113,6 +114,7 @@ export function executeSystem(systemUUID: SystemUUID) {
   const endTime = nowMilliseconds()
   const systemDuration = endTime - startTime
   system.systemDuration = systemDuration
+  system.avgSystemDuration = (systemDuration + system.avgSystemDuration) / 2
   if (getState(SystemState).performanceProfilingEnabled) {
     if (systemDuration > 50 && (lastWarningTime.get(systemUUID) ?? 0) < endTime - warningCooldownDuration) {
       lastWarningTime.set(systemUUID, endTime)
@@ -148,7 +150,8 @@ export function defineSystem(systemConfig: SystemArgs) {
     ...systemConfig,
     uuid: systemConfig.uuid as SystemUUID,
     enabled: false,
-    systemDuration: 0
+    systemDuration: 0,
+    avgSystemDuration: 0
   } as Required<System>
 
   SystemDefinitions.set(system.uuid, system)
