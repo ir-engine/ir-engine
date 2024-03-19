@@ -165,8 +165,8 @@ export const TransformGizmoControlComponent = defineComponent({
       const plane = new Mesh(
         new PlaneGeometry(100000, 100000, 2, 2),
         new MeshBasicMaterial({
-          visible: true,
-          wireframe: false,
+          visible: false,
+          wireframe: true,
           side: DoubleSide,
           transparent: true,
           opacity: 0.1,
