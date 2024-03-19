@@ -26,12 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { AvatarControllerComponent } from '@etherealengine/engine/src/avatar/components/AvatarControllerComponent'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
 
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { defineState, getMutableState, syncStateWithLocalStorage, useHookstate } from '@etherealengine/hyperflux'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
@@ -63,11 +61,9 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
   const activeTab = useHookstate(getMutableState(DebugState).activeTab)
 
   const { t } = useTranslation()
-  const hasActiveControlledAvatar =
-    !!Engine.instance.localClientEntity && hasComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
 
   const onClickRespawn = (): void => {
-    Engine.instance.localClientEntity && respawnAvatar(Engine.instance.localClientEntity)
+    respawnAvatar(AvatarComponent.getSelfAvatarEntity())
   }
 
   const toggleDebug = () => {
@@ -142,11 +138,9 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
             >
               <Icon type="FormatColorReset" fontSize="small" />
             </button>
-            {hasActiveControlledAvatar && (
-              <button type="button" className={styles.flagBtn} id="respawn" onClick={onClickRespawn}>
-                <Icon type="Refresh" />
-              </button>
-            )}
+            <button type="button" className={styles.flagBtn} id="respawn" onClick={onClickRespawn}>
+              <Icon type="Refresh" />
+            </button>
           </div>
         </div>
       </div>

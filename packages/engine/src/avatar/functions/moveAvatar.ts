@@ -198,14 +198,14 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
   if (!controller.isInAir) controller.verticalVelocity = 0
 
   if (isCameraAttachedToAvatar)
-    updateReferenceSpaceFromAvatarMovement(finalAvatarMovement.subVectors(computedMovement, viewerMovement))
+    updateReferenceSpaceFromAvatarMovement(entity, finalAvatarMovement.subVectors(computedMovement, viewerMovement))
 }
 
-export const updateReferenceSpaceFromAvatarMovement = (movement: Vector3) => {
+export const updateReferenceSpaceFromAvatarMovement = (entity: Entity, movement: Vector3) => {
   const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
   originTransform.position.add(movement)
   computeAndUpdateWorldOrigin()
-  updateLocalAvatarPosition(Engine.instance.localClientEntity)
+  updateLocalAvatarPosition(entity)
 }
 
 const _additionalMovement = new Vector3()
@@ -462,7 +462,7 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3, force = 
     rigidbody.position.copy(newPosition)
     const { isCameraAttachedToAvatar } = getState(XRControlsState)
     if (isCameraAttachedToAvatar)
-      updateReferenceSpaceFromAvatarMovement(new Vector3().subVectors(newPosition, transform.position))
+      updateReferenceSpaceFromAvatarMovement(entity, new Vector3().subVectors(newPosition, transform.position))
   } else {
     // console.log('invalid position', targetPosition, raycastHit)
   }

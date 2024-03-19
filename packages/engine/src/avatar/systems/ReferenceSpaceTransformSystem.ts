@@ -23,23 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { XRCameraUpdateSystem } from '@etherealengine/spatial/src/xr/XRCameraSystem'
+import { AvatarComponent } from '../components/AvatarComponent'
 import { moveAvatar, updateLocalAvatarRotation } from '../functions/moveAvatar'
 
 const execute = () => {
-  const { localClientEntity } = Engine.instance
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+  if (!selfAvatarEntity) return
 
   /**
    * 1 - Update local client movement
    */
-  if (localClientEntity) {
-    moveAvatar(localClientEntity)
-    updateLocalAvatarRotation(localClientEntity)
-    computeTransformMatrix(localClientEntity)
-  }
+  moveAvatar(selfAvatarEntity)
+  updateLocalAvatarRotation(selfAvatarEntity)
+  computeTransformMatrix(selfAvatarEntity)
 }
 
 /**

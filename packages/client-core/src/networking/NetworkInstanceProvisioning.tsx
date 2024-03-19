@@ -38,7 +38,7 @@ import {
 } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 
 import Groups from '@mui/icons-material/Groups'
@@ -46,7 +46,7 @@ import Groups from '@mui/icons-material/Groups'
 import { InstanceID, LocationID, RoomCode, SceneID } from '@etherealengine/common/src/schema.type.module'
 import { useTranslation } from 'react-i18next'
 import { FriendService } from '../social/services/FriendService'
-import { connectToNetwork } from '../transports/SocketWebRTCClientFunctions'
+import { connectToInstance } from '../transports/SocketWebRTCClientFunctions'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import FriendsMenu from '../user/components/UserMenu/menus/FriendsMenu'
 import MessagesMenu from '../user/components/UserMenu/menus/MessagesMenu'
@@ -121,7 +121,7 @@ export const WorldInstanceProvisioning = () => {
   useEffect(() => {
     if (!networkConfigState.roomID.value && !networkConfigState.instanceID.value) return
 
-    if (worldNetworkState?.connected?.value) {
+    if (worldNetworkState?.ready?.value) {
       const parsed = new URL(window.location.href)
       const query = parsed.searchParams
 
@@ -134,25 +134,25 @@ export const WorldInstanceProvisioning = () => {
         window.history.replaceState({}, '', parsed.toString())
       }
     }
-  }, [worldNetworkState?.connected, locationInstances.keys.length, networkConfigState])
+  }, [worldNetworkState?.ready, locationInstances.keys.length, networkConfigState])
 
   /**
    * Request media server for this world server
    * @todo handle party logic
    */
   useEffect(() => {
-    if (!worldNetwork?.connected) return
+    if (!worldNetwork?.ready) return
 
     ChannelService.getInstanceChannel(worldNetwork.id)
 
     return () => {
       ChannelService.leaveInstanceChannel()
     }
-  }, [worldNetwork?.connected])
+  }, [worldNetwork?.ready])
 
   return (
     <>
-      {Object.keys(locationInstances.value).map((instanceId: InstanceID) => (
+      {locationInstances.keys.map((instanceId: InstanceID) => (
         <WorldInstance key={instanceId} id={instanceId} />
       ))}
     </>
@@ -160,16 +160,15 @@ export const WorldInstanceProvisioning = () => {
 }
 
 export const WorldInstance = ({ id }: { id: InstanceID }) => {
-  const worldInstance = useHookstate(getMutableState(LocationInstanceState).instances[id])
-
   useEffect(() => {
-    return connectToNetwork(
+    const worldInstance = getState(LocationInstanceState).instances[id]
+    return connectToInstance(
       id,
-      worldInstance.ipAddress.value,
-      worldInstance.port.value,
-      worldInstance.locationId.value,
+      worldInstance.ipAddress,
+      worldInstance.port,
+      worldInstance.locationId,
       undefined,
-      worldInstance.roomCode.value
+      worldInstance.roomCode
     )
   }, [])
 
@@ -210,14 +209,14 @@ export const MediaInstanceProvisioning = () => {
     // }
   }, [
     channelState.channels.channels?.length,
-    worldNetwork?.connected,
+    worldNetwork?.ready,
     mediaInstanceState.keys.length,
     channelState.targetChannelId
   ])
 
   return (
     <>
-      {Object.keys(mediaInstanceState.value).map((instanceId: InstanceID) => (
+      {mediaInstanceState.keys.map((instanceId: InstanceID) => (
         <MediaInstance key={instanceId} id={instanceId} />
       ))}
     </>
@@ -225,16 +224,15 @@ export const MediaInstanceProvisioning = () => {
 }
 
 export const MediaInstance = ({ id }: { id: InstanceID }) => {
-  const mediaInstance = useHookstate(getMutableState(MediaInstanceState).instances[id])
-
   useEffect(() => {
-    return connectToNetwork(
+    const mediaInstance = getState(MediaInstanceState).instances[id]
+    return connectToInstance(
       id,
-      mediaInstance.ipAddress.value,
-      mediaInstance.port.value,
+      mediaInstance.ipAddress,
+      mediaInstance.port,
       undefined,
-      mediaInstance.channelId.value,
-      mediaInstance.roomCode.value
+      mediaInstance.channelId,
+      mediaInstance.roomCode
     )
   }, [])
 
