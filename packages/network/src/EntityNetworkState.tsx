@@ -110,11 +110,12 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
   useLayoutEffect(() => {
     if (!userConnected) return
     const entity = UUIDComponent.getEntityByUUID(props.uuid)
+    const worldNetwork = NetworkState.worldNetwork
     setComponent(entity, NetworkObjectComponent, {
       ownerId:
         ownerID === SceneUser
           ? isWorldNetworkConnected
-            ? NetworkState.worldNetwork.hostId
+            ? worldNetwork.peers[worldNetwork.hostPeerID].userId
             : Engine.instance.userID
           : ownerID,
       ownerPeer: state.ownerPeer.value,

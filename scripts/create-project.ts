@@ -81,6 +81,11 @@ cli.main(async () => {
 
     const projectFolder = path.resolve(appRootPath.path, 'packages/projects/projects', name)
 
+    const packageJsonPath = path.resolve(projectFolder, 'package.json')
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath).toString())
+    packageJson.name = name
+    fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
+
     /** Init git */
     await execPromise(`git init`, { cwd: projectFolder })
     await execPromise(`git add .`, { cwd: projectFolder })

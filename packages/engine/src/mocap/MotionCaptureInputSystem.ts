@@ -23,19 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineQuery } from '@etherealengine/ecs'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { MotionCapturePoseComponent } from './MotionCapturePoseComponent'
+import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
+import { AvatarControllerComponent } from '../avatar/components/AvatarControllerComponent'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 import { evaluatePose } from './poseToInput'
 
+const motionCapturePoseQuery = defineQuery([MotionCaptureRigComponent, AvatarRigComponent, AvatarControllerComponent])
+
 export const execute = () => {
-  const entity = Engine.instance.localClientEntity
-  if (!hasComponent(entity, MotionCaptureRigComponent)) return
-  if (!hasComponent(entity, MotionCapturePoseComponent)) setComponent(entity, MotionCapturePoseComponent)
-  evaluatePose(Engine.instance.localClientEntity)
+  for (const entity of motionCapturePoseQuery()) evaluatePose(entity)
 }
 
 export const MotionCaptureInputSystem = defineSystem({

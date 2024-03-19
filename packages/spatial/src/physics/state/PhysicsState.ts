@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EventQueue, World as PhysicsWorld } from '@dimforge/rapier3d-compat'
+import { UndefinedEntity } from '@etherealengine/ecs'
 import { defineState } from '@etherealengine/hyperflux'
 
 export const PhysicsState = defineState({
@@ -32,7 +33,9 @@ export const PhysicsState = defineState({
     return {
       physicsSubsteps: 1,
       physicsWorld: null! as PhysicsWorld,
-      physicsCollisionEventQueue: null! as EventQueue
+      physicsCollisionEventQueue: null! as EventQueue,
+      // used to ignore raycast hits for an entity the camera is attached to
+      cameraAttachedRigidbodyEntity: UndefinedEntity
     }
   }
 })
