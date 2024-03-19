@@ -52,7 +52,7 @@ export default function RemoveChannelModal({ channels }: { channels: ChannelType
           PopoverState.hidePopupover()
         })
       }}
-      onClose={() => PopoverState.hidePopupover()}
+      onClose={PopoverState.hidePopupover}
       submitLoading={modalProcessing.value}
     >
       <Text>
