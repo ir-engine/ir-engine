@@ -32,7 +32,13 @@ import config, { validateEmail, validatePhoneNumber } from '@etherealengine/comm
 import { AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
 import multiLogger from '@etherealengine/common/src/logger'
 import { AuthStrategiesType } from '@etherealengine/common/src/schema.type.module'
-import { defineState, getMutableState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
+import {
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  syncStateWithLocalStorage
+} from '@etherealengine/hyperflux'
 
 import {
   AvatarID,
@@ -59,7 +65,9 @@ import {
   userPath,
   userSettingPath
 } from '@etherealengine/common/src/schema.type.module'
+import { EntityUUID } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import { AuthenticationResult } from '@feathersjs/authentication'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -642,6 +650,7 @@ export const AuthService = {
       .patch(userId, { name: name })) as UserType
     NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg'), { variant: 'success' })
     getMutableState(AuthState).user.merge({ name: updatedName })
+    dispatchAction(AvatarNetworkAction.setName({ entityUUID: (userId + '_avatar') as EntityUUID, name: updatedName }))
   },
 
   async createLoginToken() {

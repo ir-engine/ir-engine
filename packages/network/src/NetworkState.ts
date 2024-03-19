@@ -168,14 +168,6 @@ export const removeNetwork = (network: Network) => {
   getMutableState(NetworkState).networks[network.id].set(none)
 }
 
-export const updateNetworkID = (network: Network, newID: InstanceID) => {
-  const state = getMutableState(NetworkState)
-  state.networks[network.id].set(none)
-  state.networks[newID].set(network)
-  state.networks[newID].hostId.set(newID as any)
-  state.networks[newID].id.set(newID)
-}
-
 export type NetworkConnectionParams = {
   token: string
   locationId?: LocationID

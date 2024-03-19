@@ -57,7 +57,7 @@ export interface JitterBufferEntry {
 /** Interface for the Transport. */
 export const createNetwork = <Ext>(
   id: InstanceID,
-  hostId: UserID, // TODO make PeerID, derive user from UserID
+  hostPeerID: PeerID,
   topic: Topic,
   transport = {
     messageToPeer: (peerId: PeerID, data: any) => {},
@@ -94,13 +94,6 @@ export const createNetwork = <Ext>(
     /** Map of user client IDs to numerical user index */
     userIDToUserIndex: {} as Record<UserID, number>,
 
-    /** Gets the host peer */
-    get hostPeerID() {
-      const hostPeers = network.users[network.id]
-      if (!hostPeers) return undefined!
-      return hostPeers[0]
-    },
-
     /**
      * The index to increment when a new user joins
      * NOTE: Must only be updated by the host
@@ -114,22 +107,16 @@ export const createNetwork = <Ext>(
      * @todo rename to hostUserID to differentiate better from hostPeerID
      * @todo change from UserID to PeerID and change "get hostPeerID()" to "get hostUserID()"
      */
-    hostId,
+    hostPeerID,
+
+    get hostUserID() {
+      return network.peers[network.hostPeerID]?.userId
+    },
 
     /**
      * The ID of this network, equivalent to the InstanceID of an instance
      */
     id,
-
-    /**
-     * The network socket connection is active
-     */
-    connected: false,
-
-    /**
-     * The network is authenticated
-     */
-    authenticated: false,
 
     /**
      * The network is ready for sending messages and data
@@ -145,7 +132,7 @@ export const createNetwork = <Ext>(
      * Check if this user is hosting the world.
      */
     get isHosting() {
-      return Engine.instance.userID === network.hostId
+      return Engine.instance.store.peerID === network.hostPeerID
     },
 
     topic

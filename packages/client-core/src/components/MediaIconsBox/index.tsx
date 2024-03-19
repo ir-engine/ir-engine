@@ -136,7 +136,7 @@ export const MediaIconsBox = () => {
 
   return (
     <section className={`${styles.drawerBox} ${topShelfStyle}`}>
-      {networkState.config.media.value && !mediaNetworkState?.ready.value && (
+      {networkState.config.media.value && !mediaNetworkState?.ready?.value && (
         <div className={styles.loader}>
           <CircularProgress />
           <div
@@ -152,7 +152,7 @@ export const MediaIconsBox = () => {
           </div>
         </div>
       )}
-      {audioEnabled && hasAudioDevice.value && mediaNetworkReady && mediaNetworkState?.ready.value ? (
+      {audioEnabled && hasAudioDevice.value && mediaNetworkReady && mediaNetworkState?.ready?.value ? (
         <IconButtonWithTooltip
           id="UserAudio"
           title={t('user:menu.toggleMute')}

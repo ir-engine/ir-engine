@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BotUserAgent } from '@etherealengine/common/src/constants/BotUserAgent'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 import { WebLayerManager } from '@etherealengine/xrui'
 
+import { ECSState } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { PerformanceManager } from '@etherealengine/spatial/src/renderer/PerformanceState'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
@@ -52,8 +51,6 @@ export const initializeBrowser = () => {
   camera.layers.enable(ObjectLayers.TransformGizmo)
   camera.layers.enable(ObjectLayers.UVOL)
 
-  getMutableState(EngineState).isBot.set(navigator.userAgent === BotUserAgent)
-
   const renderer = EngineRenderer.instance.renderer
   if (!renderer) throw new Error('EngineRenderer.instance.renderer does not exist!')
 
@@ -64,6 +61,6 @@ export const initializeBrowser = () => {
   WebLayerManager.instance.ktx2Encoder.pool.setWorkerLimit(1)
 
   PerformanceManager.buildPerformanceState(EngineRenderer.instance, () => {
-    Engine.instance.engineTimer.start()
+    getState(ECSState).timer.start()
   })
 }
