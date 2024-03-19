@@ -54,7 +54,7 @@ export const SettingsTabsData = [
     Component: HelmTab
   },
   {
-    label: t('admin:components.setting.client'),
+    label: t('admin:components.setting.client.header'),
     Component: ClientTab
   },
   {

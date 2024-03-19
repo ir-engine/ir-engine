@@ -393,7 +393,13 @@
       "apiKey": "ApiKey",
       "url": "URL",
       "chargebee": "Chargebee",
-      "client": "Client",
+      "client": {
+        "header": "Client",
+        "main": "Main",
+        "logo": "Logo",
+        "other": "Other",
+        "media": "Audio & Video"
+      },
       "clientId": "OAuth2 client_id",
       "clientSecret": "OAuth2 client_secret",
       "coil": "Coil",
