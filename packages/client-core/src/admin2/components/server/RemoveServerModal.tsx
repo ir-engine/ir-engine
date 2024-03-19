@@ -48,7 +48,7 @@ export default function RemoveServerModal({ serverPodInfo }: { serverPodInfo: Se
           })
           .catch(() => modalProcessing.set(false))
       }}
-      onClose={!modalProcessing.value ? () => PopoverState.hidePopupover() : undefined}
+      onClose={PopoverState.hidePopupover}
       submitLoading={modalProcessing.value}
     >
       <Text>{`${t('admin:components.server.confirmPodDelete')} ${serverPodInfo.name}?`}</Text>
