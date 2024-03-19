@@ -89,7 +89,7 @@ export const NetworkObjectComponent = defineComponent({
     const networkObject = useComponent(entity, NetworkObjectComponent)
 
     useLayoutEffect(() => {
-      if (networkObject.authorityPeerID.value === Engine.instance.peerID)
+      if (networkObject.authorityPeerID.value === Engine.instance.store.peerID)
         setComponent(entity, NetworkObjectAuthorityTag)
       else removeComponent(entity, NetworkObjectAuthorityTag)
     }, [networkObject.authorityPeerID])

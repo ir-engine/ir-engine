@@ -28,7 +28,7 @@ import { Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/ecs'
 import { dispatchAction } from '@etherealengine/hyperflux'
-import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
+import { Action, PeerID } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { AvatarID, InviteCode } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -45,6 +45,7 @@ export enum AuthError {
 
 export type AuthTask = {
   status: 'success' | 'fail' | 'pending'
+  hostPeerID?: PeerID
   routerRtpCapabilities?: any
   cachedActions?: Required<Action>[]
   error?: AuthError
@@ -62,24 +63,28 @@ export type JoinWorldProps = {
 export type SpawnInWorldProps = {
   avatarSpawnPose: { position: Vector3; rotation: Quaternion }
   avatarID: AvatarID
+  name: string
 }
 
 export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
   const { avatarSpawnPose, avatarID } = props
   console.log('SPAWN IN WORLD', avatarSpawnPose, avatarID)
-  const entityUUID = Engine.instance.userID as string as EntityUUID
-  dispatchAction(AvatarNetworkAction.spawn({ ...avatarSpawnPose, avatarID, entityUUID }))
+  const entityUUID = Engine.instance.userID
   dispatchAction(
-    CameraActions.spawnCamera({
-      entityUUID: ('camera_' + entityUUID) as EntityUUID
+    AvatarNetworkAction.spawn({
+      ...avatarSpawnPose,
+      avatarID,
+      entityUUID: (entityUUID + '_avatar') as EntityUUID,
+      name: props.name
     })
   )
+  dispatchAction(CameraActions.spawnCamera({ entityUUID: (entityUUID + '_camera') as EntityUUID }))
   createIkTargetsForLocalAvatar()
 }
 
 /** @todo put in a reactor in IK system */
 export const createIkTargetsForLocalAvatar = () => {
-  const { userID } = Engine.instance
+  const userID = Engine.instance.userID
   const headUUID = (userID + ikTargets.head) as EntityUUID
   const leftHandUUID = (userID + ikTargets.leftHand) as EntityUUID
   const rightHandUUID = (userID + ikTargets.rightHand) as EntityUUID

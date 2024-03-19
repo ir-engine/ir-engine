@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine, destroyEngine } from './Engine'
+import { destroyEngine, startEngine } from './Engine'
 
 import assert from 'assert'
 import { afterEach } from 'mocha'
@@ -52,7 +52,7 @@ const MockSystem = defineSystem({
 
 describe('SystemFunctions', () => {
   beforeEach(() => {
-    Engine.instance = new Engine()
+    startEngine()
   })
 
   afterEach(() => {
