@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { LocationType, locationPath } from '@etherealengine/common/src/schema.type.module'
 import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import { useHookstate } from '@hookstate/core'
@@ -45,13 +44,10 @@ export default function RemoveLocationModal({ location }: { location: LocationTy
         submitLoading.set(true)
         adminLocationRemove(location.id).then(() => PopoverState.hidePopupover())
       }}
-      onClose={!submitLoading.value ? () => PopoverState.hidePopupover() : undefined}
+      onClose={PopoverState.hidePopupover}
       submitLoading={submitLoading.value}
     >
       <div className="relative">
-        {submitLoading.value && (
-          <LoadingCircle className="absolute left-1/2 top-1/2 z-50 my-auto h-1/6 w-1/6 -translate-x-1/2 -translate-y-1/2 cursor-wait" />
-        )}
         <Text>{`${t('admin:components.location.confirmLocationDelete')} '${location.name}'?`}</Text>
       </div>
     </Modal>

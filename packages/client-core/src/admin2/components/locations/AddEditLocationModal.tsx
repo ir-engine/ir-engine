@@ -29,7 +29,6 @@ import {
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
@@ -40,7 +39,8 @@ import { AdminSceneService, AdminSceneState } from '../../../admin/services/Scen
 const getDefaultErrors = () => ({
   name: '',
   maxUsers: '',
-  scene: ''
+  scene: '',
+  serverError: ''
 })
 
 export default function AddEditLocationModal({ location }: { location?: LocationType }) {
@@ -64,7 +64,9 @@ export default function AddEditLocationModal({ location }: { location?: Location
     AdminSceneService.fetchAdminScenes()
   }, [])
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    errors.set(getDefaultErrors())
+
     if (!name.value) {
       errors.name.set(t('admin:components.location.nameCantEmpty'))
     }
@@ -77,6 +79,8 @@ export default function AddEditLocationModal({ location }: { location?: Location
     if (Object.values(errors.value).some((value) => value.length > 0)) {
       return
     }
+
+    submitLoading.set(true)
 
     const locationData: LocationData = {
       name: name.value,
@@ -98,11 +102,17 @@ export default function AddEditLocationModal({ location }: { location?: Location
       isFeatured: false
     }
 
-    if (location?.id) {
-      locationMutation.patch(location.id, locationData).then(() => PopoverState.hidePopupover())
-    } else {
-      locationMutation.create(locationData).then(() => PopoverState.hidePopupover())
+    try {
+      if (location?.id) {
+        await locationMutation.patch(location.id, locationData)
+      } else {
+        await locationMutation.create(locationData)
+      }
+      PopoverState.hidePopupover()
+    } catch (err) {
+      errors.serverError.set(err.message)
     }
+    submitLoading.set(false)
   }
 
   return (
@@ -112,20 +122,17 @@ export default function AddEditLocationModal({ location }: { location?: Location
       }
       className="w-[50vw]"
       onSubmit={handleSubmit}
-      onClose={() => {
-        PopoverState.hidePopupover()
-      }}
+      onClose={PopoverState.hidePopupover}
       submitLoading={submitLoading.value}
     >
       <div className="relative grid w-full gap-6">
-        {submitLoading.value && (
-          <LoadingCircle className="absolute left-1/2 top-1/2 z-50 my-auto h-1/6 w-1/6 -translate-x-1/2 -translate-y-1/2 cursor-wait" />
-        )}
+        {errors.serverError.value && <p className="mb-3 text-rose-800">{errors.serverError.value}</p>}
         <Input
           label={t('admin:components.location.lbl-name')}
           value={name.value}
           onChange={(event) => name.set(event.target.value)}
           error={errors.name.value}
+          disabled={submitLoading.value}
         />
         <Input
           type="number"
@@ -133,12 +140,13 @@ export default function AddEditLocationModal({ location }: { location?: Location
           value={maxUsers.value}
           onChange={(event) => maxUsers.set(Math.max(parseInt(event.target.value, 0), 0))}
           error={errors.maxUsers.value}
+          disabled={submitLoading.value}
         />
         <Select
           label={t('admin:components.location.lbl-scene')}
           currentValue={scene.value}
           onChange={(value) => scene.set(value)}
-          disabled={adminSceneState.retrieving.value}
+          disabled={adminSceneState.retrieving.value || submitLoading.value}
           options={
             adminSceneState.retrieving.value
               ? [{ value: '', label: t('common:select.fetching') }]
@@ -152,12 +160,23 @@ export default function AddEditLocationModal({ location }: { location?: Location
           }
           error={errors.scene.value}
         />
-        <Toggle label={t('admin:components.location.lbl-ve')} value={videoEnabled.value} onChange={videoEnabled.set} />
-        <Toggle label={t('admin:components.location.lbl-ae')} value={audioEnabled.value} onChange={audioEnabled.set} />
+        <Toggle
+          label={t('admin:components.location.lbl-ve')}
+          value={videoEnabled.value}
+          onChange={videoEnabled.set}
+          disabled={submitLoading.value}
+        />
+        <Toggle
+          label={t('admin:components.location.lbl-ae')}
+          value={audioEnabled.value}
+          onChange={audioEnabled.set}
+          disabled={submitLoading.value}
+        />
         <Toggle
           label={t('admin:components.location.lbl-se')}
           value={screenSharingEnabled.value}
           onChange={screenSharingEnabled.set}
+          disabled={submitLoading.value}
         />
       </div>
     </Modal>

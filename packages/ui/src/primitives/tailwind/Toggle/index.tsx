@@ -44,7 +44,7 @@ const Toggle = ({ className, label, value, onChange, disabled }: ToggleProps) =>
   )
 
   return (
-    <div className="flex items-center justify-center gap-4">
+    <div className="flex items-center gap-4">
       <input
         disabled={disabled}
         type="checkbox"
