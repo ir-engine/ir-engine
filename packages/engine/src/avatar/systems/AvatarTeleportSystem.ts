@@ -151,7 +151,7 @@ let visibleSegments = 2
 const execute = () => {
   const { isCameraAttachedToAvatar } = getState(XRControlsState)
   if (!isCameraAttachedToAvatar) return
-  const localClientEntity = AvatarComponent.getSelfAvatarEntity()
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
 
   const { guideCursor, transition, guideline, guidelineEntity, guideCursorEntity, lineMaterial } =
     getState(AvatarTeleportSystemState)
@@ -162,7 +162,7 @@ const execute = () => {
     fadeBackInAccumulator += getState(ECSState).deltaSeconds
     if (fadeBackInAccumulator > 0.25) {
       fadeBackInAccumulator = -1
-      teleportAvatar(localClientEntity, getComponent(guideCursorEntity, TransformComponent).position)
+      teleportAvatar(selfAvatarEntity, getComponent(guideCursorEntity, TransformComponent).position)
       dispatchAction(CameraActions.fadeToBlack({ in: false }))
       dispatchAction(XRAction.vibrateController({ handedness: 'left', value: 0.5, duration: 100 }))
       dispatchAction(XRAction.vibrateController({ handedness: 'right', value: 0.5, duration: 100 }))
@@ -185,7 +185,7 @@ const execute = () => {
   const nonCapturedInputSources = InputSourceComponent.nonCapturedInputSourceQuery()
 
   for (const entity of avatarTeleportQuery()) {
-    const side = getComponent(localClientEntity, AvatarTeleportComponent).side
+    const side = getComponent(selfAvatarEntity, AvatarTeleportComponent).side
     const referenceSpace = ReferenceSpace.origin!
 
     for (const inputSourceEntity of nonCapturedInputSources) {

@@ -63,6 +63,7 @@ export type JoinWorldProps = {
 export type SpawnInWorldProps = {
   avatarSpawnPose: { position: Vector3; rotation: Quaternion }
   avatarID: AvatarID
+  name: string
 }
 
 export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
@@ -70,7 +71,12 @@ export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
   console.log('SPAWN IN WORLD', avatarSpawnPose, avatarID)
   const entityUUID = Engine.instance.userID
   dispatchAction(
-    AvatarNetworkAction.spawn({ ...avatarSpawnPose, avatarID, entityUUID: (entityUUID + '_avatar') as EntityUUID })
+    AvatarNetworkAction.spawn({
+      ...avatarSpawnPose,
+      avatarID,
+      entityUUID: (entityUUID + '_avatar') as EntityUUID,
+      name: props.name
+    })
   )
   dispatchAction(CameraActions.spawnCamera({ entityUUID: (entityUUID + '_camera') as EntityUUID }))
   createIkTargetsForLocalAvatar()

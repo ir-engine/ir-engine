@@ -98,7 +98,8 @@ describe('moveAvatar function tests', () => {
         position: new Vector3(),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,
-        avatarID: '' as AvatarID
+        avatarID: '' as AvatarID,
+        name: ''
       })
     )
 
@@ -137,7 +138,8 @@ describe('moveAvatar function tests', () => {
         position: new Vector3(),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,
-        avatarID: '' as AvatarID
+        avatarID: '' as AvatarID,
+        name: ''
       })
     )
 
@@ -178,7 +180,8 @@ describe('moveAvatar function tests', () => {
         position: new Vector3(),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,
-        avatarID: '' as AvatarID
+        avatarID: '' as AvatarID,
+        name: ''
       })
     )
 
@@ -216,7 +219,8 @@ describe('moveAvatar function tests', () => {
         position: new Vector3(),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,
-        avatarID: '' as AvatarID
+        avatarID: '' as AvatarID,
+        name: ''
       })
     )
 
