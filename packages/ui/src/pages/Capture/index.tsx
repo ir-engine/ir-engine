@@ -376,6 +376,11 @@ const VideoPlayback = (props: {
 
   const { handlePositionChange } = useScrubbableVideo(videoRef)
 
+  const drawingUtils = useHookstate(null as null | DrawingUtils)
+  useEffect(() => {
+    drawingUtils.set(new DrawingUtils(canvasCtxRef.current!))
+  }, [])
+
   /** When the current time changes, update the video's current time and render motion capture */
   useEffect(() => {
     if (!videoRef.current || typeof currentTimeSeconds.value !== 'number') return
@@ -388,7 +393,8 @@ const VideoPlayback = (props: {
       const currentTimeMS = currentTimeSeconds.value * 1000
       const frame = data.frames.find((frame) => frame.timecode > currentTimeMS)
       if (!frame) return
-      //drawPoseToCanvas(canvasCtxRef, canvasRef, frame.data.results.poseLandmarks)
+      drawingUtils.value &&
+        drawPoseToCanvas(frame.data.results.poseLandmarks, canvasCtxRef, canvasRef, drawingUtils.value)
     }
   }, [currentTimeSeconds])
 
