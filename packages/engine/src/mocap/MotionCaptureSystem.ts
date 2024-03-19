@@ -148,7 +148,6 @@ const execute = () => {
         MotionCaptureRigComponent.rig[boneName].z[entity] === 0 &&
         MotionCaptureRigComponent.rig[boneName].w[entity] === 0
       ) {
-        MotionCaptureRigComponent.rig[boneName].w[entity] === 1
         continue
       }
 
