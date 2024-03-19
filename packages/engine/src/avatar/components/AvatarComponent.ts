@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
+import { Engine, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { defineComponent, getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { matches } from '@etherealengine/hyperflux'
@@ -76,6 +77,10 @@ export const AvatarComponent = defineComponent({
    */
   getUserAvatarEntity(userId: UserID) {
     return avatarNetworkObjectQuery().find((eid) => getComponent(eid, NetworkObjectComponent).ownerId === userId)!
+  },
+
+  getSelfAvatarEntity() {
+    return UUIDComponent.getEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID)
   }
 })
 

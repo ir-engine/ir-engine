@@ -23,8 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Color, Texture } from 'three'
-
+import { SceneDataType, SceneID, scenePath } from '@etherealengine/common/src/schema.type.module'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import {
   NO_PROXY,
   Topic,
@@ -36,23 +39,10 @@ import {
   none,
   useHookstate
 } from '@etherealengine/hyperflux'
-
-import { EntityUUID } from '@etherealengine/ecs'
-
-import {
-  EntityJsonType,
-  SceneDataType,
-  SceneID,
-  SceneJsonType,
-  scenePath
-} from '@etherealengine/common/src/schema.type.module'
-import { UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import React, { useLayoutEffect } from 'react'
+import { Color, Texture } from 'three'
 import matches, { Validator } from 'ts-matches'
 import { SceneComponent } from './components/SceneComponent'
 import { migrateOldColliders } from './functions/migrateOldColliders'
@@ -60,6 +50,7 @@ import { migrateOldComponentJSONIDs } from './functions/migrateOldComponentJSONI
 import { migrateSceneSettings } from './functions/migrateSceneSettings'
 import { serializeEntity } from './functions/serializeWorld'
 import { SceneLoadingReactor } from './systems/SceneLoadingSystem'
+import { EntityJsonType, SceneJsonType } from './types/SceneTypes'
 
 export interface SceneSnapshotInterface {
   data: SceneJsonType
@@ -68,7 +59,7 @@ export interface SceneSnapshotInterface {
 export const SceneState = defineState({
   name: 'SceneState',
   initial: () => ({
-    scenes: {} as Record<SceneID, SceneDataType>,
+    scenes: {} as Record<SceneID, Omit<SceneDataType, 'scene'> & { scene: SceneJsonType }>,
     sceneLoaded: false,
     loadingProgress: 0,
     background: null as null | Color | Texture,

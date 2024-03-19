@@ -3941,6 +3941,9 @@ class GLTFParser {
 
 				parser.assignFinalMaterial( mesh );
 
+				if(parser.fileLoader.manager.itemEndFor) 
+					parser.fileLoader.manager.itemEndFor(parser.options.url, ResourceType.Mesh, mesh.name, mesh)	
+
 				meshes.push( mesh );
 
 			}

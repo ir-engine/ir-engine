@@ -26,12 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import _ from 'lodash'
 import { Spark } from 'primus'
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { EntityUUID } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, PeerID } from '@etherealengine/hyperflux'
 import { NetworkPeerFunctions, updatePeers } from '@etherealengine/network'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
@@ -58,10 +57,11 @@ import {
 } from '@etherealengine/common/src/schema.type.module'
 import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
-import { MediasoupTransportState, NetworkState } from '@etherealengine/network'
+import { AuthTask } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
+import { NetworkState } from '@etherealengine/network'
 import { SpawnPoseState } from '@etherealengine/spatial'
 import { InstanceServerState } from './InstanceServerState'
-import { SocketWebRTCServerNetwork, WebRTCTransportExtension } from './SocketWebRTCServerFunctions'
+import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:network' })
 const isNameRegex = /instanceserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
@@ -235,8 +235,9 @@ export const handleConnectingPeer = (
   return {
     routerRtpCapabilities: network.transport.routers[0].rtpCapabilities,
     peerIndex: network.peerIDToPeerIndex[peerID]!,
-    cachedActions
-  }
+    cachedActions,
+    hostPeerID: network.hostPeerID
+  } as Omit<AuthTask, 'status'>
 }
 
 const getUserSpawnFromInvite = async (
@@ -359,10 +360,6 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerI
     NetworkPeerFunctions.destroyPeer(network, peerID)
     updatePeers(network)
     logger.info(`Disconnecting user ${userId} on spark ${peerID}`)
-    const recvTransport = MediasoupTransportState.getTransport(network.id, 'recv', peerID) as WebRTCTransportExtension
-    const sendTransport = MediasoupTransportState.getTransport(network.id, 'send', peerID) as WebRTCTransportExtension
-    if (recvTransport) MediasoupTransportState.removeTransport(network.id, recvTransport.id)
-    if (sendTransport) MediasoupTransportState.removeTransport(network.id, sendTransport.id)
   } else {
     logger.warn("Spark didn't match for disconnecting client.")
   }

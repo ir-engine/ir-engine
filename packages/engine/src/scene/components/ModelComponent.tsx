@@ -149,7 +149,7 @@ function ModelReactor(): JSX.Element {
 
     console.error(err)
     addError(entity, ModelComponent, 'INVALID_SOURCE', err.message)
-    SceneAssetPendingTagComponent.removeResource(entity, modelComponent.src.value)
+    SceneAssetPendingTagComponent.removeResource(entity, ModelComponent.jsonID)
   }, [error])
 
   useEffect(() => {
@@ -236,7 +236,7 @@ function ModelReactor(): JSX.Element {
           addError(entity, ModelComponent, 'LOADING_ERROR', 'Error compiling model')
         })
         .finally(() => {
-          SceneAssetPendingTagComponent.removeResource(entity, src)
+          SceneAssetPendingTagComponent.removeResource(entity, ModelComponent.jsonID)
         })
 
     const gltf = asset as GLTF
@@ -271,7 +271,7 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
 
   useEffect(() => {
     SceneAssetPendingTagComponent.removeResource(props.entity, `${props.parentEntity}`)
-    SceneAssetPendingTagComponent.removeResource(props.parentEntity, modelComponent.src.value)
+    SceneAssetPendingTagComponent.removeResource(props.parentEntity, ModelComponent.jsonID)
   }, [])
 
   const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)

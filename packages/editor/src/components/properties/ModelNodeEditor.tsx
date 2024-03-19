@@ -53,6 +53,7 @@ import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
 import { EditorComponentType, commitProperty } from './Util'
 
+import { ResourceManager } from '@etherealengine/engine/src/assets/state/ResourceState'
 import { VRM } from '@pixiv/three-vrm'
 
 /**
@@ -126,7 +127,13 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       {...props}
     >
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
-        <ModelInput value={modelComponent.src.value} onRelease={commitProperty(ModelComponent, 'src')} />
+        <ModelInput
+          value={modelComponent.src.value}
+          onRelease={(src) => {
+            if (src !== modelComponent.src.value) commitProperty(ModelComponent, 'src')(src)
+            else ResourceManager.update(src)
+          }}
+        />
         {errors?.LOADING_ERROR ||
           (errors?.INVALID_SOURCE && ErrorPopUp({ message: t('editor:properties.model.error-url') }))}
       </InputGroup>

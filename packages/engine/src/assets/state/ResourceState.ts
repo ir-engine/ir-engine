@@ -23,16 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, EntityUUID } from '@etherealengine/ecs'
+import { SceneID } from '@etherealengine/common/src/schema.type.module'
+import { Engine, Entity, EntityUUID, getOptionalComponent } from '@etherealengine/ecs'
 import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
+import { PerformanceState } from '@etherealengine/spatial/src/renderer/PerformanceState'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { Cache, CompressedTexture, DefaultLoadingManager, LoadingManager, Material, Texture } from 'three'
+import {
+  Cache,
+  CompressedTexture,
+  DefaultLoadingManager,
+  InstancedMesh,
+  Light,
+  LoadingManager,
+  Material,
+  Mesh,
+  Object3D,
+  SkinnedMesh,
+  Texture
+} from 'three'
+import { SceneComponent } from '../../scene/components/SceneComponent'
 import { SourceType } from '../../scene/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../scene/materials/functions/MaterialLibraryFunctions'
 import { AssetLoader, LoadingArgs } from '../classes/AssetLoader'
 import { Geometry } from '../constants/Geometry'
 import { ResourceLoadingManager } from '../loaders/base/ResourceLoadingManager'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
+
+//isProxified: used to check if an object is proxified
+declare module 'three/src/core/Object3D' {
+  export interface Object3D {
+    readonly isProxified: true | undefined
+  }
+}
 
 Cache.enabled = true
 
@@ -44,36 +67,29 @@ export enum ResourceStatus {
 }
 
 export enum ResourceType {
-  GLTF,
-  Texture,
-  Geometry,
-  Material,
-  ECSData,
-  Audio,
-  Unknown
+  GLTF = 'GLTF',
+  Mesh = 'Mesh',
+  Texture = 'Texture',
+  Geometry = 'Geometry',
+  Material = 'Material',
+  Unknown = 'Unknown'
+  // ECSData = 'ECSData',
+  // Audio = 'Audio',
 }
 
-const resourceTypeName = {
-  [ResourceType.GLTF]: 'GLTF',
-  [ResourceType.Texture]: 'Texture',
-  [ResourceType.Geometry]: 'Geometry',
-  [ResourceType.Material]: 'Material',
-  [ResourceType.ECSData]: 'ECSData',
-  [ResourceType.Audio]: 'Audio',
-  [ResourceType.Unknown]: 'Unknown'
-}
-
-export type AssetType = GLTF | Texture | CompressedTexture | Geometry | Material
+export type AssetType = GLTF | Texture | CompressedTexture | Geometry | Material | Mesh
 
 type BaseMetadata = {
   size?: number
 }
 
 type GLTFMetadata = {
-  verts: number
+  vertexCount: number
+  textureWidths: number[]
 } & BaseMetadata
 
 type TexutreMetadata = {
+  textureWidth: number
   onGPU: boolean
 } & BaseMetadata
 
@@ -85,7 +101,9 @@ type Resource = {
   type: ResourceType
   references: Entity[]
   asset?: AssetType
-  assetRefs: string[]
+  assetRefs?: Record<ResourceType, string[]>
+  args?: LoadingArgs
+  onLoads?: Record<string, (response: AssetType) => void>
   metadata: Metadata
 }
 
@@ -94,13 +112,15 @@ const debugLog = debug
   ? (message?: any, ...optionalParams: any[]) => {
       console.log(message)
     }
-  : (message?: any, ...optionalParams: any[]) => {}
+  : () => {}
 
 export const ResourceState = defineState({
   name: 'ResourceManagerState',
   initial: () => ({
     resources: {} as Record<string, Resource>,
-    referencedAssets: {} as Record<string, string[]>
+    referencedAssets: {} as Record<string, string[]>,
+    totalVertexCount: 0,
+    totalBufferCount: 0
   })
 })
 
@@ -197,13 +217,17 @@ const onItemStart = (url: string) => {
 
 const onStart = (url: string, loaded: number, total: number) => {}
 const onLoad = () => {
-  const totalSize = getCurrentSizeOfResources()
-  const totalVerts = getCurrentVertCountOfResources()
-  debugLog('Loaded: ' + totalSize + ' bytes of resources')
-  debugLog(totalVerts + ' Vertices')
+  if (debug) {
+    const totalSize = getTotalSizeOfResources()
+    const totalVerts = getTotalVertexCount()
+    const totalBuff = getTotalBufferSize()
+    debugLog(
+      `ResourceState:onLoad: Loaded ${totalSize} bytes of resources, ${totalVerts} vertices, ${totalBuff} bytes in buffer`
+    )
 
-  //@ts-ignore
-  if (debug) window.resources = getState(ResourceState)
+    //@ts-ignore
+    window.resources = getState(ResourceState)
+  }
 }
 
 const onItemLoadedFor = <T extends AssetType>(url: string, resourceType: ResourceType, id: string, asset: T) => {
@@ -211,17 +235,13 @@ const onItemLoadedFor = <T extends AssetType>(url: string, resourceType: Resourc
   const resources = resourceState.nested('resources')
   const referencedAssets = resourceState.nested('referencedAssets')
   if (!resources[url].value) {
+    // Volumetric models load assets that aren't managed by the resource manager
     // console.warn('ResourceManager:loadedFor asset loaded for asset that is not loaded: ' + url)
     return
   }
 
   debugLog(
-    'ResourceManager:loadedFor loading asset of type ' +
-      resourceTypeName[resourceType] +
-      ' with ID: ' +
-      id +
-      ' for asset at url: ' +
-      url
+    'ResourceManager:loadedFor loading asset of type ' + resourceType + ' with ID: ' + id + ' for asset at url: ' + url
   )
 
   if (!referencedAssets[id].value) {
@@ -238,17 +258,21 @@ const onItemLoadedFor = <T extends AssetType>(url: string, resourceType: Resourc
         type: resourceType,
         references: [],
         asset: asset,
-        assetRefs: [],
         metadata: {}
       }
     })
     const callbacks = Callbacks[resourceType]
     callbacks.onStart(resources[id])
-    callbacks.onLoad(asset, resources[id])
+    callbacks.onLoad(asset, resources[id], resourceState)
   }
 
-  resources[url].assetRefs.merge([id])
-  referencedAssets[id].merge([url])
+  if (!resources[url].assetRefs.value)
+    resources[url].assetRefs.set({ [resourceType]: [id] } as Record<ResourceType, string[]>)
+  else if (!resources[url].assetRefs[resourceType].value) resources[url].assetRefs.merge({ [resourceType]: [id] })
+  else resources[url].assetRefs[resourceType].merge([id])
+
+  /**@todo figure out a way to uniquely map an asset for a GLTF to the GLTF resource */
+  referencedAssets[id].set([url])
 }
 
 const onProgress = (url: string, loaded: number, total: number) => {}
@@ -256,7 +280,7 @@ const onError = (url: string) => {}
 
 setDefaultLoadingManager()
 
-const getCurrentSizeOfResources = () => {
+const getTotalSizeOfResources = () => {
   let size = 0
   const resources = getState(ResourceState).resources
   for (const key in resources) {
@@ -267,18 +291,31 @@ const getCurrentSizeOfResources = () => {
   return size
 }
 
-const getCurrentVertCountOfResources = () => {
+const getTotalBufferSize = () => {
+  let size = 0
+  const resources = getState(ResourceState).resources
+  for (const key in resources) {
+    const resource = resources[key]
+    if (resource.type == ResourceType.Texture && resource.metadata.size) size += resource.metadata.size
+  }
+
+  return size
+}
+
+const getTotalVertexCount = () => {
   let verts = 0
   const resources = getState(ResourceState).resources
   for (const key in resources) {
     const resource = resources[key]
-    if ((resource.metadata as GLTFMetadata).verts) verts += (resource.metadata as GLTFMetadata).verts
+    if (resource.type == ResourceType.GLTF && (resource.metadata as GLTFMetadata).vertexCount)
+      verts += (resource.metadata as GLTFMetadata).vertexCount
   }
 
   return verts
 }
 
 const getRendererInfo = () => {
+  if (!EngineRenderer.instance || !EngineRenderer.instance.renderer) return {}
   return {
     memory: EngineRenderer.instance.renderer.info.memory,
     programCount: EngineRenderer.instance.renderer.info.programs?.length
@@ -288,17 +325,51 @@ const getRendererInfo = () => {
 const Callbacks = {
   [ResourceType.GLTF]: {
     onStart: (resource: State<Resource>) => {},
-    onLoad: (response: GLTF, resource: State<Resource>) => {},
+    onLoad: (response: GLTF, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
+      const resources = getMutableState(ResourceState).nested('resources')
+      const geometryIDs = resource.assetRefs[ResourceType.Geometry]
+      const metadata = resource.metadata as State<GLTFMetadata>
+      if (geometryIDs && geometryIDs.value) {
+        let vertexCount = 0
+        for (const geoID of geometryIDs.value) {
+          const geoResource = resources[geoID].value
+          const verts = (geoResource.metadata as GLTFMetadata).vertexCount
+          if (verts) vertexCount += verts
+        }
+        metadata.merge({ vertexCount: vertexCount })
+        resourceState.totalVertexCount.set(resourceState.totalVertexCount.value + vertexCount)
+      }
+      const textureIDs = resource.assetRefs[ResourceType.Texture]
+      if (textureIDs && textureIDs.value) {
+        const textureWidths = [] as number[]
+        for (const textureID of textureIDs.value) {
+          const texResource = resources[textureID].value
+          const textureWidth = (texResource.metadata as TexutreMetadata).textureWidth
+          if (textureWidth) textureWidths.push(textureWidth)
+        }
+        metadata.textureWidths.set(textureWidths)
+      }
+    },
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {
       resource.metadata.size.set(request.total)
     },
-    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {}
+    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
+    onUnload: (asset: GLTF, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
+      removeMaterialSource({ type: SourceType.MODEL, path: resource.id.value })
+      const metadata = resource.metadata.value as GLTFMetadata
+      if (metadata.vertexCount)
+        resourceState.totalVertexCount.set(resourceState.totalVertexCount.value - metadata.vertexCount)
+    }
   },
   [ResourceType.Texture]: {
     onStart: (resource: State<Resource>) => {
       resource.metadata.merge({ onGPU: false })
     },
-    onLoad: (response: Texture | CompressedTexture, resource: State<Resource>) => {
+    onLoad: (
+      response: Texture | CompressedTexture,
+      resource: State<Resource>,
+      resourceState: State<typeof ResourceState._TYPE>
+    ) => {
       response.onUpdate = () => {
         resource.metadata.merge({ onGPU: true })
         //@ts-ignore
@@ -318,19 +389,39 @@ const Callbacks = {
         const size = width * height * 4
         resource.metadata.size.set(size)
       }
+
+      resource.metadata.merge({ textureWidth: response.image.width })
+      resourceState.totalBufferCount.set(resourceState.totalBufferCount.value + resource.metadata.size.value!)
     },
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
-    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {}
+    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
+    onUnload: (
+      asset: Texture | CompressedTexture,
+      resource: State<Resource>,
+      resourceState: State<typeof ResourceState._TYPE>
+    ) => {
+      asset.dispose()
+      const size = resource.metadata.size.value
+      if (size) resourceState.totalBufferCount.set(resourceState.totalBufferCount.value - size)
+    }
   },
   [ResourceType.Material]: {
     onStart: (resource: State<Resource>) => {},
-    onLoad: (response: Material, resource: State<Resource>) => {},
+    onLoad: (response: Material, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
-    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {}
+    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
+    onUnload: (asset: Material, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
+      for (const [key, val] of Object.entries(asset) as [string, Texture][]) {
+        if (val && typeof val.dispose === 'function') {
+          val.dispose()
+        }
+      }
+      asset.dispose()
+    }
   },
   [ResourceType.Geometry]: {
     onStart: (resource: State<Resource>) => {},
-    onLoad: (response: Geometry, resource: State<Resource>) => {
+    onLoad: (response: Geometry, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
       // Estimated geometry size
       let size = 0
       for (const name in response.attributes) {
@@ -340,21 +431,72 @@ const Callbacks = {
 
       const indices = response.getIndex()
       if (indices) {
-        resource.metadata.merge({ verts: indices.count })
+        resource.metadata.merge({ vertexCount: indices.count })
         size += indices.count * indices.itemSize * indices.array.BYTES_PER_ELEMENT
       }
       resource.metadata.size.set(size)
     },
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
-    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {}
+    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
+    onUnload: (asset: Geometry, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
+      asset.dispose()
+      for (const key in asset.attributes) {
+        asset.deleteAttribute(key)
+      }
+      for (const key in asset.morphAttributes) {
+        delete asset.morphAttributes[key]
+      }
+
+      //@ts-ignore todo - figure out why check errors flags this
+      if (asset.boundsTree) asset.disposeBoundsTree()
+    }
+  },
+  [ResourceType.Mesh]: {
+    onStart: (resource: State<Resource>) => {},
+    onLoad: (response: Material, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
+    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
+    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
+    onUnload: (asset: Mesh, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
+      const skinnedMesh = asset as SkinnedMesh
+      if (skinnedMesh.isSkinnedMesh && skinnedMesh.skeleton) {
+        skinnedMesh.skeleton.dispose()
+      }
+
+      // InstancedMesh or anything with a dispose function
+      const instancedMesh = asset as InstancedMesh
+      if (instancedMesh.isInstancedMesh || typeof instancedMesh.dispose === 'function') {
+        instancedMesh.dispose()
+      }
+    }
+  },
+  [ResourceType.Unknown]: {
+    onStart: (resource: State<Resource>) => {},
+    onLoad: (response: Material, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
+    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
+    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
+    onUnload: (asset: AssetType, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {}
   }
 } as {
   [key in ResourceType]: {
     onStart: (resource: State<Resource>) => void
-    onLoad: (response: AssetType, resource: State<Resource>) => void
+    onLoad: (response: AssetType, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => void
     onProgress: (request: ProgressEvent, resource: State<Resource>) => void
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => void
+    onUnload: (asset: AssetType, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => void
   }
+}
+
+const checkBudgets = () => {
+  const resourceState = getState(ResourceState)
+  const performanceState = getState(PerformanceState)
+  const maxVerts = performanceState.budgets.maxVerticies
+  const maxBuffer = performanceState.budgets.maxBufferSize
+  const currVerts = resourceState.totalVertexCount
+  const currBuff = resourceState.totalBufferCount
+  if (currVerts > maxVerts)
+    console.warn('ResourceState:GLTF:onLoad Exceeded vertex budget, budget: ' + maxVerts + ', loaded: ' + currVerts)
+  if (currBuff > maxBuffer)
+    console.warn('ResourceState:GLTF:onLoad Exceeded buffer budget, budget: ' + maxBuffer + ', loaded: ' + currBuff)
 }
 
 const load = <T extends AssetType>(
@@ -365,10 +507,12 @@ const load = <T extends AssetType>(
   onLoad: (response: T) => void,
   onProgress: (request: ProgressEvent) => void,
   onError: (event: ErrorEvent | Error) => void,
-  signal: AbortSignal
+  signal: AbortSignal,
+  uuid?: string
 ) => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
+  let callbacks = Callbacks[resourceType]
   if (!resources[url].value) {
     resources.merge({
       [url]: {
@@ -377,15 +521,18 @@ const load = <T extends AssetType>(
         type: resourceType,
         references: [entity],
         metadata: {},
-        assetRefs: []
+        args: args,
+        onLoads: {}
       }
     })
   } else {
+    //No need for callbacks if the asset has already been loaded
+    callbacks = Callbacks[ResourceType.Unknown]
     resources[url].references.merge([entity])
   }
+  if (uuid) resources[url].onLoads.merge({ [uuid]: onLoad })
 
   const resource = resources[url]
-  const callbacks = Callbacks[resourceType]
   callbacks.onStart(resource)
   debugLog('ResourceManager:load Loading resource: ' + url + ' for entity: ' + entity)
   AssetLoader.load(
@@ -394,7 +541,9 @@ const load = <T extends AssetType>(
     (response: T) => {
       resource.status.set(ResourceStatus.Loaded)
       resource.asset.set(response)
-      callbacks.onLoad(response, resource)
+      callbacks.onLoad(response, resource, resourceState)
+      debugLog('ResourceManager:load Loaded resource: ' + url + ' for entity: ' + entity)
+      checkBudgets()
       onLoad(response)
     },
     (request) => {
@@ -402,15 +551,49 @@ const load = <T extends AssetType>(
       onProgress(request)
     },
     (error) => {
-      resource.status.set(ResourceStatus.Error)
-      callbacks.onError(error, resource)
+      console.warn(`ResourceManager:load error loading ${resourceType} at url ${url} for entity ${entity}`)
+      if (resource && resource.value && resource.status.value) {
+        resource.status.set(ResourceStatus.Error)
+        callbacks.onError(error, resource)
+      }
       onError(error)
+      unload(url, entity, uuid)
     },
     signal
   )
 }
 
-const unload = (url: string, entity: Entity) => {
+const update = (url: string) => {
+  const resourceState = getMutableState(ResourceState)
+  const resources = resourceState.nested('resources')
+  const resource = resources[url]
+  if (!resource.value) {
+    console.warn('ResourceManager:update No resource found to update for url: ' + url)
+    return
+  }
+  const onLoads = resource.onLoads.get(NO_PROXY)
+  if (!onLoads) {
+    console.warn('ResourceManager:update No callbacks found to update for url: ' + url)
+    return
+  }
+
+  debugLog('ResourceManager:update Updating asset for url: ' + url)
+  removeReferencedResources(resource)
+  for (const [_, onLoad] of Object.entries(onLoads)) {
+    AssetLoader.load(
+      url,
+      resource.args.value || {},
+      (response: AssetType) => {
+        resource.asset.set(response)
+        onLoad(response)
+      },
+      (request) => {},
+      (error) => {}
+    )
+  }
+}
+
+const unload = (url: string, entity: Entity, uuid?: string) => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
   if (!resources[url].value) {
@@ -420,6 +603,7 @@ const unload = (url: string, entity: Entity) => {
 
   debugLog('ResourceManager:unload Unloading resource: ' + url + ' for entity: ' + entity)
   const resource = resources[url]
+  if (uuid) resource.onLoads.merge({ [uuid]: none })
   resource.references.set((entities) => {
     const index = entities.indexOf(entity)
     if (index > -1) {
@@ -429,28 +613,54 @@ const unload = (url: string, entity: Entity) => {
   })
 
   if (resource.references.length == 0) {
-    debugLog('Before Removing Resources', debug && JSON.stringify(getRendererInfo()))
+    if (debug) debugLog('Before Removing Resources: ' + JSON.stringify(getRendererInfo()))
+    removeReferencedResources(resource)
     removeResource(url)
-    debugLog('After Removing Resources', debug && JSON.stringify(getRendererInfo()))
+    if (debug) debugLog('After Removing Resources: ' + JSON.stringify(getRendererInfo()))
+  }
+}
+
+const unloadObj = (obj: Object3D, sceneID: SceneID | undefined) => {
+  const remove = (obj: Object3D) => {
+    const light = obj as Light // anything with dispose function
+    if (typeof light.dispose === 'function') light.dispose()
+
+    const scene = Engine.instance.scene
+    const index = scene.children.indexOf(obj)
+    if (index > -1) scene.children.splice(index, 1)
+  }
+
+  if (obj.isProxified) {
+    remove(obj)
+  } else {
+    iterateObject3D(obj, remove, (obj: Object3D) => getOptionalComponent(obj.entity, SceneComponent) === sceneID)
   }
 }
 
 const removeReferencedResources = (resource: State<Resource>) => {
   const resourceState = getMutableState(ResourceState)
-  const referencedAssets = resourceState.nested('referencedAssets')
+  const referencedAssets = resourceState.referencedAssets
 
-  for (const ref of resource.assetRefs.value) {
-    referencedAssets[ref].set((refs) => {
-      const index = refs.indexOf(resource.id.value)
-      if (index > -1) {
-        refs.splice(index, 1)
+  if (!resource.assetRefs.value) return
+
+  for (const resourceType in ResourceType) {
+    const assetRefs = resource.assetRefs[resourceType as ResourceType]
+    if (!assetRefs.value) continue
+    for (const ref of assetRefs.value) {
+      if (referencedAssets[ref].value) {
+        referencedAssets[ref].set((refs) => {
+          const index = refs.indexOf(resource.id.value)
+          if (index > -1) {
+            refs.splice(index, 1)
+          }
+          return refs
+        })
+
+        if (referencedAssets[ref].length == 0) {
+          removeResource(ref)
+          referencedAssets[ref].set(none)
+        }
       }
-      return refs
-    })
-
-    if (referencedAssets[ref].length == 0) {
-      removeResource(ref)
-      referencedAssets[ref].set(none)
     }
   }
 }
@@ -464,45 +674,12 @@ const removeResource = (id: string) => {
   }
 
   const resource = resources[id]
-  debugLog(
-    'ResourceManager:removeResource: Removing ' + resourceTypeName[resource.type.value] + ' resource with ID: ' + id
-  )
+  debugLog('ResourceManager:removeResource: Removing ' + resource.type.value + ' resource with ID: ' + id)
   Cache.remove(id)
-  removeReferencedResources(resource)
 
   const asset = resource.asset.get(NO_PROXY)
   if (asset) {
-    switch (resource.type.value) {
-      case ResourceType.GLTF:
-        removeMaterialSource({ type: SourceType.MODEL, path: id })
-        break
-      case ResourceType.Texture:
-        ;(asset as Texture).dispose()
-        break
-      case ResourceType.Geometry:
-        ;(asset as Geometry).dispose()
-        break
-      case ResourceType.Material:
-        {
-          const material = asset as Material
-          for (const [key, val] of Object.entries(material) as [string, Texture][]) {
-            if (val && typeof val.dispose === 'function') {
-              val.dispose()
-            }
-          }
-          material.dispose()
-        }
-        break
-      case ResourceType.ECSData:
-        break
-      case ResourceType.Audio:
-        break
-      case ResourceType.Unknown:
-        break
-
-      default:
-        break
-    }
+    Callbacks[resource.type.value].onUnload(asset, resource, resourceState)
   }
 
   resources[id].set(none)
@@ -511,5 +688,7 @@ const removeResource = (id: string) => {
 export const ResourceManager = {
   load,
   unload,
+  unloadObj,
+  update,
   setDefaultLoadingManager
 }

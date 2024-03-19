@@ -23,11 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { getComponent, UUIDComponent } from '@etherealengine/ecs'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { getState } from '@etherealengine/hyperflux'
+import { SpawnPoseState } from '@etherealengine/spatial'
+import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
+import { teleportAvatar } from './moveAvatar'
 
-export const respawnAvatar = (entity: Entity) => {
-  // const { spawnPosition } = getState(SpawnPoseState)[getComponent(entity, UUIDComponent)]
-  // const controller = getComponent(entity, AvatarControllerComponent)
-  // controller.verticalVelocity = 0
-  // teleportAvatar(entity, spawnPosition)
+export const respawnAvatar = (entity?: Entity) => {
+  if (!entity) return
+  const { spawnPosition } = getState(SpawnPoseState)[getComponent(entity, UUIDComponent)]
+  const controller = getComponent(entity, AvatarControllerComponent)
+  controller.verticalVelocity = 0
+  teleportAvatar(entity, spawnPosition)
 }

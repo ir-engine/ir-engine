@@ -27,10 +27,10 @@ import { TypedArray } from 'bitecs'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { PeerID } from '@etherealengine/hyperflux'
 import { JitterBufferEntry, Network } from '../Network'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../NetworkObjectComponent'
 import { NetworkState } from '../NetworkState'
@@ -237,20 +237,17 @@ export const readEntities = (v: ViewCursor, network: Network, byteLength: number
 }
 
 export const readMetadata = (v: ViewCursor) => {
-  const userIndex = readUint32(v)
   const peerIndex = readUint32(v)
   const simulationTime = readFloat64(v)
-  // if (userIndex === world.peerIDToUserIndex.get(NetworkState.worldNetwork.hostId)! && !NetworkState.worldNetwork.isHosting) Engine.instance.fixedTick = fixedTick
-  return { userIndex, peerIndex, simulationTime }
+  return { peerIndex, simulationTime }
 }
 
 export const readDataPacket = (network: Network, packet: ArrayBuffer, jitterBufferTaskList: JitterBufferEntry[]) => {
   const view = createViewCursor(packet)
-  const { userIndex, peerIndex, simulationTime } = readMetadata(view)
-  const fromUserID = network.userIndexToUserID[userIndex]
+  const { peerIndex, simulationTime } = readMetadata(view)
   const fromPeerID = network.peerIndexToPeerID[peerIndex]
-  const isLoopback = !!fromPeerID && fromPeerID === Engine.instance.peerID
-  if (!fromUserID || isLoopback) return
+  const isLoopback = !!fromPeerID && fromPeerID === Engine.instance.store.peerID
+  if (isLoopback) return
   jitterBufferTaskList.push({
     simulationTime,
     read: () => {

@@ -151,6 +151,7 @@ export const ChannelService = {
     }
     const network = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
     if (!network) return
+    /** @todo reassess if this is necessary */
     leaveNetwork(network)
   },
   removeUserFromChannel: async (channelId: ChannelID, userId: UserID) => {

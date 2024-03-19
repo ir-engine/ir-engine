@@ -41,12 +41,11 @@ import {
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import { MediaSettingsState } from '@etherealengine/engine/src/audio/MediaSettingsState'
 import { applyScreenshareToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
-import { NO_PROXY, State, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, PeerID, State, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
@@ -89,7 +88,7 @@ const useDrawMocapLandmarks = (
       const networkState = getState(NetworkState)
       if (networkState.hostIds.world) {
         const network = networkState.networks[networkState.hostIds.world]
-        if (network.peers[peerID]) {
+        if (network?.peers?.[peerID]) {
           const userID = network.peers[peerID].userId
           const peers = network.users[userID]
           for (const peer of peers) {
@@ -153,7 +152,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const mediaNetwork = NetworkState.mediaNetwork
   const isSelf =
     !mediaNetwork ||
-    peerID === Engine.instance.peerID ||
+    peerID === Engine.instance.store.peerID ||
     (mediaNetwork?.peers &&
       Object.values(mediaNetwork.peers).find((peer) => peer.userId === selfUser.id)?.peerID === peerID) ||
     peerID === 'self'
