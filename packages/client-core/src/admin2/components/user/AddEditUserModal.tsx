@@ -148,7 +148,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       title={user?.id ? t('admin:components.user.updateUser') : t('admin:components.user.addUser')}
       className="w-[50vw]"
       onSubmit={handleSubmit}
-      onClose={() => PopoverState.hidePopupover()}
+      onClose={PopoverState.hidePopupover}
       submitLoading={submitLoading.value}
     >
       <div className="relative grid w-full gap-6">
