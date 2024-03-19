@@ -104,7 +104,12 @@ export const useCustomRoutes = () => {
 
   useEffect(() => {
     if (location.pathname !== routerState.pathname.value) {
-      navigate(`${routerState.pathname.value}?${new URLSearchParams(routerState.queryParams.value)}`)
+      const urlSearchParams = new URLSearchParams(routerState.queryParams.value)
+      if (urlSearchParams.toString().length > 0) {
+        navigate(`${routerState.pathname.value}?${urlSearchParams}`)
+      } else {
+        navigate(routerState.pathname.value)
+      }
     }
   }, [routerState.pathname, routerState.queryParams])
 
