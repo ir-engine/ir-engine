@@ -38,9 +38,9 @@ export const RouterState = defineState({
   name: 'RouterState',
   initial: () => ({
     pathname: location.pathname,
-    queryParams: null as QueryParamsType | null
+    queryParams: {} as QueryParamsType
   }),
-  navigate: (pathname: string, queryParams: QueryParamsType | { redirectUrl: string } | null = null) => {
+  navigate: (pathname: string, queryParams: QueryParamsType | { redirectUrl: string } = {}) => {
     getMutableState(RouterState).set({
       pathname,
       queryParams
@@ -104,11 +104,7 @@ export const useCustomRoutes = () => {
 
   useEffect(() => {
     if (location.pathname !== routerState.pathname.value) {
-      if (routerState.queryParams.value) {
-        navigate(`${routerState.pathname.value}?${new URLSearchParams(routerState.queryParams.value)}`)
-      } else {
-        navigate(routerState.pathname.value)
-      }
+      navigate(`${routerState.pathname.value}?${new URLSearchParams(routerState.queryParams.value)}`)
     }
   }, [routerState.pathname, routerState.queryParams])
 
