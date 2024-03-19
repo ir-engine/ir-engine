@@ -91,7 +91,7 @@ const execute = () => {
           WorldNetworkAction.transferAuthorityOfObject({
             ownerID: Engine.instance.userID,
             entityUUID: getComponent(entity, UUIDComponent),
-            newAuthority: Engine.instance.peerID
+            newAuthority: Engine.instance.store.peerID
           })
         )
         setComponent(entity, NetworkObjectAuthorityTag)

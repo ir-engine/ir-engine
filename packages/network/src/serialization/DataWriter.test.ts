@@ -569,7 +569,7 @@ describe('DataWriter', () => {
       })
     })
 
-    const packet = write(network, Engine.instance.peerID, entities)
+    const packet = write(network, Engine.instance.store.peerID, entities)
 
     const expectedBytes =
       2 * Uint32Array.BYTES_PER_ELEMENT +

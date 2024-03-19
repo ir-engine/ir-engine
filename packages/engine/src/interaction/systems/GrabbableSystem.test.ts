@@ -75,7 +75,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
     setComponent(player, NetworkObjectComponent, {
       ownerId: Engine.instance.userID,
-      authorityPeerID: Engine.instance.peerID,
+      authorityPeerID: Engine.instance.store.peerID,
       networkId: 0 as NetworkId
     })
     const networkObject = getComponent(player, NetworkObjectComponent)
@@ -142,7 +142,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     // initially the object is owned by server
     setComponent(grabbableEntity, NetworkObjectComponent, {
       ownerId: NetworkState.worldNetwork.hostUserID,
-      authorityPeerID: Engine.instance.peerID,
+      authorityPeerID: Engine.instance.store.peerID,
       networkId: 0 as NetworkId
     })
 

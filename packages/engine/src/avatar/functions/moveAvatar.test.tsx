@@ -88,7 +88,7 @@ describe('moveAvatar function tests', () => {
     ecsState.simulationTimestep.set(1000 / 60)
 
     const network = NetworkState.worldNetwork as Network
-    NetworkPeerFunctions.createPeer(network, Engine.instance.peerID, 0, Engine.instance.userID, 0)
+    NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, Engine.instance.userID, 0)
 
     const { rerender, unmount } = render(tag)
     await act(() => rerender(tag))
@@ -128,7 +128,7 @@ describe('moveAvatar function tests', () => {
     ecsState.simulationTimestep.set(1000 / 60)
 
     const network = NetworkState.worldNetwork as Network
-    NetworkPeerFunctions.createPeer(network, Engine.instance.peerID, 0, Engine.instance.userID, 0)
+    NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, Engine.instance.userID, 0)
 
     const { rerender, unmount } = render(tag)
     await act(() => rerender(tag))
@@ -167,7 +167,7 @@ describe('moveAvatar function tests', () => {
     ecsState.simulationTimestep.set(1000 / 60)
 
     const network = NetworkState.worldNetwork as Network
-    NetworkPeerFunctions.createPeer(network, Engine.instance.peerID, 0, Engine.instance.userID, 0)
+    NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, Engine.instance.userID, 0)
 
     const { rerender, unmount } = render(tag)
     await act(() => rerender(tag))
@@ -209,7 +209,7 @@ describe('moveAvatar function tests', () => {
     ecsState.simulationTimestep.set(1000 / 60)
 
     const network = NetworkState.worldNetwork as Network
-    NetworkPeerFunctions.createPeer(network, Engine.instance.peerID, 0, Engine.instance.userID, 0)
+    NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, Engine.instance.userID, 0)
 
     const { rerender, unmount } = render(tag)
     await act(() => rerender(tag))

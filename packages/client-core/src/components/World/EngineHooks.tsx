@@ -239,7 +239,7 @@ export const useNetwork = (props: { online?: boolean }) => {
     if (props.online) return
 
     const userID = Engine.instance.userID
-    const peerID = Engine.instance.peerID
+    const peerID = Engine.instance.store.peerID
     const userIndex = 1
     const peerIndex = 1
 

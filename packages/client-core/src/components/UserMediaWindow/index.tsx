@@ -152,7 +152,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const mediaNetwork = NetworkState.mediaNetwork
   const isSelf =
     !mediaNetwork ||
-    peerID === Engine.instance.peerID ||
+    peerID === Engine.instance.store.peerID ||
     (mediaNetwork?.peers &&
       Object.values(mediaNetwork.peers).find((peer) => peer.userId === selfUser.id)?.peerID === peerID) ||
     peerID === 'self'
