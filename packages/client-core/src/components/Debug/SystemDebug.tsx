@@ -53,7 +53,7 @@ const convertSystemExecutionTimeToColor = (systemDuration: number, targetTimeste
 }
 
 export const SystemDebug = () => {
-  useHookstate(getMutableState(ECSState).frameTime).value
+  const frameTime = useHookstate(getMutableState(ECSState).frameTime).value
   const performanceProfilingEnabled = useHookstate(getMutableState(SystemState).performanceProfilingEnabled)
   const { t } = useTranslation()
 
@@ -81,17 +81,20 @@ export const SystemDagView = (props: { uuid: SystemUUID }) => {
   useHookstate(getMutableState(ECSState).frameTime).value
   const performanceProfilingEnabled = useHookstate(getMutableState(SystemState).performanceProfilingEnabled)
 
+  const data = expandSystemToTree(SystemDefinitions.get(props.uuid)!)
+
   return (
     <JSONTree
-      data={expandSystemToTree(SystemDefinitions.get(props.uuid)!)}
+      data={data}
       labelRenderer={(raw, ...keyPath) => {
         const label = raw[0]
         if (label === 'preSystems' || label === 'subSystems' || label === 'postSystems')
           return <span style={{ color: 'green' }}>{t(`common:debug.${label}`)}</span>
+        if (label === 'uuid') return <span style={{ color: 'black' }}>{t(`common:debug.${label}`)}</span>
         return <span style={{ color: 'black' }}>{label}</span>
       }}
       valueRenderer={(raw, value, ...keyPath) => {
-        const system = SystemDefinitions.get(keyPath[0] as SystemUUID)!
+        const system = SystemDefinitions.get(value as SystemUUID)!
         const systemReactor = system ? getState(SystemState).activeSystemReactors.get(system.uuid) : undefined
         const targetTimestep = getState(ECSState).simulationTimestep / 2
 
@@ -99,8 +102,8 @@ export const SystemDagView = (props: { uuid: SystemUUID }) => {
           if (typeof system.systemDuration === 'number') {
             const color = convertSystemExecutionTimeToColor(system.systemDuration, targetTimestep)
             return (
-              <span key={' system duration'} style={{ color: color }}>
-                {` ${Math.round(system.systemDuration * 1000) / 1000} ms`}
+              <span key={system.uuid} style={{ color: color }}>
+                {`${Math.round(system.systemDuration * 1000) / 1000} ms`}
               </span>
             )
           }
@@ -125,6 +128,7 @@ export const SystemDagView = (props: { uuid: SystemUUID }) => {
 }
 
 type SystemTree = {
+  uuid: SystemUUID
   preSystems: Record<SystemUUID, SystemTree>
   subSystems: Record<SystemUUID, SystemTree>
   postSystems: Record<SystemUUID, SystemTree>
@@ -132,6 +136,7 @@ type SystemTree = {
 
 const expandSystemToTree = (system: System): SystemTree => {
   return {
+    uuid: system.uuid,
     preSystems: system.preSystems.reduce(
       (acc, uuid) => {
         acc[uuid] = expandSystemToTree(SystemDefinitions.get(uuid)!)
