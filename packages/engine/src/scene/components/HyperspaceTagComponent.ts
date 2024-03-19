@@ -184,10 +184,6 @@ export const HyperspaceTagComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const { transition, hyperspaceEffectEntity } = getComponent(entity, HyperspaceTagComponent)
-    const hyperspaceEffect = getComponent(hyperspaceEffectEntity, GroupComponent)[0] as any as PortalEffect
-    const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     const [galaxyTexture] = useTexture(
       `${config.client.fileServer}/projects/default-project/assets/galaxyTexture.jpg`,
       entity
@@ -237,8 +233,6 @@ export const HyperspaceTagComponent = defineComponent({
       const hyperspaceEffect = getComponent(hyperspaceEffectEntity, GroupComponent)[0] as any as PortalEffect
       hyperspaceEffect.texture = texture
     }, [galaxyTexture])
-
-    useEffect(() => {}, [])
 
     useExecute(
       () => {
