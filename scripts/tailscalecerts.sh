@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-if (( $EUID != 0 )); then
-    echo "Please run as root"
-    exit
-fi
 if (( "${PWD##*/}" != "etherealengine")); then
     echo "Please run in /etherealengine"
     exit
@@ -39,6 +35,10 @@ case "$(uname -s)" in
     instructions
      ;;
    Linux)
+    if (( $EUID != 0 )); then
+        echo "Please run as root"
+        exit
+    fi
     if ! command -v tailscale &> /dev/null
     then
         echo "tailscale could not be found"
