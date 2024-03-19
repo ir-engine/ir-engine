@@ -37,7 +37,7 @@ const TimerConfig = {
   MAX_DELTA_SECONDS: 1 / 10
 }
 
-const flattenSystems = (): System[] => {
+const sortSystemsByAvgDuration = (): System[] => {
   const systems = SystemDefinitions
   const sorted = [...systems.values()].sort((left: System, right: System) => {
     return parseFloat(right.avgSystemDuration.toPrecision(10)) - parseFloat(left.avgSystemDuration.toPrecision(10))
