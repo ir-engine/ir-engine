@@ -147,6 +147,10 @@ export const TransformGizmoControlComponent = defineComponent({
           onPointerLost(gizmoControlEntity)
           return
         }
+        if (!pickerButtons?.PrimaryClick && !planeButtons?.PrimaryClick) {
+          onPointerLost(gizmoControlEntity)
+          return
+        }
 
         if (!pickerButtons?.PrimaryClick?.touched && !planeButtons?.PrimaryClick?.touched) return
 
@@ -161,8 +165,8 @@ export const TransformGizmoControlComponent = defineComponent({
       const plane = new Mesh(
         new PlaneGeometry(100000, 100000, 2, 2),
         new MeshBasicMaterial({
-          visible: false,
-          wireframe: true,
+          visible: true,
+          wireframe: false,
           side: DoubleSide,
           transparent: true,
           opacity: 0.1,
