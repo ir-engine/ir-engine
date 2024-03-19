@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-import { useTranslation } from 'react-i18next'
 
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 
@@ -36,11 +35,9 @@ import { PopoverState } from '../../../common/services/PopoverState'
 import DataTable from '../../common/Table'
 import { resourceColumns } from '../../common/constants/resources'
 import AddEditResourceModal from './AddEditResourceModal'
-import DeleteResourceModal from './DeleteResourceModal'
+import DeleteResourceModal from './RemoveResourceModal'
 
 export default function ResourceTable({ search }: { search: string }) {
-  const { t } = useTranslation()
-
   const resourceQuery = useFind(staticResourcePath, {
     query: {
       action: 'admin',

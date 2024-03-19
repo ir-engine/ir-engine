@@ -148,67 +148,64 @@ export default function CreateResourceModal({
       className="w-[50vw]"
       onSubmit={handleSubmit}
     >
-      <Input
-        value={state.name.value}
-        label={t('admin:components.resources.resourceName')}
-        onChange={(e) => {
-          state.name.set(e.target.value)
-        }}
-        className="mb-4"
-      />
-      <Input
-        value={state.mimeType.value}
-        label={t('admin:components.resources.columns.mimeType')}
-        disabled
-        className="mb-4"
-      />
-      <Input
-        value={state.project.value}
-        label={t('admin:components.resources.columns.project')}
-        onChange={(e) => {
-          state.project.set(e.target.value)
-        }}
-        className="mb-4"
-      />
-      <Radio
-        value={state.source.value}
-        options={[
-          { label: 'URL', value: 'url' },
-          { label: 'File', value: 'file' }
-        ]}
-        horizontal
-        onChange={(value) => state.source.set(value)}
-        className="mb-4"
-      />
-      <Button fullWidth className="mb-4">
-        <label className="block w-full cursor-pointer">
-          {t('admin:components.resources.selectFile')}
-          <input
-            className="mb-4 hidden"
-            type="file"
-            onChange={(e) => {
-              e.preventDefault()
-              if (e.target.files) {
-                state.resourceFile.set(e.target.files[0])
-              }
-            }}
-          />
-        </label>
-      </Button>
-
-      {state.source.value === 'url' && (
+      <div className="grid w-full gap-4">
+        {error.value && <p className="mt-4 text-rose-800">{error.value}</p>}
         <Input
-          value={state.resourceURL.value}
+          value={state.name.value}
+          label={t('admin:components.resources.resourceName')}
           onChange={(e) => {
-            state.resourceURL.set(e.target.value)
+            state.name.set(e.target.value)
           }}
-          label="Resource URL"
-          className="mb-4"
+          disabled={modalProcessing.value}
         />
-      )}
+        <Input value={state.mimeType.value} label={t('admin:components.resources.columns.mimeType')} disabled />
+        <Input
+          value={state.project.value}
+          label={t('admin:components.resources.columns.project')}
+          onChange={(e) => {
+            state.project.set(e.target.value)
+          }}
+          disabled={modalProcessing.value}
+        />
+        <Radio
+          value={state.source.value}
+          options={[
+            { label: 'URL', value: 'url' },
+            { label: 'File', value: 'file' }
+          ]}
+          horizontal
+          onChange={(value) => state.source.set(value)}
+          disabled={modalProcessing.value}
+        />
+        <Button fullWidth className="mb-4" disabled={modalProcessing.value}>
+          <label className="block w-full cursor-pointer">
+            {t('admin:components.resources.selectFile')}
+            <input
+              className="mb-4 hidden"
+              type="file"
+              onChange={(e) => {
+                e.preventDefault()
+                if (e.target.files) {
+                  state.resourceFile.set(e.target.files[0])
+                }
+              }}
+            />
+          </label>
+        </Button>
 
-      <AssetsPreviewPanel ref={previewPanelRef} />
-      {error.value && <p className="mt-4 text-rose-800">{error.value}</p>}
+        {state.source.value === 'url' && (
+          <Input
+            value={state.resourceURL.value}
+            onChange={(e) => {
+              state.resourceURL.set(e.target.value)
+            }}
+            label={t('admin:components.resources.resourceUrl')}
+            disabled={modalProcessing.value}
+          />
+        )}
+
+        <AssetsPreviewPanel ref={previewPanelRef} />
+      </div>
     </Modal>
   )
 }

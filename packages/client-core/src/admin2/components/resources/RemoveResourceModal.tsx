@@ -49,8 +49,7 @@ export default function DeleteResourceModal({ resourceId, resourceKey }: { resou
           error.set(e.message)
         }
       }}
-      onClose={!modalProcessing.value ? () => PopoverState.hidePopupover() : undefined}
-      hideFooter={modalProcessing.value}
+      onClose={PopoverState.hidePopupover}
       submitLoading={modalProcessing.value}
     >
       <Text>{`${t('admin:components.resources.confirmResourceDelete')} '${resourceKey}'?`}</Text>
