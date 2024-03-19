@@ -220,6 +220,9 @@ export const HyperspaceTagComponent = defineComponent({
         ObjectDirection.Forward,
         new Vector3(0, 0, 1).applyQuaternion(cameraTransform.rotation).setY(0).normalize()
       )
+
+      getMutableComponent(entity, HyperspaceTagComponent).hyperspaceEffectEntity.set(hyperspaceEffectEntity)
+      getMutableComponent(entity, HyperspaceTagComponent).ambientLightEntity.set(ambientLightEntity)
     }, [])
 
     useEffect(() => {
@@ -239,6 +242,8 @@ export const HyperspaceTagComponent = defineComponent({
         if (!hasComponent(entity, HyperspaceTagComponent)) return
 
         const { transition, hyperspaceEffectEntity } = getComponent(entity, HyperspaceTagComponent)
+        if (!hyperspaceEffectEntity) return
+
         const hyperspaceEffect = getComponent(hyperspaceEffectEntity, GroupComponent)[0] as any as PortalEffect
         const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
         const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)

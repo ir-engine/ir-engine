@@ -157,6 +157,7 @@ const unprovisionInstance = (topic: Topic, instanceID: InstanceID) => {
 
 export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
   clearInterval(network.transport.heartbeat)
+  network.transport.primus?.removeAllListeners()
   network.transport.primus?.end()
   removeNetwork(network)
   /** Dispatch updatePeers locally to ensure event souce states know about this */
