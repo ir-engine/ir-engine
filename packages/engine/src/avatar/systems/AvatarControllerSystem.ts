@@ -115,9 +115,9 @@ export const AvatarPostTransformSystem = defineSystem({
   uuid: 'ee.engine.AvatarPostTransformSystem',
   insert: { after: TransformSystem },
   execute: () => {
-    const localClientEntity = AvatarComponent.getSelfAvatarEntity()
-    if (!localClientEntity) return
-    const localClientPosition = TransformComponent.getWorldPosition(localClientEntity, vec3)
+    const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+    if (!selfAvatarEntity) return
+    const localClientPosition = TransformComponent.getWorldPosition(selfAvatarEntity, vec3)
     if (localClientPosition) {
       for (const entity of distanceFromLocalClientQuery())
         DistanceFromLocalClientComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(

@@ -250,9 +250,9 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
       removeComponent(xrui.entity, VisibleComponent)
     }
   } else {
-    const localClientEntity = AvatarComponent.getSelfAvatarEntity()
-    if (localClientEntity) {
-      getAvatarBoneWorldPosition(localClientEntity, VRMHumanBoneName.Chest, vec3)
+    const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+    if (selfAvatarEntity) {
+      getAvatarBoneWorldPosition(selfAvatarEntity, VRMHumanBoneName.Chest, vec3)
       const distance = vec3.distanceToSquared(xruiTransform.position)
       const inRange = distance < getState(InteractState).maxDistance
       if (transition.state === 'OUT' && inRange) {
@@ -338,24 +338,24 @@ const ownedGrabbableQuery = defineQuery([GrabbableComponent, NetworkObjectAuthor
 const grabbableQuery = defineQuery([GrabbableComponent])
 
 const onDrop = () => {
-  const localClientEntity = AvatarComponent.getSelfAvatarEntity()
-  const grabber = getComponent(localClientEntity, GrabberComponent)
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+  const grabber = getComponent(selfAvatarEntity, GrabberComponent)
   const handedness = getState(InputState).preferredHand
   const grabbedEntity = grabber[handedness]!
   if (!grabbedEntity) return
-  dropEntity(localClientEntity)
+  dropEntity(selfAvatarEntity)
 }
 
 const onGrab = (targetEntity: Entity, handedness = getState(InputState).preferredHand) => {
-  const localClientEntity = AvatarComponent.getSelfAvatarEntity()
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
   if (!hasComponent(targetEntity, GrabbableComponent)) return
-  const grabber = getComponent(localClientEntity, GrabberComponent)
+  const grabber = getComponent(selfAvatarEntity, GrabberComponent)
   const grabbedEntity = grabber[handedness]!
   if (!grabbedEntity) return
   if (grabbedEntity) {
     onDrop()
   } else {
-    grabEntity(localClientEntity, targetEntity, handedness)
+    grabEntity(selfAvatarEntity, targetEntity, handedness)
   }
 }
 

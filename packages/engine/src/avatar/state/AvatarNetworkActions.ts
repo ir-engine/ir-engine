@@ -35,7 +35,8 @@ export class AvatarNetworkAction {
   static spawn = defineAction(
     SpawnObjectActions.spawnObject.extend({
       type: 'ee.engine.avatar.SPAWN',
-      avatarID: matches.string as Validator<unknown, AvatarID>
+      avatarID: matches.string as Validator<unknown, AvatarID>,
+      name: matches.string
     })
   )
 

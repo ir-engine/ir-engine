@@ -30,15 +30,15 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { moveAvatar, updateLocalAvatarRotation } from '../functions/moveAvatar'
 
 const execute = () => {
-  const localClientEntity = AvatarComponent.getSelfAvatarEntity()
-  if (!localClientEntity) return
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+  if (!selfAvatarEntity) return
 
   /**
    * 1 - Update local client movement
    */
-  moveAvatar(localClientEntity)
-  updateLocalAvatarRotation(localClientEntity)
-  computeTransformMatrix(localClientEntity)
+  moveAvatar(selfAvatarEntity)
+  updateLocalAvatarRotation(selfAvatarEntity)
+  computeTransformMatrix(selfAvatarEntity)
 }
 
 /**
