@@ -40,7 +40,6 @@ import { Entity, UndefinedEntity } from './Entity'
 import { removeEntity } from './EntityFunctions'
 import { removeQuery } from './QueryFunctions'
 import { SystemState } from './SystemState'
-import { Timer } from './Timer'
 
 export class Engine {
   static instance: Engine
@@ -70,8 +69,6 @@ export class Engine {
     })
   ) as HyperStore
 
-  engineTimer = null! as ReturnType<typeof Timer>
-
   /**
    * Reference to the three.js scene object.
    */
@@ -97,7 +94,7 @@ globalThis.Engine = Engine
 globalThis.Hyperflux = Hyperflux
 
 export async function destroyEngine() {
-  Engine.instance.engineTimer?.clear()
+  getState(ECSState).timer?.clear()
 
   if (Engine.instance.api) {
     if ((Engine.instance.api as any).server) await Engine.instance.api.teardown()

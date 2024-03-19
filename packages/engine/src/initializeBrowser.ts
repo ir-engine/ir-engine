@@ -27,6 +27,7 @@ import { BotUserAgent } from '@etherealengine/common/src/constants/BotUserAgent'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { WebLayerManager } from '@etherealengine/xrui'
 
+import { ECSState } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
@@ -64,6 +65,6 @@ export const initializeBrowser = () => {
   WebLayerManager.instance.ktx2Encoder.pool.setWorkerLimit(1)
 
   buildPerformanceState(EngineRenderer.instance, () => {
-    Engine.instance.engineTimer.start()
+    getState(ECSState).timer.start()
   })
 }
