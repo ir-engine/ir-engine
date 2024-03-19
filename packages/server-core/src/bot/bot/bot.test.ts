@@ -65,7 +65,7 @@ describe('bot.service', () => {
         name: 'test-bot-location-' + v1(),
         slugifiedName: '',
         sceneId: ('test-bot-scene-id-' + v1()) as SceneID,
-        maxUsersPerInstance: 30,
+        maxUsersPerInstance: 20,
         locationSetting: {
           id: '',
           locationType: 'public',

@@ -62,6 +62,7 @@ import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/Obj
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { useTexture } from '../../assets/functions/resourceHooks'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 
 export const PortalPreviewTypeSimple = 'Simple' as const
 export const PortalPreviewTypeSpherical = 'Spherical' as const
@@ -151,7 +152,8 @@ export const PortalComponent = defineComponent({
     const portalComponent = useComponent(entity, PortalComponent)
 
     useEffect(() => {
-      setCallback(entity, 'teleport', () => {
+      setCallback(entity, 'teleport', (triggerEntity: Entity, otherEntity: Entity) => {
+        if (otherEntity !== AvatarComponent.getSelfAvatarEntity()) return
         const now = Date.now()
         const { lastPortalTimeout, portalTimeoutDuration, activePortalEntity } = getState(PortalState)
         if (activePortalEntity || lastPortalTimeout + portalTimeoutDuration > now) return

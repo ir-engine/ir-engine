@@ -23,10 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import multiLogger from '@etherealengine/common/src/logger'
 import {
-  AvatarID,
   RecordingID,
   RecordingSchemaType,
   UserID,
@@ -43,14 +41,14 @@ import {
   SerializedChunk
 } from '@etherealengine/engine/src/recording/ECSSerializerSystem'
 import {
+  PeerID,
   Topic,
   defineAction,
   defineActionQueue,
   defineState,
   dispatchAction,
   getMutableState,
-  getState,
-  matchesUserId
+  getState
 } from '@etherealengine/hyperflux'
 import {
   DataChannelRegistryState,
@@ -62,6 +60,7 @@ import {
   SerializationSchema,
   WorldNetworkAction,
   addDataChannelHandler,
+  matchesUserID,
   removeDataChannelHandler,
   updatePeers,
   webcamAudioDataChannelType,
@@ -96,7 +95,7 @@ export class ECSRecordingActions {
   static startPlayback = defineAction({
     type: 'ee.core.motioncapture.PLAY_RECORDING' as const,
     recordingID: matches.string as Validator<unknown, RecordingID>,
-    targetUser: matchesUserId.optional(),
+    targetUser: matchesUserID.optional(),
     autoplay: matches.boolean
   })
 
@@ -636,16 +635,10 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
             if (!UUIDComponent.getEntityByUUID(entityID) && isClone) {
               dispatchAction(
                 AvatarNetworkAction.spawn({
-                  $from: entityID,
-                  entityUUID: entityID,
-                  avatarID: '' as AvatarID
-                })
-              )
-              dispatchAction(
-                AvatarNetworkAction.setAvatarID({
-                  $from: entityID,
+                  ownerID: entityID,
+                  entityUUID: (entityID + '_avatar') as EntityUUID,
                   avatarID: user.avatar.id!,
-                  entityUUID: entityID
+                  name: user.name + "'s Clone"
                 })
               )
               entitiesSpawned.push(entityID)
@@ -817,7 +810,7 @@ const execute = () => {
         const encodedData = encode(frame.data)
 
         /** PeerID must be the original peerID if server playback, otherwise it is our peerID */
-        const peerID = isClient ? Engine.instance.peerID : chunks.fromPeerID
+        const peerID = isClient ? Engine.instance.store.peerID : chunks.fromPeerID
         if (isClient) {
           const dataChannelFunctions = getState(DataChannelRegistryState)[dataChannel]
           if (dataChannelFunctions) {

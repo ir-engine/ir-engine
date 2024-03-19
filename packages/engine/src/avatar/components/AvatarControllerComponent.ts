@@ -26,14 +26,22 @@ Ethereal Engine. All Rights Reserved.
 import { KinematicCharacterController } from '@dimforge/rapier3d-compat'
 import { Vector3 } from 'three'
 
-import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { UUIDComponent } from '@etherealengine/ecs'
-import { defineComponent, getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { entityExists, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { matches } from '@etherealengine/hyperflux'
+import { getMutableState, matches, useHookstate } from '@etherealengine/hyperflux'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
+import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
+import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
 import { useEffect } from 'react'
 import { AvatarComponent } from './AvatarComponent'
 
@@ -91,16 +99,7 @@ export const AvatarControllerComponent = defineComponent({
     const entity = useEntityContext()
     const avatarComponent = useComponent(entity, AvatarComponent)
     const avatarControllerComponent = useComponent(entity, AvatarControllerComponent)
-    const uuidComponent = useComponent(entity, UUIDComponent)
-
-    useEffect(() => {
-      if ((uuidComponent.value as any as UserID) === Engine.instance.userID) {
-        Engine.instance.localClientEntity = entity
-        return () => {
-          Engine.instance.localClientEntity = UndefinedEntity
-        }
-      }
-    }, [])
+    const isCameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar)
 
     useEffect(() => {
       /** @todo fix this */
@@ -114,6 +113,28 @@ export const AvatarControllerComponent = defineComponent({
         cameraComponent.offset.set(0, avatarComponent.eyeHeight.value, 0)
       }
     }, [avatarComponent.avatarHeight])
+
+    useEffect(() => {
+      if (isCameraAttachedToAvatar.value) {
+        const controller = getComponent(entity, AvatarControllerComponent)
+        removeComponent(controller.cameraEntity, FollowCameraComponent)
+      } else {
+        const controller = getComponent(entity, AvatarControllerComponent)
+        const targetCameraRotation = getComponent(controller.cameraEntity, TargetCameraRotationComponent)
+        setComponent(controller.cameraEntity, FollowCameraComponent, {
+          targetEntity: entity,
+          phi: targetCameraRotation.phi,
+          theta: targetCameraRotation.theta
+        })
+      }
+    }, [isCameraAttachedToAvatar])
+
+    useEffect(() => {
+      getMutableState(PhysicsState).cameraAttachedRigidbodyEntity.set(entity)
+      return () => {
+        getMutableState(PhysicsState).cameraAttachedRigidbodyEntity.set(UndefinedEntity)
+      }
+    }, [])
 
     return null
   }

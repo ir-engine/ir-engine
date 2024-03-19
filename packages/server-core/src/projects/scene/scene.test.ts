@@ -25,9 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { sceneUploadPath } from '@etherealengine/common/src/schemas/projects/scene-upload.schema'
-import { SceneDataType, SceneJsonType, scenePath } from '@etherealengine/common/src/schemas/projects/scene.schema'
+import { SceneDataType, scenePath } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { SceneJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
 import assert from 'assert'
 import { v1 } from 'uuid'

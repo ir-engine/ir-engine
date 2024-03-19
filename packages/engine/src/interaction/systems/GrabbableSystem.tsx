@@ -74,6 +74,7 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { GrabbableComponent, GrabbedComponent, GrabberComponent } from '../components/GrabbableComponent'
@@ -183,7 +184,7 @@ const GrabbableReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
 export function transferAuthorityOfObjectReceptor(
   action: ReturnType<typeof WorldNetworkAction.transferAuthorityOfObject>
 ) {
-  if (action.newAuthority !== Engine.instance.peerID) return
+  if (action.newAuthority !== Engine.instance.store.peerID) return
   const grabbableEntity = UUIDComponent.getEntityByUUID(action.entityUUID)
   if (hasComponent(grabbableEntity, GrabbableComponent)) {
     const grabberUserId = NetworkState.worldNetwork.peers[action.newAuthority]?.userId
@@ -225,7 +226,8 @@ const vec3 = new Vector3()
 
 export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
   const xruiTransform = getComponent(xrui.entity, TransformComponent)
-  if (!xruiTransform || !hasComponent(Engine.instance.localClientEntity, TransformComponent)) return
+  if (!xruiTransform) return
+
   TransformComponent.getWorldPosition(entity, xruiTransform.position)
 
   if (hasComponent(xrui.entity, VisibleComponent)) {
@@ -248,15 +250,18 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
       removeComponent(xrui.entity, VisibleComponent)
     }
   } else {
-    getAvatarBoneWorldPosition(Engine.instance.localClientEntity, VRMHumanBoneName.Chest, vec3)
-    const distance = vec3.distanceToSquared(xruiTransform.position)
-    const inRange = distance < getState(InteractState).maxDistance
-    if (transition.state === 'OUT' && inRange) {
-      transition.setState('IN')
-      setComponent(xrui.entity, VisibleComponent)
-    }
-    if (transition.state === 'IN' && !inRange) {
-      transition.setState('OUT')
+    const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+    if (selfAvatarEntity) {
+      getAvatarBoneWorldPosition(selfAvatarEntity, VRMHumanBoneName.Chest, vec3)
+      const distance = vec3.distanceToSquared(xruiTransform.position)
+      const inRange = distance < getState(InteractState).maxDistance
+      if (transition.state === 'OUT' && inRange) {
+        transition.setState('IN')
+        setComponent(xrui.entity, VisibleComponent)
+      }
+      if (transition.state === 'IN' && !inRange) {
+        transition.setState('OUT')
+      }
     }
   }
   const deltaSeconds = getState(ECSState).deltaSeconds
@@ -275,7 +280,7 @@ export const grabEntity = (grabberEntity: Entity, grabbedEntity: Entity, attachm
   // todo, do we ever need to handle this in offline contexts?
   if (!NetworkState.worldNetwork) return console.warn('[GrabbableSystem] no world network found')
   const networkComponent = getComponent(grabbedEntity, NetworkObjectComponent)
-  if (networkComponent.authorityPeerID === Engine.instance.peerID) {
+  if (networkComponent.authorityPeerID === Engine.instance.store.peerID) {
     dispatchAction(
       GrabbableNetworkAction.setGrabbedObject({
         entityUUID: getComponent(grabbedEntity, UUIDComponent),
@@ -288,7 +293,7 @@ export const grabEntity = (grabberEntity: Entity, grabbedEntity: Entity, attachm
     dispatchAction(
       WorldNetworkAction.requestAuthorityOverObject({
         entityUUID: getComponent(grabbedEntity, UUIDComponent),
-        newAuthority: Engine.instance.peerID,
+        newAuthority: Engine.instance.store.peerID,
         $to: networkComponent.ownerPeer
       })
     )
@@ -302,7 +307,7 @@ export const dropEntity = (grabberEntity: Entity): void => {
   const grabbedEntity = grabberComponent[handedness]!
   if (!grabbedEntity) return
   const networkComponent = getComponent(grabbedEntity, NetworkObjectComponent)
-  if (networkComponent.authorityPeerID === Engine.instance.peerID) {
+  if (networkComponent.authorityPeerID === Engine.instance.store.peerID) {
     dispatchAction(
       GrabbableNetworkAction.setGrabbedObject({
         entityUUID: getComponent(grabbedEntity, UUIDComponent),
@@ -313,6 +318,7 @@ export const dropEntity = (grabberEntity: Entity): void => {
   } else {
     dispatchAction(
       WorldNetworkAction.transferAuthorityOfObject({
+        ownerID: Engine.instance.userID,
         entityUUID: getComponent(grabbedEntity, UUIDComponent),
         newAuthority: networkComponent.authorityPeerID
       })
@@ -332,22 +338,24 @@ const ownedGrabbableQuery = defineQuery([GrabbableComponent, NetworkObjectAuthor
 const grabbableQuery = defineQuery([GrabbableComponent])
 
 const onDrop = () => {
-  const grabber = getComponent(Engine.instance.localClientEntity, GrabberComponent)
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+  const grabber = getComponent(selfAvatarEntity, GrabberComponent)
   const handedness = getState(InputState).preferredHand
   const grabbedEntity = grabber[handedness]!
   if (!grabbedEntity) return
-  dropEntity(Engine.instance.localClientEntity)
+  dropEntity(selfAvatarEntity)
 }
 
 const onGrab = (targetEntity: Entity, handedness = getState(InputState).preferredHand) => {
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
   if (!hasComponent(targetEntity, GrabbableComponent)) return
-  const grabber = getComponent(Engine.instance.localClientEntity, GrabberComponent)
+  const grabber = getComponent(selfAvatarEntity, GrabberComponent)
   const grabbedEntity = grabber[handedness]!
   if (!grabbedEntity) return
   if (grabbedEntity) {
     onDrop()
   } else {
-    grabEntity(Engine.instance.localClientEntity, targetEntity, handedness)
+    grabEntity(selfAvatarEntity, targetEntity, handedness)
   }
 }
 

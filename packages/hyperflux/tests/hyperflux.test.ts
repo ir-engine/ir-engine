@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
-import { UserID } from '@etherealengine/common/src/schema.type.module'
-
+import { PeerID } from '@etherealengine/hyperflux'
 import matches from 'ts-matches'
 import {
   applyIncomingActions,
@@ -115,7 +114,6 @@ describe('Hyperflux Unit Tests', () => {
 
   it('should be able to dispatch an action to a local store', () => {
     const store = createHyperStore({
-      getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
@@ -125,7 +123,6 @@ describe('Hyperflux Unit Tests', () => {
     dispatchAction(greet({}))
     assert.equal(store.actions.incoming.length, 1)
     assert(greet.matches.test(store.actions.incoming[0]))
-    assert(store.actions.incoming[0].$from == 'id')
     assert(store.actions.incoming[0].$to == 'all')
     assert(store.actions.incoming[0].$time <= Date.now())
     assert(store.actions.incoming[0].$cache === false)
@@ -140,7 +137,6 @@ describe('Hyperflux Unit Tests', () => {
 
   it('should be able to dispatch an action to a peer store', () => {
     const store = createHyperStore({
-      getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
@@ -163,7 +159,6 @@ describe('Hyperflux Unit Tests', () => {
 
   it('should be able to dispatch an action to a host store', () => {
     const store = createHyperStore({
-      getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
@@ -173,7 +168,6 @@ describe('Hyperflux Unit Tests', () => {
     dispatchAction(greet({}))
     assert(greet.matches.test(store.actions.incoming[0]))
     assert.equal(store.actions.incoming.length, 1)
-    assert(store.actions.incoming[0].$from == 'id')
     assert(store.actions.incoming[0].$to == 'all')
     assert(store.actions.incoming[0].$time <= Date.now())
     assert(store.actions.incoming[0].$cache === false)
@@ -187,7 +181,6 @@ describe('Hyperflux Unit Tests', () => {
 
   it('should add incoming actions to cache as indicated', () => {
     const store = createHyperStore({
-      getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
@@ -227,7 +220,7 @@ describe('Hyperflux Unit Tests', () => {
     assert.equal(store.actions.cached.length, 4)
     assert.equal(store.actions.history.at(-1)!['greeting'], 'welcome')
 
-    dispatchAction(greet({ $from: 'differentUser' as UserID, $cache: { removePrevious: true } }))
+    dispatchAction(greet({ $peer: 'differentPeer' as PeerID, $cache: { removePrevious: true } }))
     applyIncomingActions()
     assert.equal(store.actions.history.length, 12)
     assert.equal(store.actions.cached.length, 5)
@@ -237,7 +230,7 @@ describe('Hyperflux Unit Tests', () => {
     assert.equal(store.actions.history.length, 13)
     assert.equal(store.actions.cached.length, 1)
 
-    dispatchAction(greet({ $from: 'differentUser' as UserID, $cache: { removePrevious: true, disable: true } }))
+    dispatchAction(greet({ $peer: 'differentPeer' as PeerID, $cache: { removePrevious: true, disable: true } }))
     applyIncomingActions()
     assert.equal(store.actions.history.length, 14)
     assert.equal(store.actions.cached.length, 0)
@@ -245,7 +238,6 @@ describe('Hyperflux Unit Tests', () => {
 
   it('should be able to apply incoming actions to receptors in a peer store', () => {
     const store = createHyperStore({
-      getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
@@ -261,7 +253,6 @@ describe('Hyperflux Unit Tests', () => {
 
   it('should be able to apply multiple actions at once to a peer store', () => {
     const store = createHyperStore({
-      getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
@@ -289,7 +280,6 @@ describe('Hyperflux Unit Tests', () => {
 
   it('should be able to apply multiple actions at once to a host store', () => {
     const store = createHyperStore({
-      getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
     const greet = defineAction({
@@ -344,7 +334,6 @@ describe('Hyperflux Unit Tests', () => {
       })
     })
     const store = createHyperStore({
-      getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
     getState(HospitalityState)
@@ -363,7 +352,6 @@ describe('Hyperflux Unit Tests', () => {
       }
     })
     const store = createHyperStore({
-      getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
     const hospitality = getMutableState(HospitalityState).value
@@ -379,7 +367,6 @@ describe('Hyperflux Unit Tests', () => {
       })
     })
     const store = createHyperStore({
-      getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
     const hospitality = getMutableState(HospitalityState).value
@@ -397,7 +384,6 @@ describe('Hyperflux Unit Tests', () => {
     })
 
     const store = createHyperStore({
-      getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
 
@@ -418,7 +404,6 @@ describe('Hyperflux Unit Tests', () => {
       greeting: matchesWithDefault(matches.string, () => 'bye')
     })
     const store = createHyperStore({
-      getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
     const queue = defineActionQueue([greet.matches, goodbye.matches])
@@ -447,7 +432,6 @@ describe('Hyperflux Unit Tests', () => {
       greeting: matchesWithDefault(matches.string, () => 'bye')
     })
     const store = createHyperStore({
-      getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
 
@@ -483,7 +467,6 @@ describe('Hyperflux Unit Tests', () => {
       greeting: matchesWithDefault(matches.string, () => 'bye')
     })
     const store = createHyperStore({
-      getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
 
@@ -518,7 +501,6 @@ describe('Hyperflux Unit Tests', () => {
       greeting: matchesWithDefault(matches.string, () => 'bye')
     })
     const store = createHyperStore({
-      getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
 
@@ -585,7 +567,6 @@ describe('Hyperflux Unit Tests', () => {
     })
 
     const store = createHyperStore({
-      getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
 

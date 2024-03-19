@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneDataType, SceneID, SceneJsonType, UserID } from '@etherealengine/common/src/schema.type.module'
+import { SceneDataType, SceneID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
@@ -39,6 +39,7 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import assert from 'assert'
 
 import { SceneLoadingSystem } from '@etherealengine/engine'
+import { SceneJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { act, render } from '@testing-library/react'
 import React from 'react'

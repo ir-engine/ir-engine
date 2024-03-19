@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { State } from '@hookstate/core'
 import { v4 as uuidv4 } from 'uuid'
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { PeerID } from '@etherealengine/hyperflux'
 import { ActionQueueHandle, ActionQueueInstance, ResolvedActionType, Topic } from './ActionFunctions'
 import { ReactorReconciler, ReactorRoot } from './ReactorFunctions'
 
@@ -40,11 +40,6 @@ export interface HyperStore {
    *  Topics that should forward their incoming actions to the outgoing queue.
    */
   forwardingTopics: Set<Topic>
-  /**
-   * A function which returns the dispatch id assigned to actions
-   * @deprecated can be derived from agentId via mapping
-   * */
-  getDispatchId: () => string
   /**
    * The agent id
    */
@@ -104,7 +99,6 @@ export class HyperFlux {
 }
 
 export function createHyperStore(options: {
-  getDispatchId: () => string
   getDispatchTime: () => number
   defaultDispatchDelay?: () => number
   getCurrentReactorRoot?: () => ReactorRoot | undefined
@@ -112,7 +106,6 @@ export function createHyperStore(options: {
   const store: HyperStore = {
     defaultTopic: 'default' as Topic,
     forwardingTopics: new Set<Topic>(),
-    getDispatchId: options.getDispatchId,
     getDispatchTime: options.getDispatchTime,
     defaultDispatchDelay: options.defaultDispatchDelay ?? (() => 0),
     getCurrentReactorRoot: options.getCurrentReactorRoot ?? (() => undefined),

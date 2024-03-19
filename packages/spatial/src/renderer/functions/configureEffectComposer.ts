@@ -33,7 +33,6 @@ import {
   OutlineEffect,
   RenderPass,
   SMAAEffect,
-  SMAAPreset,
   TextureEffect
 } from 'postprocessing'
 import { VelocityDepthNormalPass } from 'realism-effects'
@@ -50,7 +49,12 @@ import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { HighlightState } from '../HighlightState'
 import { RendererState } from '../RendererState'
-import { EffectComposerWithSchema, EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
+import {
+  EffectComposerWithSchema,
+  EngineRenderer,
+  PostProcessingSettingsState,
+  RenderSettingsState
+} from '../WebGLRendererSystem'
 import { EffectMap, EffectPropsSchema, Effects } from '../effects/PostProcessing'
 import { SDFSettingsState } from '../effects/sdf/SDFSettingsState'
 import { SDFShader } from '../effects/sdf/SDFShader'
@@ -84,8 +88,9 @@ export const configureEffectComposer = (
 
   const effects: any[] = []
 
+  const smaaPreset = getState(RenderSettingsState).smaaPreset
   const smaaEffect = new SMAAEffect({
-    preset: SMAAPreset.HIGH,
+    preset: smaaPreset,
     edgeDetectionMode: EdgeDetectionMode.COLOR
   })
   composer.SMAAEffect = smaaEffect

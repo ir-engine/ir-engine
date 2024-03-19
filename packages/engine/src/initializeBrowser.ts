@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BotUserAgent } from '@etherealengine/common/src/constants/BotUserAgent'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 import { WebLayerManager } from '@etherealengine/xrui'
 
+import { ECSState } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { buildPerformanceState } from '@etherealengine/spatial/src/renderer/PerformanceState'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
@@ -49,8 +49,7 @@ export const initializeBrowser = () => {
   camera.layers.enable(ObjectLayers.Avatar)
   camera.layers.enable(ObjectLayers.UI)
   camera.layers.enable(ObjectLayers.TransformGizmo)
-
-  getMutableState(EngineState).isBot.set(navigator.userAgent === BotUserAgent)
+  camera.layers.enable(ObjectLayers.UVOL)
 
   const renderer = EngineRenderer.instance.renderer
   if (!renderer) throw new Error('EngineRenderer.instance.renderer does not exist!')
@@ -61,5 +60,7 @@ export const initializeBrowser = () => {
   WebLayerManager.initialize(renderer, gltfLoader.ktx2Loader!)
   WebLayerManager.instance.ktx2Encoder.pool.setWorkerLimit(1)
 
-  Engine.instance.engineTimer.start()
+  buildPerformanceState(EngineRenderer.instance, () => {
+    getState(ECSState).timer.start()
+  })
 }

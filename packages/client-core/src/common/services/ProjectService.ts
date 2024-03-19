@@ -61,7 +61,7 @@ export const ProjectState = defineState({
   initial: () => ({
     projects: [] as Array<ProjectType>,
     updateNeeded: true,
-    rebuilding: true,
+    rebuilding: false,
     succeeded: false,
     failed: false,
     builderTags: [] as Array<ProjectBuilderTagsType>,
@@ -158,8 +158,7 @@ export const ProjectService = {
   setRepositoryPath: async (id: string, url: string) => {
     try {
       await Engine.instance.api.service(projectPath).patch(id, {
-        repositoryPath: url,
-        needsRebuild: true
+        repositoryPath: url
       })
     } catch (err) {
       logger.error(err, 'Error setting project repository path')
@@ -243,7 +242,7 @@ export const ProjectService = {
     try {
       const projectCommits = await Engine.instance.api.service(projectCommitsPath).get(url, {
         query: {
-          branchName: branchName
+          sourceBranch: branchName
         }
       })
 

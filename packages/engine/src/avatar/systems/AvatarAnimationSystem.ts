@@ -28,8 +28,6 @@ import {
   ECSState,
   Engine,
   Entity,
-  EntityUUID,
-  UUIDComponent,
   defineQuery,
   defineSystem,
   getComponent,
@@ -46,7 +44,7 @@ import {
   useHookstate,
   useMutableState
 } from '@etherealengine/hyperflux'
-import { NetworkState } from '@etherealengine/network'
+import { NetworkObjectComponent, NetworkState } from '@etherealengine/network'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import {
   createPriorityQueue,
@@ -115,6 +113,8 @@ const execute = () => {
   const { priorityQueue, sortedTransformEntities, visualizers } = getState(AvatarAnimationState)
   const { elapsedSeconds, deltaSeconds } = getState(ECSState)
 
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+
   /** Calculate avatar locomotion animations outside of priority queue */
 
   for (const entity of avatarComponentQuery()) {
@@ -147,7 +147,7 @@ const execute = () => {
   const avatarAnimationEntities: Entity[] = []
   for (let i = 0; i < avatarAnimationQueryArr.length; i++) {
     const _entity = avatarAnimationQueryArr[i]
-    if (priorityQueue.priorityEntities.has(_entity) || _entity === Engine.instance.localClientEntity) {
+    if (priorityQueue.priorityEntities.has(_entity) || _entity === selfAvatarEntity) {
       avatarAnimationEntities.push(_entity)
     }
   }
@@ -165,24 +165,24 @@ const execute = () => {
 
     if (!rawRig?.hips?.node) continue
 
-    const uuid = getComponent(entity, UUIDComponent)
-    const leftFoot = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftFoot) as EntityUUID)
+    const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
+    const leftFoot = AvatarIKTargetComponent.getTargetEntity(ownerID, ikTargets.leftFoot)
     const leftFootTransform = getOptionalComponent(leftFoot, TransformComponent)
     const leftFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[leftFoot]
 
-    const rightFoot = UUIDComponent.getEntityByUUID((uuid + ikTargets.rightFoot) as EntityUUID)
+    const rightFoot = AvatarIKTargetComponent.getTargetEntity(ownerID, ikTargets.rightFoot)
     const rightFootTransform = getOptionalComponent(rightFoot, TransformComponent)
     const rightFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[rightFoot]
 
-    const leftHand = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftHand) as EntityUUID)
+    const leftHand = AvatarIKTargetComponent.getTargetEntity(ownerID, ikTargets.leftHand)
     const leftHandTransform = getOptionalComponent(leftHand, TransformComponent)
     const leftHandTargetBlendWeight = AvatarIKTargetComponent.blendWeight[leftHand]
 
-    const rightHand = UUIDComponent.getEntityByUUID((uuid + ikTargets.rightHand) as EntityUUID)
+    const rightHand = AvatarIKTargetComponent.getTargetEntity(ownerID, ikTargets.rightHand)
     const rightHandTransform = getOptionalComponent(rightHand, TransformComponent)
     const rightHandTargetBlendWeight = AvatarIKTargetComponent.blendWeight[rightHand]
 
-    const head = UUIDComponent.getEntityByUUID((uuid + ikTargets.head) as EntityUUID)
+    const head = AvatarIKTargetComponent.getTargetEntity(ownerID, ikTargets.head)
     const headTargetBlendWeight = AvatarIKTargetComponent.blendWeight[head]
 
     const transform = getComponent(entity, TransformComponent)
@@ -331,19 +331,24 @@ const execute = () => {
   }
 
   //update local client entity's dithering component and camera attached logic
-  const localClientEntity = Engine.instance.localClientEntity
-  if (!localClientEntity) return
-  const ditheringComponent = getOptionalMutableComponent(localClientEntity, TransparencyDitheringComponent)
+  if (!selfAvatarEntity) return
+  const ditheringComponent = getOptionalMutableComponent(selfAvatarEntity, TransparencyDitheringComponent)
   if (!ditheringComponent) return
   const cameraAttached = getState(XRControlsState).isCameraAttachedToAvatar
-  if (cameraAttached) ditheringCenter.set(0, getComponent(localClientEntity, AvatarComponent).eyeHeight, 0)
-  else ditheringCenter.copy(getComponent(Engine.instance.cameraEntity, TransformComponent).position)
-  ditheringComponent.useWorldSpace.set(!cameraAttached)
-  ditheringComponent.center.set(ditheringCenter)
-  ditheringComponent.ditheringDistance.set(cameraAttached ? 0.3 : 0.45)
+
+  ditheringComponent.useWorldCenter.set(!cameraAttached)
+  ditheringComponent.worldCenter.set(getComponent(Engine.instance.cameraEntity, TransformComponent).position)
+  const avatarComponent = getComponent(selfAvatarEntity, AvatarComponent)
+  ditheringComponent.localCenter.set(
+    ditheringCenter.set(0, cameraAttached ? avatarComponent.avatarHeight : avatarComponent.eyeHeight, 0)
+  )
   const cameraComponent = getOptionalComponent(Engine.instance.cameraEntity, FollowCameraComponent)
+  ditheringComponent.ditheringLocalDistance.set(
+    cameraComponent && !cameraAttached ? Math.max(Math.pow(cameraComponent.distance * 5, 2.5), 3) : 3.25
+  )
+  ditheringComponent.ditheringLocalExponent.set(cameraAttached ? 12 : 8)
   if (!cameraComponent) return
-  const hasDecapComponent = hasComponent(localClientEntity, AvatarHeadDecapComponent)
+  const hasDecapComponent = hasComponent(selfAvatarEntity, AvatarHeadDecapComponent)
   if (hasDecapComponent) cameraComponent.offset.setZ(Math.min(cameraComponent.offset.z + deltaSeconds, eyeOffset))
   else cameraComponent.offset.setZ(Math.max(cameraComponent.offset.z - deltaSeconds, 0))
 }
@@ -396,24 +401,15 @@ const reactor = () => {
     }
   }, [])
 
-  const xrState = getMutableState(XRState)
-  const session = useHookstate(xrState.session)
-  const isCameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar)
   const userReady = useHookstate(getMutableState(LocalAvatarState).avatarReady)
 
   useEffect(() => {
-    if (!session.value) return
-
-    const entity = Engine.instance.localClientEntity
-    if (!entity) return
-  }, [isCameraAttachedToAvatar, session])
-
-  useEffect(() => {
-    if (!Engine.instance.localClientEntity) {
+    const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+    if (!selfAvatarEntity) {
       XRState.setTrackingSpace()
       return
     }
-    const eyeHeight = getComponent(Engine.instance.localClientEntity, AvatarComponent).eyeHeight
+    const eyeHeight = getComponent(selfAvatarEntity, AvatarComponent).eyeHeight
     getMutableState(XRState).userEyeHeight.set(eyeHeight)
     XRState.setTrackingSpace()
   }, [userReady])
