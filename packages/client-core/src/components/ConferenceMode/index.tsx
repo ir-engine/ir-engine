@@ -85,11 +85,15 @@ const ConferenceMode = (): JSX.Element => {
       {(isScreenVideoEnabled || isScreenAudioEnabled) && (
         <ConferenceModeParticipant
           type={'screen'}
-          peerID={Engine.instance.peerID}
-          key={'screen_' + Engine.instance.peerID}
+          peerID={Engine.instance.store.peerID}
+          key={'screen_' + Engine.instance.store.peerID}
         />
       )}
-      <ConferenceModeParticipant type={'cam'} peerID={Engine.instance.peerID} key={'cam_' + Engine.instance.peerID} />
+      <ConferenceModeParticipant
+        type={'cam'}
+        peerID={Engine.instance.store.peerID}
+        key={'cam_' + Engine.instance.store.peerID}
+      />
       {Object.values(consumers.value).map((consumer) => {
         const peerID = consumer.peerID
         const type = consumer.mediaTag === screenshareVideoDataChannelType ? 'screen' : 'cam'

@@ -49,7 +49,6 @@ import {
   handleProduceData,
   handleRequestConsumer,
   handleRequestProducer,
-  handleWebRtcTransportClose,
   handleWebRtcTransportConnect,
   handleWebRtcTransportCreate
 } from './WebRTCFunctions'
@@ -97,9 +96,6 @@ const execute = () => {
   }
   for (const action of requestTransportConnectActionQueue()) {
     handleWebRtcTransportConnect(action)
-  }
-  for (const action of transportCloseActionQueue()) {
-    handleWebRtcTransportClose(action)
   }
 }
 

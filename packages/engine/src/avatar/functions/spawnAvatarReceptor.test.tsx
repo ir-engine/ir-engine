@@ -87,7 +87,7 @@ describe('spawnAvatarReceptor', () => {
 
   it('check the create avatar function', async () => {
     const network = NetworkState.worldNetwork as Network
-    NetworkPeerFunctions.createPeer(network, Engine.instance.peerID, 0, Engine.instance.userID, 0)
+    NetworkPeerFunctions.createPeer(network, Engine.instance.store.peerID, 0, Engine.instance.userID, 0)
 
     const { rerender, unmount } = render(tag)
     await act(() => rerender(tag))
@@ -98,7 +98,8 @@ describe('spawnAvatarReceptor', () => {
         position: new Vector3(),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,
-        avatarID: '' as AvatarID
+        avatarID: '' as AvatarID,
+        name: ''
       })
     )
 
