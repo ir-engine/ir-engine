@@ -114,7 +114,7 @@ export function executeSystem(systemUUID: SystemUUID) {
   const endTime = nowMilliseconds()
   const systemDuration = endTime - startTime
   system.systemDuration = systemDuration
-  system.avgSystemDuration = (systemDuration + system.avgSystemDuration) / 2
+  if (system.systemDuration != 0) system.avgSystemDuration = (systemDuration + system.avgSystemDuration) * 0.5
   if (getState(SystemState).performanceProfilingEnabled) {
     if (systemDuration > 50 && (lastWarningTime.get(systemUUID) ?? 0) < endTime - warningCooldownDuration) {
       lastWarningTime.set(systemUUID, endTime)

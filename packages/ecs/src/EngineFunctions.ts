@@ -29,12 +29,21 @@ import logger from '@etherealengine/common/src/logger'
 import { HyperFlux, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { ECSState } from './ECSState'
-import { SystemUUID, executeSystem } from './SystemFunctions'
+import { System, SystemDefinitions, SystemUUID, executeSystem } from './SystemFunctions'
 import { AnimationSystemGroup, InputSystemGroup, PresentationSystemGroup, SimulationSystemGroup } from './SystemGroups'
 import { nowMilliseconds } from './Timer'
 
 const TimerConfig = {
   MAX_DELTA_SECONDS: 1 / 10
+}
+
+const flattenSystems = (): System[] => {
+  const systems = SystemDefinitions
+  const sorted = [...systems.values()].sort((left: System, right: System) => {
+    return parseFloat(right.avgSystemDuration.toPrecision(10)) - parseFloat(left.avgSystemDuration.toPrecision(10))
+  })
+
+  return sorted
 }
 
 /**
