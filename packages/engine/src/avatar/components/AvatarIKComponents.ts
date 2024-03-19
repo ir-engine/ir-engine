@@ -26,13 +26,15 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { AxesHelper, Quaternion, Vector3 } from 'three'
 
+import { UserID } from '@etherealengine/common/src/schema.type.module'
+import { UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
   getOptionalComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { NetworkObjectComponent } from '@etherealengine/network'
@@ -44,6 +46,7 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { Types } from 'bitecs'
+import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
 
 export const AvatarHeadDecapComponent = defineComponent({
@@ -76,6 +79,10 @@ export const AvatarIKTargetComponent = defineComponent({
     }, [debugEnabled])
 
     return null
+  },
+
+  getTargetEntity: (ownerID: UserID, targetName: (typeof ikTargets)[keyof typeof ikTargets]) => {
+    return UUIDComponent.getEntityByUUID((ownerID + targetName) as EntityUUID)
   }
 })
 

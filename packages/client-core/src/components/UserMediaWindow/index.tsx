@@ -93,7 +93,7 @@ const useDrawMocapLandmarks = (
       const networkState = getState(NetworkState)
       if (networkState.hostIds.world) {
         const network = networkState.networks[networkState.hostIds.world]
-        if (network.peers[peerID]) {
+        if (network?.peers?.[peerID]) {
           const userID = network.peers[peerID].userId
           const peers = network.users[userID]
           for (const peer of peers) {
@@ -158,7 +158,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const mediaNetwork = NetworkState.mediaNetwork
   const isSelf =
     !mediaNetwork ||
-    peerID === Engine.instance.peerID ||
+    peerID === Engine.instance.store.peerID ||
     (mediaNetwork?.peers &&
       Object.values(mediaNetwork.peers).find((peer) => peer.userId === selfUser.id)?.peerID === peerID) ||
     peerID === 'self'

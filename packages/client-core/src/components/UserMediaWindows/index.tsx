@@ -59,7 +59,7 @@ export const useMediaWindows = () => {
     { cam: PeerMediaStreamInterface; screen: PeerMediaStreamInterface }
   ][]
 
-  const selfPeerID = Engine.instance.peerID
+  const selfPeerID = Engine.instance.store.peerID
   const selfUserID = Engine.instance.userID
 
   const camActive = (cam: PeerMediaStreamInterface) =>
@@ -114,7 +114,7 @@ export const useMediaWindows = () => {
 
   return windows.filter(
     ({ peerID }) =>
-      peerID === Engine.instance.peerID ||
+      peerID === Engine.instance.store.peerID ||
       mediaNetwork?.peers[peerID].userId === Engine.instance.userID ||
       nearbyPeers.includes(peerID)
   )
@@ -168,7 +168,7 @@ export const UserMediaWindowsWidget = () => {
 
   windows.push(...screens, ...cams)
 
-  const selfPeerID = Engine.instance.peerID
+  const selfPeerID = Engine.instance.store.peerID
   const selfUserID = Engine.instance.userID
   const mediaNetwork = NetworkState.mediaNetwork
 

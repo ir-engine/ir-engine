@@ -42,6 +42,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { AvatarID, avatarPath } from '@etherealengine/common/src/schema.type.module'
+import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { AvatarState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { LocalAvatarState } from '@etherealengine/engine/src/avatar/state/AvatarState'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -81,10 +82,10 @@ const AvatarMenu = () => {
 
   const handleConfirmAvatar = () => {
     if (userAvatarId.value !== selectedAvatarId.value) {
-      const localClientEntity = Engine.instance.localClientEntity
-      if (!localClientEntity || !hasComponent(localClientEntity, SpawnEffectComponent)) {
+      const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+      if (!selfAvatarEntity || !hasComponent(selfAvatarEntity, SpawnEffectComponent)) {
         AvatarState.updateUserAvatarId(selectedAvatarId.value)
-        if (localClientEntity) avatarLoading.set(true)
+        if (selfAvatarEntity) avatarLoading.set(true)
         else PopupMenuServices.showPopupMenu()
       }
     }

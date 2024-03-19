@@ -26,14 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import { Quaternion, Vector3 } from 'three'
 
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { V_000 } from '../common/constants/MathConstants'
 import { isSafari } from '../common/functions/isMobile'
-import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
-import { setVisibleComponent } from '../renderer/components/VisibleComponent'
+import { PhysicsState } from '../physics/state/PhysicsState'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin } from '../transform/updateWorldOrigin'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
@@ -52,7 +51,6 @@ export const onSessionEnd = () => {
   getMutableState(XRState).xrFrame.set(null)
 
   EngineRenderer.instance.renderer.domElement.style.display = ''
-  setVisibleComponent(Engine.instance.localClientEntity, true)
 
   const worldOriginTransform = getComponent(Engine.instance.originEntity, TransformComponent)
   worldOriginTransform.position.copy(V_000)
@@ -140,14 +138,12 @@ export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' |
 
 export const getReferenceSpaces = (xrSession: XRSession) => {
   const worldOriginTransform = getComponent(Engine.instance.originEntity, TransformComponent)
-  const localClientEntity = Engine.instance.localClientEntity
-  const rigidBody = localClientEntity
-    ? getComponent(localClientEntity, RigidBodyComponent)
-    : getComponent(Engine.instance.cameraEntity, TransformComponent)
+  const cameraAttachedEntity = getState(PhysicsState).cameraAttachedRigidbodyEntity ?? Engine.instance.cameraEntity
+  const transform = getComponent(cameraAttachedEntity, TransformComponent)
 
   /** since the world origin is based on gamepad movement, we need to transform it by the pose of the avatar */
-  worldOriginTransform.position.copy(rigidBody.position)
-  worldOriginTransform.rotation.copy(rigidBody.rotation).multiply(quat180y)
+  worldOriginTransform.position.copy(transform.position)
+  worldOriginTransform.rotation.copy(transform.rotation).multiply(quat180y)
 
   const onLocalFloorReset = (ev: XRReferenceSpaceEvent) => {
     /** @todo ev.transform is not yet implemented on the Quest browser */
