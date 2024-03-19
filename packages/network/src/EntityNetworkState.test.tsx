@@ -84,11 +84,11 @@ describe('EntityNetworkState', () => {
 
       dispatchAction(
         WorldNetworkAction.spawnEntity({
-          ownerID: NetworkState.worldNetwork.hostId, // from  host
+          ownerID: network.hostUserID, // from  host
           networkId: objNetId,
           $topic: NetworkTopics.world,
-          $peer: Engine.instance.peerID,
-          entityUUID: Engine.instance.peerID as any as EntityUUID
+          $peer: Engine.instance.store.peerID,
+          entityUUID: (Engine.instance.userID + '_entity') as any as EntityUUID
         })
       )
 
@@ -132,8 +132,8 @@ describe('EntityNetworkState', () => {
         WorldNetworkAction.spawnEntity({
           ownerID: userId, // from  user
           networkId: objNetId,
-          $peer: Engine.instance.peerID,
-          entityUUID: Engine.instance.peerID as any as EntityUUID
+          $peer: Engine.instance.store.peerID,
+          entityUUID: Engine.instance.store.peerID as any as EntityUUID
         })
       )
 
@@ -329,8 +329,8 @@ describe('EntityNetworkState', () => {
         ownerID: hostUserId, // from  host
         networkId: objNetId,
         $topic: NetworkTopics.world,
-        $peer: Engine.instance.peerID,
-        entityUUID: Engine.instance.peerID as any as EntityUUID
+        $peer: Engine.instance.store.peerID,
+        entityUUID: Engine.instance.store.peerID as any as EntityUUID
       })
     )
 
@@ -351,7 +351,7 @@ describe('EntityNetworkState', () => {
 
     dispatchAction(
       WorldNetworkAction.requestAuthorityOverObject({
-        entityUUID: Engine.instance.peerID as any as EntityUUID,
+        entityUUID: Engine.instance.store.peerID as any as EntityUUID,
         $topic: NetworkTopics.world,
         newAuthority: peerID2
       })
@@ -399,7 +399,7 @@ describe('EntityNetworkState', () => {
           ownerID: hostUserId, // from  host
           networkId: objNetId,
           $topic: NetworkTopics.world,
-          $peer: Engine.instance.peerID,
+          $peer: Engine.instance.store.peerID,
           entityUUID: MathUtils.generateUUID() as any as EntityUUID
         })
       )
@@ -423,7 +423,7 @@ describe('EntityNetworkState', () => {
         ownerID: hostUserId, // from  host
         networkId: objNetId,
         $topic: NetworkTopics.world,
-        $peer: Engine.instance.peerID,
+        $peer: Engine.instance.store.peerID,
         entityUUID: MathUtils.generateUUID() as any as EntityUUID
       })
     )

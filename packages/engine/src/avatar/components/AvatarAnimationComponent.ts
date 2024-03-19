@@ -29,7 +29,6 @@ import { AnimationAction, Matrix4, SkeletonHelper, Vector3 } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -38,7 +37,6 @@ import {
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, entityExists, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { matches } from '@etherealengine/hyperflux'
@@ -62,6 +60,7 @@ import {
   setupAvatarProportions
 } from '../functions/avatarFunctions'
 import { AvatarState } from '../state/AvatarNetworkState'
+import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
 export const AvatarAnimationComponent = defineComponent({
@@ -195,7 +194,7 @@ export const AvatarRigComponent = defineComponent({
         retargetAvatarAnimations(entity)
       } catch (e) {
         console.error('Failed to load avatar', e)
-        if ((getComponent(entity, UUIDComponent) as any) === Engine.instance.userID) AvatarState.selectRandomAvatar()
+        if (entity === AvatarComponent.getSelfAvatarEntity()) AvatarState.selectRandomAvatar()
       }
     }, [rigComponent.vrm])
 

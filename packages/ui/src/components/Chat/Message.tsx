@@ -220,8 +220,8 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
 
   const mediaNetworkState = useMediaNetwork()
   const mediaNetworkID = NetworkState.mediaNetwork?.id
-  const mediaConnected = mediaNetworkID && mediaNetworkState?.connected.value
-  const connecting = mediaNetworkID && !mediaNetworkState?.connected?.value
+  const mediaConnected = mediaNetworkID && mediaNetworkState?.ready.value
+  const connecting = mediaNetworkID && !mediaNetworkState?.ready?.value
 
   return (
     <>
@@ -296,7 +296,7 @@ export const MessageContainer = () => {
 
   const mediaNetworkState = useMediaNetwork()
   const mediaNetworkID = NetworkState.mediaNetwork?.id
-  const mediaConnected = mediaNetworkID && mediaNetworkState?.connected.value
+  const mediaConnected = mediaNetworkID && mediaNetworkState?.ready.value
 
   return (
     <>

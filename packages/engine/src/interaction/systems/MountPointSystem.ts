@@ -36,7 +36,6 @@ import {
   removeComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
@@ -57,6 +56,7 @@ import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state
 import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { MotionCapturePoseComponent } from '../../mocap/MotionCapturePoseComponent'
 import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
 import { MountPointActions, MountPointState } from '../functions/MountPointActions'
@@ -76,6 +76,8 @@ const sittingIdleQuery = defineQuery([SittingComponent])
 const execute = () => {
   if (getState(EngineState).isEditor) return
 
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+
   const unmountEntity = (entity: Entity) => {
     if (!hasComponent(entity, SittingComponent)) return
     const rigidBody = getComponent(entity, RigidBodyComponent)
@@ -91,7 +93,7 @@ const execute = () => {
 
     const sittingComponent = getComponent(entity, SittingComponent)
 
-    AvatarControllerComponent.releaseMovement(Engine.instance.localClientEntity, sittingComponent.mountPointEntity)
+    AvatarControllerComponent.releaseMovement(selfAvatarEntity, sittingComponent.mountPointEntity)
     dispatchAction(
       MountPointActions.mountInteraction({
         mounted: false,
@@ -156,16 +158,15 @@ const execute = () => {
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
   const inputSource = getOptionalComponent(nonCapturedInputSource, InputSourceComponent)
   if (inputSource && (inputSource.buttons.KeyE?.down || inputSource.buttons[XRStandardGamepadButton.Trigger]?.down))
-    mountEntity(Engine.instance.localClientEntity, getState(InteractState).available[0])
+    mountEntity(selfAvatarEntity, getState(InteractState).available[0])
 
   /*Consider mocap inputs in the event we want to snap a real world seated person
     to a mount point, to maintain physical continuity
   */
-  const mocapInputSource = getOptionalComponent(Engine.instance.localClientEntity, MotionCapturePoseComponent)
+  const mocapInputSource = getOptionalComponent(selfAvatarEntity, MotionCapturePoseComponent)
   if (mocapInputSource) {
-    if (mocapInputSource.sitting?.begun)
-      mountEntity(Engine.instance.localClientEntity, getState(InteractState).available[0])
-    if (mocapInputSource.standing?.begun) unmountEntity(Engine.instance.localClientEntity)
+    if (mocapInputSource.sitting?.begun) mountEntity(selfAvatarEntity, getState(InteractState).available[0])
+    if (mocapInputSource.standing?.begun) unmountEntity(selfAvatarEntity)
   }
 
   for (const entity of sittingIdleQuery()) {

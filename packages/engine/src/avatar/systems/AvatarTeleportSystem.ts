@@ -44,7 +44,6 @@ import { defineState, dispatchAction, getMutableState, getState, useHookstate } 
 
 import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
@@ -61,6 +60,7 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { ReferenceSpace, XRAction, XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { teleportAvatar } from '.././functions/moveAvatar'
+import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarAnimationSystem } from './AvatarAnimationSystem'
 
 // Guideline parabola function
@@ -151,6 +151,7 @@ let visibleSegments = 2
 const execute = () => {
   const { isCameraAttachedToAvatar } = getState(XRControlsState)
   if (!isCameraAttachedToAvatar) return
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
 
   const { guideCursor, transition, guideline, guidelineEntity, guideCursorEntity, lineMaterial } =
     getState(AvatarTeleportSystemState)
@@ -161,7 +162,7 @@ const execute = () => {
     fadeBackInAccumulator += getState(ECSState).deltaSeconds
     if (fadeBackInAccumulator > 0.25) {
       fadeBackInAccumulator = -1
-      teleportAvatar(Engine.instance.localClientEntity, getComponent(guideCursorEntity, TransformComponent).position)
+      teleportAvatar(selfAvatarEntity, getComponent(guideCursorEntity, TransformComponent).position)
       dispatchAction(CameraActions.fadeToBlack({ in: false }))
       dispatchAction(XRAction.vibrateController({ handedness: 'left', value: 0.5, duration: 100 }))
       dispatchAction(XRAction.vibrateController({ handedness: 'right', value: 0.5, duration: 100 }))
@@ -184,7 +185,7 @@ const execute = () => {
   const nonCapturedInputSources = InputSourceComponent.nonCapturedInputSourceQuery()
 
   for (const entity of avatarTeleportQuery()) {
-    const side = getComponent(Engine.instance.localClientEntity, AvatarTeleportComponent).side
+    const side = getComponent(selfAvatarEntity, AvatarTeleportComponent).side
     const referenceSpace = ReferenceSpace.origin!
 
     for (const inputSourceEntity of nonCapturedInputSources) {

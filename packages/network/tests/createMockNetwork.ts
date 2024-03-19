@@ -23,15 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getMutableState } from '@etherealengine/hyperflux'
+import { PeerID, getMutableState } from '@etherealengine/hyperflux'
 
 import { InstanceID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { NetworkTopics, createNetwork } from '../src/Network'
 import { NetworkState, addNetwork } from '../src/NetworkState'
+import { NetworkPeerFunctions } from '../src/functions/NetworkPeerFunctions'
 
 export const createMockNetwork = (networkType = NetworkTopics.world) => {
-  if (networkType === NetworkTopics.world)
-    getMutableState(NetworkState).hostIds.world.set(networkType as any as InstanceID)
-  else getMutableState(NetworkState).hostIds.media.set(networkType as any as InstanceID)
-  addNetwork(createNetwork(networkType as any as InstanceID, networkType as any as UserID, networkType))
+  if (networkType === NetworkTopics.world) getMutableState(NetworkState).hostIds.world.set('instanceID' as InstanceID)
+  else getMutableState(NetworkState).hostIds.media.set('instanceID' as InstanceID)
+  const network = createNetwork('instanceID' as InstanceID, 'hostPeerID' as PeerID, networkType)
+  addNetwork(network)
+  NetworkPeerFunctions.createPeer(network, 'hostPeerID' as PeerID, 0, 'hostUserID' as UserID, 0)
 }
