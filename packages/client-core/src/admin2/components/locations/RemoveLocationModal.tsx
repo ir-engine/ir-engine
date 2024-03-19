@@ -35,21 +35,30 @@ import { useTranslation } from 'react-i18next'
 export default function RemoveLocationModal({ location }: { location: LocationType }) {
   const { t } = useTranslation()
   const adminLocationRemove = useMutation(locationPath).remove
-  const submitLoading = useHookstate(false)
+  const modalProcessing = useHookstate(false)
+  const error = useHookstate('')
+
+  const handleSubmit = async () => {
+    modalProcessing.set(true)
+    error.set('')
+    try {
+      await adminLocationRemove(location.id)
+      PopoverState.hidePopupover()
+    } catch (err) {
+      error.set(err.message)
+    }
+    modalProcessing.set(false)
+  }
 
   return (
     <Modal
       title={t('admin:components.location.removeLocation')}
-      onSubmit={() => {
-        submitLoading.set(true)
-        adminLocationRemove(location.id).then(() => PopoverState.hidePopupover())
-      }}
+      onSubmit={handleSubmit}
       onClose={PopoverState.hidePopupover}
-      submitLoading={submitLoading.value}
+      submitLoading={modalProcessing.value}
     >
-      <div className="relative">
-        <Text>{`${t('admin:components.location.confirmLocationDelete')} '${location.name}'?`}</Text>
-      </div>
+      {error.value && <p className="mb-3 text-rose-800">{error.value}</p>}
+      <Text>{`${t('admin:components.location.confirmLocationDelete')} '${location.name}'?`}</Text>
     </Modal>
   )
 }

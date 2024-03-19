@@ -36,23 +36,32 @@ export default function RemoveInviteModal({ invites }: { invites: InviteType[] }
   const { t } = useTranslation()
   const adminInviteRemove = useMutation(invitePath).remove
   const modalProcessing = useHookstate(false)
+  const error = useHookstate('')
+
+  const handleSubmit = async () => {
+    modalProcessing.set(true)
+    error.set('')
+    try {
+      await Promise.all(
+        invites.map((invite) => {
+          adminInviteRemove(invite.id)
+        })
+      )
+      PopoverState.hidePopupover()
+    } catch (err) {
+      error.set(err.message)
+    }
+    modalProcessing.set(false)
+  }
 
   return (
     <Modal
       title={invites.length === 1 ? t('admin:components.invite.remove') : t('admin:components.invite.removeInvites')}
-      onSubmit={() => {
-        modalProcessing.set(true)
-        Promise.all(
-          invites.map((invite) => {
-            adminInviteRemove(invite.id)
-          })
-        ).then(() => {
-          PopoverState.hidePopupover()
-        })
-      }}
+      onSubmit={handleSubmit}
       onClose={PopoverState.hidePopupover}
       submitLoading={modalProcessing.value}
     >
+      {error.value && <p className="mb-3 text-rose-800">{error.value}</p>}
       <Text>
         {invites.length === 1
           ? `${t('admin:components.invite.confirmInviteDelete')} '${

@@ -58,8 +58,8 @@ export default function RemoveInstanceModal({ instanceId }: { instanceId: string
       onClose={PopoverState.hidePopupover}
       submitLoading={modalProcessing.value}
     >
+      {error.value ? <p className="mb-3 text-rose-800">{error.value}</p> : null}
       <Text component="h2">{`${t('admin:components.instance.confirmInstanceDelete')} (${instanceId}) ?`}</Text>
-      {error.value ? <p className="mt-2 text-rose-700">{error.value}</p> : null}
     </Modal>
   )
 }

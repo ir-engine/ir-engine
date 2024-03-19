@@ -36,25 +36,34 @@ export default function RemoveChannelModal({ channels }: { channels: ChannelType
   const { t } = useTranslation()
   const adminChannelRemove = useMutation(channelPath).remove
   const modalProcessing = useHookstate(false)
+  const error = useHookstate('')
+
+  const handleSubmit = async () => {
+    modalProcessing.set(true)
+    error.set('')
+    try {
+      await Promise.all(
+        channels.map((channel) => {
+          adminChannelRemove(channel.id)
+        })
+      )
+      PopoverState.hidePopupover()
+    } catch (err) {
+      error.set(err.message)
+    }
+    modalProcessing.set(false)
+  }
 
   return (
     <Modal
       title={
         channels.length === 1 ? t('admin:components.channel.remove') : t('admin:components.channel.removechannels')
       }
-      onSubmit={() => {
-        modalProcessing.set(true)
-        Promise.all(
-          channels.map((channel) => {
-            adminChannelRemove(channel.id)
-          })
-        ).then(() => {
-          PopoverState.hidePopupover()
-        })
-      }}
+      onSubmit={handleSubmit}
       onClose={PopoverState.hidePopupover}
       submitLoading={modalProcessing.value}
     >
+      {error.value && <p className="mb-3 text-rose-800">{error.value}</p>}
       <Text>
         {channels.length === 1
           ? `${t('admin:components.channel.confirmChannelDelete')} '${channels[0].name}'?`

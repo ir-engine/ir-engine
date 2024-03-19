@@ -36,23 +36,32 @@ export default function RemoveUserModal({ users }: { users: UserType[] }) {
   const { t } = useTranslation()
   const adminUserRemove = useMutation(userPath).remove
   const modalProcessing = useHookstate(false)
+  const error = useHookstate('')
+
+  const handleSubmit = async () => {
+    modalProcessing.set(true)
+    error.set('')
+    try {
+      await Promise.all(
+        users.map((user) => {
+          adminUserRemove(user.id)
+        })
+      )
+      PopoverState.hidePopupover()
+    } catch (err) {
+      error.set(err.message)
+    }
+    modalProcessing.set(false)
+  }
 
   return (
     <Modal
       title={users.length === 1 ? t('admin:components.user.remove') : t('admin:components.user.removeUsers')}
-      onSubmit={() => {
-        modalProcessing.set(true)
-        Promise.all(
-          users.map((user) => {
-            adminUserRemove(user.id)
-          })
-        ).then(() => {
-          PopoverState.hidePopupover()
-        })
-      }}
+      onSubmit={handleSubmit}
       onClose={PopoverState.hidePopupover}
       submitLoading={modalProcessing.value}
     >
+      {error.value && <p className="mb-3 text-rose-800">{error.value}</p>}
       <Text>
         {users.length === 1
           ? `${t('admin:components.user.confirmUserDelete')} '${users[0].name}'?`
