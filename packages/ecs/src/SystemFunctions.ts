@@ -111,10 +111,9 @@ export function executeSystem(systemUUID: SystemUUID) {
   }
 
   const endTime = nowMilliseconds()
-
+  const systemDuration = endTime - startTime
+  system.systemDuration = systemDuration
   if (getState(SystemState).performanceProfilingEnabled) {
-    const systemDuration = endTime - startTime
-    system.systemDuration = systemDuration
     if (systemDuration > 50 && (lastWarningTime.get(systemUUID) ?? 0) < endTime - warningCooldownDuration) {
       lastWarningTime.set(systemUUID, endTime)
       logger.warn(`Long system execution detected. System: ${system.uuid} \n Duration: ${systemDuration}`)
