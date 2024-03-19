@@ -86,7 +86,8 @@ describe.skip('EquippableSystem Integration Tests', () => {
         position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,
-        avatarID: '' as AvatarID
+        avatarID: '' as AvatarID,
+        name: ''
       })
     )
     applyIncomingActions()

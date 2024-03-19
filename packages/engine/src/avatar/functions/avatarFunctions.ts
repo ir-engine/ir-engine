@@ -185,8 +185,8 @@ export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
  * successfully loaded.
  */
 export const setupAvatarForUser = (entity: Entity, model: VRM) => {
-  const localClientEntity = AvatarComponent.getSelfAvatarEntity()
-  if (entity == localClientEntity)
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+  if (entity == selfAvatarEntity)
     setComponent(entity, TransparencyDitheringComponent, { overrideFaceCulling: true, useLocalCenter: true })
 
   setComponent(entity, AvatarRigComponent, {
@@ -209,7 +209,7 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
     })
   }
 
-  if (entity === localClientEntity) getMutableState(LocalAvatarState).avatarReady.set(true)
+  if (entity === selfAvatarEntity) getMutableState(LocalAvatarState).avatarReady.set(true)
 }
 
 export const retargetAvatarAnimations = (entity: Entity) => {

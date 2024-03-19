@@ -107,8 +107,8 @@ const execute = () => {
   const deltaSeconds = getState(ECSState).deltaSeconds
   accumulator += deltaSeconds
 
-  const localClientEntity = AvatarComponent.getSelfAvatarEntity()
-  if (!localClientEntity) return
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+  if (!selfAvatarEntity) return
 
   const cameraSettings = getState(CameraSettings)
 

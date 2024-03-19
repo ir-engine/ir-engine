@@ -92,7 +92,8 @@ export const useLocationSpawnAvatar = (spectate = false) => {
 
     spawnLocalAvatarInWorld({
       avatarSpawnPose,
-      avatarID: user.avatar.id!
+      avatarID: user.avatar.id!,
+      name: user.name
     })
   }, [sceneLoaded.value])
 }

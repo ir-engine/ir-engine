@@ -28,8 +28,6 @@ import {
   ECSState,
   Engine,
   Entity,
-  EntityUUID,
-  UUIDComponent,
   defineQuery,
   defineSystem,
   getComponent,
@@ -46,7 +44,7 @@ import {
   useHookstate,
   useMutableState
 } from '@etherealengine/hyperflux'
-import { NetworkState } from '@etherealengine/network'
+import { NetworkObjectComponent, NetworkState } from '@etherealengine/network'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import {
   createPriorityQueue,
@@ -167,24 +165,24 @@ const execute = () => {
 
     if (!rawRig?.hips?.node) continue
 
-    const uuid = getComponent(entity, UUIDComponent)
-    const leftFoot = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftFoot) as EntityUUID)
+    const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
+    const leftFoot = AvatarIKTargetComponent.getTargetEntity(ownerID, ikTargets.leftFoot)
     const leftFootTransform = getOptionalComponent(leftFoot, TransformComponent)
     const leftFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[leftFoot]
 
-    const rightFoot = UUIDComponent.getEntityByUUID((uuid + ikTargets.rightFoot) as EntityUUID)
+    const rightFoot = AvatarIKTargetComponent.getTargetEntity(ownerID, ikTargets.rightFoot)
     const rightFootTransform = getOptionalComponent(rightFoot, TransformComponent)
     const rightFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[rightFoot]
 
-    const leftHand = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftHand) as EntityUUID)
+    const leftHand = AvatarIKTargetComponent.getTargetEntity(ownerID, ikTargets.leftHand)
     const leftHandTransform = getOptionalComponent(leftHand, TransformComponent)
     const leftHandTargetBlendWeight = AvatarIKTargetComponent.blendWeight[leftHand]
 
-    const rightHand = UUIDComponent.getEntityByUUID((uuid + ikTargets.rightHand) as EntityUUID)
+    const rightHand = AvatarIKTargetComponent.getTargetEntity(ownerID, ikTargets.rightHand)
     const rightHandTransform = getOptionalComponent(rightHand, TransformComponent)
     const rightHandTargetBlendWeight = AvatarIKTargetComponent.blendWeight[rightHand]
 
-    const head = UUIDComponent.getEntityByUUID((uuid + ikTargets.head) as EntityUUID)
+    const head = AvatarIKTargetComponent.getTargetEntity(ownerID, ikTargets.head)
     const headTargetBlendWeight = AvatarIKTargetComponent.blendWeight[head]
 
     const transform = getComponent(entity, TransformComponent)
