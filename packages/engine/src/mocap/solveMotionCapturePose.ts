@@ -303,7 +303,7 @@ export function solveMotionCapturePose(
   if (!mocapComponent.prevScreenLandmarks)
     mocapComponent.prevScreenLandmarks = newScreenlandmarks.map((landmark) => ({ ...landmark }))
 
-  const worldLandmarks = keyframeInterpolation(newLandmarks, mocapComponent.prevWorldLandmarks, 40)
+  const worldLandmarks = keyframeInterpolation(newLandmarks, mocapComponent.prevWorldLandmarks, 50)
   const screenLandmarks = keyframeInterpolation(newScreenlandmarks, mocapComponent.prevScreenLandmarks, 10)
 
   mocapComponent.prevWorldLandmarks = worldLandmarks
