@@ -126,7 +126,7 @@ const sendResults = (results: MotionCaptureResults) => {
   const network = NetworkState.worldNetwork as SocketWebRTCClientNetwork
   if (!network?.ready) return
   const data = MotionCaptureFunctions.sendResults(results)
-  network.transport.bufferToAll(mocapDataChannelType, Engine.instance.peerID, data)
+  network.transport.bufferToAll(mocapDataChannelType, Engine.instance.store.peerID, data)
 }
 
 const useVideoStatus = () => {

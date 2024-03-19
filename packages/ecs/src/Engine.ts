@@ -49,14 +49,6 @@ export class Engine {
   /** The uuid of the logged-in user */
   userID: UserID
 
-  /**
-   * The peerID of the logged-in user
-   * @deprecated - use Engine.instance.store.peerID instead
-   */
-  get peerID() {
-    return Engine.instance.store.peerID
-  }
-
   store: HyperStore
 
   /**

@@ -112,7 +112,7 @@ const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
 const SelfMedia = () => {
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
 
-  const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState)[Engine.instance.peerID])
+  const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState)[Engine.instance.store.peerID])
 
   useEffect(() => {
     peerMediaChannelState.cam.audioStream.set(mediaStreamState.camAudioProducer.value)
@@ -216,7 +216,7 @@ export const PeerMediaChannels = () => {
   useEffect(() => {
     const mediaChannelPeers = mediaNetwork?.peers?.keys?.length
       ? Array.from(mediaNetwork.peers.keys as PeerID[]).filter((peerID) => peerID !== mediaNetwork.value.hostPeerID)
-      : [Engine.instance.peerID]
+      : [Engine.instance.store.peerID]
     mediaPeers.set(mediaChannelPeers)
   }, [mediaNetwork?.peers?.keys?.length])
 
@@ -232,7 +232,7 @@ export const PeerMediaChannels = () => {
 export const PeerMediaConsumers = () => {
   const networkIDs = useHookstate(getMutableState(MediasoupMediaProducerConsumerState))
   const networks = useHookstate(getMutableState(NetworkState).networks)
-  const selfPeerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState)[Engine.instance.peerID])
+  const selfPeerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState)[Engine.instance.store.peerID])
   return (
     <>
       <PeerMediaChannels />
