@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity, UndefinedEntity } from '@etherealengine/ecs'
-import { State, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { MathUtils, Texture } from 'three'
 import { LoadingArgs } from '../classes/AssetLoader'
@@ -38,7 +38,7 @@ function useLoader<T extends AssetType>(
   params: LoadingArgs = {},
   //Called when the asset url is changed, mostly useful for editor functions when changing an asset
   onUnload: (url: string) => void = (url: string) => {}
-): [State<T | null>, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>, () => void] {
+): [T | null, ErrorEvent | Error | null, ProgressEvent<EventTarget> | null, () => void] {
   const urlState = useHookstate<string>(url)
   const value = useHookstate<T | null>(null)
   const error = useHookstate<ErrorEvent | Error | null>(null)
@@ -100,7 +100,7 @@ function useLoader<T extends AssetType>(
     }
   }, [url])
 
-  return [value, error, progress, unload]
+  return [value.get(NO_PROXY), error.get(NO_PROXY), progress.get(NO_PROXY), unload]
 }
 
 function useBatchLoader<T extends AssetType>(
@@ -214,20 +214,21 @@ export function useGLTF(
   entity?: Entity,
   params?: LoadingArgs,
   onUnload?: (url: string) => void
-): [State<GLTF | null>, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>, () => void] {
+): [GLTF | null, ErrorEvent | Error | null, ProgressEvent<EventTarget> | null, () => void] {
   return useLoader<GLTF>(url, ResourceType.GLTF, entity, params, onUnload)
 }
 
 /**
  *
  * Same as useGLTF hook, but takes an array of urls.
- * Only use in cases where you can operate idempotently on the result as arrays are inherently non-reactive
+ * Only use in cases where you can operate idempotently on the result as changes to array elements are inherently non-reactive
+ * Array values are returned wrapped in State to preserve the little reactivity there is
  * The assets will be unloaded and disposed when the component is unmounted or when onUnloadCallback is called.
  *
  * @param urls Array of GLTF URLs to load
  * @param entity *Optional* The entity that is loading the GLTF, defaults to UndefinedEntity
  * @param params *Optional* LoadingArgs that are passed through to the asset loader
- * @returns Tuple of [GLTF[], Error[], Progress[], onUnloadCallback]
+ * @returns Tuple of [State<GLTF[]>, State<Error[]>, State<Progress[]>, onUnloadCallback]
  */
 export function useBatchGLTF(
   urls: string[],
@@ -278,7 +279,7 @@ export function useTexture(
   entity?: Entity,
   params?: LoadingArgs,
   onUnload?: (url: string) => void
-): [State<Texture | null>, State<ErrorEvent | Error | null>, State<ProgressEvent<EventTarget> | null>, () => void] {
+): [Texture | null, ErrorEvent | Error | null, ProgressEvent<EventTarget> | null, () => void] {
   return useLoader<Texture>(url, ResourceType.Texture, entity, params, onUnload)
 }
 

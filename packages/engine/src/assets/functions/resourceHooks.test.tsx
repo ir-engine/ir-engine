@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 
 import { createEntity, destroyEngine } from '@etherealengine/ecs'
-import { NO_PROXY, getState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { act, render } from '@testing-library/react'
 import React, { useEffect } from 'react'
@@ -55,10 +55,8 @@ describe('ResourceHooks', () => {
       const [gltf, error] = useGLTF(gltfURL, entity)
 
       useEffect(() => {
-        const err = error.value
-        assert(!err)
-        const model = gltf.get(NO_PROXY)
-        if (model) {
+        assert(!error)
+        if (gltf) {
           const resourceState = getState(ResourceState)
           assert(resourceState.resources[gltfURL])
           assert(resourceState.resources[gltfURL].references.includes(entity))
@@ -82,18 +80,16 @@ describe('ResourceHooks', () => {
     const entity = createEntity()
 
     const Reactor = () => {
-      const [tex, error] = useTexture(texURL, entity)
+      const [texture, error] = useTexture(texURL, entity)
 
       useEffect(() => {
-        const err = error.value
-        assert(!err)
-        const texture = tex.get(NO_PROXY)
+        assert(!error)
         if (texture) {
           const resourceState = getState(ResourceState)
           assert(resourceState.resources[texURL])
           assert(resourceState.resources[texURL].references.includes(entity))
         }
-      }, [tex, error])
+      }, [texture, error])
 
       return <></>
     }
@@ -133,14 +129,14 @@ describe('ResourceHooks', () => {
     const entity = createEntity()
     const nonExistingUrl = '/doesNotExist.glb'
 
+    let err: ErrorEvent | Error | null = null
+
     const Reactor = () => {
       const [gltf, error] = useGLTF(nonExistingUrl, entity)
 
       useEffect(() => {
-        const err = error.value
-        assert(err)
-        const model = gltf.get(NO_PROXY)
-        assert(!model)
+        err = error
+        assert(!gltf)
       }, [gltf, error])
 
       return <></>
@@ -151,6 +147,7 @@ describe('ResourceHooks', () => {
     act(async () => {
       rerender(<Reactor />)
     }).then(() => {
+      assert(err)
       unmount()
       done()
     })
@@ -164,18 +161,15 @@ describe('ResourceHooks', () => {
       const [gltf, error] = useGLTF(src, entity)
 
       useEffect(() => {
-        console.log('UseEffect: ' + src)
-        const err = error.value
-        assert(!err)
-        const model = gltf.get(NO_PROXY)
+        assert(!error)
 
         const resourceState = getState(ResourceState)
-        if (src === gltfURL && model) {
+        if (src === gltfURL && gltf) {
           console.log('Model One Loaded')
           assert(resourceState.resources[gltfURL])
           assert(resourceState.resources[gltfURL].references.includes(entity))
           assert(!resourceState.resources[gltfURL2])
-        } else if (src === gltfURL2 && model) {
+        } else if (src === gltfURL2 && gltf) {
           console.log('Model Two Loaded')
           assert(resourceState.resources[gltfURL2])
           assert(resourceState.resources[gltfURL2].references.includes(entity))

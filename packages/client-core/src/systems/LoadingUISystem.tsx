@@ -37,7 +37,7 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { defineState, getMutableState, getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { setVisibleComponent, VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
@@ -126,15 +126,14 @@ const LoadingReactor = () => {
   const [loadingTexture, error] = useTexture(sceneComponent ? sceneComponent.loadingScreenURL : '', sceneEntity)
 
   useEffect(() => {
-    const texture = loadingTexture.get(NO_PROXY)
-    if (!texture) return
+    if (!loadingTexture) return
 
     const mesh = getComponent(meshEntity, GroupComponent)[0] as any as Mesh<SphereGeometry, MeshBasicMaterial>
     if (sceneComponent && sceneComponent.loadingScreenURL && mesh.userData.url !== sceneComponent.loadingScreenURL) {
       mesh.userData.url = sceneComponent.loadingScreenURL
     }
 
-    mesh.material.map = texture
+    mesh.material.map = loadingTexture
     mesh.material.needsUpdate = true
     mesh.material.map.needsUpdate = true
     EngineRenderer.instance.renderer
@@ -149,7 +148,7 @@ const LoadingReactor = () => {
   }, [loadingTexture])
 
   useEffect(() => {
-    if (!error.value) return
+    if (!error) return
 
     console.error(error)
     state.ready.set(true)

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { ArrowHelper, BackSide, Euler, Mesh, MeshBasicMaterial, Quaternion, SphereGeometry, Vector3 } from 'three'
 
-import { NO_PROXY, defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { portalPath } from '@etherealengine/common/src/schema.type.module'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
@@ -223,15 +223,14 @@ export const PortalComponent = defineComponent({
       previewImageURL: string
     }>(null)
 
-    const [textureState] = useTexture(portalDetails.value?.previewImageURL || '', entity)
+    const [texture] = useTexture(portalDetails.value?.previewImageURL || '', entity)
 
     useEffect(() => {
-      const texture = textureState.get(NO_PROXY)
       if (!texture || !portalComponent.mesh.value) return
 
       portalComponent.mesh.value.material.map = texture
       portalComponent.mesh.value.material.needsUpdate = true
-    }, [textureState, portalComponent.mesh])
+    }, [texture, portalComponent.mesh])
 
     useEffect(() => {
       if (!portalDetails.value?.previewImageURL) return

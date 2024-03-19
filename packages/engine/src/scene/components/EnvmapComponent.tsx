@@ -39,7 +39,7 @@ import {
 } from 'three'
 
 import { EntityUUID } from '@etherealengine/ecs'
-import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { UUIDComponent } from '@etherealengine/ecs'
@@ -149,16 +149,15 @@ export const EnvmapComponent = defineComponent({
     }, [component.type, component.envMapSourceColor])
 
     useEffect(() => {
-      const texture = envMapTexture.get(NO_PROXY)
-      if (!texture) return
+      if (!envMapTexture) return
 
-      texture.mapping = EquirectangularReflectionMapping
-      component.envmap.set(texture)
+      envMapTexture.mapping = EquirectangularReflectionMapping
+      component.envmap.set(envMapTexture)
       SceneAssetPendingTagComponent.removeResource(entity, EnvmapComponent.jsonID)
     }, [envMapTexture])
 
     useEffect(() => {
-      if (!error.value) return
+      if (!error) return
 
       component.envmap.set(null)
       addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
@@ -224,7 +223,7 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
 
   /** @todo add an unmount cleanup for applyBoxprojection */
   useEffect(() => {
-    const texture = envMaptexture.get(NO_PROXY)
+    const texture = envMaptexture
     if (!texture) return
 
     texture.mapping = EquirectangularReflectionMapping
@@ -234,7 +233,7 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
   }, [envMaptexture])
 
   useEffect(() => {
-    if (!error.value) return
+    if (!error) return
     addError(envmapEntity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
     SceneAssetPendingTagComponent.removeResource(props.envmapEntity, EnvmapComponent.jsonID)
   }, [error])

@@ -114,7 +114,7 @@ const reactor = () => {
   const [itemPlate] = useTexture('/static/itemPlate.png')
 
   useEffect(() => {
-    const texture = itemLight.value
+    const texture = itemLight
     if (!texture) return
 
     texture.colorSpace = SRGBColorSpace
@@ -123,7 +123,7 @@ const reactor = () => {
   }, [itemLight])
 
   useEffect(() => {
-    const texture = itemPlate.value
+    const texture = itemPlate
     if (!texture) return
 
     texture.colorSpace = SRGBColorSpace
@@ -132,7 +132,7 @@ const reactor = () => {
   }, [itemPlate])
 
   useEffect(() => {
-    if (itemLight.value && itemPlate.value) assetsReady.set(true)
+    if (itemLight && itemPlate) assetsReady.set(true)
   }, [itemLight, itemPlate])
 
   useEffect(() => {

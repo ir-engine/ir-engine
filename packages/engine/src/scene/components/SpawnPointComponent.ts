@@ -73,7 +73,7 @@ export const SpawnPointComponent = defineComponent({
     const [gltf] = useGLTF(debugEnabled.value ? GLTF_PATH : '', entity)
 
     useLayoutEffect(() => {
-      const scene = gltf.get(NO_PROXY)?.scene
+      const scene = gltf?.scene
       if (!scene || !debugEnabled.value) return
 
       const helperEntity = createEntity()

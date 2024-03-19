@@ -39,7 +39,7 @@ import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { NO_PROXY, getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { ObjectDirection } from '@etherealengine/spatial/src/common/constants/Axis3D'
@@ -226,12 +226,11 @@ export const HyperspaceTagComponent = defineComponent({
     }, [])
 
     useEffect(() => {
-      const texture = galaxyTexture.get(NO_PROXY)
-      if (!texture) return
+      if (!galaxyTexture) return
 
       const hyperspaceEffectEntity = getComponent(entity, HyperspaceTagComponent).hyperspaceEffectEntity
       const hyperspaceEffect = getComponent(hyperspaceEffectEntity, GroupComponent)[0] as any as PortalEffect
-      hyperspaceEffect.texture = texture
+      hyperspaceEffect.texture = galaxyTexture
     }, [galaxyTexture])
 
     useExecute(

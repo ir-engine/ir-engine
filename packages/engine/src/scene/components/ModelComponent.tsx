@@ -130,29 +130,26 @@ function ModelReactor(): JSX.Element {
   })
 
   useEffect(() => {
-    const onprogress = progress.value
-    if (!onprogress) return
+    if (!progress) return
     if (hasComponent(entity, SceneAssetPendingTagComponent))
       SceneAssetPendingTagComponent.loadingProgress.merge({
         [entity]: {
-          loadedAmount: onprogress.loaded,
-          totalAmount: onprogress.total
+          loadedAmount: progress.loaded,
+          totalAmount: progress.total
         }
       })
   }, [progress])
 
   useEffect(() => {
-    const err = error.value
-    if (!err) return
+    if (!error) return
 
-    console.error(err)
-    addError(entity, ModelComponent, 'INVALID_SOURCE', err.message)
+    console.error(error)
+    addError(entity, ModelComponent, 'INVALID_SOURCE', error.message)
     SceneAssetPendingTagComponent.removeResource(entity, ModelComponent.jsonID)
   }, [error])
 
   useEffect(() => {
-    const loadedAsset = gltf.get(NO_PROXY)
-    if (!loadedAsset) {
+    if (!gltf) {
       if (!hasComponent(entity, GroupComponent)) {
         const obj3d = new Group()
         obj3d.entity = entity
@@ -162,19 +159,17 @@ function ModelReactor(): JSX.Element {
       return
     }
 
-    if (typeof loadedAsset !== 'object') {
+    if (typeof gltf !== 'object') {
       addError(entity, ModelComponent, 'INVALID_SOURCE', 'Invalid URL')
       return
     }
 
-    const boneMatchedAsset = modelComponent.convertToVRM.value
-      ? (autoconvertMixamoAvatar(loadedAsset) as GLTF)
-      : loadedAsset
+    const boneMatchedAsset = modelComponent.convertToVRM.value ? (autoconvertMixamoAvatar(gltf) as GLTF) : gltf
 
     /**if we've loaded or converted to vrm, create animation component whose mixer's root is the normalized rig */
     if (boneMatchedAsset instanceof VRM)
       setComponent(entity, AnimationComponent, {
-        animations: loadedAsset.animations,
+        animations: gltf.animations,
         mixer: new AnimationMixer(boneMatchedAsset.humanoid.normalizedHumanBonesRoot)
       })
 
