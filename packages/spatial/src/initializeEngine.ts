@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { ECSState, createEntity, executeSystems, getComponent, setComponent } from '@etherealengine/ecs'
-import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Engine, startEngine } from '@etherealengine/ecs/src/Engine'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { Timer } from '@etherealengine/ecs/src/Timer'
 import { getMutableState } from '@etherealengine/hyperflux'
@@ -47,10 +47,7 @@ import { XRState } from './xr/XRState'
  * @returns {Engine}
  */
 export const createEngine = () => {
-  if (Engine.instance) {
-    throw new Error('Engine already exists')
-  }
-  Engine.instance = new Engine()
+  startEngine()
 
   Engine.instance.scene.matrixAutoUpdate = false
   Engine.instance.scene.matrixWorldAutoUpdate = false

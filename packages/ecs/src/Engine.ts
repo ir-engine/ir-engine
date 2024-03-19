@@ -44,10 +44,6 @@ import { SystemState } from './SystemState'
 export class Engine {
   static instance: Engine
 
-  constructor() {
-    const UndefinedEntity = bitECS.addEntity(HyperFlux.store)
-  }
-
   api: FeathersApplication<ServiceTypes>
 
   /** The uuid of the logged-in user */
@@ -61,13 +57,7 @@ export class Engine {
     return Engine.instance.store.peerID
   }
 
-  store = bitECS.createWorld(
-    createHyperStore({
-      getDispatchTime: () => getState(ECSState).simulationTime,
-      getCurrentReactorRoot: () =>
-        getState(SystemState).activeSystemReactors.get(getState(SystemState).currentSystemUUID)
-    })
-  ) as HyperStore
+  store: HyperStore
 
   /**
    * Reference to the three.js scene object.
@@ -92,6 +82,19 @@ export class Engine {
 
 globalThis.Engine = Engine
 globalThis.Hyperflux = Hyperflux
+
+export function startEngine() {
+  if (Engine.instance) throw new Error('Store already exists')
+  Engine.instance = new Engine()
+  Engine.instance.store = bitECS.createWorld(
+    createHyperStore({
+      getDispatchTime: () => getState(ECSState).simulationTime,
+      getCurrentReactorRoot: () =>
+        getState(SystemState).activeSystemReactors.get(getState(SystemState).currentSystemUUID)
+    })
+  ) as HyperStore
+  const UndefinedEntity = bitECS.addEntity(HyperFlux.store)
+}
 
 export async function destroyEngine() {
   getState(ECSState).timer?.clear()
