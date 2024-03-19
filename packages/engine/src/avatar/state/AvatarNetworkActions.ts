@@ -61,6 +61,16 @@ export class AvatarNetworkAction {
     $topic: NetworkTopics.world
   })
 
+  static setName = defineAction({
+    type: 'ee.engine.avatar.SET_AVATAR_ID',
+    entityUUID: matchesEntityUUID,
+    name: matches.string,
+    $cache: {
+      removePrevious: true
+    },
+    $topic: NetworkTopics.world
+  })
+
   static spawnIKTarget = defineAction(
     SpawnObjectActions.spawnObject.extend({
       type: 'ee.engine.avatar.SPAWN_IK_TARGET',
