@@ -23,7 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { helmSettingPath } from '@etherealengine/common/src/schema.type.module'
+import {
+  helmBuilderVersionPath,
+  helmMainVersionPath,
+  helmSettingPath
+} from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
@@ -47,7 +51,7 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
   const id = helmSetting?.id
   const selectedMainVersion = useHookstate(helmSetting?.main)
 
-  const helmMainVersions = useFind('helm-main-version').data
+  const helmMainVersions = useFind(helmMainVersionPath).data
   const mainVersionMenu = helmMainVersions.map((el) => {
     return {
       value: el as string,
@@ -55,7 +59,7 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
     }
   })
 
-  const helmBuilderVersions = useFind('helm-builder-version').data
+  const helmBuilderVersions = useFind(helmBuilderVersionPath).data
   const selectedBuilderVersion = useHookstate(helmSetting?.builder)
   const builderVersionMenu = helmBuilderVersions.map((el) => {
     return {
