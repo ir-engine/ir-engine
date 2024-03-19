@@ -27,7 +27,6 @@ import { PopoverState } from '@etherealengine/client-core/src/common/services/Po
 import { InviteType, UserName, invitePath } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import React from 'react'
@@ -51,20 +50,16 @@ export default function RemoveInviteModal({ invites }: { invites: InviteType[] }
           PopoverState.hidePopupover()
         })
       }}
-      onClose={!modalProcessing.value ? () => PopoverState.hidePopupover() : undefined}
-      hideFooter={modalProcessing.value}
+      onClose={PopoverState.hidePopupover}
+      submitLoading={modalProcessing.value}
     >
-      {modalProcessing.value ? (
-        <LoadingCircle className="h-[10vh]" />
-      ) : (
-        <Text>
-          {invites.length === 1
-            ? `${t('admin:components.invite.confirmInviteDelete')} '${
-                invites[0].invitee?.name || ((invites[0].token || '') as UserName)
-              }'?`
-            : t('admin:components.invite.confirmMultiInviteDelete')}
-        </Text>
-      )}
+      <Text>
+        {invites.length === 1
+          ? `${t('admin:components.invite.confirmInviteDelete')} '${
+              invites[0].invitee?.name || ((invites[0].token || '') as UserName)
+            }'?`
+          : t('admin:components.invite.confirmMultiInviteDelete')}
+      </Text>
     </Modal>
   )
 }
