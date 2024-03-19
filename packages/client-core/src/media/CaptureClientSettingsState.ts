@@ -34,18 +34,16 @@ export const CaptureClientSettingsState = defineState({
         name: 'Display',
         tabOrder: 0,
         showVideo: true,
-        flipVideo: true,
+        flipVideo: false,
         show2dSkeleton: true
       },
       {
         name: 'Tracking',
         tabOrder: 1,
-        // enableFaceGeometry: false,
         modelComplexity: 2,
         smoothLandmarks: true,
         enableSegmentation: true,
         smoothSegmentation: true,
-        // refineFaceLandmarks: false,
         minDetectionConfidence: 0.5,
         minTrackingConfidence: 0.5
       },
