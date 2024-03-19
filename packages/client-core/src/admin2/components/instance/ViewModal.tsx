@@ -36,6 +36,7 @@ import { useFind, useMutation } from '@etherealengine/spatial/src/common/functio
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Table, { TableBody, TableCell, TableRow } from '@etherealengine/ui/src/primitives/tailwind/Table'
+import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -96,45 +97,48 @@ export default function ViewUsersModal({ instanceId }: { instanceId: string }) {
         PopoverState.hidePopupover()
       }}
     >
+      {instanceUsersQuery.data.length === 0 ? (
+        <Text theme="secondary" className="w-full text-center">
+          {t('admin:components.instance.noInstanceUsers')}
+        </Text>
+      ) : null}
       <Table>
         <TableBody>
-          {instanceUsersQuery.data.map((el) => {
-            return (
-              <TableRow>
-                <TableCell>
-                  <img src={el.avatar.thumbnailResource?.url} className="mx-auto max-h-full max-w-full rounded-full" />
-                </TableCell>
-                <TableCell>
-                  <Button
-                    onClick={() => {
-                      kickData.merge({
-                        userId: el.id,
-                        instanceId: instanceId as InstanceID,
-                        duration: '8'
-                      })
-                      kickUser(kickData.get())
-                    }}
-                  >
-                    {t('admin:components.instance.kick')}
-                  </Button>
-                </TableCell>
-                <TableCell>
-                  <Button
-                    onClick={() => {
-                      kickData.merge({
-                        userId: el.id,
-                        instanceId: instanceId as InstanceID,
-                        duration: 'INFINITY'
-                      })
-                      kickUser(kickData.get())
-                    }}
-                  >
-                    {t('admin:components.instance.ban')}
-                  </Button>
-                </TableCell>
-              </TableRow>
-            )
-          })}
+          {instanceUsersQuery.data.map((el) => (
+            <TableRow>
+              <TableCell>
+                <img src={el.avatar.thumbnailResource?.url} className="mx-auto max-h-full max-w-full rounded-full" />
+              </TableCell>
+              <TableCell>
+                <Button
+                  onClick={() => {
+                    kickData.merge({
+                      userId: el.id,
+                      instanceId: instanceId as InstanceID,
+                      duration: '8'
+                    })
+                    kickUser(kickData.value)
+                  }}
+                >
+                  {t('admin:components.instance.kick')}
+                </Button>
+              </TableCell>
+              <TableCell>
+                <Button
+                  onClick={() => {
+                    kickData.merge({
+                      userId: el.id,
+                      instanceId: instanceId as InstanceID,
+                      duration: 'INFINITY'
+                    })
+                    kickUser(kickData.value)
+                  }}
+                >
+                  {t('admin:components.instance.ban')}
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     </Modal>

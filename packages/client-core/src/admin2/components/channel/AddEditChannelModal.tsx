@@ -71,9 +71,7 @@ export default function AddEditChannelModal({ channel }: { channel?: ChannelType
       title={channel?.id ? t('admin:components.channel.update') : t('admin:components.channel.createChannel')}
       className="w-[50vw]"
       onSubmit={handleSubmit}
-      onClose={() => {
-        PopoverState.hidePopupover()
-      }}
+      onClose={PopoverState.hidePopupover}
       submitLoading={submitLoading.value}
     >
       {errors.serverError.value && <p className="mb-3 text-rose-800">{errors.serverError.value}</p>}
