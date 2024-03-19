@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { AvatarType, avatarPath } from '@etherealengine/common/src/schema.type.module'
 import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import { useHookstate } from '@hookstate/core'
@@ -37,22 +36,29 @@ export default function RemoveAvatarModal({ avatar }: { avatar: AvatarType }) {
   const { t } = useTranslation()
   const adminAvatarRemove = useMutation(avatarPath).remove
   const modalProcessing = useHookstate(false)
+  const error = useHookstate('')
+
+  const handleSubmit = async () => {
+    modalProcessing.set(true)
+    error.set('')
+    try {
+      await adminAvatarRemove(avatar.id)
+      PopoverState.hidePopupover()
+    } catch (err) {
+      error.set(err.message)
+    }
+    modalProcessing.set(false)
+  }
 
   return (
     <Modal
       title={t('admin:components.avatar.remove')}
-      onSubmit={() => {
-        modalProcessing.set(true)
-        adminAvatarRemove(avatar.id).then(() => PopoverState.hidePopupover())
-      }}
-      onClose={!modalProcessing.value ? () => PopoverState.hidePopupover() : undefined}
-      hideFooter={modalProcessing.value}
+      onSubmit={handleSubmit}
+      onClose={PopoverState.hidePopupover}
+      submitLoading={modalProcessing.value}
     >
-      {modalProcessing.value ? (
-        <LoadingCircle className="h-[10vh]" />
-      ) : (
-        <Text>{`${t('admin:components.avatar.confirmAvatarDelete')} '${avatar.name}'?`}</Text>
-      )}
+      {error.value && <p className="mb-3 text-rose-800">{error.value}</p>}
+      <Text>{`${t('admin:components.avatar.confirmAvatarDelete')} '${avatar.name}'?`}</Text>
     </Modal>
   )
 }

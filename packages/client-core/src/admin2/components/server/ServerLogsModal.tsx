@@ -51,7 +51,7 @@ export default function ServerLogsModal({ podName, containerName }: { podName: s
     serverInfo
       .find((info) => info.id === 'all')
       ?.pods.find((pod) => pod.name === podName)
-      ?.containers.map((container) => ({ name: container.name, value: container.name })) || []
+      ?.containers.map((container) => ({ label: container.name, value: container.name })) || []
 
   useEffect(() => {
     if (serverLogs) {
@@ -97,8 +97,8 @@ export default function ServerLogsModal({ podName, containerName }: { podName: s
           <Select
             label={t('admin:components.server.container')}
             options={containersOptions}
-            currentValue={selectedContainerName.value}
-            onChange={selectedContainerName.set}
+            currentValue={selectedContainerName.value || ''}
+            onChange={(value) => selectedContainerName.set(value)}
           />
           <div className="ml-auto flex items-center">
             <Button
@@ -108,7 +108,11 @@ export default function ServerLogsModal({ podName, containerName }: { podName: s
               variant="outline"
               className="border-0"
             />
-            <Select options={serverAutoRefreshOptions} currentValue={autoRefresh.value} onChange={autoRefresh.set} />
+            <Select
+              options={serverAutoRefreshOptions}
+              currentValue={autoRefresh.value}
+              onChange={(value) => autoRefresh.set(value)}
+            />
           </div>
         </div>
         <div className="max-h-[50vh] overflow-auto">

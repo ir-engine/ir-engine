@@ -37,22 +37,26 @@ export default function DeleteResourceModal({ resourceId, resourceKey }: { resou
   const modalProcessing = useHookstate(false)
   const error = useHookstate('')
 
+  const handleSubmit = async () => {
+    modalProcessing.set(true)
+    error.set('')
+    try {
+      await ResourceService.removeResource(resourceId)
+      PopoverState.hidePopupover()
+    } catch (err) {
+      error.set(err.message)
+    }
+    modalProcessing.set(false)
+  }
+
   return (
     <Modal
       title={t('admin:components.resources.confirmation')}
-      onSubmit={async () => {
-        try {
-          modalProcessing.set(true)
-          await ResourceService.removeResource(resourceId)
-          PopoverState.hidePopupover()
-        } catch (e) {
-          error.set(e.message)
-        }
-      }}
-      onClose={!modalProcessing.value ? () => PopoverState.hidePopupover() : undefined}
-      hideFooter={modalProcessing.value}
+      onSubmit={handleSubmit}
+      onClose={PopoverState.hidePopupover}
       submitLoading={modalProcessing.value}
     >
+      {error.value && <p className="mb-3 text-rose-800">{error.value}</p>}
       <Text>{`${t('admin:components.resources.confirmResourceDelete')} '${resourceKey}'?`}</Text>
     </Modal>
   )

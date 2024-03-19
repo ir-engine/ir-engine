@@ -31,13 +31,15 @@ export const RadioRoot = ({
   value,
   onChange,
   selected,
-  className
+  className,
+  disabled
 }: {
   label: string
   value: string | number
   onChange: React.ChangeEventHandler<HTMLInputElement>
   selected: boolean
   className?: string
+  disabled?: boolean
 }) => {
   const twClassname = twMerge('flex items-center', className)
   return (
@@ -48,7 +50,8 @@ export const RadioRoot = ({
         value={value}
         name={label}
         onChange={onChange}
-        className="text-bluePrimary focus:ring-bluePrimary checked:border-bluePrimary shrink-0 rounded-full border-gray-200 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:focus:ring-offset-gray-800"
+        disabled={disabled}
+        className="text-bluePrimary focus:ring-bluePrimary checked:border-bluePrimary shrink-0 rounded-full border-gray-200 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:focus:ring-offset-gray-800"
       />
       <label htmlFor={label} className="text-theme-primary ml-2 align-bottom text-sm font-medium">
         {label}
@@ -64,13 +67,15 @@ const Radio = <T extends OptionValueType>({
   options,
   onChange,
   className,
-  horizontal
+  horizontal,
+  disabled
 }: {
   value: T
   options: { label: string; value: T }[]
   onChange: (value: T) => void
   className?: string
   horizontal?: boolean
+  disabled?: boolean
 }) => {
   return (
     <div className={twMerge(`grid gap-6 ${horizontal ? 'grid-flow-col' : ''}`, className)}>
@@ -81,6 +86,7 @@ const Radio = <T extends OptionValueType>({
           label={label}
           value={optionValue}
           onChange={(event) => onChange(event.target.value as T)}
+          disabled={disabled}
         />
       ))}
     </div>

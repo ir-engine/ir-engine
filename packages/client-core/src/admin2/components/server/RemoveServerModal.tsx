@@ -36,21 +36,28 @@ export default function RemoveServerModal({ serverPodInfo }: { serverPodInfo: Se
   const { t } = useTranslation()
   const podRemove = useMutation(podsPath).remove
   const modalProcessing = useHookstate(false)
+  const error = useHookstate('')
+
+  const handleSubmit = async () => {
+    modalProcessing.set(true)
+    error.set('')
+    try {
+      await podRemove(serverPodInfo.name)
+      PopoverState.hidePopupover()
+    } catch (err) {
+      error.set(err.message)
+    }
+    modalProcessing.set(false)
+  }
 
   return (
     <Modal
       title={t('admin:components.server.removePod')}
-      onSubmit={() => {
-        modalProcessing.set(true)
-        podRemove(serverPodInfo.name)
-          .then(() => {
-            PopoverState.hidePopupover()
-          })
-          .catch(() => modalProcessing.set(false))
-      }}
-      onClose={!modalProcessing.value ? () => PopoverState.hidePopupover() : undefined}
+      onSubmit={handleSubmit}
+      onClose={PopoverState.hidePopupover}
       submitLoading={modalProcessing.value}
     >
+      {error.value && <p className="mb-3 text-rose-800">{error.value}</p>}
       <Text>{`${t('admin:components.server.confirmPodDelete')} ${serverPodInfo.name}?`}</Text>
     </Modal>
   )
