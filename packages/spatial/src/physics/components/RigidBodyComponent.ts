@@ -76,7 +76,8 @@ export const RigidBodyComponent = defineComponent({
       linearVelocity: proxifyVector3(this.linearVelocity, entity),
       angularVelocity: proxifyVector3(this.angularVelocity, entity),
       /** If multiplier is 0, ridigbody moves immediately to target pose, linearly interpolating between substeps */
-      targetKinematicLerpMultiplier: 0
+      targetKinematicLerpMultiplier: 0,
+      canSleep: true
     }
   },
 
@@ -86,6 +87,7 @@ export const RigidBodyComponent = defineComponent({
     if (typeof json.type === 'string') component.type.set(json.type)
     if (typeof json.ccd === 'boolean') component.ccd.set(json.ccd)
     if (typeof json.allowRolling === 'boolean') component.allowRolling.set(json.allowRolling)
+    if (typeof json.canSleep === 'boolean') component.canSleep.set(json.canSleep)
     if (Array.isArray(json.enabledRotations) && json.enabledRotations.length === 3)
       component.enabledRotations.set(json.enabledRotations)
   },
@@ -95,11 +97,12 @@ export const RigidBodyComponent = defineComponent({
       type: component.type.value as Body,
       ccd: component.ccd.value,
       allowRolling: component.allowRolling.value,
-      enabledRotations: component.enabledRotations.value
+      enabledRotations: component.enabledRotations.value,
+      canSleep: component.canSleep.value
     }
   },
 
-  reactor: function () {
+  reactor: function (props) {
     const entity = useEntityContext()
     const component = useComponent(entity, RigidBodyComponent)
 
@@ -119,6 +122,7 @@ export const RigidBodyComponent = defineComponent({
           rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
           break
       }
+      if (component.canSleep.value) rigidBodyDesc.setCanSleep(component.canSleep.value)
 
       const world = getState(PhysicsState).physicsWorld
       const rigidBody = Physics.createRigidBody(entity, world, rigidBodyDesc)
