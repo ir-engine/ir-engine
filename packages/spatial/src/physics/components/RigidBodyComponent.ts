@@ -65,6 +65,7 @@ export const RigidBodyComponent = defineComponent({
       ccd: false,
       allowRolling: true,
       enabledRotations: [true, true, true],
+      canSleep: true, /** Not a reactive property. Only on Init*/
       // internal
       body: null! as RigidBody,
       previousPosition: proxifyVector3(this.previousPosition, entity),
@@ -76,8 +77,7 @@ export const RigidBodyComponent = defineComponent({
       linearVelocity: proxifyVector3(this.linearVelocity, entity),
       angularVelocity: proxifyVector3(this.angularVelocity, entity),
       /** If multiplier is 0, ridigbody moves immediately to target pose, linearly interpolating between substeps */
-      targetKinematicLerpMultiplier: 0,
-      canSleep: true /** Not a reactive property. Only on Init*/
+      targetKinematicLerpMultiplier: 0
     }
   },
 
