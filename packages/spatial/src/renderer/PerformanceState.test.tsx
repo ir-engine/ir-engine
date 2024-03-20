@@ -31,8 +31,9 @@ import React, { useEffect } from 'react'
 import { act } from 'react-dom/test-utils'
 import sinon from 'sinon'
 import { createEngine } from '../initializeEngine'
-import { PerformanceState, buildPerformanceState, decrementPerformance, incrementPerformance } from './PerformanceState'
-import { EngineRenderer } from './WebGLRendererSystem'
+import { PerformanceManager, PerformanceState } from './PerformanceState'
+import { RendererState } from './RendererState'
+import { EngineRenderer, RenderSettingsState } from './WebGLRendererSystem'
 
 describe('PerformanceState', () => {
   const mockRenderer = {
@@ -76,29 +77,32 @@ describe('PerformanceState', () => {
   })
 
   it('Builds Performance State', (done) => {
-    buildPerformanceState(mockRenderer, () => {
-      const performanceState = getState(PerformanceState)
-      const budgets = performanceState.budgets
-      assert(budgets.max3DTextureSize === 1000)
-      assert(budgets.maxBufferSize === 54000000000)
-      assert(budgets.maxIndices === 8000)
-      assert(budgets.maxTextureSize === 2000)
-      assert(budgets.maxVerticies === 10000)
-      done()
-    })
+    PerformanceManager.buildPerformanceState(
+      mockRenderer,
+      () => {
+        const performanceState = getState(PerformanceState)
+        const budgets = performanceState.budgets
+        assert(budgets.max3DTextureSize === 1000)
+        assert(budgets.maxBufferSize === 54000000000)
+        assert(budgets.maxIndices === 8000)
+        assert(budgets.maxTextureSize === 2000)
+        assert(budgets.maxVerticies === 10000)
+        done()
+      },
+      { renderer: 'nvidia corporation, nvidia geforce rtx 3070/pcie/sse2, ' }
+    )
   })
 
   it('Increments performance offset', (done) => {
     const performanceState = getMutableState(PerformanceState)
     const initialOffset = performanceState.performanceOffset.value
-    assert(initialOffset === 0)
 
     const Reactor = () => {
       const performance = useHookstate(performanceState)
 
       useEffect(() => {
         if (initialOffset !== performance.performanceOffset.value) {
-          assert(performance.performanceOffset.value === 1)
+          assert(performance.performanceOffset.value === initialOffset + 1)
         }
       }, [performance.performanceOffset])
 
@@ -108,7 +112,7 @@ describe('PerformanceState', () => {
     const { rerender, unmount } = render(<Reactor />)
     const clock = sinon.useFakeTimers()
     act(async () => {
-      decrementPerformance()
+      PerformanceManager.decrementPerformance()
       clock.tick(3000)
       rerender(<Reactor />)
       clock.restore()
@@ -121,15 +125,13 @@ describe('PerformanceState', () => {
   it('Increments performance tier', (done) => {
     const performanceState = getMutableState(PerformanceState)
     const initialTier = performanceState.tier.value
-    assert(initialTier === 0)
 
     const Reactor = () => {
       const performance = useHookstate(performanceState)
 
       useEffect(() => {
-        console.log('UseEffect: ' + initialTier)
         if (initialTier !== performance.tier.value) {
-          assert(performance.tier.value === 1)
+          assert(performance.tier.value === initialTier + 1)
         }
       }, [performanceState.tier])
 
@@ -139,7 +141,7 @@ describe('PerformanceState', () => {
     const { rerender, unmount } = render(<Reactor />)
     const clock = sinon.useFakeTimers()
     act(async () => {
-      incrementPerformance()
+      PerformanceManager.incrementPerformance()
       clock.tick(3000)
       rerender(<Reactor />)
       clock.restore()
@@ -152,16 +154,19 @@ describe('PerformanceState', () => {
   it('Debounces performance offset', (done) => {
     const performanceState = getMutableState(PerformanceState)
     const initialOffset = performanceState.performanceOffset.value
-    assert(initialOffset === 0)
+    const initialTier = performanceState.tier.value
 
     const Reactor = () => {
       const performance = useHookstate(performanceState)
 
       useEffect(() => {
         if (initialOffset !== performance.performanceOffset.value) {
-          assert(performance.performanceOffset.value === 1)
+          assert(performance.performanceOffset.value === initialOffset + 1)
         }
-      }, [performance.performanceOffset])
+        if (initialTier !== performance.tier.value) {
+          assert(performance.tier.value === initialTier - 1)
+        }
+      }, [performance.performanceOffset, performance.tier])
 
       return <></>
     }
@@ -169,12 +174,39 @@ describe('PerformanceState', () => {
     const { rerender, unmount } = render(<Reactor />)
     const clock = sinon.useFakeTimers()
     act(async () => {
-      decrementPerformance()
-      decrementPerformance()
+      PerformanceManager.decrementPerformance()
+      PerformanceManager.decrementPerformance()
       clock.tick(3000)
       rerender(<Reactor />)
       clock.restore()
     }).then(() => {
+      unmount()
+      done()
+    })
+  })
+
+  it('Updates render settings reactively', (done) => {
+    const performanceState = getMutableState(PerformanceState)
+    const initialTier = performanceState.tier.value
+    let updatedTier = 5
+    if (updatedTier === initialTier) updatedTier -= 1
+
+    const renderSettings = getState(RenderSettingsState)
+    const engineSettings = getState(RendererState)
+
+    const { smaaPreset } = renderSettings
+    const { shadowMapResolution } = engineSettings
+
+    const Reactor = PerformanceState.reactor
+
+    const { rerender, unmount } = render(<Reactor />)
+
+    act(async () => {
+      performanceState.tier.set(updatedTier as any)
+      rerender(<Reactor />)
+    }).then(() => {
+      assert(smaaPreset !== renderSettings.smaaPreset)
+      assert(shadowMapResolution !== engineSettings.shadowMapResolution)
       unmount()
       done()
     })

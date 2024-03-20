@@ -31,8 +31,8 @@ import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { PerformanceState } from '@etherealengine/spatial/src/renderer/PerformanceState'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { usePerformanceOffset } from '@etherealengine/spatial/src/renderer/functions/performanceHooks'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { Not } from 'bitecs'
 import { useEffect } from 'react'
@@ -84,16 +84,16 @@ function execute() {
 }
 
 function reactor() {
-  const performanceState = useHookstate(getMutableState(PerformanceState))
+  const performanceOffset = usePerformanceOffset()
   const sceneState = useHookstate(getMutableState(SceneState))
 
   useEffect(() => {
     if (!sceneState.sceneLoaded.value || getState(EngineState).isEditing) return
-    const offset = performanceState.performanceOffset.value
+    const offset = performanceOffset.value
     for (const entity of modelVariantQuery()) {
       setModelVariantLOD(entity, offset)
     }
-  }, [performanceState.performanceOffset, sceneState.sceneLoaded])
+  }, [performanceOffset, sceneState.sceneLoaded])
 
   return null
 }
