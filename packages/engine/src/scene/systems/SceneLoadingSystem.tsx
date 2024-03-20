@@ -126,6 +126,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     if (getState(SceneState).sceneLoaded) return
 
     const entitiesCount = sceneEntities.keys.map(UUIDComponent.getEntityByUUID).filter(Boolean).length
+    console.log('entitiesCount', entitiesCount)
     if (entitiesCount <= 1) return
 
     const pendingEntityResources = sceneEntities.keys
@@ -226,7 +227,7 @@ const EntityChildLoadReactor = (props: {
 
   // console.log('EntityChildLoadReactor', parentLoaded, props.entityUUID, entityJSONState.components.get(NO_PROXY))
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     // ensure parent has been deserialized before checking if dynamically loaded
     if (!parentLoaded) return
 
@@ -252,7 +253,8 @@ const EntityChildLoadReactor = (props: {
     }
 
     setComponent(entity, SceneComponent, props.sceneID)
-    loadComponents(entity, entityJSONState.components.get(NO_PROXY))
+    const resources = loadComponents(entity, entityJSONState.components.get(NO_PROXY))
+    if (resources) setComponent(entity, SceneAssetPendingTagComponent, resources)
 
     return () => {
       removeEntity(entity)
@@ -324,6 +326,7 @@ const ComponentLoadReactor = (props: {
 
 /** load all components synchronously to ensure no desync */
 const loadComponents = (entity: Entity, components: ComponentJsonType[]) => {
+  const componentResources = [] as string[]
   for (const component of components) {
     /** @todo - we have to check for existence here, as the dynamic loading parent component takes a re-render to load in */
     if (!entity || !entityExists(entity)) {
@@ -338,13 +341,15 @@ const loadComponents = (entity: Entity, components: ComponentJsonType[]) => {
     }
 
     try {
-      setComponent(entity, Component, component.props)
+      const resources = setComponent(entity, Component, component.props)
+      if (resources) componentResources.push(...resources)
     } catch (e) {
       console.error(`Error loading scene entity: `, getComponent(entity, UUIDComponent), entity, component)
       console.error(e)
       continue
     }
   }
+  return componentResources
 }
 
 // export const SceneLoadingSystem = defineSystem({

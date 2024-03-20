@@ -166,7 +166,6 @@ export interface Component<
   onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove: (entity: Entity, component: State<ComponentType>) => void
   resources?: Array<keyof ComponentType>
-  pendingResources: State<Array<ComponentType[keyof ComponentType]>>
   reactor?: HookableFunction<React.FC>
   reactorMap: Map<Entity, ReactorRoot>
   stateMap: Record<Entity, State<ComponentType> | undefined>
@@ -235,8 +234,6 @@ export const defineComponent = <
   Component.onSet = (entity, component, json) => {}
   Component.onRemove = () => {}
   Component.toJSON = (entity, component) => null!
-  Component.resources = []
-  Component.pendingResources = hookstate([])
   Component.errors = []
   Object.assign(Component, def)
   if (Component.reactor) Object.defineProperty(Component.reactor, 'name', { value: `Internal${Component.name}Reactor` })
@@ -352,6 +349,12 @@ export const setComponent = <C extends Component>(
     bitECS.addComponent(HyperFlux.store, Component, entity, false) // don't clear data on-add
   }
 
+  const resources: string[] | undefined = Component.resources
+    ?.map((key) => {
+      if (args && !!args[key] && typeof args[key] === 'string') return args[key]
+    })
+    .filter((v) => !!v)
+
   Component.onSet(entity, Component.stateMap[entity]!, args as Readonly<SerializedComponentType<C>>)
 
   if (!componentExists && Component.reactor && !Component.reactorMap.has(entity)) {
@@ -361,11 +364,12 @@ export const setComponent = <C extends Component>(
     root['entity'] = entity
     root['component'] = Component.name
     Component.reactorMap.set(entity, root)
-    return
+  } else {
+    const root = Component.reactorMap.get(entity)
+    root?.run()
   }
 
-  const root = Component.reactorMap.get(entity)
-  root?.run()
+  return resources
 }
 
 /**
@@ -553,17 +557,4 @@ export const getAllComponentsOfType = <C extends Component<any>>(component: C): 
   return entities.map((e) => {
     return getComponent(e, component)!
   })
-}
-
-export const resolveComponentResource = async <C extends Component>(
-  entity: Entity,
-  component: C,
-  resource: keyof Component<C>
-) => {
-  const comp = getMutableComponent(entity, component) as State<Component<C>>
-  if (!comp) return
-  const pendingResource = comp.pendingResources.value[resource]
-  if (pendingResource) {
-    comp.pendingResources[resource].set(none)
-  }
 }

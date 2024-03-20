@@ -57,7 +57,6 @@ import React from 'react'
 import { AssetType } from '../../assets/enum/AssetType'
 import { useGLTF } from '../../assets/functions/resourceHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { ResourceProgressState } from '../../assets/state/ResourceState'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { autoconvertMixamoAvatar } from '../../avatar/functions/avatarFunctions'
@@ -102,12 +101,9 @@ export const ModelComponent = defineComponent({
       component.cameraOcclusion.set(!(json as any).avoidCameraOcclusion)
     if (typeof json.cameraOcclusion === 'boolean') component.cameraOcclusion.set(json.cameraOcclusion)
     if (typeof json.convertToVRM === 'boolean') component.convertToVRM.set(json.convertToVRM)
-
-    // console.trace('scene resources onset', entity, json.src)
-
-    if (hasComponent(entity, UUIDComponent) && json.src && hasComponent(entity, SceneComponent))
-      ResourceProgressState.addResource(getComponent(entity, UUIDComponent), json.src)
   },
+
+  resources: ['src'],
 
   errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
 
@@ -117,8 +113,6 @@ export const ModelComponent = defineComponent({
 function ModelReactor(): JSX.Element {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
-
-  // console.trace('scene resources', entity, modelComponent.src.value)
 
   const [gltf, unload, error, progress] = useGLTF(modelComponent.src.value, entity, {
     forceAssetType: modelComponent.assetTypeOverride.value,

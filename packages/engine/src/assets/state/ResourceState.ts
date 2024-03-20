@@ -137,7 +137,6 @@ export const ResourceProgressState = defineState({
   initial: {} as Record<EntityUUID, ResourceProgressType>,
 
   addResource: (entityUUID: EntityUUID, url: string) => {
-    if (url.endsWith('glb')) console.trace('scene resources addResource, entityUUID:', entityUUID, 'url:', url)
     if (getState(ResourceProgressState)[entityUUID]) {
       if (!getMutableState(ResourceProgressState)[entityUUID].keys.includes(url))
         getMutableState(ResourceProgressState)[entityUUID].merge({
@@ -171,7 +170,6 @@ export const ResourceProgressState = defineState({
   },
 
   removeResource: (entityUUID: EntityUUID, url: string) => {
-    if (url.endsWith('glb')) console.log('scene resources removeResource, entityUUID:', entityUUID, 'url:', url)
     if (!getState(ResourceProgressState)[entityUUID]) return
     if (!getMutableState(ResourceProgressState)[entityUUID].keys.includes(url)) return
     getMutableState(ResourceProgressState)[entityUUID][url].loadedAmount.set(
