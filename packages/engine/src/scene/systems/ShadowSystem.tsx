@@ -38,7 +38,7 @@ import {
 } from 'three'
 
 import config from '@etherealengine/common/src/config'
-import { NO_PROXY, defineState, getMutableState, getState, hookstate, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, hookstate, useHookstate } from '@etherealengine/hyperflux'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
@@ -413,19 +413,12 @@ const reactor = () => {
 
   const useShadows = useShadowsEnabled()
 
-  const [shadowTexture, unload] = useTexture(
-    `${config.client.fileServer}/projects/default-project/assets/drop-shadow.png`
-  )
+  const [shadowTexture] = useTexture(`${config.client.fileServer}/projects/default-project/assets/drop-shadow.png`)
 
   useEffect(() => {
-    return unload
-  }, [])
+    if (!shadowTexture) return
 
-  useEffect(() => {
-    const texture = shadowTexture.get(NO_PROXY)
-    if (!texture) return
-
-    shadowMaterial.map = texture
+    shadowMaterial.map = shadowTexture
     shadowMaterial.needsUpdate = true
     shadowState.set(shadowMaterial)
   }, [shadowTexture])

@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import config from '@etherealengine/common/src/config'
+import { BotUserAgent } from '@etherealengine/common/src/constants/BotUserAgent'
 import { PUBLIC_STUN_SERVERS } from '@etherealengine/common/src/constants/STUNServers'
 import multiLogger from '@etherealengine/common/src/logger'
 import {
@@ -70,7 +71,6 @@ import {
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
 } from '@etherealengine/network'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import * as mediasoupClient from 'mediasoup-client'
 import {
   Consumer,
@@ -157,6 +157,7 @@ const unprovisionInstance = (topic: Topic, instanceID: InstanceID) => {
 
 export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
   clearInterval(network.transport.heartbeat)
+  network.transport.primus?.removeAllListeners()
   network.transport.primus?.end()
   removeNetwork(network)
   /** Dispatch updatePeers locally to ensure event souce states know about this */
@@ -172,7 +173,7 @@ export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
 
 export const initializeNetwork = (id: InstanceID, hostPeerID: PeerID, topic: Topic, primus: Primus) => {
   const mediasoupDevice = new mediasoupClient.Device(
-    getMutableState(EngineState).isBot.value ? { handlerName: 'Chrome74' } : undefined
+    navigator.userAgent === BotUserAgent ? { handlerName: 'Chrome74' } : undefined
   )
 
   const transport = {

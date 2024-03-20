@@ -246,7 +246,7 @@ export const readDataPacket = (network: Network, packet: ArrayBuffer, jitterBuff
   const view = createViewCursor(packet)
   const { peerIndex, simulationTime } = readMetadata(view)
   const fromPeerID = network.peerIndexToPeerID[peerIndex]
-  const isLoopback = !!fromPeerID && fromPeerID === Engine.instance.peerID
+  const isLoopback = !!fromPeerID && fromPeerID === Engine.instance.store.peerID
   if (isLoopback) return
   jitterBufferTaskList.push({
     simulationTime,
