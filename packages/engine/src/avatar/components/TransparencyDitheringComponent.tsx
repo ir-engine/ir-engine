@@ -76,28 +76,21 @@ export const TransparencyDitheringComponent = Array.from({ length: maxDitherPoin
 
     reactor: () => {
       const entity = useEntityContext()
+      const sceneInstanceID = useModelSceneID(entity)
+      const childEntities = useHookstate(SceneComponent.entitiesBySceneState[sceneInstanceID])
+      const ditheringComponent = useComponent(entity, TransparencyDitheringComponent[0])
+      const materialState = useHookstate(ditheringComponent.materialIds)
+
       return (
         <>
-          <DitherRootReactor key={entity} entity={entity} index={i} />
+          {childEntities.value?.map((childEntity) => (
+            <DitherChildReactor key={childEntity} entity={childEntity} rootEntity={entity} index={i} />
+          ))}
         </>
       )
     }
   })
 })
-
-const DitherRootReactor = (props: { entity: Entity; index: number }) => {
-  const entity = props.entity
-  const sceneInstanceID = useModelSceneID(entity)
-  const childEntities = useHookstate(SceneComponent.entitiesBySceneState[sceneInstanceID])
-
-  return (
-    <>
-      {childEntities.value?.map((childEntity) => (
-        <DitherChildReactor key={childEntity} entity={childEntity} rootEntity={entity} index={props.index} />
-      ))}
-    </>
-  )
-}
 
 const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity; index: number }) => {
   const { entity, rootEntity, index } = props
