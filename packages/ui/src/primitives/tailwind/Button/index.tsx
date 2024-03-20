@@ -68,6 +68,7 @@ const Button = ({
     'font-medium text-white',
     'transition ease-in-out',
     'disabled:cursor-not-allowed',
+    StartIcon || EndIcon ? 'justify-between' : 'justify-center',
     sizes[size],
     variants[variant],
     fullWidth ? 'w-full' : 'w-fit',
