@@ -102,7 +102,7 @@ export const RigidBodyComponent = defineComponent({
     }
   },
 
-  reactor: function (props) {
+  reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, RigidBodyComponent)
 
