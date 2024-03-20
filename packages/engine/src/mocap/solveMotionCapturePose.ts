@@ -439,7 +439,6 @@ export function solveMotionCapturePose(
 const threshhold = 0.6
 
 const vec3 = new Vector3()
-const quat = new Quaternion()
 
 /**
  * The spine is the joints connecting the hips and shoulders. Given solved hips, we can solve each of the spine bones connecting the hips to the shoulders using the shoulder's position and rotation.
