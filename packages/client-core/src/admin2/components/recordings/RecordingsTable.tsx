@@ -34,7 +34,7 @@ import DataTable from '../../common/Table'
 import { recordingColumns } from '../../common/constants/recordings'
 
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import { HiEye, HiTrash } from 'react-icons/hi2'
+import { HiTrash } from 'react-icons/hi2'
 import { PopoverState } from '../../../common/services/PopoverState'
 import DeleteRecordingModal from './DeleteRecordingModal'
 
@@ -57,10 +57,10 @@ export default function RecordingsTable({ search }: { search: string }) {
       ended: row.ended ? t('admin:components.common.yes') : t('admin:components.common.no'),
       schema: JSON.stringify(row.schema),
       action: (
-        <div className="flex w-full justify-around px-2 py-1">
-          <Button className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0" rounded>
+        <div className="flex w-full justify-center px-2 py-1">
+          {/* <Button className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0" rounded>
             <HiEye className="place-self-center" />
-          </Button>
+          </Button> */}
           <Button
             className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0"
             rounded
