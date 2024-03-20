@@ -2,8 +2,7 @@ name: dev-deploy
 
 on:
   push:
-    branches:
-      [dev]
+    branches: [tailwind-admin-migration]
 jobs:
   secrets-gate-run:
     runs-on: ubuntu-latest
