@@ -77,6 +77,9 @@ const feetGrounded = [false, false]
 const footAverageDifferenceThreshold = 0.05
 const footLevelDifferenceThreshold = 0.035
 
+const worldFilterAlphaMultiplier = 30
+const screenFilterAlphaMultiplier = 10
+
 //get all strings from the list containing 'leg' or 'foot'
 const lowerBody = VRMHumanBoneList.filter((bone) => /Leg|Foot|hips/i.test(bone))
 
@@ -303,8 +306,16 @@ export function solveMotionCapturePose(
   if (!mocapComponent.prevScreenLandmarks)
     mocapComponent.prevScreenLandmarks = newScreenlandmarks.map((landmark) => ({ ...landmark }))
 
-  const worldLandmarks = keyframeInterpolation(newLandmarks, mocapComponent.prevWorldLandmarks, 30)
-  const screenLandmarks = keyframeInterpolation(newScreenlandmarks, mocapComponent.prevScreenLandmarks, 10)
+  const worldLandmarks = keyframeInterpolation(
+    newLandmarks,
+    mocapComponent.prevWorldLandmarks,
+    worldFilterAlphaMultiplier
+  )
+  const screenLandmarks = keyframeInterpolation(
+    newScreenlandmarks,
+    mocapComponent.prevScreenLandmarks,
+    screenFilterAlphaMultiplier
+  )
 
   mocapComponent.prevWorldLandmarks = worldLandmarks
   mocapComponent.prevScreenLandmarks = screenLandmarks

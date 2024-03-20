@@ -104,7 +104,8 @@ export const timeSeriesMocapData = new Map<
   }>
 >()
 const timeSeriesMocapLastSeen = new Map<PeerID, number>()
-
+/**@todo this will be determined by the average delta of incoming landmark data */
+const slerpAlphaMultiplier = 25
 const execute = () => {
   // for now, it is unnecessary to compute anything on the server
   if (!isClient) return
@@ -168,7 +169,7 @@ const execute = () => {
               MotionCaptureRigComponent.rig[boneName].w[entity]
             )
             .normalize(),
-          getState(ECSState).deltaSeconds * 25
+          getState(ECSState).deltaSeconds * slerpAlphaMultiplier
         )
 
       normalizedBone.quaternion.copy(slerpedQuat)
