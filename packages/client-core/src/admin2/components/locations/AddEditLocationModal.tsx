@@ -62,6 +62,12 @@ export default function AddEditLocationModal({ location }: { location?: Location
 
   useEffect(() => {
     AdminSceneService.fetchAdminScenes()
+    const sceneId = location?.sceneId || ''
+    if (sceneId) {
+      // sceneId is in the format of "projects/PROJECT_NAME/SCENE_NAME.scene.json"
+      // so we strip off projects & scene.json and set the scene state
+      scene.set(sceneId.slice(9, -11))
+    }
   }, [])
 
   const handleSubmit = async () => {
