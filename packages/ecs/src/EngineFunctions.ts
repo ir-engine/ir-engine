@@ -40,7 +40,7 @@ const TimerConfig = {
 const sortSystemsByAvgDuration = (): System[] => {
   const systems = SystemDefinitions
   const sorted = [...systems.values()].sort((left: System, right: System) => {
-    return parseFloat(right.avgSystemDuration.toPrecision(10)) - parseFloat(left.avgSystemDuration.toPrecision(10))
+    return right.avgSystemDuration - left.avgSystemDuration
   })
 
   return sorted
