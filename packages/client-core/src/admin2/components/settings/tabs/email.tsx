@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { emailSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import Password from '@etherealengine/ui/src/components/tailwind/Password'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
@@ -35,7 +36,6 @@ import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
-import Password from '../../../common/Password'
 
 const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()

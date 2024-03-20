@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { AuthenticationSettingType, authenticationSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { State, useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import Password from '@etherealengine/ui/src/components/tailwind/Password'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
@@ -36,7 +37,6 @@ import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 import { initialAuthState } from '../../../../common/initialAuthState'
-import Password from '../../../common/Password'
 
 const OAUTH_TYPES = {
   DISCORD: 'discord',
@@ -203,6 +203,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             key={i}
             className="col-span-1 capitalize"
             containerClassName="justify-start"
+            labelClassName="capitalize"
             label={strategyName}
             value={state[strategyName].value}
             disabled={strategyName === 'jwt'}

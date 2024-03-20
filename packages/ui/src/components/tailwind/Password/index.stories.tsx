@@ -23,24 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { twMerge } from 'tailwind-merge'
+import Component from './index'
 
-export interface LabelProps extends React.HtmlHTMLAttributes<HTMLLabelElement> {
-  className?: string
+const argTypes = {}
+
+export default {
+  title: 'Primitives/Tailwind/Password',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'Password',
+    jest: 'Password.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
 }
-
-const Label = ({ className, children }: LabelProps) => {
-  return (
-    <label
-      className={twMerge(
-        'text-theme-secondary inline-block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
-        className
-      )}
-    >
-      {children}
-    </label>
-  )
-}
-
-export default Label
+export const Default = { args: Component.defaultProps }

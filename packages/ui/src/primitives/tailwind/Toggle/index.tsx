@@ -60,7 +60,7 @@ const Toggle = ({
     className,
     sizeMap[size ?? 'md']
   )
-  const containerTwClassName = twMerge('flex items-center justify-center gap-4', containerClassName)
+  const containerTwClassName = twMerge('flex items-center gap-4', containerClassName)
 
   return (
     <div className={containerTwClassName}>
