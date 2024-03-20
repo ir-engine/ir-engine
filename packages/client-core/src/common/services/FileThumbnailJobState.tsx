@@ -58,7 +58,7 @@ import {
 } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import React, { useEffect, useLayoutEffect } from 'react'
+import React, { useEffect } from 'react'
 import { Group, MathUtils, Vector3 } from 'three'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
@@ -155,8 +155,7 @@ const ThumbnailJobReactor = (props: { src: string }) => {
   })
   const loadPromiseState = useHookstate(null as Promise<any> | null) // for asset loading
   const sceneState = useHookstate(getMutableState(SceneState).scenes) // for model rendering
-  const [tex, texUnload] = useTexture(state.fileType.value === 'texture' ? props.src : '') // for texture loading
-  useLayoutEffect(() => texUnload, []) // deallocate texture on unmount
+  const [tex] = useTexture(state.fileType.value === 'texture' ? props.src : '') // for texture loading
 
   // Load and render image
   useEffect(() => {
@@ -195,13 +194,13 @@ const ThumbnailJobReactor = (props: { src: string }) => {
   useEffect(() => {
     if (state.fileType.value !== 'texture') return
     if (loadPromiseState.value != null) return
-    if (!tex.value) return
+    if (!tex) return
 
     const image = new Image()
     image.crossOrigin = 'anonymous'
 
     loadPromiseState.set(
-      createReadableTexture(tex.value, { url: true })
+      createReadableTexture(tex, { url: true })
         .then((result) => {
           image.src = result as string
           return image.decode()
@@ -211,8 +210,7 @@ const ThumbnailJobReactor = (props: { src: string }) => {
         .then((blob) => uploadThumbnail(props.src, jobState.project.value, jobState.id.value, blob))
         .then(() => jobState.set(none))
     )
-    tex.value.dispose()
-  }, [state.fileType.value, tex.value])
+  }, [state.fileType.value, tex])
 
   // Load models
   useEffect(() => {
