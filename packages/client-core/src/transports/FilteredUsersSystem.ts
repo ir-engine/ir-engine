@@ -73,7 +73,7 @@ export const updateNearbyAvatars = () => {
 
   /** @todo move this to event sourcing state */
   // for (const consumer of network.consumers) {
-  //   if (consumer.appData.peerID === Engine.instance.peerID) continue
+  //   if (consumer.appData.peerID === Engine.instance.store.peerID) continue
   //   if (!nearbyUserIds.includes(network.peers.get(consumer.appData.peerID)?.userId!)) {
   //     dispatchAction(
   //       MediaConsumerActions.consumerClosed({

@@ -35,7 +35,8 @@ export class AvatarNetworkAction {
   static spawn = defineAction(
     SpawnObjectActions.spawnObject.extend({
       type: 'ee.engine.avatar.SPAWN',
-      avatarID: matches.string as Validator<unknown, AvatarID>
+      avatarID: matches.string as Validator<unknown, AvatarID>,
+      name: matches.string
     })
   )
 
@@ -54,6 +55,16 @@ export class AvatarNetworkAction {
     type: 'ee.engine.avatar.SET_AVATAR_ID',
     entityUUID: matchesEntityUUID,
     avatarID: matches.string as Validator<unknown, AvatarID>,
+    $cache: {
+      removePrevious: true
+    },
+    $topic: NetworkTopics.world
+  })
+
+  static setName = defineAction({
+    type: 'ee.engine.avatar.SET_AVATAR_ID',
+    entityUUID: matchesEntityUUID,
+    name: matches.string,
     $cache: {
       removePrevious: true
     },

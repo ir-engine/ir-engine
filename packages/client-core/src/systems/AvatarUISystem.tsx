@@ -142,7 +142,7 @@ const onSecondaryClick = () => {
   if (hits.length) {
     const hit = hits[0]
     const hitEntity = (hit.body?.userData as any)?.entity as Entity
-    if (typeof hitEntity !== 'undefined' && hitEntity !== Engine.instance.localClientEntity) {
+    if (typeof hitEntity !== 'undefined' && hitEntity !== AvatarComponent.getSelfAvatarEntity()) {
       if (hasComponent(hitEntity, NetworkObjectComponent)) {
         const userId = getComponent(hitEntity, NetworkObjectComponent).ownerId
         state.id.set(userId)

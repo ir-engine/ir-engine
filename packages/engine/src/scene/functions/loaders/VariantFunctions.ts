@@ -121,7 +121,6 @@ export function updateVariant(entity?: Entity) {
  * @param performanceOffset
  */
 export function setModelVariantLOD(entity: Entity, performanceOffset: number) {
-  console.log('VariantFunctions:setModelVariantLOD performanceOffset: ' + performanceOffset)
   const variantComponent = getMutableComponent(entity, VariantComponent)
   if (variantComponent.heuristic.value === Heuristic.BUDGET)
     variantComponent.budgetLevel.set(Math.min(performanceOffset, variantComponent.levels.length - 1))

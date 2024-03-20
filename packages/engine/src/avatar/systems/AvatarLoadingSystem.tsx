@@ -110,31 +110,29 @@ const reactor = () => {
 
   const assetsReady = useHookstate(false)
 
-  const [itemLight, lightUnload] = useTexture('/static/itemLight.png')
-  const [itemPlate, plateUnload] = useTexture('/static/itemPlate.png')
+  const [itemLight] = useTexture('/static/itemLight.png')
+  const [itemPlate] = useTexture('/static/itemPlate.png')
 
   useEffect(() => {
-    const texture = itemLight.value
+    const texture = itemLight
     if (!texture) return
 
     texture.colorSpace = SRGBColorSpace
     texture.needsUpdate = true
     SpawnEffectComponent.lightMesh.material.map = texture
-    return lightUnload
   }, [itemLight])
 
   useEffect(() => {
-    const texture = itemPlate.value
+    const texture = itemPlate
     if (!texture) return
 
     texture.colorSpace = SRGBColorSpace
     texture.needsUpdate = true
     SpawnEffectComponent.plateMesh.material.map = texture
-    return plateUnload
   }, [itemPlate])
 
   useEffect(() => {
-    if (itemLight.value && itemPlate.value) assetsReady.set(true)
+    if (itemLight && itemPlate) assetsReady.set(true)
   }, [itemLight, itemPlate])
 
   useEffect(() => {

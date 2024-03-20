@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import multiLogger from '@etherealengine/common/src/logger'
 import {
-  AvatarID,
   RecordingID,
   RecordingSchemaType,
   UserID,
@@ -637,14 +636,9 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
               dispatchAction(
                 AvatarNetworkAction.spawn({
                   ownerID: entityID,
-                  entityUUID: entityID,
-                  avatarID: '' as AvatarID
-                })
-              )
-              dispatchAction(
-                AvatarNetworkAction.setAvatarID({
+                  entityUUID: (entityID + '_avatar') as EntityUUID,
                   avatarID: user.avatar.id!,
-                  entityUUID: entityID
+                  name: user.name + "'s Clone"
                 })
               )
               entitiesSpawned.push(entityID)
@@ -816,7 +810,7 @@ const execute = () => {
         const encodedData = encode(frame.data)
 
         /** PeerID must be the original peerID if server playback, otherwise it is our peerID */
-        const peerID = isClient ? Engine.instance.peerID : chunks.fromPeerID
+        const peerID = isClient ? Engine.instance.store.peerID : chunks.fromPeerID
         if (isClient) {
           const dataChannelFunctions = getState(DataChannelRegistryState)[dataChannel]
           if (dataChannelFunctions) {

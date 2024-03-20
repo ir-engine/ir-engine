@@ -483,6 +483,10 @@ const load = <T extends AssetType>(
     url,
     args,
     (response: T) => {
+      if (!resource || !resource.value) {
+        console.warn('ResourceManager:load Resource removed before load finished: ' + url + ' for entity: ' + entity)
+        return
+      }
       resource.status.set(ResourceStatus.Loaded)
       resource.asset.set(response)
       callbacks.onLoad(response, resource, resourceState)
@@ -566,6 +570,7 @@ const unload = (url: string, entity: Entity, uuid?: string) => {
 
 const unloadObj = (obj: Object3D, sceneID: SceneID | undefined) => {
   const remove = (obj: Object3D) => {
+    debugLog('ResourceManager:unloadObj Unloading Object3D: ' + obj.name + ' for scene: ' + sceneID)
     const light = obj as Light // anything with dispose function
     if (typeof light.dispose === 'function') light.dispose()
 

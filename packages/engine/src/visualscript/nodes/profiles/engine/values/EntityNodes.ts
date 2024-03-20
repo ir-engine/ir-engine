@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import { ComponentMap, getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
@@ -30,6 +31,9 @@ import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
+import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/moveAvatar'
+import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { copyTransformToRigidBody } from '@etherealengine/spatial/src/physics/systems/PhysicsPreTransformSystem'
@@ -44,10 +48,6 @@ import {
   toVector3
 } from '@etherealengine/visual-script'
 import { cloneDeep, isEqual, uniqueId } from 'lodash'
-
-import { UUIDComponent } from '@etherealengine/ecs'
-import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/moveAvatar'
-import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
 import { addEntityToScene } from '../helper/entityHelper'
 
 type State = {
@@ -91,7 +91,7 @@ export const getLocalClientEntity = makeFunctionNodeDefinition({
   in: {},
   out: { entity: 'entity' },
   exec: ({ write }) => {
-    const entity = Engine.instance.localClientEntity
+    const entity = AvatarComponent.getSelfAvatarEntity()
     write('entity', entity)
   }
 })
@@ -255,7 +255,7 @@ export const setEntityTransform = makeFlowNodeDefinition({
     const rotation = toQuat(read('rotation'))
     const scale = toVector3(read('scale'))
     const entity = Number(read('entity')) as Entity
-    if (entity === Engine.instance.localClientEntity) {
+    if (entity === AvatarComponent.getSelfAvatarEntity()) {
       teleportAvatar(entity, position!, true)
     } else {
       setComponent(entity, TransformComponent, { position: position!, rotation: rotation!, scale: scale! })
