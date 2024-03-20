@@ -59,6 +59,7 @@ import { NetworkState, VideoConstants } from '@etherealengine/network'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { drawPoseToCanvas } from '@etherealengine/ui/src/pages/Capture'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
+import { DrawingUtils } from '@mediapipe/tasks-vision'
 import { AdminClientSettingsState } from '../../admin/services/Setting/ClientSettingService'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
@@ -81,7 +82,11 @@ const useDrawMocapLandmarks = (
   peerID: PeerID
 ) => {
   let lastTimestamp = 0
-
+  const drawingUtils = useHookstate(null as null | DrawingUtils)
+  useEffect(() => {
+    drawingUtils.set(new DrawingUtils(canvasCtxRef.current!))
+    canvasRef.current!.style.transform = `scaleX(-1)`
+  })
   useExecute(
     () => {
       if (videoElement.paused || videoElement.ended || !videoElement.currentTime) return
@@ -97,7 +102,8 @@ const useDrawMocapLandmarks = (
               const lastMocapResult = mocapBuffer.getLast()
               if (lastMocapResult && lastMocapResult.timestamp !== lastTimestamp) {
                 lastTimestamp = lastMocapResult.timestamp
-                drawPoseToCanvas(canvasCtxRef, canvasRef, lastMocapResult.results.poseLandmarks)
+                drawingUtils.value &&
+                  drawPoseToCanvas([lastMocapResult.results.landmarks], canvasCtxRef, canvasRef, drawingUtils.value)
                 return
               }
             }
