@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@etherealengine/hyperflux'
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useEffect } from 'react'
 import { twMerge } from 'tailwind-merge'
 import Text from '../Text'
 
@@ -34,12 +34,22 @@ export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
     tabLabel: string
     bottomComponent?: ReactNode
     rightComponent?: ReactNode
+    ref?: React.RefObject<HTMLDivElement>
   }[]
   tabContainerClassName?: string
   tabClassName?: string
+  scrollable?: boolean
+  onTabChange?: (index: number) => void
 }
 
-const Tabs = ({ tabsData, tabContainerClassName, tabClassName, ...props }: TabProps): JSX.Element => {
+const Tabs = ({
+  tabsData,
+  tabContainerClassName,
+  tabClassName,
+  scrollable,
+  onTabChange,
+  ...props
+}: TabProps): JSX.Element => {
   const twTabContainerClassName = twMerge('flex gap-4', tabContainerClassName)
   const twTabClassName = twMerge(
     'text-theme-secondary p-3 text-sm dark:hover:border-b dark:hover:border-b-blue-400',
@@ -47,10 +57,29 @@ const Tabs = ({ tabsData, tabContainerClassName, tabClassName, ...props }: TabPr
   )
   const currentTab = useHookstate(0)
 
+  useEffect(() => {
+    if (
+      scrollable &&
+      tabsData.length &&
+      tabsData[currentTab.value] &&
+      tabsData[currentTab.value].ref &&
+      tabsData[currentTab.value].ref?.current
+    ) {
+      tabsData[currentTab.value].ref?.current?.scrollIntoView({
+        block: 'center',
+        inline: 'nearest',
+        behavior: 'smooth'
+      })
+    }
+    if (onTabChange) {
+      onTabChange(currentTab.value)
+    }
+  }, [currentTab])
+
   return (
-    <div>
+    <div className="relative h-[95vh] overflow-y-auto">
       <Text component="h2" fontSize="xl" className="mb-6">
-        {tabsData[currentTab.value].title}
+        {tabsData[currentTab.value]?.title}
       </Text>
       <div className="bg-theme-surfaceMain sticky top-0 flex justify-between">
         <div className={twMerge(twTabContainerClassName, tabContainerClassName)} {...props}>
@@ -59,7 +88,7 @@ const Tabs = ({ tabsData, tabContainerClassName, tabClassName, ...props }: TabPr
               key={index}
               className={twMerge(
                 twTabClassName,
-                currentTab.value === index ? 'text-theme-primary border-b border-b-blue-400 font-semibold' : ''
+                currentTab.value === index ? 'text-theme-primary border-b-bluePrimary border-b font-semibold' : ''
               )}
               onClick={() => {
                 currentTab.set(index)
@@ -69,9 +98,17 @@ const Tabs = ({ tabsData, tabContainerClassName, tabClassName, ...props }: TabPr
             </button>
           ))}
         </div>
-        {tabsData[currentTab.value].rightComponent}
+        {tabsData[currentTab.value]?.rightComponent}
       </div>
-      <div className="mt-4">{tabsData[currentTab.value].bottomComponent}</div>
+      {scrollable ? (
+        tabsData.map((tab, index) => (
+          <div className="mt-4" key={index}>
+            {tab.bottomComponent}
+          </div>
+        ))
+      ) : (
+        <div className="mt-4">{tabsData[currentTab.value]?.bottomComponent}</div>
+      )}
     </div>
   )
 }

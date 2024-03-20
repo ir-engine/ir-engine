@@ -64,7 +64,12 @@ export default function Avatars() {
             }}
             className="bg-theme-primary"
             containerClassname="w-1/5 block"
-            icon={<HiMagnifyingGlass />}
+            startComponent={<HiMagnifyingGlass />}
+            endComponent={
+              <Button className="pointer-events-auto bg-transparent px-0">
+                <HiMagnifyingGlass />
+              </Button>
+            }
           />
           <Button
             startIcon={<HiPlus />}

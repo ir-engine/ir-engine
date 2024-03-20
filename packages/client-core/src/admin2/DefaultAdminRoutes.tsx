@@ -23,10 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { clientSettingPath } from '@etherealengine/common/src/schema.type.module'
 import React, { lazy } from 'react'
 import { HiOutlineCube } from 'react-icons/hi'
 import {
   HiMapPin,
+  HiOutlineCog6Tooth,
   HiOutlineGlobeAlt,
   HiOutlineMegaphone,
   HiOutlineTableCells,
@@ -54,6 +56,8 @@ const Instances = lazy(() => import('./components/instance'))
 const Resources = lazy(() => import('./components/resources'))
 
 const Routes = lazy(() => import('./components/routes'))
+
+const Settings = lazy(() => import('./components/settings'))
 
 const Channels = lazy(() => import('./components/channel'))
 
@@ -120,6 +124,13 @@ export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
     component: Routes,
     access: false,
     icon: <HiOutlineGlobeAlt />
+  },
+  settings: {
+    name: 'user:dashboard.setting',
+    scope: ['settings', clientSettingPath],
+    component: Settings,
+    access: false,
+    icon: <HiOutlineCog6Tooth />
   },
   channel: {
     name: 'user:dashboard.channels',

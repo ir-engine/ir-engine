@@ -89,7 +89,7 @@ const Select = <T extends OptionValueType>({
   useClickOutside(ref, () => showOptions.set(false))
 
   return (
-    <div className={twMerge('bg-theme-primary relative', className)}>
+    <div className={twMerge('relative', className)} ref={ref}>
       <Input
         disabled={disabled}
         label={label}
@@ -100,7 +100,7 @@ const Select = <T extends OptionValueType>({
         value={selectLabel.value}
         onChange={handleSearch}
         onClick={() => {
-          showOptions.set(!showOptions.value)
+          showOptions.set((v) => !v)
         }}
       />
       <MdOutlineKeyboardArrowDown
@@ -110,7 +110,6 @@ const Select = <T extends OptionValueType>({
         }`}
       />
       <div
-        ref={ref}
         className={`border-theme-primary bg-theme-secondary absolute z-10 mt-2 w-full rounded border ${
           showOptions.value ? 'visible' : 'hidden'
         }`}

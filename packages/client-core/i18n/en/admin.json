@@ -345,7 +345,10 @@
       "resourceUrl": "Resource URL"
     },
     "setting": {
-      "authentication": "Authentication",
+      "authentication": {
+        "header": "Authentication",
+        "subtitle": "Edit Authentication Settings"
+      },
       "service": "Service",
       "secret": "Secret",
       "entity": "Entity",
@@ -394,7 +397,14 @@
       "apiKey": "ApiKey",
       "url": "URL",
       "chargebee": "Chargebee",
-      "client": "Client",
+      "client": {
+        "header": "Client",
+        "subtitle": "Edit Client Settings",
+        "main": "Main",
+        "logo": "Logo",
+        "other": "Other",
+        "media": "Audio & Video"
+      },
       "clientId": "OAuth2 client_id",
       "clientSecret": "OAuth2 client_secret",
       "coil": "Coil",
@@ -410,7 +420,10 @@
       "webmanifestLink": "Webmanifest",
       "swScriptLink": "service-worker.js",
       "releaseName": "Release Name",
-      "email": "Email",
+      "email": {
+        "header": "Email",
+        "subtitle": "Edit Email Settings"
+      },
       "smtp": "SMTP",
       "port": "Port",
       "secure": "Secure",
@@ -422,7 +435,10 @@
       "group": "group",
       "party": "Party",
       "smsNameCharLimit": "SMS Name Character Limit",
-      "instanceServer": "Instance Server",
+      "instanceServer": {
+        "header": "Instance Server",
+        "subtitle": "Edit Instance Server Settings"
+      },
       "clientHost": "Client Host",
       "rtcStartPort": "RTC Start Port",
       "rtcEndPort": "RTC End Port",
@@ -434,7 +450,6 @@
       "redis": "Redis",
       "enabled": "Enabled",
       "address": "Address",
-      "server": "Server",
       "hostName": "Host Name",
       "rootDirectory": "Root Directory",
       "publicDirectory": "Public Directory",
@@ -448,7 +463,6 @@
       "githubWebhookSecret": "Github Webhook Secret",
       "githubPrivateKey": "Github Private Key",
       "instanceserverUnreachableTimeoutSeconds": "Seconds for instanceserver to be considered unreachable",
-      "project": "Project",
       "patchInstanceserver": "Patch Instanceserver",
       "hub": "Hub",
       "placeholderText": "This is the input placeholder",
@@ -483,19 +497,34 @@
       "screenshareMidResMaxBitrate": "Screenshare mid-res video max bitrate (kbps)",
       "screenshareHighResMaxBitrate": "Screenshare high-res video max bitrate (kbps)",
       "privacyPolicy": "Privacy Policy",
-      "taskServer": {
-        "taskServer": "Task Server",
-        "port": "Port",
-        "processInterval": "Process Interval"
+      "project": {
+        "header": "Project",
+        "subtitle": "Edit Project Settings",
+        "submit": "Submit",
+        "clear": "Clear",
+        "noSettingsMessage": "No schema available in xrengine.config.ts"
+      },
+      "server": {
+        "header": "Server",
+        "subtitle": "Edit Mode, Storage Provider, Host Name, Hub,etc."
       },
       "helm": {
         "header": "Helm Chart Versions",
+        "subtitle": "To apply a new Helm chart version, Save here, then go to /admin/projects and then Rebuild",
         "main": "Main deployment Helm version",
         "builder": "Builder deployment Helm version",
         "explainer": "To apply a new Helm chart version, Save here, then go to /admin/projects and then Rebuild",
         "builderHelmToDeploy": "Builder Helm chart to deploy",
         "mainHelmToDeploy": "Main Helm chart to deploy"
-      }
+      },
+      "taskServer": {
+        "taskServer": "Task Server",
+        "subtitle": "Edit Task Server Settings",
+        "port": "Port",
+        "processInterval": "Process Interval"
+      },
+      
+      "plugins": "Plugins"
     },
     "avatar": {
       "columns": {

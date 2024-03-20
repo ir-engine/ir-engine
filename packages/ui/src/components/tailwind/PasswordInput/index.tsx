@@ -23,45 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
-import Button from '../Button'
-import Input from '../Input'
-import Accordion from './index'
+import { useHookstate } from '@etherealengine/hyperflux'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import Input, { InputProps } from '@etherealengine/ui/src/primitives/tailwind/Input'
+import React, { forwardRef } from 'react'
+import { HiOutlineEye, HiOutlineEyeSlash } from 'react-icons/hi2'
 
-export default {
-  title: 'Primitives/Tailwind/Accordion',
-  component: Accordion,
-  parameters: {
-    componentSubtitle: 'Accordion',
-    design: {
-      type: 'figma',
-      url: ''
+const PasswordInput = forwardRef<HTMLInputElement, InputProps>(
+  (props: InputProps, ref: React.Ref<HTMLInputElement>) => {
+    const show = useHookstate(false)
+
+    const toggleShow = () => {
+      show.set(!show.value)
     }
-  }
-}
 
-export const Default = {
-  args: {
-    title: 'Task Server',
-    subtitle: 'Edit App Title, Subtitle, PWA, Logo, Icon, Release Name, Audio and Video codec',
-    expandIcon: <HiPlusSmall />,
-    shrinkIcon: <HiMinus />,
-    children: (
-      <>
-        <div className="my-6 flex w-full justify-between gap-4">
-          <Input label="Port" value="3030" />
-          <Input label="Process Interval" value="30" />
-        </div>
-        <div className="flex w-3/12 justify-between gap-4">
-          <Button fullWidth className="bg-theme-highlight">
-            Cancel
+    return (
+      <Input
+        ref={ref}
+        {...props}
+        type={show.value ? 'text' : 'password'}
+        endComponent={
+          <Button onClick={toggleShow} className="bg-transperant pointer-events-auto px-0">
+            {show.value ? (
+              <HiOutlineEyeSlash className="text-theme-primary" />
+            ) : (
+              <HiOutlineEye className="text-theme-primary" />
+            )}
           </Button>
-          <Button fullWidth className="bg-bluePrimary">
-            Submit
-          </Button>
-        </div>
-      </>
+        }
+      />
     )
   }
-}
+)
+
+export default PasswordInput
