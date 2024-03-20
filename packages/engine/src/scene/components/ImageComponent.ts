@@ -41,7 +41,7 @@ import {
 } from 'three'
 
 import { EntityUUID } from '@etherealengine/ecs'
-import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 
 import config from '@etherealengine/common/src/config'
 import { StaticResourceType } from '@etherealengine/common/src/schema.type.module'
@@ -159,20 +159,18 @@ export function ImageReactor() {
   const image = useComponent(entity, ImageComponent)
   const texture = useHookstate(null as Texture | null)
 
-  const [textureState, unload, error] = useTexture(image.source.value, entity)
+  const [imgTexture, error] = useTexture(image.source.value, entity)
 
   useEffect(() => {
-    const _texture = textureState.get(NO_PROXY)
-    if (_texture) {
-      texture.set(_texture)
+    if (imgTexture) {
+      texture.set(imgTexture)
       // SceneAssetPendingTagComponent.removeResource(entity, ImageComponent.jsonID)
-      return unload
     }
-  }, [textureState])
+  }, [imgTexture])
 
   useEffect(() => {
-    if (!error.value) return
-    addError(entity, ImageComponent, `LOADING_ERROR`, error.value.message)
+    if (!error) return
+    addError(entity, ImageComponent, `LOADING_ERROR`, error.message)
     // SceneAssetPendingTagComponent.removeResource(entity, ImageComponent.jsonID)
   }, [error])
 
