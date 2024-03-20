@@ -53,7 +53,7 @@ const AdminSideBar = () => {
   const relativePath = fullPathName.split('/').slice(2).join('/')
 
   return (
-    <aside className="bg-theme-primary mx-8 rounded-lg px-2 py-4">
+    <aside className="bg-theme-primary mx-8 h-fit rounded-lg px-2 py-4">
       <ul className="space-y-2">
         {Object.entries(allowedRoutes)
           .filter(([_, sidebarItem]) => sidebarItem.access)
@@ -141,7 +141,7 @@ const AdminRoutes = () => {
   return (
     <main className="pointer-events-auto mt-6 flex gap-1.5">
       <AdminSideBar />
-      <div className="w-[80%]">
+      <div className="w-full overflow-x-auto px-3">
         <Routes>
           <Route path="/*" element={<$allowed />} />
           {<Route path="/" element={<Projects />} />}
