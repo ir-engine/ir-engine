@@ -163,8 +163,8 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
 
   return (
     <Accordion
-      title={t('admin:components.setting.authentication')}
-      subtitle="Edit Project Settings"
+      title={t('admin:components.setting.authentication.header')}
+      subtitle={t('admin:components.setting.authentication.subtitle')}
       expandIcon={<HiPlusSmall />}
       shrinkIcon={<HiMinus />}
       ref={ref}

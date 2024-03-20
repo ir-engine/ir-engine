@@ -116,8 +116,8 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
 
   return (
     <Accordion
-      title={t('admin:components.setting.email')}
-      subtitle="Edit Project Settings"
+      title={t('admin:components.setting.email.header')}
+      subtitle={t('admin:components.setting.email.subtitle')}
       expandIcon={<HiPlusSmall />}
       shrinkIcon={<HiMinus />}
       ref={ref}

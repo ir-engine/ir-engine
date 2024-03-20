@@ -58,7 +58,7 @@ export const SettingsTabsData = [
     Component: ClientTab
   },
   {
-    label: t('admin:components.setting.instanceServer'),
+    label: t('admin:components.setting.instanceServer.header'),
     Component: InstanceServerTab
   },
   {
@@ -66,11 +66,11 @@ export const SettingsTabsData = [
     Component: TaskServerTab
   },
   {
-    label: t('admin:components.setting.email'),
+    label: t('admin:components.setting.email.header'),
     Component: EmailTab
   },
   {
-    label: t('admin:components.setting.authentication'),
+    label: t('admin:components.setting.authentication.header'),
     Component: AuthenticationTab
   }
 ]

@@ -39,7 +39,7 @@ const TaskServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
   return (
     <Accordion
       title={t('admin:components.setting.taskServer.taskServer')}
-      subtitle="Edit Project Settings"
+      subtitle={t('admin:components.setting.taskServer.subtitle')}
       expandIcon={<HiPlusSmall />}
       shrinkIcon={<HiMinus />}
       ref={ref}

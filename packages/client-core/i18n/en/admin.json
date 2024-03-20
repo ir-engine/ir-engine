@@ -345,7 +345,10 @@
       "resourceUrl": "Resource URL"
     },
     "setting": {
-      "authentication": "Authentication",
+      "authentication": {
+        "header": "Authentication",
+        "subtitle": "Edit Authentication Settings"
+      },
       "service": "Service",
       "secret": "Secret",
       "entity": "Entity",
@@ -396,6 +399,7 @@
       "chargebee": "Chargebee",
       "client": {
         "header": "Client",
+        "subtitle": "Edit Client Settings",
         "main": "Main",
         "logo": "Logo",
         "other": "Other",
@@ -416,7 +420,10 @@
       "webmanifestLink": "Webmanifest",
       "swScriptLink": "service-worker.js",
       "releaseName": "Release Name",
-      "email": "Email",
+      "email": {
+        "header": "Email",
+        "subtitle": "Edit Email Settings"
+      },
       "smtp": "SMTP",
       "port": "Port",
       "secure": "Secure",
@@ -428,7 +435,10 @@
       "group": "group",
       "party": "Party",
       "smsNameCharLimit": "SMS Name Character Limit",
-      "instanceServer": "Instance Server",
+      "instanceServer": {
+        "header": "Instance Server",
+        "subtitle": "Edit Instance Server Settings"
+      },
       "clientHost": "Client Host",
       "rtcStartPort": "RTC Start Port",
       "rtcEndPort": "RTC End Port",
@@ -509,6 +519,7 @@
       },
       "taskServer": {
         "taskServer": "Task Server",
+        "subtitle": "Edit Task Server Settings",
         "port": "Port",
         "processInterval": "Process Interval"
       },

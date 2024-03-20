@@ -87,30 +87,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
     }
   }, [clientSettingState?.updateNeeded?.value])
 
-  const handleUpdateSocialLinks = (index, value, type) => {
-    const tempAppSocialLinks = JSON.parse(JSON.stringify(settings.appSocialLinks.value))
-
-    tempAppSocialLinks[index][type] = value
-
-    settings.appSocialLinks.set(tempAppSocialLinks)
-  }
-
-  const handleAddSocialLinks = () => {
-    const tempAppSocialLinks = JSON.parse(JSON.stringify(settings.appSocialLinks.value))
-
-    tempAppSocialLinks.push({ icon: '', link: '' })
-
-    settings.appSocialLinks.set(tempAppSocialLinks)
-  }
-
-  const handleRemoveSocialLinks = (index) => {
-    const tempAppSocialLinks = JSON.parse(JSON.stringify(settings.appSocialLinks.value))
-
-    tempAppSocialLinks.splice(index, 1)
-
-    settings.appSocialLinks.set(tempAppSocialLinks)
-  }
-
   const codecMenu = [
     {
       value: 'VP9',
@@ -169,7 +145,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
   return (
     <Accordion
       title={t('admin:components.setting.client.header')}
-      subtitle="Edit Project Settings"
+      subtitle={t('admin:components.setting.client.subtitle')}
       expandIcon={<HiPlusSmall />}
       shrinkIcon={<HiMinus />}
       ref={ref}

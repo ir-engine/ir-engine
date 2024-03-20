@@ -40,8 +40,8 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
 
   return (
     <Accordion
-      title={t('admin:components.setting.instanceServer')}
-      subtitle="Edit Project Settings"
+      title={t('admin:components.setting.instanceServer.header')}
+      subtitle={t('admin:components.setting.instanceServer.subtitle')}
       expandIcon={<HiPlusSmall />}
       shrinkIcon={<HiMinus />}
       ref={ref}
