@@ -303,7 +303,7 @@ export function solveMotionCapturePose(
   if (!mocapComponent.prevScreenLandmarks)
     mocapComponent.prevScreenLandmarks = newScreenlandmarks.map((landmark) => ({ ...landmark }))
 
-  const worldLandmarks = keyframeInterpolation(newLandmarks, mocapComponent.prevWorldLandmarks, 50)
+  const worldLandmarks = keyframeInterpolation(newLandmarks, mocapComponent.prevWorldLandmarks, 30)
   const screenLandmarks = keyframeInterpolation(newScreenlandmarks, mocapComponent.prevScreenLandmarks, 10)
 
   mocapComponent.prevWorldLandmarks = worldLandmarks
@@ -449,8 +449,7 @@ const spineRotation = new Quaternion(),
   shoulderRotation = new Quaternion(),
   hipCenter = new Vector3(),
   fallbackShoulderQuaternion = new Quaternion(),
-  hipToShoulderQuaternion = new Quaternion(),
-  hipDirection = new Quaternion()
+  hipToShoulderQuaternion = new Quaternion()
 
 export const solveSpine = (
   entity: Entity,

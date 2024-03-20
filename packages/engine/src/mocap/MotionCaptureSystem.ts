@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { decode, encode } from 'msgpackr'
 import { useEffect } from 'react'
 
-import { PeerID, getState } from '@etherealengine/hyperflux'
+import { PeerID } from '@etherealengine/hyperflux'
 
 import {
   DataChannelType,
@@ -40,7 +40,6 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 
 import { RingBuffer } from '@etherealengine/common/src/utils/RingBuffer'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { ECSState } from '@etherealengine/ecs'
 import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { NormalizedLandmark } from '@mediapipe/tasks-vision'
@@ -153,22 +152,23 @@ const execute = () => {
 
       const slerpedQuat = new Quaternion()
         .set(
-          MotionCaptureRigComponent.slerpedRig[boneName].x[entity],
-          MotionCaptureRigComponent.slerpedRig[boneName].y[entity],
-          MotionCaptureRigComponent.slerpedRig[boneName].z[entity],
-          MotionCaptureRigComponent.slerpedRig[boneName].w[entity]
+          MotionCaptureRigComponent.rig[boneName].x[entity],
+          MotionCaptureRigComponent.rig[boneName].y[entity],
+          MotionCaptureRigComponent.rig[boneName].z[entity],
+          MotionCaptureRigComponent.rig[boneName].w[entity]
         )
-        .fastSlerp(
-          new Quaternion()
-            .set(
-              MotionCaptureRigComponent.rig[boneName].x[entity],
-              MotionCaptureRigComponent.rig[boneName].y[entity],
-              MotionCaptureRigComponent.rig[boneName].z[entity],
-              MotionCaptureRigComponent.rig[boneName].w[entity]
-            )
-            .normalize(),
-          getState(ECSState).deltaSeconds * 40
-        )
+        .normalize()
+      // .fastSlerp(
+      //   new Quaternion()
+      //     .set(
+      //       MotionCaptureRigComponent.rig[boneName].x[entity],
+      //       MotionCaptureRigComponent.rig[boneName].y[entity],
+      //       MotionCaptureRigComponent.rig[boneName].z[entity],
+      //       MotionCaptureRigComponent.rig[boneName].w[entity]
+      //     )
+      //     .normalize(),
+      //   getState(ECSState).deltaSeconds * 40
+      // )
 
       normalizedBone.quaternion.copy(slerpedQuat)
 
