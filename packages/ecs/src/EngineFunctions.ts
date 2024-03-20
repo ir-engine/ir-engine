@@ -37,11 +37,13 @@ const TimerConfig = {
   MAX_DELTA_SECONDS: 1 / 10
 }
 
-const sortSystemsByAvgDuration = (): System[] => {
+export const filterAndSortSystemsByAvgDuration = (maxAvg = 0.0): System[] => {
   const systems = SystemDefinitions
-  const sorted = [...systems.values()].sort((left: System, right: System) => {
-    return right.avgSystemDuration - left.avgSystemDuration
-  })
+  const sorted = [...systems.values()]
+    .filter((system: System) => system.avgSystemDuration > maxAvg)
+    .sort((left: System, right: System) => {
+      return right.avgSystemDuration - left.avgSystemDuration
+    })
 
   return sorted
 }

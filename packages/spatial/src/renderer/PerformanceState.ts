@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { filterAndSortSystemsByAvgDuration } from '@etherealengine/ecs'
 import { profile } from '@etherealengine/ecs/src/Timer'
 import { State, defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 import { EngineRenderer, RenderSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
@@ -228,6 +229,12 @@ const decrementPerformance = () => {
   )
 }
 
+const maxSystemTimeMS = 1.0
+const profileSystemTime = 2500
+const profileSystemPerformance = () => {
+  const systems = filterAndSortSystemsByAvgDuration(maxSystemTimeMS)
+}
+
 const buildPerformanceState = async (
   renderer: EngineRenderer,
   onFinished: () => void,
@@ -263,6 +270,7 @@ const buildPerformanceState = async (
 
   performanceState.tier.set(tier as PerformanceTier)
   onFinished()
+  setInterval(profileSystemPerformance, profileSystemTime)
 }
 
 export const PerformanceManager = {

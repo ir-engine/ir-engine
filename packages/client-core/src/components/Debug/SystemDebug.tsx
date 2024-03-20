@@ -104,7 +104,7 @@ export const SystemDagView = (props: { uuid: SystemUUID }) => {
           const color = convertSystemExecutionTimeToColor(system.avgSystemDuration, targetTimestep)
           return (
             <span key={system.uuid} style={{ color: color }}>
-              {`${Math.round(system.avgSystemDuration * 1000) / 1000} ms`}
+              {`${Math.trunc(system.avgSystemDuration * 1000) / 1000} ms`}
             </span>
           )
         }
@@ -122,7 +122,7 @@ export const SystemDagView = (props: { uuid: SystemUUID }) => {
           </>
         )
       }}
-      shouldExpandNodeInitially={() => false}
+      shouldExpandNodeInitially={() => true}
     />
   )
 }
