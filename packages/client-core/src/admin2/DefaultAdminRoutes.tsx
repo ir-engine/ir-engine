@@ -32,6 +32,7 @@ import {
   HiOutlineGlobeAlt,
   HiOutlineMegaphone,
   HiOutlineTableCells,
+  HiPlay,
   HiServer,
   HiUser,
   HiUserCircle
@@ -54,6 +55,8 @@ const Servers = lazy(() => import('./components/server'))
 const Instances = lazy(() => import('./components/instance'))
 
 const Resources = lazy(() => import('./components/resources'))
+
+const Recordings = lazy(() => import('./components/recordings'))
 
 const Routes = lazy(() => import('./components/routes'))
 
@@ -117,6 +120,13 @@ export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
     component: Resources,
     access: false,
     icon: <HiOutlineTableCells />
+  },
+  recordings: {
+    name: 'user:dashboard.recordings',
+    scope: 'recording',
+    component: Recordings,
+    access: false,
+    icon: <HiPlay />
   },
   routes: {
     name: 'user:dashboard.routes',
