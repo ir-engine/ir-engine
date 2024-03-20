@@ -94,7 +94,10 @@ export default function InviteTable({
       spawnType: row.spawnType,
       spawnDetails: row.spawnDetails ? JSON.stringify(row.spawnDetails) : '',
       action: (
-        <Button onClick={() => PopoverState.showPopupover(<AddEditInviteModal invite={row} />)}>
+        <Button
+          className="bg-theme-buttonTertiary"
+          onClick={() => PopoverState.showPopupover(<AddEditInviteModal invite={row} />)}
+        >
           {t('admin:components:invite.update')}
         </Button>
       )

@@ -51,7 +51,11 @@ const Checkbox = ({ className, label, value, onChange, disabled }: CheckboxProps
         onChange={() => onChange(!value)}
         disabled={disabled}
       />
-      {label && <Label className="self-stretch">{label}</Label>}
+      {label && (
+        <Label onClick={() => onChange(!value)} className="cursor-pointer self-stretch">
+          {label}
+        </Label>
+      )}
     </div>
   )
 }
