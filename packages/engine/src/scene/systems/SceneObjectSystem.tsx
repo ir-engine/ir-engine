@@ -72,6 +72,7 @@ import { ModelComponent, useMeshOrModel } from '../components/ModelComponent'
 import { SceneComponent } from '../components/SceneComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
+import { MaterialLibraryState } from '../materials/MaterialLibrary'
 
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 
@@ -124,6 +125,11 @@ export function setupObject(obj: Object3D, forceBasicMaterials = false) {
       prevEntry && registerMaterial(child.userData.lastMaterial, prevEntry.src, prevEntry.parameters)
       delete child.userData.lastMaterial
     } else if (shouldMakeBasic && !child.userData.lastMaterial) {
+      const basicMaterial = getState(MaterialLibraryState).materials[`basic-${child.material.uuid}`]
+      if (basicMaterial) {
+        child.material = basicMaterial.material
+        return
+      }
       const prevMaterial = child.material
       const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
       const prevMatEntry = unregisterMaterial(prevMaterial)
@@ -141,14 +147,13 @@ export function setupObject(obj: Object3D, forceBasicMaterials = false) {
       child.material = nuMaterial
       child.userData.lastMaterial = prevMaterial
 
+      /**dirty hack for dithering effect */
+      const plugin =
+        prevMaterial.plugins &&
+        prevMaterial.plugins.findIndex((plugin: PluginObjectType) => plugin.id === 'transparency-dithering')
+      if (plugin !== undefined && plugin !== -1) injectDitheringLogic(nuMaterial, new Vector3(), 2, 2)
+
       nuMaterial.uuid = `basic-${prevMaterial.uuid}`
-
-      /**dirty hack for dithering effect until this is refactored */
-      const plugin = prevMaterial.plugins?.findIndex(
-        (plugin: PluginObjectType) => plugin.id === 'transparency-dithering'
-      )
-      if (plugin !== undefined && plugin !== -1) injectDitheringLogic(nuMaterial, new Vector3(), 5, 2)
-
       prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src, prevMatEntry.parameters)
     }
   }

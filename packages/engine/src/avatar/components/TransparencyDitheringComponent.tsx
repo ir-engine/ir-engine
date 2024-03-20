@@ -116,6 +116,7 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity; index: 
       const id = material.uuid.replace('basic-', '')
       if (!materialIds.value.find((uuid) => uuid === id))
         ditherComponent.materialIds.set([...materialIds.value, material.uuid])
+
       injectDitheringLogic(
         material,
         ditherComponent.center.value,
