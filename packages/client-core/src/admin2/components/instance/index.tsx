@@ -62,9 +62,9 @@ export default function Invites() {
                 search.query.set(event.target.value)
               }, 100)
             }}
-            className="dark:bg-[#1A1B1E]"
+            className="bg-theme-primary"
             containerClassname="w-1/5 block"
-            icon={<HiMagnifyingGlass />}
+            startComponent={<HiMagnifyingGlass />}
           />
           <Button
             onClick={() => {

@@ -41,11 +41,18 @@ export interface ModalProps {
   submitButtonDisabled?: boolean
   closeButtonText?: string
   submitButtonText?: string
-  onClose?: () => void
+  onClose?: (isHeader: boolean) => void
   onSubmit?: () => void
 }
 
-export const ModalHeader = ({ title, onClose }: { closeIcon?: boolean; title?: string; onClose?: () => void }) => {
+export const ModalHeader = ({
+  title,
+  onClose
+}: {
+  closeIcon?: boolean
+  title?: string
+  onClose?: (isHeader: boolean) => void
+}) => {
   return (
     <div className="border-b-theme-primary relative flex items-center justify-center border-b px-6 py-5">
       {title && <Text>{title}</Text>}
@@ -53,7 +60,7 @@ export const ModalHeader = ({ title, onClose }: { closeIcon?: boolean; title?: s
         variant="outline"
         className="absolute right-0 border-0 dark:bg-transparent dark:text-[#A3A3A3]"
         startIcon={<MdClose />}
-        onClick={onClose}
+        onClick={() => onClose && onClose(true)}
       />
     </div>
   )
@@ -68,7 +75,7 @@ export const ModalFooter = ({
   closeButtonText,
   submitButtonText
 }: {
-  onCancel?: () => void
+  onCancel?: (isHeader: boolean) => void
   onSubmit?: () => void
   submitLoading?: boolean
   closeButtonDisabled?: boolean
@@ -79,7 +86,7 @@ export const ModalFooter = ({
   const { t } = useTranslation()
   return (
     <div className="border-t-theme-primary grid grid-flow-col border-t px-6 py-5">
-      <Button variant="outline" disabled={closeButtonDisabled} onClick={onCancel}>
+      <Button variant="outline" disabled={closeButtonDisabled} onClick={() => onCancel && onCancel(false)}>
         {closeButtonText || t('common:components.cancel')}
       </Button>
       {onSubmit && (
@@ -105,9 +112,11 @@ const Modal = ({
   className,
   submitLoading,
   closeButtonText,
-  submitButtonText
+  submitButtonText,
+  closeButtonDisabled,
+  submitButtonDisabled
 }: ModalProps) => {
-  const twClassName = twMerge('relative max-h-full w-full max-w-2xl p-4', className)
+  const twClassName = twMerge('relative max-h-full w-full max-w-fit p-4', className)
   return (
     <div className={twClassName}>
       <div className="bg-theme-primary relative rounded-lg shadow">
@@ -117,6 +126,8 @@ const Modal = ({
           <ModalFooter
             closeButtonText={closeButtonText}
             submitButtonText={submitButtonText}
+            closeButtonDisabled={closeButtonDisabled}
+            submitButtonDisabled={submitButtonDisabled}
             onCancel={onClose}
             onSubmit={onSubmit}
             submitLoading={submitLoading}

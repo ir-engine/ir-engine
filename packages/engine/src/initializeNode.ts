@@ -23,7 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '@etherealengine/ecs/src/Engine'
+import { ECSState } from '@etherealengine/ecs'
+import { getState } from '@etherealengine/hyperflux'
 import { loadDRACODecoderNode } from './assets/loaders/gltf/NodeDracoLoader'
 
 /**
@@ -33,5 +34,5 @@ import { loadDRACODecoderNode } from './assets/loaders/gltf/NodeDracoLoader'
  */
 export const initializeNode = () => {
   loadDRACODecoderNode()
-  Engine.instance.engineTimer.start()
+  getState(ECSState).timer.start()
 }

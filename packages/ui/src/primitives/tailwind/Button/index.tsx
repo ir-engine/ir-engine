@@ -45,7 +45,7 @@ const sizes = {
 }
 
 const variants = {
-  primary: 'bg-blue-800',
+  primary: 'bg-bluePrimary',
   outline: 'border border-solid border-theme-primary text-theme-primary',
   danger: 'bg-red-600',
   success: 'bg-teal-700'
@@ -68,6 +68,7 @@ const Button = ({
     'font-medium text-white',
     'transition ease-in-out',
     'disabled:cursor-not-allowed',
+    StartIcon || EndIcon ? 'justify-between' : 'justify-center',
     sizes[size],
     variants[variant],
     fullWidth ? 'w-full' : 'w-fit',

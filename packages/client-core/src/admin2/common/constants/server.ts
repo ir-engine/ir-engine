@@ -43,26 +43,26 @@ export const serverColumns: IServerColumn[] = [
 export const serverAutoRefreshOptions = [
   {
     value: '0',
-    name: t('admin:components.server.none')
+    label: t('admin:components.server.none')
   },
   {
     value: '10',
-    name: `10 ${t('admin:components.server.seconds')}`
+    label: `10 ${t('admin:components.server.seconds')}`
   },
   {
     value: '30',
-    name: `30 ${t('admin:components.server.seconds')}`
+    label: `30 ${t('admin:components.server.seconds')}`
   },
   {
     value: '60',
-    name: `1 ${t('admin:components.server.minute')}`
+    label: `1 ${t('admin:components.server.minute')}`
   },
   {
     value: '300',
-    name: `5 ${t('admin:components.server.minutes')}`
+    label: `5 ${t('admin:components.server.minutes')}`
   },
   {
     value: '600',
-    name: `10 ${t('admin:components.server.minutes')}`
+    label: `10 ${t('admin:components.server.minutes')}`
   }
 ]

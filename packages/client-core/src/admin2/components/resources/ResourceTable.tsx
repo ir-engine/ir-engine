@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-import { useTranslation } from 'react-i18next'
 
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 
@@ -36,11 +35,9 @@ import { PopoverState } from '../../../common/services/PopoverState'
 import DataTable from '../../common/Table'
 import { resourceColumns } from '../../common/constants/resources'
 import AddEditResourceModal from './AddEditResourceModal'
-import DeleteResourceModal from './DeleteResourceModal'
+import DeleteResourceModal from './RemoveResourceModal'
 
 export default function ResourceTable({ search }: { search: string }) {
-  const { t } = useTranslation()
-
   const resourceQuery = useFind(staticResourcePath, {
     query: {
       action: 'admin',
@@ -76,7 +73,7 @@ export default function ResourceTable({ search }: { search: string }) {
             rounded
             className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0"
           >
-            <HiEye className="place-self-center" />
+            <HiEye className="text-theme-primary place-self-center" />
           </Button>
           <Button
             rounded
@@ -85,7 +82,7 @@ export default function ResourceTable({ search }: { search: string }) {
               PopoverState.showPopupover(<DeleteResourceModal resourceId={el.id} resourceKey={el.key} />)
             }}
           >
-            <HiTrash className="place-self-center text-[#E11D48] dark:text-[#FB7185]" />
+            <HiTrash className="text-theme-iconRed place-self-center" />
           </Button>
         </div>
       )

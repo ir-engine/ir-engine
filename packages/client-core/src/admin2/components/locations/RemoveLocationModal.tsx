@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { LocationType, locationPath } from '@etherealengine/common/src/schema.type.module'
 import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import { useHookstate } from '@hookstate/core'
@@ -36,24 +35,30 @@ import { useTranslation } from 'react-i18next'
 export default function RemoveLocationModal({ location }: { location: LocationType }) {
   const { t } = useTranslation()
   const adminLocationRemove = useMutation(locationPath).remove
-  const submitLoading = useHookstate(false)
+  const modalProcessing = useHookstate(false)
+  const error = useHookstate('')
+
+  const handleSubmit = async () => {
+    modalProcessing.set(true)
+    error.set('')
+    try {
+      await adminLocationRemove(location.id)
+      PopoverState.hidePopupover()
+    } catch (err) {
+      error.set(err.message)
+    }
+    modalProcessing.set(false)
+  }
 
   return (
     <Modal
       title={t('admin:components.location.removeLocation')}
-      onSubmit={() => {
-        submitLoading.set(true)
-        adminLocationRemove(location.id).then(() => PopoverState.hidePopupover())
-      }}
-      onClose={!submitLoading.value ? () => PopoverState.hidePopupover() : undefined}
-      submitLoading={submitLoading.value}
+      onSubmit={handleSubmit}
+      onClose={PopoverState.hidePopupover}
+      submitLoading={modalProcessing.value}
     >
-      <div className="relative">
-        {submitLoading.value && (
-          <LoadingCircle className="absolute left-1/2 top-1/2 z-50 my-auto h-1/6 w-1/6 -translate-x-1/2 -translate-y-1/2 cursor-wait" />
-        )}
-        <Text>{`${t('admin:components.location.confirmLocationDelete')} '${location.name}'?`}</Text>
-      </div>
+      {error.value && <p className="mb-3 text-rose-800">{error.value}</p>}
+      <Text>{`${t('admin:components.location.confirmLocationDelete')} '${location.name}'?`}</Text>
     </Modal>
   )
 }

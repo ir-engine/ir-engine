@@ -41,7 +41,6 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import MultiEmailInput from '@etherealengine/ui/src/primitives/tailwind/MultiEmailInput'
 import Radios from '@etherealengine/ui/src/primitives/tailwind/Radio'
@@ -202,15 +201,10 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
       title={invite?.id ? t('admin:components.invite.update') : t('admin:components.invite.create')}
       className="w-[50vw]"
       onSubmit={handleSubmit}
-      onClose={() => {
-        PopoverState.hidePopupover()
-      }}
+      onClose={PopoverState.hidePopupover}
       submitLoading={submitLoading.value}
     >
-      <div className={`relative grid w-full gap-6 ${submitLoading.value && 'pointer-events-none opacity-50'}`}>
-        {submitLoading.value && (
-          <LoadingCircle className="absolute left-1/2 top-1/2 z-50 my-auto h-1/6 w-1/6 -translate-x-1/2 -translate-y-1/2 cursor-wait" />
-        )}
+      <div className="relative grid w-full gap-6">
         {invite?.id ? (
           <Input
             label={t('admin:components.invite.recipients')}
@@ -223,6 +217,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
             emailList={emailRecipients}
             label={t('admin:components.invite.recipients')}
             error={errors.recipients.value}
+            disabled={submitLoading.value}
           />
         )}
         <Select
@@ -230,6 +225,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
           options={inviteTypeOptions.map((type) => ({ label: t(`admin:components.invite.${type}`), value: type }))}
           currentValue={inviteType.value}
           onChange={(value) => inviteType.set(value)}
+          disabled={submitLoading.value}
         />
         {inviteType.value === 'location' && (
           <Select
@@ -244,6 +240,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
             currentValue={inviteLocation.value}
             onChange={(value) => inviteLocation.set(value)}
             error={errors.inviteLocation.value}
+            disabled={submitLoading.value}
           />
         )}
         {inviteType.value === 'instance' && (
@@ -259,6 +256,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
             currentValue={inviteInstance.value}
             onChange={(value) => inviteInstance.set(value)}
             error={errors.inviteInstance.value}
+            disabled={submitLoading.value}
           />
         )}
         {((inviteType.value === 'instance' && inviteInstance.value) ||
@@ -268,17 +266,19 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
               label={t('admin:components.invite.spawnAtPosition')}
               value={spawnSelected.value}
               onChange={(value) => spawnSelected.set(value)}
+              disabled={submitLoading.value}
             />
             {spawnSelected.value && (
               <>
                 <Radios
-                  className="grid-flow-col"
+                  horizontal
                   options={spawnTypeOptions.map((option) => ({
                     value: option,
-                    name: t(`admin:components.invite.${option}`)
+                    label: t(`admin:components.invite.${option}`)
                   }))}
-                  currentValue={spawnType.value}
+                  value={spawnType.value}
                   onChange={(value) => spawnType.set(value)}
+                  disabled={submitLoading.value}
                 />
                 {spawnType.value === 'spawnPoint' && (
                   <Select
@@ -286,6 +286,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
                     options={spawnPointOptions}
                     currentValue={spawnPoint.value}
                     onChange={(value) => spawnPoint.set(value)}
+                    disabled={submitLoading.value}
                   />
                 )}
                 {spawnType.value === 'userPosition' && (
@@ -302,6 +303,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
                     ]}
                     currentValue={userPosition.value}
                     onChange={(value) => userPosition.set(value)}
+                    disabled={submitLoading.value}
                   />
                 )}
               </>
@@ -312,11 +314,13 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
           label={t('admin:components.invite.oneTime')}
           value={oneTimeInvite.value}
           onChange={(value) => oneTimeInvite.set(value)}
+          disabled={submitLoading.value}
         />
         <Checkbox
           label={t('admin:components.invite.timedInvite')}
           value={timedInvite.value}
           onChange={(value) => timedInvite.set(value)}
+          disabled={submitLoading.value}
         />
         {timedInvite.value && (
           <div className="flex justify-between">
@@ -327,6 +331,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
               value={inviteStartTime.value}
               onChange={(event) => inviteStartTime.set(event.target.value)}
               error={errors.startTime.value}
+              disabled={submitLoading.value}
             />
             <Input
               type="datetime-local"
@@ -335,6 +340,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
               value={inviteEndTime.value}
               onChange={(event) => inviteEndTime.set(event.target.value)}
               error={errors.endTime.value}
+              disabled={submitLoading.value}
             />
           </div>
         )}
@@ -342,6 +348,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
           label={t('admin:components.invite.makeAdmin')}
           value={makeAdmin.value}
           onChange={(value) => makeAdmin.set(value)}
+          disabled={submitLoading.value}
         />
       </div>
     </Modal>

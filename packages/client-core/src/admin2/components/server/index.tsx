@@ -18,15 +18,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-// import AddEditUserModal from './AddEditUserModal'
-// import RemoveUserModal from './RemoveUserModal'
-import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
-import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import { HiOutlineRefresh } from 'react-icons/hi'
 import { useServerInfoFind } from '../../../admin/services/ServerInfoQuery'
 import { serverAutoRefreshOptions } from '../../common/constants/server'
@@ -80,14 +78,14 @@ export default function Servers() {
         {serverInfoQuery.data.map((info) => (
           <div
             key={info.id}
-            className={`flex h-16 w-44 cursor-pointer items-start justify-between rounded-2xl bg-[#212226] p-4 ${
-              serverType.value === info.id && 'border-b-2 border-b-[#375DAF]'
+            className={`bg-theme-highlight flex h-16 w-44 cursor-pointer items-start justify-between rounded-2xl p-4 ${
+              serverType.value === info.id && 'border-b-bluePrimary border-b-2'
             }`}
             onClick={() => serverType.set(info.id)}
           >
             <Text fontSize="sm">{info.label}</Text>
             <Badge
-              className="h-6 rounded-[90px] bg-[#375DAF]"
+              className="bg-bluePrimary h-6 rounded-[90px] text-white"
               label={`${info.pods.filter((inf) => inf.status === 'Running').length}/${info.pods.length}`}
             />
           </div>

@@ -26,13 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 
 // import { VrIcon } from '../../../common/components/Icons/VrIcon'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
 import { createState, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { RegisteredWidgets, WidgetAppActions, WidgetAppState } from '@etherealengine/spatial/src/xrui/WidgetAppService'
 import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
@@ -138,7 +138,7 @@ const WidgetButtons = () => {
   // }
 
   const handleRespawnAvatar = () => {
-    respawnAvatar(Engine.instance.localClientEntity)
+    respawnAvatar(AvatarComponent.getSelfAvatarEntity())
   }
 
   const handleHeightAdjustment = () => {

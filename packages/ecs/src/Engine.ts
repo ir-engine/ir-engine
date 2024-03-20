@@ -40,38 +40,16 @@ import { Entity, UndefinedEntity } from './Entity'
 import { removeEntity } from './EntityFunctions'
 import { removeQuery } from './QueryFunctions'
 import { SystemState } from './SystemState'
-import { Timer } from './Timer'
 
 export class Engine {
   static instance: Engine
-
-  constructor() {
-    const UndefinedEntity = bitECS.addEntity(HyperFlux.store)
-  }
 
   api: FeathersApplication<ServiceTypes>
 
   /** The uuid of the logged-in user */
   userID: UserID
 
-  /**
-   * The peerID of the logged-in user
-   * @deprecated - use Engine.instance.store.peerID instead
-   */
-  get peerID() {
-    return Engine.instance.store.peerID
-  }
-
-  store = bitECS.createWorld(
-    createHyperStore({
-      getDispatchId: () => Engine.instance.userID,
-      getDispatchTime: () => getState(ECSState).simulationTime,
-      getCurrentReactorRoot: () =>
-        getState(SystemState).activeSystemReactors.get(getState(SystemState).currentSystemUUID)
-    })
-  ) as HyperStore
-
-  engineTimer = null! as ReturnType<typeof Timer>
+  store: HyperStore
 
   /**
    * Reference to the three.js scene object.
@@ -92,18 +70,26 @@ export class Engine {
    * The camera entity
    */
   cameraEntity = UndefinedEntity
-
-  /**
-   * The local client entity
-   */
-  localClientEntity = UndefinedEntity
 }
 
 globalThis.Engine = Engine
 globalThis.Hyperflux = Hyperflux
 
+export function startEngine() {
+  if (Engine.instance) throw new Error('Store already exists')
+  Engine.instance = new Engine()
+  Engine.instance.store = bitECS.createWorld(
+    createHyperStore({
+      getDispatchTime: () => getState(ECSState).simulationTime,
+      getCurrentReactorRoot: () =>
+        getState(SystemState).activeSystemReactors.get(getState(SystemState).currentSystemUUID)
+    })
+  ) as HyperStore
+  const UndefinedEntity = bitECS.addEntity(HyperFlux.store)
+}
+
 export async function destroyEngine() {
-  Engine.instance.engineTimer?.clear()
+  getState(ECSState).timer?.clear()
 
   if (Engine.instance.api) {
     if ((Engine.instance.api as any).server) await Engine.instance.api.teardown()

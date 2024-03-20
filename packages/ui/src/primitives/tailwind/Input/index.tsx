@@ -37,7 +37,8 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   onChange?: InputHTMLAttributes<HTMLInputElement>['onChange']
   error?: string
   disabled?: boolean
-  icon?: JSX.Element
+  startComponent?: JSX.Element
+  endComponent?: JSX.Element
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -53,18 +54,20 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       itemType,
       onChange,
       disabled,
-      icon,
+      startComponent,
+      endComponent,
       ...props
     },
     ref
   ) => {
     const twClassname = twMerge(
       'text-base font-normal tracking-tight',
-      'textshadow-sm border-theme-primary bg-theme-primary flex h-9 w-full rounded-lg border px-3.5 py-5 transition-colors',
-      'file:bg-theme-primary file:border-0 file:text-sm file:font-medium',
+      'textshadow-sm border-theme-primary bg-theme-surfaceInput flex h-9 w-full rounded-lg border px-3.5 py-5 transition-colors',
+      'file:bg-theme-surfaceInput file:border-0 file:text-sm file:font-medium',
       'dark:[color-scheme:dark]',
       'focus-visible:ring-ring placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50',
-      icon ? 'ps-10' : undefined,
+      startComponent ? 'ps-10' : undefined,
+      endComponent ? 'pe-10' : undefined,
       className
     )
 
@@ -73,9 +76,11 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className={twContainerClassname}>
         {label && <Label className="self-stretch">{label}</Label>}
-        <div className="relative w-full">
-          {icon && (
-            <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5">{icon}</div>
+        <div className="bg-theme-primary relative w-full">
+          {startComponent && (
+            <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5">
+              {startComponent}
+            </div>
           )}
           <input
             ref={ref}
@@ -86,10 +91,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             onChange={onChange}
             {...props}
           />
+
+          {endComponent && (
+            <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-3.5">{endComponent}</div>
+          )}
         </div>
         {description && <p className="text-theme-secondary self-stretch text-xs">{description}</p>}
         {error && (
-          <p className="inline-flex items-center gap-2.5 self-start text-sm text-[#E11D48]">
+          <p className="text-theme-iconRed inline-flex items-center gap-2.5 self-start text-sm">
             <HiXCircle /> {error}
           </p>
         )}

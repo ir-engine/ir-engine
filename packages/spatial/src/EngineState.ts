@@ -33,7 +33,6 @@ export const EngineState = defineState({
      * An empty share link will default to the current URL, plus any modifiers (such as spectate mode)
      */
     publicPath: '',
-    isBot: false,
     /** @deprecated use isEditing instead */
     isEditor: false,
     isEditing: false

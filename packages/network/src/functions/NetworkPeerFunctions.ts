@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { getMutableState, none } from '@etherealengine/hyperflux'
+import { PeerID, getMutableState, none } from '@etherealengine/hyperflux'
 import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -60,7 +59,8 @@ function destroyPeer(network: Network, peerID: PeerID) {
   if (!network.peers[peerID])
     return console.warn(`[NetworkPeerFunctions]: tried to remove client with peerID ${peerID} that doesn't exit`)
 
-  if (peerID === Engine.instance.peerID) return console.warn(`[NetworkPeerFunctions]: tried to remove local client`)
+  if (peerID === Engine.instance.store.peerID)
+    return console.warn(`[NetworkPeerFunctions]: tried to remove local client`)
 
   // reactively set
   const userID = network.peers[peerID]!.userId
@@ -82,10 +82,6 @@ function destroyPeer(network: Network, peerID: PeerID) {
   if (!userPeers.length) networkState.users[userID].set(none)
 }
 
-const destroyAllPeers = (network: Network) => {
-  for (const [peerID] of Object.entries(network.peers)) NetworkPeerFunctions.destroyPeer(network, peerID as PeerID)
-}
-
 function getCachedActionsForPeer(toPeerID: PeerID) {
   // send all cached and outgoing actions to joining user
   const cachedActions = [] as Required<Action>[]
@@ -100,6 +96,5 @@ function getCachedActionsForPeer(toPeerID: PeerID) {
 export const NetworkPeerFunctions = {
   createPeer,
   destroyPeer,
-  destroyAllPeers,
   getCachedActionsForPeer
 }

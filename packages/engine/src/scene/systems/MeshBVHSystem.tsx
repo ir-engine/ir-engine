@@ -40,10 +40,77 @@ import {
 } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import React, { useEffect } from 'react'
-import { BufferGeometry, InstancedMesh, LineBasicMaterial, Mesh, SkinnedMesh } from 'three'
-import { MeshBVHHelper, acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
+import {
+  BufferGeometry,
+  InstancedMesh,
+  Intersection,
+  LineBasicMaterial,
+  Matrix4,
+  Mesh,
+  Ray,
+  Raycaster,
+  SkinnedMesh
+} from 'three'
+import { MeshBVHHelper, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 import { MeshOrModelQuery, ModelComponent } from '../components/ModelComponent'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
+
+const ray = new Ray()
+const tmpInverseMatrix = new Matrix4()
+const origMeshRaycastFunc = Mesh.prototype.raycast
+
+function ValidMeshForBVH(mesh: Mesh | undefined): boolean {
+  return (
+    mesh !== undefined &&
+    mesh.isMesh &&
+    !(mesh as InstancedMesh).isInstancedMesh &&
+    !(mesh as SkinnedMesh).isSkinnedMesh
+  )
+}
+
+function convertRaycastIntersect(hit: Intersection | null, object: Mesh, raycaster: Raycaster) {
+  if (hit === null) {
+    return null
+  }
+
+  hit.point.applyMatrix4(object.matrixWorld)
+  hit.distance = hit.point.distanceTo(raycaster.ray.origin)
+  hit.object = object
+
+  if (hit.distance < raycaster.near || hit.distance > raycaster.far) {
+    return null
+  } else {
+    return hit
+  }
+}
+
+function acceleratedRaycast(raycaster: Raycaster, intersects: Array<Intersection>) {
+  const mesh = this as Mesh
+  const geometry = mesh.geometry as BufferGeometry
+  if (geometry.boundsTree) {
+    if (mesh.material === undefined) return
+
+    tmpInverseMatrix.copy(mesh.matrixWorld).invert()
+    ray.copy(raycaster.ray).applyMatrix4(tmpInverseMatrix)
+
+    const bvh = geometry.boundsTree
+    if (raycaster.firstHitOnly === true) {
+      const hit = convertRaycastIntersect(bvh.raycastFirst(ray, mesh.material), mesh, raycaster)
+      if (hit) {
+        intersects.push(hit)
+      }
+    } else {
+      const hits = bvh.raycast(ray, mesh.material)
+      for (let i = 0, l = hits.length; i < l; i++) {
+        const hit = convertRaycastIntersect(hits[i], mesh, raycaster)
+        if (hit) {
+          intersects.push(hit)
+        }
+      }
+    }
+  } else if (!ValidMeshForBVH(mesh) || !hasComponent(mesh.entity, MeshComponent))
+    origMeshRaycastFunc.call(mesh, raycaster, intersects)
+}
 
 Mesh.prototype.raycast = acceleratedRaycast
 BufferGeometry.prototype['disposeBoundsTree'] = disposeBoundsTree
@@ -55,15 +122,6 @@ const edgeMaterial = new LineBasicMaterial({
   opacity: 0.3,
   depthWrite: false
 })
-
-function ValidMeshForBVH(mesh: Mesh | undefined): boolean {
-  return (
-    mesh !== undefined &&
-    mesh.isMesh &&
-    !(mesh as InstancedMesh).isInstancedMesh &&
-    !(mesh as SkinnedMesh).isSkinnedMesh
-  )
-}
 
 const MeshBVHChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   const bvhDebug = useHookstate(getMutableState(RendererState).bvhDebug)
