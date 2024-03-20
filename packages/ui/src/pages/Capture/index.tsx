@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useHookstate } from '@hookstate/core'
-import React, { RefObject, useEffect, useLayoutEffect, useRef } from 'react'
+import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { useResizableVideoCanvas } from '@etherealengine/client-core/src/hooks/useResizableVideoCanvas'
@@ -66,14 +66,12 @@ import {
 } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { throttle } from '@etherealengine/spatial/src/common/functions/FunctionHelpers'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import Header from '@etherealengine/ui/src/components/tailwind/Header'
 import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
 import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
-import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
-import { NormalizedLandmarkList, Options, POSE_CONNECTIONS, Pose } from '@mediapipe/pose'
+import { DrawingUtils, FilesetResolver, NormalizedLandmark, PoseLandmarker } from '@mediapipe/tasks-vision'
 import ReactSlider from 'react-slider'
 import Button from '../../primitives/tailwind/Button'
 /**
@@ -129,15 +127,15 @@ const sendResults = (results: MotionCaptureResults) => {
   network.transport.bufferToAll(mocapDataChannelType, Engine.instance.store.peerID, data)
 }
 
-const useVideoStatus = () => {
-  const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
-  const videoPaused = useHookstate(getMutableState(MediaStreamState).videoPaused)
-  const videoActive = !!videoStream.value && !videoPaused.value
-  const mediaNetworkState = useMediaNetwork()
-  if (!mediaNetworkState?.ready?.value) return 'loading'
-  if (!videoActive) return 'ready'
-  return 'active'
-}
+// const useVideoStatus = () => {
+//   const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
+//   const videoPaused = useHookstate(getMutableState(MediaStreamState).videoPaused)
+//   const videoActive = !!videoStream.value && !videoPaused.value
+//   const mediaNetworkState = useMediaNetwork()
+//   if (!mediaNetworkState?.ready?.value) return 'loading'
+//   if (!videoActive) return 'ready'
+//   return 'active'
+// }
 
 export const CaptureState = defineState({
   name: 'CaptureState',
@@ -176,11 +174,11 @@ const CaptureMode = () => {
   const detectingStatus = useHookstate(getMutableState(CaptureState).detectingStatus)
   const isDetecting = detectingStatus.value === 'active'
 
-  const poseDetector = useHookstate(null as null | Pose)
+  const poseDetector = useHookstate(null as null | PoseLandmarker)
 
   const processingFrame = useHookstate(false)
 
-  const videoStatus = useVideoStatus()
+  // const videoStatus = useVideoStatus()
 
   const { videoRef, canvasRef, canvasCtxRef, resizeCanvas } = useResizableVideoCanvas()
 
@@ -188,32 +186,30 @@ const CaptureMode = () => {
 
   useEffect(() => {
     detectingStatus.set('loading')
-    const pose = new Pose({
-      locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
-      }
+    FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm').then((vision) => {
+      PoseLandmarker.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: `https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task`,
+          delegate: 'GPU'
+        },
+        runningMode: 'VIDEO'
+      }).then((pose) => {
+        pose
+          .setOptions({
+            runningMode: 'VIDEO',
+            minTrackingConfidence: trackingSettings.minTrackingConfidence,
+            minPoseDetectionConfidence: trackingSettings.minDetectionConfidence
+          })
+          .then(() => detectingStatus.set('ready'))
+        poseDetector.set(pose)
+      })
     })
-    pose.setOptions({
-      // enableFaceGeometry: trackingSettings?.enableFaceGeometry,
-      selfieMode: displaySettings?.flipVideo,
-      modelComplexity: trackingSettings?.modelComplexity,
-      smoothLandmarks: trackingSettings?.smoothLandmarks,
-      enableSegmentation: trackingSettings?.enableSegmentation,
-      smoothSegmentation: trackingSettings?.smoothSegmentation,
-      // refineFaceLandmarks: trackingSettings?.refineFaceLandmarks,
-      minDetectionConfidence: trackingSettings?.minDetectionConfidence,
-      minTrackingConfidence: trackingSettings?.minTrackingConfidence
-    } as Options)
-    pose.initialize().then(() => {
-      detectingStatus.set('ready')
-    })
-    poseDetector.set(pose)
   }, [])
 
+  const drawingUtils = useHookstate(null as null | DrawingUtils)
   useEffect(() => {
-    const factor = displaySettings.flipVideo === true ? '-1' : '1'
-    videoRef.current!.style.transform = `scaleX(${factor})`
-  }, [displaySettings.flipVideo])
+    drawingUtils.set(new DrawingUtils(canvasCtxRef.current!))
+  }, [])
 
   useLayoutEffect(() => {
     canvasCtxRef.current = canvasRef.current!.getContext('2d')!
@@ -221,14 +217,16 @@ const CaptureMode = () => {
     resizeCanvas()
   }, [videoStream])
 
-  const throttledSend = throttle(sendResults, 1)
+  // const throttledSend = throttle(sendResults, 1)
 
   useVideoFrameCallback(videoRef.current, (videoTime, metadata) => {
     if (!poseDetector.value || processingFrame.value || detectingStatus.value !== 'active') return
 
-    processingFrame.set(true)
-    poseDetector.value.send({ image: videoRef.current! }).finally(() => {
-      processingFrame.set(false)
+    poseDetector.value.detectForVideo(videoRef.current, performance.now(), (result) => {
+      const worldLandmarks = result.worldLandmarks[0]
+      const landmarks = result.landmarks[0]
+      sendResults({ worldLandmarks, landmarks })
+      drawingUtils.value && drawPoseToCanvas(result.landmarks, canvasCtxRef, canvasRef, drawingUtils.value)
     })
   })
 
@@ -241,30 +239,12 @@ const CaptureMode = () => {
 
     processingFrame.set(false)
 
-    poseDetector.value.onResults((results) => {
-      if (Object.keys(results).length === 0) return
-
-      const { poseWorldLandmarks, poseLandmarks } = results
-
-      if (debugSettings?.throttleSend) {
-        throttledSend({ poseWorldLandmarks, poseLandmarks })
-      } else {
-        sendResults({ poseWorldLandmarks, poseLandmarks })
-      }
-
-      processingFrame.set(false)
-
-      if (displaySettings?.show2dSkeleton) {
-        drawPoseToCanvas(canvasCtxRef, canvasRef!, poseLandmarks)
-      }
-    })
-
     return () => {
-      // detectingStatus.set('inactive')
-      // if (poseDetector.value) {
-      //   poseDetector.value.close()
-      // }
-      // poseDetector.set(null)
+      detectingStatus.set('inactive')
+      if (poseDetector.value) {
+        poseDetector.value.close()
+      }
+      poseDetector.set(null)
 
       if (canvasCtxRef.current && canvasRef.current) {
         canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
@@ -287,10 +267,11 @@ const CaptureMode = () => {
             <Video
               ref={videoRef}
               className={twMerge('h-auto w-full opacity-100', !displaySettings?.showVideo && 'opacity-0')}
+              style={{ transform: 'scaleX(-1)' }}
             />
           </div>
           <div className="z-1 absolute left-0 top-0 h-auto min-w-full object-contain">
-            <Canvas ref={canvasRef} />
+            <Canvas ref={canvasRef} style={{ transform: 'scaleX(-1)' }} />
           </div>
           <Button
             className="z-2 container absolute left-0 top-0 m-0 mx-auto h-full w-full bg-transparent p-0"
@@ -343,76 +324,22 @@ const CaptureMode = () => {
 }
 
 export const drawPoseToCanvas = (
+  poseLandmarks: NormalizedLandmark[][],
   canvasCtxRef: React.MutableRefObject<CanvasRenderingContext2D | undefined>,
-  canvasRef: RefObject<HTMLCanvasElement>,
-  poseLandmarks: NormalizedLandmarkList
+  canvasRef: React.RefObject<HTMLCanvasElement | undefined>,
+  drawingUtils: DrawingUtils
 ) => {
   if (!canvasCtxRef.current || !canvasRef.current) return
-
-  //draw!!!
-  canvasCtxRef.current.save()
   canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
-  canvasCtxRef.current.globalCompositeOperation = 'source-over'
-
-  const lineWidth = canvasRef.current.width * 0.004
-  const radius = canvasRef.current.width * 0.002
-
-  // Pose Connections
-  drawConnectors(canvasCtxRef.current, poseLandmarks, POSE_CONNECTIONS, {
-    color: '#fff',
-    lineWidth: lineWidth
-  })
-  // Pose Landmarks
-  drawLandmarks(canvasCtxRef.current, poseLandmarks, {
-    color: '#fff',
-    radius: radius
-  })
-
-  // // Left Hand Connections
-  // drawConnectors(
-  //   canvasCtxRef.current,
-  //   leftHandLandmarks !== undefined ? leftHandLandmarks : [],
-  //   HAND_CONNECTIONS,
-  //   {
-  //     color: '#fff',
-  //     lineWidth: 4
-  //   }
-  // )
-
-  // // Left Hand Landmarks
-  // drawLandmarks(canvasCtxRef.current, leftHandLandmarks !== undefined ? leftHandLandmarks : [], {
-  //   color: '#fff',
-  //   radius: 2
-  // })
-
-  // // Right Hand Connections
-  // drawConnectors(
-  //   canvasCtxRef.current,
-  //   rightHandLandmarks !== undefined ? rightHandLandmarks : [],
-  //   HAND_CONNECTIONS,
-  //   {
-  //     color: '#fff',
-  //     lineWidth: 4
-  //   }
-  // )
-
-  // // Right Hand Landmarks
-  // drawLandmarks(canvasCtxRef.current, rightHandLandmarks !== undefined ? rightHandLandmarks : [], {
-  //   color: '#fff',
-  //   radius: 2
-  // })
-
-  // // Face Connections
-  // drawConnectors(canvasCtxRef.current, faceLandmarks, FACEMESH_TESSELATION, {
-  //   color: '#fff',
-  //   lineWidth: 1
-  // })
-  // Face Landmarks
-  // drawLandmarks(canvasCtxRef.current, faceLandmarks, {
-  //   color: '#fff',
-  //   lineWidth: 1
-  // })
-  canvasCtxRef.current.restore()
+  if (poseLandmarks && canvasCtxRef.current) {
+    for (let i = 0; i < poseLandmarks.length; i++) {
+      drawingUtils.drawConnectors(poseLandmarks[i], PoseLandmarker.POSE_CONNECTIONS, {
+        color: '#fff',
+        lineWidth: 2
+      })
+      drawingUtils.drawLandmarks(poseLandmarks[i], { color: '#fff', lineWidth: 3 })
+    }
+  }
 }
 
 const VideoPlayback = (props: {
@@ -449,6 +376,11 @@ const VideoPlayback = (props: {
 
   const { handlePositionChange } = useScrubbableVideo(videoRef)
 
+  const drawingUtils = useHookstate(null as null | DrawingUtils)
+  useEffect(() => {
+    drawingUtils.set(new DrawingUtils(canvasCtxRef.current!))
+  }, [])
+
   /** When the current time changes, update the video's current time and render motion capture */
   useEffect(() => {
     if (!videoRef.current || typeof currentTimeSeconds.value !== 'number') return
@@ -461,7 +393,8 @@ const VideoPlayback = (props: {
       const currentTimeMS = currentTimeSeconds.value * 1000
       const frame = data.frames.find((frame) => frame.timecode > currentTimeMS)
       if (!frame) return
-      drawPoseToCanvas(canvasCtxRef, canvasRef, frame.data.results.poseLandmarks)
+      drawingUtils.value &&
+        drawPoseToCanvas(frame.data.results.poseLandmarks, canvasCtxRef, canvasRef, drawingUtils.value)
     }
   }, [currentTimeSeconds])
 
