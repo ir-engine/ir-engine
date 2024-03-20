@@ -47,11 +47,9 @@ import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/Av
 import { SceneSnapshotAction, SceneSnapshotState } from '@etherealengine/engine/src/scene/Scene'
 import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
 import { TransformComponent } from '@etherealengine/spatial'
-import {
-  ActiveOrbitCamera,
-  CameraOrbitComponent
-} from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
+import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { InfiniteGridComponent } from '@etherealengine/spatial/src/renderer/components/InfiniteGridHelper'
@@ -244,8 +242,9 @@ const execute = () => {
   const editorHelperState = getState(EditorHelperState)
   const selectedEntities = SelectionState.getSelectedEntities()
 
-  const inputSource = getComponent(inputQuery()[0], InputSourceComponent)
-  const buttons = inputSource.buttons
+  const inputSources = inputQuery()
+
+  const buttons = InputSourceComponent.getMergedButtons(inputSources)
 
   if (editorHelperState.isFlyModeEnabled) return
 
@@ -283,8 +282,8 @@ const execute = () => {
     primaryClickAccum = 0
   }
   if (primaryClickAccum <= 0.2) {
-    if (buttons.PrimaryClick?.up && inputSource.assignedButtonEntity) {
-      let clickedEntity = inputSource.assignedButtonEntity
+    if (buttons.PrimaryClick?.up) {
+      let clickedEntity = InputSourceComponent.getClosestIntersectedEntity(inputSources[0])
       while (
         !hasComponent(clickedEntity, SceneComponent) &&
         getOptionalComponent(clickedEntity, EntityTreeComponent)?.parentEntity
@@ -299,7 +298,6 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const selectedEntities = SelectionState.useSelectedEntities()
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
   const rendererState = useHookstate(getMutableState(RendererState))
 
@@ -317,7 +315,7 @@ const reactor = () => {
   useEffect(() => {
     // set the active orbit camera to the main camera
     setComponent(Engine.instance.cameraEntity, CameraOrbitComponent)
-    getMutableState(ActiveOrbitCamera).set(Engine.instance.cameraEntity)
+    setComponent(Engine.instance.cameraEntity, InputComponent)
   }, [])
 
   useEffect(() => {

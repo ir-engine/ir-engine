@@ -65,7 +65,7 @@ const spherical = new Spherical()
 
 // const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
 // const InputSourceQuery = defineQuery([InputSourceComponent])
-const orbitCameraQuery = defineQuery([CameraOrbitComponent])
+const orbitCameraQuery = defineQuery([CameraOrbitComponent, InputComponent])
 const execute = () => {
   if (!isClient) return
   /**
@@ -73,21 +73,23 @@ const execute = () => {
    */
   for (const cameraEid of orbitCameraQuery()) {
     const cameraOrbit = getMutableComponent(cameraEid, CameraOrbitComponent)
-    if (cameraOrbit.disabled.value) return // TODO: replace w/ EnabledComponent or DisabledComponent in query
+    if (cameraOrbit.disabled.value) continue // TODO: replace w/ EnabledComponent or DisabledComponent in query
 
     const inputSourceEids = getComponent(cameraEid, InputComponent).inputSources
     const buttons = InputSourceComponent.getMergedButtons(inputSourceEids)
     const axes = InputSourceComponent.getMergedAxes(inputSourceEids)
-    const capturedInputs = InputSourceComponent.captureOnCondition(inputSourceEids, (eid) => {
-      const is = getComponent(eid, InputSourceComponent)
-      const ip = getOptionalComponent(eid, InputPointerComponent)
-      return ip && is.buttons.PrimaryClick?.pressed
-    })
+    for (const eid of inputSourceEids) {
+      const inputSource = getComponent(eid, InputSourceComponent)
+      const inputPointer = getOptionalComponent(eid, InputPointerComponent)
+      if (inputPointer && inputSource.buttons.PrimaryClick?.pressed) {
+        cameraOrbit.isOrbiting.set(true)
+      }
+    }
 
-    if (!capturedInputs) continue
+    if (!cameraOrbit.isOrbiting.value) continue
 
     // TODO: handle multi-touch pinch/zoom
-    const inputPointer = getComponent(capturedInputs[0], InputPointerComponent)
+    const inputPointer = getComponent(inputSourceEids[0], InputPointerComponent)
 
     const selecting = buttons.PrimaryClick?.pressed
     const zoom = axes[StandardGamepadAxes.RightStickY]
