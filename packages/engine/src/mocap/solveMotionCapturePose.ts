@@ -45,7 +45,6 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 
 import { Mesh, MeshBasicMaterial } from 'three'
 
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -77,8 +76,8 @@ const feetGrounded = [false, false]
 const footAverageDifferenceThreshold = 0.05
 const footLevelDifferenceThreshold = 0.035
 
-const worldFilterAlphaMultiplier = 30
-const screenFilterAlphaMultiplier = 10
+const worldFilterAlphaMultiplier = 0.5
+const screenFilterAlphaMultiplier = 0.2
 
 //get all strings from the list containing 'leg' or 'foot'
 const lowerBody = VRMHumanBoneList.filter((bone) => /Leg|Foot|hips/i.test(bone))
@@ -272,7 +271,7 @@ export function solveMotionCapturePose(
         filteredLandmarks[i] = prevLandmarks[i]
         continue
       }
-      const alpha = getState(ECSState).deltaSeconds * alphaMultiplier
+      const alpha = alphaMultiplier
       lowPassLandmarks[i] = {
         visibility: MathUtils.lerp(prevLandmarks[i].visibility!, newLandmarks[i].visibility!, alpha),
         x: MathUtils.lerp(prevLandmarks[i].x, newLandmarks[i].x, newLandmarks[i].visibility!),
