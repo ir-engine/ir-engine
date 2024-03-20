@@ -116,7 +116,7 @@ const Modal = ({
   closeButtonDisabled,
   submitButtonDisabled
 }: ModalProps) => {
-  const twClassName = twMerge('relative max-h-full w-full max-w-fit p-4', className)
+  const twClassName = twMerge('relative max-h-full w-full p-4', className)
   return (
     <div className={twClassName}>
       <div className="bg-theme-primary relative rounded-lg shadow">
