@@ -76,6 +76,26 @@ export interface System {
   avgSystemDuration: number
 }
 
+export const filterAndSortSystemsByAvgDuration = (maxAvg = 0.0): System[] => {
+  const systems = SystemDefinitions
+  const sorted = [...systems.values()]
+    .filter((system: System) => system.avgSystemDuration > maxAvg)
+    .sort((left: System, right: System) => {
+      return right.avgSystemDuration - left.avgSystemDuration
+    })
+
+  return sorted
+}
+
+export const sortSystemsByAvgDuration = (): System[] => {
+  const systems = SystemDefinitions
+  const sorted = [...systems.values()].sort((left: System, right: System) => {
+    return right.avgSystemDuration - left.avgSystemDuration
+  })
+
+  return sorted
+}
+
 export const SystemDefinitions = new Map<SystemUUID, System>()
 globalThis.SystemDefinitions = SystemDefinitions
 
