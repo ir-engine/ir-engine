@@ -29,29 +29,31 @@ import Input, { InputProps } from '@etherealengine/ui/src/primitives/tailwind/In
 import React, { forwardRef } from 'react'
 import { HiOutlineEye, HiOutlineEyeSlash } from 'react-icons/hi2'
 
-const Password = forwardRef<HTMLInputElement, InputProps>((props: InputProps, ref: React.Ref<HTMLInputElement>) => {
-  const show = useHookstate(false)
+const PasswordInput = forwardRef<HTMLInputElement, InputProps>(
+  (props: InputProps, ref: React.Ref<HTMLInputElement>) => {
+    const show = useHookstate(false)
 
-  const toggleShow = () => {
-    show.set(!show.value)
+    const toggleShow = () => {
+      show.set(!show.value)
+    }
+
+    return (
+      <Input
+        ref={ref}
+        {...props}
+        type={show.value ? 'text' : 'password'}
+        endComponent={
+          <Button onClick={toggleShow} className="bg-transperant pointer-events-auto px-0">
+            {show.value ? (
+              <HiOutlineEyeSlash className="text-theme-primary" />
+            ) : (
+              <HiOutlineEye className="text-theme-primary" />
+            )}
+          </Button>
+        }
+      />
+    )
   }
+)
 
-  return (
-    <Input
-      ref={ref}
-      {...props}
-      type={show.value ? 'text' : 'password'}
-      endComponent={
-        <Button onClick={toggleShow} className="bg-transperant pointer-events-auto px-0">
-          {show.value ? (
-            <HiOutlineEyeSlash className="text-theme-primary" />
-          ) : (
-            <HiOutlineEye className="text-theme-primary" />
-          )}
-        </Button>
-      }
-    />
-  )
-})
-
-export default Password
+export default PasswordInput

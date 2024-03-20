@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { emailSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import Password from '@etherealengine/ui/src/components/tailwind/Password'
+import PasswordInput from '@etherealengine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
@@ -173,7 +173,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
           onChange={(e) => handleUpdateAuth(e, 'user')}
         />
 
-        <Password
+        <PasswordInput
           className="col-span-2"
           label={t('admin:components.setting.password')}
           value={auth?.value?.pass || ''}

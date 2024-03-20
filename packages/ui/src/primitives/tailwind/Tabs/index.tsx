@@ -88,7 +88,7 @@ const Tabs = ({
               key={index}
               className={twMerge(
                 twTabClassName,
-                currentTab.value === index ? 'text-theme-primary border-b border-b-blue-400 font-semibold' : ''
+                currentTab.value === index ? 'text-theme-primary border-b-bluePrimary border-b font-semibold' : ''
               )}
               onClick={() => {
                 currentTab.set(index)

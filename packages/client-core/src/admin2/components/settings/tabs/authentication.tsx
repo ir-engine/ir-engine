@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { AuthenticationSettingType, authenticationSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { State, useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import Password from '@etherealengine/ui/src/components/tailwind/Password'
+import PasswordInput from '@etherealengine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
@@ -246,13 +246,13 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
               {t('admin:components.setting.discord')}
             </Text>
 
-            <Password
+            <PasswordInput
               label={t('admin:components.setting.key')}
               value={keySecret?.value?.discord?.key || ''}
               onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.DISCORD)}
             />
 
-            <Password
+            <PasswordInput
               containerClassname="mt-2"
               label={t('admin:components.setting.secret')}
               value={keySecret?.value?.discord?.secret || ''}
@@ -274,13 +274,13 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
               {t('admin:components.setting.linkedIn')}
             </Text>
 
-            <Password
+            <PasswordInput
               label={t('admin:components.setting.key')}
               value={keySecret?.value?.linkedin?.key || ''}
               onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.LINKEDIN)}
             />
 
-            <Password
+            <PasswordInput
               containerClassname="mt-2"
               label={t('admin:components.setting.secret')}
               value={keySecret?.value?.linkedin?.secret || ''}
@@ -302,13 +302,13 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
               {t('admin:components.setting.facebook')}
             </Text>
 
-            <Password
+            <PasswordInput
               label={t('admin:components.setting.key')}
               value={keySecret?.value?.facebook?.key || ''}
               onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.FACEBOOK)}
             />
 
-            <Password
+            <PasswordInput
               containerClassname="mt-2"
               label={t('admin:components.setting.secret')}
               value={keySecret?.value?.facebook?.secret || ''}
@@ -334,13 +334,13 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
               {t('admin:components.setting.google')}
             </Text>
 
-            <Password
+            <PasswordInput
               label={t('admin:components.setting.key')}
               value={keySecret?.value?.google?.key || ''}
               onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.GOOGLE)}
             />
 
-            <Password
+            <PasswordInput
               containerClassname="mt-2"
               label={t('admin:components.setting.secret')}
               value={keySecret?.value?.google?.secret || ''}
@@ -362,13 +362,13 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
               {t('admin:components.setting.github')}
             </Text>
 
-            <Password
+            <PasswordInput
               label={t('admin:components.setting.key')}
               value={keySecret?.value?.github?.key || ''}
               onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.GITHUB)}
             />
 
-            <Password
+            <PasswordInput
               containerClassname="mt-2"
               label={t('admin:components.setting.secret')}
               value={keySecret?.value?.github?.secret || ''}
@@ -390,13 +390,13 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
               {t('admin:components.setting.twitter')}
             </Text>
 
-            <Password
+            <PasswordInput
               label={t('admin:components.setting.key')}
               value={keySecret?.value?.twitter?.key || ''}
               onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.TWITTER)}
             />
 
-            <Password
+            <PasswordInput
               containerClassname="mt-2"
               label={t('admin:components.setting.secret')}
               value={keySecret?.value?.twitter?.secret || ''}
