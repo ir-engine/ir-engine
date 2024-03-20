@@ -77,7 +77,7 @@ export const RigidBodyComponent = defineComponent({
       angularVelocity: proxifyVector3(this.angularVelocity, entity),
       /** If multiplier is 0, ridigbody moves immediately to target pose, linearly interpolating between substeps */
       targetKinematicLerpMultiplier: 0,
-      canSleep: true
+      canSleep: true /** Not a reactive property. Only on Init*/
     }
   },
 
