@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineQuery } from '@etherealengine/ecs'
 import { defineComponent, getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { Raycaster } from 'three'
-import { TransformComponent } from '../../SpatialModule'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace } from '../../xr/XRState'
 import { ButtonStateMap } from '../state/ButtonState'
@@ -43,7 +43,8 @@ export const InputSourceComponent = defineComponent({
       intersections: [] as Array<{
         entity: Entity
         distance: number
-      }>
+      }>,
+      captured: UndefinedEntity
     }
   },
 

@@ -46,7 +46,6 @@ const direction = new Vector3()
 const tempVec3 = new Vector3()
 const quat = new Quaternion()
 const candidateWorldQuat = new Quaternion()
-const pointers = defineQuery([InputPointerComponent])
 
 const execute = () => {
   for (const entity of flyControlQuery()) {

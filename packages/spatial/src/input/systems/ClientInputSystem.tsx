@@ -37,7 +37,7 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
@@ -191,14 +191,17 @@ const execute = () => {
       distance: number
     }[]
 
+    const capturedEntity = getComponent(sourceEid, InputSourceComponent).captured
+
     const sourceRotation = TransformComponent.getWorldRotation(sourceEid, quat)
     inputRaycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceRotation)
     TransformComponent.getWorldPosition(sourceEid, inputRaycast.origin).addScaledVector(inputRaycast.direction, -0.01)
     inputRay.set(inputRaycast.origin, inputRaycast.direction)
-    const pickerObj = gizmoPickerObjects() // gizmo heuristic
-    const inputObj = inputObjects()
+
     // only heuristic is scene objects when in the editor
-    if (getState(EngineState).isEditor) {
+    if (getState(EngineState).isEditing) {
+      const pickerObj = gizmoPickerObjects() // gizmo heuristic
+      const inputObj = inputObjects()
       raycaster.set(inputRaycast.origin, inputRaycast.direction)
       const objects = (pickerObj.length > 0 ? pickerObj : inputObj) // gizmo heuristic
         .map((eid) => getComponent(eid, GroupComponent))
@@ -215,8 +218,9 @@ const execute = () => {
       }
     } else {
       // 1st heuristic is XRUI
-      for (const eid of inputXRUIs()) {
-        const xrui = getComponent(eid, XRUIComponent)
+      for (const entity of inputXRUIs()) {
+        if (capturedEntity && entity !== capturedEntity) continue
+        const xrui = getComponent(entity, XRUIComponent)
         const layerHit = xrui.hitTest(inputRay)
         if (
           !layerHit ||
@@ -224,8 +228,7 @@ const execute = () => {
           (layerHit.intersection.object as Mesh<any, MeshBasicMaterial>).material?.opacity < 0.01
         )
           continue
-        intersectionData.push({ entity: eid, distance: layerHit.intersection.distance })
-        break
+        intersectionData.push({ entity, distance: layerHit.intersection.distance })
       }
 
       const physicsWorld = getState(PhysicsState).physicsWorld
@@ -234,13 +237,15 @@ const execute = () => {
       if (physicsWorld) {
         const hits = Physics.castRay(physicsWorld, inputRaycast)
         for (const hit of hits) {
-          if (hit.entity === UndefinedEntity) continue
-          intersectionData.push({ entity: hit.entity, distance: hit.distance })
+          if (!hit.entity) continue
+          if (!capturedEntity || hit.entity === capturedEntity)
+            intersectionData.push({ entity: hit.entity, distance: hit.distance })
         }
       }
 
       // 3rd heuristic is bboxes
       for (const entity of inputBoundingBoxes()) {
+        if (capturedEntity && entity !== capturedEntity) continue
         const boundingBox = getComponent(entity, BoundingBoxComponent)
         const hit = inputRay.intersectBox(boundingBox.box, bboxHitTarget)
         if (hit) {

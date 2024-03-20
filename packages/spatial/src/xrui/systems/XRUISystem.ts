@@ -95,7 +95,7 @@ const updateControllerRayInteraction = (entity: Entity, xruiEntities: Entity[]) 
   pointerComponentState.lastHit.set(hit)
 
   if (hit) {
-    const interactable = window.getComputedStyle(hit.target).cursor == 'pointer'
+    const interactable = window.getComputedStyle(hit.target).cursor === 'pointer'
 
     if (cursor) {
       cursor.visible = true
@@ -129,6 +129,8 @@ const updateClickEventsForController = (entity: Entity) => {
 }
 
 const execute = () => {
+  if (!isClient) return
+
   const xruiState = getState(XRUIState)
   const xrFrame = getState(XRState).xrFrame
 
