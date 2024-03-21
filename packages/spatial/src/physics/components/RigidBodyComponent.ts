@@ -65,7 +65,7 @@ export const RigidBodyComponent = defineComponent({
       ccd: false,
       allowRolling: true,
       enabledRotations: [true, true, true],
-      canSleep: true, /** Not a reactive property. Only on Init*/
+      canSleep: true /** Not a reactive property. Only on Init*/,
       // internal
       body: null! as RigidBody,
       previousPosition: proxifyVector3(this.previousPosition, entity),
