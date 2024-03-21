@@ -33,14 +33,14 @@ then
   npx cross-env node --loader ts-node/esm packages/client/scripts/populate-assetlinks.ts >populate-assetlinks-build-logs.txt >populate-assetlinks-build-logs.txt 2>populate-assetlinks-build-error.txt || npm run record-build-error -- --service=populate-assetlinks
 test -s populate-assetlinks-build-error.txt && npm run record-build-error -- --service=populate-assetlinks
 fi
-bash ./scripts/cleanup_builder.sh $DOCKER_LABEL
+bash ./scripts/cleanup_builder.sh
 
 
-if [ $PRIVATE_ECR == "true" ]
+if [ $PRIVATE_REPO == "true" ]
 then
-  aws ecr get-login-password --region $AWS_REGION | docker login -u AWS --password-stdin $ECR_URL
+  aws ecr get-login-password --region $AWS_REGION | docker login -u AWS --password-stdin $DESTINATION_REPO_URL
 else
-  aws ecr-public get-login-password --region us-east-1 | docker login -u AWS --password-stdin $ECR_URL
+  aws ecr-public get-login-password --region us-east-1 | docker login -u AWS --password-stdin $DESTINATION_REPO_URL
 fi
 
 mkdir -p ./project-package-jsons/projects/default-project
@@ -52,11 +52,11 @@ if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" =
 then
   npx cross-env ts-node --swc scripts/get-deletable-client-files.ts
 
-  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL api api $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >api-build-logs.txt 2>api-build-error.txt &
-  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL client client-serve-static $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >client-build-logs.txt 2>client-build-error.txt &
-  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL instanceserver instanceserver $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >instanceserver-build-logs.txt 2>instanceserver-build-error.txt &
-  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL taskserver taskserver $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >taskserver-build-logs.txt 2>taskserver-build-error.txt &
-  #bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL testbot testbot $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >testbot-build-logs.txt 2>testbot-build-error.txt && &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME api api $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >api-build-logs.txt 2>api-build-error.txt &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME client client-serve-static $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >client-build-logs.txt 2>client-build-error.txt &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME instanceserver instanceserver $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >instanceserver-build-logs.txt 2>instanceserver-build-error.txt &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME taskserver taskserver $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >taskserver-build-logs.txt 2>taskserver-build-error.txt &
+  #bash ./scripts/build_and_publish_package.sh $RELEASE_NAME testbot testbot $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >testbot-build-logs.txt 2>testbot-build-error.txt && &
 
   wait < <(jobs -p)
 
@@ -67,10 +67,10 @@ then
   #npm run record-build-error -- --service=testbot --isDocker=true
 elif [ "$SERVE_CLIENT_FROM_API" = "true" ]
 then
-  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL api api-client $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >api-build-logs.txt 2>api-build-error.txt &
-  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL instanceserver instanceserver $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >instanceserver-build-logs.txt 2>instanceserver-build-error.txt &
-  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL taskserver taskserver $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >taskserver-build-logs.txt 2>taskserver-build-error.txt &
-  #bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL testbot testbot $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >testbot-build-logs.txt 2>testbot-build-error.txt && &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME api api-client $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >api-build-logs.txt 2>api-build-error.txt &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME instanceserver instanceserver $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >instanceserver-build-logs.txt 2>instanceserver-build-error.txt &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME taskserver taskserver $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >taskserver-build-logs.txt 2>taskserver-build-error.txt &
+  #bash ./scripts/build_and_publish_package.sh $RELEASE_NAME testbot testbot $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >testbot-build-logs.txt 2>testbot-build-error.txt && &
 
   wait < <(jobs -p)
 
@@ -79,11 +79,11 @@ then
   npm run record-build-error -- --service=taskserver --isDocker=true
   #npm run record-build-error -- --service=testbot --isDocker=true
 else
-  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL api api $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >api-build-logs.txt 2>api-build-error.txt &
-  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL client client $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >client-build-logs.txt 2>client-build-error.txt &
-  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL instanceserver instanceserver $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >instanceserver-build-logs.txt 2>instanceserver-build-error.txt &
-  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL taskserver taskserver $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >taskserver-build-logs.txt 2>taskserver-build-error.txt &
-  #bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL testbot testbot $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >testbot-build-logs.txt 2>testbot-build-error.txt && &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME api api $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >api-build-logs.txt 2>api-build-error.txt &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME client client $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >client-build-logs.txt 2>client-build-error.txt &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME instanceserver instanceserver $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >instanceserver-build-logs.txt 2>instanceserver-build-error.txt &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME taskserver taskserver $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >taskserver-build-logs.txt 2>taskserver-build-error.txt &
+  #bash ./scripts/build_and_publish_package.sh $RELEASE_NAME testbot testbot $START_TIME $AWS_REGION $NODE_ENV $DESTINATION_REPO_PROVIDER $PRIVATE_REPO >testbot-build-logs.txt 2>testbot-build-error.txt && &
 
   wait < <(jobs -p)
 
@@ -96,13 +96,13 @@ fi
 
 bash ./scripts/deploy.sh $RELEASE_NAME ${TAG}__${START_TIME}
 
-npx cross-env ts-node --swc scripts/update-cronjob-image.ts --repoName=${REPO_NAME} --tag=${TAG} --ecrUrl=${ECR_URL} --startTime=${START_TIME}
+npx cross-env ts-node --swc scripts/update-cronjob-image.ts --repoName=${REPO_NAME} --tag=${TAG} --repoUrl=${DESTINATION_REPO_URL} --startTime=${START_TIME}
 
 npx cross-env ts-node --swc scripts/clear-projects-rebuild.ts
 npm run record-build-success
 DEPLOY_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 
-bash ./scripts/cleanup_builder.sh $DOCKER_LABEL
+bash ./scripts/cleanup_builder.sh
 
 END_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 echo "Started build at $START_TIME, deployed image to K8s at $DEPLOY_TIME, ended at $END_TIME"
