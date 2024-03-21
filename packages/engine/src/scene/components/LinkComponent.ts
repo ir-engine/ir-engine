@@ -45,6 +45,7 @@ import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
@@ -203,7 +204,7 @@ export const LinkComponent = defineComponent({
 
         if (inputSourceEntity) {
           const inputSource = getOptionalComponent(inputSourceEntity, InputSourceComponent)
-          if (inputSource?.assignedButtonEntity != entity) return
+          if (getState(InputState).capturingEntity !== entity) return
           const buttons = inputSource?.buttons
 
           if (buttons)

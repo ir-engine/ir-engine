@@ -39,13 +39,14 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { QueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { Not } from 'bitecs'
+import React from 'react'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { NameComponent } from '../../common/NameComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
@@ -55,8 +56,8 @@ import { AllCollisionMask } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
+import { RendererComponent } from '../../renderer/components/RendererComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
@@ -340,9 +341,7 @@ const useGamepadInputSources = () => {
     }
     const removeGamepad = (e: GamepadEvent) => {
       console.log('[ClientInputSystem] lost gamepad', e.gamepad)
-      NameComponent.entitiesByName['InputSource-gamepad-' + e.gamepad.id]?.forEach((eid) => {
-        removeEntity(eid)
-      })
+      NameComponent.entitiesByName['InputSource-gamepad-' + e.gamepad.id]?.forEach(removeEntity)
     }
     window.addEventListener('gamepadconnected', addGamepad)
     window.addEventListener('gamepaddisconnected', removeGamepad)
@@ -353,10 +352,14 @@ const useGamepadInputSources = () => {
   }, [])
 }
 
-const usePointerInputSources = (canvas = EngineRenderer.instance.renderer.domElement) => {
+const usePointerInputSources = () => {
+  const canvasEntity = useEntityContext()
   const xrState = useHookstate(getMutableState(XRState))
   useEffect(() => {
     if (xrState.session.value) return // pointer input sources are automatically handled by webxr
+
+    const rendererComponent = getComponent(canvasEntity, RendererComponent)
+    const canvas = rendererComponent.renderer.domElement
 
     // TODO: follow this spec more closely https://immersive-web.github.io/webxr/#transient-input
     // const pointerEntities = new Map<number, Entity>()
@@ -364,7 +367,7 @@ const usePointerInputSources = (canvas = EngineRenderer.instance.renderer.domEle
     const emulatedInputSourceEntity = createEntity()
     setComponent(emulatedInputSourceEntity, NameComponent, 'InputSource-emulated-pointer')
     setComponent(emulatedInputSourceEntity, TransformComponent)
-    setComponent(emulatedInputSourceEntity, InputPointerComponent, { pointerId: 0, canvas })
+    setComponent(emulatedInputSourceEntity, InputPointerComponent, { pointerId: 0, canvasEntity: canvasEntity })
     setComponent(emulatedInputSourceEntity, InputSourceComponent)
     const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
     const pointerComponent = getComponent(emulatedInputSourceEntity, InputPointerComponent)
@@ -437,6 +440,8 @@ const usePointerInputSources = (canvas = EngineRenderer.instance.renderer.domEle
       removeEntity(emulatedInputSourceEntity)
     }
   }, [xrState.session])
+
+  return null
 }
 
 const useXRInputSources = () => {
@@ -506,10 +511,9 @@ const reactor = () => {
 
   useNonSpatialInputSources()
   useGamepadInputSources()
-  usePointerInputSources()
   useXRInputSources()
 
-  return null
+  return <QueryReactor Components={[RendererComponent]} ChildEntityReactor={usePointerInputSources} />
 }
 
 export const ClientInputSystem = defineSystem({

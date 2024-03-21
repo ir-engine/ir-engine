@@ -68,6 +68,7 @@ const execute = () => {
 
   // TODO: handle multi-touch pinch/zoom
   const pointers = inputPointerQuery()
+  if (!pointers.length) return
   const inputPointer = getComponent(pointers[0], InputPointerComponent)
 
   const buttons = InputSourceComponent.getMergedButtons()

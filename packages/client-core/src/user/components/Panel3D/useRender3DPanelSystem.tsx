@@ -144,9 +144,6 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
     return () => {
       window.removeEventListener('resize', resize)
       // cleanup entities and state associated with this 3d panel
-      removeEntity(
-        getComponent(rendererState.entities[id].value[PanelEntities.camera], CameraOrbitComponent).inputEntity
-      )
       for (const entity of rendererState.entities[id].value) removeEntity(entity)
       const thisIdIndex = rendererState.ids.value.findIndex((value) => value === id)
       rendererState.entities[id].set(none)
