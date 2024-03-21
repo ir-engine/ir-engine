@@ -802,13 +802,13 @@ export const ParticleSystemComponent = defineComponent({
     const component = componentState.value
     const batchRenderer = useHookstate(getMutableState(ParticleState).batchRenderer)
 
-    const [geoDependency, unloadGeo] = useGLTF(component.systemParameters.instancingGeometry!, entity, {}, (url) => {
+    const [geoDependency] = useGLTF(component.systemParameters.instancingGeometry!, entity, {}, (url) => {
       metadata.geometries.nested(url).set(none)
     })
-    const [shapeMesh, unloadMesh] = useGLTF(component.systemParameters.shape.mesh!, entity, {}, (url) => {
+    const [shapeMesh] = useGLTF(component.systemParameters.shape.mesh!, entity, {}, (url) => {
       metadata.geometries.nested(url).set(none)
     })
-    const [textureState, unloadTexture] = useTexture(component.systemParameters.texture!, entity, {}, (url) => {
+    const [texture] = useTexture(component.systemParameters.texture!, entity, {}, (url) => {
       metadata.textures.nested(url).set(none)
       dudMaterial.map.set(none)
     })
@@ -826,36 +826,29 @@ export const ParticleSystemComponent = defineComponent({
       //add dud material
       componentState.systemParameters.material.set('dud')
       metadata.materials.nested('dud').set(dudMaterial.get(NO_PROXY))
-
-      return () => {
-        unloadGeo()
-        unloadMesh()
-        unloadTexture()
-      }
     }, [])
 
     useEffect(() => {
-      if (!geoDependency.value || !geoDependency.value.scene) return
+      if (!geoDependency || !geoDependency.scene) return
 
-      const scene = geoDependency.value.scene
+      const scene = geoDependency.scene
       const geo = getFirstMesh(scene)?.geometry
       !!geo && metadata.geometries.nested(component.systemParameters.instancingGeometry!).set(geo)
     }, [geoDependency])
 
     useEffect(() => {
-      if (!shapeMesh.value || !shapeMesh.value.scene) return
+      if (!shapeMesh || !shapeMesh.scene) return
 
-      const scene = shapeMesh.value.scene
+      const scene = shapeMesh.scene
       const mesh = getFirstMesh(scene)
       mesh && metadata.geometries.nested(component.systemParameters.shape.mesh!).set(mesh.geometry)
     }, [shapeMesh])
 
     useEffect(() => {
-      const texture = textureState.get(NO_PROXY)
       if (!texture) return
       metadata.textures.nested(component.systemParameters.texture!).set(texture)
       dudMaterial.map.set(texture)
-    }, [textureState])
+    }, [texture])
 
     useEffect(() => {
       if (component.system) {
@@ -897,9 +890,9 @@ export const ParticleSystemComponent = defineComponent({
         component.systemParameters.texture &&
         AssetLoader.getAssetClass(component.systemParameters.texture) === AssetClass.Image
 
-      const loadedEmissionGeo = (doLoadEmissionGeo && shapeMesh.value) || !doLoadEmissionGeo
-      const loadedInstanceGeo = (doLoadInstancingGeo && geoDependency.value) || !doLoadInstancingGeo
-      const loadedTexture = (doLoadTexture && textureState.value) || !doLoadTexture
+      const loadedEmissionGeo = (doLoadEmissionGeo && shapeMesh) || !doLoadEmissionGeo
+      const loadedInstanceGeo = (doLoadInstancingGeo && geoDependency) || !doLoadInstancingGeo
+      const loadedTexture = (doLoadTexture && texture) || !doLoadTexture
 
       if (loadedEmissionGeo && loadedInstanceGeo && loadedTexture) {
         const processedParms = JSON.parse(JSON.stringify(component.systemParameters)) as ExpandedSystemJSON
@@ -928,7 +921,7 @@ export const ParticleSystemComponent = defineComponent({
           }
         }
       }
-    }, [geoDependency, shapeMesh, textureState, componentState._refresh])
+    }, [geoDependency, shapeMesh, texture, componentState._refresh])
 
     return null
   }
