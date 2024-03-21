@@ -95,7 +95,7 @@ export const EntityNetworkState = defineState({
 const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
   const state = useHookstate(getMutableState(EntityNetworkState)[props.uuid])
   const ownerID = state.ownerId.value
-  const isOwner = ownerID === Engine.instance.userID
+  const isOwner = ownerID === SceneUser || ownerID === Engine.instance.userID
   const userConnected = !!useHookstate(getMutableState(NetworkWorldUserState)[ownerID]).value || isOwner
   const isWorldNetworkConnected = !!useHookstate(NetworkState.worldNetworkState).value
 
@@ -111,13 +111,10 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
     if (!userConnected) return
     const entity = UUIDComponent.getEntityByUUID(props.uuid)
     const worldNetwork = NetworkState.worldNetwork
+
     setComponent(entity, NetworkObjectComponent, {
       ownerId:
-        ownerID === SceneUser
-          ? isWorldNetworkConnected
-            ? worldNetwork.peers[worldNetwork.hostPeerID].userId
-            : Engine.instance.userID
-          : ownerID,
+        ownerID === SceneUser ? (isWorldNetworkConnected ? worldNetwork.hostUserID : Engine.instance.userID) : ownerID,
       ownerPeer: state.ownerPeer.value,
       authorityPeerID: state.authorityPeerId.value,
       networkId: state.networkId.value

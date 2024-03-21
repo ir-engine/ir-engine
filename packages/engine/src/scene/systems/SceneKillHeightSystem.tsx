@@ -53,6 +53,7 @@ const heightKillApplicableQuery = defineQuery([
 
 const settingsQuery = defineQuery([SceneSettingsComponent])
 const tempVector = new Vector3()
+
 const execute = () => {
   const settingsEntities = settingsQuery()
   const sceneKillHeight = settingsEntities.reduce((min, entity) => {
@@ -63,11 +64,10 @@ const execute = () => {
   for (const entity of killableEntities) {
     const rigidBodyPosition = getComponent(entity, RigidBodyComponent).position
     if (rigidBodyPosition.y < sceneKillHeight) {
-      // reset entity
-
       const uuid = getComponent(entity, UUIDComponent)
       const spawnState = getState(SpawnPoseState)[uuid]
 
+      // reset entity to it's spawn position
       setComponent(entity, TransformComponent, {
         position: spawnState?.spawnPosition,
         rotation: spawnState?.spawnRotation
@@ -75,14 +75,16 @@ const execute = () => {
       TransformComponent.dirtyTransforms[entity] = true
 
       const { cameraAttachedRigidbodyEntity } = getState(PhysicsState)
-      if (entity !== cameraAttachedRigidbodyEntity) return
+      if (entity !== cameraAttachedRigidbodyEntity) continue
+
       const { isCameraAttachedToAvatar } = getState(XRControlsState)
-      if (!isCameraAttachedToAvatar) return
+      if (!isCameraAttachedToAvatar) continue
+
+      //@TODO see if we can implicitly update the reference space when the avatar teleports
       updateReferenceSpaceFromAvatarMovement(
         entity,
         tempVector.subVectors(spawnState?.spawnPosition, rigidBodyPosition)
       )
-      //@TODO see if we can implicitly update the reference space when the avatar teleports
     }
   }
 }

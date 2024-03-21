@@ -30,7 +30,7 @@ import { EntityUUID } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
-import { getMutableState, getState, PeerID } from '@etherealengine/hyperflux'
+import { Action, getMutableState, getState, PeerID } from '@etherealengine/hyperflux'
 import { NetworkPeerFunctions, updatePeers } from '@etherealengine/network'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
@@ -223,11 +223,11 @@ export const handleConnectingPeer = (
 
   logger.info('Connect to world from ' + userId)
 
-  const cachedActions = NetworkPeerFunctions.getCachedActionsForPeer(peerID)
+  const cachedActions = ([updatePeersAction] as Required<Action>[])
+    .concat(NetworkPeerFunctions.getCachedActionsForPeer(peerID))
     .map((action) => {
       return _.cloneDeep(action)
     })
-    .concat([updatePeersAction])
 
   const instanceServerState = getState(InstanceServerState)
   if (inviteCode && !instanceServerState.isMediaInstance) getUserSpawnFromInvite(network, user, inviteCode!)

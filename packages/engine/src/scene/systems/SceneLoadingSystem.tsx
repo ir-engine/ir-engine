@@ -97,12 +97,10 @@ export const SceneLoadingReactor = () => {
   )
 }
 
-/** @todo - this needs to be rework according to #9105 # */
 const NetworkedSceneObjectReactor = () => {
   const entity = useEntityContext()
 
   useEffect(() => {
-    if (!entityExists(entity)) return
     const uuid = getComponent(entity, UUIDComponent)
     const transform = getComponent(entity, TransformComponent)
     const isHostingWorldNetwork = !!NetworkState.worldNetwork?.isHosting
