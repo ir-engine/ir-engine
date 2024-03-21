@@ -38,12 +38,22 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiArrowPath } from 'react-icons/hi2'
 
+const getDefaultErrors = () => ({
+  serverError: '',
+  name: '',
+  model: '',
+  thumbnail: '',
+  modelURL: '',
+  thumbnailURL: ''
+})
+
 export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) {
   const { t } = useTranslation()
   const previewPanelRef = React.useRef()
+  const error = useHookstate(getDefaultErrors())
 
   const avatarAssets = useHookstate({
-    source: 'url',
+    source: 'url' as 'url' | 'file',
     name: avatar?.name || '',
     modelURL: avatar?.modelResource?.url || '',
     thumbnailURL: avatar?.thumbnailResource?.url || '',
@@ -75,8 +85,30 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
   ])
 
   const handleSubmit = async () => {
+    error.set(getDefaultErrors())
+
+    if (!avatarAssets.name.value) {
+      error.name.set(t('admin:components.avatar.nameCantEmpty'))
+    }
+
     let avatarFile: File | undefined = undefined
     let avatarThumbnail: File | undefined = undefined
+
+    if (avatarAssets.source.value === 'file') {
+      if (!avatarAssets.model.value) {
+        error.model.set(t('admin:components.avatar.avatarFileCantEmpty'))
+      }
+      if (!avatarAssets.thumbnail.value) {
+        error.thumbnail.set(t('admin:components.avatar.thumbnailFileCantEmpty'))
+      }
+    } else {
+      if (!avatarAssets.modelURL.value) {
+        error.modelURL.set(t('admin:components.avatar.avatarUrlCantEmpty'))
+      }
+      if (!avatarAssets.thumbnailURL.value) {
+        error.thumbnailURL.set(t('admin:components.avatar.thumbnailUrlCantEmpty'))
+      }
+    }
 
     if (avatarAssets.source.value === 'file') {
       avatarFile = avatarAssets.model.value
@@ -91,29 +123,31 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
       avatarThumbnail = new File([await thumbnailData.blob()], thumbnailName)
     }
 
+    if (Object.values(error.value).some((value) => value.length > 0)) {
+      return
+    }
+
     if (avatarFile && avatarThumbnail) {
       if (avatar?.id) {
         try {
           await AvatarService.patchAvatar(avatar, avatarAssets.name.value, true, avatarFile, avatarThumbnail)
           PopoverState.hidePopupover()
         } catch (e) {
-          console.error('Error updating avatar', e)
+          error.serverError.set(e.message)
         }
       } else {
         try {
           await AvatarService.createAvatar(avatarFile, avatarThumbnail, avatarAssets.name.value, true)
           PopoverState.hidePopupover()
         } catch (e) {
-          console.error('Error creating avatar', e)
+          error.serverError.set(e.message)
         }
       }
     }
   }
 
   useEffect(() => {
-    console.log('setting model preview')
     if (!avatarAssets.model.value || avatarAssets.source.value !== 'file') {
-      console.log('early exit model preview')
       return
     }
     const modelType = avatarAssets.model.value.name.split('.').pop()
@@ -158,8 +192,6 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
     }
   }
 
-  console.log('isavatarset: ', isAvatarSet.value)
-
   return (
     <Modal
       title={avatar?.id ? t('admin:components.avatar.update') : t('admin:components.avatar.add')}
@@ -168,10 +200,12 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
       onClose={PopoverState.hidePopupover}
     >
       <div className="grid gap-6">
+        {error.value && <p className="mt-2 text-rose-800">{error.serverError.value}</p>}
         <Input
           label={t('admin:components.common.name')}
           value={avatarAssets.name.value}
           onChange={(event) => avatarAssets.name.set(event.target.value)}
+          error={error.name.value}
         />
         <Radios
           value={avatarAssets.source.value}
@@ -188,6 +222,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
             value={avatarAssets.modelURL.value}
             onChange={(event) => avatarAssets.modelURL.set(event.target.value)}
             spellCheck={false}
+            error={error.modelURL.value}
           />
         )}
       </div>
@@ -196,12 +231,24 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
           avatarAssets.model.set(files[0])
         }}
         acceptedDropTypes={ItemTypes.Models}
-        className="relative mt-5 h-64"
+        className={`relative mt-5 h-64 ${
+          avatarAssets.model.value || avatarAssets.source.value === 'url' ? 'border-solid' : ''
+        }`}
         acceptInput={!isAvatarSet.value && avatarAssets.source.value === 'file'}
         externalChildren={
-          <Button startIcon={<HiArrowPath />} onClick={clearAvatar} className="absolute left-2 top-2">
-            Replace avatar
-          </Button>
+          <>
+            {error.model.value && (
+              <p className="absolute right-2 top-2 max-w-[50%] text-wrap text-rose-700">{error.model.value}</p>
+            )}
+            <Button
+              disabled={!avatarAssets.model.value || !avatarAssets.modelURL.value}
+              startIcon={<HiArrowPath />}
+              onClick={clearAvatar}
+              className="absolute left-2 top-2"
+            >
+              {t('admin:components.avatar.clearAvatar')}
+            </Button>
+          </>
         }
       >
         <AssetsPreviewPanel
@@ -214,7 +261,9 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
         />
         {!isAvatarSet.value && (
           <span className="z-20 w-full text-center">
-            {avatarAssets.source.value === 'file' ? 'Upload avatar model' : 'Enter Avatar URL to preview'}
+            {avatarAssets.source.value === 'file'
+              ? t('admin:components.avatar.uploadAvatar')
+              : t('admin:components.avatar.avatarUrlPreview')}
           </span>
         )}
       </DragNDrop>
@@ -226,6 +275,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
           value={avatarAssets.thumbnailURL.value}
           onChange={(event) => avatarAssets.thumbnailURL.set(event.target.value)}
           spellCheck={false}
+          error={error.thumbnailURL.value}
         />
       )}
       <DragNDrop
@@ -233,12 +283,24 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
           avatarAssets.thumbnail.set(files[0])
         }}
         acceptedDropTypes={ItemTypes.Images}
-        className="relative mt-5 h-64"
+        className={`relative mt-5 h-64 ${
+          avatarAssets.thumbnail.value || avatarAssets.source.value === 'url' ? 'border-solid' : ''
+        }`}
         acceptInput={!isThumbnailSet.value && avatarAssets.source.value === 'file'}
         externalChildren={
-          <Button startIcon={<HiArrowPath />} onClick={clearThumbnail} className="absolute left-2 top-2">
-            Replace thumbnail
-          </Button>
+          <>
+            {error.thumbnail.value && (
+              <p className="absolute right-2 top-2 max-w-[50%] text-wrap text-rose-700">{error.thumbnail.value}</p>
+            )}
+            <Button
+              disabled={!avatarAssets.thumbnail.value || !avatarAssets.thumbnailURL.value}
+              startIcon={<HiArrowPath />}
+              onClick={clearThumbnail}
+              className="absolute left-2 top-2"
+            >
+              {t('admin:components.avatar.clearThumbnail')}
+            </Button>
+          </>
         }
       >
         {isThumbnailSet.value ? (
@@ -251,11 +313,13 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
                 ? URL.createObjectURL(avatarAssets.thumbnail.value)
                 : ''
             }
-            alt="thumbnail"
+            alt={t('admin:components.avatar.columns.thumbnail')}
           />
         ) : (
           <span className="w-full text-center">
-            {avatarAssets.source.value === 'file' ? 'Upload thumbnail' : 'Enter thumbnail URL to preview'}
+            {avatarAssets.source.value === 'file'
+              ? t('admin:components.avatar.uploadThumbnail')
+              : t('admin:components.avatar.thumbnailURLPreview')}
           </span>
         )}
       </DragNDrop>
