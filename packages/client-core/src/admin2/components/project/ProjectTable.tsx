@@ -34,6 +34,7 @@ import { ProjectUpdateState } from '@etherealengine/client-core/src/admin/servic
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { ProjectService } from '@etherealengine/client-core/src/common/services/ProjectService'
+import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -151,6 +152,7 @@ export default function ProjectTable() {
           startIcon={<IoTerminalOutline />}
           size="small"
           className="bg-theme-buttonTertiary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+          disabled={config.client.localBuildOrDev}
           onClick={() => {
             showConfirmDialog(
               project,

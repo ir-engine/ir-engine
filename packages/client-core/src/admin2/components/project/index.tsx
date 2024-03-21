@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import config from '@etherealengine/common/src/config'
 import Tabs from '@etherealengine/ui/src/primitives/tailwind/Tabs'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -45,7 +46,8 @@ export default function AdminProject() {
         {
           title: t('admin:components.buildStatus.buildStatus'),
           tabLabel: t('admin:components.project.buildStatus'),
-          bottomComponent: <BuildStatusTable />
+          bottomComponent: <BuildStatusTable />,
+          disabled: config.client.localBuildOrDev
         }
       ]}
     />

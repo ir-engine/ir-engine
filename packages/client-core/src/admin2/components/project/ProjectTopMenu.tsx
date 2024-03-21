@@ -27,7 +27,7 @@ import { ProjectUpdateState } from '@etherealengine/client-core/src/admin/servic
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { isDev } from '@etherealengine/common/src/config'
+import config from '@etherealengine/common/src/config'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
@@ -69,10 +69,14 @@ export default function ProjectTopMenu() {
           onClick={() => {
             PopoverState.showPopupover(<UpdateEngineModal />)
           }}
-          disabled={isDev}
-          endIcon={!isDev && projectState.rebuilding.value ? <LoadingCircle className="h-6 w-6" /> : undefined}
+          disabled={config.client.localBuildOrDev}
+          endIcon={
+            !config.client.localBuildOrDev && projectState.rebuilding.value ? (
+              <LoadingCircle className="h-6 w-6" />
+            ) : undefined
+          }
         >
-          {!isDev && projectState.rebuilding.value
+          {!config.client.localBuildOrDev && projectState.rebuilding.value
             ? t('admin:components.project.rebuilding')
             : t('admin:components.project.updateAndRebuild')}
         </Button>
