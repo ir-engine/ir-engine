@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { AvatarService } from '@etherealengine/client-core/src/user/services/AvatarService'
+import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@etherealengine/common/src/constants/AvatarConstants'
 import { AvatarType } from '@etherealengine/common/src/schema.type.module'
 import { AssetsPreviewPanel } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
 import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
@@ -37,6 +38,7 @@ import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiArrowPath } from 'react-icons/hi2'
+import { getCanvasBlob } from '../../../common/utils'
 
 const getDefaultErrors = () => ({
   serverError: '',
@@ -192,6 +194,26 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
     }
   }
 
+  const handleGenerateThumbnail = async () => {
+    const canvas = document.createElement('canvas')
+    canvas.width = THUMBNAIL_WIDTH
+    canvas.height = THUMBNAIL_HEIGHT
+
+    const avatarCanvas = document.evaluate("//div[@id='avatar-drop-zone']//canvas", document, null, 9, null)
+      ?.singleNodeValue as CanvasImageSource
+    if (!avatarCanvas) return
+
+    const newContext = canvas.getContext('2d')
+    newContext?.drawImage(avatarCanvas, 0, 0, canvas.width, canvas.height)
+
+    const blob = await getCanvasBlob(canvas)
+    if (avatarAssets.source.value === 'file') {
+      avatarAssets.merge({ thumbnail: new File([blob!], 'thumbnail.png') })
+    } else {
+      avatarAssets.merge({ thumbnailURL: URL.createObjectURL(blob!) })
+    }
+  }
+
   return (
     <Modal
       title={avatar?.id ? t('admin:components.avatar.update') : t('admin:components.avatar.add')}
@@ -250,6 +272,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
             </Button>
           </>
         }
+        id="avatar-drop-zone"
       >
         <AssetsPreviewPanel
           ref={previewPanelRef}
@@ -323,6 +346,17 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
           </span>
         )}
       </DragNDrop>
+
+      <Button
+        onClick={handleGenerateThumbnail}
+        disabled={
+          (avatarAssets.source.value === 'file' && !avatarAssets.model.value) ||
+          (avatarAssets.source.value === 'url' && !avatarAssets.modelURL.value)
+        }
+        className="mt-2"
+      >
+        Generate Thumbnail
+      </Button>
     </Modal>
   )
 }
