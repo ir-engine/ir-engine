@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-if (( $EUID != 0 )); then
-    echo "Please run as root"
-    exit
-fi
 if (( "${PWD##*/}" != "etherealengine")); then
     echo "Please run in /etherealengine"
     exit
@@ -34,11 +30,15 @@ case "$(uname -s)" in
     domain=$(/Applications/Tailscale.app/Contents/MacOS/Tailscale cert 2>&1 | grep -o '".*"' | sed 's/"//g')
     mkdir -p ./certs/tailscale && chmod a+r ./certs/tailscale
     /Applications/Tailscale.app/Contents/MacOS/Tailscale cert $domain 2>&1>/dev/null
-    cp ~/Library/Containers/io.tailscale.ipn.macos/Data/$domain.crt ./certs/tailscale/cert.pem
-    cp ~/Library/Containers/io.tailscale.ipn.macos/Data/$domain.key ./certs/tailscale/key.pem
+    sudo cp ~/Library/Containers/io.tailscale.ipn.macos/Data/$domain.crt ./certs/tailscale/cert.pem
+    sudo cp ~/Library/Containers/io.tailscale.ipn.macos/Data/$domain.key ./certs/tailscale/key.pem
     instructions
      ;;
    Linux)
+    if (( $EUID != 0 )); then
+        echo "Please run as root"
+        exit
+    fi
     if ! command -v tailscale &> /dev/null
     then
         echo "tailscale could not be found"
