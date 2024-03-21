@@ -163,11 +163,9 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
   return (
     <Modal
       title={avatar?.id ? t('admin:components.avatar.update') : t('admin:components.avatar.add')}
-      className="h-[90vh] w-[50vw]	overflow-y-scroll"
-      onSubmit={() => {}}
-      onClose={() => {
-        PopoverState.hidePopupover()
-      }}
+      className="h-[90vh] w-[50vw] overflow-y-scroll"
+      onSubmit={handleSubmit}
+      onClose={PopoverState.hidePopupover}
     >
       <div className="grid gap-6">
         <Input
@@ -261,10 +259,6 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
           </span>
         )}
       </DragNDrop>
-
-      <Button className="mt-3" onClick={handleSubmit}>
-        Submit
-      </Button>
     </Modal>
   )
 }
