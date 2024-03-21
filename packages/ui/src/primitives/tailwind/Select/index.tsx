@@ -114,14 +114,14 @@ const Select = <T extends OptionValueType>({
           showOptions.value ? 'visible' : 'hidden'
         }`}
       >
-        <ul className={twMerge('max-h-40 overflow-auto [&>li]:px-4 [&>li]:py-2 [&>li]:text-gray-200', menuClassname)}>
+        <ul className={twMerge('max-h-40 overflow-auto [&>li]:px-4 [&>li]:py-2', menuClassname)}>
           {filteredOptions.value.map((option) => (
             <li
               key={option.value}
               value={option.value}
               className={twMerge(
-                'text-theme-primary cursor-pointer px-4 py-2',
-                option.disabled ? 'cursor-not-allowed' : 'hover:text-theme-highlight hover:bg-theme-primary'
+                'text-theme-secondary cursor-pointer px-4 py-2',
+                option.disabled ? 'cursor-not-allowed' : 'hover:text-theme-highlight hover:bg-theme-highlight'
               )}
               onClick={() => {
                 if (option.disabled) return

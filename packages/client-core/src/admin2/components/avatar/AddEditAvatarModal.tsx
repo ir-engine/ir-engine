@@ -217,9 +217,14 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
   return (
     <Modal
       title={avatar?.id ? t('admin:components.avatar.update') : t('admin:components.avatar.add')}
-      className="h-[90vh] w-[50vw] overflow-y-scroll"
+      className="h-[90vh] w-[40vw] overflow-y-scroll"
       onSubmit={handleSubmit}
       onClose={PopoverState.hidePopupover}
+      submitButtonDisabled={
+        avatarAssets.name.value.length === 0 ||
+        (avatarAssets.source.value === 'file' && (!avatarAssets.model.value || !avatarAssets.thumbnail.value)) ||
+        (avatarAssets.source.value === 'url' && (!avatarAssets.modelURL.value || !avatarAssets.thumbnailURL.value))
+      }
     >
       <div className="grid gap-6">
         {error.value && <p className="mt-2 text-rose-800">{error.serverError.value}</p>}
@@ -262,14 +267,16 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
             {error.model.value && (
               <p className="absolute right-2 top-2 max-w-[50%] text-wrap text-rose-700">{error.model.value}</p>
             )}
-            <Button
-              disabled={!avatarAssets.model.value || !avatarAssets.modelURL.value}
-              startIcon={<HiArrowPath />}
-              onClick={clearAvatar}
-              className="absolute left-2 top-2"
-            >
-              {t('admin:components.avatar.clearAvatar')}
-            </Button>
+            {avatarAssets.source.value === 'file' && (
+              <Button
+                disabled={!avatarAssets.model.value}
+                startIcon={<HiArrowPath />}
+                onClick={clearAvatar}
+                className="absolute left-2 top-2"
+              >
+                {t('admin:components.avatar.clearAvatar')}
+              </Button>
+            )}
           </>
         }
         id="avatar-drop-zone"
@@ -278,7 +285,8 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
           ref={previewPanelRef}
           previewPanelProps={{
             style: {
-              width: isAvatarSet.value ? '100%' : '0'
+              width: isAvatarSet.value ? 'auto' : '0',
+              aspectRatio: '1/1'
             }
           }}
         />
@@ -315,14 +323,16 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
             {error.thumbnail.value && (
               <p className="absolute right-2 top-2 max-w-[50%] text-wrap text-rose-700">{error.thumbnail.value}</p>
             )}
-            <Button
-              disabled={!avatarAssets.thumbnail.value || !avatarAssets.thumbnailURL.value}
-              startIcon={<HiArrowPath />}
-              onClick={clearThumbnail}
-              className="absolute left-2 top-2"
-            >
-              {t('admin:components.avatar.clearThumbnail')}
-            </Button>
+            {avatarAssets.source.value === 'file' && (
+              <Button
+                disabled={!avatarAssets.thumbnail.value}
+                startIcon={<HiArrowPath />}
+                onClick={clearThumbnail}
+                className="absolute left-2 top-2"
+              >
+                {t('admin:components.avatar.clearThumbnail')}
+              </Button>
+            )}
           </>
         }
       >
