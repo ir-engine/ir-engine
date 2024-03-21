@@ -30,9 +30,8 @@ import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiMagnifyingGlass, HiPlus } from 'react-icons/hi2'
+import { HiMagnifyingGlass } from 'react-icons/hi2'
 import { PopoverState } from '../../../common/services/PopoverState'
-import AddEditUserModal from './AddEditUserModal'
 import RemoveUserModal from './RemoveUserModal'
 import UserTable from './UserTable'
 
@@ -71,33 +70,17 @@ export default function Users() {
             containerClassname="w-1/5 block"
             startComponent={<HiMagnifyingGlass />}
           />
-          <div className="flex w-1/6 gap-4">
-            {selectedUsers.length > 0 && (
-              <div>
-                <Button
-                  variant="danger"
-                  size="small"
-                  fullWidth
-                  onClick={() => {
-                    PopoverState.showPopupover(<RemoveUserModal users={selectedUsers.value} />)
-                  }}
-                >
-                  {t('admin:components.user.removeUsers')}
-                </Button>
-              </div>
-            )}
-            <div className="ml-auto">
-              <Button
-                startIcon={<HiPlus />}
-                size="small"
-                onClick={() => {
-                  PopoverState.showPopupover(<AddEditUserModal />)
-                }}
-              >
-                {t('admin:components.user.addUser')}
-              </Button>
-            </div>
-          </div>
+          {selectedUsers.length > 0 && (
+            <Button
+              variant="danger"
+              size="small"
+              onClick={() => {
+                PopoverState.showPopupover(<RemoveUserModal users={selectedUsers.value} />)
+              }}
+            >
+              {t('admin:components.user.removeUsers')}
+            </Button>
+          )}
         </div>
       </div>
       <UserTable skipGuests={skipGuests.value} search={search.query.value} selectedUsers={selectedUsers} />
