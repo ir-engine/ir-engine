@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
-  InputSystemGroup,
   defineQuery,
   defineSystem,
   getComponent,
@@ -45,7 +44,8 @@ import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
 import obj3dFromUuid from '../../common/functions/obj3dFromUuid'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputPointerComponent } from '../../input/components/InputPointerComponent'
-import { StandardGamepadAxes } from '../../input/state/ButtonState'
+import { MouseScroll } from '../../input/state/ButtonState'
+import { ClientInputSystem } from '../../input/systems/ClientInputSystem'
 import { FlyControlComponent } from '../components/FlyControlComponent'
 
 const ZOOM_SPEED = 0.1
@@ -59,15 +59,20 @@ const normalMatrix = new Matrix3()
 const sphere = new Sphere()
 const spherical = new Spherical()
 
-// const doZoom = (entity:Entity, zoomDelta:number) => {
-//   getMutableComponent(entity, CameraOrbitComponent).zoomDelta.set(zoomDelta)
-// }
-
 // const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
 const inputPointerQuery = defineQuery([InputSourceComponent, InputPointerComponent])
 const orbitCameraQuery = defineQuery([CameraOrbitComponent, InputComponent, Not(FlyControlComponent)])
+
 const execute = () => {
   if (!isClient) return
+
+  // TODO: handle multi-touch pinch/zoom
+  const pointers = inputPointerQuery()
+  const inputPointer = getComponent(pointers[0], InputPointerComponent)
+
+  const buttons = InputSourceComponent.getMergedButtons()
+  const axes = InputSourceComponent.getMergedAxes()
+
   /**
    * assign active orbit camera based on which input source registers input
    */
@@ -75,20 +80,12 @@ const execute = () => {
     const cameraOrbit = getMutableComponent(cameraEid, CameraOrbitComponent)
     if (cameraOrbit.disabled.value) continue // TODO: replace w/ EnabledComponent or DisabledComponent in query
 
-    const buttons = InputSourceComponent.getMergedButtons()
-    const axes = InputSourceComponent.getMergedAxes()
-
     if (buttons.PrimaryClick?.pressed) {
       cameraOrbit.isOrbiting.set(true)
     }
 
-    if (!cameraOrbit.isOrbiting.value) continue
-
-    // TODO: handle multi-touch pinch/zoom
-    const inputPointer = getComponent(inputPointerQuery()[0], InputPointerComponent)
-
     const selecting = buttons.PrimaryClick?.pressed
-    const zoom = axes[StandardGamepadAxes.RightStickY]
+    const zoom = axes[MouseScroll.VerticalScroll]
     const panning = buttons.AuxiliaryClick?.pressed
 
     if (buttons.KeyF?.down) {
@@ -108,22 +105,19 @@ const execute = () => {
         cameraOrbit.cursorDeltaX.set(mouseMovement.x)
         cameraOrbit.cursorDeltaY.set(mouseMovement.y)
       }
-    } else if (zoom) {
-      cameraOrbit.zoomDelta.set(zoom[1])
     }
 
     const editorCameraCenter = cameraOrbit.cameraOrbitCenter.value
     const transform = getComponent(cameraEid, TransformComponent)
     const camera = getComponent(cameraEid, CameraComponent)
 
-    if (cameraOrbit.zoomDelta.value) {
+    if (zoom) {
       const distance = transform.position.distanceTo(cameraOrbit.cameraOrbitCenter.value)
-      delta.set(0, 0, cameraOrbit.zoomDelta.value * distance * ZOOM_SPEED)
+      delta.set(0, 0, zoom * distance * ZOOM_SPEED)
       if (delta.length() < distance) {
         delta.applyMatrix3(normalMatrix.getNormalMatrix(camera.matrixWorld))
         transform.position.add(delta)
       }
-      getMutableComponent(cameraEid, CameraOrbitComponent).zoomDelta.set(0)
     }
 
     if (cameraOrbit.refocus.value) {
@@ -198,6 +192,6 @@ const execute = () => {
 
 export const CameraOrbitSystem = defineSystem({
   uuid: 'ee.engine.CameraOrbitSystem',
-  insert: { with: InputSystemGroup },
+  insert: { after: ClientInputSystem },
   execute
 })

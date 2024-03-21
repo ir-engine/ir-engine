@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Vector2 } from 'three'
-import { InputSourceComponent } from './InputSourceComponent'
 
 export const InputPointerComponent = defineComponent({
   name: 'InputPointerComponent',
@@ -43,6 +42,5 @@ export const InputPointerComponent = defineComponent({
   onSet(entity, component, args: { pointerId: number; canvas: HTMLCanvasElement }) {
     component.pointerId.set(args.pointerId)
     component.canvas.set(args.canvas)
-    setComponent(entity, InputSourceComponent, {})
   }
 })

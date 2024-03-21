@@ -53,7 +53,7 @@ export const InputSourceComponent = defineComponent({
     }
   },
 
-  onSet: (entity, component, args: { source?: XRInputSource; gamepad?: Gamepad }) => {
+  onSet: (entity, component, args: { source?: XRInputSource; gamepad?: Gamepad } = {}) => {
     const source =
       args.source ??
       ({

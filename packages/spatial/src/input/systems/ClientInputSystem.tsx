@@ -34,6 +34,7 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  hasComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -68,7 +69,6 @@ import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import normalizeWheel from '../functions/normalizeWheel'
 import { ButtonStateMap, MouseButton, createInitialButtonState } from '../state/ButtonState'
-import { InputState } from '../state/InputState'
 
 function preventDefault(e) {
   e.preventDefault()
@@ -297,7 +297,6 @@ const useNonSpatialInputSources = () => {
     const handleTouchDirectionalPad = (event: CustomEvent): void => {
       const { stick, value }: { stick: 'LeftStick' | 'RightStick'; value: { x: number; y: number } } = event.detail
       if (!stick) return
-      if (!inputSourceComponent) return
       const index = stick === 'LeftStick' ? 0 : 2
       const axes = inputSourceComponent.source.gamepad!.axes as number[]
       axes[index + 0] = value.x
@@ -305,14 +304,11 @@ const useNonSpatialInputSources = () => {
     }
     document.addEventListener('touchstickmove', handleTouchDirectionalPad)
 
-    // TODO: this implementation for scrolling seems buggy
     const onWheelEvent = (event: WheelEvent) => {
-      const inputState = getState(InputState)
       const normalizedValues = normalizeWheel(event)
-      const x = Math.sign(normalizedValues.spinX + Math.random() * 0.000001)
-      const y = Math.sign(normalizedValues.spinY + Math.random() * 0.000001)
-      inputState.scroll.x += x
-      inputState.scroll.y += y
+      const axes = inputSourceComponent.source.gamepad!.axes as number[]
+      axes[0] = normalizedValues.spinX
+      axes[1] = normalizedValues.spinY
     }
     document.addEventListener('wheel', onWheelEvent, { passive: true, capture: true })
 
@@ -362,7 +358,9 @@ const usePointerInputSources = (canvas = EngineRenderer.instance.renderer.domEle
 
     const emulatedInputSourceEntity = createEntity()
     setComponent(emulatedInputSourceEntity, NameComponent, 'InputSource-emulated-pointer')
+    setComponent(emulatedInputSourceEntity, TransformComponent)
     setComponent(emulatedInputSourceEntity, InputPointerComponent, { pointerId: 0, canvas })
+    setComponent(emulatedInputSourceEntity, InputSourceComponent)
     const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
     const pointerComponent = getComponent(emulatedInputSourceEntity, InputPointerComponent)
 
@@ -516,7 +514,28 @@ export const ClientInputSystem = defineSystem({
   reactor
 })
 
+function cleanupButton(key: string, buttons: ButtonStateMap, hasFocus: boolean) {
+  const button = buttons[key]
+  if (button?.down) button.down = false
+  if (button?.up || !hasFocus) delete buttons[key]
+}
+
 const cleanupInputs = () => {
+  if (typeof globalThis.document === 'undefined') return
+
+  const hasFocus = document.hasFocus()
+
+  for (const eid of inputSources()) {
+    const source = getComponent(eid, InputSourceComponent)
+    for (const key in source.buttons) {
+      cleanupButton(key, source.buttons, hasFocus)
+    }
+    // clear non-spatial emulated axes data end of each frame
+    if (!hasComponent(eid, XRSpaceComponent)) {
+      ;(source.source.gamepad!.axes as number[]).fill(0)
+    }
+  }
+
   for (const eid of inputs())
     if (getComponent(eid, InputComponent).inputSources.length)
       getMutableComponent(eid, InputComponent).inputSources.set([])
