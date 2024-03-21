@@ -60,7 +60,6 @@ const execute = () => {
       // reset entity
       const uuid = getComponent(entity, UUIDComponent)
       const spawnState = getState(SpawnPoseState)[uuid]
-      console.log('reseting ', entity, spawnState?.spawnPosition)
       setComponent(entity, TransformComponent, {
         position: spawnState?.spawnPosition,
         rotation: spawnState?.spawnRotation
