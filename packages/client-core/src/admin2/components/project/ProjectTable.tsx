@@ -207,11 +207,11 @@ export default function ProjectTable() {
         ),
         projectVersion: row.version,
         commitSHA: (
-          <span className="flex items-center">
+          <span className="flex items-center justify-between">
             <Tooltip title={row.commitSHA || ''}>
               <>{row.commitSHA?.slice(0, 8)}</>
             </Tooltip>{' '}
-            <CopyText text={row.commitSHA || ''} />
+            <CopyText text={row.commitSHA || ''} className="ml-1" />
           </span>
         ),
         commitDate: row.commitDate
