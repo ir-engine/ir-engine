@@ -55,7 +55,6 @@ import { DoubleSide, MathUtils, Mesh, MeshBasicMaterial, PlaneGeometry, Quaterni
 import { onPointerDown, onPointerHover, onPointerLost, onPointerMove, onPointerUp } from '../functions/gizmoHelper'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { TransformGizmoVisualComponent } from './TransformGizmoVisualComponent'
-
 export const TransformGizmoControlComponent = defineComponent({
   name: 'TransformGizmoControl',
 
@@ -131,9 +130,10 @@ export const TransformGizmoControlComponent = defineComponent({
         if (!gizmoControlComponent.planeEntity) return
 
         const visualComponent = getComponent(gizmoControlComponent.visualEntity, TransformGizmoVisualComponent)
-        const pickerInputSourceEntity = getComponent(visualComponent.picker[TransformMode.translate], InputComponent)
+        const pickerInputSourceEntity = getComponent(visualComponent.picker[gizmoControlComponent.mode], InputComponent)
           .inputSources[0]
         const planeInputSourceEntity = getComponent(gizmoControlComponent.planeEntity, InputComponent).inputSources[0]
+
         if (pickerInputSourceEntity === undefined && planeInputSourceEntity === undefined) {
           onPointerLost(gizmoControlEntity)
           return
@@ -144,6 +144,10 @@ export const TransformGizmoControlComponent = defineComponent({
         const planeButtons = getOptionalComponent(planeInputSourceEntity, InputSourceComponent)?.buttons
 
         if (!pickerButtons && !planeButtons) {
+          onPointerLost(gizmoControlEntity)
+          return
+        }
+        if (!pickerButtons?.PrimaryClick && !planeButtons?.PrimaryClick) {
           onPointerLost(gizmoControlEntity)
           return
         }

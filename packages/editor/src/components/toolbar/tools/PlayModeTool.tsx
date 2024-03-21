@@ -43,6 +43,8 @@ import PauseIcon from '@mui/icons-material/Pause'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { TransformGizmoControlledComponent } from '../../../classes/TransformGizmoControlledComponent'
+import { transformGizmoControlledQuery } from '../../../systems/GizmoSystem'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
@@ -64,7 +66,6 @@ const PlayModeTool = () => {
       removeComponent(Engine.instance.cameraEntity, TargetCameraRotationComponent)
       getMutableState(EngineState).isEditing.set(true)
       visualScriptQuery().forEach((entity) => dispatchAction(VisualScriptActions.stop({ entity })))
-
       // stop all visual script logic
     } else {
       const avatarDetails = authState.user.avatar.value
@@ -82,6 +83,8 @@ const PlayModeTool = () => {
       // getMutableState(EngineState).isEditing.set(false)
       // run all visual script logic
       visualScriptQuery().forEach((entity) => dispatchAction(VisualScriptActions.execute({ entity })))
+      transformGizmoControlledQuery().forEach((entity) => removeComponent(entity, TransformGizmoControlledComponent))
+      //just remove all gizmo in the scene
     }
   }
 
