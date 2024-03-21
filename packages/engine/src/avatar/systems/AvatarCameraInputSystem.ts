@@ -119,7 +119,7 @@ const execute = () => {
 
   const avatarControllerEntities = avatarControllerQuery()
 
-  const inputPointerEntity = InputSourceComponent.nonCapturedInputSources(pointerQuery()).find(
+  const inputPointerEntity = pointerQuery().find(
     (entity) => getComponent(entity, InputSourceComponent).source.handedness === 'none'
   )
   if (!inputPointerEntity) return

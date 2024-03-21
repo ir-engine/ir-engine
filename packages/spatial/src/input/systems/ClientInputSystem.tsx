@@ -234,7 +234,7 @@ const execute = () => {
       if (physicsWorld) {
         const hits = Physics.castRay(physicsWorld, inputRaycast)
         for (const hit of hits) {
-          if (!hit.entity) continue
+          if (!hit.entity || !hasComponent(hit.entity, InputComponent)) continue
           intersectionData.push({ entity: hit.entity, distance: hit.distance })
         }
       }
