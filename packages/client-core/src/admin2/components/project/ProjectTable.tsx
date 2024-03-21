@@ -38,9 +38,11 @@ import multiLogger from '@etherealengine/common/src/logger'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import CopyText from '@etherealengine/ui/src/primitives/tailwind/CopyText'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
+import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
 import { useTranslation } from 'react-i18next'
 import { GrEdit, GrGithub } from 'react-icons/gr'
 import AddEditProjectModal from './AddEditProjectModal'
@@ -82,7 +84,8 @@ export default function ProjectTable() {
         <Button
           startIcon={<GrGithub />}
           size="small"
-          className="bg-theme-buttonTertiary mr-2 h-min whitespace-pre text-[#214AA6] dark:text-white"
+          className="bg-theme-buttonTertiary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+          disabled={!project || !project.repositoryPath || project.name === 'default-project'}
           onClick={() => {
             showConfirmDialog(
               project,
@@ -90,8 +93,6 @@ export default function ProjectTable() {
                 project.repositoryPath
               }`,
               async () => {
-                if (!project || !project.repositoryPath || project.name === 'default-project') return
-
                 modalProcessing.set(true)
                 await ProjectService.pushProject(project.id).catch(() => modalProcessing.set(false))
                 modalProcessing.set(false)
@@ -106,7 +107,8 @@ export default function ProjectTable() {
         <Button
           startIcon={<GrEdit />}
           size="small"
-          className="bg-theme-buttonTertiary mr-2 h-min whitespace-pre text-[#214AA6] dark:text-white"
+          className="bg-theme-buttonTertiary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+          disabled={project.name === 'default-project'}
           onClick={() => {
             PopoverState.showPopupover(
               <AddEditProjectModal
@@ -140,7 +142,7 @@ export default function ProjectTable() {
         <Button
           startIcon={<IoPeopleOutline />}
           size="small"
-          className="bg-theme-buttonTertiary mr-2 h-min whitespace-pre text-[#214AA6] dark:text-white"
+          className="bg-theme-buttonTertiary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
           onClick={() => PopoverState.showPopupover(<ManageUserPermissionModal project={project} />)}
         >
           {t('admin:components.project.actions.access')}
@@ -148,7 +150,7 @@ export default function ProjectTable() {
         <Button
           startIcon={<IoTerminalOutline />}
           size="small"
-          className="bg-theme-buttonTertiary mr-2 h-min whitespace-pre text-[#214AA6] dark:text-white"
+          className="bg-theme-buttonTertiary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
           onClick={() => {
             showConfirmDialog(
               project,
@@ -166,14 +168,15 @@ export default function ProjectTable() {
         <Button
           startIcon={<IoFolderOutline />}
           size="small"
-          className="bg-theme-buttonTertiary mr-2 h-min whitespace-pre text-[#214AA6] dark:text-white"
+          className="bg-theme-buttonTertiary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
         >
           {t('admin:components.common.view')}
         </Button>
         <Button
           startIcon={<RiDeleteBinLine />}
           size="small"
-          className="bg-theme-buttonTertiary h-min whitespace-pre text-[#214AA6] dark:text-white"
+          className="bg-theme-buttonTertiary h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+          disabled={project.name === 'default-project'}
           onClick={() => {
             showConfirmDialog(
               project,
@@ -201,7 +204,14 @@ export default function ProjectTable() {
           </a>
         ),
         projectVersion: row.version,
-        commitSHA: row.commitSHA,
+        commitSHA: (
+          <span className="flex items-center">
+            <Tooltip title={row.commitSHA || ''}>
+              <>{row.commitSHA?.slice(0, 8)}</>
+            </Tooltip>{' '}
+            <CopyText text={row.commitSHA || ''} />
+          </span>
+        ),
         commitDate: row.commitDate
           ? new Date(row.commitDate).toLocaleString('en-us', {
               year: 'numeric',
