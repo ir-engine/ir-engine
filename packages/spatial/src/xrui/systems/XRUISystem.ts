@@ -60,8 +60,8 @@ const inputSourceQuery = defineQuery([InputSourceComponent])
 const redirectDOMEvent = (evt) => {
   for (const entity of visibleInteractableXRUIQuery()) {
     const layer = getComponent(entity, XRUIComponent)
-    const assigned = InputSourceComponent.isAssignedButtons(entity)
-    if (!assigned) continue
+    const hasSource = getComponent(entity, InputComponent).inputSources.length
+    if (!hasSource) continue
     layer.updateWorldMatrix(true, true)
     const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
     const hit = layer.hitTest(pointerScreenRaycaster.ray)
@@ -81,8 +81,8 @@ const updateControllerRayInteraction = (entity: Entity, xruiEntities: Entity[]) 
   let hit = null! as ReturnType<typeof WebContainer3D.prototype.hitTest>
 
   for (const entity of xruiEntities) {
-    const assigned = InputSourceComponent.isAssignedButtons(entity)
-    if (!assigned) continue
+    const hasSource = getComponent(entity, InputComponent).inputSources.length
+    if (!hasSource) continue
 
     const layer = getComponent(entity, XRUIComponent)
 

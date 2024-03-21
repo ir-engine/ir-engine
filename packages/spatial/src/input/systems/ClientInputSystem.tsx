@@ -69,6 +69,7 @@ import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import normalizeWheel from '../functions/normalizeWheel'
 import { ButtonStateMap, MouseButton, createInitialButtonState } from '../state/ButtonState'
+import { InputState } from '../state/InputState'
 
 function preventDefault(e) {
   e.preventDefault()
@@ -254,7 +255,7 @@ const execute = () => {
     const sourceState = getMutableComponent(sourceEid, InputSourceComponent)
     sourceState.intersections.set(sortedIntersections)
 
-    const capturedEntity = getComponent(sourceEid, InputSourceComponent).captured
+    const capturedEntity = getState(InputState).capturedEntity
 
     for (const { entity } of sortedIntersections) {
       if (capturedEntity !== UndefinedEntity && capturedEntity !== entity) continue

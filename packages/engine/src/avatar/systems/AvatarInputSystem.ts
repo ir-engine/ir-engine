@@ -70,10 +70,10 @@ const _quat = new Quaternion()
  * On 'xr-standard' mapping, get thumbstick input [2,3], fallback to thumbpad input [0,1]
  * On 'standard' mapping, get thumbstick input [0,1]
  */
-export function getThumbstickOrThumbpadAxes(inputSource: XRInputSource, thumstick: XRHandedness, deadZone = 0.05) {
+export function getThumbstickOrThumbpadAxes(inputSource: XRInputSource, handedness: XRHandedness, deadZone = 0.05) {
   const gamepad = inputSource.gamepad
   const axes = gamepad!.axes
-  const axesIndex = inputSource.gamepad?.mapping === 'xr-standard' || thumstick === 'right' ? 2 : 0
+  const axesIndex = inputSource.gamepad?.mapping === 'xr-standard' || handedness === 'right' ? 2 : 0
   const xAxis = Math.abs(axes[axesIndex]) > deadZone ? axes[axesIndex] : 0
   const zAxis = Math.abs(axes[axesIndex + 1]) > deadZone ? axes[axesIndex + 1] : 0
   return [xAxis, zAxis] as [number, number]
@@ -281,12 +281,12 @@ const execute = () => {
   // TODO: refactor AvatarControlSchemes to allow multiple input sources to be passed
   for (const eid of InputSourceComponent.nonCapturedInputSources()) {
     const inputSource = getComponent(eid, InputSourceComponent)
-    const controlScheme =
-      inputSource.source.handedness === 'none' || !isCameraAttachedToAvatar
-        ? AvatarAxesControlScheme.Move
-        : inputSource.source.handedness === inputState.preferredHand
-        ? avatarInputSettings.rightAxesControlScheme
-        : avatarInputSettings.leftAxesControlScheme
+    if (inputSource.source.handedness === 'none') continue
+    const controlScheme = !isCameraAttachedToAvatar
+      ? AvatarAxesControlScheme.Move
+      : inputSource.source.handedness === inputState.preferredHand
+      ? avatarInputSettings.rightAxesControlScheme
+      : avatarInputSettings.leftAxesControlScheme
     AvatarAxesControlSchemeBehavior[controlScheme](
       inputSource.source,
       controller,

@@ -23,12 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UndefinedEntity } from '@etherealengine/ecs'
 import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { CameraSettings } from '@etherealengine/spatial/src/camera/CameraState'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
@@ -39,6 +40,7 @@ import { throttle } from '@etherealengine/spatial/src/common/functions/FunctionH
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { MouseScroll } from '@etherealengine/spatial/src/input/state/ButtonState'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { Vector2 } from 'three'
@@ -125,6 +127,7 @@ const execute = () => {
   if (!inputPointerEntity) return
 
   const buttons = InputSourceComponent.getMergedButtons()
+  const axes = InputSourceComponent.getMergedAxes()
   const inputSource = getOptionalComponent(inputPointerEntity, InputSourceComponent)
   const inputPointer = getOptionalComponent(inputPointerEntity, InputPointerComponent)
 
@@ -172,14 +175,15 @@ const execute = () => {
     }
     if (buttons?.PrimaryClick?.pressed) {
       if (accumulator > INPUT_CAPTURE_DELAY) {
-        InputSourceComponent.capture(inputPointerEntity, cameraEntity)
+        getMutableState(InputState).capturedEntity.set(cameraEntity)
         accumulator = 0
       }
     } else {
-      InputSourceComponent.release(inputPointerEntity)
+      getMutableState(InputState).capturedEntity.set(UndefinedEntity)
       accumulator = 0
     }
-    throttleHandleCameraZoom(cameraEntity, inputState.scroll.y)
+    const zoom = axes[MouseScroll.VerticalScroll]
+    throttleHandleCameraZoom(cameraEntity, zoom)
   }
 
   lastLookDelta.set(inputPointer.position.x, inputPointer.position.y)

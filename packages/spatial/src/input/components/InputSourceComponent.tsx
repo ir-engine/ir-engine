@@ -24,18 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defineQuery } from '@etherealengine/ecs'
-import {
-  defineComponent,
-  getComponent,
-  getMutableComponent,
-  setComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineComponent, getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { getState } from '@etherealengine/hyperflux'
 import { Raycaster } from 'three'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
-import { ReferenceSpace } from '../../xr/XRState'
+import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { ButtonStateMap } from '../state/ButtonState'
+import { InputState } from '../state/InputState'
 
 export const InputSourceComponent = defineComponent({
   name: 'InputSourceComponent',
@@ -121,16 +118,26 @@ export const InputSourceComponent = defineComponent({
     return axes
   },
 
-  capture(inputSourceEntity: Entity, inputReceiverEntity: Entity) {
-    getMutableComponent(inputSourceEntity, InputSourceComponent).captured.set(inputReceiverEntity)
-  },
-
-  release(inputSourceEntity: Entity) {
-    getMutableComponent(inputSourceEntity, InputSourceComponent).captured.set(UndefinedEntity)
-  },
-
   nonCapturedInputSources(entities = inputSourceQuery()) {
-    return entities.filter((eid) => !getComponent(eid, InputSourceComponent).captured)
+    return entities.filter((eid) => eid !== getState(InputState).capturedEntity)
+  },
+
+  /**
+   * Gets the preferred controller entity - will return null if the entity is not in an active session or the controller is not available
+   * @param {boolean} offhand specifies to return the non-preferred hand instead
+   * @returns {Entity}
+   */
+  getPreferredInputSource: (offhand = false) => {
+    const xrState = getState(XRState)
+    if (!xrState.sessionActive) return
+    const avatarInputSettings = getState(InputState)
+    for (const inputSourceEntity of inputSourceQuery()) {
+      const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
+      const source = inputSourceComponent.source
+      if (source?.handedness === 'none') continue
+      if (!offhand && avatarInputSettings.preferredHand == source?.handedness) return source
+      if (offhand && avatarInputSettings.preferredHand !== source?.handedness) return source
+    }
   },
 
   getClosestIntersectedEntity(inputSourceEntity: Entity) {

@@ -49,7 +49,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
@@ -353,12 +353,10 @@ const reactor = () => {
 
   useEffect(() => {
     if (scenePlacementMode.value !== 'placing' || !xrSession.value) return
-    const inputState = getState(InputState)
-    InputSourceComponent.captureAxes(scenePlacementEntity, [inputState.preferredHand])
-    InputSourceComponent.captureButtons(scenePlacementEntity, [inputState.preferredHand])
+    getMutableState(InputState).capturedEntity.set(scenePlacementEntity)
     return () => {
-      InputSourceComponent.releaseAxes()
-      InputSourceComponent.releaseButtons()
+      if (getState(InputState).capturedEntity === scenePlacementEntity)
+        getMutableState(InputState).capturedEntity.set(UndefinedEntity)
     }
   }, [scenePlacementMode, xrSession])
 
