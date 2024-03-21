@@ -52,8 +52,7 @@ const heightKillApplicableQuery = defineQuery([
 ])
 
 const settingsQuery = defineQuery([SceneSettingsComponent])
-const userAvatarQuery = defineQuery([SceneSettingsComponent])
-
+const tempVector = new Vector3()
 const execute = () => {
   const settingsEntities = settingsQuery()
   const sceneKillHeight = settingsEntities.reduce((min, entity) => {
@@ -81,7 +80,7 @@ const execute = () => {
       if (!isCameraAttachedToAvatar) return
       updateReferenceSpaceFromAvatarMovement(
         entity,
-        new Vector3().subVectors(spawnState?.spawnPosition, rigidBodyPosition)
+        tempVector.subVectors(spawnState?.spawnPosition, rigidBodyPosition)
       )
       //@TODO see if we can implicitly update the reference space when the avatar teleports
     }
