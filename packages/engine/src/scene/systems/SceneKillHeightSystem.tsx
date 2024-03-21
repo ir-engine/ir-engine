@@ -38,7 +38,11 @@ import {
   RigidBodyComponent,
   RigidBodyFixedTagComponent
 } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
 import { Not } from 'bitecs'
+import { Vector3 } from 'three'
+import { updateReferenceSpaceFromAvatarMovement } from '../../avatar/functions/moveAvatar'
 import { SceneSettingsComponent } from '../components/SceneSettingsComponent'
 
 const heightKillApplicableQuery = defineQuery([
@@ -46,7 +50,9 @@ const heightKillApplicableQuery = defineQuery([
   NetworkObjectAuthorityTag,
   Not(RigidBodyFixedTagComponent)
 ])
+
 const settingsQuery = defineQuery([SceneSettingsComponent])
+const userAvatarQuery = defineQuery([SceneSettingsComponent])
 
 const execute = () => {
   const settingsEntities = settingsQuery()
@@ -54,17 +60,30 @@ const execute = () => {
     return Math.min(min, getComponent(entity, SceneSettingsComponent).sceneKillHeight)
   }, Number.MAX_VALUE)
   const killableEntities = heightKillApplicableQuery()
+
   for (const entity of killableEntities) {
-    const rigidBodyTransform = getComponent(entity, RigidBodyComponent).position
-    if (rigidBodyTransform.y < sceneKillHeight) {
+    const rigidBodyPosition = getComponent(entity, RigidBodyComponent).position
+    if (rigidBodyPosition.y < sceneKillHeight) {
       // reset entity
+
       const uuid = getComponent(entity, UUIDComponent)
       const spawnState = getState(SpawnPoseState)[uuid]
+
       setComponent(entity, TransformComponent, {
         position: spawnState?.spawnPosition,
         rotation: spawnState?.spawnRotation
       })
       TransformComponent.dirtyTransforms[entity] = true
+
+      const { cameraAttachedRigidbodyEntity } = getState(PhysicsState)
+      if (entity !== cameraAttachedRigidbodyEntity) return
+      const { isCameraAttachedToAvatar } = getState(XRControlsState)
+      if (!isCameraAttachedToAvatar) return
+      updateReferenceSpaceFromAvatarMovement(
+        entity,
+        new Vector3().subVectors(spawnState?.spawnPosition, rigidBodyPosition)
+      )
+      //@TODO see if we can implicitly update the reference space when the avatar teleports
     }
   }
 }
