@@ -32,6 +32,7 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import { BoxGeometry, Group, Mesh, MeshNormalMaterial } from 'three'
 import { CameraComponent } from './camera/components/CameraComponent'
 import { NameComponent } from './common/NameComponent'
+import { InputComponent } from './input/components/InputComponent'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 import { addObjectToGroup } from './renderer/components/GroupComponent'
 import { setObjectLayers } from './renderer/components/ObjectLayerComponent'
@@ -72,6 +73,7 @@ export const createEngine = () => {
   setComponent(Engine.instance.viewerEntity, CameraComponent)
   setComponent(Engine.instance.viewerEntity, VisibleComponent, true)
   setComponent(Engine.instance.viewerEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
+  setComponent(Engine.instance.viewerEntity, InputComponent)
   const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
   camera.matrixAutoUpdate = false
   camera.matrixWorldAutoUpdate = false

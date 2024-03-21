@@ -38,7 +38,7 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
@@ -144,6 +144,10 @@ const bboxHitTarget = new Vector3()
 const quat = new Quaternion()
 
 const execute = () => {
+  for (const eid of inputs())
+    if (getComponent(eid, InputComponent).inputSources.length)
+      getMutableComponent(eid, InputComponent).inputSources.set([])
+
   // update 2D screen-based (driven by pointer api) input sources
   const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
   for (const eid of pointers()) {
@@ -152,10 +156,10 @@ const execute = () => {
     pointer.movement.copy(pointer.position).sub(pointer.lastPosition)
     pointer.lastPosition.copy(pointer.position)
     inputSource.raycaster.setFromCamera(pointer.position, camera)
-    TransformComponent.position.x[eid] = raycaster.ray.origin.x
-    TransformComponent.position.y[eid] = raycaster.ray.origin.y
-    TransformComponent.position.z[eid] = raycaster.ray.origin.z
-    rayRotation.setFromUnitVectors(ObjectDirection.Forward, raycaster.ray.direction)
+    TransformComponent.position.x[eid] = inputSource.raycaster.ray.origin.x
+    TransformComponent.position.y[eid] = inputSource.raycaster.ray.origin.y
+    TransformComponent.position.z[eid] = inputSource.raycaster.ray.origin.z
+    rayRotation.setFromUnitVectors(ObjectDirection.Forward, inputSource.raycaster.ray.direction)
     TransformComponent.rotation.x[eid] = rayRotation.x
     TransformComponent.rotation.y[eid] = rayRotation.y
     TransformComponent.rotation.z[eid] = rayRotation.z
@@ -255,11 +259,11 @@ const execute = () => {
     const sourceState = getMutableComponent(sourceEid, InputSourceComponent)
     sourceState.intersections.set(sortedIntersections)
 
-    const capturedEntity = getState(InputState).capturedEntity
+    const capturedEntity = getState(InputState).capturingEntity
 
-    for (const { entity } of sortedIntersections) {
-      if (capturedEntity !== UndefinedEntity && capturedEntity !== entity) continue
-      getMutableComponent(entity, InputComponent).inputSources.merge([sourceEid])
+    const inputEntity = capturedEntity || sortedIntersections[0]?.entity
+    if (inputEntity && hasComponent(inputEntity, InputComponent)) {
+      getMutableComponent(inputEntity, InputComponent).inputSources.merge([sourceEid])
     }
 
     updateGamepadInput(sourceEid)
@@ -536,10 +540,6 @@ const cleanupInputs = () => {
       ;(source.source.gamepad!.axes as number[]).fill(0)
     }
   }
-
-  for (const eid of inputs())
-    if (getComponent(eid, InputComponent).inputSources.length)
-      getMutableComponent(eid, InputComponent).inputSources.set([])
 }
 
 export const ClientInputCleanupSystem = defineSystem({

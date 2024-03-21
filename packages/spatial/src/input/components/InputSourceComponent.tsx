@@ -119,7 +119,7 @@ export const InputSourceComponent = defineComponent({
   },
 
   nonCapturedInputSources(entities = inputSourceQuery()) {
-    return entities.filter((eid) => eid !== getState(InputState).capturedEntity)
+    return entities.filter((eid) => eid !== getState(InputState).capturingEntity)
   },
 
   /**

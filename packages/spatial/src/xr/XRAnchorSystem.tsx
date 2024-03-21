@@ -353,10 +353,10 @@ const reactor = () => {
 
   useEffect(() => {
     if (scenePlacementMode.value !== 'placing' || !xrSession.value) return
-    getMutableState(InputState).capturedEntity.set(scenePlacementEntity)
+    getMutableState(InputState).capturingEntity.set(scenePlacementEntity)
     return () => {
-      if (getState(InputState).capturedEntity === scenePlacementEntity)
-        getMutableState(InputState).capturedEntity.set(UndefinedEntity)
+      if (getState(InputState).capturingEntity === scenePlacementEntity)
+        getMutableState(InputState).capturingEntity.set(UndefinedEntity)
     }
   }, [scenePlacementMode, xrSession])
 

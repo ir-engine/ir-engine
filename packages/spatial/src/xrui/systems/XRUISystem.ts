@@ -60,11 +60,13 @@ const inputSourceQuery = defineQuery([InputSourceComponent])
 const redirectDOMEvent = (evt) => {
   for (const entity of visibleInteractableXRUIQuery()) {
     const layer = getComponent(entity, XRUIComponent)
-    const hasSource = getComponent(entity, InputComponent).inputSources.length
-    if (!hasSource) continue
+    const inputSources = getComponent(entity, InputComponent).inputSources
+    if (!inputSources.length) continue
+    const inputSource = getComponent(inputSources[0], InputSourceComponent) // assume only one input source per XRUI
+    if (inputSource.intersections.length && inputSource.intersections[0].entity !== entity) continue // only handle events for the first intersection
     layer.updateWorldMatrix(true, true)
-    const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
-    const hit = layer.hitTest(pointerScreenRaycaster.ray)
+    const raycaster = inputSource.raycaster
+    const hit = layer.hitTest(raycaster.ray)
     if (hit && hit.intersection.object.visible) {
       hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
       hit.target.focus()

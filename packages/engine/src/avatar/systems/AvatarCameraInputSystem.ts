@@ -112,7 +112,6 @@ const execute = () => {
   if (getState(XRState).xrFrame) return
 
   const deltaSeconds = getState(ECSState).deltaSeconds
-  accumulator += deltaSeconds
 
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
   if (!selfAvatarEntity) return
@@ -175,16 +174,18 @@ const execute = () => {
     }
     if (buttons?.PrimaryClick?.pressed) {
       if (accumulator > INPUT_CAPTURE_DELAY) {
-        getMutableState(InputState).capturedEntity.set(cameraEntity)
+        getMutableState(InputState).capturingEntity.set(cameraEntity)
         accumulator = 0
       }
     } else {
-      getMutableState(InputState).capturedEntity.set(UndefinedEntity)
+      getMutableState(InputState).capturingEntity.set(UndefinedEntity)
       accumulator = 0
     }
     const zoom = axes[MouseScroll.VerticalScroll]
     throttleHandleCameraZoom(cameraEntity, zoom)
   }
+
+  accumulator += deltaSeconds
 
   lastLookDelta.set(inputPointer.position.x, inputPointer.position.y)
 
