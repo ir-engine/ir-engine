@@ -24,7 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defineQuery } from '@etherealengine/ecs'
-import { defineComponent, getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  getMutableComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { Raycaster } from 'three'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -116,6 +121,18 @@ export const InputSourceComponent = defineComponent({
     return axes
   },
 
+  capture(inputSourceEntity: Entity, inputReceiverEntity: Entity) {
+    getMutableComponent(inputSourceEntity, InputSourceComponent).captured.set(inputReceiverEntity)
+  },
+
+  release(inputSourceEntity: Entity) {
+    getMutableComponent(inputSourceEntity, InputSourceComponent).captured.set(UndefinedEntity)
+  },
+
+  nonCapturedInputSources(entities = inputSourceQuery()) {
+    return entities.filter((eid) => !getComponent(eid, InputSourceComponent).captured)
+  },
+
   getClosestIntersectedEntity(inputSourceEntity: Entity) {
     return getComponent(inputSourceEntity, InputSourceComponent).intersections[0]?.entity
   },
@@ -124,3 +141,19 @@ export const InputSourceComponent = defineComponent({
 })
 
 const inputSourceQuery = defineQuery([InputSourceComponent])
+
+/**
+ * Scenario:
+ * - hover over object shows UI hint
+ * - click for object triggers action
+ * - click and drag on object moves it around
+ * - click and drag on some surfaces rotates the camera
+ *
+ *
+ *
+ *
+ * Questions
+ * - Can we have implicit ordering of input receiver systems? Or does it need to be explicit or non-ordered / deterministic?
+ * -
+ *
+ */

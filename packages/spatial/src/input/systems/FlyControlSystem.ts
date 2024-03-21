@@ -23,15 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Quaternion, Vector3 } from 'three'
-
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-
-import { InputSystemGroup } from '@etherealengine/ecs'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import {
+  ECSState,
+  Engine,
+  InputSystemGroup,
+  defineQuery,
+  defineSystem,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
+import { MathUtils, Quaternion, Vector3 } from 'three'
+import { CameraComponent } from '../../camera/components/CameraComponent'
+import { CameraOrbitComponent } from '../../camera/components/CameraOrbitComponent'
 import { FlyControlComponent } from '../../camera/components/FlyControlComponent'
 import { V_000, V_010 } from '../../common/constants/MathConstants'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -40,32 +46,66 @@ import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 
 const EPSILON = 10e-5
-const flyControlQuery = defineQuery([FlyControlComponent, TransformComponent, InputComponent])
 const movement = new Vector3()
 const direction = new Vector3()
 const tempVec3 = new Vector3()
 const quat = new Quaternion()
 const candidateWorldQuat = new Quaternion()
 
+const center = new Vector3()
+const directionToCenter = new Vector3()
+
+const onSecondaryClick = () => {
+  setComponent(Engine.instance.cameraEntity, FlyControlComponent, {
+    boostSpeed: 4,
+    moveSpeed: 4,
+    lookSensitivity: 5,
+    maxXRotation: MathUtils.degToRad(80)
+  })
+}
+
+const onSecondaryReleased = () => {
+  const transform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+  const editorCameraCenter = getComponent(Engine.instance.cameraEntity, CameraOrbitComponent).cameraOrbitCenter
+  center.subVectors(transform.position, editorCameraCenter)
+  const centerLength = center.length()
+  editorCameraCenter.copy(transform.position)
+  editorCameraCenter.add(directionToCenter.set(0, 0, -centerLength).applyQuaternion(transform.rotation))
+  removeComponent(Engine.instance.cameraEntity, FlyControlComponent)
+}
+
+const flyControlQuery = defineQuery([FlyControlComponent, TransformComponent, InputComponent])
+const cameraQuery = defineQuery([CameraComponent])
+const inputSourceQuery = defineQuery([InputSourceComponent, InputPointerComponent])
+
 const execute = () => {
+  const inputSourceEntities = inputSourceQuery()
+  const buttons = InputSourceComponent.getMergedButtons()
+
+  /** Since we have nothing that specifies whether we should use orbit/fly controls or not, just tie it to the camera orbit component for the studio */
+  for (const entity of cameraQuery()) {
+    if (hasComponent(entity, CameraOrbitComponent)) {
+      if (buttons.SecondaryClick?.down) onSecondaryClick()
+      if (buttons.SecondaryClick?.up) onSecondaryReleased()
+    }
+  }
+
   for (const entity of flyControlQuery()) {
     const flyControlComponent = getComponent(entity, FlyControlComponent)
     const transform = getComponent(entity, TransformComponent)
     const input = getComponent(entity, InputComponent)
 
     movement.copy(V_000)
-    for (const eid of input.inputSources) {
-      const inputSource = getComponent(eid, InputSourceComponent)
-      const pointer = getComponent(eid, InputPointerComponent)
-      if (inputSource.buttons.PrimaryClick?.pressed) {
+    for (const inputSourceEntity of inputSourceEntities) {
+      const inputSource = getComponent(inputSourceEntity, InputSourceComponent)
+      const pointer = getComponent(inputSourceEntity, InputPointerComponent)
+      if (inputSource.buttons.SecondaryClick?.pressed) {
         movement.x += pointer.movement.x
         movement.y += pointer.movement.y
       }
     }
 
-    if (movement.lengthSq() < EPSILON) continue
-
-    const buttons = InputSourceComponent.getMergedButtons(input.inputSources)
+    const hasMovement = movement.lengthSq() > EPSILON
 
     // rotate about the camera's local x axis
     candidateWorldQuat.multiplyQuaternions(

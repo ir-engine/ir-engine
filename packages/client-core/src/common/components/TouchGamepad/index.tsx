@@ -44,7 +44,7 @@ import { AppState } from '../../services/AppService'
 import styles from './index.module.scss'
 
 const triggerButton = (button: AnyButton, pressed: boolean): void => {
-  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
+  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSources()[0]
   if (!nonCapturedInputSource) return
 
   const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)

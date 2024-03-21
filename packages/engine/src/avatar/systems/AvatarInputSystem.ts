@@ -39,7 +39,6 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { V_000, V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
@@ -217,7 +216,6 @@ const execute = () => {
   const avatarInputSettings = getState(AvatarInputSettingsState)
 
   const controller = getComponent(selfAvatarEntity, AvatarControllerComponent)
-  const nonCapturedInputSourceEntities = InputSourceComponent.nonCapturedInputSourceQuery()
 
   const { isCameraAttachedToAvatar, isMovementControlsEnabled } = getState(XRControlsState)
 
@@ -248,15 +246,7 @@ const execute = () => {
     }
   }
 
-  let inputEntities: Entity[] = nonCapturedInputSourceEntities
-  if (inputEntities.length === 0) {
-    inputEntities = inputSourceQuery().filter((entity) => {
-      const inputSource = getComponent(entity, InputSourceComponent)
-      if (controller.cameraEntity === inputSource.assignedButtonEntity) return true
-    })
-  }
-
-  const buttons = InputSourceComponent.getMergedButtons(inputEntities)
+  const buttons = InputSourceComponent.getMergedButtons()
 
   if (buttons.ShiftLeft?.down) onShiftLeft()
 
@@ -289,7 +279,7 @@ const execute = () => {
   controller.gamepadJumpActive = !!buttons.Space?.pressed || gamepadJump || doubleClicked
 
   // TODO: refactor AvatarControlSchemes to allow multiple input sources to be passed
-  for (const eid of inputEntities) {
+  for (const eid of InputSourceComponent.nonCapturedInputSources()) {
     const inputSource = getComponent(eid, InputSourceComponent)
     const controlScheme =
       inputSource.source.handedness === 'none' || !isCameraAttachedToAvatar

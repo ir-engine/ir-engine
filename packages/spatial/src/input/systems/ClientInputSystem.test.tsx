@@ -31,7 +31,7 @@ import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
-import { HyperFlux, getMutableState, getState } from '@etherealengine/hyperflux'
+import { HyperFlux, getMutableState } from '@etherealengine/hyperflux'
 import { WebContainer3D } from '@etherealengine/xrui'
 import { render } from '@testing-library/react'
 import { getAllEntities } from 'bitecs'
@@ -54,8 +54,8 @@ import { XRState } from '../../xr/XRState'
 import { XRUIState } from '../../xrui/XRUIState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { InputComponent } from '../components/InputComponent'
+import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
-import { InputState } from '../state/InputState'
 import { ClientInputSystem, addClientInputListeners } from './ClientInputSystem'
 
 describe('addClientInputListeners', () => {
@@ -130,8 +130,8 @@ describe('addClientInputListeners', () => {
     assert(hasComponent(emulatedInputSourceEntity, InputSourceComponent))
     assert(hasComponent(emulatedInputSourceEntity, NameComponent))
 
-    const pointerStatePos = getState(InputState).pointerState.position
-    assert(pointerStatePos.x !== 0 && pointerStatePos.y !== 0)
+    const pointerPosition = getComponent(pointerQuery()[0], InputPointerComponent).position
+    assert(pointerPosition.x !== 0 && pointerPosition.y !== 0)
 
     cleanup()
     assert(mockDomElm.listeners.length === 0, 'Callbacks were removed from canvas')

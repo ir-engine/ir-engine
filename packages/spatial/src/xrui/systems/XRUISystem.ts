@@ -52,6 +52,7 @@ const normalColor = new Color(0xffffff)
 const visibleInteractableXRUIQuery = defineQuery([XRUIComponent, VisibleComponent, InputComponent])
 const visibleXRUIQuery = defineQuery([XRUIComponent, VisibleComponent])
 const xruiQuery = defineQuery([XRUIComponent])
+const inputSourceQuery = defineQuery([InputSourceComponent])
 
 // redirect DOM events from the canvas, to the 3D scene,
 // to the appropriate child Web3DLayer, and finally (back) to the
@@ -144,7 +145,7 @@ const execute = () => {
 
   const interactableXRUIEntities = visibleInteractableXRUIQuery()
 
-  const inputSourceEntities = InputSourceComponent.nonCapturedInputSourceQuery()
+  const inputSourceEntities = inputSourceQuery()
 
   /** do intersection tests */
   for (const inputSourceEntity of inputSourceEntities) {

@@ -48,6 +48,7 @@ import { SceneSnapshotAction, SceneSnapshotState } from '@etherealengine/engine/
 import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
+import { FlyControlComponent } from '@etherealengine/spatial/src/camera/components/FlyControlComponent'
 import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
@@ -237,16 +238,15 @@ const execute = () => {
   const entity = AvatarComponent.getSelfAvatarEntity()
   if (entity) return
 
+  if (hasComponent(Engine.instance.cameraEntity, FlyControlComponent)) return
+
   const deltaSeconds = getState(ECSState).deltaSeconds
 
-  const editorHelperState = getState(EditorHelperState)
   const selectedEntities = SelectionState.getSelectedEntities()
 
   const inputSources = inputQuery()
 
   const buttons = InputSourceComponent.getMergedButtons(inputSources)
-
-  if (editorHelperState.isFlyModeEnabled) return
 
   if (buttons.KeyB?.down) onKeyB()
 

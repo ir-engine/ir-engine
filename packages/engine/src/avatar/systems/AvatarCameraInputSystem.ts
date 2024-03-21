@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
@@ -101,11 +100,11 @@ const INPUT_CAPTURE_DELAY = 0.1
 let accumulator = 0
 
 const throttleHandleCameraZoom = throttle(handleCameraZoom, 30, { leading: true, trailing: false })
-let capturedInputSource: Entity | undefined = undefined
+
 const lastPointerPosition = new Vector2()
 const pointerMovement = new Vector2()
 
-const pointers = defineQuery([InputPointerComponent])
+const pointerQuery = defineQuery([InputSourceComponent, InputPointerComponent])
 
 const execute = () => {
   if (getState(XRState).xrFrame) return
@@ -120,19 +119,18 @@ const execute = () => {
 
   const avatarControllerEntities = avatarControllerQuery()
 
-  let inputPointerEntity = pointers()[0]
-  if (!inputPointerEntity && capturedInputSource) {
-    inputPointerEntity = capturedInputSource
-  }
+  const inputPointerEntity = InputSourceComponent.nonCapturedInputSources(pointerQuery()).find(
+    (entity) => getComponent(entity, InputSourceComponent).source.handedness === 'none'
+  )
+  if (!inputPointerEntity) return
 
+  const buttons = InputSourceComponent.getMergedButtons()
   const inputSource = getOptionalComponent(inputPointerEntity, InputSourceComponent)
   const inputPointer = getOptionalComponent(inputPointerEntity, InputPointerComponent)
 
-  const keys = inputSource?.buttons
-
-  if (keys?.KeyV?.down) onKeyV()
-  if (keys?.KeyF?.down) onKeyF()
-  if (keys?.KeyC?.down) onKeyC()
+  if (buttons?.KeyV?.down) onKeyV()
+  if (buttons?.KeyF?.down) onKeyF()
+  if (buttons?.KeyC?.down) onKeyC()
 
   if (!inputPointer) return
 
@@ -141,8 +139,8 @@ const execute = () => {
   lastPointerPosition.copy(inputPointer.position)
 
   const mouseMoved = isMobile
-    ? pointerMovement.lengthSq() > 0 && keys?.PrimaryClick?.pressed
-    : keys?.PrimaryClick?.pressed
+    ? pointerMovement.lengthSq() > 0 && buttons?.PrimaryClick?.pressed
+    : buttons?.PrimaryClick?.pressed
 
   for (const entity of avatarControllerEntities) {
     if (!inputSource) continue
@@ -160,7 +158,7 @@ const execute = () => {
     target.theta -= x * 2
     target.phi += z * 2
 
-    const keyDelta = (keys?.ArrowLeft ? 1 : 0) + (keys?.ArrowRight ? -1 : 0)
+    const keyDelta = (buttons?.ArrowLeft ? 1 : 0) + (buttons?.ArrowRight ? -1 : 0)
     target.theta += 100 * deltaSeconds * keyDelta
     setTargetCameraRotation(cameraEntity, target.phi, target.theta)
 
@@ -172,15 +170,13 @@ const execute = () => {
         0.1
       )
     }
-    if (keys?.PrimaryClick?.pressed) {
+    if (buttons?.PrimaryClick?.pressed) {
       if (accumulator > INPUT_CAPTURE_DELAY) {
-        InputSourceComponent.captureButtons(cameraEntity)
-        capturedInputSource = inputPointerEntity
+        InputSourceComponent.capture(inputPointerEntity, cameraEntity)
         accumulator = 0
       }
     } else {
-      InputSourceComponent.releaseButtons()
-      capturedInputSource = undefined
+      InputSourceComponent.release(inputPointerEntity)
       accumulator = 0
     }
     throttleHandleCameraZoom(cameraEntity, inputState.scroll.y)

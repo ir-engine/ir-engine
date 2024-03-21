@@ -37,7 +37,7 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
@@ -191,8 +191,6 @@ const execute = () => {
       distance: number
     }[]
 
-    const capturedEntity = getComponent(sourceEid, InputSourceComponent).captured
-
     const sourceRotation = TransformComponent.getWorldRotation(sourceEid, quat)
     inputRaycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceRotation)
     TransformComponent.getWorldPosition(sourceEid, inputRaycast.origin).addScaledVector(inputRaycast.direction, -0.01)
@@ -219,7 +217,6 @@ const execute = () => {
     } else {
       // 1st heuristic is XRUI
       for (const entity of inputXRUIs()) {
-        if (capturedEntity && entity !== capturedEntity) continue
         const xrui = getComponent(entity, XRUIComponent)
         const layerHit = xrui.hitTest(inputRay)
         if (
@@ -238,14 +235,12 @@ const execute = () => {
         const hits = Physics.castRay(physicsWorld, inputRaycast)
         for (const hit of hits) {
           if (!hit.entity) continue
-          if (!capturedEntity || hit.entity === capturedEntity)
-            intersectionData.push({ entity: hit.entity, distance: hit.distance })
+          intersectionData.push({ entity: hit.entity, distance: hit.distance })
         }
       }
 
       // 3rd heuristic is bboxes
       for (const entity of inputBoundingBoxes()) {
-        if (capturedEntity && entity !== capturedEntity) continue
         const boundingBox = getComponent(entity, BoundingBoxComponent)
         const hit = inputRay.intersectBox(boundingBox.box, bboxHitTarget)
         if (hit) {
@@ -259,8 +254,12 @@ const execute = () => {
     const sourceState = getMutableComponent(sourceEid, InputSourceComponent)
     sourceState.intersections.set(sortedIntersections)
 
-    for (const { entity } of sortedIntersections)
+    const capturedEntity = getComponent(sourceEid, InputSourceComponent).captured
+
+    for (const { entity } of sortedIntersections) {
+      if (capturedEntity !== UndefinedEntity && capturedEntity !== entity) continue
       getMutableComponent(entity, InputComponent).inputSources.merge([sourceEid])
+    }
 
     updateGamepadInput(sourceEid)
   }

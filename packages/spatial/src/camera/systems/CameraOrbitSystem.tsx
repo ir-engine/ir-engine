@@ -40,13 +40,13 @@ import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/compone
 import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { Not } from 'bitecs'
 import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
 import obj3dFromUuid from '../../common/functions/obj3dFromUuid'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputPointerComponent } from '../../input/components/InputPointerComponent'
 import { StandardGamepadAxes } from '../../input/state/ButtonState'
-
-let lastZoom = 0
+import { FlyControlComponent } from '../components/FlyControlComponent'
 
 const ZOOM_SPEED = 0.1
 const MAX_FOCUS_DISTANCE = 1000
@@ -64,8 +64,8 @@ const spherical = new Spherical()
 // }
 
 // const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
-// const InputSourceQuery = defineQuery([InputSourceComponent])
-const orbitCameraQuery = defineQuery([CameraOrbitComponent, InputComponent])
+const inputPointerQuery = defineQuery([InputSourceComponent, InputPointerComponent])
+const orbitCameraQuery = defineQuery([CameraOrbitComponent, InputComponent, Not(FlyControlComponent)])
 const execute = () => {
   if (!isClient) return
   /**
@@ -75,21 +75,17 @@ const execute = () => {
     const cameraOrbit = getMutableComponent(cameraEid, CameraOrbitComponent)
     if (cameraOrbit.disabled.value) continue // TODO: replace w/ EnabledComponent or DisabledComponent in query
 
-    const inputSourceEids = getComponent(cameraEid, InputComponent).inputSources
-    const buttons = InputSourceComponent.getMergedButtons(inputSourceEids)
-    const axes = InputSourceComponent.getMergedAxes(inputSourceEids)
-    for (const eid of inputSourceEids) {
-      const inputSource = getComponent(eid, InputSourceComponent)
-      const inputPointer = getOptionalComponent(eid, InputPointerComponent)
-      if (inputPointer && inputSource.buttons.PrimaryClick?.pressed) {
-        cameraOrbit.isOrbiting.set(true)
-      }
+    const buttons = InputSourceComponent.getMergedButtons()
+    const axes = InputSourceComponent.getMergedAxes()
+
+    if (buttons.PrimaryClick?.pressed) {
+      cameraOrbit.isOrbiting.set(true)
     }
 
     if (!cameraOrbit.isOrbiting.value) continue
 
     // TODO: handle multi-touch pinch/zoom
-    const inputPointer = getComponent(inputSourceEids[0], InputPointerComponent)
+    const inputPointer = getComponent(inputPointerQuery()[0], InputPointerComponent)
 
     const selecting = buttons.PrimaryClick?.pressed
     const zoom = axes[StandardGamepadAxes.RightStickY]
