@@ -45,7 +45,6 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 
 import { Mesh, MeshBasicMaterial } from 'three'
 
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -76,6 +75,9 @@ const feetIndices = { rightFoot: 0, leftFoot: 1 }
 const feetGrounded = [false, false]
 const footAverageDifferenceThreshold = 0.05
 const footLevelDifferenceThreshold = 0.035
+
+const worldFilterAlphaMultiplier = 0.5
+const screenFilterAlphaMultiplier = 0.2
 
 //get all strings from the list containing 'leg' or 'foot'
 const lowerBody = VRMHumanBoneList.filter((bone) => /Leg|Foot|hips/i.test(bone))
@@ -269,7 +271,7 @@ export function solveMotionCapturePose(
         filteredLandmarks[i] = prevLandmarks[i]
         continue
       }
-      const alpha = getState(ECSState).deltaSeconds * alphaMultiplier
+      const alpha = alphaMultiplier
       lowPassLandmarks[i] = {
         visibility: MathUtils.lerp(prevLandmarks[i].visibility!, newLandmarks[i].visibility!, alpha),
         x: MathUtils.lerp(prevLandmarks[i].x, newLandmarks[i].x, newLandmarks[i].visibility!),
@@ -303,8 +305,16 @@ export function solveMotionCapturePose(
   if (!mocapComponent.prevScreenLandmarks)
     mocapComponent.prevScreenLandmarks = newScreenlandmarks.map((landmark) => ({ ...landmark }))
 
-  const worldLandmarks = keyframeInterpolation(newLandmarks, mocapComponent.prevWorldLandmarks, 50)
-  const screenLandmarks = keyframeInterpolation(newScreenlandmarks, mocapComponent.prevScreenLandmarks, 10)
+  const worldLandmarks = keyframeInterpolation(
+    newLandmarks,
+    mocapComponent.prevWorldLandmarks,
+    worldFilterAlphaMultiplier
+  )
+  const screenLandmarks = keyframeInterpolation(
+    newScreenlandmarks,
+    mocapComponent.prevScreenLandmarks,
+    screenFilterAlphaMultiplier
+  )
 
   mocapComponent.prevWorldLandmarks = worldLandmarks
   mocapComponent.prevScreenLandmarks = screenLandmarks
@@ -439,7 +449,6 @@ export function solveMotionCapturePose(
 const threshhold = 0.6
 
 const vec3 = new Vector3()
-const quat = new Quaternion()
 
 /**
  * The spine is the joints connecting the hips and shoulders. Given solved hips, we can solve each of the spine bones connecting the hips to the shoulders using the shoulder's position and rotation.
@@ -449,8 +458,7 @@ const spineRotation = new Quaternion(),
   shoulderRotation = new Quaternion(),
   hipCenter = new Vector3(),
   fallbackShoulderQuaternion = new Quaternion(),
-  hipToShoulderQuaternion = new Quaternion(),
-  hipDirection = new Quaternion()
+  hipToShoulderQuaternion = new Quaternion()
 
 export const solveSpine = (
   entity: Entity,
