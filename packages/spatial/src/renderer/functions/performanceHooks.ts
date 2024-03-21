@@ -23,35 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState } from '@etherealengine/hyperflux'
+import { State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
+import { PerformanceState } from '../PerformanceState'
 
-export const CaptureClientSettingsState = defineState({
-  name: 'CaptureClientSettingsState',
-  initial: () => ({
-    tab: 0,
-    settings: [
-      {
-        name: 'Display',
-        tabOrder: 0,
-        showVideo: true,
-        flipVideo: false,
-        show2dSkeleton: true
-      },
-      {
-        name: 'Tracking',
-        tabOrder: 1,
-        modelComplexity: 2,
-        smoothLandmarks: true,
-        enableSegmentation: true,
-        smoothSegmentation: true,
-        minDetectionConfidence: 0.5,
-        minTrackingConfidence: 0.5
-      },
-      {
-        name: 'Debug',
-        tabOrder: 2,
-        throttleSend: false
-      }
-    ]
-  })
-})
+export const usePerformanceTier = (): State<number> => {
+  const performanceState = useMutableState(PerformanceState)
+  const performanceTier = useHookstate(performanceState.tier.value)
+
+  useEffect(() => {
+    performanceTier.set(performanceState.tier.value)
+  }, [performanceState.tier])
+
+  return performanceTier
+}
+
+export const usePerformanceOffset = (): State<number> => {
+  const performanceState = useMutableState(PerformanceState)
+  const performanceOffset = useHookstate(performanceState.performanceOffset.value)
+
+  useEffect(() => {
+    performanceOffset.set(performanceState.performanceOffset.value)
+  }, [performanceState.performanceOffset])
+
+  return performanceOffset
+}
