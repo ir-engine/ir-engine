@@ -33,15 +33,15 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
       - name: Build Docker Image
-        run: bash scripts/build_docker.sh dev $DOCKER_LABEL $PRIVATE_ECR $AWS_REGION
+        run: bash scripts/build_docker.sh dev $PRIVATE_REPO $AWS_REGION
         env:
-          DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
           REPO_NAME: ${{ secrets.DEV_REPO_NAME }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
-          ECR_URL: ${{ secrets.ECR_URL }}
+          REPO_URL: ${{ secrets.DEV_REPO_URL }}
+          REPO_PROVIDER: ${{ secrets.REPO_PROVIDER }}
+          PRIVATE_REPO: ${{ secrets.PRIVATE_REPO }}
       - name: Publish to GitHub Container Packages
-        run: bash scripts/publish_gh_container.sh ${{ github.event.release.tag_name }} $DOCKER_LABEL
+        run: bash scripts/publish_gh_container.sh ${{ github.event.release.tag_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_USERNAME: ${{ github.repository_owner }}
-          DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
