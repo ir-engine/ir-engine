@@ -68,7 +68,7 @@ export default function ResourceTable({ search }: { search: string }) {
         <div className="flex justify-around">
           <Button
             onClick={() => {
-              PopoverState.showPopupover(<AddEditResourceModal mode="edit" selectedResource={el} />)
+              PopoverState.showPopupover(<AddEditResourceModal selectedResource={el} />)
             }}
             rounded
             className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0"
