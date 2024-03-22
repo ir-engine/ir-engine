@@ -37,11 +37,35 @@ import '@etherealengine/engine/src/EngineModule'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
 import { useTranslation } from 'react-i18next'
-import { HiArrowRightOnRectangle } from 'react-icons/hi2'
+import { HiArrowRightOnRectangle, HiMiniMoon, HiMiniSun } from 'react-icons/hi2'
 import { RouterState } from '../common/services/RouterService'
 import { DefaultAdminRoutes } from './DefaultAdminRoutes'
 
 const $allowed = lazy(() => import('@etherealengine/client-core/src/admin/allowedRoutes'))
+
+const AdminTopBar = () => {
+  const theme = useHookstate(getMutableState(ThemeState)).theme
+
+  const toggleTheme = () => {
+    const currentTheme = getState(ThemeState).theme
+    ThemeState.setTheme(currentTheme === 'dark' ? 'light' : 'dark')
+  }
+
+  return (
+    <div className="bg-theme-primary flex h-16 w-full items-center justify-between px-8 py-4">
+      <img src="static/etherealengine_logo.png" alt="XR Engine Logo" className="h-7 w-7" />
+      <div className="">
+        <Button onClick={toggleTheme} className="pointer-events-auto bg-transparent p-0">
+          {theme.value === 'light' ? (
+            <HiMiniMoon className="text-theme-primary" size="1.5rem" />
+          ) : (
+            <HiMiniSun className="text-theme-primary" size="1.5rem" />
+          )}
+        </Button>
+      </div>
+    </div>
+  )
+}
 
 const AdminSideBar = () => {
   const allowedRoutes = useHookstate(getMutableState(AllowedAdminRoutesState)).get(NO_PROXY)
@@ -139,16 +163,19 @@ const AdminRoutes = () => {
   }
 
   return (
-    <main className="pointer-events-auto mt-6 flex gap-1.5">
-      <AdminSideBar />
-      <div className="w-full overflow-x-auto px-3">
-        <Routes>
-          <Route path="/*" element={<$allowed />} />
-          {<Route path="/" element={<Projects />} />}
-        </Routes>
-      </div>
-      <PopupMenu />
-    </main>
+    <>
+      <AdminTopBar />
+      <main className="pointer-events-auto mt-6 flex gap-1.5">
+        <AdminSideBar />
+        <div className="w-full overflow-x-auto px-3">
+          <Routes>
+            <Route path="/*" element={<$allowed />} />
+            {<Route path="/" element={<Projects />} />}
+          </Routes>
+        </div>
+        <PopupMenu />
+      </main>
+    </>
   )
 }
 
