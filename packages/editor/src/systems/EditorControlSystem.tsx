@@ -43,6 +43,7 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 
 import { PresentationSystemGroup, UUIDComponent, UndefinedEntity } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { SceneSnapshotAction, SceneSnapshotState } from '@etherealengine/engine/src/scene/Scene'
 import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
 import { TransformComponent } from '@etherealengine/spatial'
@@ -235,7 +236,9 @@ const findIntersectObjects = (object: Object3D, excludeObjects?: Object3D[], exc
 const inputQuery = defineQuery([InputSourceComponent])
 
 const execute = () => {
-  if (Engine.instance.localClientEntity) return // we are in live mode
+  const entity = AvatarComponent.getSelfAvatarEntity()
+  if (entity) return
+
   const deltaSeconds = getState(ECSState).deltaSeconds
 
   const editorHelperState = getState(EditorHelperState)

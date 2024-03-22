@@ -80,7 +80,8 @@ export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof cre
   const xruiTransform = getComponent(xrui.entity, TransformComponent)
   TransformComponent.getWorldPosition(entity, xruiTransform.position)
 
-  if (!Engine.instance.localClientEntity) return
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+  if (!selfAvatarEntity) return
 
   xruiTransform.position.y += 1
 
@@ -88,7 +89,7 @@ export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof cre
   xruiTransform.rotation.copy(cameraTransform.rotation)
 
   const transition = InteractableTransitions.get(entity)!
-  getAvatarBoneWorldPosition(Engine.instance.localClientEntity, VRMHumanBoneName.Chest, vec3)
+  getAvatarBoneWorldPosition(selfAvatarEntity, VRMHumanBoneName.Chest, vec3)
   const distance = vec3.distanceToSquared(xruiTransform.position)
   const inRange = distance < getState(InteractState).maxDistance
   if (transition.state === 'OUT' && inRange) {
@@ -155,35 +156,33 @@ const execute = () => {
     // if (hasComponent(entity, HighlightComponent)) removeComponent(entity, HighlightComponent)
   }
 
-  if (Engine.instance.localClientEntity) {
-    const interactables = interactableQuery()
+  const interactables = interactableQuery()
 
-    for (const entity of interactables) {
-      // const interactable = getComponent(entity, InteractableComponent)
-      // interactable.distance = interactable.anchorPosition.distanceTo(
-      //   getComponent(Engine.instance.localClientEntity, TransformComponent).position
-      // )
-      if (InteractiveUI.has(entity)) {
-        const { update, xrui } = InteractiveUI.get(entity)!
-        update(entity, xrui)
-      }
+  for (const entity of interactables) {
+    // const interactable = getComponent(entity, InteractableComponent)
+    // interactable.distance = interactable.anchorPosition.distanceTo(
+    //   getComponent(AvatarComponent.getSelfAvatarEntity(), TransformComponent).position
+    // )
+    if (InteractiveUI.has(entity)) {
+      const { update, xrui } = InteractiveUI.get(entity)!
+      update(entity, xrui)
     }
+  }
 
-    if (gatherAvailableInteractablesTimer === 0) {
-      gatherAvailableInteractables(interactables)
-      // const closestInteractable = getState(InteractState).available[0]
-      // for (const interactiveEntity of interactables) {
-      //   if (interactiveEntity === closestInteractable) {
-      //     if (!hasComponent(interactiveEntity, HighlightComponent)) {
-      //       addComponent(interactiveEntity, HighlightComponent)
-      //     }
-      //   } else {
-      //     if (hasComponent(interactiveEntity, HighlightComponent)) {
-      //       removeComponent(interactiveEntity, HighlightComponent)
-      //     }
-      //   }
-      // }
-    }
+  if (gatherAvailableInteractablesTimer === 0) {
+    gatherAvailableInteractables(interactables)
+    // const closestInteractable = getState(InteractState).available[0]
+    // for (const interactiveEntity of interactables) {
+    //   if (interactiveEntity === closestInteractable) {
+    //     if (!hasComponent(interactiveEntity, HighlightComponent)) {
+    //       addComponent(interactiveEntity, HighlightComponent)
+    //     }
+    //   } else {
+    //     if (hasComponent(interactiveEntity, HighlightComponent)) {
+    //       removeComponent(interactiveEntity, HighlightComponent)
+    //     }
+    //   }
+    // }
   }
 }
 

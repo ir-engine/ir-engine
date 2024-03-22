@@ -32,7 +32,8 @@ import { SpawnPoseState } from '@etherealengine/spatial'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { teleportAvatar } from './moveAvatar'
 
-export const respawnAvatar = (entity: Entity) => {
+export const respawnAvatar = (entity?: Entity) => {
+  if (!entity) return
   const { spawnPosition } = getState(SpawnPoseState)[getComponent(entity, UUIDComponent)]
   const controller = getComponent(entity, AvatarControllerComponent)
   controller.verticalVelocity = 0
