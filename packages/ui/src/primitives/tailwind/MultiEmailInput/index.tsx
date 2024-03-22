@@ -28,6 +28,7 @@ import { State, useHookstate } from '@etherealengine/hyperflux'
 import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoMdClose } from 'react-icons/io'
+import Button from '../Button'
 import Input from '../Input'
 import Label from '../Label'
 
@@ -127,20 +128,20 @@ const MultiEmailInput = ({ emailList, error, label, disabled }: LabelProps) => {
       {label && <Label className="self-stretch">{label}</Label>}
 
       {emailList.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="bg-theme-surfaceInput border-theme-primary flex flex-wrap gap-2	rounded-lg border px-3.5 py-1.5">
           {emailList.value.map((item) => (
             <div
-              className="flex w-fit items-center justify-between gap-1 rounded-full bg-neutral-300 px-2 py-1 text-black"
+              className="bg-theme-primary text-theme-primary flex w-fit items-center justify-between gap-1 rounded px-2 py-1 text-black"
               key={item}
             >
               {item}
-              <button
+              <Button
                 disabled={disabled}
-                className="button rounded-full bg-white p-1 disabled:opacity-50"
+                className="button bg-theme-primary p-1 text-[#6B7280] disabled:opacity-50 dark:text-[#A3A3A3] [&>*]:m-0"
                 onClick={() => handleDelete(item)}
               >
                 <IoMdClose />
-              </button>
+              </Button>
             </div>
           ))}
         </div>
