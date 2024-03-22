@@ -114,6 +114,19 @@ export const userExternalResolver = resolve<UserType, HookContext>({
         return {}
       }
   }),
+  identityProviders: virtual(async (user, context) => {
+    return (
+      (await context.app.service(identityProviderPath).find({
+        query: {
+          userId: user.id
+        },
+        paginate: false
+      })) as IdentityProviderType[]
+    ).map((ip) => {
+      const { oauthToken, ...returned } = ip
+      return returned
+    })
+  }),
   userSetting: virtual(async (user, context) => {
     const userSetting = (await context.app.service(userSettingPath).find({
       query: {
