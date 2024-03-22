@@ -110,6 +110,7 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
   useLayoutEffect(() => {
     if (!userConnected) return
     const entity = UUIDComponent.getEntityByUUID(props.uuid)
+    if (!entity) return
     const worldNetwork = NetworkState.worldNetwork
 
     setComponent(entity, NetworkObjectComponent, {
@@ -126,6 +127,7 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
     // Authority request can only be processed by owner
 
     const entity = UUIDComponent.getEntityByUUID(props.uuid)
+    if (!entity) return
     const ownerID = getOptionalComponent(entity, NetworkObjectComponent)?.ownerId
     if (!ownerID || ownerID !== Engine.instance.userID) return
     console.log('Requesting authority over object', props.uuid, state.requestingPeerId.value)

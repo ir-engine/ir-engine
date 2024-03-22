@@ -24,13 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { SceneDataType, SceneID, UserID } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID, SystemDefinitions, UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { applyIncomingActions, getMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { EventDispatcher } from '@etherealengine/spatial/src/common/classes/EventDispatcher'
@@ -38,16 +38,14 @@ import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { act, render, waitFor } from '@testing-library/react'
+import { waitFor } from '@testing-library/react'
 import assert from 'assert'
-import React from 'react'
 import testSceneJson from '../../../tests/assets/SceneLoadingTest.scene.json'
 import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { FogSettingsComponent } from '../components/FogSettingsComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
-import { SceneLoadingSystem } from './SceneLoadingSystem'
 
 const NODE_TLS_REJECT_UNAUTHORIZED = process.env.NODE_TLS_REJECT_UNAUTHORIZED
 const modelLink = '/packages/projects/default-project/assets/collisioncube.glb'
@@ -90,15 +88,10 @@ describe('SceneLoadingSystem', () => {
     return destroyEngine()
   })
 
-  const SceneReactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
-  const sceneTag = <SceneReactor />
-
   it('will load entities', async () => {
     // init
     SceneState.loadScene(sceneID, testScene)
-
-    const { rerender, unmount } = render(sceneTag)
-    await act(() => rerender(sceneTag))
+    applyIncomingActions()
 
     // assertions
     const rootEntity = SceneState.getRootEntity(sceneID)
@@ -200,13 +193,12 @@ describe('SceneLoadingSystem', () => {
       child2Entity,
       'child_2_1 entity does not have parentEntity as child_2 entity'
     )
-    unmount()
   })
+
   it('will load correct data', async () => {
     // init
     SceneState.loadScene(sceneID, testScene)
-    const { rerender, unmount } = render(sceneTag)
-    await act(() => rerender(sceneTag))
+    applyIncomingActions()
 
     // assertions
     const rootEntity = SceneState.getRootEntity(sceneID)
@@ -235,8 +227,8 @@ describe('SceneLoadingSystem', () => {
       (component) => component.name === FogSettingsComponent.jsonID
     )[0]
     assert.deepStrictEqual(fog, originalfogData.props, 'fog component does not match')
-    unmount()
   })
+
   it('will not load dynamic entity', async () => {
     // wont load unless we simulate the avatar and its distance from the dynamic entity
     // its easier to just add the component to the scene and remove it at the end
@@ -255,8 +247,7 @@ describe('SceneLoadingSystem', () => {
 
     // init
     SceneState.loadScene(sceneID, testScene)
-    const { rerender, unmount } = render(sceneTag)
-    await act(() => rerender(sceneTag))
+    applyIncomingActions()
 
     // assertions
     const rootEntity = SceneState.getRootEntity(sceneID)
@@ -288,7 +279,6 @@ describe('SceneLoadingSystem', () => {
     testScene.scene.entities['child_0'].components = testScene.scene.entities['child_0'].components.filter(
       (component) => component.name !== SceneDynamicLoadTagComponent.jsonID
     )
-    unmount()
   })
 
   it('will load dynamic entity in studio', async () => {
@@ -312,8 +302,7 @@ describe('SceneLoadingSystem', () => {
 
     // init
     SceneState.loadScene(sceneID, testScene)
-    const { rerender, unmount } = render(sceneTag)
-    await act(() => rerender(sceneTag))
+    applyIncomingActions()
 
     // assertions
     const rootEntity = SceneState.getRootEntity(sceneID)
@@ -418,13 +407,12 @@ describe('SceneLoadingSystem', () => {
     testScene.scene.entities['child_0'].components = testScene.scene.entities['child_0'].components.filter(
       (component) => component.name !== SceneDynamicLoadTagComponent.jsonID
     )
-    unmount()
   })
 
   it('will load sub-scene from model component', async () => {
     SceneState.loadScene(sceneID, testScene)
-    const { rerender, unmount } = render(sceneTag)
-    await act(() => rerender(sceneTag))
+
+    applyIncomingActions()
 
     // assertions
     const rootEntity = SceneState.getRootEntity(sceneID)
@@ -492,14 +480,13 @@ describe('SceneLoadingSystem', () => {
       'collider entity does not have parentEntity'
     )
     assert.equal(getComponent(colliderEntity, NameComponent), 'Collider', 'Collider entity name is incorrect')
-    unmount()
   })
 
   it('will have sceneAssetPendingTagQuery when loading', async () => {
     // init
     SceneState.loadScene(sceneID, testScene)
-    const { rerender, unmount } = render(sceneTag)
-    await act(() => rerender(sceneTag))
+
+    applyIncomingActions()
 
     // load scene
     // force re-render
@@ -630,6 +617,5 @@ describe('SceneLoadingSystem', () => {
       child2Entity,
       'child_2_1 entity does not have parentEntity as child_2 entity'
     )
-    unmount()
   })
 })
