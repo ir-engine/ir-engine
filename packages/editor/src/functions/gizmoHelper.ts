@@ -128,6 +128,10 @@ export function gizmoUpdate(gizmoEntity) {
   setVisibleComponent(gizmo.helper[TransformMode.rotate], gizmoControl.mode === TransformMode.rotate)
   setVisibleComponent(gizmo.helper[TransformMode.scale], gizmoControl.mode === TransformMode.scale)
 
+  setVisibleComponent(gizmo.picker[TransformMode.translate], gizmoControl.mode === TransformMode.translate)
+  setVisibleComponent(gizmo.picker[TransformMode.rotate], gizmoControl.mode === TransformMode.rotate)
+  setVisibleComponent(gizmo.picker[TransformMode.scale], gizmoControl.mode === TransformMode.scale)
+
   const gizmoObject = getComponent(gizmo.gizmo[gizmoControl.mode], GroupComponent)[0]
   const pickerObject = getComponent(gizmo.picker[gizmoControl.mode], GroupComponent)[0]
   const helperObject = getComponent(gizmo.helper[gizmoControl.mode], GroupComponent)[0]
@@ -428,7 +432,7 @@ export function planeUpdate(gizmoEntity) {
     // If in rotate mode, make the plane parallel to camera
     setComponent(gizmoControl.planeEntity, TransformComponent, { rotation: camera.quaternion })
   } else {
-    _tempMatrix.lookAt(_tempVector.set(0, 0, 0), _dirVector, _alignVector)
+    _tempMatrix.lookAt(V_000, _dirVector, _alignVector)
     setComponent(gizmoControl.planeEntity, TransformComponent, {
       rotation: new Quaternion().setFromRotationMatrix(_tempMatrix)
     })
@@ -695,9 +699,8 @@ function applyRotation(entity, gizmoControlComponent, axis, space) {
     _endNorm.copy(gizmoControlComponent.pointEnd.value).normalize()
 
     gizmoControlComponent.rotationAngle.set(
-      gizmoControlComponent.rotationAngle.value * _endNorm.cross(_startNorm).dot(gizmoControlComponent.eye.value) < 0
-        ? 1
-        : -1
+      gizmoControlComponent.rotationAngle.value *
+        (_endNorm.cross(_startNorm).dot(gizmoControlComponent.eye.value) < 0 ? 1 : -1)
     )
   }
 
@@ -942,7 +945,5 @@ export function intersectObjectWithRay(object, raycaster, includeInvisible?) {
 }
 
 export function onPointerLost(gizmoEntity: Entity) {
-  const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
-  gizmoControlComponent.dragging.set(false)
-  gizmoControlComponent.axis.set(null)
+  setComponent(gizmoEntity, TransformGizmoControlComponent, { dragging: false, axis: null })
 }

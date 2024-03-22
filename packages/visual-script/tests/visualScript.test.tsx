@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import {
   ComponentMap,
+  ECSState,
   Entity,
   EntityUUID,
   SystemDefinitions,
@@ -47,8 +48,6 @@ import {
   getUseVariableSystemUUID,
   registerEngineProfile
 } from '@etherealengine/engine'
-import { getState } from '@etherealengine/hyperflux'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
@@ -368,7 +367,7 @@ describe('visual Script', () => {
       assert(result.includes(messageQueue[0]))
     })
 
-    const systemUUID = getUseStateSystemUUID(EngineState.name)
+    const systemUUID = getUseStateSystemUUID(ECSState.name)
     const UseStateReactor = SystemDefinitions.get(systemUUID)!.reactor!
     const useStateTag = <UseStateReactor />
     const { rerender, unmount } = render(useStateTag)
@@ -403,7 +402,6 @@ describe('visual Script', () => {
 
     await waitForConsoleLog(messageQueue[5]).then((result) => {
       assert(result.includes(messageQueue[5])) // test passed
-      assert(!getState(EngineState).isBot)
     })
 
     await waitForConsoleLog(messageQueue[4]).then((result) => {

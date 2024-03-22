@@ -55,7 +55,7 @@ cli.enable('status')
 const options = cli.parse({
   repoName: [false, 'Name of repo', 'string'],
   tag: [false, 'Commit Tag', 'string'],
-  ecrUrl: [false, 'Docker repository', 'string'],
+  repoUrl: [false, 'Docker repository', 'string'],
   startTime: [false, 'Timestamp of image', 'string']
 })
 
@@ -84,7 +84,7 @@ cli.main(async () => {
           await k8BatchClient.patchNamespacedCronJob(
             `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
             'default',
-            getCronJobBody(project, `${options.ecrUrl}/${options.repoName}-api:${options.tag}__${options.startTime}`),
+            getCronJobBody(project, `${options.repoUrl}/${options.repoName}-api:${options.tag}__${options.startTime}`),
             undefined,
             undefined,
             undefined,

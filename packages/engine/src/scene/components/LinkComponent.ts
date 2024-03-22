@@ -52,6 +52,7 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { useEffect } from 'react'
 import { MathUtils, MeshBasicMaterial, Vector3 } from 'three'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { createInteractUI } from '../../interaction/functions/interactUI'
 import { createNonInteractUI } from '../../interaction/functions/nonInteractUI'
@@ -75,7 +76,7 @@ const vec3 = new Vector3()
 const interactMessage = 'Click to follow'
 const onLinkInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
   const transform = getComponent(xrui.entity, TransformComponent)
-  if (!transform || !hasComponent(Engine.instance.localClientEntity, TransformComponent)) return
+  if (!transform || !AvatarComponent.getSelfAvatarEntity()) return
   const boundingBox = getComponent(entity, BoundingBoxComponent)
   const input = getComponent(entity, InputComponent)
 
@@ -88,7 +89,7 @@ const onLinkInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInte
     }
     const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
     transform.rotation.copy(cameraTransform.rotation)
-    getAvatarBoneWorldPosition(Engine.instance.localClientEntity, 'Hips', vec3)
+    getAvatarBoneWorldPosition(AvatarComponent.getSelfAvatarEntity(), 'Hips', vec3)
     const distance = vec3.distanceToSquared(transform.position)
     transform.scale.set(1, 1, 1)
     transform.scale.addScalar(MathUtils.clamp(distance * 0.01, 1, 5))

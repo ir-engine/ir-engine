@@ -69,6 +69,7 @@ export const WorldInstanceConnection = () => {
 
   const onSelectInstance = (selectedInstance: string) => {
     if (selectedInstance === 'None' || (worldNetworkHostId && selectedInstance !== worldNetworkHostId)) {
+      /** @todo reassess if this is still necessary */
       if (worldNetworkHostId) leaveNetwork(NetworkState.worldNetwork as SocketWebRTCClientNetwork)
       return
     }
@@ -84,8 +85,8 @@ export const WorldInstanceConnection = () => {
 
   const getIcon = () => {
     if (networkState?.value) {
-      if (networkState.connected.value) return <DoneIcon fontSize="small" />
       if (!networkState.ready.value) return <LoadingCircle message={t('common:loader.connectingToWorld')} />
+      return <DoneIcon fontSize="small" />
     }
     return <DirectionsRun fontSize="small" />
   }

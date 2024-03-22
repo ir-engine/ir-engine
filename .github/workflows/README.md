@@ -46,15 +46,12 @@ This action uses several other secrets to control what repo it is interacting wi
 *`EKS_AWS_ACCESS_KEY_SECRET`: The secret key of an IAM user that has EKS access
 *`AWS_REGION`: The region of the EKS cluster/ECR repo to which this built image will be pushed and deployed
 *`CLUSTER_NAME`: The name of the cluster to which this built image will be deployed
-*`DOCKER_LABEL`: In the builder service, this is the name of a Docker Hub repo that the final image
-will be published to. Everywhere else, it's just a default label for the Docker images as they're built.
-Must be set, but can be anything as long as you're not planning to publish to Docker Hub.
 *`DEV_REPO_NAME`: The name of the repo that this built image will be deployed to; most easily set to `etherealengine-dev-builder`
 (also have a repo `etherealengine-dev` for the final built image)
-*`ECR_URL`: The URL of the ECR registry that this built image will be pushed to. Do *not* include the repo name;
-if you are pushing the image to `12345.dkr.ecr.us-west-1.amazonaws.com/etherealengine-dev-builder`, then `ECR_URL`
+*`DEV_REPO_URL`: The URL of the ECR registry that this built image will be pushed to. Do *not* include the repo name;
+if you are pushing the image to `12345.dkr.ecr.us-west-1.amazonaws.com/etherealengine-dev-builder`, then `REPO_URL`
 should be `12345.dkr.ecr.us-west-1.amazonaws.com` and `REPO_NAME` should be `etherealengine-dev-builder`.
-*`PRIVATE_ECR`: Set to `true` if the ECR registry you're pushing to is private, otherwise don't set this
+*`PRIVATE_REPO`: Set to `true` if the ECR registry you're pushing to is private, otherwise don't set this
 or set it to anything else other than `true`
 *`WEBHOOK_URL`: The URL of the webhook that should be called when the action finishes (no need to set
 if `SEND_FINISHED_WEBHOOK` is not set)
@@ -92,15 +89,12 @@ This action uses several other secrets to control what repo it is interacting wi
 *`EKS_AWS_ACCESS_KEY_SECRET`: The secret key of an IAM user that has EKS access
 *`AWS_REGION`: The region of the EKS cluster/ECR repo to which this built image will be pushed and deployed
 *`CLUSTER_NAME`: The name of the cluster to which this built image will be deployed
-*`DOCKER_LABEL`: In the builder service, this is the name of a Docker Hub repo that the final image
-will be published to. Everywhere else, it's just a default label for the Docker images as they're built.
-Must be set, but can be anything as long as you're not planning to publish to Docker Hub.
 *`PROD_REPO_NAME`: The name of the repo that this built image will be deployed to; most easily set to `etherealengine-prod-builder`
 (also have a repo `etherealengine-prod` for the final built image)
-*`ECR_URL`: The URL of the ECR registry that this built image will be pushed to. Do *not* include the repo name;
-if you are pushing the image to `12345.dkr.ecr.us-west-1.amazonaws.com/etherealengine-prod-builder`, then `ECR_URL`
+*`REPO_URL`: The URL of the ECR registry that this built image will be pushed to. Do *not* include the repo name;
+if you are pushing the image to `12345.dkr.ecr.us-west-1.amazonaws.com/etherealengine-prod-builder`, then `REPO_URL`
 should be `12345.dkr.ecr.us-west-1.amazonaws.com` and `REPO_NAME` should be `etherealengine-prod-builder`.
-*`PRIVATE_ECR`: Set to `true` if the ECR registry you're pushing to is private, otherwise don't set this
+*`PRIVATE_REPO`: Set to `true` if the ECR registry you're pushing to is private, otherwise don't set this
 or set it to anything else other than `true`
 *`WEBHOOK_URL`: The URL of the webhook that should be called when the action finishes (no need to set
 if `SEND_FINISHED_WEBHOOK` is not set)

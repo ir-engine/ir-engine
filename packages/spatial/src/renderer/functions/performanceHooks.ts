@@ -23,13 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
+import { PerformanceState } from '../PerformanceState'
 
-export function isBot(window: Window) {
-  if (!isClient) return false
+export const usePerformanceTier = (): State<number> => {
+  const performanceState = useMutableState(PerformanceState)
+  const performanceTier = useHookstate(performanceState.tier.value)
 
-  const query = window.location.search
-  const params = new URLSearchParams(query)
-  const isBot = params.get('bot')
-  return isBot === null ? false : true
+  useEffect(() => {
+    performanceTier.set(performanceState.tier.value)
+  }, [performanceState.tier])
+
+  return performanceTier
+}
+
+export const usePerformanceOffset = (): State<number> => {
+  const performanceState = useMutableState(PerformanceState)
+  const performanceOffset = useHookstate(performanceState.performanceOffset.value)
+
+  useEffect(() => {
+    performanceOffset.set(performanceState.performanceOffset.value)
+  }, [performanceState.performanceOffset])
+
+  return performanceOffset
 }
