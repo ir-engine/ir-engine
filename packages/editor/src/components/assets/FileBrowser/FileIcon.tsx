@@ -78,7 +78,12 @@ export const FileIcon = ({ file, showRibbon }: { file: FileDataType; showRibbon?
       {file.isFolder ? (
         <FolderIcon fontSize={'inherit'} />
       ) : thumbnailURL != null ? (
-        <img style={{ maxHeight: '90px' }} crossOrigin="anonymous" src={thumbnailURL} alt="" />
+        <img
+          style={{ width: '100%', height: 'auto', maxWidth: '90px', objectFit: 'scale-down' }}
+          crossOrigin="anonymous"
+          src={thumbnailURL}
+          alt=""
+        />
       ) : fallback.icon ? (
         <fallback.icon fontSize={'inherit'} />
       ) : (
