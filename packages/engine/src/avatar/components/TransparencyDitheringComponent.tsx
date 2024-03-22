@@ -34,6 +34,7 @@ import React, { useEffect } from 'react'
 import { FrontSide, Material, Vector3 } from 'three'
 import { SceneComponent } from '../../scene/components/SceneComponent'
 import { useModelSceneID } from '../../scene/functions/loaders/ModelFunctions'
+import { MaterialLibraryState } from '../../scene/materials/MaterialLibrary'
 import {
   ditheringAlphatestChunk,
   ditheringFragUniform,
@@ -78,8 +79,6 @@ export const TransparencyDitheringComponent = Array.from({ length: maxDitherPoin
       const entity = useEntityContext()
       const sceneInstanceID = useModelSceneID(entity)
       const childEntities = useHookstate(SceneComponent.entitiesBySceneState[sceneInstanceID])
-      const ditheringComponent = useComponent(entity, TransparencyDitheringComponent[0])
-      const materialState = useHookstate(ditheringComponent.materialIds)
 
       return (
         <>
@@ -97,6 +96,25 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity; index: 
   const ditherComponent = useComponent(rootEntity, TransparencyDitheringComponent[index])
   const basicMaterials = useHookstate(getMutableState(RendererState).forceBasicMaterials)
 
+  /**check if material library state entry for materials stored in the first dithering component changes */
+  const matIds = useComponent(rootEntity, TransparencyDitheringComponent[0]).materialIds
+  const materialState = useHookstate(getMutableState(MaterialLibraryState))
+  const materialIds = useHookstate(
+    Object.keys(materialState.materials.value).filter((key) => matIds.value.includes(key.replace('basic-', '')))
+  )
+  useEffect(() => {
+    if (!matIds.length) return
+    for (const matId of materialIds.value) {
+      const material = materialState.materials.value[matId]
+      injectDitheringLogic(
+        material.material,
+        ditherComponent.center.value,
+        ditherComponent.distance.value,
+        ditherComponent.exponent.value
+      )
+    }
+  }, [materialIds])
+
   useEffect(() => {
     if (index > 0) return
     const meshComponent = getOptionalComponent(entity, MeshComponent)
@@ -105,7 +123,7 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity; index: 
     const materialIds = ditherComponent.materialIds
 
     if (!isArray(material)) {
-      //remove basic- prefix if it exists
+      /**remove basic- prefix if it exists*/
       const id = material.uuid.replace('basic-', '')
       if (!materialIds.value.find((uuid) => uuid === id))
         ditherComponent.materialIds.set([...materialIds.value, material.uuid])
@@ -119,6 +137,19 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity; index: 
     }
   }, [basicMaterials])
 
+  return null
+}
+
+const MaterialReactor = (props: { entity: Entity; materialId: string }) => {
+  console.log('material reactor')
+  useEffect(() => {
+    const { entity, materialId } = props
+    console.log('material changed ', entity, materialId)
+    // const ditherComponent = getComponent(entity, TransparencyDitheringComponent[0])
+    // const material = getState(MaterialLibraryState).materials[materialId]
+    // if (!material) return
+    // injectDitheringLogic(material, ditherComponent.center.value, ditherComponent.distance.value, ditherComponent.exponent.value)
+  })
   return null
 }
 

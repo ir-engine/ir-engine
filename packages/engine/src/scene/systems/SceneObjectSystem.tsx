@@ -144,12 +144,6 @@ export function setupObject(obj: Object3D, forceBasicMaterials = false) {
       child.material = nuMaterial
       child.userData.lastMaterial = prevMaterial
 
-      /**dirty hack for dithering effect until material component is implemented*/
-      // const plugin =
-      //   prevMaterial.plugins &&
-      //   prevMaterial.plugins.findIndex((plugin: PluginObjectType) => plugin.id === 'transparency-dithering')
-      // if (plugin !== undefined && plugin !== -1) nuMaterial.plugins = [prevMaterial.plugins[plugin]]
-
       nuMaterial.uuid = `basic-${prevMaterial.uuid}`
       prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src, prevMatEntry.parameters)
     }
