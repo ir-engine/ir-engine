@@ -96,8 +96,6 @@ describe('project-check-source-destination-match.test', () => {
       .get(/\/repos.*\/contents\/.*/)
       .reply(200, getRepoPackageJson1())
       .get(/\/repos.*\/contents\/.*/)
-      .reply(200, getRepoXrengineConfig1())
-      .get(/\/repos.*\/contents\/.*/)
       .reply(200, getRepoPackageJson1())
 
     const result = await app
@@ -113,8 +111,6 @@ describe('project-check-source-destination-match.test', () => {
     nock('https://api.github.com')
       .get(/\/repos.*\/contents\/.*/)
       .reply(200, getRepoPackageJson1())
-      .get(/\/repos.*\/contents\/.*/)
-      .reply(200, getRepoXrengineConfig1())
       .get(/\/repos.*\/contents\/.*/)
       .reply(200, getRepoPackageJson2())
 
@@ -146,8 +142,6 @@ describe('project-check-source-destination-match.test', () => {
         .get(/\/repos.*\/contents\/.*/)
         .reply(200, getRepoPackageJson1())
         .get(/\/repos.*\/contents\/.*/)
-        .reply(200, getRepoXrengineConfig1())
-        .get(/\/repos.*\/contents\/.*/)
         .reply(200, getRepoPackageJson1())
 
       const result = await app
@@ -163,8 +157,6 @@ describe('project-check-source-destination-match.test', () => {
     nock('https://api.github.com')
       .get(/\/repos.*\/contents\/.*/)
       .reply(200, getRepoPackageJson1())
-      .get(/\/repos.*\/contents\/.*/)
-      .reply(200, getRepoXrengineConfig1())
       .get(/\/repos.*\/contents\/.*/)
       .reply(404)
 
@@ -195,27 +187,6 @@ const getRepoPackageJson1 = () => ({
     self: 'https://api.github.com/repos/EtherealEngine/ee-ethereal-village/contents/package.json?ref=dev',
     git: 'https://api.github.com/repos/EtherealEngine/ee-ethereal-village/git/blobs/307456741f75499a57fac1145ce2c75112ddbf57',
     html: 'https://github.com/EtherealEngine/ee-ethereal-village/blob/dev/package.json'
-  }
-})
-
-const getRepoXrengineConfig1 = () => ({
-  name: 'xrengine.config.ts',
-  path: 'xrengine.config.ts',
-  sha: '11782d0d23e1811e15608d4feb2d4bc075c231f7',
-  size: 401,
-  url: 'https://api.github.com/repos/EtherealEngine/ee-ethereal-village/contents/xrengine.config.ts?ref=dev',
-  html_url: 'https://github.com/EtherealEngine/ee-ethereal-village/blob/dev/xrengine.config.ts',
-  git_url:
-    'https://api.github.com/repos/EtherealEngine/ee-ethereal-village/git/blobs/11782d0d23e1811e15608d4feb2d4bc075c231f7',
-  download_url: 'https://raw.githubusercontent.com/EtherealEngine/ee-ethereal-village/dev/xrengine.config.ts',
-  type: 'file',
-  content:
-    'aW1wb3J0IHR5cGUgeyBQcm9qZWN0Q29uZmlnSW50ZXJmYWNlIH0gZnJvbSAn\nQGV0aGVyZWFsZW5naW5lL3Byb2plY3RzL1Byb2plY3RDb25maWdJbnRlcmZh\nY2UnCgppbXBvcnQgY29tbW9uQ29uZmlnIGZyb20gJ0BldGhlcmVhbGVuZ2lu\nZS9jb21tb24vc3JjL2NvbmZpZycKCmNvbnN0IGNvbmZpZzogUHJvamVjdENv\nbmZpZ0ludGVyZmFjZSA9IHsKICBvbkV2ZW50OiB1bmRlZmluZWQsCiAgdGh1\nbWJuYWlsOiBjb21tb25Db25maWcuY2xpZW50LmZpbGVTZXJ2ZXIgKyAnL3By\nb2plY3RzL2VlLWV0aGVyZWFsLXZpbGxhZ2UvdGh1bWJuYWlsLnBuZycsCiAg\ncm91dGVzOiB7fSwKICBzZXJ2aWNlczogdW5kZWZpbmVkLAogIGRhdGFiYXNl\nU2VlZDogdW5kZWZpbmVkCn0KCmV4cG9ydCBkZWZhdWx0IGNvbmZpZwo=\n',
-  encoding: 'base64',
-  _links: {
-    self: 'https://api.github.com/repos/EtherealEngine/ee-ethereal-village/contents/xrengine.config.ts?ref=dev',
-    git: 'https://api.github.com/repos/EtherealEngine/ee-ethereal-village/git/blobs/11782d0d23e1811e15608d4feb2d4bc075c231f7',
-    html: 'https://github.com/EtherealEngine/ee-ethereal-village/blob/dev/xrengine.config.ts'
   }
 })
 

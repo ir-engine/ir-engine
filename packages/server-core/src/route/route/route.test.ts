@@ -72,7 +72,7 @@ const updateXREngineConfigForTest = (projectName: string, customRoute: string) =
   const projectLocalDirectory = path.resolve(projectsRootFolder, projectName)
   const xrEngineConfigFilePath = path.resolve(projectLocalDirectory, 'xrengine.config.ts')
 
-  fs.rmSync(xrEngineConfigFilePath)
+  if (fs.existsSync(xrEngineConfigFilePath)) fs.rmSync(xrEngineConfigFilePath)
   fs.writeFileSync(xrEngineConfigFilePath, testXREngineConfig)
 }
 
