@@ -70,7 +70,7 @@ export default function Invites() {
             containerClassname="w-1/5 block"
             startComponent={<HiMagnifyingGlass />}
           />
-          <div className="flex w-1/6 gap-4">
+          <div className="flex gap-4">
             {selectedInvites.length > 0 && (
               <div>
                 <Button
