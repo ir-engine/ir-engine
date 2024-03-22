@@ -27,35 +27,19 @@ import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { Joystick } from 'react-joystick-component'
 
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { InteractState } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { isTouchAvailable } from '@etherealengine/spatial/src/common/functions/DetectFeatures'
-import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
-import {
-  AnyButton,
-  createInitialButtonState,
-  XRStandardGamepadButton
-} from '@etherealengine/spatial/src/input/state/ButtonState'
-import { isMobileXRHeadset, XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
+import { AnyButton, XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
+import { XRControlsState, isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { AppState } from '../../services/AppService'
 import styles from './index.module.scss'
 
 const triggerButton = (button: AnyButton, pressed: boolean): void => {
-  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSources()[0]
-  if (!nonCapturedInputSource) return
-
-  const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
-
-  let buttonState = inputSource.buttons[button]
-  if (buttonState || pressed) {
-    buttonState = buttonState || createInitialButtonState()
-    buttonState.pressed = pressed
-  }
   const eventType = pressed ? 'touchgamepadbuttondown' : 'touchgamepadbuttonup'
-  const event = new CustomEvent(eventType, { detail: { button } })
+  const event = new CustomEvent(eventType)
   document.dispatchEvent(event)
 }
 

@@ -310,6 +310,16 @@ const useNonSpatialInputSources = () => {
     }
     document.addEventListener('touchstickmove', handleTouchDirectionalPad)
 
+    document.addEventListener('touchgamepadbuttondown', (event: CustomEvent) => {
+      const buttonState = inputSourceComponent.buttons as ButtonStateMap
+      buttonState[event.detail.button] = createInitialButtonState()
+    })
+
+    document.addEventListener('touchgamepadbuttonup', (event: CustomEvent) => {
+      const buttonState = inputSourceComponent.buttons as ButtonStateMap
+      if (buttonState[event.detail.button]) buttonState[event.detail.button].up = true
+    })
+
     const onWheelEvent = (event: WheelEvent) => {
       const normalizedValues = normalizeWheel(event)
       const axes = inputSourceComponent.source.gamepad!.axes as number[]
