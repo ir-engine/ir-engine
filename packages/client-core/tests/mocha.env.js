@@ -37,7 +37,7 @@ require("ts-node").register({
 require("fix-esm").register()
 
 const hook = require('css-modules-require-hook')
-const sass = require('node-sass')
+const sass = require('sass')
 
 hook({
   extensions: [ '.scss' ],
