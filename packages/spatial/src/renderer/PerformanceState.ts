@@ -77,8 +77,8 @@ export const PerformanceState = defineState({
     performanceOffset: 0,
     isMobileGPU: false as boolean | undefined,
     // averageRenderTime: 0,
-    gpu: '',
-    device: '',
+    gpu: 'unknown',
+    device: 'unknown',
     budgets: {
       maxTextureSize: 0,
       max3DTextureSize: 0,
