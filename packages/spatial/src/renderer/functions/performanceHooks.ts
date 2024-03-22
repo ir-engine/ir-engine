@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,22 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-process.env.APP_ENV = 'test'
-process.env.NODE_ENV = 'test'
-process.env.NODE_TLS_REJECT_UNAUTHORIZED='0'
+import { State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
+import { PerformanceState } from '../PerformanceState'
 
-require("ts-node").register({
-  project: './tsconfig.json',
-  files: true,
-  swc: true
-})
+export const usePerformanceTier = (): State<number> => {
+  const performanceState = useMutableState(PerformanceState)
+  const performanceTier = useHookstate(performanceState.tier.value)
 
-require("fix-esm").register()
+  useEffect(() => {
+    performanceTier.set(performanceState.tier.value)
+  }, [performanceState.tier])
 
-const hook = require('css-modules-require-hook')
-const sass = require('sass')
+  return performanceTier
+}
 
-hook({
-  extensions: [ '.scss' ],
-  preprocessCss: data => sass.renderSync({ data }).css
-})
+export const usePerformanceOffset = (): State<number> => {
+  const performanceState = useMutableState(PerformanceState)
+  const performanceOffset = useHookstate(performanceState.performanceOffset.value)
+
+  useEffect(() => {
+    performanceOffset.set(performanceState.performanceOffset.value)
+  }, [performanceState.performanceOffset])
+
+  return performanceOffset
+}

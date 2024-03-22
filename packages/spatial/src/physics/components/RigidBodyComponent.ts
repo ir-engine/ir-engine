@@ -65,6 +65,7 @@ export const RigidBodyComponent = defineComponent({
       ccd: false,
       allowRolling: true,
       enabledRotations: [true, true, true],
+      canSleep: true /** Not a reactive property. Only on Init*/,
       // internal
       body: null! as RigidBody,
       previousPosition: proxifyVector3(this.previousPosition, entity),
@@ -86,6 +87,7 @@ export const RigidBodyComponent = defineComponent({
     if (typeof json.type === 'string') component.type.set(json.type)
     if (typeof json.ccd === 'boolean') component.ccd.set(json.ccd)
     if (typeof json.allowRolling === 'boolean') component.allowRolling.set(json.allowRolling)
+    if (typeof json.canSleep === 'boolean') component.canSleep.set(json.canSleep)
     if (Array.isArray(json.enabledRotations) && json.enabledRotations.length === 3)
       component.enabledRotations.set(json.enabledRotations)
   },
@@ -95,7 +97,8 @@ export const RigidBodyComponent = defineComponent({
       type: component.type.value as Body,
       ccd: component.ccd.value,
       allowRolling: component.allowRolling.value,
-      enabledRotations: component.enabledRotations.value
+      enabledRotations: component.enabledRotations.value,
+      canSleep: component.canSleep.value
     }
   },
 
@@ -119,6 +122,7 @@ export const RigidBodyComponent = defineComponent({
           rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
           break
       }
+      if (component.canSleep.value) rigidBodyDesc.setCanSleep(component.canSleep.value)
 
       const world = getState(PhysicsState).physicsWorld
       const rigidBody = Physics.createRigidBody(entity, world, rigidBodyDesc)
