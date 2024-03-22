@@ -27,7 +27,7 @@ import Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
-import { NO_PROXY, State, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { State, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
@@ -482,21 +482,15 @@ export function MediaReactor() {
   )
 
   const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-  const [audioHelperTexture, unload] = useTexture(debugEnabled.value ? AUDIO_TEXTURE_PATH : '', entity)
-
-  useEffect(() => {
-    if (!audioHelperTexture.value) return
-    return unload
-  }, [audioHelperTexture])
+  const [audioHelperTexture] = useTexture(debugEnabled.value ? AUDIO_TEXTURE_PATH : '', entity)
 
   useEffect(() => {
     if (!debugEnabled.value) return
 
     const helper = new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide }))
     helper.name = `audio-helper-${entity}`
-    if (audioHelperTexture.value) {
-      const texture = audioHelperTexture.get(NO_PROXY)
-      helper.material.map = texture
+    if (audioHelperTexture) {
+      helper.material.map = audioHelperTexture
     }
 
     const helperEntity = createEntity()

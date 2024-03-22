@@ -35,10 +35,11 @@ import { controlUpdate, gizmoUpdate, planeUpdate } from '../functions/gizmoHelpe
 import { SelectionState } from '../services/SelectionServices'
 
 const sceneQuery = defineQuery([SceneComponent])
-const controlQuery = defineQuery([TransformGizmoControlComponent])
+export const transformGizmoControllerQuery = defineQuery([TransformGizmoControlComponent])
+export const transformGizmoControlledQuery = defineQuery([TransformGizmoControlledComponent])
 
 const execute = () => {
-  for (const gizmoEntity of controlQuery()) {
+  for (const gizmoEntity of transformGizmoControllerQuery()) {
     const gizmoControlComponent = getComponent(gizmoEntity, TransformGizmoControlComponent)
     if (!gizmoControlComponent.enabled) return
 

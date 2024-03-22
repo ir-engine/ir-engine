@@ -84,7 +84,7 @@ const MultiSelect = <T extends string | number>({
   useClickOutside(ref, () => showOptions.set(false))
 
   return (
-    <div className={twClassName}>
+    <div className={twClassName} ref={ref}>
       <Label>{label}</Label>
       {description && <p className="text-theme-secondary self-stretch text-xs">{description}</p>}
       {error && (
@@ -93,7 +93,7 @@ const MultiSelect = <T extends string | number>({
         </p>
       )}
       <div
-        className="bg-theme-primary border-theme-primary textshadow-sm mt-2 flex min-h-10 w-full flex-auto flex-wrap items-center rounded-lg border px-3.5"
+        className="bg-theme-primary border-theme-primary textshadow-sm mt-2 flex min-h-10 w-full flex-auto flex-wrap items-center rounded-lg border px-3.5 pr-7"
         onClick={() => showOptions.set((value) => !value)}
       >
         {selectedOptions.length === 0 && (
@@ -124,7 +124,6 @@ const MultiSelect = <T extends string | number>({
         className={`border-theme-primary bg-theme-secondary absolute z-[1000] mt-2 w-full rounded border ${
           showOptions.value ? 'visible' : 'hidden'
         }`}
-        ref={ref}
       >
         <Input placeholder={t('common:select.filter')} value={searchInput.value} onChange={handleSearch} />
         <ul className={twMerge('max-h-40 overflow-auto [&>li]:px-4 [&>li]:py-2 [&>li]:text-gray-500 ', menuClassName)}>

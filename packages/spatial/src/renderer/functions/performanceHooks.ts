@@ -23,33 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import config from '@etherealengine/common/src/config'
-import Tabs from '@etherealengine/ui/src/primitives/tailwind/Tabs'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
-import ProjectTable from './ProjectTable'
-import ProjectTopMenu from './ProjectTopMenu'
-import BuildStatusTable from './build-status/BuildStatusTable'
+import { State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
+import { PerformanceState } from '../PerformanceState'
 
-export default function AdminProject() {
-  const { t } = useTranslation()
+export const usePerformanceTier = (): State<number> => {
+  const performanceState = useMutableState(PerformanceState)
+  const performanceTier = useHookstate(performanceState.tier.value)
 
-  return (
-    <Tabs
-      tabsData={[
-        {
-          title: t('admin:components.project.project'),
-          tabLabel: t('admin:components.common.all'),
-          rightComponent: <ProjectTopMenu />,
-          bottomComponent: <ProjectTable />
-        },
-        {
-          title: t('admin:components.buildStatus.buildStatus'),
-          tabLabel: t('admin:components.project.buildStatus'),
-          bottomComponent: <BuildStatusTable />,
-          disabled: config.client.localBuildOrDev
-        }
-      ]}
-    />
-  )
+  useEffect(() => {
+    performanceTier.set(performanceState.tier.value)
+  }, [performanceState.tier])
+
+  return performanceTier
+}
+
+export const usePerformanceOffset = (): State<number> => {
+  const performanceState = useMutableState(PerformanceState)
+  const performanceOffset = useHookstate(performanceState.performanceOffset.value)
+
+  useEffect(() => {
+    performanceOffset.set(performanceState.performanceOffset.value)
+  }, [performanceState.performanceOffset])
+
+  return performanceOffset
 }

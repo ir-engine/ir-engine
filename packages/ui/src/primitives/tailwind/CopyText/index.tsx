@@ -27,6 +27,7 @@ import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiCheck, HiDocument } from 'react-icons/hi2'
+import { twMerge } from 'tailwind-merge'
 import Button from '../Button'
 
 export interface CopyTextProps extends React.HTMLAttributes<HTMLTextAreaElement> {
@@ -61,7 +62,7 @@ const CopyText = ({ text, className, size = 'small' }: CopyTextProps) => {
       variant="outline"
       size={size}
       onClick={copyText}
-      className={className}
+      className={twMerge('p-1.5 [&>*]:m-0', className)}
       startIcon={buttonIcon.get(NO_PROXY)}
     />
   )

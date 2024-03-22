@@ -2,16 +2,14 @@
 set -e
 set -x
 
-LABEL=$1
-
 docker container prune --force
 docker image prune -f
 
-API_IMAGE_ID="$(docker images $LABEL-api:latest --format {{.ID}})"
-CLIENT_IMAGE_ID="$(docker images $LABEL-client:latest --format {{.ID}})"
-INSTANCESERVER_IMAGE_ID="$(docker images $LABEL-instanceserver:latest --format {{.ID}})"
-TASKSERVER_IMAGE_ID="$(docker images $LABEL-taskserver:latest --format {{.ID}})"
-TESTBOT_IMAGE_ID="$(docker images $LABEL-testbot:latest --format {{.ID}})"
+API_IMAGE_ID="$(docker images $DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-api:latest --format {{.ID}})"
+CLIENT_IMAGE_ID="$(docker images $DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-client:latest --format {{.ID}})"
+INSTANCESERVER_IMAGE_ID="$(docker images $DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-instanceserver:latest --format {{.ID}})"
+TASKSERVER_IMAGE_ID="$(docker images $DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-taskserver:latest --format {{.ID}})"
+TESTBOT_IMAGE_ID="$(docker images $DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-testbot:latest --format {{.ID}})"
 
 if [ -n "$TASKSERVER_IMAGE_ID" ]
 then

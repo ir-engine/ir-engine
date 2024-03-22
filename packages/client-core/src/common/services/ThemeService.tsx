@@ -43,7 +43,7 @@ const lightTheme = {
 
   'text-primary': '#262626',
   'text-secondary': '#6B7280',
-  'text-highlight': '#FFFFFF',
+  'text-highlight': '#000000',
   'icon-green': '#0D9488 ',
   'icon-red': '#E11D48',
 
