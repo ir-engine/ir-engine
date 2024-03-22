@@ -294,7 +294,13 @@
       "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
       "lbl-isTrigger": "Trigger",
       "lbl-shape": "Shape",
-      "lbl-type": "Body Type"
+      "lbl-type": "Body Type",
+      "lbl-mass": "Mass",
+      "lbl-massCenter":"Mass Center",
+      "lbl-friction":"Friction",
+      "lbl-restitution":"Restitution",
+      "lbl-collisionLayer":"Collision Layer",
+      "lbl-collisionMask":"Collision Mask"
     },
     "camera": {
       "name": "Camera",
@@ -716,7 +722,8 @@
       "save": "Save",
       "lbl-loading": "Loading Screen",
       "info-loading": "Change the loading screen",
-      "lbl-colors": "Colors"
+      "lbl-colors": "Colors",
+      "lbl-killHeight": "Kill Height"
     },
     "scene": {
       "name": "Scene",
