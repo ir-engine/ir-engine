@@ -70,7 +70,7 @@ export default function Resources() {
             startIcon={<HiPlus />}
             size="small"
             onClick={() => {
-              PopoverState.showPopupover(<AddEditResourceModal mode="create" />)
+              PopoverState.showPopupover(<AddEditResourceModal />)
             }}
           >
             {t('user:resource.createResource')}

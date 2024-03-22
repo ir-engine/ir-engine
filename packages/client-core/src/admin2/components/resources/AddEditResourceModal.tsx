@@ -64,17 +64,18 @@ const getNameAndType = async (url: string) => {
   }
 }
 
-export default function CreateResourceModal({
-  selectedResource,
-  mode
-}: {
-  selectedResource?: StaticResourceType
-  mode: 'create' | 'edit'
-}) {
+const getDefaultErrors = () => ({
+  serverError: '',
+  name: '',
+  resourceFile: '',
+  resourceURL: ''
+})
+
+export default function CreateResourceModal({ selectedResource }: { selectedResource?: StaticResourceType }) {
   const { t } = useTranslation()
 
   const modalProcessing = useHookstate(false)
-  const error = useHookstate('')
+  const errors = useHookstate(getDefaultErrors())
 
   const state = useHookstate({
     id: selectedResource?.id ? selectedResource.id : '',
@@ -119,6 +120,20 @@ export default function CreateResourceModal({
   }, [state.source, state.resourceFile, state.resourceURL])
 
   const handleSubmit = async () => {
+    errors.set(getDefaultErrors())
+
+    if (!state.name.value) {
+      errors.name.set(t('admin:components.resources.nameCantEmpty'))
+    }
+    if (state.source.value === 'file' && !state.resourceFile.value) {
+      errors.resourceFile.set(t('admin:components.resources.resourceFileCantEmpty'))
+    } else if (state.source.value === 'url' && !state.resourceURL.value) {
+      errors.resourceURL.set(t('admin:components.resources.resourceUrlCantEmpty'))
+    }
+    if (Object.values(errors.value).some((value) => value.length > 0)) {
+      return
+    }
+
     try {
       if (state.source.value === 'file' && state.resourceFile.value) {
         ResourceService.createOrUpdateResource(
@@ -136,20 +151,19 @@ export default function CreateResourceModal({
       }
       PopoverState.hidePopupover()
     } catch (e) {
-      error.set(e.message)
+      errors.serverError.set(e.message)
     }
   }
 
   return (
     <Modal
       title={t('admin:components.resources.createResource')}
-      onClose={!modalProcessing.value ? () => PopoverState.hidePopupover() : undefined}
-      hideFooter={modalProcessing.value}
+      onClose={PopoverState.hidePopupover}
       className="w-[50vw]"
       onSubmit={handleSubmit}
     >
       <div className="grid w-full gap-4">
-        {error.value && <p className="mt-4 text-rose-800">{error.value}</p>}
+        {errors.serverError.value && <p className="mt-4 text-rose-800">{errors.serverError.value}</p>}
         <Input
           value={state.name.value}
           label={t('admin:components.resources.resourceName')}
@@ -177,21 +191,23 @@ export default function CreateResourceModal({
           onChange={(value) => state.source.set(value)}
           disabled={modalProcessing.value}
         />
-        <Button fullWidth className="mb-4" disabled={modalProcessing.value}>
-          <label className="block w-full cursor-pointer">
-            {t('admin:components.resources.selectFile')}
-            <input
-              className="mb-4 hidden"
-              type="file"
-              onChange={(e) => {
-                e.preventDefault()
-                if (e.target.files) {
-                  state.resourceFile.set(e.target.files[0])
-                }
-              }}
-            />
-          </label>
-        </Button>
+        {state.source.value === 'file' && (
+          <Button fullWidth className="mb-4" disabled={modalProcessing.value}>
+            <label className="block w-full cursor-pointer">
+              {t('admin:components.resources.selectFile')}
+              <input
+                className="mb-4 hidden"
+                type="file"
+                onChange={(e) => {
+                  e.preventDefault()
+                  if (e.target.files) {
+                    state.resourceFile.set(e.target.files[0])
+                  }
+                }}
+              />
+            </label>
+          </Button>
+        )}
 
         {state.source.value === 'url' && (
           <Input
