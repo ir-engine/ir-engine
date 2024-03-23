@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import TimeAgo from 'javascript-time-ago'
-import en from 'javascript-time-ago/locale/en'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -44,9 +42,46 @@ import { useServerInfoFind } from '../../services/ServerInfoQuery'
 import styles from '../../styles/admin.module.scss'
 import { ServerLogsInputsType } from './ServerLogs'
 
-TimeAgo.addDefaultLocale(en)
+function getTimeSince(dateStr: string | Date | number) {
+  const date = new Date(dateStr)
+  const now = new Date()
+  const timeDifference = now.getTime() - date.getTime()
 
-const timeAgo = new TimeAgo('en-US')
+  const seconds = Math.floor(timeDifference / 1000)
+  let minutes = Math.floor(seconds / 60)
+  let hours = Math.floor(minutes / 60)
+  let days = Math.floor(hours / 24)
+
+  if (days === 1 && hours < 24) {
+    days = 0
+  } else if (days >= 1 && hours % 24 >= 12) {
+    days += 1
+  }
+
+  if (hours === 1 && minutes < 60) {
+    hours = 0
+  } else if (hours >= 1 && minutes % 60 >= 30) {
+    hours += 1
+  }
+
+  if (minutes === 1 && seconds < 60) {
+    minutes = 0
+  } else if (minutes >= 1 && seconds % 60 >= 30) {
+    minutes += 1
+  }
+
+  if (days > 0) {
+    return `${days} day${days > 1 ? 's' : ''} ago`
+  } else if (hours > 0) {
+    return `${hours} hour${hours > 1 ? 's' : ''} ago`
+  } else if (minutes > 0) {
+    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`
+  } else if (seconds >= 30) {
+    return `1 minute ago`
+  } else {
+    return `just now`
+  }
+}
 
 interface Props {
   selectedCard: string
@@ -88,7 +123,7 @@ const ServerTable = ({ selectedCard, setServerLogsInputs }: Props) => {
       status: el.status,
       type: el.type || '',
       currentUsers: el.currentUsers?.toString() || '',
-      age: timeAgo.format(new Date(el.age)),
+      age: getTimeSince(new Date(el.age)),
       restarts: el.containers.map((item) => item.restarts).join(', '),
       instanceId: el.instanceId ? (
         <a
