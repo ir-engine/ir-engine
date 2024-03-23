@@ -23,7 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserCircleIcon } from '@heroicons/react/20/solid'
+import { HiUserCircle } from 'react-icons/hi2'
+
 import React from 'react'
 
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
@@ -49,7 +50,7 @@ const Header = (props: { mode: State<'playback' | 'capture'> }) => {
                 className="h-[60px] w-auto rounded-full"
               />
             ) : (
-              <UserCircleIcon className="h-[120px] w-auto rounded-full" />
+              <HiUserCircle />
             )}
           </div>
         </div>
