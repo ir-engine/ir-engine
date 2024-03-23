@@ -135,6 +135,15 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity; index: 
         ditherComponent.exponent.value
       )
     }
+
+    return () => {
+      if (!isArray(material)) {
+        //if we are index 0, remove the transparency-dithering plugin
+        const id = material.uuid.replace('basic-', '')
+
+        console.log('unmounting')
+      }
+    }
   }, [basicMaterials])
 
   return null

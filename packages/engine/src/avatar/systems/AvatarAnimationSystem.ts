@@ -105,7 +105,6 @@ const _vector3 = new Vector3()
 const _hint = new Vector3()
 const mat4 = new Matrix4()
 const hipsForward = new Vector3(0, 0, 1)
-const ditheringCenter = new Vector3()
 const eyeOffset = 0.25
 
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(avatarComponentQuery, compareDistanceToCamera)
@@ -334,27 +333,24 @@ const execute = () => {
   //update local client entity's dithering component and camera attached logic
   if (!selfAvatarEntity) return
 
-  const ditheringComponent = getOptionalMutableComponent(selfAvatarEntity, TransparencyDitheringComponent[0])
-  if (!ditheringComponent) return
+  const cameraDithering = getOptionalMutableComponent(selfAvatarEntity, TransparencyDitheringComponent[0])
+  if (!cameraDithering) return
+
   const cameraAttached = getState(XRControlsState).isCameraAttachedToAvatar
 
   const avatarComponent = getComponent(selfAvatarEntity, AvatarComponent)
-  getMutableComponent(selfAvatarEntity, TransparencyDitheringComponent[1]).center.set(
-    new Vector3(0, avatarComponent.avatarHeight, 0)
+  const headDithering = getMutableComponent(selfAvatarEntity, TransparencyDitheringComponent[1])
+  headDithering.center.set(new Vector3(0, avatarComponent.eyeHeight, 0))
+  const cameraComponent = getOptionalComponent(Engine.instance.cameraEntity, FollowCameraComponent)
+  headDithering.distance.set(
+    cameraComponent && !cameraAttached ? Math.max(Math.pow(cameraComponent.distance * 5, 2.5), 3) : 3.25
   )
+  headDithering.exponent.set(cameraAttached ? 12 : 8)
   getMutableComponent(selfAvatarEntity, TransparencyDitheringComponent[0]).center.set(
     getComponent(Engine.instance.cameraEntity, TransformComponent).position
   )
-  // ditheringComponent.useWorldCenter.set(!cameraAttached)
-  // ditheringComponent.worldCenter.set(getComponent(Engine.instance.cameraEntity, TransformComponent).position)
-  // ditheringComponent.localCenter.set(
-  //   ditheringCenter.set(0, cameraAttached ? avatarComponent.avatarHeight : avatarComponent.eyeHeight, 0)
-  // )
-  const cameraComponent = getOptionalComponent(Engine.instance.cameraEntity, FollowCameraComponent)
-  // ditheringComponent.ditheringLocalDistance.set(
-  //   cameraComponent && !cameraAttached ? Math.max(Math.pow(cameraComponent.distance * 5, 2.5), 3) : 3.25
-  // )
-  // ditheringComponent.ditheringLocalExponent.set(cameraAttached ? 12 : 8)
+  cameraDithering.distance.set(cameraAttached ? 100 : 3)
+
   if (!cameraComponent) return
   const hasDecapComponent = hasComponent(selfAvatarEntity, AvatarHeadDecapComponent)
   if (hasDecapComponent) cameraComponent.offset.setZ(Math.min(cameraComponent.offset.z + deltaSeconds, eyeOffset))
