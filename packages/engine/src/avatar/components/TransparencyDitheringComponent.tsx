@@ -135,30 +135,8 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity; index: 
         ditherComponent.exponent.value
       )
     }
-
-    return () => {
-      if (!isArray(material)) {
-        //if we are index 0, remove the transparency-dithering plugin
-        const id = material.uuid.replace('basic-', '')
-
-        console.log('unmounting')
-      }
-    }
   }, [basicMaterials])
 
-  return null
-}
-
-const MaterialReactor = (props: { entity: Entity; materialId: string }) => {
-  console.log('material reactor')
-  useEffect(() => {
-    const { entity, materialId } = props
-    console.log('material changed ', entity, materialId)
-    // const ditherComponent = getComponent(entity, TransparencyDitheringComponent[0])
-    // const material = getState(MaterialLibraryState).materials[materialId]
-    // if (!material) return
-    // injectDitheringLogic(material, ditherComponent.center.value, ditherComponent.distance.value, ditherComponent.exponent.value)
-  })
   return null
 }
 
