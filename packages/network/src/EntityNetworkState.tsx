@@ -95,13 +95,16 @@ export const EntityNetworkState = defineState({
 const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
   const state = useHookstate(getMutableState(EntityNetworkState)[props.uuid])
   const ownerID = state.ownerId.value
-  const isOwner = ownerID === Engine.instance.userID
+  const isOwner = ownerID === SceneUser || ownerID === Engine.instance.userID
   const userConnected = !!useHookstate(getMutableState(NetworkWorldUserState)[ownerID]).value || isOwner
   const isWorldNetworkConnected = !!useHookstate(NetworkState.worldNetworkState).value
 
   useLayoutEffect(() => {
     if (!userConnected) return
-    const entity = UUIDComponent.getOrCreateEntityByUUID(props.uuid)
+    const entity =
+      ownerID === SceneUser
+        ? UUIDComponent.getEntityByUUID(props.uuid)
+        : UUIDComponent.getOrCreateEntityByUUID(props.uuid)
     return () => {
       removeEntity(entity)
     }
@@ -110,14 +113,12 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
   useLayoutEffect(() => {
     if (!userConnected) return
     const entity = UUIDComponent.getEntityByUUID(props.uuid)
+    if (!entity) return
     const worldNetwork = NetworkState.worldNetwork
+
     setComponent(entity, NetworkObjectComponent, {
       ownerId:
-        ownerID === SceneUser
-          ? isWorldNetworkConnected
-            ? worldNetwork.peers[worldNetwork.hostPeerID].userId
-            : Engine.instance.userID
-          : ownerID,
+        ownerID === SceneUser ? (isWorldNetworkConnected ? worldNetwork.hostUserID : Engine.instance.userID) : ownerID,
       ownerPeer: state.ownerPeer.value,
       authorityPeerID: state.authorityPeerId.value,
       networkId: state.networkId.value
@@ -129,6 +130,7 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
     // Authority request can only be processed by owner
 
     const entity = UUIDComponent.getEntityByUUID(props.uuid)
+    if (!entity) return
     const ownerID = getOptionalComponent(entity, NetworkObjectComponent)?.ownerId
     if (!ownerID || ownerID !== Engine.instance.userID) return
     console.log('Requesting authority over object', props.uuid, state.requestingPeerId.value)
