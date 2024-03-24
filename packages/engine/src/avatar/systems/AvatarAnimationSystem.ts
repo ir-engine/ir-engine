@@ -330,7 +330,7 @@ const execute = () => {
     updateVRMRetargeting(rigComponent.vrm, entity)
   }
 
-  //update local client entity's dithering component and camera attached logic
+  //self avatar entity's dithering component and camera attached logic
   if (!selfAvatarEntity) return
 
   const cameraDithering = getOptionalMutableComponent(selfAvatarEntity, TransparencyDitheringComponent[0])
@@ -349,7 +349,8 @@ const execute = () => {
   getMutableComponent(selfAvatarEntity, TransparencyDitheringComponent[0]).center.set(
     getComponent(Engine.instance.cameraEntity, TransformComponent).position
   )
-  cameraDithering.distance.set(cameraAttached ? 100 : 3)
+  cameraDithering.distance.set(cameraAttached ? 6 : 3)
+  cameraDithering.exponent.set(cameraAttached ? 10 : 2)
 
   if (!cameraComponent) return
   const hasDecapComponent = hasComponent(selfAvatarEntity, AvatarHeadDecapComponent)
