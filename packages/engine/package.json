@@ -33,7 +33,6 @@
     "@etherealengine/hyperflux": "^1.6.0",
     "@etherealengine/network": "^1.6.0",
     "@etherealengine/spatial": "^1.6.0",
-    "@etherealengine/volumetric": "^2.0.1",
     "@etherealengine/xrui": "^1.6.0",
     "@gltf-transform/core": "3.4.2",
     "@gltf-transform/extensions": "3.4.2",

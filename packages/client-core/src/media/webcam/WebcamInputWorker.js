@@ -27,7 +27,8 @@ Ethereal Engine. All Rights Reserved.
 
 import './faceEnvWorkerPatch.js' // polyfill for face-api in webworker - MUST BE FIRST
 import * as Comlink from 'comlink'
-import { detectSingleFace, nets, TinyFaceDetectorOptions } from '@vladmandic/face-api'
+/** @todo reassess if we want to use this face-api package */
+// import { detectSingleFace, nets, TinyFaceDetectorOptions } from '@vladmandic/face-api'
 
 let canvas
 let imageData
