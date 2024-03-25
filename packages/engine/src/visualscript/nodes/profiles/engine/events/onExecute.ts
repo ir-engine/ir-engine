@@ -23,7 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { InputSystemGroup, SystemDefinitions, SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs'
+import {
+  ECSState,
+  InputSystemGroup,
+  SystemDefinitions,
+  SystemUUID,
+  defineSystem,
+  destroySystem
+} from '@etherealengine/ecs'
+import { getState } from '@etherealengine/hyperflux'
 import { NodeCategory, makeEventNodeDefinition } from '@etherealengine/visual-script'
 
 let onExecuteSystemCounter = 0
@@ -56,7 +64,8 @@ export const OnExecute = makeEventNodeDefinition({
   },
 
   out: {
-    flow: 'flow'
+    flow: 'flow',
+    delta: 'float'
   },
   initialState: initialState(),
   init: ({ read, write, commit, graph, configuration }) => {
@@ -67,6 +76,7 @@ export const OnExecute = makeEventNodeDefinition({
       insert: { with: system },
       execute: () => {
         commit('flow')
+        write('delta', getState(ECSState).deltaSeconds)
       }
     })
 
