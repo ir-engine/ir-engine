@@ -45,42 +45,67 @@ import { ServerLogsInputsType } from './ServerLogs'
 function getTimeSince(dateStr: string | Date | number) {
   const date = new Date(dateStr)
   const now = new Date()
-  const timeDifference = now.getTime() - date.getTime()
+  const timeDifference = Math.floor((now.getTime() - date.getTime()) / 1000) // in seconds
 
-  const seconds = Math.floor(timeDifference / 1000)
-  let minutes = Math.floor(seconds / 60)
-  let hours = Math.floor(minutes / 60)
-  let days = Math.floor(hours / 24)
+  const SECOND = 1
+  const MINUTE = SECOND * 60
+  const HOUR = MINUTE * 60
+  const DAY = HOUR * 24
+  const WEEK = DAY * 7
+  const MONTH = DAY * 30
+  const YEAR = DAY * 365
 
-  if (days === 1 && hours < 24) {
-    days = 0
-  } else if (days >= 1 && hours % 24 >= 12) {
-    days += 1
+  const intervals = [
+    {
+      label: 'year',
+      interval: YEAR
+    },
+    {
+      label: 'month',
+      interval: MONTH
+    },
+    {
+      label: 'week',
+      interval: WEEK
+    },
+    {
+      label: 'day',
+      interval: DAY
+    },
+    {
+      label: 'hour',
+      interval: HOUR
+    },
+    {
+      label: 'minute',
+      interval: MINUTE
+    },
+    {
+      label: 'second',
+      interval: SECOND
+    }
+  ]
+
+  for (let i = 0; i < intervals.length; i++) {
+    const { label, interval } = intervals[i]
+    let count = Math.floor(timeDifference / interval)
+
+    if (label === 'second' && count < 30) {
+      return 'just now'
+    }
+
+    const remainder = timeDifference % interval
+
+    if (remainder >= interval / 2) {
+      count++
+    }
+
+    if (count >= 1) {
+      return `${count} ${label}${count > 1 ? 's' : ''} ago`
+    }
   }
 
-  if (hours === 1 && minutes < 60) {
-    hours = 0
-  } else if (hours >= 1 && minutes % 60 >= 30) {
-    hours += 1
-  }
-
-  if (minutes === 1 && seconds < 60) {
-    minutes = 0
-  } else if (minutes >= 1 && seconds % 60 >= 30) {
-    minutes += 1
-  }
-
-  if (days > 0) {
-    return `${days} day${days > 1 ? 's' : ''} ago`
-  } else if (hours > 0) {
-    return `${hours} hour${hours > 1 ? 's' : ''} ago`
-  } else if (minutes > 0) {
-    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`
-  } else if (seconds >= 30) {
-    return `1 minute ago`
-  } else {
-    return `just now`
-  }
+  return 'just now'
 }
 
 interface Props {
