@@ -97,8 +97,6 @@ const ProjectTable = ({ className }: Props) => {
 
   const projectsData = projectsQuery.data as ProjectType[]
 
-  console.log('projectsData', projectsData)
-
   useEffect(() => {
     if (activeProject.value) activeProject.set(projectsData.find((proj) => proj.name === activeProject.value!.name)!)
   }, [projectsData])
