@@ -54,7 +54,7 @@ import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
-import { SceneComponent } from '../components/SceneComponent'
+import { SourceComponent } from '../components/SourceComponent'
 import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
 import { getModelSceneID } from './loaders/ModelFunctions'
 
@@ -231,7 +231,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   eJson.parent = getComponent(parentEntity, UUIDComponent)
 
   const sceneID = getModelSceneID(rootEntity)
-  setComponent(objEntity, SceneComponent, sceneID)
+  setComponent(objEntity, SourceComponent, sceneID)
   setComponent(objEntity, EntityTreeComponent, {
     parentEntity,
     uuid

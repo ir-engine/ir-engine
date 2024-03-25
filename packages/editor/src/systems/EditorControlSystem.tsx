@@ -45,7 +45,7 @@ import { PresentationSystemGroup, UUIDComponent, UndefinedEntity } from '@ethere
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { SceneSnapshotAction, SceneSnapshotState } from '@etherealengine/engine/src/scene/Scene'
-import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { FlyControlComponent } from '@etherealengine/spatial/src/camera/components/FlyControlComponent'
@@ -285,12 +285,12 @@ const execute = () => {
     if (buttons.PrimaryClick?.up) {
       let clickedEntity = InputSourceComponent.getClosestIntersectedEntity(inputSources[0])
       while (
-        !hasComponent(clickedEntity, SceneComponent) &&
+        !hasComponent(clickedEntity, SourceComponent) &&
         getOptionalComponent(clickedEntity, EntityTreeComponent)?.parentEntity
       ) {
         clickedEntity = getComponent(clickedEntity, EntityTreeComponent).parentEntity!
       }
-      if (hasComponent(clickedEntity, SceneComponent)) {
+      if (hasComponent(clickedEntity, SourceComponent)) {
         SelectionState.updateSelection([getComponent(clickedEntity, UUIDComponent)])
       }
     }

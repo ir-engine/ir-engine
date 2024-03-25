@@ -95,7 +95,7 @@ export const EnvmapComponent = defineComponent({
     // if (
     //   isClient &&
     //   !getState(SceneState).sceneLoaded &&
-    //   hasComponent(entity, SceneComponent) &&
+    //   hasComponent(entity, SourceComponent) &&
     //   component.type.value !== EnvMapSourceType.None
     // )
     //   SceneAssetPendingTagComponent.addResource(entity, EnvmapComponent.jsonID)

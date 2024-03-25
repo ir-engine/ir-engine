@@ -30,18 +30,18 @@ import { hookstate, none } from '@etherealengine/hyperflux'
 
 const entitiesByScene = {} as Record<SceneID, Entity[]>
 
-export const SceneComponent = defineComponent({
-  name: 'SceneComponent',
+export const SourceComponent = defineComponent({
+  name: 'SourceComponent',
 
   onInit: (entity) => '' as SceneID,
 
   onSet: (entity, component, src: SceneID) => {
-    if (typeof src !== 'string') throw new Error('SceneComponent expects a non-empty string')
+    if (typeof src !== 'string') throw new Error('SourceComponent expects a non-empty string')
 
     component.set(src)
 
-    const exists = SceneComponent.entitiesByScene[src]
-    const entitiesBySceneState = SceneComponent.entitiesBySceneState[src]
+    const exists = SourceComponent.entitiesByScene[src]
+    const entitiesBySceneState = SourceComponent.entitiesBySceneState[src]
     if (exists) {
       if (exists.includes(entity)) return
       entitiesBySceneState.merge([entity])
@@ -53,11 +53,11 @@ export const SceneComponent = defineComponent({
   onRemove: (entity, component) => {
     const src = component.value
 
-    const entities = SceneComponent.entitiesByScene[src].filter((currentEntity) => currentEntity !== entity)
+    const entities = SourceComponent.entitiesByScene[src].filter((currentEntity) => currentEntity !== entity)
     if (entities.length === 0) {
-      SceneComponent.entitiesBySceneState[src].set(none)
+      SourceComponent.entitiesBySceneState[src].set(none)
     } else {
-      SceneComponent.entitiesBySceneState[src].set(entities)
+      SourceComponent.entitiesBySceneState[src].set(entities)
     }
   },
 
