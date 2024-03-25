@@ -58,31 +58,45 @@ function getTimeSince(dateStr: string | Date | number) {
   const intervals = [
     {
       label: 'year',
-      interval: YEAR
+      interval: YEAR,
+      roundUp: true,
+      firstRoundUp: true
     },
     {
       label: 'month',
-      interval: MONTH
+      interval: MONTH,
+      roundUp: true,
+      firstRoundUp: false
     },
     {
       label: 'week',
-      interval: WEEK
+      interval: WEEK,
+      roundUp: true,
+      firstRoundUp: false
     },
     {
       label: 'day',
-      interval: DAY
+      interval: DAY,
+      roundUp: true,
+      firstRoundUp: false
     },
     {
       label: 'hour',
-      interval: HOUR
+      interval: HOUR,
+      roundUp: true,
+      firstRoundUp: false
     },
     {
       label: 'minute',
-      interval: MINUTE
+      interval: MINUTE,
+      roundUp: true,
+      firstRoundUp: false
     },
     {
       label: 'second',
-      interval: SECOND
+      interval: SECOND,
+      roundUp: true,
+      firstRoundUp: true
     }
   ]
 
@@ -96,12 +110,18 @@ function getTimeSince(dateStr: string | Date | number) {
 
     const remainder = timeDifference % interval
 
-    if (remainder >= interval / 2) {
+    if (count >= 1 && i < intervals.length - 1 && intervals[i + 1].roundUp && remainder >= interval / 2) {
+      count++
+    } else if (count < 1 && i < intervals.length - 1 && intervals[i + 1].firstRoundUp && remainder >= interval / 2) {
       count++
     }
 
+    if (i > 0 && count * interval === intervals[i - 1].interval) {
+      return `1 ${intervals[i - 1].label} ${intervals[i - 1].interval > 1 ? 's' : ''} ago`
+    }
+
     if (count >= 1) {
-      return `${count} ${label}${count > 1 ? 's' : ''} ago`
+      return `${count.toLocaleString()} ${label}${count > 1 ? 's' : ''} ago`
     }
   }
 
