@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { faCaretRight } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React from 'react'
+import { FaCaretRight } from 'react-icons/fa6'
 import { Connection, Handle, Position, useReactFlow } from 'reactflow'
 
 import { OutputSocketSpecJSON } from '@etherealengine/visual-script'
@@ -62,7 +61,13 @@ export default function OutputSocket({ specGenerator, connected, valueType, name
     >
       {showName && <div style={{ textTransform: 'capitalize', marginRight: '0.5rem', marginLeft: '1rem' }}>{name}</div>}
       {isFlowSocket && (
-        <FontAwesomeIcon icon={faCaretRight} style={{ marginLeft: '0.25rem' }} color="#ffffff" size="lg" />
+        <FaCaretRight
+          color="#ffffff"
+          size="1.25rem"
+          style={{
+            marginLeft: '0.25rem'
+          }}
+        />
       )}
 
       <Handle

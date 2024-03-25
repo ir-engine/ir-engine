@@ -27,8 +27,7 @@ import React from 'react'
 import { NodeProps as FlowNodeProps, useEdges } from 'reactflow'
 
 import { NodeSpecJSON } from '@etherealengine/visual-script'
-import { faCircleMinus, faCirclePlus } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { FaCircleMinus, FaCirclePlus } from 'react-icons/fa6'
 import { useChangeNode } from '../hooks/useChangeNode'
 import { useModifyNodeSocket } from '../hooks/useModifyNodeSocket'
 import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
@@ -128,7 +127,7 @@ export const Node: React.FC<NodeUIProps> = ({ id, data, spec, selected, specGene
             }}
             onClick={handleAddNodeSocket}
           >
-            <FontAwesomeIcon icon={faCirclePlus} color="#ffffff" />
+            <FaCirclePlus color="#ffffff" />
             {' Add socket'}
           </button>
         )}
@@ -142,7 +141,7 @@ export const Node: React.FC<NodeUIProps> = ({ id, data, spec, selected, specGene
             }}
             onClick={handleDecreaseNodeSocket}
           >
-            <FontAwesomeIcon icon={faCircleMinus} color="#ffffff" />
+            <FaCircleMinus color="#ffffff" />
             {'Remove socket'}
           </button>
         )}
