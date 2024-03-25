@@ -36,10 +36,11 @@ export async function up(knex: Knex): Promise<void> {
   if (tableExists === false) {
     await knex.schema.createTable(profilingPath, (table) => {
       //@ts-ignore
-      table.string('version').primary()
+      table.primary(['version', 'gpu', 'device'])
+      table.string('version')
       table.string('gpu').notNullable().index()
       table.string('device').nullable()
-      table.string('systemData').nullable()
+      table.json('systemData').nullable()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
     })
