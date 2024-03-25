@@ -215,7 +215,7 @@ export const SceneSnapshotState = defineState({
 
   /** @todo reserved for future use */
   snapshotFromECS: (sceneID: SceneID) => {
-    const entities = SourceComponent.entitiesByScene[sceneID] ?? []
+    const entities = SourceComponent.entitiesBySource[sceneID] ?? []
     const serializedEntities: [EntityUUID, EntityJsonType][] = entities.map((entity) => {
       const components = serializeEntity(entity)
       const name = getComponent(entity, NameComponent)

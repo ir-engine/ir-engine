@@ -245,7 +245,7 @@ function ModelReactor(): JSX.Element {
   }, [modelComponent.scene])
 
   const sceneInstanceID = useModelSceneID(entity)
-  const childEntities = useHookstate(SourceComponent.entitiesBySceneState[sceneInstanceID])
+  const childEntities = useHookstate(SourceComponent.entitiesBySourceState[sceneInstanceID])
 
   return (
     <>
@@ -335,7 +335,7 @@ export const MeshOrModelQuery = (props: { ChildReactor: FC<{ entity: Entity; roo
   const ModelReactor = () => {
     const entity = useEntityContext()
     const sceneInstanceID = useModelSceneID(entity)
-    const childEntities = useHookstate(SourceComponent.entitiesBySceneState[sceneInstanceID])
+    const childEntities = useHookstate(SourceComponent.entitiesBySourceState[sceneInstanceID])
     return (
       <>
         {childEntities.value?.map((childEntity) => (
