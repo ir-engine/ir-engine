@@ -40,7 +40,9 @@ export const identityProviderResolver = resolve<IdentityProviderType, HookContex
   updatedAt: virtual(async (identityProvider) => fromDateTimeSql(identityProvider.updatedAt))
 })
 
-export const identityProviderExternalResolver = resolve<IdentityProviderType, HookContext>({})
+export const identityProviderExternalResolver = resolve<IdentityProviderType, HookContext>({
+  oauthToken: async () => undefined
+})
 
 export const identityProviderDataResolver = resolve<IdentityProviderType, HookContext>({
   id: async () => {

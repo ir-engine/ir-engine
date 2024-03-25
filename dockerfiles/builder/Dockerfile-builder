@@ -1,7 +1,7 @@
-ARG ECR_URL
+ARG REPO_URL
 ARG REPO_NAME
 ARG STAGE
-FROM $ECR_URL/$REPO_NAME-root:latest_${STAGE} as builder
+FROM $REPO_URL/$REPO_NAME-root:latest_${STAGE} as builder
 
 COPY packages/server/package.json ./packages/server/
 COPY packages/server-core/package.json ./packages/server-core/

@@ -781,7 +781,7 @@ export const getProjectCommits = async (
 }
 
 export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> => {
-  const builderRepo = (process.env.BUILDER_REPOSITORY as string) || ''
+  const builderRepo = `${process.env.SOURCE_REPO_URL}/${process.env.SOURCE_REPO_NAME_STEM}-builder` || ''
   const publicECRExec = publicECRRepoRegex.exec(builderRepo)
   const privateECRExec = privateECRRepoRegex.exec(builderRepo)
   if (publicECRExec) {
@@ -843,13 +843,12 @@ export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> 
         }
       })
   } else {
-    const repoSplit = builderRepo.split('/')
-    const registry = repoSplit.length === 1 ? 'etherealengine' : repoSplit[0]
-    const repo =
-      repoSplit.length === 1 ? (repoSplit[0].length === 0 ? 'etherealengine-builder' : repoSplit[0]) : repoSplit[1]
+    const registry = /docker.io\//.test(process.env.SOURCE_REPO_URL!)
+      ? process.env.SOURCE_REPO_URL!.split('/')[1]
+      : process.env.SOURCE_REPO_URL
     try {
       const result = await fetch(
-        `https://registry.hub.docker.com/v2/repositories/${registry}/${repo}/tags?page_size=100`
+        `https://registry.hub.docker.com/v2/repositories/${registry}/${process.env.SOURCE_REPO_NAME_STEM}-builder/tags?page_size=100`
       )
       const body = JSON.parse(Buffer.from(await result.arrayBuffer()).toString())
       return body.results.map((imageDetails) => {

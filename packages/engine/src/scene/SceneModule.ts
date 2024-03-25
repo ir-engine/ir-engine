@@ -64,6 +64,7 @@ import { MeshBVHSystem } from './systems/MeshBVHSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
 import { PortalSystem } from './systems/PortalSystem'
 import { SDFSystem } from './systems/SDFSystem'
+import { SceneKillHeightSystem } from './systems/SceneKillHeightSystem'
 import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
 import { SceneObjectDynamicLoadSystem } from './systems/SceneObjectDynamicLoadSystem'
 import { SceneObjectSystem } from './systems/SceneObjectSystem'
@@ -122,6 +123,7 @@ export {
   ParticleSystem,
   PortalSystem,
   SceneLoadingSystem,
+  SceneKillHeightSystem,
   SceneObjectDynamicLoadSystem,
   SceneObjectSystem,
   SDFSystem,
