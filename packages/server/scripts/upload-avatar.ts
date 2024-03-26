@@ -24,6 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 /* eslint-disable @typescript-eslint/no-var-requires */
+import { getACL } from '@etherealengine/server-core/src/media/storageprovider/s3.storage'
+
 const dotenv = require('dotenv')
 const fs = require('fs')
 const knex = require('knex')
@@ -105,14 +107,7 @@ const uploadFile = (Key, Body) => {
               Body,
               Bucket: BUCKET,
               Key,
-              ACL:
-                projectRegex.test(Key) &&
-                !projectPublicRegex.test(Key) &&
-                !assetsRegex.test(Key) &&
-                !rootImageRegex.test(Key) &&
-                !rootSceneJsonRegex.test(Key)
-                  ? ObjectCannedACL.private
-                  : ObjectCannedACL.public_read
+              ACL: getACL(Key)
             },
             (err, data) => {
               resolve(data)

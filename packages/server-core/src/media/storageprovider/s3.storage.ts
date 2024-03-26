@@ -109,6 +109,15 @@ function handler(event) {
 }
 `
 
+export const getACL = (key: string) =>
+  projectRegex.test(key) &&
+  !projectPublicRegex.test(key) &&
+  !assetsRegex.test(key) &&
+  !rootImageRegex.test(key) &&
+  !rootSceneJsonRegex.test(key)
+    ? ObjectCannedACL.private
+    : ObjectCannedACL.public_read
+
 /**
  * Storage provide class to communicate with AWS S3 API.
  */
@@ -310,28 +319,14 @@ export class S3Provider implements StorageProviderInterface {
 
     const args = params.isDirectory
       ? {
-          ACL:
-            projectRegex.test(key) &&
-            !projectPublicRegex.test(key) &&
-            !assetsRegex.test(key) &&
-            !rootImageRegex.test(key) &&
-            !rootSceneJsonRegex.test(key)
-              ? ObjectCannedACL.private
-              : ObjectCannedACL.public_read,
+          ACL: getACL(key),
           Body: Buffer.alloc(0),
           Bucket: this.bucket,
           ContentType: 'application/x-empty',
           Key: key + '/'
         }
       : {
-          ACL:
-            projectRegex.test(key) &&
-            !projectPublicRegex.test(key) &&
-            !assetsRegex.test(key) &&
-            !rootImageRegex.test(key) &&
-            !rootSceneJsonRegex.test(key)
-              ? ObjectCannedACL.private
-              : ObjectCannedACL.public_read,
+          ACL: getACL(key),
           Body: data.Body,
           Bucket: this.bucket,
           ContentType: data.ContentType,
@@ -365,14 +360,7 @@ export class S3Provider implements StorageProviderInterface {
       })
     } else if (data.Body?.length > MULTIPART_CUTOFF_SIZE) {
       const multiPartStartArgs = {
-        ACL:
-          projectRegex.test(key) &&
-          !projectPublicRegex.test(key) &&
-          !assetsRegex.test(key) &&
-          !rootImageRegex.test(key) &&
-          !rootSceneJsonRegex.test(key)
-            ? ObjectCannedACL.private
-            : ObjectCannedACL.public_read,
+        ACL: getACL(key),
         Bucket: this.bucket,
         Key: key,
         ContentType: data.ContentType
@@ -750,14 +738,7 @@ export class S3Provider implements StorageProviderInterface {
       ...listResponse.Contents.map(async (file) => {
         const key = path.join(newFilePath, file.Key.replace(oldFilePath, ''))
         const input = {
-          ACL:
-            projectRegex.test(key) &&
-            !projectPublicRegex.test(key) &&
-            !assetsRegex.test(key) &&
-            !rootImageRegex.test(key) &&
-            !rootSceneJsonRegex.test(key)
-              ? ObjectCannedACL.private
-              : ObjectCannedACL.public_read,
+          ACL: getACL(key),
           Bucket: this.bucket,
           CopySource: `/${this.bucket}/${file.Key}`,
           Key: key
