@@ -65,7 +65,7 @@ module.exports = {
         }
       },
       colors: {
-        bluePrimary: "#375DAF",
+        'blue-primary': "#375DAF",
       }
     }
   }

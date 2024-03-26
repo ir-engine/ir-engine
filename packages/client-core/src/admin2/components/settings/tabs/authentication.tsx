@@ -419,7 +419,8 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         </Button>
 
         <Button
-          className="bg-bluePrimary col-span-1"
+          className="col-span-1"
+          variant="primary"
           onClick={handleSubmit}
           startIcon={loadingState.loading.value && <LoadingCircle className="h-6 w-6" />}
           fullWidth

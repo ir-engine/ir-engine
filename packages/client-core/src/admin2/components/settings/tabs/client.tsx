@@ -408,7 +408,8 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           {t('admin:components.common.reset')}
         </Button>
         <Button
-          className="bg-bluePrimary col-span-1"
+          variant="primary"
+          className="col-span-1"
           onClick={handleSubmit}
           startIcon={state.loading.value && <LoadingCircle className="h-6 w-6" />}
           fullWidth

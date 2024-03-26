@@ -57,7 +57,7 @@ export const Default = {
           <Button fullWidth className="bg-theme-highlight">
             Cancel
           </Button>
-          <Button fullWidth className="bg-bluePrimary">
+          <Button fullWidth variant="primary">
             Submit
           </Button>
         </div>

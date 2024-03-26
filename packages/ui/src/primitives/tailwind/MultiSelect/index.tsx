@@ -107,7 +107,10 @@ const MultiSelect = <T extends string | number>({
             className="border-theme-primary m-1 flex h-7 items-center justify-center gap-1 rounded border bg-neutral-300 p-1 font-medium text-black"
           >
             <Text className="text-black">{options.find((opt) => opt.value === selectedOption)?.label}</Text>
-            <HiXCircle onClick={() => onChange(selectedOptions.filter((opt) => opt !== selectedOption))} />
+            <HiXCircle
+              className="cursor-pointer"
+              onClick={() => onChange(selectedOptions.filter((opt) => opt !== selectedOption))}
+            />
           </div>
         ))}
       </div>
