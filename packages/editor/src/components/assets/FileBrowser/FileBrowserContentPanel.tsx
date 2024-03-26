@@ -63,11 +63,13 @@ import { archiverPath, fileBrowserUploadPath, staticResourcePath } from '@ethere
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { downloadBlobAsZip, inputFileWithAddToScene } from '../../../functions/assetFunctions'
 import { bytesToSize, unique } from '../../../functions/utils'
+import { EditorState } from '../../../services/EditorServices'
 import StringInput from '../../inputs/StringInput'
 import { ToolButton } from '../../toolbar/ToolButton'
 import { AssetSelectionChangePropsType } from '../AssetsPreviewPanel'
@@ -367,6 +369,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     validFiles.set(files.filter((file) => file.fullName.toLowerCase().includes(searchText.value.toLowerCase())))
   }, [searchText.value, fileState.files])
 
+  const projectName = useHookstate(getMutableState(EditorState).projectName)
+
+  const makeAllThumbnails = async () => {
+    await FileBrowserService.fetchAllFiles(`/projects/${projectName.value}`)
+  }
+
   const DropArea = () => {
     const [{ isFileDropOver }, fileDropRef] = useDrop({
       accept: [...SupportedFileTypes],
@@ -512,6 +520,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                 </>
               )}
             </div>
+          </div>
+          <div style={{ display: 'flex', width: '200px', flexDirection: 'column' }}>
+            <Button className={'medium-button button'} style={{ width: '100%' }} onClick={() => makeAllThumbnails()}>
+              Generate thumbnails
+            </Button>
           </div>
         </Popover>
       </>
