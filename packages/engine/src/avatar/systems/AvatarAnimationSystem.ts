@@ -120,6 +120,7 @@ const execute = () => {
   for (const entity of avatarComponentQuery()) {
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
     const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
+    rigidbodyComponent.body.linvel
     if (rigidbodyComponent.body.isEnabled()) {
       // TODO: use x locomotion for side-stepping when full 2D blending spaces are implemented
       avatarAnimationComponent.locomotion.x = 0
