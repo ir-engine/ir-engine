@@ -58,8 +58,8 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { NormalizedLandmark, PoseLandmarker } from '@mediapipe/tasks-vision'
 import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
+import { LandmarkIndices } from './MocapConstants'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
-import { LandmarkIndices } from './mocapUtils'
 
 const grey = new Color(0.5, 0.5, 0.5)
 
