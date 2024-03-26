@@ -131,13 +131,13 @@ const MultiEmailInput = ({ emailList, error, label, disabled }: LabelProps) => {
         <div className="bg-theme-surfaceInput border-theme-primary flex flex-wrap gap-2	rounded-lg border px-3.5 py-1.5">
           {emailList.value.map((item) => (
             <div
-              className="bg-theme-primary text-theme-primary flex w-fit items-center justify-between gap-1 rounded px-2 py-1 text-black"
+              className="bg-theme-surface-main text-theme-primary flex w-fit items-center justify-between gap-1 rounded px-2 py-1 text-black"
               key={item}
             >
               {item}
               <Button
                 disabled={disabled}
-                className="button bg-theme-primary p-1 text-[#6B7280] disabled:opacity-50 dark:text-[#A3A3A3] [&>*]:m-0"
+                className="button bg-theme-surface-main p-1 text-[#6B7280] disabled:opacity-50 dark:text-[#A3A3A3] [&>*]:m-0"
                 onClick={() => handleDelete(item)}
               >
                 <IoMdClose />

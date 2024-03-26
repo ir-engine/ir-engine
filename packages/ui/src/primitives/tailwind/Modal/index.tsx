@@ -119,7 +119,7 @@ const Modal = ({
   const twClassName = twMerge('relative max-h-[80vh] w-full overflow-y-auto', className)
   return (
     <div className={twClassName}>
-      <div className="bg-theme-primary relative rounded-lg shadow">
+      <div className="bg-theme-surface-main relative rounded-lg shadow">
         {onClose && <ModalHeader title={title} onClose={onClose} />}
         <div className="w-full px-10 py-6">{children}</div>
         {!hideFooter && (

@@ -308,7 +308,7 @@ export default function AddEditProjectModal({
 
   return (
     <div className="relative max-h-full w-[50vw] max-w-2xl p-4">
-      <div className="bg-theme-primary relative rounded-lg shadow">
+      <div className="bg-theme-surface-main relative rounded-lg shadow">
         <ModalHeader
           title={update ? t('admin:components.project.updateProject') : t('admin:components.project.addProject')}
           onClose={() => {

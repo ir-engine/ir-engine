@@ -43,7 +43,7 @@ const Accordion = forwardRef(
     { title, subtitle, expandIcon, shrinkIcon, children, className, open, ...props }: AccordionProps,
     ref: React.MutableRefObject<HTMLDivElement>
   ): JSX.Element => {
-    const twClassName = twMerge('bg-theme-primary w-full rounded-2xl p-6 ', className)
+    const twClassName = twMerge('bg-theme-surface-main w-full rounded-2xl p-6 ', className)
     const openState = useHookstate(false)
 
     useEffect(() => {

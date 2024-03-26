@@ -82,7 +82,7 @@ const Tabs = ({
       <Text component="h2" fontSize="xl" className="mb-6">
         {tabsData[currentTab.value]?.title}
       </Text>
-      <div className="bg-theme-surfaceMain sticky top-0 flex justify-between">
+      <div className="bg-theme-primary sticky top-0 flex justify-between">
         <div className={twMerge(twTabContainerClassName, tabContainerClassName)} {...props}>
           {tabsData.map((tab, index) => (
             <button

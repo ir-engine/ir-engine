@@ -59,7 +59,7 @@ const MultiSelect = <T extends string | number>({
   menuClassName
 }: MultiSelectProps<T>) => {
   const { t } = useTranslation()
-  const twClassName = twMerge('bg-theme-primary relative', className)
+  const twClassName = twMerge('bg-theme-surface-main relative', className)
   const ref = useRef<HTMLDivElement>(null)
 
   const showOptions = useHookstate(false)
@@ -93,7 +93,7 @@ const MultiSelect = <T extends string | number>({
         </p>
       )}
       <div
-        className="bg-theme-primary border-theme-primary textshadow-sm mt-2 flex min-h-10 w-full flex-auto flex-wrap items-center rounded-lg border px-3.5 pr-7"
+        className="bg-theme-surface-main border-theme-primary textshadow-sm mt-2 flex min-h-10 w-full flex-auto flex-wrap items-center rounded-lg border px-3.5 pr-7"
         onClick={() => showOptions.set((value) => !value)}
       >
         {selectedOptions.length === 0 && (
@@ -135,7 +135,7 @@ const MultiSelect = <T extends string | number>({
               key={option.value}
               className={twMerge(
                 'text-theme-primary cursor-pointer px-4 py-2',
-                option.disabled ? 'cursor-not-allowed' : 'hover:bg-theme-primary hover:text-theme-highlight'
+                option.disabled ? 'cursor-not-allowed' : 'hover:bg-theme-surface-main hover:text-theme-highlight'
               )}
               onClick={() => {
                 if (option.disabled) return

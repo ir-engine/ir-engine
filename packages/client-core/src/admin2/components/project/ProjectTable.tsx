@@ -85,7 +85,7 @@ export default function ProjectTable() {
         <Button
           startIcon={<GrGithub />}
           size="small"
-          className="bg-theme-buttonTertiary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="bg-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={!project || !project.repositoryPath || project.name === 'default-project'}
           onClick={() => {
             showConfirmDialog(
@@ -108,7 +108,7 @@ export default function ProjectTable() {
         <Button
           startIcon={<GrEdit />}
           size="small"
-          className="bg-theme-buttonTertiary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="bg-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={project.name === 'default-project'}
           onClick={() => {
             PopoverState.showPopupover(
@@ -143,7 +143,7 @@ export default function ProjectTable() {
         <Button
           startIcon={<IoPeopleOutline />}
           size="small"
-          className="bg-theme-buttonTertiary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="bg-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
           onClick={() => PopoverState.showPopupover(<ManageUserPermissionModal project={project} />)}
         >
           {t('admin:components.project.actions.access')}
@@ -151,7 +151,7 @@ export default function ProjectTable() {
         <Button
           startIcon={<IoTerminalOutline />}
           size="small"
-          className="bg-theme-buttonTertiary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="bg-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={config.client.localBuildOrDev}
           onClick={() => {
             showConfirmDialog(
@@ -170,14 +170,14 @@ export default function ProjectTable() {
         <Button
           startIcon={<IoFolderOutline />}
           size="small"
-          className="bg-theme-buttonTertiary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="bg-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
         >
           {t('admin:components.common.view')}
         </Button>
         <Button
           startIcon={<RiDeleteBinLine />}
           size="small"
-          className="bg-theme-buttonTertiary h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="bg-blue-secondary h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={project.name === 'default-project'}
           onClick={() => {
             showConfirmDialog(

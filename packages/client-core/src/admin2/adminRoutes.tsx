@@ -52,7 +52,7 @@ const AdminTopBar = () => {
   }
 
   return (
-    <div className="bg-theme-primary flex h-16 w-full items-center justify-between px-8 py-4">
+    <div className="bg-theme-surface-main flex h-16 w-full items-center justify-between px-8 py-4">
       <img src="static/etherealengine_logo.png" alt="XR Engine Logo" className="h-7 w-7" />
       <div className="">
         <Button onClick={toggleTheme} className="pointer-events-auto bg-transparent p-0">
@@ -77,7 +77,7 @@ const AdminSideBar = () => {
   const relativePath = fullPathName.split('/').slice(2).join('/')
 
   return (
-    <aside className="bg-theme-primary mx-8 h-fit rounded-lg px-2 py-4">
+    <aside className="bg-theme-surface-main mx-8 h-fit rounded-lg px-2 py-4">
       <ul className="space-y-2">
         {Object.entries(allowedRoutes)
           .filter(([_, sidebarItem]) => sidebarItem.access)
@@ -89,7 +89,7 @@ const AdminSideBar = () => {
                     className={`text-theme-secondary hover:bg-theme-highlight] flex w-72 items-center justify-start rounded-xl px-2 py-3 font-medium ${
                       relativePath === path
                         ? 'text-theme-primary bg-theme-highlight font-semibold '
-                        : 'bg-theme-primary'
+                        : 'bg-theme-surface-main'
                     }`}
                     startIcon={sidebarItem.icon}
                   >
@@ -101,7 +101,7 @@ const AdminSideBar = () => {
           })}
         <li>
           <Button
-            className="bg-theme-primary text-theme-secondary my-2 flex items-center rounded-sm px-2 py-3"
+            className="bg-theme-surface-main text-theme-secondary my-2 flex items-center rounded-sm px-2 py-3"
             startIcon={<HiArrowRightOnRectangle />}
           >
             {t('admin:components.common.logOut')}

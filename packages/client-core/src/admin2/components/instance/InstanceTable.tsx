@@ -63,7 +63,7 @@ export default function InstanceTable({ search }: { search: string }) {
       action: (
         <div className="flex w-full justify-around px-2 py-1">
           <Button
-            className="bg-theme-buttonTertiary text-blue-700 dark:text-white"
+            className="bg-blue-secondary text-blue-700 dark:text-white"
             onClick={() => {
               PopoverState.showPopupover(<ViewModal instanceId={row.id} />)
             }}

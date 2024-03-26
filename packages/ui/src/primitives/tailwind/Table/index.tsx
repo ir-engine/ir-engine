@@ -56,7 +56,7 @@ const TableHeadRow = ({
   className?: string
   children: JSX.Element | JSX.Element[]
 }) => {
-  const twClassName = twMerge('bg-theme-highlight text-left capitalize', className)
+  const twClassName = twMerge('bg-theme-table-secondary sticky top-0 text-left capitalize', className)
   return (
     <thead className={theadClassName}>
       <tr className={twClassName}>{children}</tr>
@@ -83,7 +83,7 @@ interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   children?: ReactNode
 }
 const TableRow = ({ className, children, ...props }: TableRowProps) => {
-  const twClassName = twMerge('odd:bg-theme-primary even:bg-theme-highlight', className)
+  const twClassName = twMerge('bg-theme-surface-main even:bg-theme-table-secondary', className)
   return (
     <tr className={twClassName} {...props}>
       {children}
@@ -111,7 +111,7 @@ interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
 }
 
 const Table = ({ containerClassname, className, children }: TableProps) => {
-  const twClassname = twMerge('w-full border-collapse whitespace-nowrap text-sm', className)
+  const twClassname = twMerge('relative w-full border-collapse whitespace-nowrap text-sm', className)
   return (
     <div className={twMerge('overflow-x-auto rounded-md', containerClassname)}>
       <table className={twClassname}>{children}</table>
@@ -133,7 +133,7 @@ const TablePagination = ({
   onPageChange: (newPage: number) => void
 }) => {
   const commonClasses = twMerge(
-    'bg-theme-surfaceMain flex h-8 items-center justify-center border px-3 leading-tight',
+    'bg-theme-primary flex h-8 items-center justify-center border px-3 leading-tight',
     'border-gray-300 dark:border-gray-600',
     'text-gray-400 dark:text-gray-500',
     'enabled:text-gray-600 dark:enabled:dark:text-gray-300',

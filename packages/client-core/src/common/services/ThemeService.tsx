@@ -29,12 +29,13 @@ import React, { useEffect } from 'react'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 const lightTheme = {
-  'bg-primary': '#FFFFFF',
-  'bg-secondary': '#FFFFFF',
+  'bg-primary': '#F5F5F5',
+  // 'bg-secondary': '#FFFFFF',
   'bg-highlight': '#F5F5F5',
-  'bg-surface-main': '#F9FAFB',
+  'bg-surface-main': '#FFFFFF',
   'bg-surface-input': '#FFFFFF',
-  'bg-button-tertiary': '#D4DFF7',
+  'bg-table-secondary': '#F9FAFB',
+  'bg-blue-secondary': '#D4DFF7',
   'bg-banner-informative': '#FFFBEB',
 
   'bg-tag-green': '#10B981',
@@ -52,12 +53,13 @@ const lightTheme = {
 }
 
 const darkTheme = {
-  'bg-primary': '#1A1B1E',
-  'bg-secondary': '#1A1B1E',
+  'bg-primary': '#111113',
+  // 'bg-secondary': '#1A1B1E', // not important now
   'bg-highlight': '#212226',
-  'bg-surface-main': '#111113',
+  'bg-surface-main': '#1A1B1E',
   'bg-surface-input': '#141619',
-  'bg-button-tertiary': '#2A3753',
+  'bg-table-secondary': '#212226',
+  'bg-blue-secondary': '#2A3753',
   'bg-banner-informative': '#D9770633',
 
   'bg-tag-green': '#064E3B',
