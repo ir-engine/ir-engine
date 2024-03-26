@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect, useState } from 'react'
-import SketchPicker from 'react-color/lib/Sketch'
+import { HexColorPicker } from 'react-colorful'
 import { Color } from 'three'
 
 import Popover from '@mui/material/Popover'
@@ -77,11 +77,10 @@ export function ColorInput({ value, onChange, onRelease, onSelect, disabled, ...
     if (onSelect) onSelect(value)
   }
 
-  const handleChange = ({ hex }) => {
-    const color = new Color(hex)
+  const handleChange = (colorInput: string) => {
+    const color = new Color(colorInput)
     setColor(color)
     onChange(color)
-    return color
   }
 
   const open = Boolean(anchorEl)
@@ -96,7 +95,7 @@ export function ColorInput({ value, onChange, onRelease, onSelect, disabled, ...
       </button>
       <Popover open={open && !disabled} anchorEl={anchorEl} onSelect={handleSelect} onClose={handleClose}>
         <div className="ColorInputPopover">
-          <SketchPicker {...rest} color={hexColor} disableAlpha={true} onChange={handleChange} />
+          <HexColorPicker color={hexColor} onChange={handleChange} />
         </div>
       </Popover>
     </div>
