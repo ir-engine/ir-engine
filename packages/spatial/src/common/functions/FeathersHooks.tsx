@@ -294,7 +294,7 @@ export function useMutation<S extends keyof ServiceTypes>(serviceName: S, forceR
     state
   ) as RemoveMethodParameters<S>
 
-  const mutation = useMemo(
+  return useMemo(
     () => ({
       create,
       update,
@@ -306,8 +306,6 @@ export function useMutation<S extends keyof ServiceTypes>(serviceName: S, forceR
     }),
     [create, update, patch, remove, state]
   )
-
-  return mutation
 }
 
 function useMethod(
