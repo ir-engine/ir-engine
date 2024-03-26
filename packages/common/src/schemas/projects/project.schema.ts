@@ -132,7 +132,8 @@ export const projectQuerySchema = Type.Intersect(
         inputProjectURL: Type.Optional(Type.String()),
         selectedSHA: Type.Optional(Type.String()),
         allowed: Type.Optional(Type.Boolean()),
-        reset: Type.Optional(Type.Boolean())
+        reset: Type.Optional(Type.Boolean()),
+        populateProjectPermissions: Type.Optional(Type.Boolean())
       },
       { additionalProperties: false }
     )
@@ -152,4 +153,5 @@ export type ProjectUpdateParams = {
   user?: UserType
   isJob?: boolean
   jobId?: string
+  populateProjectPermissions?: boolean
 }
