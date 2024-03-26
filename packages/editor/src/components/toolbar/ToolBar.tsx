@@ -34,7 +34,6 @@ import { WorldInstanceConnection } from '../realtime/WorldInstanceConnection'
 import * as styles from './styles.module.scss'
 import GridTool from './tools/GridTool'
 import HelperToggleTool from './tools/HelperToggleTool'
-import MakeThumbnailsTool from './tools/MakeThumbnailsTool'
 import PlayModeTool from './tools/PlayModeTool'
 import PublishLocation from './tools/PublishLocation'
 import RenderModeTool from './tools/RenderModeTool'
@@ -66,7 +65,6 @@ export const ToolBar = (props: ToolBarProps) => {
       <StatsTool />
       <HelperToggleTool />
       <SceneScreenshot />
-      <MakeThumbnailsTool />
       <PublishLocation />
       <EditorNavbarProfile />
     </div>
