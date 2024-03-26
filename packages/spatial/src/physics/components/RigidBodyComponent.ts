@@ -65,6 +65,9 @@ export const RigidBodyComponent = defineComponent({
       ccd: false,
       allowRolling: true,
       enabledRotations: [true, true, true],
+      // rigidbody desc values
+      canSleep: true,
+      gravityScale: 1,
       // internal
       body: null! as RigidBody,
       previousPosition: proxifyVector3(this.previousPosition, entity),
@@ -86,6 +89,8 @@ export const RigidBodyComponent = defineComponent({
     if (typeof json.type === 'string') component.type.set(json.type)
     if (typeof json.ccd === 'boolean') component.ccd.set(json.ccd)
     if (typeof json.allowRolling === 'boolean') component.allowRolling.set(json.allowRolling)
+    if (typeof json.canSleep === 'boolean') component.canSleep.set(json.canSleep)
+    if (typeof json.gravityScale === 'number') component.gravityScale.set(json.gravityScale)
     if (Array.isArray(json.enabledRotations) && json.enabledRotations.length === 3)
       component.enabledRotations.set(json.enabledRotations)
   },
@@ -95,7 +100,9 @@ export const RigidBodyComponent = defineComponent({
       type: component.type.value as Body,
       ccd: component.ccd.value,
       allowRolling: component.allowRolling.value,
-      enabledRotations: component.enabledRotations.value
+      enabledRotations: component.enabledRotations.value,
+      canSleep: component.canSleep.value,
+      gravityScale: component.gravityScale.value
     }
   },
 
@@ -119,7 +126,8 @@ export const RigidBodyComponent = defineComponent({
           rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
           break
       }
-
+      rigidBodyDesc.setCanSleep(component.canSleep.value)
+      rigidBodyDesc.setGravityScale(component.gravityScale.value)
       const world = getState(PhysicsState).physicsWorld
       const rigidBody = Physics.createRigidBody(entity, world, rigidBodyDesc)
       component.body.set(rigidBody)
