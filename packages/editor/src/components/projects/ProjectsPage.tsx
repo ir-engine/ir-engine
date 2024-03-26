@@ -60,7 +60,12 @@ import {
 } from '@mui/material'
 
 import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
-import { InviteCode, projectPath, ProjectType } from '@etherealengine/common/src/schema.type.module'
+import {
+  InviteCode,
+  ProjectType,
+  projectPath,
+  projectPermissionPath
+} from '@etherealengine/common/src/schema.type.module'
 import { useNavigate } from 'react-router-dom'
 import { EditorState } from '../../services/EditorServices'
 import { Button } from '../inputs/Button'
@@ -200,6 +205,13 @@ const ProjectsPage = () => {
     }
   })
 
+  const projectPermissionsFindQuery = useFind(projectPermissionPath, {
+    query: {
+      projectId: activeProject?.value?.id,
+      paginate: false
+    }
+  })
+
   const installedProjects = projectFindQuery.data.filter(() => projectCategoryFilter.installed.value)
   const officialProjects = (
     search.query.value
@@ -259,17 +271,14 @@ const ProjectsPage = () => {
 
   const onCreatePermission = async (userInviteCode: InviteCode, projectId: string) => {
     await ProjectService.createPermission(userInviteCode, projectId)
-    projectFindQuery.refetch()
   }
 
   const onPatchPermission = async (id: string, type: string) => {
     await ProjectService.patchPermission(id, type)
-    projectFindQuery.refetch()
   }
 
   const onRemovePermission = async (id: string) => {
     await ProjectService.removePermission(id)
-    projectFindQuery.refetch()
   }
 
   const openDeleteConfirm = () => isDeleteDialogOpen.set(true)
@@ -589,12 +598,12 @@ const ProjectsPage = () => {
         </Menu>
       )}
       <CreateProjectDialog open={isCreateDialogOpen.value} onSuccess={onCreateProject} onClose={closeCreateDialog} />
-      {activeProject.value && activeProject.value.projectPermissions && (
+      {activeProject.value && projectPermissionsFindQuery.data && (
         <EditPermissionsDialog
           open={editPermissionsDialogOpen.value}
           onClose={closeEditPermissionsDialog}
           project={activeProject.value}
-          projectPermissions={activeProject.value.projectPermissions}
+          projectPermissions={projectPermissionsFindQuery.data}
           addPermission={onCreatePermission}
           patchPermission={onPatchPermission}
           removePermission={onRemovePermission}

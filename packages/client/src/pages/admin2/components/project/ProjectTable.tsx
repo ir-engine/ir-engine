@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ProjectType, projectPath } from '@etherealengine/common/src/schema.type.module'
+import { ProjectType, projectPath, projectPermissionPath } from '@etherealengine/common/src/schema.type.module'
 import React from 'react'
 import { IoFolderOutline, IoPeopleOutline, IoTerminalOutline } from 'react-icons/io5'
 import { RiDeleteBinLine } from 'react-icons/ri'
@@ -51,6 +51,7 @@ const logger = multiLogger.child({ component: 'client-core:ProjectTable' })
 export default function ProjectTable() {
   const { t } = useTranslation()
   const modalProcessing = useHookstate(false)
+  const activeProjectId = useHookstate<string | null>(null)
   const projectQuery = useFind(projectPath, {
     query: {
       allowed: true,
@@ -61,6 +62,16 @@ export default function ProjectTable() {
       }
     }
   })
+
+  const projectPermissionsFindQuery = useFind(projectPermissionPath, {
+    query: {
+      projectId: activeProjectId?.value,
+      paginate: false
+    }
+  })
+
+  console.log('activeProjectId', activeProjectId)
+  console.log('projectPermissionsFindQuery', projectPermissionsFindQuery)
 
   const showConfirmDialog = (_project: ProjectType, text: string, onSubmit: () => void) => {
     PopoverState.showPopupover(
@@ -141,7 +152,12 @@ export default function ProjectTable() {
           startIcon={<IoPeopleOutline />}
           size="small"
           className="mr-2 h-min bg-[#61759f] dark:bg-[#2A3753]"
-          onClick={() => PopoverState.showPopupover(<ManageUserPermissionModal project={project} />)}
+          onClick={() => {
+            activeProjectId.set(project.id)
+            PopoverState.showPopupover(
+              <ManageUserPermissionModal project={project} projectPermissions={projectPermissionsFindQuery.data} />
+            )
+          }}
         >
           {t('admin:components.project.actions.access')}
         </Button>
