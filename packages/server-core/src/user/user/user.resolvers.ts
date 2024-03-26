@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
 
 import { InviteCode, UserID, UserName, UserQuery, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
