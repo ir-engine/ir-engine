@@ -177,7 +177,7 @@ export const ProjectService = {
 
   createPermission: async (userInviteCode: InviteCode, projectId: string) => {
     try {
-      await Engine.instance.api.service(projectPermissionPath).create({
+      return Engine.instance.api.service(projectPermissionPath).create({
         inviteCode: userInviteCode,
         projectId: projectId
       })
@@ -189,7 +189,7 @@ export const ProjectService = {
 
   patchPermission: async (id: string, type: string) => {
     try {
-      await Engine.instance.api.service(projectPermissionPath).patch(id, {
+      return Engine.instance.api.service(projectPermissionPath).patch(id, {
         type: type
       })
     } catch (err) {
@@ -200,7 +200,7 @@ export const ProjectService = {
 
   removePermission: async (id: string) => {
     try {
-      await Engine.instance.api.service(projectPermissionPath).remove(id)
+      return Engine.instance.api.service(projectPermissionPath).remove(id)
     } catch (err) {
       logger.error('Error with removing project-permission', err)
       throw err
@@ -307,7 +307,6 @@ export const ProjectService = {
 
   updateEngine: async (tag: string, updateProjects: boolean, projectsToUpdate: ProjectBuildUpdateItemType[]) => {
     try {
-      console.log('projectToUpdate', projectsToUpdate)
       await Engine.instance.api.service(projectBuildPath).patch(tag, {
         updateProjects,
         projectsToUpdate

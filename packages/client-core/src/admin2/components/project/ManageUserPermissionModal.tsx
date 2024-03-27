@@ -40,7 +40,14 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlineRemoveCircleOutline } from 'react-icons/md'
 
-export default function ManageUserPermissionModal({ project }: { project: ProjectType }) {
+export default function ManageUserPermissionModal({
+  project,
+  projectPermissions
+}: {
+  project: ProjectType
+  projectPermissions: readonly ProjectPermissionType[]
+}) {
+  console.log('ManageUserPermissionModal', project, projectPermissions)
   const { t } = useTranslation()
   const selfUser = useHookstate(getMutableState(AuthState)).user
   const userInviteCode = useHookstate('' as InviteCode)
@@ -58,7 +65,6 @@ export default function ManageUserPermissionModal({ project }: { project: Projec
     }
     try {
       await ProjectService.createPermission(userInviteCode.value, project.id)
-      await ProjectService.fetchProjects()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -67,7 +73,6 @@ export default function ManageUserPermissionModal({ project }: { project: Projec
   const handlePatchPermission = async (permission: ProjectPermissionType) => {
     try {
       await ProjectService.patchPermission(permission.id, permission.type === 'owner' ? 'user' : 'owner')
-      await ProjectService.fetchProjects()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -76,7 +81,6 @@ export default function ManageUserPermissionModal({ project }: { project: Projec
   const handleRemovePermission = async (id: string) => {
     try {
       await ProjectService.removePermission(id)
-      await ProjectService.fetchProjects()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -101,7 +105,7 @@ export default function ManageUserPermissionModal({ project }: { project: Projec
         />
       )}
       <div className="grid gap-4">
-        {project.projectPermissions?.map((permission) => (
+        {projectPermissions?.map((permission) => (
           <div key={permission.id} className="flex items-center gap-2">
             <Text fontSize="sm">
               {permission.userId === selfUser.id.value ? `${permission.user?.name} (you)` : permission.user?.name}
@@ -115,7 +119,7 @@ export default function ManageUserPermissionModal({ project }: { project: Projec
               disabled={
                 selfUserPermission !== 'owner' ||
                 selfUser.id.value === permission.userId ||
-                project.projectPermissions?.length === 1
+                projectPermissions?.length === 1
               }
             />
             <Button
