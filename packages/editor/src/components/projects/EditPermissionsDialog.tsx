@@ -46,7 +46,7 @@ import styles from './styles.module.scss'
 interface Props {
   open: boolean
   onClose: any
-  projectPermissions: ProjectPermissionType[]
+  projectPermissions: readonly ProjectPermissionType[]
   project: ProjectType
   removePermission: (id: string) => Promise<void>
   addPermission: (userId: string, projectId: string) => Promise<void>
@@ -57,6 +57,7 @@ export const EditPermissionsDialog = ({
   open,
   onClose,
   project,
+  projectPermissions,
   addPermission,
   patchPermission,
   removePermission
@@ -105,7 +106,7 @@ export const EditPermissionsDialog = ({
 
   const selfUser = useHookstate(getMutableState(AuthState)).user
   const selfUserPermission =
-    project.projectPermissions?.find((permission) => permission.userId === selfUser.id.value)?.type === 'owner'
+    projectPermissions?.find((permission) => permission.userId === selfUser.id.value)?.type === 'owner'
       ? 'owner'
       : 'user'
 
@@ -144,9 +145,9 @@ export const EditPermissionsDialog = ({
             </Button>
           </FormControl>
         )}
-        {project.projectPermissions && (
+        {projectPermissions && (
           <List dense={true}>
-            {project.projectPermissions.map((permission) => (
+            {projectPermissions.map((permission) => (
               <ListItem key={permission.id}>
                 <ListItemText
                   id={permission.id}

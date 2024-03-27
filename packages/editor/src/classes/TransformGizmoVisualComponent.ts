@@ -411,7 +411,9 @@ export const TransformGizmoVisualComponent = defineComponent({
         addObjectToGroup(picker[mode], pickerObject[mode])
         setComponent(picker[mode], TransformGizmoTagComponent)
         setComponent(picker[mode], VisibleComponent)
+
         visualComponent.picker[mode].set(picker[mode])
+
         setComponent(picker[mode], InputComponent)
       }
 

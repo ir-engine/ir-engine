@@ -34,7 +34,7 @@ import type { FeathersApplication } from '@feathersjs/feathers'
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 
 import { getAllEntities } from 'bitecs'
-import { Group, Scene } from 'three'
+import { Scene } from 'three'
 import { ECSState } from './ECSState'
 import { Entity, UndefinedEntity } from './Entity'
 import { removeEntity } from './EntityFunctions'
@@ -59,17 +59,22 @@ export class Engine {
   /**
    * The xr origin reference space entity
    */
-  originEntity = UndefinedEntity
+  localFloorEntity = UndefinedEntity
+
+  /** @deprecated use localFloorEntity instead */
+  get originEntity() {
+    return this.localFloorEntity
+  }
 
   /**
-   * The xr origin group
+   * The viewer entity
    */
-  origin = new Group()
+  viewerEntity = UndefinedEntity
 
-  /**
-   * The camera entity
-   */
-  cameraEntity = UndefinedEntity
+  /** @deprecated use viewerEntity instead */
+  get cameraEntity() {
+    return this.viewerEntity
+  }
 }
 
 globalThis.Engine = Engine

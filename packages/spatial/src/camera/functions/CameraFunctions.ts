@@ -48,16 +48,11 @@ export const setTargetCameraRotation = (entity: Entity, phi: number, theta: numb
   }
 }
 
-let lastScrollValue = 0
-
 /**
  * Change camera distance.
  * @param cameraEntity Entity holding camera and input component.
  */
-export const handleCameraZoom = (cameraEntity: Entity, value: number): void => {
-  const scrollDelta = Math.sign(value - lastScrollValue) * 0.5
-  lastScrollValue = value
-
+export const handleCameraZoom = (cameraEntity: Entity, scrollDelta: number): void => {
   if (scrollDelta === 0) {
     return
   }

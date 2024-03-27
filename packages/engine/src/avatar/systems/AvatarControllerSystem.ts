@@ -39,7 +39,6 @@ import { NetworkObjectAuthorityTag, NetworkState, WorldNetworkAction } from '@et
 import { TransformComponent, TransformSystem } from '@etherealengine/spatial'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
-import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { DistanceFromLocalClientComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { getDistanceSquaredFromTarget } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
@@ -47,7 +46,6 @@ import { Vector3 } from 'three'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
-import { respawnAvatar } from '../functions/respawnAvatar'
 import { AvatarInputSystem } from './AvatarInputSystem'
 
 const controllerQuery = defineQuery([AvatarControllerComponent, NetworkObjectAuthorityTag])
@@ -97,9 +95,6 @@ const execute = () => {
         setComponent(entity, NetworkObjectAuthorityTag)
       }
     }
-
-    const rigidbody = getComponent(entity, RigidBodyComponent)
-    if (rigidbody.position.y < -10) respawnAvatar(entity)
   }
 }
 

@@ -115,9 +115,7 @@ export const checkEnabled = async (context: HookContext) => {
   }
   const data: ProjectPatch = context.data as ProjectPatch
 
-  if (data.enabled !== undefined && Object.keys(data).length === 2) return true
-
-  return false
+  return data.enabled !== undefined && Object.keys(data).length === 2
 }
 
 /**
@@ -126,6 +124,8 @@ export const checkEnabled = async (context: HookContext) => {
  * @returns
  */
 const ensurePushStatus = async (context: HookContext<ProjectService>) => {
+  if (context.params.query?.populateProjectPermissions)
+    context.params.populateProjectPermissions = context.params.query.populateProjectPermissions
   context.projectPushIds = []
   if (context.params?.query?.allowed) {
     // See if the user has a GitHub identity-provider, and if they do, also determine which GitHub repos they personally
@@ -586,6 +586,7 @@ export default createSkippableHooks(
         iffElse(isAction('admin'), [], filterDisabledProjects),
         discardQuery('action'),
         ensurePushStatus,
+        discardQuery('populateProjectPermissions'),
         addLimitToParams
       ],
       get: [],

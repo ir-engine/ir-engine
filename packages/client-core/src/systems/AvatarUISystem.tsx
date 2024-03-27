@@ -60,6 +60,7 @@ import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { MediasoupMediaProducerConsumerState } from '@etherealengine/network'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
@@ -129,12 +130,14 @@ const raycastComponentData = {
   groups: interactionGroups
 } as RaycastArgs
 
+const pointerQuery = defineQuery([InputPointerComponent])
+
 const onSecondaryClick = () => {
   const { physicsWorld } = getState(PhysicsState)
-  const pointerState = getState(InputState).pointerState
+  const pointerPosition = getComponent(pointerQuery()[0], InputPointerComponent).position
   const hits = Physics.castRayFromCamera(
     getComponent(Engine.instance.cameraEntity, CameraComponent),
-    pointerState.position,
+    pointerPosition,
     physicsWorld,
     raycastComponentData
   )
@@ -158,13 +161,9 @@ const onSecondaryClick = () => {
 const execute = () => {
   const ecsState = getState(ECSState)
 
-  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
-  if (nonCapturedInputSource) {
-    const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
-    const keys = inputSource.buttons
-    if (keys.PrimaryClick?.down) onPrimaryClick()
-    if (keys.SecondaryClick?.down) onSecondaryClick()
-  }
+  const buttons = InputSourceComponent.getMergedButtons()
+  if (buttons.PrimaryClick?.down) onPrimaryClick()
+  if (buttons.SecondaryClick?.down) onSecondaryClick()
 
   videoPreviewTimer += ecsState.deltaSeconds
   if (videoPreviewTimer > 1) videoPreviewTimer = 0

@@ -28,6 +28,7 @@ import BufferHandlerExtension from '../exporters/gltf/extensions/BufferHandlerEx
 import { EEECSExporterExtension } from '../exporters/gltf/extensions/EEECSExporterExtension'
 import EEMaterialExporterExtension from '../exporters/gltf/extensions/EEMaterialExporterExtension'
 import GPUInstancingExporterExtension from '../exporters/gltf/extensions/GPUInstancingExporterExtension'
+import IgnoreGeometryExporterExtension from '../exporters/gltf/extensions/IgnoreGeometryExporterExtension'
 import ImageRoutingExtension from '../exporters/gltf/extensions/ImageRoutingExtension'
 import ResourceIDExtension from '../exporters/gltf/extensions/ResourceIDExtension'
 import SourceHandlerExtension from '../exporters/gltf/extensions/SourceHandlerExtension'
@@ -37,6 +38,7 @@ export default function createGLTFExporter() {
   const exporter = new GLTFExporter()
 
   const extensions = [
+    IgnoreGeometryExporterExtension,
     GPUInstancingExporterExtension,
     ImageRoutingExtension,
     EEMaterialExporterExtension,

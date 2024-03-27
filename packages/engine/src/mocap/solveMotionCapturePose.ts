@@ -45,7 +45,6 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 
 import { Mesh, MeshBasicMaterial } from 'three'
 
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -56,16 +55,10 @@ import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import {
-  POSE_CONNECTIONS,
-  POSE_LANDMARKS,
-  POSE_LANDMARKS_LEFT,
-  POSE_LANDMARKS_NEUTRAL,
-  POSE_LANDMARKS_RIGHT
-} from '@mediapipe/pose'
-import { NormalizedLandmark } from '@mediapipe/tasks-vision'
+import { NormalizedLandmark, PoseLandmarker } from '@mediapipe/tasks-vision'
 import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
+import { LandmarkIndices } from './MocapConstants'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 
 const grey = new Color(0.5, 0.5, 0.5)
@@ -77,6 +70,9 @@ const feetGrounded = [false, false]
 const footAverageDifferenceThreshold = 0.05
 const footLevelDifferenceThreshold = 0.035
 
+const worldFilterAlphaMultiplier = 0.5
+const screenFilterAlphaMultiplier = 0.2
+
 //get all strings from the list containing 'leg' or 'foot'
 const lowerBody = VRMHumanBoneList.filter((bone) => /Leg|Foot|hips/i.test(bone))
 
@@ -86,8 +82,8 @@ const lowerBody = VRMHumanBoneList.filter((bone) => /Leg|Foot|hips/i.test(bone))
 export const calculateGroundedFeet = (newLandmarks: NormalizedLandmark[]) => {
   //assign right foot y to index 0, left foot y to index 1
   const footVerticalPositions = [
-    newLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE].y,
-    newLandmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE].y
+    newLandmarks[LandmarkIndices.RIGHT_ANKLE].y,
+    newLandmarks[LandmarkIndices.LEFT_ANKLE].y
   ]
 
   if (!footVerticalPositions[0] || !footVerticalPositions[1]) return
@@ -125,25 +121,20 @@ export const calculateGroundedFeet = (newLandmarks: NormalizedLandmark[]) => {
 }
 
 const LandmarkNames = Object.fromEntries(
-  Object.entries({
-    ...POSE_LANDMARKS,
-    ...POSE_LANDMARKS_LEFT,
-    ...POSE_LANDMARKS_RIGHT,
-    ...POSE_LANDMARKS_NEUTRAL
-  }).map(([key, value]) => [value, key])
+  Object.entries(Object.entries(LandmarkIndices)).map(([key, value]) => [value, key])
 )
 
 const drawMocapDebug = (label: string) => {
-  if (!POSE_CONNECTIONS) return () => {}
+  if (!PoseLandmarker.POSE_CONNECTIONS) return () => {}
 
   const debugEntities = {} as Record<string, Entity>
   let lineSegmentEntity: Entity | null = null
 
   const positionLineSegment = new LineSegments(new BufferGeometry(), new LineBasicMaterial({ vertexColors: true }))
   positionLineSegment.material.linewidth = 4
-  const posAttr = new BufferAttribute(new Float32Array(POSE_CONNECTIONS.length * 2 * 3).fill(0), 3)
+  const posAttr = new BufferAttribute(new Float32Array(PoseLandmarker.POSE_CONNECTIONS.length * 2 * 3).fill(0), 3)
   positionLineSegment.geometry.setAttribute('position', posAttr)
-  const colAttr = new BufferAttribute(new Float32Array(POSE_CONNECTIONS.length * 2 * 4).fill(1), 4)
+  const colAttr = new BufferAttribute(new Float32Array(PoseLandmarker.POSE_CONNECTIONS.length * 2 * 4).fill(1), 4)
   positionLineSegment.geometry.setAttribute('color', colAttr)
 
   return (landmarks?: NormalizedLandmark[], debugEnabled?: boolean) => {
@@ -177,15 +168,15 @@ const drawMocapDebug = (label: string) => {
       const entity = debugEntities[key]
       const mesh = getComponent(entity, GroupComponent)[0] as any as Mesh<BufferGeometry, MeshBasicMaterial>
       mesh.material.color.set(color)
-      if (key === `${POSE_LANDMARKS_RIGHT.RIGHT_WRIST}`) mesh.material.color.set(0xff0000)
-      if (key === `${POSE_LANDMARKS_RIGHT.RIGHT_PINKY}`) mesh.material.color.set(0x00ff00)
-      if (key === `${POSE_LANDMARKS_RIGHT.RIGHT_INDEX}`) mesh.material.color.set(0x0000ff)
+      if (key === `${LandmarkIndices.RIGHT_WRIST}`) mesh.material.color.set(0xff0000)
+      if (key === `${LandmarkIndices.RIGHT_PINKY}`) mesh.material.color.set(0x00ff00)
+      if (key === `${LandmarkIndices.RIGHT_INDEX}`) mesh.material.color.set(0x0000ff)
 
       //debug to show the acurracy of the foot grounded  estimation
-      if (key === `${POSE_LANDMARKS_LEFT.LEFT_ANKLE}`) {
+      if (key === `${LandmarkIndices.LEFT_ANKLE}`) {
         mesh.material.color.setHex(feetGrounded[1] ? 0x00ff00 : 0xff0000)
       }
-      if (key === `${POSE_LANDMARKS_RIGHT.RIGHT_ANKLE}`) {
+      if (key === `${LandmarkIndices.RIGHT_ANKLE}`) {
         mesh.material.color.setHex(feetGrounded[0] ? 0x00ff00 : 0xff0000)
       }
       getComponent(entity, TransformComponent).matrix.setPosition(value.x, lowestWorldY - value.y, value.z)
@@ -199,13 +190,13 @@ const drawMocapDebug = (label: string) => {
       setObjectLayers(positionLineSegment, ObjectLayers.AvatarHelper)
     }
 
-    for (let i = 0; i < POSE_CONNECTIONS.length * 2; i += 2) {
-      const [first, second] = POSE_CONNECTIONS[i / 2]
-      const firstPoint = getComponent(debugEntities[first], GroupComponent)[0] as any as Mesh<
+    for (let i = 0; i < PoseLandmarker.POSE_CONNECTIONS.length * 2; i += 2) {
+      const { start, end } = PoseLandmarker.POSE_CONNECTIONS[i / 2]
+      const firstPoint = getComponent(debugEntities[start], GroupComponent)[0] as any as Mesh<
         BufferGeometry,
         MeshBasicMaterial
       >
-      const secondPoint = getComponent(debugEntities[second], GroupComponent)[0] as any as Mesh<
+      const secondPoint = getComponent(debugEntities[end], GroupComponent)[0] as any as Mesh<
         BufferGeometry,
         MeshBasicMaterial
       >
@@ -241,11 +232,10 @@ const drawDebugFinal = drawMocapDebug('Final')
 
 const shouldEstimateLowerBody = (landmarks: NormalizedLandmark[], threshold = 0.5) => {
   const hipsVisibility =
-    (landmarks[POSE_LANDMARKS.RIGHT_HIP].visibility! + landmarks[POSE_LANDMARKS.LEFT_HIP].visibility!) * 0.5 >
+    (landmarks[LandmarkIndices.RIGHT_HIP].visibility! + landmarks[LandmarkIndices.LEFT_HIP].visibility!) * 0.5 >
     threshhold
   const kneesVisibility =
-    (landmarks[POSE_LANDMARKS_LEFT.LEFT_KNEE].visibility! + landmarks[POSE_LANDMARKS_RIGHT.RIGHT_KNEE].visibility!) *
-      0.5 >
+    (landmarks[LandmarkIndices.LEFT_KNEE].visibility! + landmarks[LandmarkIndices.RIGHT_KNEE].visibility!) * 0.5 >
     threshhold
   return hipsVisibility && kneesVisibility
 }
@@ -269,7 +259,7 @@ export function solveMotionCapturePose(
         filteredLandmarks[i] = prevLandmarks[i]
         continue
       }
-      const alpha = getState(ECSState).deltaSeconds * alphaMultiplier
+      const alpha = alphaMultiplier
       lowPassLandmarks[i] = {
         visibility: MathUtils.lerp(prevLandmarks[i].visibility!, newLandmarks[i].visibility!, alpha),
         x: MathUtils.lerp(prevLandmarks[i].x, newLandmarks[i].x, newLandmarks[i].visibility!),
@@ -303,8 +293,16 @@ export function solveMotionCapturePose(
   if (!mocapComponent.prevScreenLandmarks)
     mocapComponent.prevScreenLandmarks = newScreenlandmarks.map((landmark) => ({ ...landmark }))
 
-  const worldLandmarks = keyframeInterpolation(newLandmarks, mocapComponent.prevWorldLandmarks, 50)
-  const screenLandmarks = keyframeInterpolation(newScreenlandmarks, mocapComponent.prevScreenLandmarks, 10)
+  const worldLandmarks = keyframeInterpolation(
+    newLandmarks,
+    mocapComponent.prevWorldLandmarks,
+    worldFilterAlphaMultiplier
+  )
+  const screenLandmarks = keyframeInterpolation(
+    newScreenlandmarks,
+    mocapComponent.prevScreenLandmarks,
+    screenFilterAlphaMultiplier
+  )
 
   mocapComponent.prevWorldLandmarks = worldLandmarks
   mocapComponent.prevScreenLandmarks = screenLandmarks
@@ -325,9 +323,9 @@ export function solveMotionCapturePose(
   solveLimb(
     entity,
     lowestWorldY,
-    worldLandmarks[POSE_LANDMARKS.LEFT_SHOULDER],
-    worldLandmarks[POSE_LANDMARKS.LEFT_ELBOW],
-    worldLandmarks[POSE_LANDMARKS.LEFT_WRIST],
+    worldLandmarks[LandmarkIndices.LEFT_SHOULDER],
+    worldLandmarks[LandmarkIndices.LEFT_ELBOW],
+    worldLandmarks[LandmarkIndices.LEFT_WRIST],
     new Vector3(-1, 0, 0),
     VRMHumanBoneName.Chest,
     VRMHumanBoneName.LeftUpperArm,
@@ -337,9 +335,9 @@ export function solveMotionCapturePose(
   solveLimb(
     entity,
     lowestWorldY,
-    worldLandmarks[POSE_LANDMARKS.RIGHT_SHOULDER],
-    worldLandmarks[POSE_LANDMARKS.RIGHT_ELBOW],
-    worldLandmarks[POSE_LANDMARKS.RIGHT_WRIST],
+    worldLandmarks[LandmarkIndices.RIGHT_SHOULDER],
+    worldLandmarks[LandmarkIndices.RIGHT_ELBOW],
+    worldLandmarks[LandmarkIndices.RIGHT_WRIST],
     new Vector3(1, 0, 0),
     VRMHumanBoneName.Chest,
     VRMHumanBoneName.RightUpperArm,
@@ -350,9 +348,9 @@ export function solveMotionCapturePose(
     solveLimb(
       entity,
       lowestWorldY,
-      screenLandmarks[POSE_LANDMARKS_LEFT.LEFT_HIP],
-      screenLandmarks[POSE_LANDMARKS_LEFT.LEFT_KNEE],
-      screenLandmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
+      screenLandmarks[LandmarkIndices.LEFT_HIP],
+      screenLandmarks[LandmarkIndices.LEFT_KNEE],
+      screenLandmarks[LandmarkIndices.LEFT_ANKLE],
       new Vector3(0, 1, 0),
       VRMHumanBoneName.Hips,
       VRMHumanBoneName.LeftUpperLeg,
@@ -361,9 +359,9 @@ export function solveMotionCapturePose(
     solveLimb(
       entity,
       lowestWorldY,
-      screenLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_HIP],
-      screenLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_KNEE],
-      screenLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
+      screenLandmarks[LandmarkIndices.RIGHT_HIP],
+      screenLandmarks[LandmarkIndices.RIGHT_KNEE],
+      screenLandmarks[LandmarkIndices.RIGHT_KNEE],
       new Vector3(0, 1, 0),
       VRMHumanBoneName.Hips,
       VRMHumanBoneName.RightUpperLeg,
@@ -411,9 +409,9 @@ export function solveMotionCapturePose(
 
   solveHead(
     entity,
-    screenLandmarks[POSE_LANDMARKS.RIGHT_EAR],
-    screenLandmarks[POSE_LANDMARKS.LEFT_EAR],
-    screenLandmarks[POSE_LANDMARKS.NOSE]
+    screenLandmarks[LandmarkIndices.RIGHT_EAR],
+    screenLandmarks[LandmarkIndices.LEFT_EAR],
+    screenLandmarks[LandmarkIndices.NOSE]
   )
 
   // solveHand(
@@ -439,7 +437,6 @@ export function solveMotionCapturePose(
 const threshhold = 0.6
 
 const vec3 = new Vector3()
-const quat = new Quaternion()
 
 /**
  * The spine is the joints connecting the hips and shoulders. Given solved hips, we can solve each of the spine bones connecting the hips to the shoulders using the shoulder's position and rotation.
@@ -449,8 +446,7 @@ const spineRotation = new Quaternion(),
   shoulderRotation = new Quaternion(),
   hipCenter = new Vector3(),
   fallbackShoulderQuaternion = new Quaternion(),
-  hipToShoulderQuaternion = new Quaternion(),
-  hipDirection = new Quaternion()
+  hipToShoulderQuaternion = new Quaternion()
 
 export const solveSpine = (
   entity: Entity,
@@ -461,13 +457,13 @@ export const solveSpine = (
   const rig = getComponent(entity, AvatarRigComponent)
   const avatar = getComponent(entity, AvatarComponent)
 
-  const rightHip = landmarks[POSE_LANDMARKS.RIGHT_HIP]
-  const leftHip = landmarks[POSE_LANDMARKS.LEFT_HIP]
+  const rightHip = landmarks[LandmarkIndices.RIGHT_HIP]
+  const leftHip = landmarks[LandmarkIndices.LEFT_HIP]
 
   if (!rightHip || !leftHip) return
 
-  const rightShoulder = landmarks[POSE_LANDMARKS.RIGHT_SHOULDER]
-  const leftShoulder = landmarks[POSE_LANDMARKS.LEFT_SHOULDER]
+  const rightShoulder = landmarks[LandmarkIndices.RIGHT_SHOULDER]
+  const leftShoulder = landmarks[LandmarkIndices.LEFT_SHOULDER]
 
   if (rightShoulder.visibility! < threshhold || leftShoulder.visibility! < threshhold) return
 
@@ -481,7 +477,7 @@ export const solveSpine = (
     for (let i = 0; i < 2; i++) {
       if (feetGrounded[i]) {
         const footLandmark =
-          landmarks[i == feetIndices.rightFoot ? POSE_LANDMARKS_RIGHT.RIGHT_ANKLE : POSE_LANDMARKS_LEFT.LEFT_ANKLE].y
+          landmarks[i == feetIndices.rightFoot ? LandmarkIndices.RIGHT_ANKLE : LandmarkIndices.LEFT_ANKLE].y
         const footY = footLandmark * -1 + rig.normalizedRig.hips.node.position.y
         MotionCaptureRigComponent.footOffset[entity] = footY
       }

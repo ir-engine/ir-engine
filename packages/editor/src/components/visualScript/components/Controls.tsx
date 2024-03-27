@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { faDownload, faPause, faPlay, faQuestion, faTrash, faUpload } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { FaDownload, FaPause, FaPlay, FaQuestion, FaTrash, FaUpload } from 'react-icons/fa6'
+
 import React, { useState } from 'react'
 import { ControlButton, Controls } from 'reactflow'
 
@@ -63,10 +63,10 @@ export const CustomControls: React.FC<CustomControlsProps> = ({
     <>
       <Controls>
         <ControlButton title="Help" onClick={() => setHelpModalOpen(true)}>
-          <FontAwesomeIcon icon={faQuestion} />
+          <FaQuestion />
         </ControlButton>
         <ControlButton title="Load" onClick={() => setLoadModalOpen(true)}>
-          <FontAwesomeIcon icon={faUpload} />
+          <FaUpload />
         </ControlButton>
         <ControlButton
           title="Save"
@@ -74,13 +74,13 @@ export const CustomControls: React.FC<CustomControlsProps> = ({
             setSaveModalOpen(true)
           }}
         >
-          <FontAwesomeIcon icon={faDownload} />
+          <FaDownload />
         </ControlButton>
         <ControlButton title="Clear" onClick={() => setClearModalOpen(true)}>
-          <FontAwesomeIcon icon={faTrash} />
+          <FaTrash />
         </ControlButton>
         <ControlButton title="Run" onClick={togglePlay}>
-          <FontAwesomeIcon icon={playing ? faPause : faPlay} />
+          {playing ? <FaPause /> : <FaPlay />}
         </ControlButton>
       </Controls>
       <LoadModal
