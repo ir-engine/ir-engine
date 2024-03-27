@@ -25,6 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import '../threejsPatches'
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { ECSState, Engine, PresentationSystemGroup, defineSystem, getComponent } from '@etherealengine/ecs'
+import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { EffectComposer, NormalPass, RenderPass, SMAAPreset } from 'postprocessing'
 import { useEffect } from 'react'
 import {
@@ -37,15 +40,6 @@ import {
   WebGLRenderer,
   WebGLRendererParameters
 } from 'three'
-
-import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { EngineState } from '../EngineState'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
@@ -86,10 +80,6 @@ export class EngineRenderer {
 
   supportWebGL2: boolean
   canvas: HTMLCanvasElement
-
-  averageFrameTime = 1000 / 60
-  timeSamples = new Array(60 * 1).fill(1000 / 60) // 3 seconds @ 60fps
-  index = 0
 
   averageTimePeriods = 3 * 60 // 3 seconds @ 60fps
   /** init ExponentialMovingAverage */

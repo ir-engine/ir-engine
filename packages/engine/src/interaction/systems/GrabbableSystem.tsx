@@ -362,13 +362,15 @@ const onGrab = (targetEntity: Entity, handedness = getState(InputState).preferre
 const execute = () => {
   if (getState(EngineState).isEditor) return
 
+  const buttons = InputSourceComponent.getMergedButtons()
+  if (buttons.KeyU?.down) onDrop()
+
   /** @todo this should move to input group */
-  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
-  if (nonCapturedInputSource) {
-    const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
-    if (inputSource.buttons.KeyU?.down) onDrop()
+  const nonCapturedInputSources = InputSourceComponent.nonCapturedInputSources()
+  for (const entity of nonCapturedInputSources) {
+    const inputSource = getComponent(entity, InputSourceComponent)
     /** @todo currently mouse has to be over the grabbable for it to be grabbed */
-    if (inputSource.buttons.KeyE?.down || inputSource.buttons[XRStandardGamepadButton.Trigger]?.down)
+    if (buttons.KeyE?.down || inputSource.buttons[XRStandardGamepadButton.Trigger]?.down)
       onGrab(getState(InteractState).available[0], inputSource.source.handedness === 'left' ? 'left' : 'right')
   }
 

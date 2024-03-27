@@ -28,7 +28,7 @@ import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFun
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { Object3D } from 'three'
-import { SceneComponent } from '../../../../scene/components/SceneComponent'
+import { SourceComponent } from '../../../../scene/components/SourceComponent'
 import { getModelSceneID } from '../../../../scene/functions/loaders/ModelFunctions'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
@@ -49,7 +49,7 @@ export default class SourceHandlerExtension extends ExporterExtension implements
     const root = (Array.isArray(input) ? input[0] : input) as Object3D
     let walker: Entity | null = root.entity
     while (walker !== null) {
-      const src = getComponent(walker, SceneComponent)
+      const src = getComponent(walker, SourceComponent)
       if (src) validSrcs.add(src)
       walker = getComponent(walker, EntityTreeComponent)?.parentEntity ?? null
     }
@@ -62,7 +62,7 @@ export default class SourceHandlerExtension extends ExporterExtension implements
         setComponent(entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
       },
       (entity) => {
-        const src = getComponent(entity, SceneComponent)
+        const src = getComponent(entity, SourceComponent)
         return src && !validSrcs.has(src)
       }
     )

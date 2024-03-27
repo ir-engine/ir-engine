@@ -51,16 +51,17 @@ import styles from '../../styles/admin.module.scss'
 interface Props {
   open: boolean
   project: ProjectType
+  projectPermissions: readonly ProjectPermissionType[]
   onClose: () => void
 }
 
-const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
+const UserPermissionDrawer = ({ open, project, projectPermissions, onClose }: Props) => {
   const { t } = useTranslation()
   const [userInviteCode, setUserInviteCode] = useState('' as InviteCode)
   const [error, setError] = useState('')
   const selfUser = useHookstate(getMutableState(AuthState)).user
   const selfUserPermission =
-    project?.projectPermissions?.find((permission) => permission.userId === selfUser.id.value)?.type === 'owner' ||
+    projectPermissions?.find((permission) => permission.userId === selfUser.id.value)?.type === 'owner' ||
     userHasAccess('admin:admin')
       ? 'owner'
       : 'user'
@@ -79,7 +80,6 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
 
     try {
       await ProjectService.createPermission(userInviteCode, project.id)
-      await ProjectService.fetchProjects()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -90,7 +90,6 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
   const handleRemovePermission = async (id: string) => {
     try {
       await ProjectService.removePermission(id)
-      await ProjectService.fetchProjects()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -99,7 +98,6 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
   const handlePatchPermission = async (permission: ProjectPermissionType) => {
     try {
       await ProjectService.patchPermission(permission.id, permission.type === 'owner' ? 'user' : 'owner')
-      await ProjectService.fetchProjects()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -138,9 +136,9 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
           </>
         )}
 
-        {project && project.projectPermissions && (
+        {project && projectPermissions && (
           <List dense={true}>
-            {project.projectPermissions.map((permission) => (
+            {projectPermissions.map((permission) => (
               <ListItem key={permission.id}>
                 <ListItemText
                   id={permission.id}
@@ -160,7 +158,7 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
                   disabled={
                     selfUserPermission !== 'owner' ||
                     selfUser.id.value === permission.userId ||
-                    project.projectPermissions!.length === 1
+                    projectPermissions!.length === 1
                   }
                 />
                 {selfUserPermission === 'owner' && selfUser.id.value !== permission.userId && (

@@ -66,7 +66,7 @@ import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import { ResourceManager } from '../../assets/state/ResourceState'
 import { registerMaterial, unregisterMaterial } from '../../scene/materials/functions/MaterialLibraryFunctions'
 import { ModelComponent, useMeshOrModel } from '../components/ModelComponent'
-import { SceneComponent } from '../components/SceneComponent'
+import { SourceComponent } from '../components/SourceComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
 import { MaterialLibraryState } from '../materials/MaterialLibrary'
@@ -163,7 +163,7 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
   useEffect(() => {
     const source = hasComponent(entity, ModelComponent)
       ? getModelSceneID(entity)
-      : getOptionalComponent(entity, SceneComponent)
+      : getOptionalComponent(entity, SourceComponent)
     return () => {
       ResourceManager.unloadObj(obj, source)
     }
@@ -222,7 +222,7 @@ const SceneObjectEntityReactor = (props: { entity: Entity }) => {
 }
 
 const reactor = () => {
-  const sceneObjectEntities = useQuery([SceneComponent])
+  const sceneObjectEntities = useQuery([SourceComponent])
 
   return (
     <>

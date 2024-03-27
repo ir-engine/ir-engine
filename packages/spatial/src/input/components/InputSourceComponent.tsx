@@ -23,187 +23,143 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Not } from 'bitecs'
-import React, { useEffect, useLayoutEffect } from 'react'
-
-import { defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
-
-import {
-  defineComponent,
-  getOptionalComponent,
-  hasComponent,
-  removeComponent,
-  setComponent,
-  useComponent,
-  useOptionalComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { XRSpaceComponent } from '../../xr/XRComponents'
+import { defineQuery } from '@etherealengine/ecs'
+import { defineComponent, getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { getState } from '@etherealengine/hyperflux'
+import { Raycaster } from 'three'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
+import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { ButtonStateMap } from '../state/ButtonState'
-import { InputComponent } from './InputComponent'
-
-export const InputSourceCaptureState = defineState({
-  name: 'InputSourceCaptureState',
-  initial: {
-    buttons: {} as Record<XRHandedness, Entity>,
-    axes: {} as Record<XRHandedness, Entity>
-  }
-})
-
-const handednesses = ['left', 'right', 'none'] as XRHandedness[]
-
-export const InputSourceButtonsCapturedComponent = defineComponent({
-  name: 'InputSourceButtonsCapturedComponent'
-})
-
-export const InputSourceAxesCapturedComponent = defineComponent({
-  name: 'InputSourceAxesCapturedComponent'
-})
+import { InputState } from '../state/InputState'
 
 export const InputSourceComponent = defineComponent({
   name: 'InputSourceComponent',
 
   onInit: () => {
     return {
-      source: null! as XRInputSource,
+      source: {} as XRInputSource,
       buttons: {} as Readonly<ButtonStateMap>,
-      // internals
-      assignedButtonEntity: UndefinedEntity as Entity,
-      assignedAxesEntity: UndefinedEntity as Entity
+      raycaster: new Raycaster(),
+      intersections: [] as Array<{
+        entity: Entity
+        distance: number
+      }>
     }
   },
 
-  onSet: (entity, component, args: { source: XRInputSource }) => {
-    const { source } = args
+  onSet: (entity, component, args: { source?: XRInputSource; gamepad?: Gamepad } = {}) => {
+    const source =
+      args.source ??
+      ({
+        handedness: 'none',
+        targetRayMode: 'screen',
+        targetRaySpace: {} as XRSpace,
+        gripSpace: undefined,
+        gamepad:
+          args.gamepad ??
+          ({
+            axes: [0, 0, 0, 0],
+            buttons: [],
+            connected: true,
+            hapticActuators: [],
+            id: 'emulated-gamepad-' + entity,
+            index: 0,
+            mapping: 'standard',
+            timestamp: performance.now(),
+            vibrationActuator: null
+          } as Gamepad),
+        profiles: [],
+        hand: undefined
+      } as XRInputSource)
+
     component.source.set(source)
-    InputSourceComponent.entitiesByInputSource.set(args.source, entity)
-    setComponent(entity, XRSpaceComponent, source.targetRaySpace)
+
+    // if we have a real input source, we should add the XRSpaceComponent
+    if (args.source?.targetRaySpace) {
+      InputSourceComponent.entitiesByInputSource.set(args.source, entity)
+      const space = args.source.targetRaySpace
+      const baseSpace =
+        args.source.targetRayMode === 'tracked-pointer' ? ReferenceSpace.localFloor : ReferenceSpace.viewer
+      if (!baseSpace) throw new Error('Base space not found')
+      setComponent(entity, XRSpaceComponent, { space, baseSpace })
+    }
+
+    if (source.hand) {
+      setComponent(entity, XRHandComponent)
+    }
+
+    setComponent(entity, TransformComponent)
   },
 
-  entitiesByInputSource: new WeakMap<XRInputSource>(),
-
-  captureButtons: (targetEntity: Entity, handedness = handednesses) => {
-    const state = getMutableState(InputSourceCaptureState)
-    for (const hand of handedness) state.buttons[hand].set(targetEntity)
+  getMergedButtons(inputSourceEntities = inputSourceQuery()) {
+    return Object.assign(
+      {} as ButtonStateMap,
+      ...inputSourceEntities.map((eid) => {
+        return getComponent(eid, InputSourceComponent).buttons
+      })
+    ) as ButtonStateMap
   },
 
-  releaseButtons: (handedness = handednesses) => {
-    const state = getMutableState(InputSourceCaptureState)
-    for (const hand of handedness) state.buttons[hand].set(UndefinedEntity)
+  getMergedAxes(inputSourceEntities = inputSourceQuery()) {
+    const axes = [0, 0, 0, 0] as [number, number, number, number]
+    for (const eid of inputSourceEntities) {
+      const inputSource = getComponent(eid, InputSourceComponent)
+      if (inputSource.source.gamepad?.axes) {
+        for (let i = 0; i < 4; i++) {
+          // keep the largest value (positive or negative)
+          const newAxis = inputSource.source.gamepad?.axes[i] ?? 0
+          axes[i] = Math.abs(axes[i]) > Math.abs(newAxis) ? axes[i] : newAxis
+        }
+      }
+    }
+    return axes
   },
 
-  captureAxes: (targetEntity: Entity, handedness = handednesses) => {
-    const state = getMutableState(InputSourceCaptureState)
-    for (const hand of handedness) state.axes[hand].set(targetEntity)
+  nonCapturedInputSources(entities = inputSourceQuery()) {
+    return entities.filter((eid) => eid !== getState(InputState).capturingEntity)
   },
 
-  releaseAxes: (handedness = handednesses) => {
-    const state = getMutableState(InputSourceCaptureState)
-    for (const hand of handedness) state.axes[hand].set(UndefinedEntity)
-  },
-
-  capture: (targetEntity: Entity, handedness = handednesses) => {
-    const state = getMutableState(InputSourceCaptureState)
-    for (const hand of handedness) {
-      state.axes[hand].set(targetEntity)
-      state.buttons[hand].set(targetEntity)
+  /**
+   * Gets the preferred controller entity - will return null if the entity is not in an active session or the controller is not available
+   * @param {boolean} offhand specifies to return the non-preferred hand instead
+   * @returns {Entity}
+   */
+  getPreferredInputSource: (offhand = false) => {
+    const xrState = getState(XRState)
+    if (!xrState.sessionActive) return
+    const avatarInputSettings = getState(InputState)
+    for (const inputSourceEntity of inputSourceQuery()) {
+      const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
+      const source = inputSourceComponent.source
+      if (source?.handedness === 'none') continue
+      if (!offhand && avatarInputSettings.preferredHand == source?.handedness) return source
+      if (offhand && avatarInputSettings.preferredHand !== source?.handedness) return source
     }
   },
 
-  release: (handedness = handednesses) => {
-    const state = getMutableState(InputSourceCaptureState)
-    for (const hand of handedness) {
-      state.axes[hand].set(UndefinedEntity)
-      state.buttons[hand].set(UndefinedEntity)
-    }
+  getClosestIntersectedEntity(inputSourceEntity: Entity) {
+    return getComponent(inputSourceEntity, InputSourceComponent).intersections[0]?.entity
   },
 
-  isAssignedButtons: (targetEntity: Entity) => {
-    const sourceEntities = getOptionalComponent(targetEntity, InputComponent)?.inputSources
-    return !!sourceEntities?.find((sourceEntity) => {
-      const inputSourceComponent = getOptionalComponent(sourceEntity, InputSourceComponent)
-      return inputSourceComponent?.assignedButtonEntity === targetEntity
-    })
-  },
-
-  isAssignedAxes: (targetEntity: Entity) => {
-    const sourceEntities = getOptionalComponent(targetEntity, InputComponent)?.inputSources
-    return !!sourceEntities?.find((sourceEntity) => {
-      const inputSourceComponent = getOptionalComponent(sourceEntity, InputSourceComponent)
-      return inputSourceComponent?.assignedAxesEntity === targetEntity
-    })
-  },
-
-  /** @deprecated */
-  nonCapturedInputSourceQuery: () => {
-    return nonCapturedInputSourceQuery()
-  },
-
-  reactor: () => {
-    const sourceEntity = useEntityContext()
-    const inputSource = useComponent(sourceEntity, InputSourceComponent)
-    const capturedButtons = useHookstate(getMutableState(InputSourceCaptureState).buttons)
-    const capturedAxes = useHookstate(getMutableState(InputSourceCaptureState).axes)
-
-    useEffect(() => {
-      if (!inputSource.source.value) return
-      const captured = capturedButtons[inputSource.source.value.handedness].value
-      if (captured) {
-        setComponent(sourceEntity, InputSourceButtonsCapturedComponent)
-        inputSource.assignedButtonEntity.set(captured)
-      } else {
-        removeComponent(sourceEntity, InputSourceButtonsCapturedComponent)
-      }
-    }, [capturedButtons, inputSource.source])
-
-    useEffect(() => {
-      if (!inputSource.source.value) return
-      const captured = capturedAxes[inputSource.source.value.handedness].value
-      if (captured) {
-        setComponent(sourceEntity, InputSourceAxesCapturedComponent)
-        inputSource.assignedAxesEntity.set(captured)
-      } else {
-        removeComponent(sourceEntity, InputSourceAxesCapturedComponent)
-      }
-    }, [capturedAxes, inputSource.source])
-
-    return (
-      <>
-        <InputSourceAssignmentReactor
-          key={`button-${inputSource.assignedButtonEntity.value}`}
-          assignedEntity={inputSource.assignedButtonEntity.value}
-        />
-        <InputSourceAssignmentReactor
-          key={`axes-${inputSource.assignedAxesEntity.value}`}
-          assignedEntity={inputSource.assignedAxesEntity.value}
-        />
-      </>
-    )
-  }
+  entitiesByInputSource: new WeakMap<XRInputSource, Entity>()
 })
 
-const InputSourceAssignmentReactor = React.memo((props: { assignedEntity: Entity }) => {
-  const sourceEntity = useEntityContext()
-  const input = useOptionalComponent(props.assignedEntity, InputComponent)
+const inputSourceQuery = defineQuery([InputSourceComponent])
 
-  useLayoutEffect(() => {
-    if (!input) return
-    const idx = input.inputSources.value.indexOf(sourceEntity)
-    idx === -1 && input.inputSources.merge([sourceEntity])
-    return () => {
-      if (!hasComponent(props.assignedEntity, InputComponent) || !input.inputSources?.value) return
-      const idx = input.inputSources.value.indexOf(sourceEntity)
-      idx > -1 && input.inputSources[idx].set(none)
-    }
-  }, [props.assignedEntity])
-
-  return null
-})
-
-const nonCapturedInputSourceQuery = defineQuery([
-  InputSourceComponent,
-  Not(InputSourceButtonsCapturedComponent),
-  Not(InputSourceAxesCapturedComponent)
-])
+/**
+ * Scenario:
+ * - hover over object shows UI hint
+ * - click for object triggers action
+ * - click and drag on object moves it around
+ * - click and drag on some surfaces rotates the camera
+ *
+ *
+ *
+ *
+ * Questions
+ * - Can we have implicit ordering of input receiver systems? Or does it need to be explicit or non-ordered / deterministic?
+ * -
+ *
+ */

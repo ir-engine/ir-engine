@@ -28,6 +28,7 @@ import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { getState } from '@etherealengine/hyperflux'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
+import { defineQuery } from '@etherealengine/ecs'
 import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
@@ -119,6 +120,8 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
 export const leftControllerOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI / 2, 0))
 export const rightControllerOffset = new Quaternion().setFromEuler(new Euler(0, -Math.PI / 2, 0))
 
+const inputSourceQuery = defineQuery([InputSourceComponent])
+
 /**
  * Pulls pose data from input sources into the ECS
  */
@@ -172,9 +175,8 @@ export const applyInputSourcePoseToIKTargets = (userID: UserID) => {
   const inverseWorldScale = 1 / XRState.worldScale
 
   const localClientTransform = getComponent(localClientEntity, TransformComponent)
-  const nonCapturedInputSourceEntities = InputSourceComponent.nonCapturedInputSourceQuery()
 
-  for (const inputSourceEntity of nonCapturedInputSourceEntities) {
+  for (const inputSourceEntity of inputSourceQuery()) {
     const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
     const handedness = inputSourceComponent.source.handedness
     if (handedness === 'none') continue

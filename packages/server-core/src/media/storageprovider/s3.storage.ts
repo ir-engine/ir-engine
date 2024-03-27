@@ -67,6 +67,13 @@ import S3BlobStore from 's3-blob-store'
 import { PassThrough, Readable } from 'stream'
 
 import { MULTIPART_CHUNK_SIZE, MULTIPART_CUTOFF_SIZE } from '@etherealengine/common/src/constants/FileSizeConstants'
+import {
+  assetsRegex,
+  projectPublicRegex,
+  projectRegex,
+  rootImageRegex,
+  rootSceneJsonRegex
+} from '@etherealengine/common/src/constants/ProjectKeyConstants'
 import { Client } from 'minio'
 
 import { FileBrowserContentType } from '@etherealengine/common/src/schemas/media/file-browser.schema'
@@ -101,6 +108,15 @@ function handler(event) {
     return request;
 }
 `
+
+export const getACL = (key: string) =>
+  projectRegex.test(key) &&
+  !projectPublicRegex.test(key) &&
+  !assetsRegex.test(key) &&
+  !rootImageRegex.test(key) &&
+  !rootSceneJsonRegex.test(key)
+    ? ObjectCannedACL.private
+    : ObjectCannedACL.public_read
 
 /**
  * Storage provide class to communicate with AWS S3 API.
@@ -303,14 +319,14 @@ export class S3Provider implements StorageProviderInterface {
 
     const args = params.isDirectory
       ? {
-          ACL: ObjectCannedACL.public_read,
+          ACL: getACL(key),
           Body: Buffer.alloc(0),
           Bucket: this.bucket,
           ContentType: 'application/x-empty',
           Key: key + '/'
         }
       : {
-          ACL: ObjectCannedACL.public_read,
+          ACL: getACL(key),
           Body: data.Body,
           Bucket: this.bucket,
           ContentType: data.ContentType,
@@ -339,13 +355,12 @@ export class S3Provider implements StorageProviderInterface {
         reject(err)
       }
     } else if (config.aws.s3.s3DevMode === 'local') {
-      const response = await this.minioClient?.putObject(args.Bucket, args.Key, args.Body, {
+      return await this.minioClient?.putObject(args.Bucket, args.Key, args.Body, {
         'Content-Type': args.ContentType
       })
-      return response
     } else if (data.Body?.length > MULTIPART_CUTOFF_SIZE) {
       const multiPartStartArgs = {
-        ACL: ObjectCannedACL.public_read,
+        ACL: getACL(key),
         Bucket: this.bucket,
         Key: key,
         ContentType: data.ContentType
@@ -592,7 +607,7 @@ export class S3Provider implements StorageProviderInterface {
    * Get the BlobStore object for S3 storage.
    */
   getStorage(): typeof S3BlobStore {
-    this.blob
+    return this.blob
   }
 
   /**
@@ -721,11 +736,12 @@ export class S3Provider implements StorageProviderInterface {
 
     const result = await Promise.all([
       ...listResponse.Contents.map(async (file) => {
+        const key = path.join(newFilePath, file.Key.replace(oldFilePath, ''))
         const input = {
-          ACL: ObjectCannedACL.public_read,
+          ACL: getACL(key),
           Bucket: this.bucket,
           CopySource: `/${this.bucket}/${file.Key}`,
-          Key: path.join(newFilePath, file.Key.replace(oldFilePath, ''))
+          Key: key
         }
         const command = new CopyObjectCommand(input)
         return this.provider.send(command)

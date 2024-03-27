@@ -23,7 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ClientInputSystem } from './systems/ClientInputSystem'
-import { FlyControlSystem } from './systems/FlyControlSystem'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { WebGLRenderer } from 'three'
 
-export { FlyControlSystem, ClientInputSystem }
+export const RendererComponent = defineComponent({
+  name: 'RendererComponent',
+
+  onInit() {
+    return {
+      renderer: null! as WebGLRenderer
+    }
+  },
+
+  onSet(entity, component, json) {
+    json?.renderer && component.renderer.set(json.renderer)
+  }
+})

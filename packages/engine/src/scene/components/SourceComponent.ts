@@ -28,39 +28,39 @@ import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { hookstate, none } from '@etherealengine/hyperflux'
 
-const entitiesByScene = {} as Record<SceneID, Entity[]>
+const entitiesBySource = {} as Record<SceneID, Entity[]>
 
-export const SceneComponent = defineComponent({
-  name: 'SceneComponent',
+export const SourceComponent = defineComponent({
+  name: 'SourceComponent',
 
   onInit: (entity) => '' as SceneID,
 
   onSet: (entity, component, src: SceneID) => {
-    if (typeof src !== 'string') throw new Error('SceneComponent expects a non-empty string')
+    if (typeof src !== 'string') throw new Error('SourceComponent expects a non-empty string')
 
     component.set(src)
 
-    const exists = SceneComponent.entitiesByScene[src]
-    const entitiesBySceneState = SceneComponent.entitiesBySceneState[src]
+    const exists = SourceComponent.entitiesBySource[src]
+    const entitiesBySourceState = SourceComponent.entitiesBySourceState[src]
     if (exists) {
       if (exists.includes(entity)) return
-      entitiesBySceneState.merge([entity])
+      entitiesBySourceState.merge([entity])
     } else {
-      entitiesBySceneState.set([entity])
+      entitiesBySourceState.set([entity])
     }
   },
 
   onRemove: (entity, component) => {
     const src = component.value
 
-    const entities = SceneComponent.entitiesByScene[src].filter((currentEntity) => currentEntity !== entity)
+    const entities = SourceComponent.entitiesBySource[src].filter((currentEntity) => currentEntity !== entity)
     if (entities.length === 0) {
-      SceneComponent.entitiesBySceneState[src].set(none)
+      SourceComponent.entitiesBySourceState[src].set(none)
     } else {
-      SceneComponent.entitiesBySceneState[src].set(entities)
+      SourceComponent.entitiesBySourceState[src].set(entities)
     }
   },
 
-  entitiesBySceneState: hookstate(entitiesByScene),
-  entitiesByScene: entitiesByScene as Readonly<typeof entitiesByScene>
+  entitiesBySourceState: hookstate(entitiesBySource),
+  entitiesBySource: entitiesBySource as Readonly<typeof entitiesBySource>
 })

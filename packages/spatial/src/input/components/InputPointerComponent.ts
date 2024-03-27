@@ -23,7 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ClientInputSystem } from './systems/ClientInputSystem'
-import { FlyControlSystem } from './systems/FlyControlSystem'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Vector2 } from 'three'
 
-export { FlyControlSystem, ClientInputSystem }
+export const InputPointerComponent = defineComponent({
+  name: 'InputPointerComponent',
+
+  onInit: () => {
+    return {
+      pointerId: -1 as number,
+      position: new Vector2(),
+      lastPosition: new Vector2(),
+      movement: new Vector2(),
+      canvasEntity: UndefinedEntity
+    }
+  },
+
+  onSet(entity, component, args: { pointerId: number; canvasEntity: Entity }) {
+    component.pointerId.set(args.pointerId)
+    component.canvasEntity.set(args.canvasEntity)
+  }
+})
