@@ -30,7 +30,7 @@ import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 const lightTheme = {
   'bg-primary': '#F5F5F5',
-  // 'bg-secondary': '#FFFFFF',
+  'bg-secondary': '#FFFFFF',
   'bg-highlight': '#F5F5F5',
   'bg-surface-main': '#FFFFFF',
   'bg-surface-input': '#FFFFFF',
@@ -54,7 +54,7 @@ const lightTheme = {
 
 const darkTheme = {
   'bg-primary': '#111113',
-  // 'bg-secondary': '#1A1B1E', // not important now
+  'bg-secondary': '#1A1B1E', // not important now
   'bg-highlight': '#212226',
   'bg-surface-main': '#1A1B1E',
   'bg-surface-input': '#141619',
