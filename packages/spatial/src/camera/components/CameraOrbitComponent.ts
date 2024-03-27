@@ -23,24 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, UndefinedEntity, defineComponent, matchesEntity } from '@etherealengine/ecs'
-import { defineState } from '@etherealengine/hyperflux'
+import { Entity, defineComponent } from '@etherealengine/ecs'
 import { Vector3 } from 'three'
 import matches from 'ts-matches'
-
-export const ActiveOrbitCamera = defineState({
-  name: 'ActiveOrbitCamera',
-  initial: () => {
-    return UndefinedEntity
-  }
-})
 
 export const CameraOrbitComponent = defineComponent({
   name: 'CameraOrbitComponent',
 
   onInit: (entity) => {
     return {
-      zoomDelta: 0,
       focusedEntities: [] as Entity[],
       isPanning: false,
       cursorDeltaX: 0,
@@ -48,21 +39,18 @@ export const CameraOrbitComponent = defineComponent({
       isOrbiting: false,
       refocus: false,
       cameraOrbitCenter: new Vector3(),
-      inputEntity: UndefinedEntity,
       disabled: false
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (matches.number.test(json.zoomDelta)) component.zoomDelta.set(json.zoomDelta)
     if (json.focusedEntities) component.focusedEntities.set(json.focusedEntities)
     if (matches.boolean.test(json.isPanning)) component.isPanning.set(json.isPanning)
     if (matches.number.test(json.cursorDeltaX)) component.cursorDeltaX.set(json.cursorDeltaX)
     if (matches.number.test(json.cursorDeltaY)) component.cursorDeltaY.set(json.cursorDeltaY)
     if (matches.boolean.test(json.isOrbiting)) component.isOrbiting.set(json.isOrbiting)
     if (matches.boolean.test(json.refocus)) component.refocus.set(json.refocus)
-    if (matchesEntity.test(json.inputEntity)) component.inputEntity.set(json.inputEntity)
     if (matches.boolean.test(json.disabled)) component.disabled.set(json.disabled)
   }
 })
