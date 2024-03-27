@@ -29,6 +29,8 @@ import { useTranslation } from 'react-i18next'
 
 import { getMutableState } from '@etherealengine/hyperflux'
 
+import { useQuery } from '@etherealengine/ecs'
+import { FlyControlComponent } from '@etherealengine/spatial/src/camera/components/FlyControlComponent'
 import { EditorHelperState } from '../../services/EditorHelperState'
 import { SelectionState } from '../../services/SelectionServices'
 import styles from './styles.module.scss'
@@ -42,12 +44,14 @@ export function ControlText() {
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
   const { t } = useTranslation()
 
+  const flyEnabled = useQuery([FlyControlComponent])
+
   const selectionState = useHookstate(getMutableState(SelectionState))
   const objectSelected = selectionState.selectedEntities.length > 0
 
   let controlsText
 
-  if (editorHelperState.isFlyModeEnabled.value) {
+  if (flyEnabled.length) {
     controlsText =
       '[W][A][S][D] ' + t('editor:viewport.command.movecamera') + ' | [Shift] ' + t('editor:viewport.command.flyFast')
   } else {

@@ -42,7 +42,7 @@ import {
   SkinnedMesh,
   Texture
 } from 'three'
-import { SceneComponent } from '../../scene/components/SceneComponent'
+import { SourceComponent } from '../../scene/components/SourceComponent'
 import { SourceType } from '../../scene/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../scene/materials/functions/MaterialLibraryFunctions'
 import { AssetLoader, LoadingArgs } from '../classes/AssetLoader'
@@ -582,7 +582,7 @@ const unloadObj = (obj: Object3D, sceneID: SceneID | undefined) => {
   if (obj.isProxified) {
     remove(obj)
   } else {
-    iterateObject3D(obj, remove, (obj: Object3D) => getOptionalComponent(obj.entity, SceneComponent) === sceneID)
+    iterateObject3D(obj, remove, (obj: Object3D) => getOptionalComponent(obj.entity, SourceComponent) === sceneID)
   }
 }
 

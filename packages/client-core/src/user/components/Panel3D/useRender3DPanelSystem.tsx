@@ -29,7 +29,6 @@ import { Euler, Quaternion, Vector3, WebGLRenderer } from 'three'
 import {
   Entity,
   PresentationSystemGroup,
-  UndefinedEntity,
   createEntity,
   defineQuery,
   defineSystem,
@@ -42,13 +41,10 @@ import {
 import { NO_PROXY, defineState, getMutableState, none } from '@etherealengine/hyperflux'
 import { DirectionalLightComponent, TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import {
-  ActiveOrbitCamera,
-  CameraOrbitComponent
-} from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
+import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
-import { addClientInputListeners } from '@etherealengine/spatial/src/input/systems/ClientInputSystem'
+// import { addClientInputListeners } from '@etherealengine/spatial/src/input/systems/ClientInputSystem'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import {
   ObjectLayerComponents,
@@ -80,16 +76,12 @@ const initializePreviewPanel = (id: string) => {
   setComponent(cameraEntity, TransformComponent, { position: new Vector3(0, 0, 0) })
   setComponent(cameraEntity, VisibleComponent, true)
   setComponent(cameraEntity, NameComponent, '3D Preview Camera for ' + id)
-  setComponent(cameraEntity, CameraOrbitComponent, {
-    inputEntity: defineQuery([InputSourceComponent])().pop(),
-    refocus: true
-  })
+  setComponent(cameraEntity, CameraOrbitComponent, { refocus: true })
   setComponent(cameraEntity, ObjectLayerMaskComponent)
   ObjectLayerMaskComponent.setLayer(cameraEntity, ObjectLayers.AssetPreview)
   const previewEntity = createEntity()
   ObjectLayerMaskComponent.setLayer(previewEntity, ObjectLayers.AssetPreview)
   getMutableState(PreviewPanelRendererState).entities[id].set([cameraEntity, previewEntity])
-  getMutableState(ActiveOrbitCamera).set(cameraEntity)
 }
 
 export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElement>) {
@@ -141,7 +133,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
       const canvas = rendererState.renderers[id].value.domElement
       canvas.id = id
       canvas.tabIndex = 1
-      addClientInputListeners(rendererState.renderers[id].domElement.value)
+      // addClientInputListeners(rendererState.renderers[id].domElement.value)
       rendererState.ids.set([...rendererState.ids.value, id])
     }
 
@@ -152,11 +144,7 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
     return () => {
       window.removeEventListener('resize', resize)
       // cleanup entities and state associated with this 3d panel
-      removeEntity(
-        getComponent(rendererState.entities[id].value[PanelEntities.camera], CameraOrbitComponent).inputEntity
-      )
       for (const entity of rendererState.entities[id].value) removeEntity(entity)
-      getMutableState(ActiveOrbitCamera).set(UndefinedEntity)
       const thisIdIndex = rendererState.ids.value.findIndex((value) => value === id)
       rendererState.entities[id].set(none)
       rendererState.renderers[id].get(NO_PROXY).dispose()

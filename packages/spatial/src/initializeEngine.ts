@@ -29,12 +29,14 @@ import { Engine, startEngine } from '@etherealengine/ecs/src/Engine'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { Timer } from '@etherealengine/ecs/src/Timer'
 import { getMutableState } from '@etherealengine/hyperflux'
-import { BoxGeometry, Mesh, MeshNormalMaterial } from 'three'
+import { BoxGeometry, Group, Mesh, MeshNormalMaterial } from 'three'
 import { CameraComponent } from './camera/components/CameraComponent'
 import { NameComponent } from './common/NameComponent'
+import { InputComponent } from './input/components/InputComponent'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 import { addObjectToGroup } from './renderer/components/GroupComponent'
 import { setObjectLayers } from './renderer/components/ObjectLayerComponent'
+import { RendererComponent } from './renderer/components/RendererComponent'
 import { VisibleComponent } from './renderer/components/VisibleComponent'
 import { ObjectLayers } from './renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from './transform/components/EntityTree'
@@ -53,30 +55,33 @@ export const createEngine = () => {
   Engine.instance.scene.matrixWorldAutoUpdate = false
   Engine.instance.scene.layers.set(ObjectLayers.Scene)
 
-  Engine.instance.originEntity = createEntity()
-  setComponent(Engine.instance.originEntity, NameComponent, 'origin')
-  setComponent(Engine.instance.originEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
-  setComponent(Engine.instance.originEntity, TransformComponent)
-  setComponent(Engine.instance.originEntity, VisibleComponent, true)
-  addObjectToGroup(Engine.instance.originEntity, Engine.instance.origin)
-  Engine.instance.origin.name = 'world-origin'
+  Engine.instance.localFloorEntity = createEntity()
+  setComponent(Engine.instance.localFloorEntity, NameComponent, 'origin')
+  setComponent(Engine.instance.localFloorEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
+  setComponent(Engine.instance.localFloorEntity, TransformComponent)
+  setComponent(Engine.instance.localFloorEntity, VisibleComponent, true)
+  const origin = new Group()
+  addObjectToGroup(Engine.instance.localFloorEntity, origin)
+  origin.name = 'world-origin'
   const originHelperMesh = new Mesh(new BoxGeometry(0.1, 0.1, 0.1), new MeshNormalMaterial())
   setObjectLayers(originHelperMesh, ObjectLayers.Gizmos)
   originHelperMesh.frustumCulled = false
-  Engine.instance.origin.add(originHelperMesh)
+  origin.add(originHelperMesh)
 
-  Engine.instance.cameraEntity = createEntity()
-  setComponent(Engine.instance.cameraEntity, NameComponent, 'camera')
-  setComponent(Engine.instance.cameraEntity, CameraComponent)
-  setComponent(Engine.instance.cameraEntity, VisibleComponent, true)
-  setComponent(Engine.instance.cameraEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
-  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  Engine.instance.viewerEntity = createEntity()
+  setComponent(Engine.instance.viewerEntity, NameComponent, 'camera')
+  setComponent(Engine.instance.viewerEntity, CameraComponent)
+  setComponent(Engine.instance.viewerEntity, VisibleComponent, true)
+  setComponent(Engine.instance.viewerEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
+  setComponent(Engine.instance.viewerEntity, InputComponent)
+  const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
   camera.matrixAutoUpdate = false
   camera.matrixWorldAutoUpdate = false
 
   if (isClient) {
     EngineRenderer.instance = new EngineRenderer()
     EngineRenderer.instance.initialize()
+    setComponent(Engine.instance.cameraEntity, RendererComponent, { renderer: EngineRenderer.instance.renderer })
   }
   getMutableState(ECSState).timer.set(
     Timer(
