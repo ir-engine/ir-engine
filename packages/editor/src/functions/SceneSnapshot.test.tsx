@@ -342,7 +342,7 @@ describe('Snapshots', () => {
     assert.equal(
       UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID),
       UndefinedEntity,
-      'snapshot unchanged,  entity was not deleted'
+      'snapshot unchanged, entity child_2_1 was not deleted'
     )
 
     dispatchAction(SceneSnapshotAction.undo({ count: 1, sceneID: sceneID }))

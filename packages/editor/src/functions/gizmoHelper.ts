@@ -27,6 +27,7 @@ import {
   Engine,
   Entity,
   UndefinedEntity,
+  defineQuery,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -42,7 +43,7 @@ import { NO_PROXY, getMutableState, getState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { Q_IDENTITY, V_000, V_001, V_010, V_100 } from '@etherealengine/spatial/src/common/constants/MathConstants'
-import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
+import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
@@ -127,6 +128,10 @@ export function gizmoUpdate(gizmoEntity) {
   setVisibleComponent(gizmo.helper[TransformMode.translate], gizmoControl.mode === TransformMode.translate)
   setVisibleComponent(gizmo.helper[TransformMode.rotate], gizmoControl.mode === TransformMode.rotate)
   setVisibleComponent(gizmo.helper[TransformMode.scale], gizmoControl.mode === TransformMode.scale)
+
+  setVisibleComponent(gizmo.picker[TransformMode.translate], gizmoControl.mode === TransformMode.translate)
+  setVisibleComponent(gizmo.picker[TransformMode.rotate], gizmoControl.mode === TransformMode.rotate)
+  setVisibleComponent(gizmo.picker[TransformMode.scale], gizmoControl.mode === TransformMode.scale)
 
   const gizmoObject = getComponent(gizmo.gizmo[gizmoControl.mode], GroupComponent)[0]
   const pickerObject = getComponent(gizmo.picker[gizmoControl.mode], GroupComponent)[0]
@@ -428,7 +433,7 @@ export function planeUpdate(gizmoEntity) {
     // If in rotate mode, make the plane parallel to camera
     setComponent(gizmoControl.planeEntity, TransformComponent, { rotation: camera.quaternion })
   } else {
-    _tempMatrix.lookAt(_tempVector.set(0, 0, 0), _dirVector, _alignVector)
+    _tempMatrix.lookAt(V_000, _dirVector, _alignVector)
     setComponent(gizmoControl.planeEntity, TransformComponent, {
       rotation: new Quaternion().setFromRotationMatrix(_tempMatrix)
     })
@@ -469,8 +474,10 @@ export function controlUpdate(gizmoEntity: Entity) {
   }
 }
 
+const pointerQuery = defineQuery([InputPointerComponent])
+
 function pointerHover(gizmoEntity) {
-  const pointer = getState(InputState).pointerState.position
+  const pointerPosition = getComponent(pointerQuery()[0], InputPointerComponent).position
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
   const gizmoVisual = getComponent(gizmoControlComponent.visualEntity.value, TransformGizmoVisualComponent)
   const picker = getComponent(gizmoVisual.picker[gizmoControlComponent.mode.value], GroupComponent)[0]
@@ -481,7 +488,7 @@ function pointerHover(gizmoEntity) {
 
   if (targetEntity === UndefinedEntity || gizmoControlComponent.dragging.value === true) return
 
-  _raycaster.setFromCamera(pointer, camera)
+  _raycaster.setFromCamera(pointerPosition, camera)
   const intersect = intersectObjectWithRay(picker, _raycaster, true)
 
   if (intersect) {
@@ -492,7 +499,7 @@ function pointerHover(gizmoEntity) {
 }
 
 function pointerDown(gizmoEntity) {
-  const pointer = getState(InputState).pointerState
+  const pointer = getComponent(pointerQuery()[0], InputPointerComponent)
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
   const plane = getComponent(gizmoControlComponent.planeEntity.value, GroupComponent)[0]
   const targetEntity =
@@ -695,9 +702,8 @@ function applyRotation(entity, gizmoControlComponent, axis, space) {
     _endNorm.copy(gizmoControlComponent.pointEnd.value).normalize()
 
     gizmoControlComponent.rotationAngle.set(
-      gizmoControlComponent.rotationAngle.value * _endNorm.cross(_startNorm).dot(gizmoControlComponent.eye.value) < 0
-        ? 1
-        : -1
+      gizmoControlComponent.rotationAngle.value *
+        (_endNorm.cross(_startNorm).dot(gizmoControlComponent.eye.value) < 0 ? 1 : -1)
     )
   }
 
@@ -747,7 +753,7 @@ function applyPivotRotation(entity, pivotToOriginMatrix, originToPivotMatrix, ro
 }
 
 function pointerMove(gizmoEntity) {
-  const pointer = getState(InputState).pointerState
+  const pointer = getComponent(pointerQuery()[0], InputPointerComponent)
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
   const targetEntity =
     gizmoControlComponent.controlledEntities.value.length > 1
@@ -877,7 +883,7 @@ function pointerMove(gizmoEntity) {
 
 function pointerUp(gizmoEntity) {
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
-  const pointer = getState(InputState).pointerState
+  const pointer = getComponent(pointerQuery()[0], InputPointerComponent)
 
   if (pointer.movement.length() !== 0) return
 
@@ -942,7 +948,5 @@ export function intersectObjectWithRay(object, raycaster, includeInvisible?) {
 }
 
 export function onPointerLost(gizmoEntity: Entity) {
-  const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
-  gizmoControlComponent.dragging.set(false)
-  gizmoControlComponent.axis.set(null)
+  setComponent(gizmoEntity, TransformGizmoControlComponent, { dragging: false, axis: null })
 }

@@ -23,7 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { FaceDetection, FaceExpressions } from '@vladmandic/face-api'
+/** @todo reassess if we want to use this face-api package */
+// import type { FaceDetection, FaceExpressions } from '@vladmandic/face-api'
+type FaceDetection = any
+type FaceExpressions = any
 import * as Comlink from 'comlink'
 
 import { isDev } from '@etherealengine/common/src/config'

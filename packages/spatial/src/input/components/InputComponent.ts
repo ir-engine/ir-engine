@@ -44,7 +44,6 @@ export const InputComponent = defineComponent({
       inputSources: [] as Entity[],
       highlight: true,
       grow: false
-      // priority: 0
     }
   },
 

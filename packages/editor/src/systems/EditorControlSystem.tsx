@@ -45,13 +45,12 @@ import { PresentationSystemGroup, UUIDComponent, UndefinedEntity } from '@ethere
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { SceneSnapshotAction, SceneSnapshotState } from '@etherealengine/engine/src/scene/Scene'
-import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { TransformComponent } from '@etherealengine/spatial'
-import {
-  ActiveOrbitCamera,
-  CameraOrbitComponent
-} from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
+import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
+import { FlyControlComponent } from '@etherealengine/spatial/src/camera/components/FlyControlComponent'
 import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { InfiniteGridComponent } from '@etherealengine/spatial/src/renderer/components/InfiniteGridHelper'
@@ -239,15 +238,15 @@ const execute = () => {
   const entity = AvatarComponent.getSelfAvatarEntity()
   if (entity) return
 
+  if (hasComponent(Engine.instance.cameraEntity, FlyControlComponent)) return
+
   const deltaSeconds = getState(ECSState).deltaSeconds
 
-  const editorHelperState = getState(EditorHelperState)
   const selectedEntities = SelectionState.getSelectedEntities()
 
-  const inputSource = getComponent(inputQuery()[0], InputSourceComponent)
-  const buttons = inputSource.buttons
+  const inputSources = inputQuery()
 
-  if (editorHelperState.isFlyModeEnabled) return
+  const buttons = InputSourceComponent.getMergedButtons(inputSources)
 
   if (buttons.KeyB?.down) onKeyB()
 
@@ -283,15 +282,15 @@ const execute = () => {
     primaryClickAccum = 0
   }
   if (primaryClickAccum <= 0.2) {
-    if (buttons.PrimaryClick?.up && inputSource.assignedButtonEntity) {
-      let clickedEntity = inputSource.assignedButtonEntity
+    if (buttons.PrimaryClick?.up) {
+      let clickedEntity = InputSourceComponent.getClosestIntersectedEntity(inputSources[0])
       while (
-        !hasComponent(clickedEntity, SceneComponent) &&
+        !hasComponent(clickedEntity, SourceComponent) &&
         getOptionalComponent(clickedEntity, EntityTreeComponent)?.parentEntity
       ) {
         clickedEntity = getComponent(clickedEntity, EntityTreeComponent).parentEntity!
       }
-      if (hasComponent(clickedEntity, SceneComponent)) {
+      if (hasComponent(clickedEntity, SourceComponent)) {
         SelectionState.updateSelection([getComponent(clickedEntity, UUIDComponent)])
       }
     }
@@ -299,7 +298,6 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const selectedEntities = SelectionState.useSelectedEntities()
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
   const rendererState = useHookstate(getMutableState(RendererState))
 
@@ -317,7 +315,7 @@ const reactor = () => {
   useEffect(() => {
     // set the active orbit camera to the main camera
     setComponent(Engine.instance.cameraEntity, CameraOrbitComponent)
-    getMutableState(ActiveOrbitCamera).set(Engine.instance.cameraEntity)
+    setComponent(Engine.instance.cameraEntity, InputComponent)
   }, [])
 
   useEffect(() => {

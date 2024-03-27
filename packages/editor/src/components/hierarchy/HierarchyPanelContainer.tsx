@@ -44,7 +44,7 @@ import { NotificationService } from '@etherealengine/client-core/src/common/serv
 import { Engine, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { CopyPasteFunctions } from '../../functions/CopyPasteFunctions'
@@ -89,7 +89,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
   const lockPropertiesPanel = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
   const searchHierarchy = useHookstate('')
 
-  const uuidQuery = useQuery([UUIDComponent, SceneComponent])
+  const uuidQuery = useQuery([UUIDComponent, SourceComponent])
   const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
   const sceneID = useHookstate(getMutableState(EditorState).sceneID)
   const index = SceneSnapshotState.useSnapshotIndex(sceneID.value!)
