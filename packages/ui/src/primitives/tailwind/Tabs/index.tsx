@@ -78,7 +78,7 @@ const Tabs = ({
   }, [currentTab])
 
   return (
-    <div className="relative h-[95vh] overflow-y-auto">
+    <div className="relative overflow-y-auto">
       <Text component="h2" fontSize="xl" className="mb-6">
         {tabsData[currentTab.value]?.title}
       </Text>

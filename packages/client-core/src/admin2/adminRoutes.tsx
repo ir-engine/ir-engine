@@ -167,7 +167,7 @@ const AdminRoutes = () => {
       <AdminTopBar />
       <main className="pointer-events-auto mt-6 flex gap-1.5">
         <AdminSideBar />
-        <div className="w-full overflow-x-auto px-3">
+        <div className="mb-8 h-[calc(100vh_-_88px_-_4rem)] w-full overflow-x-auto overflow-y-auto px-3">
           <Routes>
             <Route path="/*" element={<$allowed />} />
             {<Route path="/" element={<Projects />} />}

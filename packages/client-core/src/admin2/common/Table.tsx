@@ -110,14 +110,14 @@ const DataTable = ({ query, columns, rows }: DataTableProps) => {
       ))}
     </div>
   ) : (
-    <div className="relative">
+    <div className="relative h-full">
       {query.status === 'pending' && (
         <div className="absolute left-1/2 top-1/2 flex h-8 -translate-x-1/2 -translate-y-1/2 items-center">
           <LoadingCircle className="mx-1 h-8 w-8" />
           <Text className="mx-1">{t('common:table.refetching')}</Text>
         </div>
       )}
-      <Table containerClassname={`max-h-[75vh] ${query.status === 'pending' && 'opacity-50'}`}>
+      <Table containerClassname={`${query.status === 'pending' && 'opacity-50'} h-[calc(100%_-_160px)]`}>
         <TableHead
           order={order}
           orderBy={orderBy}
