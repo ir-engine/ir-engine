@@ -23,18 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, defineComponent, getOptionalComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { defineState, getMutableState, matches, useHookstate } from '@etherealengine/hyperflux'
+import { Entity, defineComponent } from '@etherealengine/ecs'
+import { defineState, matches } from '@etherealengine/hyperflux'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { isArray } from 'lodash'
-import React, { useEffect } from 'react'
 import { FrontSide, Material, Vector3 } from 'three'
-import { SceneComponent } from '../../scene/components/SceneComponent'
-import { useModelSceneID } from '../../scene/functions/loaders/ModelFunctions'
-import { MaterialLibraryState } from '../../scene/materials/MaterialLibrary'
 import {
   ditheringAlphatestChunk,
   ditheringFragUniform,
@@ -73,72 +66,9 @@ export const TransparencyDitheringComponent = Array.from({ length: maxDitherPoin
       if (matches.number.test(json.distance)) component.distance.set(json.distance)
       if (matches.number.test(json.exponent)) component.exponent.set(json.exponent)
       if (matches.number.test(json.calculationType)) component.calculationType.set(json.calculationType)
-    },
-
-    reactor: () => {
-      const entity = useEntityContext()
-      const sceneInstanceID = useModelSceneID(entity)
-      const childEntities = useHookstate(SceneComponent.entitiesBySceneState[sceneInstanceID])
-
-      return (
-        <>
-          {childEntities.value?.map((childEntity) => (
-            <DitherChildReactor key={childEntity} entity={childEntity} rootEntity={entity} index={i} />
-          ))}
-        </>
-      )
     }
   })
 })
-
-const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity; index: number }) => {
-  const { entity, rootEntity, index } = props
-  const ditherComponent = useComponent(rootEntity, TransparencyDitheringComponent[index])
-  const basicMaterials = useHookstate(getMutableState(RendererState).forceBasicMaterials)
-
-  /**check if material library state entry for materials stored in the first dithering component changes */
-  const matIds = useComponent(rootEntity, TransparencyDitheringComponent[0]).materialIds
-  const materialState = useHookstate(getMutableState(MaterialLibraryState))
-  const materialIds = useHookstate(
-    Object.keys(materialState.materials.value).filter((key) => matIds.value.includes(key.replace('basic-', '')))
-  )
-  useEffect(() => {
-    if (!matIds.length) return
-    for (const matId of materialIds.value) {
-      const material = materialState.materials.value[matId]
-      injectDitheringLogic(
-        material.material,
-        ditherComponent.center.value,
-        ditherComponent.distance.value,
-        ditherComponent.exponent.value
-      )
-    }
-  }, [materialIds])
-
-  useEffect(() => {
-    if (index > 0) return
-    const meshComponent = getOptionalComponent(entity, MeshComponent)
-    if (!meshComponent) return
-    const material = meshComponent.material
-    const materialIds = ditherComponent.materialIds
-
-    if (!isArray(material)) {
-      /**remove basic- prefix if it exists*/
-      const id = material.uuid.replace('basic-', '')
-      if (!materialIds.value.find((uuid) => uuid === id))
-        ditherComponent.materialIds.set([...materialIds.value, material.uuid])
-
-      injectDitheringLogic(
-        material,
-        ditherComponent.center.value,
-        ditherComponent.distance.value,
-        ditherComponent.exponent.value
-      )
-    }
-  }, [basicMaterials])
-
-  return null
-}
 
 export const injectDitheringLogic = (material: Material, center: Vector3, distance: number, exponent: number) => {
   material.alphaTest = 0.5
