@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { fileBrowserPath } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { sceneUploadPath } from '@etherealengine/common/src/schemas/projects/scene-upload.schema'
 import { SceneDataType, scenePath } from '@etherealengine/common/src/schemas/projects/scene.schema'
@@ -34,11 +35,15 @@ import assert from 'assert'
 import { v1 } from 'uuid'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
+import { SCENE_ASSET_FILES } from './scene.hooks'
 
 describe('scene.test', () => {
   let app: Application
   let projectName: string
+  let secondProjectName: string
   let sceneName: string
+  let secondSceneName: string
+  let thirdSceneName: string
   let sceneData: SceneJsonType
   let parsedSceneData: Record<string, unknown>
   const params = { isInternal: true }
@@ -50,10 +55,14 @@ describe('scene.test', () => {
 
   before(async () => {
     projectName = `test-scene-project-${v1()}`
+    secondProjectName = `test-scene-project2-${v1()}`
     sceneName = `test-scene-name-${v1()}`
+    secondSceneName = `test-scene-name2-${v1()}`
+    thirdSceneName = `test-scene-name3-${v1()}`
     sceneData = structuredClone(defaultSceneSeed) as unknown as SceneJsonType
     parsedSceneData = parseStorageProviderURLs(structuredClone(defaultSceneSeed))
     await app.service(projectPath).create({ name: projectName })
+    await app.service(projectPath).create({ name: secondProjectName })
     await app
       .service(sceneUploadPath)
       .create({ project: projectName, name: sceneName, sceneData }, { files: [], ...params })
@@ -104,6 +113,60 @@ describe('scene.test', () => {
       assert.equal(updatedSceneData.name, sceneName)
       assert.equal(updatedSceneData.project, projectName)
       assert.deepStrictEqual(updatedSceneData.scene, newParsedSceneData)
+    })
+
+    it('should create a scene via scene.create', async () => {
+      const createSceneData = (await app.service(scenePath).create({ project: projectName })) as SceneDataType
+      assert.equal(createSceneData.project, projectName)
+      assert.equal(createSceneData.name, 'New-Scene')
+      assert.equal(createSceneData.scenePath, `projects/${projectName}/New-Scene.scene.json`)
+      assert.ok(app.service(fileBrowserPath).get(`projects/${projectName}/New-Scene.scene.json`))
+      assert.ok(app.service(fileBrowserPath).get(`projects/${projectName}/New-Scene.envmap.ktx2`))
+      assert.ok(app.service(fileBrowserPath).get(`projects/${projectName}/New-Scene.loadingscreen.ktx2`))
+      assert.ok(app.service(fileBrowserPath).get(`projects/${projectName}/New-Scene.thumbnail.jpg`))
+    })
+
+    it("should move of all of a scene's files, deleting the current copies, on a patch when isCopy is false", async () => {
+      await app
+        .service(scenePath)
+        .patch(null, { newSceneName: secondSceneName, oldSceneName: 'New-Scene', project: projectName, isCopy: false })
+
+      for (const ext of SCENE_ASSET_FILES) {
+        assert.equal(await app.service(fileBrowserPath).get(`projects/${projectName}/New-Scene${ext}`), false)
+        assert.equal(await app.service(fileBrowserPath).get(`projects/${projectName}/${secondSceneName}${ext}`), true)
+      }
+    })
+
+    it("should make a copy of all of a scene's files without deleting the current copies on a patch when isCopy is true", async () => {
+      await app.service(scenePath).patch(null, {
+        newSceneName: thirdSceneName,
+        oldSceneName: secondSceneName,
+        project: projectName,
+        isCopy: true
+      })
+
+      for (const ext of SCENE_ASSET_FILES) {
+        assert.equal(await app.service(fileBrowserPath).get(`projects/${projectName}/${secondSceneName}${ext}`), true)
+        assert.equal(await app.service(fileBrowserPath).get(`projects/${projectName}/${thirdSceneName}${ext}`), true)
+      }
+    })
+
+    it("should make a copy of all of a scene's files to another project without deleting the current copies on a patch when isCopy is true", async () => {
+      await app.service(scenePath).patch(null, {
+        newSceneName: thirdSceneName,
+        oldSceneName: secondSceneName,
+        project: secondProjectName,
+        oldProjectName: projectName,
+        isCopy: true
+      })
+
+      for (const ext of SCENE_ASSET_FILES) {
+        assert.equal(await app.service(fileBrowserPath).get(`projects/${projectName}/${secondSceneName}${ext}`), true)
+        assert.equal(
+          await app.service(fileBrowserPath).get(`projects/${secondProjectName}/${thirdSceneName}${ext}`),
+          true
+        )
+      }
     })
 
     it('should remove the scene', async () => {

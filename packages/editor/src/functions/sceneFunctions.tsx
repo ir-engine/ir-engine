@@ -28,9 +28,11 @@ import i18n from 'i18next'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import multiLogger from '@etherealengine/common/src/logger'
 import {
+  SaveSceneOptions,
   SceneDataType,
   SceneID,
   SceneMetadataCreate,
+  ScenePatch,
   scenePath,
   sceneUploadPath
 } from '@etherealengine/common/src/schema.type.module'
@@ -53,10 +55,9 @@ const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
  */
 export const getScenes = async (projectName: string): Promise<SceneDataType[]> => {
   try {
-    const result = (await Engine.instance.api
+    return (await Engine.instance.api
       .service(scenePath)
       .find({ query: { project: projectName, metadataOnly: true, paginate: false } })) as any as SceneDataType[]
-    return result
   } catch (error) {
     logger.error(error, 'Error in getting project getScenes()')
     throw error
@@ -66,7 +67,9 @@ export const getScenes = async (projectName: string): Promise<SceneDataType[]> =
 /**
  * Function to get project data.
  *
- * @param projectId
+ * @param {string} projectName
+ * @param {string} sceneName
+ * @param {boolean} metadataOnly
  * @returns
  */
 export const getScene = async (projectName: string, sceneName: string, metadataOnly = true): Promise<SceneDataType> => {
@@ -83,7 +86,8 @@ export const getScene = async (projectName: string, sceneName: string, metadataO
 /**
  * deleteScene used to delete project using projectId.
  *
- * @param  {SceneID}  sceneId
+ * @param  {SceneID}  sceneName
+ * @param {string} projectName
  * @return {Promise}
  */
 export const deleteScene = async (projectName, sceneName): Promise<any> => {
@@ -100,12 +104,13 @@ export const renameScene = async (
   projectName: string,
   newSceneName: string,
   oldSceneName: string,
+  isCopy?: boolean,
   params?: SceneParams
 ) => {
   try {
     await Engine.instance.api
       .service(scenePath)
-      .patch(null, { newSceneName, oldSceneName, project: projectName }, params)
+      .patch(null, { newSceneName, oldSceneName, project: projectName, isCopy }, params)
   } catch (error) {
     logger.error(error, 'Error in renaming project')
     throw error
@@ -116,13 +121,11 @@ export const renameScene = async (
 /**
  * saveScene used to save changes in existing project.
  *
- * @param {string} projectName
- * @param  {any}  sceneName
- * @param {File | null} thumbnailFile
- * @param  {any}  signal
+ * @param {SaveSceneOptions} saveSceneOptions
  * @return {Promise}
  */
-export const saveScene = async (projectName: string, sceneName: string, signal: AbortSignal) => {
+export const saveScene = async (saveSceneOptions: SaveSceneOptions) => {
+  const { projectName, sceneName, signal, oldProjectName, oldSceneName } = saveSceneOptions
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
 
   const sceneData = getState(SceneSnapshotState)[getState(EditorState).sceneID!].snapshots.at(-1)?.data
@@ -140,6 +143,18 @@ export const saveScene = async (projectName: string, sceneName: string, signal: 
           delete sceneData.entities[getComponent(entity, UUIDComponent)]
         })
       }
+    }
+    if (oldProjectName || oldSceneName) {
+      const patchBody = {
+        newSceneName: sceneName,
+        project: projectName,
+        isCopy: true
+      } as ScenePatch
+
+      if (oldProjectName) patchBody.oldProjectName = oldProjectName
+      if (oldSceneName) patchBody.oldSceneName = oldSceneName
+
+      await Engine.instance.api.service(scenePath).patch(null, patchBody)
     }
     return await uploadToFeathersService(sceneUploadPath, [], {
       project: projectName,

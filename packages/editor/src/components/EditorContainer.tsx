@@ -38,7 +38,7 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import Dialog from '@mui/material/Dialog'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { SceneDataType, scenePath } from '@etherealengine/common/src/schema.type.module'
+import { SaveSceneOptions, SceneDataType, scenePath } from '@etherealengine/common/src/schema.type.module'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SceneServices, SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
@@ -57,6 +57,7 @@ import { ProjectBrowserPanelTab } from './assets/ProjectBrowserPanel'
 import { SceneAssetsPanelTab } from './assets/SceneAssetsPanel'
 import { ScenePanelTab } from './assets/ScenesPanel'
 import { ControlText } from './controlText/ControlText'
+import CopySceneDialog from './dialogs/CopySceneDialog'
 import { DialogState } from './dialogs/DialogState'
 import ErrorDialog from './dialogs/ErrorDialog'
 import { ProgressDialog } from './dialogs/ProgressDialog'
@@ -183,7 +184,14 @@ const onSaveAs = async () => {
       })
       DialogState.setDialog(null)
       if (result?.name && projectName) {
-        await saveScene(projectName, result.name, abortController.signal)
+        const saveObject = {
+          projectName,
+          sceneName: result.name,
+          signal: abortController.signal,
+          oldProjectName: projectName
+        } as SaveSceneOptions
+        if (sceneName) saveObject.oldSceneName = sceneName
+        await saveScene(saveObject)
         getMutableState(SceneState).sceneModified.set(false)
         const newSceneData = (await Engine.instance.api
           .service(scenePath)
@@ -196,6 +204,32 @@ const onSaveAs = async () => {
     DialogState.setDialog(
       <ErrorDialog title={t('editor:savingError')} message={error?.message || t('editor:savingErrorMsg')} />
     )
+  }
+}
+
+const onCopyScene = async () => {
+  const { projectName, sceneName } = getState(EditorState)
+  const abortController = new AbortController()
+  const result = (await new Promise((resolve) => {
+    DialogState.setDialog(
+      <CopySceneDialog
+        currentSceneName={sceneName!}
+        currentProjectName={projectName!}
+        onConfirm={resolve}
+        onCancel={resolve}
+      />
+    )
+  })) as { name: string; projectName: string }
+  DialogState.setDialog(null)
+  if (result?.name && result?.projectName) {
+    const saveSceneObject = {
+      projectName: result.projectName,
+      sceneName: result.name,
+      signal: abortController.signal
+    } as SaveSceneOptions
+    if (sceneName) saveSceneObject.oldSceneName = sceneName
+    if (projectName) saveSceneObject.oldProjectName = projectName
+    await saveScene(saveSceneObject)
   }
 }
 
@@ -260,7 +294,7 @@ const onSaveScene = async () => {
   await new Promise((resolve) => setTimeout(resolve, 5))
 
   try {
-    await saveScene(projectName, sceneName, abortController.signal)
+    await saveScene({ projectName, sceneName, signal: abortController.signal })
 
     getMutableState(SceneState).sceneModified.set(false)
 
@@ -288,6 +322,10 @@ const generateToolbarMenu = () => {
     {
       name: t('editor:menubar.saveAs'),
       action: onSaveAs
+    },
+    {
+      name: t('editor:menubar.copyScene'),
+      action: onCopyScene
     },
     {
       name: t('editor:menubar.importSettings'),
