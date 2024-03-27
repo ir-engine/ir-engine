@@ -134,6 +134,7 @@ export const RigidBodyComponent = defineComponent({
 
       return () => {
         const world = getState(PhysicsState).physicsWorld
+        if (!world) return
         if (world.bodies.contains(rigidBody.handle)) {
           world.removeRigidBody(rigidBody)
         }

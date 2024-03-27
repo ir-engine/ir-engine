@@ -270,7 +270,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   proxifyParentChildRelationships(obj)
 
   obj.removeFromParent = () => {
-    if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
+    if (getOptionalComponent(objEntity, EntityTreeComponent)?.parentEntity) {
       setComponent(objEntity, EntityTreeComponent, {
         parentEntity: UndefinedEntity
       })
