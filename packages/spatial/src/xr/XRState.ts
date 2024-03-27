@@ -169,6 +169,7 @@ export const useXRMovement = () => {
 export const ReferenceSpace = {
   /**
    * The scene origin reference space describes where the origin of the tracking space is
+   * TODO: this will be deprecated in a future reference space refactor
    */
   origin: null as XRReferenceSpace | null,
   /**

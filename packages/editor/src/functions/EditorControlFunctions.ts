@@ -54,7 +54,7 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
-import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
@@ -72,7 +72,7 @@ const addOrRemoveComponent = <C extends Component<any, any>>(entities: Entity[],
 
   const scenes: Record<SceneID, Entity[]> = {}
   for (const entity of entities) {
-    const sceneID = getComponent(entity, SceneComponent)
+    const sceneID = getComponent(entity, SourceComponent)
     scenes[sceneID] ??= []
     scenes[sceneID].push(entity)
   }
@@ -127,7 +127,7 @@ const modifyProperty = <C extends Component<any, any>>(
 
   const scenes: Record<SceneID, Entity[]> = {}
   for (const entity of entities) {
-    const source = getComponent(entity, SceneComponent)
+    const source = getComponent(entity, SourceComponent)
     scenes[source] ??= []
     scenes[source].push(entity)
   }
@@ -567,7 +567,7 @@ const removeObject = (entities: Entity[]) => {
     const uuidsToDelete = iterateEntityNode(
       entity,
       (entity) => getComponent(entity, UUIDComponent),
-      (entity) => hasComponent(entity, SceneComponent) && hasComponent(entity, UUIDComponent),
+      (entity) => hasComponent(entity, SourceComponent) && hasComponent(entity, UUIDComponent),
       false,
       false
     )
@@ -642,7 +642,7 @@ const addToSelection = (entities: EntityUUID[]) => {
 const commitTransformSave = (entities: Entity[]) => {
   const scenes: Record<SceneID, Entity[]> = {}
   for (const entity of entities) {
-    const source = getComponent(entity, SceneComponent)
+    const source = getComponent(entity, SourceComponent)
     scenes[source] ??= []
     scenes[source].push(entity)
   }

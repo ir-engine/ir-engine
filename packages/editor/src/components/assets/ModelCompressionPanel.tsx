@@ -52,7 +52,7 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import exportGLTF from '../../functions/exportGLTF'
 
 import { createEntity, Entity, generateEntityUUID, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
-import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -78,10 +78,10 @@ const createTempEntity = (name: string, parentEntity: Entity = UndefinedEntity):
   setComponent(entity, EntityTreeComponent, { parentEntity })
 
   let sceneID = getState(EditorState).sceneID!
-  if (hasComponent(parentEntity, SceneComponent)) {
-    sceneID = getComponent(parentEntity, SceneComponent)
+  if (hasComponent(parentEntity, SourceComponent)) {
+    sceneID = getComponent(parentEntity, SourceComponent)
   }
-  setComponent(entity, SceneComponent, sceneID)
+  setComponent(entity, SourceComponent, sceneID)
 
   const uuid = generateEntityUUID()
   setComponent(entity, UUIDComponent, uuid)

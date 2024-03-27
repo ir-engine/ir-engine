@@ -24,11 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 /* eslint-disable @typescript-eslint/no-var-requires */
+import { getACL } from '@etherealengine/server-core/src/media/storageprovider/s3.storage'
+
 const dotenv = require('dotenv')
 const fs = require('fs')
 const knex = require('knex')
 const { staticResourcePath } = require('@etherealengine/engine/src/media/static-resource.schema')
-const { S3Client } = require('@aws-sdk/client-s3')
+const {
+  assetsRegex,
+  projectPublicRegex,
+  projectRegex,
+  rootImageRegex,
+  rootSceneJsonRegex
+} = require('@etherealengine/common/src/constants/ProjectKeyConstants')
+const { ObjectCannedACL, S3Client } = require('@aws-sdk/client-s3')
 const { nanoid } = require('nanoid')
 const { v4: uuidv4 } = require('uuid')
 
@@ -98,7 +107,7 @@ const uploadFile = (Key, Body) => {
               Body,
               Bucket: BUCKET,
               Key,
-              ACL: 'public-read'
+              ACL: getACL(Key)
             },
             (err, data) => {
               resolve(data)

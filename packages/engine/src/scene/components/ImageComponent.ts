@@ -110,7 +110,7 @@ export const ImageComponent = defineComponent({
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
      */
-    // if (!getState(SceneState).sceneLoaded && hasComponent(entity, SceneComponent))
+    // if (!getState(SceneState).sceneLoaded && hasComponent(entity, SourceComponent))
     //   SceneAssetPendingTagComponent.addResource(entity, ImageComponent.jsonID)
   },
 

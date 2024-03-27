@@ -23,18 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { useEffect } from 'react'
 import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
 import { TransformGizmoControlledComponent } from '../classes/TransformGizmoControlledComponent'
 import { controlUpdate, gizmoUpdate, planeUpdate } from '../functions/gizmoHelper'
 import { SelectionState } from '../services/SelectionServices'
 
-const sceneQuery = defineQuery([SceneComponent])
+const sourceQuery = defineQuery([SourceComponent, TransformGizmoControlledComponent])
 export const transformGizmoControllerQuery = defineQuery([TransformGizmoControlComponent])
 export const transformGizmoControlledQuery = defineQuery([TransformGizmoControlledComponent])
 
@@ -54,10 +54,7 @@ const execute = () => {
 const reactor = () => {
   const selectedEntities = SelectionState.useSelectedEntities()
 
-  for (const entity of sceneQuery()) {
-    if (!hasComponent(entity, TransformGizmoControlledComponent)) continue
-    removeComponent(entity, TransformGizmoControlledComponent)
-  }
+  for (const entity of sourceQuery()) removeComponent(entity, TransformGizmoControlledComponent)
 
   useEffect(() => {
     if (!selectedEntities) return
