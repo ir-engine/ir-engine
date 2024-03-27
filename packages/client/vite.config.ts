@@ -46,10 +46,6 @@ const parseModuleName = (moduleName: string) => {
   if (moduleName.includes('medisoup')) {
     return `vendor_medisoup-client_${moduleName.toString().split('client/lib/')[1].split('/')[0].toString()}`
   }
-  // chunk @fortawesome
-  if (moduleName.includes('@fortawesome')) {
-    return `vendor_@fortawesome_${moduleName.toString().split('@fortawesome/')[1].split('/')[0].toString()}`
-  }
   // chunk apexcharts
   if (moduleName.includes('apexcharts')) {
     return `vendor_apexcharts_${moduleName.toString().split('dist/')[1].split('/')[0].toString()}`
@@ -286,7 +282,6 @@ export default defineConfig(async () => {
     base,
     optimizeDeps: {
       entries: ['./src/main.tsx'],
-      exclude: ['@etherealengine/volumetric'],
       include: ['@reactflow/core', '@reactflow/minimap', '@reactflow/controls', '@reactflow/background'],
       esbuildOptions: {
         target: 'es2020'

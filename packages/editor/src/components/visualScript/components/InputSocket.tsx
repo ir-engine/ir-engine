@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { faCaretRight } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React from 'react'
+import { FaCaretRight } from 'react-icons/fa6'
 import { Connection, Handle, Position, useReactFlow } from 'reactflow'
 
 import { InputSocketSpecJSON } from '@etherealengine/visual-script'
@@ -156,7 +155,7 @@ const InputSocket: React.FC<InputSocketProps> = ({ connected, specGenerator, ...
         height: '1.75rem'
       }}
     >
-      {isFlowSocket && <FontAwesomeIcon icon={faCaretRight} color="#ffffff" size="lg" />}
+      {isFlowSocket && <FaCaretRight color="#ffffff" size="1.25rem" />}
       {showName && <div style={{ textTransform: 'capitalize', marginRight: '1rem', marginLeft: '0.5rem' }}>{name}</div>}
 
       {!isFlowSocket && !connected && <InputFieldForValue {...rest} />}
