@@ -23,24 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { projectsPath } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { loadConfigForProject } from './loadConfigForProject'
+import { projectsMethods, projectsPath } from '@etherealengine/common/src/schemas/projects/projects.schema'
+import { Application } from '../../../declarations'
+import { ProjectsService } from './projects.class'
+import projectsDocs from './projects.docs'
+import hooks from './projects.hooks'
 
-export const loadWebappInjection = async () => {
-  const projects = await Engine.instance.api.service(projectsPath).find()
-  return (
-    await Promise.all(
-      projects.map(async (project) => {
-        try {
-          const projectConfig = (await loadConfigForProject(project))!
-          if (typeof projectConfig.webappInjection !== 'function') return null!
-          return (await projectConfig.webappInjection()).default
-        } catch (e) {
-          console.error(`Failed to import webapp load event for project ${project} with reason ${e}`)
-          return null!
-        }
-      })
-    )
-  ).filter(($) => !!$)
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [projectsPath]: ProjectsService
+  }
+}
+
+export default (app: Application): void => {
+  app.use(projectsPath, new ProjectsService(app), {
+    // A list of all methods this service exposes externally
+    methods: projectsMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: projectsDocs
+  })
+
+  const service = app.service(projectsPath)
+  service.hooks(hooks)
 }
