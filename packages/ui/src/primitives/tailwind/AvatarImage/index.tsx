@@ -39,7 +39,7 @@ const sizes = {
 export interface AvatarImageProps extends React.HTMLAttributes<HTMLImageElement> {
   src: string
   size?: keyof typeof sizes
-  name: string
+  name?: string
 }
 
 const AvatarPlaceholder = ({ className, name }: { className: string; name: string }) => (
@@ -60,7 +60,7 @@ const AvatarImage = ({ src, size = 'medium', className, name }: AvatarImageProps
       onError={() => imageLoaded.set(false)}
     />
   ) : (
-    <AvatarPlaceholder className={twClassName} name={name} />
+    <AvatarPlaceholder className={twClassName} name={name || 'U'} />
   )
 }
 

@@ -81,7 +81,7 @@ export default function UserTable({
         ),
         id: row.id,
         name: row.name,
-        avatar: <AvatarImage src={row.avatar.thumbnailResource?.url || ''} />,
+        avatar: <AvatarImage src={row.avatar.thumbnailResource?.url || ''} name={row.name} />,
         accountIdentifier: <AccountIdentifiers user={row} />,
         action: (
           <div className="flex items-center gap-2">
