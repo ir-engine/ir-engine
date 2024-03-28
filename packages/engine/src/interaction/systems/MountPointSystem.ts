@@ -70,6 +70,70 @@ const mountPointInteractMessages = {
   [MountPoint.seat]: 'Press E to Sit'
 }
 
+const unmountEntity = (entity: Entity) => {
+  if (!hasComponent(entity, SittingComponent)) return
+  const rigidBody = getComponent(entity, RigidBodyComponent)
+
+  dispatchAction(
+    AvatarNetworkAction.setAnimationState({
+      animationAsset: preloadedAnimations.emotes,
+      clipName: emoteAnimations.seated,
+      needsSkip: true,
+      entityUUID: getComponent(entity, UUIDComponent)
+    })
+  )
+
+  const sittingComponent = getComponent(entity, SittingComponent)
+
+  AvatarControllerComponent.releaseMovement(entity, sittingComponent.mountPointEntity)
+  dispatchAction(
+    MountPointActions.mountInteraction({
+      mounted: false,
+      mountedEntity: getComponent(entity, UUIDComponent),
+      targetMount: getComponent(sittingComponent.mountPointEntity, UUIDComponent)
+    })
+  )
+  const mountTransform = getComponent(sittingComponent.mountPointEntity, TransformComponent)
+  const mountComponent = getComponent(sittingComponent.mountPointEntity, MountPointComponent)
+  //we use teleport avatar only when rigidbody is not enabled, otherwise translation is called on rigidbody
+  const dismountPoint = new Vector3().copy(mountComponent.dismountOffset).applyMatrix4(mountTransform.matrixWorld)
+  teleportAvatar(entity, dismountPoint)
+  rigidBody.body.setEnabled(true)
+  removeComponent(entity, SittingComponent)
+}
+
+const mountEntity = (avatarEntity: Entity, mountEntity: Entity) => {
+  const avatarUUID = getComponent(avatarEntity, UUIDComponent)
+  const mountPoint = getOptionalComponent(mountEntity, MountPointComponent)
+  if (!mountPoint || mountPoint.type !== MountPoint.seat) return
+  const mountPointUUID = getComponent(mountEntity, UUIDComponent)
+
+  //check if we're already sitting or if the seat is occupied
+  if (getState(MountPointState)[mountPointUUID] || hasComponent(avatarEntity, SittingComponent)) return
+
+  setComponent(avatarEntity, SittingComponent, {
+    mountPointEntity: mountEntity!
+  })
+
+  AvatarControllerComponent.captureMovement(avatarEntity, mountEntity)
+  dispatchAction(
+    AvatarNetworkAction.setAnimationState({
+      animationAsset: preloadedAnimations.emotes,
+      clipName: emoteAnimations.seated,
+      loop: true,
+      layer: 1,
+      entityUUID: avatarUUID
+    })
+  )
+  dispatchAction(
+    MountPointActions.mountInteraction({
+      mounted: true,
+      mountedEntity: getComponent(avatarEntity, UUIDComponent),
+      targetMount: getComponent(mountEntity, UUIDComponent)
+    })
+  )
+}
+
 const mountPointQuery = defineQuery([MountPointComponent])
 const sittingIdleQuery = defineQuery([SittingComponent])
 
@@ -77,70 +141,6 @@ const execute = () => {
   if (getState(EngineState).isEditor) return
 
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-
-  const unmountEntity = (entity: Entity) => {
-    if (!hasComponent(entity, SittingComponent)) return
-    const rigidBody = getComponent(entity, RigidBodyComponent)
-
-    dispatchAction(
-      AvatarNetworkAction.setAnimationState({
-        animationAsset: preloadedAnimations.emotes,
-        clipName: emoteAnimations.seated,
-        needsSkip: true,
-        entityUUID: getComponent(entity, UUIDComponent)
-      })
-    )
-
-    const sittingComponent = getComponent(entity, SittingComponent)
-
-    AvatarControllerComponent.releaseMovement(selfAvatarEntity, sittingComponent.mountPointEntity)
-    dispatchAction(
-      MountPointActions.mountInteraction({
-        mounted: false,
-        mountedEntity: getComponent(entity, UUIDComponent),
-        targetMount: getComponent(sittingComponent.mountPointEntity, UUIDComponent)
-      })
-    )
-    const mountTransform = getComponent(sittingComponent.mountPointEntity, TransformComponent)
-    const mountComponent = getComponent(sittingComponent.mountPointEntity, MountPointComponent)
-    //we use teleport avatar only when rigidbody is not enabled, otherwise translation is called on rigidbody
-    const dismountPoint = new Vector3().copy(mountComponent.dismountOffset).applyMatrix4(mountTransform.matrixWorld)
-    teleportAvatar(entity, dismountPoint)
-    rigidBody.body.setEnabled(true)
-    removeComponent(entity, SittingComponent)
-  }
-
-  const mountEntity = (avatarEntity: Entity, mountEntity: Entity) => {
-    const avatarUUID = getComponent(avatarEntity, UUIDComponent)
-    const mountPoint = getOptionalComponent(mountEntity, MountPointComponent)
-    if (!mountPoint || mountPoint.type !== MountPoint.seat) return
-    const mountPointUUID = getComponent(mountEntity, UUIDComponent)
-
-    //check if we're already sitting or if the seat is occupied
-    if (getState(MountPointState)[mountPointUUID] || hasComponent(avatarEntity, SittingComponent)) return
-
-    setComponent(avatarEntity, SittingComponent, {
-      mountPointEntity: mountEntity!
-    })
-
-    AvatarControllerComponent.captureMovement(avatarEntity, mountEntity)
-    dispatchAction(
-      AvatarNetworkAction.setAnimationState({
-        animationAsset: preloadedAnimations.emotes,
-        clipName: emoteAnimations.seated,
-        loop: true,
-        layer: 1,
-        entityUUID: avatarUUID
-      })
-    )
-    dispatchAction(
-      MountPointActions.mountInteraction({
-        mounted: true,
-        mountedEntity: getComponent(avatarEntity, UUIDComponent),
-        targetMount: getComponent(mountEntity, UUIDComponent)
-      })
-    )
-  }
 
   for (const entity of mountPointQuery.enter()) {
     const mountPoint = getComponent(entity, MountPointComponent)
@@ -155,10 +155,14 @@ const execute = () => {
     }
   }
 
-  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
-  const inputSource = getOptionalComponent(nonCapturedInputSource, InputSourceComponent)
-  if (inputSource && (inputSource.buttons.KeyE?.down || inputSource.buttons[XRStandardGamepadButton.Trigger]?.down))
-    mountEntity(selfAvatarEntity, getState(InteractState).available[0])
+  const buttons = InputSourceComponent.getMergedButtons()
+
+  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSources()
+  for (const entity of nonCapturedInputSource) {
+    const inputSource = getComponent(entity, InputSourceComponent)
+    if (buttons.KeyE?.down || inputSource.buttons[XRStandardGamepadButton.Trigger]?.down)
+      mountEntity(selfAvatarEntity, getState(InteractState).available[0])
+  }
 
   /*Consider mocap inputs in the event we want to snap a real world seated person
     to a mount point, to maintain physical continuity

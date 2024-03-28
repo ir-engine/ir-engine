@@ -68,7 +68,7 @@ import matches from 'ts-matches'
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { SceneComponent } from './SceneComponent'
+import { SourceComponent } from './SourceComponent'
 
 /** @deprecated - use the new API */
 export const ColliderComponent = defineComponent({
@@ -148,7 +148,7 @@ export const ColliderComponent = defineComponent({
 
     if (
       !getState(SceneState).sceneLoaded &&
-      hasComponent(entity, SceneComponent) &&
+      hasComponent(entity, SourceComponent) &&
       !hasComponent(entity, RigidBodyComponent)
     )
       SceneAssetPendingTagComponent.addResource(entity, ColliderComponent.jsonID)

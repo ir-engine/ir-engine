@@ -43,6 +43,11 @@ export enum MouseButton {
   'SecondaryClick' = 'SecondaryClick'
 }
 
+export enum MouseScroll {
+  'HorizontalScroll' = 0,
+  'VerticalScroll' = 1
+}
+
 /**
  * Keyboard button codes
  * https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code/code_values
