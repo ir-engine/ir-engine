@@ -35,6 +35,7 @@ import {
 import { getState } from '@etherealengine/hyperflux'
 import { NetworkObjectComponent, NetworkObjectSendPeriodicUpdatesTag } from '@etherealengine/network'
 import { setTargetCameraRotation } from '@etherealengine/spatial/src/camera/functions/CameraFunctions'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { CollisionComponent } from '@etherealengine/spatial/src/physics/components/CollisionComponent'
@@ -117,6 +118,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   setComponent(entity, AvatarRigComponent)
 
   setComponent(entity, EntityTreeComponent)
+  setComponent(entity, InputComponent)
 }
 
 export const createAvatarCollider = (entity: Entity) => {
