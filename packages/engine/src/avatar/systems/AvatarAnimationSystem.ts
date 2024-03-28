@@ -26,14 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import config from '@etherealengine/common/src/config'
 import {
   ECSState,
-  Engine,
   Entity,
   defineQuery,
   defineSystem,
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
-  getOptionalMutableComponent,
   hasComponent
 } from '@etherealengine/ecs'
 import {
@@ -46,7 +43,6 @@ import {
   useMutableState
 } from '@etherealengine/hyperflux'
 import { NetworkObjectComponent, NetworkState } from '@etherealengine/network'
-import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import {
   createPriorityQueue,
   createSortAndApplyPriorityQueue
@@ -55,15 +51,15 @@ import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/componen
 import { TransformSystem } from '@etherealengine/spatial/src/transform/TransformModule'
 import { compareDistanceToCamera } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { XRHandComponent, XRLeftHandComponent, XRRightHandComponent } from '@etherealengine/spatial/src/xr/XRComponents'
-import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
+import { XRLeftHandComponent, XRRightHandComponent } from '@etherealengine/spatial/src/xr/XRComponents'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { useBatchGLTF } from '../../assets/functions/resourceHooks'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
-import { AvatarHeadDecapComponent, AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
+import { AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
 import { AnimationState } from '../AnimationManager'
 import { IKSerialization } from '../IKSerialization'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
@@ -73,7 +69,6 @@ import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { getArmIKHint } from '../animation/getArmIKHint'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
-import { TransparencyDitheringComponent } from '../components/TransparencyDitheringComponent'
 import { retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 import { LocalAvatarState } from '../state/AvatarState'
@@ -98,7 +93,6 @@ export const AvatarAnimationState = defineState({
 
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
 const avatarComponentQuery = defineQuery([AvatarComponent])
-const hands = defineQuery([XRHandComponent])
 
 const _quat = new Quaternion()
 const _quat2 = new Quaternion()
@@ -106,7 +100,6 @@ const _vector3 = new Vector3()
 const _hint = new Vector3()
 const mat4 = new Matrix4()
 const hipsForward = new Vector3(0, 0, 1)
-const eyeOffset = 0.25
 
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(avatarComponentQuery, compareDistanceToCamera)
 
@@ -330,33 +323,6 @@ const execute = () => {
 
     updateVRMRetargeting(rigComponent.vrm, entity)
   }
-
-  //self avatar entity's dithering component and camera attached logic
-  if (!selfAvatarEntity) return
-
-  const cameraDithering = getOptionalMutableComponent(selfAvatarEntity, TransparencyDitheringComponent[0])
-  if (!cameraDithering) return
-
-  const cameraAttached = getState(XRControlsState).isCameraAttachedToAvatar
-
-  const avatarComponent = getComponent(selfAvatarEntity, AvatarComponent)
-  const headDithering = getMutableComponent(selfAvatarEntity, TransparencyDitheringComponent[1])
-  headDithering.center.set(new Vector3(0, avatarComponent.eyeHeight, 0))
-  const cameraComponent = getOptionalComponent(Engine.instance.cameraEntity, FollowCameraComponent)
-  headDithering.distance.set(
-    cameraComponent && !cameraAttached ? Math.max(Math.pow(cameraComponent.distance * 5, 2.5), 3) : 3.25
-  )
-  headDithering.exponent.set(cameraAttached ? 12 : 8)
-  getMutableComponent(selfAvatarEntity, TransparencyDitheringComponent[0]).center.set(
-    getComponent(Engine.instance.cameraEntity, TransformComponent).position
-  )
-  cameraDithering.distance.set(cameraAttached ? 6 : 3)
-  cameraDithering.exponent.set(cameraAttached ? 10 : 2)
-
-  if (!cameraComponent) return
-  const hasDecapComponent = hasComponent(selfAvatarEntity, AvatarHeadDecapComponent)
-  if (hasDecapComponent) cameraComponent.offset.setZ(Math.min(cameraComponent.offset.z + deltaSeconds, eyeOffset))
-  else cameraComponent.offset.setZ(Math.max(cameraComponent.offset.z - deltaSeconds, 0))
 }
 
 const reactor = () => {

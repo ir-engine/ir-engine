@@ -92,7 +92,6 @@ const handleMocapData = (
     timeSeriesMocapData.set(fromPeerID, new RingBuffer(10))
   }
   timeSeriesMocapData.get(fromPeerID)!.add(results)
-  console.log(results)
 }
 
 const motionCaptureQuery = defineQuery([MotionCaptureRigComponent, AvatarRigComponent])
