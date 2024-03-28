@@ -62,6 +62,8 @@ const Button = ({
   variant = 'primary',
   disabled = false,
   className,
+  id,
+  onClick,
   ...props
 }: ButtonProps): JSX.Element => {
   const twClassName = twMerge(
@@ -79,7 +81,7 @@ const Button = ({
   )
 
   return (
-    <button role="button" disabled={disabled} className={twClassName} {...props}>
+    <button id={id} onClick={onClick} role="button" disabled={disabled} className={twClassName} {...props}>
       {StartIcon && <span className="mx-1">{StartIcon}</span>}
       {children && <span className={twMerge('mx-1', fullWidth ? 'mx-1' : '')}> {children}</span>}
       {EndIcon && <span className="mx-1">{EndIcon}</span>}

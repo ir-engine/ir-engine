@@ -38,6 +38,8 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   error?: string
   disabled?: boolean
   icon?: JSX.Element
+  onEndIconClick?: (e: any) => void
+  onKeyDown?: (e: any) => void
 }
 
 const Input = ({
@@ -52,6 +54,8 @@ const Input = ({
   onChange,
   disabled,
   icon,
+  onEndIconClick,
+  onKeyDown,
   ...props
 }: InputProps) => {
   const twClassname = twMerge(
@@ -69,7 +73,13 @@ const Input = ({
     <div className={twContainerClassname}>
       {label && <Label className="self-stretch">{label}</Label>}
       <div className="relative w-full">
-        {icon && <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5">{icon}</div>}
+        {icon && (
+          <div className="pointer-events-auto absolute inset-y-0 end-0 flex items-center pe-3.5">
+            <div onClick={onEndIconClick} className={onEndIconClick ? 'cursor-pointer' : ''}>
+              {icon}
+            </div>
+          </div>
+        )}
         <input disabled={disabled} type={type} className={twClassname} value={value} onChange={onChange} {...props} />
       </div>
       {description && <p className="text-theme-secondary self-stretch text-xs">{description}</p>}
