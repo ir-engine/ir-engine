@@ -63,7 +63,7 @@ const execute = () => {
   getMutableComponent(selfAvatarEntity, TransparencyDitheringComponent[0]).center.set(
     getComponent(Engine.instance.viewerEntity, TransformComponent).position
   )
-  cameraDithering.distance.set(cameraAttached ? 6 : 3)
+  cameraDithering.distance.set(cameraAttached ? 8 : 3)
   cameraDithering.exponent.set(cameraAttached ? 10 : 2)
 
   if (!cameraComponent) return
