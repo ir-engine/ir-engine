@@ -23,24 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { projectsPath } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { loadConfigForProject } from './loadConfigForProject'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Vector2 } from 'three'
 
-export const loadWebappInjection = async () => {
-  const projects = await Engine.instance.api.service(projectsPath).find()
-  return (
-    await Promise.all(
-      projects.map(async (project) => {
-        try {
-          const projectConfig = (await loadConfigForProject(project))!
-          if (typeof projectConfig.webappInjection !== 'function') return null!
-          return (await projectConfig.webappInjection()).default
-        } catch (e) {
-          console.error(`Failed to import webapp load event for project ${project} with reason ${e}`)
-          return null!
-        }
-      })
-    )
-  ).filter(($) => !!$)
-}
+export const InputPointerComponent = defineComponent({
+  name: 'InputPointerComponent',
+
+  onInit: () => {
+    return {
+      pointerId: -1 as number,
+      position: new Vector2(),
+      lastPosition: new Vector2(),
+      movement: new Vector2(),
+      canvasEntity: UndefinedEntity
+    }
+  },
+
+  onSet(entity, component, args: { pointerId: number; canvasEntity: Entity }) {
+    component.pointerId.set(args.pointerId)
+    component.canvasEntity.set(args.canvasEntity)
+  }
+})

@@ -60,6 +60,7 @@ export type * from './schemas/projects/project-invalidate.schema'
 export type * from './schemas/projects/project-permission-type.schema'
 export type * from './schemas/projects/project-permission.schema'
 export type * from './schemas/projects/project.schema'
+export type * from './schemas/projects/projects.schema'
 export type * from './schemas/projects/scene-data.schema'
 export type * from './schemas/projects/scene-upload.schema'
 export type * from './schemas/projects/scene.schema'
@@ -254,6 +255,8 @@ export const projectBuildPath = 'project-build'
 export const projectInvalidatePath = 'project-invalidate'
 
 export const projectPath = 'project'
+
+export const projectsPath = 'projects'
 
 export const scenePath = 'scene'
 

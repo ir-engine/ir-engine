@@ -66,8 +66,8 @@ import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunc
 import { EnvmapComponent } from './EnvmapComponent'
 import { ObjectGridSnapComponent } from './ObjectGridSnapComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { SceneComponent } from './SceneComponent'
 import { ShadowComponent } from './ShadowComponent'
+import { SourceComponent } from './SourceComponent'
 
 export const ModelComponent = defineComponent({
   name: 'ModelComponent',
@@ -107,7 +107,7 @@ export const ModelComponent = defineComponent({
      */
     if (
       !getState(SceneState).sceneLoaded &&
-      hasComponent(entity, SceneComponent) &&
+      hasComponent(entity, SourceComponent) &&
       component.src.value &&
       !component.asset.value
     )
@@ -245,7 +245,7 @@ function ModelReactor(): JSX.Element {
   }, [modelComponent.scene])
 
   const sceneInstanceID = useModelSceneID(entity)
-  const childEntities = useHookstate(SceneComponent.entitiesBySceneState[sceneInstanceID])
+  const childEntities = useHookstate(SourceComponent.entitiesBySourceState[sceneInstanceID])
 
   return (
     <>
@@ -326,8 +326,8 @@ const ThreeToPhysics = {
 export const useMeshOrModel = (entity: Entity) => {
   const meshComponent = useOptionalComponent(entity, MeshComponent)
   const modelComponent = useOptionalComponent(entity, ModelComponent)
-  const sceneComponent = useOptionalComponent(entity, SceneComponent)
-  const isEntityHierarchyOrMesh = (!sceneComponent && !!meshComponent) || !!modelComponent
+  const sourceComponent = useOptionalComponent(entity, SourceComponent)
+  const isEntityHierarchyOrMesh = (!sourceComponent && !!meshComponent) || !!modelComponent
   return isEntityHierarchyOrMesh
 }
 
@@ -335,7 +335,7 @@ export const MeshOrModelQuery = (props: { ChildReactor: FC<{ entity: Entity; roo
   const ModelReactor = () => {
     const entity = useEntityContext()
     const sceneInstanceID = useModelSceneID(entity)
-    const childEntities = useHookstate(SceneComponent.entitiesBySceneState[sceneInstanceID])
+    const childEntities = useHookstate(SourceComponent.entitiesBySourceState[sceneInstanceID])
     return (
       <>
         {childEntities.value?.map((childEntity) => (
@@ -353,7 +353,7 @@ export const MeshOrModelQuery = (props: { ChildReactor: FC<{ entity: Entity; roo
   return (
     <>
       <QueryReactor Components={[ModelComponent]} ChildEntityReactor={ModelReactor} />
-      <QueryReactor Components={[Not(SceneComponent), MeshComponent]} ChildEntityReactor={MeshReactor} />
+      <QueryReactor Components={[Not(SourceComponent), MeshComponent]} ChildEntityReactor={MeshReactor} />
     </>
   )
 }

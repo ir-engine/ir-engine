@@ -32,7 +32,7 @@ import { Bone, Euler, Group, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector
 import { Object3DUtils } from '@etherealengine/common/src/utils/Object3DUtils'
 import { GLTF } from '../assets/loaders/gltf/GLTFLoader'
 
-export type BoneNames =
+export type MixamoBoneNames =
   | 'Root'
   | 'Hips'
   | 'Spine'
@@ -107,8 +107,8 @@ export type BoneNames =
   | 'RightHandThumb3'
   | 'RightHandThumb4'
 
-export type BoneStructure = {
-  [bone in BoneNames]: Bone
+export type MixamoBoneStructure = {
+  [bone in MixamoBoneNames]: Bone
 }
 
 const _getTailBones = (root: Bone): Bone[] => {
