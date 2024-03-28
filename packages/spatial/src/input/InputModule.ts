@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ButtonCleanupSystem } from './systems/ButtonCleanupSystem'
 import { ClientInputSystem } from './systems/ClientInputSystem'
 import { FlyControlSystem } from './systems/FlyControlSystem'
 
-export { FlyControlSystem, ButtonCleanupSystem, ClientInputSystem }
+export { FlyControlSystem, ClientInputSystem }
