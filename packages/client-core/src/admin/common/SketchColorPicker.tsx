@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect, useState } from 'react'
-import { RgbaStringColorPicker } from 'react-colorful'
+import { SketchPicker } from 'react-color'
 
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Popover from '@etherealengine/ui/src/primitives/mui/Popover'
@@ -53,7 +53,9 @@ const SketchColorPicker = ({ name, value, onChange }: SketchColorPickerProps) =>
     }
   }, [value])
 
-  const handleChange = (rgbaColor) => {
+  const handleChange = (color) => {
+    const rgbaColor = `rgba(${color.rgb.r},${color.rgb.g},${color.rgb.b},${color.rgb.a})`
+
     setColor(rgbaColor)
     onChange(rgbaColor)
   }
@@ -97,7 +99,7 @@ const SketchColorPicker = ({ name, value, onChange }: SketchColorPickerProps) =>
           horizontal: 'left'
         }}
       >
-        <RgbaStringColorPicker color={color} onChange={handleChange} />
+        <SketchPicker color={color} onChange={handleChange} />
       </Popover>
     </div>
   )
