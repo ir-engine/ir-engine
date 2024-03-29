@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export type FileDataType = {
-  key: string
-  path: string
-  name: string
-  fullName: string
-  size?: string
-  url: string
-  type: string
-  isFolder: boolean
-}
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Projects service description',
+    securities: ['all']
+  }
+})

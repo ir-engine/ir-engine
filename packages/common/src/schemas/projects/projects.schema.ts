@@ -23,13 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export type FileDataType = {
-  key: string
-  path: string
-  name: string
-  fullName: string
-  size?: string
-  url: string
-  type: string
-  isFolder: boolean
-}
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+export const projectsPath = 'projects'
+
+export const projectsMethods = ['find'] as const

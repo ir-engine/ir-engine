@@ -23,13 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export type FileDataType = {
-  key: string
-  path: string
-  name: string
-  fullName: string
-  size?: string
-  url: string
-  type: string
-  isFolder: boolean
+import { projectsMethods, projectsPath } from '@etherealengine/common/src/schemas/projects/projects.schema'
+import { Application } from '../../../declarations'
+import { ProjectsService } from './projects.class'
+import projectsDocs from './projects.docs'
+import hooks from './projects.hooks'
+
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [projectsPath]: ProjectsService
+  }
+}
+
+export default (app: Application): void => {
+  app.use(projectsPath, new ProjectsService(app), {
+    // A list of all methods this service exposes externally
+    methods: projectsMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: projectsDocs
+  })
+
+  const service = app.service(projectsPath)
+  service.hooks(hooks)
 }

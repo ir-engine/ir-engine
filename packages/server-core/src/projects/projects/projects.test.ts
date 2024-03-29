@@ -23,13 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export type FileDataType = {
-  key: string
-  path: string
-  name: string
-  fullName: string
-  size?: string
-  url: string
-  type: string
-  isFolder: boolean
-}
+import { projectsPath } from '@etherealengine/common/src/schemas/projects/projects.schema'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+import assert from 'assert'
+import { Application } from '../../../declarations'
+import { createFeathersKoaApp } from '../../createApp'
+
+describe('projects.test', () => {
+  let app: Application
+
+  before(async () => {
+    app = createFeathersKoaApp()
+    await app.setup()
+  })
+
+  after(async () => {
+    await destroyEngine()
+  })
+
+  it('should find the projects', async () => {
+    const foundProjects = await app.service(projectsPath).find()
+    assert.notEqual(
+      foundProjects.findIndex((project) => project === 'default-project'),
+      -1
+    )
+  })
+})
