@@ -39,7 +39,6 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   disabled?: boolean
   icon?: JSX.Element
   onEndIconClick?: (e: any) => void
-  onKeyDown?: (e: any) => void
 }
 
 const Input = ({
@@ -55,7 +54,6 @@ const Input = ({
   disabled,
   icon,
   onEndIconClick,
-  onKeyDown,
   ...props
 }: InputProps) => {
   const twClassname = twMerge(
