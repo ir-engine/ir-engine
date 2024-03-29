@@ -23,32 +23,47 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { createBrowserHistory, History } from 'history'
 import i18n from 'i18next'
-import { lazy, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { lazy, useEffect, useLayoutEffect } from 'react'
+import { BrowserRouterProps as NativeBrowserRouterProps, Router } from 'react-router-dom'
 
 import { routePath, RouteType } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { defineState, getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { loadRoute } from '@etherealengine/projects/loadRoute'
 
 type SearchParamsType = { [key: string]: string }
 
-/**
- * `pathname` state resets to null after every navigate so that only react-router maintains the actual url
- * `searchParams` state is only reset manually. previous search params are added along with the new search params
- */
+export const history = createBrowserHistory()
+
+export interface BrowserRouterProps extends Omit<NativeBrowserRouterProps, 'window'> {
+  history: History
+}
+
+export const BrowserRouter: React.FC<BrowserRouterProps> = React.memo((props) => {
+  const { history, ...restProps } = props
+  const [state, setState] = React.useState({
+    action: history.action,
+    location: history.location
+  })
+
+  useLayoutEffect(() => history.listen(setState), [history])
+
+  return <Router {...restProps} location={state.location} navigationType={state.action} navigator={history} />
+})
+
 export const RouterState = defineState({
   name: 'RouterState',
-  initial: () => ({
-    pathname: location.pathname as string | null,
-    searchParams: {} as SearchParamsType
-  }),
+  initial: {},
   navigate: (pathname: string, searchParams: SearchParamsType | { redirectUrl: string } = {}) => {
-    getMutableState(RouterState).set({
-      pathname,
-      searchParams
-    })
+    const urlSearchParams = new URLSearchParams(searchParams)
+
+    if (urlSearchParams.toString().length > 0) {
+      history.push(`${pathname}?${urlSearchParams}`)
+    } else {
+      history.push(pathname)
+    }
   }
 })
 
@@ -89,41 +104,10 @@ export const getCustomRoutes = async (): Promise<CustomRoute[]> => {
 export const useCustomRoutes = () => {
   const customRoutes = useHookstate([] as CustomRoute[])
 
-  const navigate = useNavigate()
-  const routerState = useHookstate(getMutableState(RouterState))
-
   useEffect(() => {
     getCustomRoutes().then((routes) => {
       customRoutes.set(routes)
     })
-  }, [])
-
-  useEffect(() => {
-    if (!routerState.pathname.value) return
-
-    if (location.pathname !== routerState.pathname.value) {
-      const urlSearchParams = new URLSearchParams(routerState.searchParams.value)
-      if (urlSearchParams.has('redirectUrl')) {
-        urlSearchParams.set('hasRedirected', '1')
-      }
-
-      if (urlSearchParams.toString().length > 0) {
-        navigate(`${routerState.pathname.value}?${urlSearchParams}`)
-      } else {
-        navigate(routerState.pathname.value)
-      }
-    }
-
-    routerState.pathname.set(null)
-  }, [routerState.pathname, routerState.searchParams])
-
-  useEffect(() => {
-    const urlSearchParams = new URLSearchParams(window.location.search)
-    const redirectUrl = urlSearchParams.get('redirectUrl')
-    const hasRedirected = urlSearchParams.get('hasRedirected')
-    if (redirectUrl && !hasRedirected) {
-      RouterState.navigate(redirectUrl)
-    }
   }, [])
 
   return customRoutes.get(NO_PROXY)
