@@ -116,7 +116,8 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     if (!modelComponent.asset.value) return
     bonematchable.set(
       modelComponent.asset.value &&
-        (modelComponent.asset.value instanceof VRM || recursiveHipsLookup(modelComponent.asset.value.scene))
+        !(modelComponent.asset.value instanceof VRM) &&
+        recursiveHipsLookup(modelComponent.asset.value.scene)
     )
   }, [modelComponent.asset])
 
