@@ -91,7 +91,6 @@ const _lookAtMatrix = new Matrix4()
 const _dirVector = new Vector3()
 const _tempMatrix = new Matrix4()
 const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
-//const domElement = EngineRenderer.instance.renderer.domElement
 
 const _v1 = new Vector3()
 const _v2 = new Vector3()

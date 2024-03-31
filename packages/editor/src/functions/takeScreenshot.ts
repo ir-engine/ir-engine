@@ -44,7 +44,7 @@ import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { getState } from '@etherealengine/hyperflux'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
@@ -117,7 +117,7 @@ export async function previewScreenshot(
   scenePreviewCamera.layers.set(objectLayer)
 
   let blob: Blob | null = null
-  const renderer = EngineRenderer.instance.renderer
+  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer
   renderer.outputColorSpace = SRGBColorSpace
   const renderTarget = new WebGLRenderTarget(width, height, {
     minFilter: LinearFilter,
@@ -201,20 +201,20 @@ export async function takeScreenshot(
   scenePreviewCamera.layers.disableAll()
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
-  const selection = EngineRenderer.instance.effectComposer.HighlightEffect?.selection.values()
+  const { renderer, effectComposer, renderContext } = getComponent(Engine.instance.viewerEntity, RendererComponent)
+
+  const selection = effectComposer.HighlightEffect?.selection.values()
   if (hideHelpers) {
-    EngineRenderer.instance.effectComposer.HighlightEffect?.clearSelection()
+    effectComposer.HighlightEffect?.clearSelection()
   }
 
-  const originalSize = EngineRenderer.instance.renderer.getSize(new Vector2())
-  const pixelRatio = EngineRenderer.instance.renderer.getPixelRatio()
+  const originalSize = renderer.getSize(new Vector2())
+  const pixelRatio = renderer.getPixelRatio()
 
   // Rendering the scene to the new canvas with given size
   await new Promise<void>((resolve, reject) => {
     const interval = setInterval(() => {
-      const viewport = EngineRenderer.instance.renderContext.getParameter(
-        EngineRenderer.instance.renderContext.VIEWPORT
-      )
+      const viewport = renderContext.getParameter(renderContext.VIEWPORT)
       if (viewport[2] === Math.round(width) && viewport[3] === Math.round(height)) {
         console.log('Resized viewport')
         clearTimeout(timeout)
@@ -231,18 +231,18 @@ export async function takeScreenshot(
     }, 10000)
 
     // set up effect composer
-    EngineRenderer.instance.effectComposer.setMainCamera(scenePreviewCamera as Camera)
-    EngineRenderer.instance.effectComposer.setSize(width, height, false)
-    EngineRenderer.instance.renderer.setPixelRatio(1)
+    effectComposer.setMainCamera(scenePreviewCamera as Camera)
+    effectComposer.setSize(width, height, false)
+    renderer.setPixelRatio(1)
   })
 
-  EngineRenderer.instance.effectComposer.render()
+  effectComposer.render()
 
   if (hideHelpers) {
-    EngineRenderer.instance.effectComposer.HighlightEffect?.setSelection(selection)
+    effectComposer.HighlightEffect?.setSelection(selection)
   }
 
-  const canvas = getResizedCanvas(EngineRenderer.instance.renderer.domElement, width, height)
+  const canvas = getResizedCanvas(renderer.domElement, width, height)
 
   const imageBlob = await getCanvasBlob(
     canvas,
@@ -251,9 +251,9 @@ export async function takeScreenshot(
   )
 
   // restore
-  EngineRenderer.instance.effectComposer.setMainCamera(getComponent(Engine.instance.cameraEntity, CameraComponent))
-  EngineRenderer.instance.renderer.setPixelRatio(pixelRatio)
-  EngineRenderer.instance.effectComposer.setSize(originalSize.width, originalSize.height, false)
+  effectComposer.setMainCamera(getComponent(Engine.instance.cameraEntity, CameraComponent))
+  renderer.setPixelRatio(pixelRatio)
+  effectComposer.setSize(originalSize.width, originalSize.height, false)
 
   // Restoring previous state
   scenePreviewCamera.aspect = prevAspect

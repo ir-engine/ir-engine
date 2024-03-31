@@ -48,7 +48,7 @@ import { CameraComponent } from '@etherealengine/spatial/src/camera/components/C
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { Shape } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { VRM } from '@pixiv/three-vrm'
@@ -221,9 +221,11 @@ function ModelReactor(): JSX.Element {
       setComponent(entity, ObjectGridSnapComponent)
     }
 
-    if (EngineRenderer.instance)
-      EngineRenderer.instance.renderer
-        .compileAsync(scene, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
+    const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)
+
+    if (renderer)
+      renderer.renderer
+        .compileAsync(scene, getComponent(Engine.instance.viewerEntity, CameraComponent), Engine.instance.scene)
         .catch(() => {
           addError(entity, ModelComponent, 'LOADING_ERROR', 'Error compiling model')
         })

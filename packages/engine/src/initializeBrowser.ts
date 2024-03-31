@@ -31,7 +31,7 @@ import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { PerformanceManager } from '@etherealengine/spatial/src/renderer/PerformanceState'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
 import { AssetLoaderState } from './assets/state/AssetLoaderState'
@@ -42,7 +42,7 @@ import { AssetLoaderState } from './assets/state/AssetLoaderState'
  * initializes everything for the browser context
  */
 export const initializeBrowser = () => {
-  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
 
   camera.layers.disableAll()
   camera.layers.enable(ObjectLayers.Scene)
@@ -51,16 +51,16 @@ export const initializeBrowser = () => {
   camera.layers.enable(ObjectLayers.TransformGizmo)
   camera.layers.enable(ObjectLayers.UVOL)
 
-  const renderer = EngineRenderer.instance.renderer
-  if (!renderer) throw new Error('EngineRenderer.instance.renderer does not exist!')
+  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
+  if (!renderer?.renderer) throw new Error('renderer does not exist!')
 
   const gltfLoader = getState(AssetLoaderState).gltfLoader
   initializeKTX2Loader(gltfLoader)
 
-  WebLayerManager.initialize(renderer, gltfLoader.ktx2Loader!)
+  WebLayerManager.initialize(renderer.renderer, gltfLoader.ktx2Loader!)
   WebLayerManager.instance.ktx2Encoder.pool.setWorkerLimit(1)
 
-  PerformanceManager.buildPerformanceState(EngineRenderer.instance, () => {
+  PerformanceManager.buildPerformanceState(renderer, () => {
     getState(ECSState).timer.start()
   })
 }

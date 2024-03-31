@@ -40,15 +40,15 @@ import {
   Vector2
 } from 'three'
 
-import { EntityUUID } from '@etherealengine/ecs'
+import { Engine, EntityUUID } from '@etherealengine/ecs'
 import { useHookstate } from '@etherealengine/hyperflux'
 
 import config from '@etherealengine/common/src/config'
 import { StaticResourceType } from '@etherealengine/common/src/schema.type.module'
-import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineComponent, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
 import { useTexture } from '../../assets/functions/resourceHooks'
@@ -204,7 +204,7 @@ export function ImageReactor() {
       image.mesh.material.value.needsUpdate = true
 
       // upload to GPU immediately
-      EngineRenderer.instance.renderer.initTexture(texture.value)
+      getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.initTexture(texture.value)
 
       const imageMesh = image.mesh.value
       addObjectToGroup(entity, imageMesh)

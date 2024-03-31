@@ -30,10 +30,11 @@ import { config } from '@etherealengine/common/src/config'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs'
+import { defineComponent, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { useTexture } from '../../assets/functions/resourceHooks'
 import { Sky } from '../classes/Sky'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'
@@ -154,7 +155,9 @@ export const SkyboxComponent = defineComponent({
       sky.turbidity = skyboxState.skyboxProps.value.turbidity
       sky.luminance = skyboxState.skyboxProps.value.luminance
 
-      const texture = sky.generateSkyboxTextureCube(EngineRenderer.instance.renderer)
+      const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
+
+      const texture = sky.generateSkyboxTextureCube(renderer.renderer)
       texture.mapping = CubeReflectionMapping
       background.set(texture)
       sky.dispose()

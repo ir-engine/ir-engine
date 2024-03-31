@@ -28,12 +28,13 @@ import { Mesh } from 'three'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { defineComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs'
+import { defineComponent, getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { RendererState } from '../RendererState'
-import { EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
+import { PostProcessingSettingsState, RendererComponent } from '../WebGLRendererSystem'
 import { MeshComponent } from './MeshComponent'
 
 export const HighlightComponent = defineComponent({
@@ -66,11 +67,11 @@ export const HighlightComponent = defineComponent({
 })
 
 const addToSelection = (obj: Mesh) => {
-  if (!EngineRenderer.instance.effectComposer?.HighlightEffect) return
-  EngineRenderer.instance.effectComposer.HighlightEffect.selection.add(obj)
+  if (!getComponent(Engine.instance.viewerEntity, RendererComponent).effectComposer?.HighlightEffect) return
+  getComponent(Engine.instance.viewerEntity, RendererComponent).effectComposer.HighlightEffect.selection.add(obj)
 }
 
 const removeFromSelection = (obj: Mesh) => {
-  if (!EngineRenderer.instance.effectComposer?.HighlightEffect) return
-  EngineRenderer.instance.effectComposer.HighlightEffect.selection.delete(obj)
+  if (!getComponent(Engine.instance.viewerEntity, RendererComponent).effectComposer?.HighlightEffect) return
+  getComponent(Engine.instance.viewerEntity, RendererComponent).effectComposer.HighlightEffect.selection.delete(obj)
 }

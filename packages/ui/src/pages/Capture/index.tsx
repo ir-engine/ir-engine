@@ -51,6 +51,7 @@ import { useWorldNetwork } from '@etherealengine/client-core/src/common/services
 import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { RecordingID, StaticResourceType, recordingPath } from '@etherealengine/common/src/schema.type.module'
+import { getComponent } from '@etherealengine/ecs'
 import {
   MotionCaptureFunctions,
   MotionCaptureResults,
@@ -66,7 +67,7 @@ import {
 } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import Header from '@etherealengine/ui/src/components/tailwind/Header'
 import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
@@ -421,10 +422,10 @@ const EngineCanvas = () => {
   useEffect(() => {
     if (!ref?.current) return
 
-    const canvas = EngineRenderer.instance.renderer.domElement
+    const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement
     ref.current.appendChild(canvas)
 
-    EngineRenderer.instance.needsResize = true
+    getComponent(Engine.instance.viewerEntity, RendererComponent).needsResize = true
 
     // return () => {
     //   const canvas = document.getElementById('engine-renderer-canvas')!

@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Engine, Entity, getComponent } from '@etherealengine/ecs'
+import { getState } from '@etherealengine/hyperflux'
 import {
   BlendFunction,
   DepthDownsamplingPass,
@@ -33,17 +35,11 @@ import {
   OutlineEffect,
   RenderPass,
   SMAAEffect,
+  ShaderPass,
   TextureEffect
 } from 'postprocessing'
 import { VelocityDepthNormalPass } from 'realism-effects'
-import { DepthTexture, NearestFilter, PerspectiveCamera, RGBAFormat, UnsignedIntType, WebGLRenderTarget } from 'three'
-import { CustomNormalPass } from '../passes/CustomNormalPass'
-
-import { getState } from '@etherealengine/hyperflux'
-
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { ShaderPass } from 'postprocessing'
+import { DepthTexture, NearestFilter, RGBAFormat, UnsignedIntType, WebGLRenderTarget } from 'three'
 import { EngineState } from '../../EngineState'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
@@ -51,37 +47,36 @@ import { HighlightState } from '../HighlightState'
 import { RendererState } from '../RendererState'
 import {
   EffectComposerWithSchema,
-  EngineRenderer,
   PostProcessingSettingsState,
-  RenderSettingsState
+  RenderSettingsState,
+  RendererComponent
 } from '../WebGLRendererSystem'
 import { EffectMap, EffectPropsSchema, Effects } from '../effects/PostProcessing'
 import { SDFSettingsState } from '../effects/sdf/SDFSettingsState'
 import { SDFShader } from '../effects/sdf/SDFShader'
+import { CustomNormalPass } from '../passes/CustomNormalPass'
 import { changeRenderMode } from './changeRenderMode'
 
-export const configureEffectComposer = (
-  remove?: boolean,
-  camera: PerspectiveCamera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-): void => {
-  if (!EngineRenderer.instance) return
-  if (!camera) return
+export const configureEffectComposer = (entity: Entity): void => {
+  const renderer = getComponent(entity, RendererComponent)
+  const camera = getComponent(entity, CameraComponent)
+  if (!renderer || !camera) return
 
   const scene = Engine.instance.scene
 
-  EngineRenderer.instance.renderPass = null!
-  EngineRenderer.instance.effectComposer.dispose()
-  const composer = new EffectComposer(EngineRenderer.instance.renderer) as EffectComposerWithSchema
-  EngineRenderer.instance.effectComposer = composer
+  if (renderer.effectComposer) {
+    renderer.effectComposer.dispose()
+    renderer.renderPass = null!
+  }
+
+  const composer = new EffectComposer(renderer.renderer) as EffectComposerWithSchema
+  composer.domElement = renderer.renderer.domElement
+  renderer.effectComposer = composer
 
   // we always want to have at least the render pass enabled
   const renderPass = new RenderPass(scene, camera)
-  EngineRenderer.instance.effectComposer.addPass(renderPass)
-  EngineRenderer.instance.renderPass = renderPass
-
-  if (remove) {
-    return
-  }
+  renderer.effectComposer.addPass(renderPass)
+  renderer.renderPass = renderPass
 
   const renderSettings = getState(RendererState)
   if (!renderSettings.usePostProcessing) return

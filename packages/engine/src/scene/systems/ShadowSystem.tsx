@@ -62,7 +62,7 @@ import {
   createSortAndApplyPriorityQueue
 } from '@etherealengine/spatial/src/common/functions/PriorityQueue'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { EngineRenderer, RenderSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RenderSettingsState, RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
 import {
   GroupComponent,
@@ -408,6 +408,18 @@ const execute = () => {
   }
 }
 
+const RendererShadowReactor = () => {
+  const entity = useEntityContext()
+  const useShadows = useShadowsEnabled()
+
+  useEffect(() => {
+    const renderer = getComponent(entity, RendererComponent).renderer
+    renderer.shadowMap.enabled = renderer.shadowMap.autoUpdate = useShadows
+  }, [useShadows])
+
+  return null
+}
+
 const reactor = () => {
   if (!isClient) return null
 
@@ -423,9 +435,6 @@ const reactor = () => {
     shadowState.set(shadowMaterial)
   }, [shadowTexture])
 
-  EngineRenderer.instance.renderer.shadowMap.enabled = EngineRenderer.instance.renderer.shadowMap.autoUpdate =
-    useShadows
-
   return (
     <>
       {useShadows ? (
@@ -434,6 +443,7 @@ const reactor = () => {
         <QueryReactor Components={[VisibleComponent, ShadowComponent]} ChildEntityReactor={DropShadowReactor} />
       )}
       <GroupQueryReactor GroupChildReactor={ShadowMeshReactor} Components={[VisibleComponent, ShadowComponent]} />
+      <QueryReactor Components={[RendererComponent]} ChildEntityReactor={RendererShadowReactor} />
     </>
   )
 }

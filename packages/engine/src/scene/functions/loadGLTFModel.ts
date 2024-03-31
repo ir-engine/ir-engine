@@ -39,7 +39,7 @@ import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
@@ -175,7 +175,8 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
     },
     parent: {
       get() {
-        if (EngineRenderer.instance?.rendering) return null
+        const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
+        if (renderer.renderer) return null
         if (getOptionalComponent(objEntity, EntityTreeComponent)?.parentEntity) {
           const result =
             getOptionalComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)?.[0] ??
@@ -190,7 +191,8 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
     },
     children: {
       get() {
-        if (EngineRenderer.instance?.rendering) return []
+        const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
+        if (renderer.rendering) return []
         if (hasComponent(objEntity, EntityTreeComponent)) {
           const childEntities = getComponent(objEntity, EntityTreeComponent).children
           const result: Object3D[] = []

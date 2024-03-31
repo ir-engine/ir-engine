@@ -35,7 +35,7 @@ import { isSafari } from '../common/functions/isMobile'
 import { PhysicsState } from '../physics/state/PhysicsState'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin } from '../transform/updateWorldOrigin'
-import { EngineRenderer } from './../renderer/WebGLRendererSystem'
+import { RendererComponent } from './../renderer/WebGLRendererSystem'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
 
 const quat180y = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
@@ -50,7 +50,7 @@ export const onSessionEnd = () => {
 
   getMutableState(XRState).xrFrame.set(null)
 
-  EngineRenderer.instance.renderer.domElement.style.display = ''
+  getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement.style.display = ''
 
   const worldOriginTransform = getComponent(Engine.instance.originEntity, TransformComponent)
   worldOriginTransform.position.copy(V_000)
@@ -67,7 +67,7 @@ export const onSessionEnd = () => {
 
 export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' | 'immersive-vr') => {
   const xrState = getMutableState(XRState)
-  const xrManager = EngineRenderer.instance.xrManager
+  const xrManager = getComponent(Engine.instance.viewerEntity, RendererComponent).xrManager
 
   // @todo - hack to detect nreal
   const params = new URL(document.location.href).searchParams
@@ -126,7 +126,7 @@ export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' |
   /** Hide the canvas - do not do this for the WebXR emulator */
   /** @todo currently, XRSession.visibilityState is undefined in the webxr emulator - we need a better check*/
   if (typeof xrSession.visibilityState === 'string') {
-    EngineRenderer.instance.renderer.domElement.style.display = 'none'
+    getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement.style.display = 'none'
   }
 
   xrState.session.set(xrSession)

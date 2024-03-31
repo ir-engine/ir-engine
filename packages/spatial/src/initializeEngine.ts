@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { ECSState, createEntity, executeSystems, getComponent, setComponent } from '@etherealengine/ecs'
 import { Engine, startEngine } from '@etherealengine/ecs/src/Engine'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
@@ -33,10 +32,9 @@ import { BoxGeometry, Group, Mesh, MeshNormalMaterial } from 'three'
 import { CameraComponent } from './camera/components/CameraComponent'
 import { NameComponent } from './common/NameComponent'
 import { InputComponent } from './input/components/InputComponent'
-import { EngineRenderer } from './renderer/WebGLRendererSystem'
+import { RendererComponent } from './renderer/WebGLRendererSystem'
 import { addObjectToGroup } from './renderer/components/GroupComponent'
 import { setObjectLayers } from './renderer/components/ObjectLayerComponent'
-import { RendererComponent } from './renderer/components/RendererComponent'
 import { VisibleComponent } from './renderer/components/VisibleComponent'
 import { ObjectLayers } from './renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from './transform/components/EntityTree'
@@ -78,10 +76,14 @@ export const createEngine = () => {
   camera.matrixAutoUpdate = false
   camera.matrixWorldAutoUpdate = false
 
-  if (isClient) {
-    EngineRenderer.instance = new EngineRenderer()
-    EngineRenderer.instance.initialize()
-    setComponent(Engine.instance.cameraEntity, RendererComponent, { renderer: EngineRenderer.instance.renderer })
+  const canvas =
+    typeof globalThis.document !== 'undefined'
+      ? (document.getElementById('engine-renderer-canvas') as HTMLCanvasElement)
+      : null
+
+  if (canvas) {
+    setComponent(Engine.instance.viewerEntity, RendererComponent, { canvas })
+    getComponent(Engine.instance.viewerEntity, RendererComponent).initialize(Engine.instance.viewerEntity)
   }
   getMutableState(ECSState).timer.set(
     Timer(
@@ -90,7 +92,7 @@ export const createEngine = () => {
         executeSystems(time)
         getMutableState(XRState).xrFrame.set(null)
       },
-      EngineRenderer.instance?.renderer
+      getComponent(Engine.instance.cameraEntity, RendererComponent)?.renderer
     )
   )
 
