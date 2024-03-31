@@ -78,7 +78,7 @@ export const ModelComponent = defineComponent({
       src: '',
       cameraOcclusion: true,
       /** optional, only for bone matchable avatars */
-      convertToVRM: true,
+      convertToVRM: false,
       // internal
       assetTypeOverride: null as null | AssetType,
       scene: null as Group | null,
@@ -164,8 +164,8 @@ function ModelReactor(): JSX.Element {
       return
     }
 
-    modelComponent.convertToVRM.set(gltf instanceof VRM)
-    const boneMatchedAsset = modelComponent.convertToVRM.value ? (autoconvertMixamoAvatar(gltf) as GLTF) : gltf
+    const boneMatchedAsset =
+      gltf instanceof VRM || modelComponent.convertToVRM.value ? (autoconvertMixamoAvatar(gltf) as GLTF) : gltf
 
     /**if we've loaded or converted to vrm, create animation component whose mixer's root is the normalized rig */
     if (boneMatchedAsset instanceof VRM)
