@@ -225,7 +225,7 @@ export const LoopAnimationComponent = defineComponent({
       for (let i = 0; i < animations.length; i++) retargetAnimationClip(animations[i], gltf.scene)
       lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
       animComponent.animations.set(animations)
-    }, [gltf])
+    }, [gltf, animComponent])
 
     return null
   }

@@ -78,7 +78,7 @@ export const ModelComponent = defineComponent({
       src: '',
       cameraOcclusion: true,
       /** optional, only for bone matchable avatars */
-      convertToVRM: false,
+      convertToVRM: true,
       // internal
       assetTypeOverride: null as null | AssetType,
       scene: null as Group | null,
