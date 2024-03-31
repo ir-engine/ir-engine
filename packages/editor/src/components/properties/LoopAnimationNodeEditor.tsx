@@ -91,18 +91,17 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
           onChange={onChangePlayingAnimation}
         />
       </InputGroup>
-      {modelComponent?.convertToVRM.value ||
-        (modelComponent?.asset.value instanceof VRM && (
-          <InputGroup name="Animation Pack" label="Animation Pack (via Mixamo Rig)">
-            <ModelInput
-              value={loopAnimationComponent.animationPack.value}
-              onRelease={commitProperty(LoopAnimationComponent, 'animationPack')}
-            />
-            {errors?.LOADING_ERROR && (
-              <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
-            )}
-          </InputGroup>
-        ))}
+      {modelComponent?.asset.value instanceof VRM && (
+        <InputGroup name="Animation Pack" label="Animation Pack (via Mixamo Rig)">
+          <ModelInput
+            value={loopAnimationComponent.animationPack.value}
+            onRelease={commitProperty(LoopAnimationComponent, 'animationPack')}
+          />
+          {errors?.LOADING_ERROR && (
+            <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
+          )}
+        </InputGroup>
+      )}
       <InputGroup name="Time Scale" label={t('editor:properties.loopAnimation.lbl-timeScale')}>
         <NumericInput
           value={loopAnimationComponent.timeScale.value}
