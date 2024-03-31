@@ -36,7 +36,7 @@ import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/Av
 import { getRandomSpawnPoint, getSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/moveAvatar'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
 import { LinkState } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { PortalComponent, PortalState } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
@@ -69,7 +69,7 @@ export const useEngineInjection = () => {
 }
 
 export const useLocationSpawnAvatar = (spectate = false) => {
-  const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
+  const sceneLoaded = useHookstate(getMutableState(GLTFSourceState).sceneLoaded)
 
   useEffect(() => {
     if (!sceneLoaded.value) return
@@ -209,7 +209,7 @@ type Props = {
 }
 
 export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
-  const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
+  const sceneLoaded = useHookstate(getMutableState(GLTFSourceState).sceneLoaded)
 
   useLocationSpawnAvatar(spectate)
   usePortalTeleport()

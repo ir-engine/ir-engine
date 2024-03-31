@@ -32,7 +32,7 @@ import { FixedSizeList } from 'react-window'
 
 import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import { SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { GLTFSourceState, SceneSnapshotState } from '@etherealengine/engine/src/scene/GLTFSourceState'
 import { NO_PROXY, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { EntityTreeComponent, traverseEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
@@ -126,7 +126,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
       Array.from(
         heirarchyTreeWalker(
           sceneID.value,
-          SceneState.getRootEntity(sceneID.value),
+          GLTFSourceState.getRootEntity(sceneID.value),
           SelectionState.getSelectedEntities()
         )
       )
@@ -424,7 +424,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 
       // check if item is of node type
       if (item.type === ItemTypes.Node) {
-        const sceneEntity = SceneState.getRootEntity(sceneID.value!)
+        const sceneEntity = GLTFSourceState.getRootEntity(sceneID.value!)
         return !(item.multiple
           ? item.value.some((otherObject) => isAncestor(otherObject, sceneEntity))
           : isAncestor(item.value, sceneEntity))
@@ -554,12 +554,12 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 
 export default function HierarchyPanel() {
   const sceneID = useHookstate(getMutableState(EditorState).sceneID).value
-  const sceneState = useHookstate(getMutableState(SceneState)).value
+  const gltfSourceState = useHookstate(getMutableState(GLTFSourceState)).value
 
-  const sceneJson = SceneState.getScene(sceneID!)?.scene
+  const sceneJson = GLTFSourceState.getScene(sceneID!)?.scene
   const snapshots = useHookstate(getMutableState(SceneSnapshotState)).value
 
-  if (!sceneID || !sceneState.scenes[sceneID] || !sceneJson || !snapshots[sceneID]) return null
+  if (!sceneID || !gltfSourceState.scenes[sceneID] || !sceneJson || !snapshots[sceneID]) return null
 
   return <HierarchyPanelContents key={sceneJson.root} rootEntityUUID={sceneJson.root} />
 }

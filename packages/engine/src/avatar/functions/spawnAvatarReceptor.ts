@@ -83,7 +83,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   setComponent(entity, EnvmapComponent, {
     type: EnvMapSourceType.Bake,
     envMapIntensity: 0.5
-    // envMapSourceEntityUUID: getComponent(SceneState.getRootEntity(), UUIDComponent) /** @todo this requires avatars spawning into specific scenes */
+    // envMapSourceEntityUUID: getComponent(GLTFSourceState.getRootEntity(), UUIDComponent) /** @todo this requires avatars spawning into specific scenes */
   })
 
   setComponent(entity, AvatarComponent)

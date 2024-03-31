@@ -32,11 +32,11 @@ import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { SceneState } from '../../src/scene/Scene'
+import { GLTFSourceState } from '../../src/scene/GLTFSourceState'
 import { SourceComponent } from '../../src/scene/components/SourceComponent'
 
 export const loadEmptyScene = () => {
-  SceneState.loadScene('test' as SceneID, {
+  GLTFSourceState.loadScene('test' as SceneID, {
     name: '',
     thumbnailUrl: '',
     project: '',

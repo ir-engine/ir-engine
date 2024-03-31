@@ -30,7 +30,7 @@ import { LocationService, LocationState } from '@etherealengine/client-core/src/
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
-import { SceneServices } from '@etherealengine/engine/src/scene/Scene'
+import { SceneServices } from '@etherealengine/engine/src/scene/GLTFSourceState'
 import { RouterState } from '../../common/services/RouterService'
 import { WarningUIService } from '../../systems/WarningUISystem'
 import { loadSceneJsonOffline } from '../../world/utils'

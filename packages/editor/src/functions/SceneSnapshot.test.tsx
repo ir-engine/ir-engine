@@ -29,7 +29,11 @@ import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFun
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
-import { SceneSnapshotAction, SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/Scene'
+import {
+  GLTFSourceState,
+  SceneSnapshotAction,
+  SceneSnapshotState
+} from '@etherealengine/engine/src/scene/GLTFSourceState'
 import { applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { EventDispatcher } from '@etherealengine/spatial/src/common/classes/EventDispatcher'
@@ -93,14 +97,14 @@ describe('Snapshots', () => {
 
   it('create snapshot', async () => {
     // init
-    SceneState.loadScene(sceneID, testScene)
+    GLTFSourceState.loadScene(sceneID, testScene)
     applyIncomingActions()
 
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
     // assertions
-    const rootEntity = SceneState.getRootEntity(sceneID)
+    const rootEntity = GLTFSourceState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
@@ -226,14 +230,14 @@ describe('Snapshots', () => {
 
   it('undo snapshot', async () => {
     // init
-    SceneState.loadScene(sceneID, testScene)
+    GLTFSourceState.loadScene(sceneID, testScene)
     getMutableState(EditorState).sceneID.set(sceneID)
     applyIncomingActions()
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
     // assertions
-    const rootEntity = SceneState.getRootEntity(sceneID)
+    const rootEntity = GLTFSourceState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
@@ -360,14 +364,14 @@ describe('Snapshots', () => {
 
   it('redo snapshot', async () => {
     // init
-    SceneState.loadScene(sceneID, testScene)
+    GLTFSourceState.loadScene(sceneID, testScene)
     getMutableState(EditorState).sceneID.set(sceneID)
     applyIncomingActions()
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
     // assertions
-    const rootEntity = SceneState.getRootEntity(sceneID)
+    const rootEntity = GLTFSourceState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(

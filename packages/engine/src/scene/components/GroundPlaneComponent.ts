@@ -36,7 +36,7 @@ import {
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
 import { matches } from '@etherealengine/hyperflux'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
@@ -73,7 +73,7 @@ export const GroundPlaneComponent = defineComponent({
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
      */
     if (
-      !getState(SceneState).sceneLoaded &&
+      !getState(GLTFSourceState).sceneLoaded &&
       hasComponent(entity, SourceComponent) &&
       !hasComponent(entity, RigidBodyComponent)
     )

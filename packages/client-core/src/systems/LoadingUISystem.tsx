@@ -36,7 +36,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -114,13 +114,13 @@ export const LoadingUISystemState = defineState({
 })
 
 const LoadingReactor = () => {
-  const loadingProgress = useHookstate(getMutableState(SceneState).loadingProgress)
-  const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
+  const loadingProgress = useHookstate(getMutableState(GLTFSourceState).loadingProgress)
+  const sceneLoaded = useHookstate(getMutableState(GLTFSourceState).sceneLoaded)
   const state = useHookstate(getMutableState(LoadingUISystemState))
   const locationState = useHookstate(getMutableState(LocationState))
   const meshEntity = state.meshEntity.value
   const locationSceneID = locationState.currentLocation.location.sceneId.value
-  const scene = SceneState.getScene(locationSceneID)
+  const scene = GLTFSourceState.getScene(locationSceneID)
   const sceneEntity = UUIDComponent.useEntityByUUID(scene.scene.root)
   const sceneComponent = getOptionalComponent(sceneEntity, SceneSettingsComponent)
   const [loadingTexture, error] = useTexture(sceneComponent ? sceneComponent.loadingScreenURL : '', sceneEntity)
@@ -291,7 +291,7 @@ const reactor = () => {
     getMutableState(AdminClientSettingsState)?.client?.[0]?.themeSettings?.clientSettings
   )
   const locationSceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId).value
-  const scenes = useHookstate(getMutableState(SceneState).scenes).value
+  const scenes = useHookstate(getMutableState(GLTFSourceState).scenes).value
 
   useEffect(() => {
     const theme = getAppTheme()

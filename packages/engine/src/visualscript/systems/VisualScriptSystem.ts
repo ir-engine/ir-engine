@@ -32,7 +32,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { VisualScriptState } from '@etherealengine/visual-script'
 import { useEffect } from 'react'
@@ -78,7 +78,7 @@ const execute = () => {
 
 const reactor = () => {
   const engineState = useHookstate(getMutableState(EngineState))
-  const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
+  const sceneLoaded = useHookstate(getMutableState(GLTFSourceState).sceneLoaded)
 
   useEffect(() => {
     VisualScriptState.registerProfile(registerEngineProfile, VisualScriptDomain.ECS)

@@ -55,8 +55,8 @@ export interface SceneSnapshotInterface {
   data: SceneJsonType
 }
 
-export const SceneState = defineState({
-  name: 'SceneState',
+export const GLTFSourceState = defineState({
+  name: 'GLTFSourceState',
   initial: () => ({
     scenes: {} as Record<SceneID, Omit<SceneDataType, 'scene'> & { scene: SceneJsonType }>,
     sceneLoaded: false,
@@ -67,11 +67,11 @@ export const SceneState = defineState({
   }),
 
   getScene: (sceneID: SceneID) => {
-    return getState(SceneState).scenes[sceneID]
+    return getState(GLTFSourceState).scenes[sceneID]
   },
 
   useScene: (sceneID: SceneID) => {
-    return useHookstate(getMutableState(SceneState).scenes[sceneID]).scene
+    return useHookstate(getMutableState(GLTFSourceState).scenes[sceneID]).scene
   },
 
   loadScene: (sceneID: SceneID, sceneData: SceneDataType) => {
@@ -83,18 +83,18 @@ export const SceneState = defineState({
       migrateOldColliders(entityJson)
     }
 
-    getMutableState(SceneState).scenes[sceneID].set(sceneData)
+    getMutableState(GLTFSourceState).scenes[sceneID].set(sceneData)
 
     dispatchAction(SceneSnapshotAction.createSnapshot({ sceneID, data }))
   },
 
   unloadScene: (sceneID: SceneID) => {
-    getMutableState(SceneState).scenes[sceneID].set(none)
+    getMutableState(GLTFSourceState).scenes[sceneID].set(none)
   },
 
   getRootEntity: (sceneID: SceneID) => {
-    if (!getState(SceneState).scenes[sceneID]) return UndefinedEntity
-    const scene = getState(SceneState).scenes[sceneID].scene
+    if (!getState(GLTFSourceState).scenes[sceneID]) return UndefinedEntity
+    const scene = getState(GLTFSourceState).scenes[sceneID].scene
     return UUIDComponent.getEntityByUUID(scene.root)
   }
 })
@@ -105,11 +105,11 @@ export const SceneServices = {
       .service(scenePath)
       .get('' as SceneID, { query: { sceneKey: sceneID } })
       .then((sceneData: SceneDataType) => {
-        SceneState.loadScene(sceneID, sceneData)
+        GLTFSourceState.loadScene(sceneID, sceneData)
       })
 
     return () => {
-      SceneState.unloadScene(sceneID)
+      GLTFSourceState.unloadScene(sceneID)
     }
   }
 }
@@ -259,9 +259,9 @@ const SceneSnapshotReactor = (props: { sceneID: SceneID }) => {
 
   useLayoutEffect(() => {
     if (!sceneState.index.value) return
-    getMutableState(SceneState).sceneModified.set(true)
+    getMutableState(GLTFSourceState).sceneModified.set(true)
     // update scene state with the current snapshot
-    getMutableState(SceneState).scenes[props.sceneID].scene.set(
+    getMutableState(GLTFSourceState).scenes[props.sceneID].scene.set(
       sceneState.snapshots[sceneState.index.value].data.get(NO_PROXY)
     )
   }, [sceneState.index])

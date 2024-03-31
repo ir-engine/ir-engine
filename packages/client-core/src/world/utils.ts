@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import config from '@etherealengine/common/src/config'
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
 import { SceneJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 
 const fileServer = config.client.fileServer
@@ -36,7 +36,7 @@ export const loadSceneJsonOffline = async (projectName, sceneName) => {
   const sceneData = (await (
     await fetch(`${fileServer}/projects/${projectName}/${sceneName}.scene.json`)
   ).json()) as SceneJsonType
-  SceneState.loadScene(sceneID, {
+  GLTFSourceState.loadScene(sceneID, {
     scene: parseStorageProviderURLs(sceneData),
     name: sceneName,
     scenePath: sceneID,

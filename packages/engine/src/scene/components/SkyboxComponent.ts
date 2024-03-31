@@ -32,7 +32,7 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { useTexture } from '../../assets/functions/resourceHooks'
 import { Sky } from '../classes/Sky'
@@ -83,7 +83,7 @@ export const SkyboxComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
-    getMutableState(SceneState).background.set(null)
+    getMutableState(GLTFSourceState).background.set(null)
   },
 
   reactor: function () {
@@ -91,7 +91,7 @@ export const SkyboxComponent = defineComponent({
     if (!isClient) return null
 
     const skyboxState = useComponent(entity, SkyboxComponent)
-    const background = useHookstate(getMutableState(SceneState).background)
+    const background = useHookstate(getMutableState(GLTFSourceState).background)
 
     const [texture, error] = useTexture(skyboxState.equirectangularPath.value, entity)
 

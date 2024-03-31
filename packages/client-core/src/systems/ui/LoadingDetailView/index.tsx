@@ -30,7 +30,7 @@ import { useTranslation } from 'react-i18next'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
 import ProgressBar from './SimpleProgressBar'
 import LoadingDetailViewStyle from './style'
 
@@ -51,7 +51,7 @@ export function createLoaderDetailView() {
 }
 
 const LoadingDetailView = () => {
-  const engineState = useHookstate(getMutableState(SceneState))
+  const engineState = useHookstate(getMutableState(GLTFSourceState))
   const { t } = useTranslation()
 
   const sceneLoaded = engineState.sceneLoaded.value

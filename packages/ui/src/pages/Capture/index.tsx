@@ -56,7 +56,7 @@ import {
   MotionCaptureResults,
   mocapDataChannelType
 } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
-import { SceneServices, SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { GLTFSourceState, SceneServices } from '@etherealengine/engine/src/scene/GLTFSourceState'
 import {
   defineState,
   dispatchAction,
@@ -504,7 +504,7 @@ const PlaybackMode = () => {
     return () => {
       cleanup()
       // hack
-      getMutableState(SceneState).sceneLoaded.set(false)
+      getMutableState(GLTFSourceState).sceneLoaded.set(false)
     }
   }, [locationState])
 

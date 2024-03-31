@@ -32,7 +32,7 @@ import { VisualScriptActions, visualScriptQuery } from '@etherealengine/engine'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { WorldNetworkAction } from '@etherealengine/network'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
@@ -53,7 +53,7 @@ const PlayModeTool = () => {
 
   const isEditing = useHookstate(getMutableState(EngineState).isEditing)
   const authState = useHookstate(getMutableState(AuthState))
-  const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded).value
+  const sceneLoaded = useHookstate(getMutableState(GLTFSourceState).sceneLoaded).value
 
   const onTogglePlayMode = () => {
     const entity = AvatarComponent.getSelfAvatarEntity()

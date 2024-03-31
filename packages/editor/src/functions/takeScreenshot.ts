@@ -41,7 +41,7 @@ import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFun
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { getState } from '@etherealengine/hyperflux'
 import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
@@ -102,7 +102,7 @@ export async function previewScreenshot(
       setComponent(entity, TransformComponent, { position, rotation })
       addObjectToGroup(entity, scenePreviewCamera)
       setComponent(entity, EntityTreeComponent, {
-        parentEntity: SceneState.getRootEntity(getState(EditorState).sceneID!)
+        parentEntity: GLTFSourceState.getRootEntity(getState(EditorState).sceneID!)
       })
       scenePreviewCamera.updateMatrixWorld(true)
     }
@@ -187,7 +187,7 @@ export async function takeScreenshot(
       setComponent(entity, TransformComponent, { position, rotation })
       addObjectToGroup(entity, scenePreviewCamera)
       setComponent(entity, EntityTreeComponent, {
-        parentEntity: SceneState.getRootEntity(getState(EditorState).sceneID!)
+        parentEntity: GLTFSourceState.getRootEntity(getState(EditorState).sceneID!)
       })
       scenePreviewCamera.updateMatrixWorld(true)
     }

@@ -29,7 +29,7 @@ import { PresentationSystemGroup } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { usePerformanceOffset } from '@etherealengine/spatial/src/renderer/functions/performanceHooks'
@@ -65,7 +65,7 @@ export const instancedMeshVariantQuery = defineQuery([
 
 function execute() {
   const engineState = getState(EngineState)
-  if (!getState(SceneState).sceneLoaded || engineState.isEditing) return
+  if (!getState(GLTFSourceState).sceneLoaded || engineState.isEditing) return
 
   const ecsState = getState(ECSState)
 
@@ -85,7 +85,7 @@ function execute() {
 
 function reactor() {
   const performanceOffset = usePerformanceOffset()
-  const sceneState = useHookstate(getMutableState(SceneState))
+  const sceneState = useHookstate(getMutableState(GLTFSourceState))
 
   useEffect(() => {
     if (!sceneState.sceneLoaded.value || getState(EngineState).isEditing) return

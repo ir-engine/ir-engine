@@ -51,7 +51,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
@@ -94,7 +94,7 @@ export const EnvmapComponent = defineComponent({
      */
     // if (
     //   isClient &&
-    //   !getState(SceneState).sceneLoaded &&
+    //   !getState(GLTFSourceState).sceneLoaded &&
     //   hasComponent(entity, SourceComponent) &&
     //   component.type.value !== EnvMapSourceType.None
     // )
@@ -117,7 +117,7 @@ export const EnvmapComponent = defineComponent({
     if (!isClient) return null
 
     const component = useComponent(entity, EnvmapComponent)
-    const background = useHookstate(getMutableState(SceneState).background)
+    const background = useHookstate(getMutableState(GLTFSourceState).background)
     const mesh = useOptionalComponent(entity, MeshComponent)?.value as Mesh<any, any> | null
     const [envMapTexture, error] = useTexture(
       component.envMapTextureType.value === EnvMapTextureType.Equirectangular ? component.envMapSourceURL.value : '',

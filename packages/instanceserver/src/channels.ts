@@ -54,7 +54,7 @@ import {
   userPath
 } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
 import { HyperFlux, State, getMutableState, getState } from '@etherealengine/hyperflux'
 import {
   NetworkConnectionParams,
@@ -289,7 +289,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
 
   if (instanceServerState.isMediaInstance) {
     getMutableState(NetworkState).hostIds.media.set(hostId)
-    getMutableState(SceneState).sceneLoaded.set(true)
+    getMutableState(GLTFSourceState).sceneLoaded.set(true)
   } else {
     getMutableState(NetworkState).hostIds.world.set(hostId)
 
@@ -299,12 +299,12 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
       const sceneData = (await app
         .service(scenePath)
         .get('', { query: { sceneKey: sceneId, metadataOnly: false }, headers })) as SceneDataType
-      SceneState.loadScene(sceneId, sceneData)
+      GLTFSourceState.loadScene(sceneId, sceneData)
       /** @todo - quick hack to wait until scene has loaded */
 
       await new Promise<void>((resolve) => {
         const interval = setInterval(() => {
-          if (getState(SceneState).sceneLoaded) {
+          if (getState(GLTFSourceState).sceneLoaded) {
             clearInterval(interval)
             resolve()
           }
