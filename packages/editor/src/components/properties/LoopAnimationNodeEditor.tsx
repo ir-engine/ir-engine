@@ -33,6 +33,7 @@ import { useState } from '@etherealengine/hyperflux'
 import { getCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 
 import AnimationIcon from '@mui/icons-material/Animation'
+import { VRM } from '@pixiv/three-vrm'
 
 import { AnimationComponent } from '@etherealengine/engine/src/avatar/components/AnimationComponent'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
@@ -90,17 +91,18 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
           onChange={onChangePlayingAnimation}
         />
       </InputGroup>
-      {modelComponent?.convertToVRM.value && (
-        <InputGroup name="Animation Pack" label="Animation Pack (via Mixamo Rig)">
-          <ModelInput
-            value={loopAnimationComponent.animationPack.value}
-            onRelease={commitProperty(LoopAnimationComponent, 'animationPack')}
-          />
-          {errors?.LOADING_ERROR && (
-            <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
-          )}
-        </InputGroup>
-      )}
+      {modelComponent?.convertToVRM.value ||
+        (modelComponent?.asset.value instanceof VRM && (
+          <InputGroup name="Animation Pack" label="Animation Pack (via Mixamo Rig)">
+            <ModelInput
+              value={loopAnimationComponent.animationPack.value}
+              onRelease={commitProperty(LoopAnimationComponent, 'animationPack')}
+            />
+            {errors?.LOADING_ERROR && (
+              <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
+            )}
+          </InputGroup>
+        ))}
       <InputGroup name="Time Scale" label={t('editor:properties.loopAnimation.lbl-timeScale')}>
         <NumericInput
           value={loopAnimationComponent.timeScale.value}
