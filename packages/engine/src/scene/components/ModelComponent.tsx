@@ -165,7 +165,6 @@ function ModelReactor(): JSX.Element {
     }
 
     modelComponent.convertToVRM.set(gltf instanceof VRM)
-    console.log(modelComponent.convertToVRM.value)
     const boneMatchedAsset = modelComponent.convertToVRM.value ? (autoconvertMixamoAvatar(gltf) as GLTF) : gltf
 
     /**if we've loaded or converted to vrm, create animation component whose mixer's root is the normalized rig */
