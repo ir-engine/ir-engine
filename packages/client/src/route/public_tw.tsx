@@ -58,11 +58,7 @@ function PublicRouter() {
     <ErrorBoundary>
       <Suspense fallback={<CenteredLoadingCircle message={t('common:loader.loadingRoutes')} />}>
         <Routes>
-          <Route
-            key={'custom'}
-            path={'/*'}
-            element={<$custom customRoutes={customRoutes.filter((c) => c.route !== '/admin')} />}
-          />
+          <Route key={'custom'} path={'/*'} element={<$custom customRoutes={customRoutes} />} />
           {customRoutes
             .filter((c) => c.route === '/')
             .map(({ component: Element, props }) => (
