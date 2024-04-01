@@ -23,7 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ECSState, createEntity, executeSystems, getComponent, setComponent } from '@etherealengine/ecs'
+import {
+  ECSState,
+  createEntity,
+  executeSystems,
+  getComponent,
+  getMutableComponent,
+  getOptionalComponent,
+  setComponent
+} from '@etherealengine/ecs'
 import { Engine, startEngine } from '@etherealengine/ecs/src/Engine'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { Timer } from '@etherealengine/ecs/src/Timer'
@@ -37,6 +45,7 @@ import { addObjectToGroup } from './renderer/components/GroupComponent'
 import { setObjectLayers } from './renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from './renderer/components/VisibleComponent'
 import { ObjectLayers } from './renderer/constants/ObjectLayers'
+import { SceneComponent } from './scene/SceneComponent'
 import { EntityTreeComponent } from './transform/components/EntityTree'
 import { TransformComponent } from './transform/components/TransformComponent'
 import { XRState } from './xr/XRState'
@@ -84,6 +93,11 @@ export const createEngine = () => {
   if (canvas) {
     setComponent(Engine.instance.viewerEntity, RendererComponent, { canvas })
     getComponent(Engine.instance.viewerEntity, RendererComponent).initialize(Engine.instance.viewerEntity)
+    setComponent(Engine.instance.viewerEntity, SceneComponent)
+    getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([
+      Engine.instance.viewerEntity,
+      Engine.instance.localFloorEntity
+    ])
   }
   getMutableState(ECSState).timer.set(
     Timer(
@@ -92,7 +106,7 @@ export const createEngine = () => {
         executeSystems(time)
         getMutableState(XRState).xrFrame.set(null)
       },
-      getComponent(Engine.instance.cameraEntity, RendererComponent)?.renderer
+      getOptionalComponent(Engine.instance.cameraEntity, RendererComponent)?.renderer
     )
   )
 

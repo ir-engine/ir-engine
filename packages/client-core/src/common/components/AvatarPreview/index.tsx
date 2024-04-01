@@ -66,7 +66,7 @@ interface Props {
 
 const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: Props) => {
   const { t } = useTranslation()
-  const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
+  const panelRef = useRef() as React.MutableRefObject<HTMLCanvasElement>
   useRender3DPanelSystem(panelRef)
   const renderPanelState = getMutableState(PreviewPanelRendererState)
 
@@ -95,7 +95,9 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
 
   return (
     <Box className={`${commonStyles.preview} ${fill ? styles.fill : ''}`} sx={sx}>
-      <div ref={panelRef} id="stage" className={`${styles.stage} ${fill ? styles.fill : ''}`} />
+      <div id="stage" className={`${styles.stage} ${fill ? styles.fill : ''}`}>
+        <canvas ref={panelRef} />
+      </div>
 
       {!avatarUrl && (
         <Text className={commonStyles.previewText} variant="body2">

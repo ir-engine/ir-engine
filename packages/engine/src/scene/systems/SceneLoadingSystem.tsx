@@ -64,7 +64,7 @@ import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsS
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { SceneComponent } from '@etherealengine/spatial/src/scene/SceneComponent'
 import { SpawnObjectActions } from '@etherealengine/spatial/src/transform/SpawnObjectActions'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
@@ -87,7 +87,14 @@ export const SceneLoadingReactor = () => {
   return (
     <>
       <QueryReactor
-        Components={[EntityTreeComponent, TransformComponent, UUIDComponent, SourceComponent, Not(GLTFLoadedComponent)]}
+        Components={[
+          EntityTreeComponent,
+          TransformComponent,
+          UUIDComponent,
+          SourceComponent,
+          Not(SceneComponent),
+          Not(GLTFLoadedComponent)
+        ]}
         ChildEntityReactor={NetworkedSceneObjectReactor}
       />
       {Object.keys(scenes.value).map((sceneID: SceneID) => (
@@ -101,13 +108,18 @@ const NetworkedSceneObjectReactor = () => {
   const entity = useEntityContext()
 
   useEffect(() => {
-    const uuid = getComponent(entity, UUIDComponent)
+    const entityUUID = getComponent(entity, UUIDComponent)
+    const parentUUID = getComponent(getComponent(entity, EntityTreeComponent).parentEntity, UUIDComponent)
     const transform = getComponent(entity, TransformComponent)
     const isHostingWorldNetwork = !!NetworkState.worldNetwork?.isHosting
+    // const rootSceneEntity = findAncestorWithComponent(entity, SourceComponent)
+    // if (!rootSceneEntity) throw new Error('Could not find root scene entity')
+    // const sceneID = getComponent(rootSceneEntity, SourceComponent)
     dispatchAction(
       SpawnObjectActions.spawnObject({
         ownerID: SceneUser,
-        entityUUID: uuid,
+        parentUUID,
+        entityUUID,
         position: transform.position.clone(),
         rotation: transform.rotation.clone(),
         $time: isHostingWorldNetwork ? undefined : 0,
@@ -177,13 +189,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     <>
       {ready.value &&
         Object.entries(sceneEntities.value).map(([entityUUID, data]) =>
-          entityUUID === rootUUID ? (
-            <EntitySceneRootLoadReactor
-              key={entityUUID}
-              sceneID={props.sceneID}
-              entityUUID={entityUUID as EntityUUID}
-            />
-          ) : (
+          entityUUID === rootUUID ? null : (
             <EntityLoadReactor
               key={props.sceneID + ' ' + entityUUID + ' ' + data.parent + ' ' + data.index}
               sceneID={props.sceneID}
@@ -193,29 +199,6 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
         )}
     </>
   )
-}
-
-/** @todo eventually, this will become redundant */
-const EntitySceneRootLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) => {
-  const entityState = GLTFSourceState.useScene(props.sceneID).entities[props.entityUUID]
-  const selfEntity = useHookstate(UndefinedEntity)
-
-  useEffect(() => {
-    const entity = UUIDComponent.getOrCreateEntityByUUID(props.entityUUID)
-    setComponent(entity, NameComponent, entityState.name.value)
-    setComponent(entity, VisibleComponent, true)
-    setComponent(entity, SourceComponent, props.sceneID)
-    setComponent(entity, TransformComponent)
-    setComponent(entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
-
-    selfEntity.set(entity)
-
-    return () => {
-      removeEntity(entity)
-    }
-  }, [])
-
-  return null
 }
 
 const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) => {
@@ -266,7 +249,6 @@ const EntityChildLoadReactor = (props: {
 
     setComponent(entity, EntityTreeComponent, {
       parentEntity,
-      uuid: props.entityUUID,
       childIndex: entityJSONState.index.value
     })
 
@@ -295,10 +277,8 @@ const EntityChildLoadReactor = (props: {
   useEffect(() => {
     const entity = UUIDComponent.getEntityByUUID(props.entityUUID)
     if (!entity) return
-    const uuid = props.entityUUID
     setComponent(entity, EntityTreeComponent, {
       parentEntity,
-      uuid,
       childIndex: entityJSONState.index.value
     })
   }, [entityJSONState.parent, entityJSONState.index, selfEntity])

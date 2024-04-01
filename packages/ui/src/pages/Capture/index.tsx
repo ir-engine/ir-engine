@@ -50,6 +50,7 @@ import {
 import { useWorldNetwork } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
+import { SceneServices } from '@etherealengine/client-core/src/world/SceneServices'
 import { RecordingID, StaticResourceType, recordingPath } from '@etherealengine/common/src/schema.type.module'
 import { getComponent } from '@etherealengine/ecs'
 import {
@@ -57,7 +58,7 @@ import {
   MotionCaptureResults,
   mocapDataChannelType
 } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
-import { GLTFSourceState, SceneServices } from '@etherealengine/engine/src/scene/GLTFSourceState'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
 import {
   defineState,
   dispatchAction,
@@ -75,6 +76,7 @@ import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
 import { DrawingUtils, FilesetResolver, NormalizedLandmark, PoseLandmarker } from '@mediapipe/tasks-vision'
 import ReactSlider from 'react-slider'
 import Button from '../../primitives/tailwind/Button'
+
 /**
  * Start playback of a recording
  * - If we are streaming data, close the data producer

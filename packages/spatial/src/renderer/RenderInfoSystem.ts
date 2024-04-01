@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { Engine, getComponent } from '@etherealengine/ecs'
+import { Engine, getOptionalComponent } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { RendererComponent, WebGLRendererSystem } from './WebGLRendererSystem'
@@ -48,7 +48,7 @@ export const RenderInfoState = defineState({
 })
 
 const execute = () => {
-  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
+  const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)
   if (!renderer) return
 
   const state = getState(RenderInfoState)

@@ -28,7 +28,7 @@ import { ArrayCamera, PerspectiveCamera, Vector2, Vector3, Vector4 } from 'three
 import { defineActionQueue, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AnimationSystemGroup } from '@etherealengine/ecs'
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { CameraComponent } from '../camera/components/CameraComponent'
@@ -214,7 +214,7 @@ let _currentDepthFar = null as number | null
 const _vec = new Vector2()
 
 export function updateXRCamera() {
-  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer
+  const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)?.renderer
   if (!renderer) return
 
   const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)

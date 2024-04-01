@@ -23,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneDataType, SceneID, scenePath } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
+import { SceneDataType, SceneID } from '@etherealengine/common/src/schema.type.module'
+import { EntityUUID, UUIDComponent, createEntity, removeEntity } from '@etherealengine/ecs'
+import { getComponent, getOptionalComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import {
   NO_PROXY,
@@ -39,7 +38,9 @@ import {
   none,
   useHookstate
 } from '@etherealengine/hyperflux'
+import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import React, { useLayoutEffect } from 'react'
 import { Color, Texture } from 'three'
@@ -86,9 +87,19 @@ export const GLTFSourceState = defineState({
     getMutableState(GLTFSourceState).scenes[sceneID].set(sceneData)
 
     dispatchAction(SceneSnapshotAction.createSnapshot({ sceneID, data }))
+
+    if (!UUIDComponent.getEntityByUUID(data.root)) {
+      return createRootEntity(sceneID, data)
+    }
   },
 
   unloadScene: (sceneID: SceneID) => {
+    console.log('unloadScene', sceneID)
+    const sceneData = getState(GLTFSourceState).scenes[sceneID]
+    if (!sceneData) return
+    const root = sceneData.scene.root
+    const rootEntity = UUIDComponent.getEntityByUUID(root)
+    removeEntity(rootEntity)
     getMutableState(GLTFSourceState).scenes[sceneID].set(none)
   },
 
@@ -98,21 +109,6 @@ export const GLTFSourceState = defineState({
     return UUIDComponent.getEntityByUUID(scene.root)
   }
 })
-
-export const SceneServices = {
-  setCurrentScene: (sceneID: SceneID) => {
-    Engine.instance.api
-      .service(scenePath)
-      .get('' as SceneID, { query: { sceneKey: sceneID } })
-      .then((sceneData: SceneDataType) => {
-        GLTFSourceState.loadScene(sceneID, sceneData)
-      })
-
-    return () => {
-      GLTFSourceState.unloadScene(sceneID)
-    }
-  }
-}
 
 export class SceneSnapshotAction {
   static createSnapshot = defineAction({
@@ -267,4 +263,17 @@ const SceneSnapshotReactor = (props: { sceneID: SceneID }) => {
   }, [sceneState.index])
 
   return null
+}
+
+const createRootEntity = (sceneID: SceneID, sceneData: SceneJsonType) => {
+  const entityState = sceneData.entities[sceneData.root]
+  const entity = createEntity()
+  console.log('createRootEntity', sceneID, entityState.name)
+  setComponent(entity, UUIDComponent, sceneData.root)
+  setComponent(entity, NameComponent, entityState.name)
+  setComponent(entity, VisibleComponent, true)
+  setComponent(entity, SourceComponent, sceneID)
+  setComponent(entity, TransformComponent)
+  setComponent(entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
+  return entity
 }

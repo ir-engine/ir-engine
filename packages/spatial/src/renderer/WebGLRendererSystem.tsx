@@ -35,6 +35,7 @@ import {
   defineQuery,
   defineSystem,
   getComponent,
+  hasComponent,
   useComponent,
   useEntityContext
 } from '@etherealengine/ecs'
@@ -55,11 +56,14 @@ import {
 import { EngineState } from '../EngineState'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
+import { SceneComponent } from '../scene/SceneComponent'
+import { getNestedChildren } from '../transform/components/EntityTree'
 import { WebXRManager, createWebXRManager } from '../xr/WebXRManager'
 import { XRState } from '../xr/XRState'
 import { PerformanceManager } from './PerformanceState'
 import { RendererState } from './RendererState'
 import WebGL from './THREE.WebGL'
+import { GroupComponent } from './components/GroupComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
 import { EffectMapType, defaultPostProcessingSchema } from './effects/PostProcessing'
 import { SDFSettingsState } from './effects/sdf/SDFSettingsState'
@@ -119,6 +123,9 @@ export class EngineRenderer {
   /** @todo deprecate and replace with engine implementation */
   xrManager: WebXRManager = null!
   webGLLostContext: any = null
+
+  /** Array of entity hierarchies to render. */
+  // sceneEntities = [] as Entity[]
 
   initialize(entity: Entity) {
     this.supportWebGL2 = WebGL.isWebGL2Available()
@@ -230,11 +237,17 @@ const changeQualityLevel = (renderer: EngineRenderer) => {
  * Executes the system. Called each frame by default from the Engine.instance.
  * @param delta Time since last frame.
  */
-const render = (delta: number, camera: ArrayCamera, renderer: EngineRenderer) => {
+const render = (delta: number, camera: ArrayCamera, renderer: EngineRenderer, entitiesToRender: Entity[]) => {
+  const objects = entitiesToRender
+    .filter((entity) => hasComponent(entity, GroupComponent))
+    .map((entity) => getComponent(entity, GroupComponent))
+    .flat()
   const xrFrame = getState(XRState).xrFrame
 
-  const canvasParent = document.getElementById('engine-renderer-canvas')?.parentElement
+  const canvasParent = renderer.canvas.parentElement
   if (!canvasParent) return
+
+  Engine.instance.scene.children = objects
 
   /** Postprocessing does not support multipass yet, so just use basic renderer when in VR */
   if (xrFrame) {
@@ -277,6 +290,8 @@ const render = (delta: number, camera: ArrayCamera, renderer: EngineRenderer) =>
     renderer.effectComposer.render(delta)
     renderer.rendering = false
   }
+
+  Engine.instance.scene.children = []
 }
 
 export const RenderSettingsState = defineState({
@@ -299,14 +314,16 @@ export const PostProcessingSettingsState = defineState({
   }
 })
 
-const rendererQuery = defineQuery([RendererComponent, CameraComponent])
+const rendererQuery = defineQuery([RendererComponent, CameraComponent, SceneComponent])
 
 const execute = () => {
   for (const entity of rendererQuery()) {
     const deltaSeconds = getState(ECSState).deltaSeconds
     const camera = getComponent(entity, CameraComponent)
     const renderer = getComponent(entity, RendererComponent)
-    render(deltaSeconds, camera, renderer)
+    const scene = getComponent(entity, SceneComponent)
+    const entitiesToRender = scene.children.map((sceneEntity) => getNestedChildren(sceneEntity)).flat()
+    render(deltaSeconds, camera, renderer, entitiesToRender)
   }
 }
 

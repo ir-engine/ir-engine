@@ -23,27 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
+import { SceneServices } from '@etherealengine/client-core/src/world/SceneServices'
+import multiLogger from '@etherealengine/common/src/logger'
+import { SceneDataType, scenePath } from '@etherealengine/common/src/schema.type.module'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
+import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
+import Dialog from '@mui/material/Dialog'
+import { t } from 'i18next'
 import { DockLayout, DockMode, LayoutData, PanelData, TabData } from 'rc-dock'
-
 import 'rc-dock/dist/rc-dock.css'
-
 import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
-
-import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
-import multiLogger from '@etherealengine/common/src/logger'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-
-import Dialog from '@mui/material/Dialog'
-
-import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { SceneDataType, scenePath } from '@etherealengine/common/src/schema.type.module'
-import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { GLTFSourceState, SceneServices } from '@etherealengine/engine/src/scene/GLTFSourceState'
-import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
-import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
-import { t } from 'i18next'
 import { inputFileWithAddToScene } from '../functions/assetFunctions'
 import { onNewScene, saveScene, setSceneInState } from '../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../functions/utils'

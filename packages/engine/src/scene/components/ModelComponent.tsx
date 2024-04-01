@@ -69,6 +69,9 @@ import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { SourceComponent } from './SourceComponent'
 
+/**
+ * ModelComponent is an entity/object hierarchy loaded from a resource
+ */
 export const ModelComponent = defineComponent({
   name: 'ModelComponent',
   jsonID: 'EE_model',
@@ -122,7 +125,6 @@ export const ModelComponent = defineComponent({
 function ModelReactor(): JSX.Element {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
-  const uuidComponent = useOptionalComponent(entity, UUIDComponent)
 
   const [gltf, error, progress] = useGLTF(modelComponent.src.value, entity, {
     forceAssetType: modelComponent.assetTypeOverride.value,

@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -40,7 +39,6 @@ import { NO_PROXY, none } from '@etherealengine/hyperflux'
 
 type EntityTreeSetType = {
   parentEntity: Entity
-  uuid?: EntityUUID
   childIndex?: number
 }
 
@@ -48,7 +46,6 @@ type EntityTreeSetType = {
  * EntityTreeComponent describes parent-child relationship between entities.
  * A root entity has it's parentEntity set to null.
  * @param {Entity} parentEntity
- * @param {string} uuid
  * @param {Readonly<Entity[]>} children
  */
 export const EntityTreeComponent = defineComponent({
@@ -90,9 +87,6 @@ export const EntityTreeComponent = defineComponent({
     }
 
     const parentEntity = component.parentEntity.value
-
-    if (typeof json?.uuid === 'string' && !hasComponent(entity, UUIDComponent))
-      setComponent(entity, UUIDComponent, json.uuid)
 
     if (parentEntity && entityExists(parentEntity)) {
       if (!hasComponent(parentEntity, EntityTreeComponent)) setComponent(parentEntity, EntityTreeComponent)
@@ -268,9 +262,9 @@ export function traverseEntityNodeParent(entity: Entity, cb: (parent: Entity) =>
   }
 }
 
-export function findAncestorWithComponent(entity: Entity, component: any): Entity | undefined {
+export function findAncestorWithComponent(entity: Entity, component: any, closest = true): Entity | undefined {
   let result: Entity | undefined
-  if (hasComponent(entity, component)) return entity
+  if (closest && hasComponent(entity, component)) return entity
   traverseEntityNodeParent(entity, (parent) => {
     if (hasComponent(parent, component)) {
       result = parent
@@ -299,4 +293,12 @@ export function isDeepChildOf(child: Entity, parent: Entity): boolean {
   if (!childTreeNode) return false
   if (childTreeNode.parentEntity === parent) return true
   return isDeepChildOf(childTreeNode.parentEntity, parent)
+}
+
+export function getNestedChildren(entity: Entity): Entity[] {
+  const children: Entity[] = []
+  traverseEntityNode(entity, (child) => {
+    children.push(child)
+  })
+  return children
 }

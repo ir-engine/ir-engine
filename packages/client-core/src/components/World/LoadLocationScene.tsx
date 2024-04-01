@@ -30,10 +30,9 @@ import { LocationService, LocationState } from '@etherealengine/client-core/src/
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
-import { SceneServices } from '@etherealengine/engine/src/scene/GLTFSourceState'
 import { RouterState } from '../../common/services/RouterService'
 import { WarningUIService } from '../../systems/WarningUISystem'
-import { loadSceneJsonOffline } from '../../world/utils'
+import { SceneServices } from '../../world/SceneServices'
 
 export const useLoadLocation = (props: { locationName: string }) => {
   const locationState = useHookstate(getMutableState(LocationState))
@@ -89,6 +88,6 @@ export const useLoadScene = (props: { projectName: string; sceneName: string }) 
     const sceneID = `projects/${props.projectName}/${props.sceneName}.scene.json` as SceneID
     LocationState.setLocationName(sceneID)
     getMutableState(LocationState).currentLocation.location.sceneId.set(sceneID)
-    loadSceneJsonOffline(props.projectName, props.sceneName)
+    SceneServices.loadSceneJsonOffline(props.projectName, props.sceneName)
   }, [])
 }

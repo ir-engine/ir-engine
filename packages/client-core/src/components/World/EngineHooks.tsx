@@ -70,6 +70,8 @@ export const useEngineInjection = () => {
 
 export const useLocationSpawnAvatar = (spectate = false) => {
   const sceneLoaded = useHookstate(getMutableState(GLTFSourceState).sceneLoaded)
+  const sceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId)
+  const rootUUID = GLTFSourceState.useScene(sceneID.value)?.root?.value
 
   useEffect(() => {
     if (!sceneLoaded.value) return
@@ -91,6 +93,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
       : getRandomSpawnPoint(Engine.instance.userID)
 
     spawnLocalAvatarInWorld({
+      parentUUID: rootUUID,
       avatarSpawnPose,
       avatarID: user.avatar.id!,
       name: user.name

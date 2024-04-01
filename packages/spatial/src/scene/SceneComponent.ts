@@ -1,15 +1,18 @@
-import { defineComponent } from '@etherealengine/ecs'
+import { Entity, defineComponent } from '@etherealengine/ecs'
 
-export const SceneComponents = {} as Record<string, SceneComponent>
+export const SceneComponent = defineComponent({
+  name: 'SceneComponent',
+  onInit(entity) {
+    return {
+      children: [] as Entity[]
+      // environment
+      // background
+      // fog
+    }
+  },
+  onSet(entity, component, json) {
+    if (!json) return
 
-export const createSceneComponent = (sceneID: string) => {
-  const Component = defineComponent({
-    name: sceneID
-  })
-  SceneComponents[sceneID] = Component
-  return Component
-}
-
-export const DefaultScene = createSceneComponent('default')
-
-export type SceneComponent = typeof DefaultScene
+    if (Array.isArray(json.children)) component.children.set(json.children)
+  }
+})
