@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { ColorResult } from '@uiw/color-convert'
+import SketchPicker from '@uiw/react-color-sketch'
 import React, { useEffect, useState } from 'react'
-import { SketchPicker } from 'react-color'
 
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Popover from '@etherealengine/ui/src/primitives/mui/Popover'
@@ -53,9 +54,8 @@ const SketchColorPicker = ({ name, value, onChange }: SketchColorPickerProps) =>
     }
   }, [value])
 
-  const handleChange = (color) => {
-    const rgbaColor = `rgba(${color.rgb.r},${color.rgb.g},${color.rgb.b},${color.rgb.a})`
-
+  const handleChange = (color: ColorResult) => {
+    const rgbaColor = color.hex
     setColor(rgbaColor)
     onChange(rgbaColor)
   }
