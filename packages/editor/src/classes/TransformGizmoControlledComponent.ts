@@ -56,7 +56,10 @@ export const TransformGizmoControlledComponent = defineComponent({
       controller: UndefinedEntity
     }
   },
-  onRemove: (entity, component) => {},
+  onRemove: (entity, component) => {
+    component.controller.set(UndefinedEntity)
+  },
+
   reactor: function (props) {
     const entity = useEntityContext()
     const transformGizmoControlledComponent = useComponent(entity, TransformGizmoControlledComponent)
