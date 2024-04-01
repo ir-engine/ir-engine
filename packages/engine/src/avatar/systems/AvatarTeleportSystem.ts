@@ -182,7 +182,7 @@ const execute = () => {
   }
   const guidelineTransform = getComponent(guidelineEntity, TransformComponent)
 
-  const nonCapturedInputSources = InputSourceComponent.nonCapturedInputSourceQuery()
+  const nonCapturedInputSources = InputSourceComponent.nonCapturedInputSources()
 
   for (const entity of avatarTeleportQuery()) {
     const side = getComponent(selfAvatarEntity, AvatarTeleportComponent).side

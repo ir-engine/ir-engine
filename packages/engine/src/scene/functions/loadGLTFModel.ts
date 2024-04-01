@@ -54,7 +54,7 @@ import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
-import { SceneComponent } from '../components/SceneComponent'
+import { SourceComponent } from '../components/SourceComponent'
 import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
 import { getModelSceneID } from './loaders/ModelFunctions'
 
@@ -165,6 +165,15 @@ export const parseGLTFModel = (entity: Entity, scene: Scene) => {
 export const proxifyParentChildRelationships = (obj: Object3D) => {
   const objEntity = obj.entity
   Object.defineProperties(obj, {
+    matrixWorld: {
+      get() {
+        return getComponent(objEntity, TransformComponent).matrixWorld
+      },
+      set(value) {
+        if (value != undefined) throw new Error('Cannot set matrixWorld of proxified object')
+        console.warn('Setting to nil value is not supported LoadGLTFModel.ts: proxifyParentChildRelationships')
+      }
+    },
     parent: {
       get() {
         if (EngineRenderer.instance?.rendering) return null
@@ -174,9 +183,11 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
             Engine.instance.scene
           return result ?? null
         }
+        return Engine.instance.scene
       },
       set(value) {
-        throw new Error('Cannot set parent of proxified object')
+        if (value != undefined) throw new Error('Cannot set parent of proxified object')
+        console.warn('Setting to nil value is not supported LoadGLTFModel.ts: proxifyParentChildRelationships')
       }
     },
     children: {
@@ -198,7 +209,8 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
         }
       },
       set(value) {
-        throw new Error('Cannot set children of proxified object')
+        if (value != undefined) throw new Error('Cannot set children of proxified object')
+        console.warn('Setting to nil value is not supported LoadGLTFModel.ts: proxifyParentChildRelationships')
       }
     },
     isProxified: {
@@ -222,7 +234,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   eJson.parent = getComponent(parentEntity, UUIDComponent)
 
   const sceneID = getModelSceneID(rootEntity)
-  setComponent(objEntity, SceneComponent, sceneID)
+  setComponent(objEntity, SourceComponent, sceneID)
   setComponent(objEntity, EntityTreeComponent, {
     parentEntity,
     uuid
@@ -261,7 +273,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   proxifyParentChildRelationships(obj)
 
   obj.removeFromParent = () => {
-    if (getComponent(objEntity, EntityTreeComponent)?.parentEntity) {
+    if (getOptionalComponent(objEntity, EntityTreeComponent)?.parentEntity) {
       setComponent(objEntity, EntityTreeComponent, {
         parentEntity: UndefinedEntity
       })

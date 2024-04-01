@@ -31,7 +31,7 @@ import { Entity, defineQuery } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { stringHash } from '@etherealengine/spatial/src/common/functions/MathFunctions'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { SceneComponent } from '../../components/SceneComponent'
+import { SourceComponent } from '../../components/SourceComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
 import { MaterialSelectionState } from '../MaterialLibraryState'
 import { MaterialComponentType } from '../components/MaterialComponent'
@@ -290,7 +290,7 @@ export function materialsFromSource(src: MaterialSource) {
   return getSourceItems(src)?.map(materialFromId)
 }
 
-const sceneMeshQuery = defineQuery([MeshComponent, SceneComponent])
+const sceneMeshQuery = defineQuery([MeshComponent, SourceComponent])
 
 export function replaceMaterial(material: Material, nuMat: Material) {
   for (const entity of sceneMeshQuery()) {

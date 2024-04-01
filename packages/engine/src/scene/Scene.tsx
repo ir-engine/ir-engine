@@ -44,7 +44,7 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import React, { useLayoutEffect } from 'react'
 import { Color, Texture } from 'three'
 import matches, { Validator } from 'ts-matches'
-import { SceneComponent } from './components/SceneComponent'
+import { SourceComponent } from './components/SourceComponent'
 import { migrateOldColliders } from './functions/migrateOldColliders'
 import { migrateOldComponentJSONIDs } from './functions/migrateOldComponentJSONIDs'
 import { migrateSceneSettings } from './functions/migrateSceneSettings'
@@ -215,7 +215,7 @@ export const SceneSnapshotState = defineState({
 
   /** @todo reserved for future use */
   snapshotFromECS: (sceneID: SceneID) => {
-    const entities = SceneComponent.entitiesByScene[sceneID] ?? []
+    const entities = SourceComponent.entitiesBySource[sceneID] ?? []
     const serializedEntities: [EntityUUID, EntityJsonType][] = entities.map((entity) => {
       const components = serializeEntity(entity)
       const name = getComponent(entity, NameComponent)
@@ -231,7 +231,7 @@ export const SceneSnapshotState = defineState({
       return [uuid, entityJson]
     })
     let rootEntity = entities[0]
-    while (getComponent(rootEntity, SceneComponent) === sceneID) {
+    while (getComponent(rootEntity, SourceComponent) === sceneID) {
       const entityTree = getOptionalComponent(rootEntity, EntityTreeComponent)
       if (!entityTree || entityTree.parentEntity === null) break
       rootEntity = entityTree.parentEntity

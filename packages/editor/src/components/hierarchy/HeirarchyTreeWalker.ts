@@ -27,7 +27,7 @@ import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
-import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { getState } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { EditorState } from '../../services/EditorServices'
@@ -65,7 +65,7 @@ export function* heirarchyTreeWalker(
     const { depth, entity: entityNode, childIndex, lastChild } = stack.pop() as HeirarchyTreeNodeType
 
     if (!entityExists(entityNode)) continue
-    if (!hasComponent(entityNode, SceneComponent)) continue
+    if (!hasComponent(entityNode, SourceComponent)) continue
 
     const expandedNodes = getState(EditorState).expandedNodes
 
@@ -75,7 +75,7 @@ export function* heirarchyTreeWalker(
 
     // treat entites with all helper children as leaf nodes
     const allhelperChildren =
-      false || entityTreeComponent.children.every((child) => !hasComponent(child, SceneComponent))
+      false || entityTreeComponent.children.every((child) => !hasComponent(child, SourceComponent))
 
     yield {
       isLeaf: entityTreeComponent.children.length === 0 || allhelperChildren,

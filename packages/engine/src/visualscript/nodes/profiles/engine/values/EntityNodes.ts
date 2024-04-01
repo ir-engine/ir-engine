@@ -33,7 +33,7 @@ import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/moveAvatar'
-import { SceneComponent } from '@etherealengine/engine/src/scene/components/SceneComponent'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { copyTransformToRigidBody } from '@etherealengine/spatial/src/physics/systems/PhysicsPreTransformSystem'
@@ -57,7 +57,7 @@ const initialState = (): State => ({
   systemUUID: '' as SystemUUID
 })
 
-const sceneQuery = defineQuery([SceneComponent])
+const sceneQuery = defineQuery([SourceComponent])
 
 export const getEntity = makeFunctionNodeDefinition({
   typeName: 'logic/entity/get/entityInScene',
