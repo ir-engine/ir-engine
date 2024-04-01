@@ -76,12 +76,14 @@ export const NameInputGroup: EditorComponentType = (props) => {
 
   //function called when element get focused
   const onFocus = () => {
+    if (!nameComponent) return
     focusedNode.set(props.entity)
     tempName.set(nameComponent.value)
   }
 
   // function to handle onBlur event on name property
   const onBlurName = () => {
+    if (!nameComponent) return
     // Check that the focused node is current node before setting the property.
     // This can happen when clicking on another node in the HierarchyPanel
     if (nameComponent.value !== tempName.value && props.entity === focusedNode.value) {
