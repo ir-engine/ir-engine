@@ -27,7 +27,6 @@ import {
   Engine,
   Entity,
   UndefinedEntity,
-  defineQuery,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -473,10 +472,11 @@ export function controlUpdate(gizmoEntity: Entity) {
   }
 }
 
-const pointerQuery = defineQuery([InputPointerComponent])
-
 function pointerHover(gizmoEntity) {
-  const pointerPosition = getComponent(pointerQuery()[0], InputPointerComponent).position
+  // TODO support gizmos in multiple viewports
+  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  if (!inputPointerEntity) return
+  const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
   const gizmoVisual = getComponent(gizmoControlComponent.visualEntity.value, TransformGizmoVisualComponent)
   const picker = getComponent(gizmoVisual.picker[gizmoControlComponent.mode.value], GroupComponent)[0]
@@ -498,7 +498,10 @@ function pointerHover(gizmoEntity) {
 }
 
 function pointerDown(gizmoEntity) {
-  const pointer = getComponent(pointerQuery()[0], InputPointerComponent)
+  // TODO support gizmos in multiple viewports
+  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  if (!inputPointerEntity) return
+  const pointer = getComponent(inputPointerEntity, InputPointerComponent)
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
   const plane = getComponent(gizmoControlComponent.planeEntity.value, GroupComponent)[0]
   const targetEntity =
@@ -752,7 +755,10 @@ function applyPivotRotation(entity, pivotToOriginMatrix, originToPivotMatrix, ro
 }
 
 function pointerMove(gizmoEntity) {
-  const pointer = getComponent(pointerQuery()[0], InputPointerComponent)
+  // TODO support gizmos in multiple viewports
+  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  if (!inputPointerEntity) return
+  const pointer = getComponent(inputPointerEntity, InputPointerComponent)
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
   const targetEntity =
     gizmoControlComponent.controlledEntities.value.length > 1
@@ -881,11 +887,14 @@ function pointerMove(gizmoEntity) {
 }
 
 function pointerUp(gizmoEntity) {
-  const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
-  const pointer = getComponent(pointerQuery()[0], InputPointerComponent)
+  // TODO support gizmos in multiple viewports
+  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  if (!inputPointerEntity) return
+  const pointer = getComponent(inputPointerEntity, InputPointerComponent)
 
   if (pointer.movement.length() !== 0) return
 
+  const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
   if (gizmoControlComponent.dragging && gizmoControlComponent.axis !== null) {
     //check for snap modes
     if (!getState(ObjectGridSnapState).enabled) {

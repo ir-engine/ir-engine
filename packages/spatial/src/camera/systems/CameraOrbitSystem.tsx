@@ -46,6 +46,7 @@ import { InputComponent } from '../../input/components/InputComponent'
 import { InputPointerComponent } from '../../input/components/InputPointerComponent'
 import { MouseScroll } from '../../input/state/ButtonState'
 import { ClientInputSystem } from '../../input/systems/ClientInputSystem'
+import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { FlyControlComponent } from '../components/FlyControlComponent'
 
 const ZOOM_SPEED = 0.1
@@ -60,16 +61,17 @@ const sphere = new Sphere()
 const spherical = new Spherical()
 
 // const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
-const inputPointerQuery = defineQuery([InputSourceComponent, InputPointerComponent])
-const orbitCameraQuery = defineQuery([CameraOrbitComponent, InputComponent, Not(FlyControlComponent)])
+const orbitCameraQuery = defineQuery([
+  RendererComponent,
+  CameraOrbitComponent,
+  InputComponent,
+  Not(FlyControlComponent)
+])
 
 const execute = () => {
   if (!isClient) return
 
   // TODO: handle multi-touch pinch/zoom
-  const pointers = inputPointerQuery()
-  if (!pointers.length) return
-  const inputPointer = getComponent(pointers[0], InputPointerComponent)
 
   const buttons = InputSourceComponent.getMergedButtons()
   const axes = InputSourceComponent.getMergedAxes()
@@ -78,7 +80,12 @@ const execute = () => {
    * assign active orbit camera based on which input source registers input
    */
   for (const cameraEid of orbitCameraQuery()) {
+    const inputPointerEntity = InputPointerComponent.getPointerForCanvas(cameraEid)
+    if (!inputPointerEntity) continue
+    const inputPointer = getComponent(inputPointerEntity, InputPointerComponent)
+
     const cameraOrbit = getMutableComponent(cameraEid, CameraOrbitComponent)
+
     if (cameraOrbit.disabled.value) continue // TODO: replace w/ EnabledComponent or DisabledComponent in query
 
     if (buttons.PrimaryClick?.pressed) {

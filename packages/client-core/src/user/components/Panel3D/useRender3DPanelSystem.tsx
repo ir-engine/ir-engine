@@ -33,6 +33,7 @@ import { CameraComponent } from '@etherealengine/spatial/src/camera/components/C
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 // import { addClientInputListeners } from '@etherealengine/spatial/src/input/systems/ClientInputSystem'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
@@ -56,6 +57,15 @@ export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvas
     const renderer = getComponent(entity, RendererComponent)
     renderer.renderer.setSize(bounds.width, bounds.height)
   }
+
+  useEffect(() => {
+    const { cameraEntity, sceneEntity } = panelState.value
+    return () => {
+      // cleanup entities and state associated with this 3d panel
+      removeEntityNodeRecursively(cameraEntity)
+      removeEntityNodeRecursively(sceneEntity)
+    }
+  }, [])
 
   useEffect(() => {
     if (!canvas.current) return
@@ -94,6 +104,7 @@ export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvas
     setComponent(cameraEntity, RendererComponent, { canvas: canvas.current })
     getComponent(cameraEntity, RendererComponent).initialize(cameraEntity)
     setComponent(cameraEntity, SceneComponent, { children: [sceneEntity] })
+    setComponent(cameraEntity, InputComponent)
 
     resize()
 
@@ -101,9 +112,6 @@ export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvas
 
     return () => {
       window.removeEventListener('resize', resize)
-      // cleanup entities and state associated with this 3d panel
-      removeEntityNodeRecursively(cameraEntity)
-      removeEntityNodeRecursively(sceneEntity)
     }
   }, [canvas.current])
 

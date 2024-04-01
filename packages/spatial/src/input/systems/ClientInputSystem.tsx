@@ -369,7 +369,7 @@ const usePointerInputSources = () => {
     if (xrState.session.value) return // pointer input sources are automatically handled by webxr
 
     const rendererComponent = getComponent(canvasEntity, RendererComponent)
-    const canvas = rendererComponent.renderer.domElement
+    const canvas = rendererComponent.canvas
 
     canvas.addEventListener('dragstart', preventDefault, false)
 

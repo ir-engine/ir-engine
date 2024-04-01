@@ -84,7 +84,7 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
   return (
     <Box className={`${commonStyles.preview} ${fill ? styles.fill : ''}`} sx={sx}>
       <div id="stage" className={`${styles.stage} ${fill ? styles.fill : ''}`}>
-        <canvas ref={panelRef} />
+        <canvas ref={panelRef} style={{ pointerEvents: 'all' }} />
       </div>
 
       {!avatarUrl && (
