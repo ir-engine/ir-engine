@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { ColorResult } from '@uiw/color-convert'
 import SketchPicker from '@uiw/react-color-sketch'
 import React, { useEffect, useState } from 'react'
 import { Color } from 'three'
@@ -67,8 +68,8 @@ export function ColorInput({ value, onChange, onRelease, onSelect, disabled, ...
     if (onSelect) onSelect(value)
   }
 
-  const handleChange = ({ hex }) => {
-    const color = new Color(hex)
+  const handleChange = (result: ColorResult) => {
+    const color = new Color(result.hex)
     setColor(color)
     onChange(color)
     return color
