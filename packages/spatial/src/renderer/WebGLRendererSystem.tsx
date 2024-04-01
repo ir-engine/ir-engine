@@ -70,12 +70,6 @@ import { SDFSettingsState } from './effects/sdf/SDFSettingsState'
 import { changeRenderMode } from './functions/changeRenderMode'
 import { configureEffectComposer } from './functions/configureEffectComposer'
 
-declare module 'postprocessing' {
-  interface EffectComposer {
-    domElement: HTMLCanvasElement
-  }
-}
-
 export const RendererComponent = defineComponent({
   name: 'RendererComponent',
 
@@ -237,7 +231,13 @@ const changeQualityLevel = (renderer: EngineRenderer) => {
  * Executes the system. Called each frame by default from the Engine.instance.
  * @param delta Time since last frame.
  */
-const render = (delta: number, camera: ArrayCamera, renderer: EngineRenderer, entitiesToRender: Entity[]) => {
+export const render = (
+  delta: number,
+  camera: ArrayCamera,
+  renderer: EngineRenderer,
+  entitiesToRender: Entity[],
+  effectComposer = true
+) => {
   const objects = entitiesToRender
     .filter((entity) => hasComponent(entity, GroupComponent))
     .map((entity) => getComponent(entity, GroupComponent))
@@ -250,7 +250,7 @@ const render = (delta: number, camera: ArrayCamera, renderer: EngineRenderer, en
   Engine.instance.scene.children = objects
 
   /** Postprocessing does not support multipass yet, so just use basic renderer when in VR */
-  if (xrFrame) {
+  if (xrFrame || !effectComposer) {
     for (const c of camera.cameras) c.layers.mask = camera.layers.mask
 
     renderer.rendering = true

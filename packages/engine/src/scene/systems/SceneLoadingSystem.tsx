@@ -109,7 +109,9 @@ const NetworkedSceneObjectReactor = () => {
 
   useEffect(() => {
     const entityUUID = getComponent(entity, UUIDComponent)
-    const parentUUID = getComponent(getComponent(entity, EntityTreeComponent).parentEntity, UUIDComponent)
+    const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
+    if (!parentEntity) return console.warn('Entity has no parent', entityUUID)
+    const parentUUID = getComponent(parentEntity, UUIDComponent)
     const transform = getComponent(entity, TransformComponent)
     const isHostingWorldNetwork = !!NetworkState.worldNetwork?.isHosting
     // const rootSceneEntity = findAncestorWithComponent(entity, SourceComponent)

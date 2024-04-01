@@ -24,14 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
+  ArrayCamera,
   Camera,
   ClampToEdgeWrapping,
-  Group,
   LinearFilter,
   PerspectiveCamera,
   RGBAFormat,
   SRGBColorSpace,
-  Scene,
   UnsignedByteType,
   Vector2,
   WebGLRenderTarget
@@ -44,14 +43,15 @@ import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { getState } from '@etherealengine/hyperflux'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent, render } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { EntityTreeComponent, getNestedChildren } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
 import { getCanvasBlob } from '@etherealengine/client-core/src/common/utils'
+import { Entity } from '@etherealengine/ecs'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { EditorState } from '../services/EditorServices'
 
@@ -85,8 +85,7 @@ export async function previewScreenshot(
   quality = 0.9,
   format = 'jpeg' as 'jpeg' | 'png',
   scenePreviewCamera?: PerspectiveCamera,
-  scene = Engine.instance.scene as Group | Scene,
-  objectLayer: (typeof ObjectLayers)[keyof typeof ObjectLayers] = ObjectLayers.Scene
+  sceneEntities = [] as Entity[]
 ): Promise<Blob | null> {
   // Getting Scene preview camera or creating one if not exists
   if (!scenePreviewCamera) {
@@ -114,11 +113,11 @@ export async function previewScreenshot(
   scenePreviewCamera.aspect = width / height
   scenePreviewCamera.updateProjectionMatrix()
   scenePreviewCamera.layers.disableAll()
-  scenePreviewCamera.layers.set(objectLayer)
+  scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
   let blob: Blob | null = null
-  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer
-  renderer.outputColorSpace = SRGBColorSpace
+  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
+  renderer.renderer.outputColorSpace = SRGBColorSpace
   const renderTarget = new WebGLRenderTarget(width, height, {
     minFilter: LinearFilter,
     magFilter: LinearFilter,
@@ -129,12 +128,13 @@ export async function previewScreenshot(
     type: UnsignedByteType
   })
 
-  renderer.setRenderTarget(renderTarget)
+  renderer.renderer.setRenderTarget(renderTarget)
 
-  renderer.render(scene, scenePreviewCamera)
+  const entitiesToRender = sceneEntities.map((sceneEntity) => getNestedChildren(sceneEntity)).flat()
+  render(0, new ArrayCamera([scenePreviewCamera]), renderer, entitiesToRender, false)
 
   const pixels = new Uint8Array(4 * width * height)
-  renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels)
+  renderer.renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels)
   const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
   const flippedData = new Uint8ClampedArray(imageData.data.length)
   for (let y = 0; y < height; y++) {
@@ -150,7 +150,7 @@ export async function previewScreenshot(
   }
   const flippedImageData = new ImageData(flippedData, width, height)
 
-  renderer.setRenderTarget(null) // pass `null` to set canvas as render target
+  renderer.renderer.setRenderTarget(null) // pass `null` to set canvas as render target
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
   canvas.width = width
