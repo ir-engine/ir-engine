@@ -41,6 +41,7 @@ import CopyText from '@etherealengine/ui/src/primitives/tailwind/CopyText'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
+import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 import Tooltip from '@etherealengine/ui/src/primitives/tailwind/ToolTip'
 import { useTranslation } from 'react-i18next'
 import { GrGithub } from 'react-icons/gr'
@@ -78,9 +79,6 @@ export default function ProjectTable() {
     }
   })
 
-  console.log('activeProjectId', activeProjectId)
-  console.log('projectPermissionsFindQuery', projectPermissionsFindQuery)
-
   const showConfirmDialog = (_project: ProjectType, text: string, onSubmit: () => void) => {
     PopoverState.showPopupover(
       <Modal
@@ -91,6 +89,11 @@ export default function ProjectTable() {
         {modalProcessing.value ? <LoadingCircle className="h-[10vh]" /> : <Text>{text}</Text>}
       </Modal>
     )
+  }
+
+  const handleEnabledChange = async (project: ProjectType) => {
+    await ProjectService.setEnabled(project.id, !project.enabled)
+    projectQuery.refetch()
   }
 
   const RowActions = ({ project }: { project: ProjectType }) => {
@@ -228,6 +231,13 @@ export default function ProjectTable() {
           </a>
         ),
         projectVersion: row.version,
+        enabled: (
+          <Toggle
+            disabled={row.name === 'default-project'}
+            value={row.enabled}
+            onChange={() => handleEnabledChange(row)}
+          />
+        ),
         commitSHA: (
           <span className="flex items-center justify-between">
             <Tooltip title={row.commitSHA || ''}>
