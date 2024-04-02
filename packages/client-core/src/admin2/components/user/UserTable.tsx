@@ -84,7 +84,7 @@ export default function UserTable({
         avatar: <AvatarImage src={row.avatar.thumbnailResource?.url || ''} name={row.name} />,
         accountIdentifier: <AccountIdentifiers user={row} />,
         action: (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-around">
             <button
               disabled={!userHasAccess('location:write')}
               title={t('admin:components.common.view')}

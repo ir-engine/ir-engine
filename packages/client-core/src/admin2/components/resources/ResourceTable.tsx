@@ -65,7 +65,7 @@ export default function ResourceTable({ search }: { search: string }) {
       mimeType: el.mimeType,
       project: el.project,
       action: (
-        <div className="flex justify-around">
+        <div className="flex items-center justify-around">
           <Button
             onClick={() => {
               PopoverState.showPopupover(<AddEditResourceModal selectedResource={el} />)

@@ -66,15 +66,18 @@ export default function Avatars() {
             containerClassname="w-1/5 block"
             startComponent={<HiMagnifyingGlass />}
           />
-          <Button
-            startIcon={<HiPlus />}
-            size="small"
-            onClick={() => {
-              PopoverState.showPopupover(<AddEditAvatarModal />)
-            }}
-          >
-            {t('admin:components.avatar.add')}
-          </Button>
+          <div>
+            <Button
+              startIcon={<HiPlus />}
+              size="small"
+              fullWidth
+              onClick={() => {
+                PopoverState.showPopupover(<AddEditAvatarModal />)
+              }}
+            >
+              {t('admin:components.avatar.add')}
+            </Button>
+          </div>
         </div>
       </div>
       <AvatarTable search={search.query.value} />
