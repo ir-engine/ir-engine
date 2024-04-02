@@ -86,7 +86,7 @@ export default function ChannelTable({
       id: row.id,
       name: row.name,
       action: (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-start gap-3">
           <button
             title={t('admin:components.common.view')}
             className="border-theme-primary grid h-8 w-8 rounded-full border"

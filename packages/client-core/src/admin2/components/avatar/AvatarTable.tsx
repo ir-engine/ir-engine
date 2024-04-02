@@ -87,7 +87,7 @@ export default function AvatarTable({ search }: { search: string }) {
       isPublic: <IsPublicToggle id={row.id} isPublic={row.isPublic} />,
       thumbnail: <AvatarImage src={row.thumbnailResource?.url + '?' + new Date().getTime()} className="mx-auto" />,
       action: (
-        <div className="flex items-center justify-around">
+        <div className="flex items-center justify-start gap-3">
           <button
             title={t('admin:components.common.view')}
             className="border-theme-primary grid h-8 w-8 rounded-full border"

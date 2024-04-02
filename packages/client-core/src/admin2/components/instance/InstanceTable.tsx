@@ -61,7 +61,7 @@ export default function InstanceTable({ search }: { search: string }) {
       channelId: row.channelId,
       podName: row.podName,
       action: (
-        <div className="flex items-center justify-around px-2 py-1">
+        <div className="flex items-center justify-start gap-3 px-2 py-1">
           <Button
             className="bg-theme-blue-secondary text-blue-700 dark:text-white"
             onClick={() => {

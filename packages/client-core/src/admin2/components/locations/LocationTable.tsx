@@ -76,7 +76,7 @@ export default function LocationTable({ search }: { search: string }) {
         ? t('admin:components.common.yes')
         : t('admin:components.common.no'),
       action: (
-        <div className="flex items-center justify-around">
+        <div className="flex items-center justify-start gap-3">
           <button
             disabled={!userHasAccess('location:write')}
             title={t('admin:components.common.view')}
