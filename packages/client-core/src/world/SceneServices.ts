@@ -35,8 +35,6 @@ const fileServer = config.client.fileServer
 
 export const SceneServices = {
   setCurrentScene: (sceneID: SceneID) => {
-    if (!sceneID) return
-
     Engine.instance.api
       .service(scenePath)
       .get('' as SceneID, { query: { sceneKey: sceneID } })
