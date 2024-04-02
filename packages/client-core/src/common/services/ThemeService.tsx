@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
 const lightTheme = {
   'bg-primary': '#F5F5F5',
@@ -90,6 +90,10 @@ export const ThemeState = defineState({
 
   setTheme: (theme: 'light' | 'dark' | 'custom') => {
     getMutableState(ThemeState).theme.set(theme)
+  },
+
+  onCreate: () => {
+    syncStateWithLocalStorage(ThemeState, ['theme'])
   }
 })
 

@@ -114,21 +114,6 @@ const AdminRoutes = () => {
 
   useEffect(() => {
     allowedRoutes.set(DefaultAdminRoutes)
-    ThemeState.setTheme('dark')
-
-    // TODO: Remove this and add a proper theme switcher
-    const toggleTheme = (e: KeyboardEvent) => {
-      if (e.metaKey && e.key === 'c') {
-        const currentTheme = getState(ThemeState).theme
-        ThemeState.setTheme(currentTheme === 'dark' ? 'light' : 'dark')
-      }
-    }
-
-    window.addEventListener('keypress', toggleTheme)
-
-    return () => {
-      window.removeEventListener('keypress', toggleTheme)
-    }
   }, [])
 
   useEffect(() => {

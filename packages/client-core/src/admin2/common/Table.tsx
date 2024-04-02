@@ -96,14 +96,15 @@ const DataTable = ({ query, columns, rows }: DataTableProps) => {
   const { t } = useTranslation()
   const [orderBy, order] = (Object.entries(query.sort)[0] as [string | number, FeathersOrder]) ?? ['', 0]
 
-  const storedRows = useHookstate<RowType[]>([])
-  useEffect(() => {
-    if (rows.length !== 0) {
-      storedRows.set(rows)
-    }
-  }, [rows])
+  const storedRows = useHookstate<{ fetched: boolean; rows: RowType[] }>({ fetched: false, rows: [] })
 
-  return storedRows.length === 0 && query.status === 'pending' ? (
+  useEffect(() => {
+    if (['success', 'error'].includes(query.status)) {
+      storedRows.set({ fetched: true, rows })
+    }
+  }, [rows, query.status])
+
+  return !storedRows.fetched.value ? (
     <div className="flex animate-pulse flex-col gap-2">
       {Array.from({ length: 20 }, (_, i) => i).map((idx) => (
         <div key={idx} className="h-12 w-full odd:bg-gray-300 even:bg-gray-200" />
@@ -125,14 +126,14 @@ const DataTable = ({ query, columns, rows }: DataTableProps) => {
           columns={columns}
         />
         <TableBody>
-          {storedRows.length === 0 && (
+          {storedRows.rows.length === 0 && (
             <TableRow>
               <TableCell {...{ colSpan: columns.length }} className="text-center italic">
                 {t('common:table.noData')}
               </TableCell>
             </TableRow>
           )}
-          {storedRows.get(NO_PROXY).map((row, rowIdx) => (
+          {storedRows.rows.get(NO_PROXY).map((row, rowIdx) => (
             <TableRow key={typeof row['id'] === 'string' ? row['id'] : rowIdx}>
               {columns.map((column, columnIdx) => (
                 <TableCell key={columnIdx} className={column.className}>
