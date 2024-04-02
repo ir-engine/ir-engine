@@ -186,9 +186,9 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
 
         <Input
           className="col-span-1"
-          label={t('admin:components.setting.description')}
-          value={settings.siteDescription.value || ''}
-          onChange={(e) => settings.siteDescription.set(e.target.value)}
+          label={t('admin:components.setting.appDescription')}
+          value={settings.appDescription.value || ''}
+          onChange={(e) => settings.appDescription.set(e.target.value)}
         />
 
         <Input
@@ -207,9 +207,9 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
 
         <Input
           className="col-span-1"
-          label={t('admin:components.setting.appDescription')}
-          value={settings.appDescription.value || ''}
-          onChange={(e) => settings.appDescription.set(e.target.value)}
+          label={t('admin:components.setting.description')}
+          value={settings.siteDescription.value || ''}
+          onChange={(e) => settings.siteDescription.set(e.target.value)}
         />
 
         <Toggle
