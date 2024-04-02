@@ -65,33 +65,19 @@ const Settings = lazy(() => import('./components/settings'))
 const Channels = lazy(() => import('./components/channel'))
 
 export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
+  settings: {
+    name: 'user:dashboard.setting',
+    scope: ['settings', clientSettingPath],
+    component: Settings,
+    access: false,
+    icon: <HiOutlineCog6Tooth />
+  },
   projects: {
     name: 'user:dashboard.projects',
     scope: 'projects',
     component: Projects,
     access: false,
     icon: <HiOutlineTableCells />
-  },
-  avatars: {
-    name: 'user:dashboard.avatars',
-    scope: 'globalAvatars',
-    component: Avatars,
-    access: false,
-    icon: <HiUserCircle />
-  },
-  invites: {
-    name: 'user:dashboard.invites',
-    scope: 'invite',
-    component: Invites,
-    access: false,
-    icon: <RiSendPlaneFill />
-  },
-  users: {
-    name: 'user:dashboard.users',
-    scope: 'user',
-    component: Users,
-    access: false,
-    icon: <HiUser />
   },
   locations: {
     name: 'user:dashboard.locations',
@@ -100,13 +86,6 @@ export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
     access: false,
     icon: <HiMapPin />
   },
-  servers: {
-    name: 'user:dashboard.server',
-    scope: 'server',
-    component: Servers,
-    access: false,
-    icon: <HiServer />
-  },
   instances: {
     name: 'user:dashboard.instances',
     scope: 'instance',
@@ -114,12 +93,33 @@ export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
     access: false,
     icon: <HiOutlineCube />
   },
-  resources: {
-    name: 'user:dashboard.resources',
-    scope: 'static_resource',
-    component: Resources,
+  servers: {
+    name: 'user:dashboard.server',
+    scope: 'server',
+    component: Servers,
     access: false,
-    icon: <HiOutlineTableCells />
+    icon: <HiServer />
+  },
+  avatars: {
+    name: 'user:dashboard.avatars',
+    scope: 'globalAvatars',
+    component: Avatars,
+    access: false,
+    icon: <HiUserCircle />
+  },
+  users: {
+    name: 'user:dashboard.users',
+    scope: 'user',
+    component: Users,
+    access: false,
+    icon: <HiUser />
+  },
+  invites: {
+    name: 'user:dashboard.invites',
+    scope: 'invite',
+    component: Invites,
+    access: false,
+    icon: <RiSendPlaneFill />
   },
   recordings: {
     name: 'user:dashboard.recordings',
@@ -128,19 +128,19 @@ export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
     access: false,
     icon: <HiPlay />
   },
+  resources: {
+    name: 'user:dashboard.resources',
+    scope: 'static_resource',
+    component: Resources,
+    access: false,
+    icon: <HiOutlineTableCells />
+  },
   routes: {
     name: 'user:dashboard.routes',
     scope: 'routes',
     component: Routes,
     access: false,
     icon: <HiOutlineGlobeAlt />
-  },
-  settings: {
-    name: 'user:dashboard.setting',
-    scope: ['settings', clientSettingPath],
-    component: Settings,
-    access: false,
-    icon: <HiOutlineCog6Tooth />
   },
   channel: {
     name: 'user:dashboard.channels',
