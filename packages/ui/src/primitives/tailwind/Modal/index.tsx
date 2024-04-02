@@ -35,8 +35,13 @@ export interface ModalProps {
   hideFooter?: boolean
   className?: string
   children: ReactNode
+  closeButtonDisabled?: boolean
+  submitButtonDisabled?: boolean
+  closeButtonText?: string
+  submitButtonText?: string
   onClose?: () => void
   onSubmit?: () => void
+  onCancelFooter?: () => void
 }
 
 export const ModalHeader = ({ title, onClose }: { closeIcon?: boolean; title?: string; onClose?: () => void }) => {
@@ -53,30 +58,65 @@ export const ModalHeader = ({ title, onClose }: { closeIcon?: boolean; title?: s
   )
 }
 
-export const ModalFooter = ({ onCancel, onSubmit }: { onCancel?: () => void; onSubmit?: () => void }) => {
+export const ModalFooter = ({
+  onCancelFooter,
+  onSubmit,
+  cancelButtonText = 'common:components.cancel',
+  submitButtonText = 'common:components.confirm',
+  closeButtonDisabled,
+  submitButtonDisabled
+}: {
+  onCancelFooter?: () => void
+  onSubmit?: () => void
+  cancelButtonText?: string
+  submitButtonText?: string
+  closeButtonDisabled?: boolean
+  submitButtonDisabled?: boolean
+}) => {
   const { t } = useTranslation()
   return (
     <div className="border-t-theme-primary grid grid-flow-col border-t px-6 py-5">
-      <Button variant="outline" onClick={onCancel}>
-        {t('common:components.cancel')}
+      <Button variant="outline" onClick={onCancelFooter} disabled={closeButtonDisabled}>
+        {t(cancelButtonText)}
       </Button>
       {onSubmit && (
-        <Button onClick={onSubmit} className="place-self-end">
-          {t('common:components.confirm')}
+        <Button onClick={onSubmit} className="place-self-end" disabled={submitButtonDisabled}>
+          {t(submitButtonText)}
         </Button>
       )}
     </div>
   )
 }
 
-const Modal = ({ title, onClose, onSubmit, hideFooter, children, className }: ModalProps) => {
+const Modal = ({
+  title,
+  onClose,
+  onCancelFooter,
+  onSubmit,
+  hideFooter,
+  children,
+  className,
+  closeButtonDisabled,
+  submitButtonDisabled,
+  closeButtonText,
+  submitButtonText
+}: ModalProps) => {
   const twClassName = twMerge('relative max-h-full w-full max-w-2xl p-4', className)
   return (
     <div className={twClassName}>
       <div className="bg-theme-primary relative rounded-lg shadow">
         {onClose && <ModalHeader title={title} onClose={onClose} />}
         <div className="w-full px-10 py-6">{children}</div>
-        {!hideFooter && <ModalFooter onCancel={onClose} onSubmit={onSubmit} />}
+        {!hideFooter && (
+          <ModalFooter
+            onCancelFooter={onCancelFooter}
+            onSubmit={onSubmit}
+            cancelButtonText={closeButtonText}
+            submitButtonText={submitButtonText}
+            closeButtonDisabled={closeButtonDisabled}
+            submitButtonDisabled={submitButtonDisabled}
+          />
+        )}
       </div>
     </div>
   )
