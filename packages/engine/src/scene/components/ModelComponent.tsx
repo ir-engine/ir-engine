@@ -227,7 +227,7 @@ function ModelReactor(): JSX.Element {
 
     if (renderer)
       renderer.renderer
-        .compileAsync(scene, getComponent(Engine.instance.viewerEntity, CameraComponent), Engine.instance.scene)
+        .compileAsync(scene, getComponent(Engine.instance.viewerEntity, CameraComponent))
         .catch(() => {
           addError(entity, ModelComponent, 'LOADING_ERROR', 'Error compiling model')
         })

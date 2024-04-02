@@ -137,7 +137,7 @@ const LoadingReactor = () => {
     mesh.material.needsUpdate = true
     mesh.material.map.needsUpdate = true
     getComponent(Engine.instance.viewerEntity, RendererComponent)
-      .renderer.compileAsync(mesh, getComponent(Engine.instance.viewerEntity, CameraComponent), Engine.instance.scene)
+      .renderer.compileAsync(mesh, getComponent(Engine.instance.viewerEntity, CameraComponent))
       .then(() => {
         state.ready.set(true)
       })

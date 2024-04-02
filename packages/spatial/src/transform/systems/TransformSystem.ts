@@ -113,9 +113,12 @@ const updateOriginChildEntities = (entity: Entity) => {
   const referenceEntity = getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity
   const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
 
-  if (referenceEntity && (originChildEntities.has(referenceEntity) || referenceEntity === Engine.instance.originEntity))
+  if (
+    referenceEntity &&
+    (originChildEntities.has(referenceEntity) || referenceEntity === Engine.instance.localFloorEntity)
+  )
     originChildEntities.add(referenceEntity)
-  if (parentEntity && (originChildEntities.has(parentEntity) || parentEntity === Engine.instance.originEntity))
+  if (parentEntity && (originChildEntities.has(parentEntity) || parentEntity === Engine.instance.localFloorEntity))
     originChildEntities.add(parentEntity)
 }
 

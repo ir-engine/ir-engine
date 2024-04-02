@@ -52,7 +52,7 @@ export const onSessionEnd = () => {
 
   getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement.style.display = ''
 
-  const worldOriginTransform = getComponent(Engine.instance.originEntity, TransformComponent)
+  const worldOriginTransform = getComponent(Engine.instance.localFloorEntity, TransformComponent)
   worldOriginTransform.position.copy(V_000)
   worldOriginTransform.rotation.identity()
 
@@ -137,7 +137,7 @@ export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' |
 }
 
 export const getReferenceSpaces = (xrSession: XRSession) => {
-  const worldOriginTransform = getComponent(Engine.instance.originEntity, TransformComponent)
+  const worldOriginTransform = getComponent(Engine.instance.localFloorEntity, TransformComponent)
   const cameraAttachedEntity = getState(PhysicsState).cameraAttachedRigidbodyEntity ?? Engine.instance.cameraEntity
   const transform = getComponent(cameraAttachedEntity, TransformComponent)
 

@@ -57,17 +57,17 @@ export class Engine {
   scene = new Scene()
 
   /**
-   * The xr origin reference space entity
+   * Represents the reference space of the xr session local floor.
    */
   localFloorEntity = UndefinedEntity
 
-  /** @deprecated use localFloorEntity instead */
-  get originEntity() {
-    return this.localFloorEntity
-  }
+  /**
+   * Represents the reference space for the absolute origin of the rendering context.
+   */
+  originEntity = UndefinedEntity
 
   /**
-   * The viewer entity
+   * Represents the reference space for the viewer.
    */
   viewerEntity = UndefinedEntity
 

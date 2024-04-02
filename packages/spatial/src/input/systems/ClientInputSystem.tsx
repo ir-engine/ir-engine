@@ -490,7 +490,7 @@ const useXRInputSources = () => {
       setComponent(eid, InputSourceComponent, { source })
       setComponent(eid, EntityTreeComponent, {
         parentEntity:
-          source.targetRayMode === 'tracked-pointer' ? Engine.instance.originEntity : Engine.instance.cameraEntity
+          source.targetRayMode === 'tracked-pointer' ? Engine.instance.localFloorEntity : Engine.instance.cameraEntity
       })
       setComponent(eid, TransformComponent)
       setComponent(eid, NameComponent, 'InputSource-handed:' + source.handedness + '-mode:' + source.targetRayMode)

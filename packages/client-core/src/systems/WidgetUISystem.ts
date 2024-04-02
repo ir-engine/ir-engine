@@ -172,7 +172,7 @@ const execute = () => {
     )
     if (hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
       removeComponent(widgetMenuUI.entity, ComputedTransformComponent)
-      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
       setComponent(widgetMenuUI.entity, TransformComponent, { scale: new Vector3().setScalar(1) })
     }
 

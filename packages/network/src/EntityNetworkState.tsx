@@ -24,13 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
-import { EntityUUID } from '@etherealengine/ecs'
+import { EntityUUID, UndefinedEntity } from '@etherealengine/ecs'
 import { PeerID } from '@etherealengine/hyperflux'
 
 import { defineState, dispatchAction, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { Engine, UUIDComponent, getOptionalComponent, removeEntity, setComponent } from '@etherealengine/ecs'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import React, { useEffect, useLayoutEffect } from 'react'
 import { NetworkObjectComponent } from './NetworkObjectComponent'
 import { NetworkState, SceneUser } from './NetworkState'
@@ -100,6 +101,7 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
   const isOwner = ownerID === SceneUser || ownerID === Engine.instance.userID
   const userConnected = !!useHookstate(getMutableState(NetworkWorldUserState)[ownerID]).value || isOwner
   const isWorldNetworkConnected = !!useHookstate(NetworkState.worldNetworkState).value
+  const selfEntity = useHookstate(UndefinedEntity)
 
   useLayoutEffect(() => {
     if (!userConnected) return
@@ -107,10 +109,20 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
       ownerID === SceneUser
         ? UUIDComponent.getEntityByUUID(props.uuid)
         : UUIDComponent.getOrCreateEntityByUUID(props.uuid)
+    selfEntity.set(entity)
     return () => {
+      selfEntity.set(UndefinedEntity)
       removeEntity(entity)
     }
   }, [userConnected])
+
+  useLayoutEffect(() => {
+    if (!userConnected) return
+    const entity = UUIDComponent.getEntityByUUID(props.uuid)
+    const parentEntity = UUIDComponent.getEntityByUUID(state.parentUUID.value)
+    if (!parentEntity || !entity) return
+    setComponent(entity, EntityTreeComponent, { parentEntity })
+  }, [userConnected, state.parentUUID])
 
   useLayoutEffect(() => {
     if (!userConnected) return

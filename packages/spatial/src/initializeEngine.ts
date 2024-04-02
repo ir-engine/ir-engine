@@ -55,15 +55,21 @@ import { XRState } from './xr/XRState'
  * adds action receptors and creates a new world.
  * @returns {Engine}
  */
-export const createEngine = () => {
+export const createEngine = (canvas?: HTMLCanvasElement) => {
   startEngine()
 
   Engine.instance.scene.matrixAutoUpdate = false
   Engine.instance.scene.matrixWorldAutoUpdate = false
   Engine.instance.scene.layers.set(ObjectLayers.Scene)
 
+  Engine.instance.originEntity = createEntity()
+  setComponent(Engine.instance.originEntity, NameComponent, 'origin')
+  setComponent(Engine.instance.originEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
+  setComponent(Engine.instance.originEntity, TransformComponent)
+  setComponent(Engine.instance.originEntity, VisibleComponent, true)
+
   Engine.instance.localFloorEntity = createEntity()
-  setComponent(Engine.instance.localFloorEntity, NameComponent, 'origin')
+  setComponent(Engine.instance.localFloorEntity, NameComponent, 'local floor')
   setComponent(Engine.instance.localFloorEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
   setComponent(Engine.instance.localFloorEntity, TransformComponent)
   setComponent(Engine.instance.localFloorEntity, VisibleComponent, true)
@@ -85,16 +91,12 @@ export const createEngine = () => {
   camera.matrixAutoUpdate = false
   camera.matrixWorldAutoUpdate = false
 
-  const canvas =
-    typeof globalThis.document !== 'undefined'
-      ? (document.getElementById('engine-renderer-canvas') as HTMLCanvasElement)
-      : null
-
   if (canvas) {
     setComponent(Engine.instance.viewerEntity, RendererComponent, { canvas })
     getComponent(Engine.instance.viewerEntity, RendererComponent).initialize(Engine.instance.viewerEntity)
     setComponent(Engine.instance.viewerEntity, SceneComponent)
     getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([
+      Engine.instance.originEntity,
       Engine.instance.viewerEntity,
       Engine.instance.localFloorEntity
     ])

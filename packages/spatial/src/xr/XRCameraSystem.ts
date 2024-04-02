@@ -122,7 +122,7 @@ function updateProjectionFromCameraArrayUnion(camera: ArrayCamera) {
 
 function updateCameraFromXRViewerPose() {
   const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-  const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
+  const originTransform = getComponent(Engine.instance.localFloorEntity, TransformComponent)
   const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
   const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer
   const xrState = getState(XRState)

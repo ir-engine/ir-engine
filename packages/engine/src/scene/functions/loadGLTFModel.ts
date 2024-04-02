@@ -39,7 +39,6 @@ import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
@@ -176,8 +175,7 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
     },
     parent: {
       get() {
-        const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
-        if (renderer.renderer) return null
+        if (Engine.instance.scene.children.length) return // hack to check if renderer is rendering
         if (getOptionalComponent(objEntity, EntityTreeComponent)?.parentEntity) {
           const result =
             getOptionalComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)?.[0] ??
@@ -193,8 +191,7 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
     },
     children: {
       get() {
-        const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
-        if (renderer.rendering) return []
+        if (Engine.instance.scene.children.length) return [] // hack to check if renderer is rendering
         if (hasComponent(objEntity, EntityTreeComponent)) {
           const childEntities = getComponent(objEntity, EntityTreeComponent).children
           const result: Object3D[] = []
@@ -238,9 +235,9 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   const sceneID = getModelSceneID(rootEntity)
   setComponent(objEntity, SourceComponent, sceneID)
   setComponent(objEntity, EntityTreeComponent, {
-    parentEntity,
-    uuid
+    parentEntity
   })
+  setComponent(objEntity, UUIDComponent, uuid)
 
   if (hasComponent(rootEntity, SceneAssetPendingTagComponent))
     SceneAssetPendingTagComponent.addResource(objEntity, `${rootEntity}`)
@@ -276,9 +273,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
 
   obj.removeFromParent = () => {
     if (getOptionalComponent(objEntity, EntityTreeComponent)?.parentEntity) {
-      setComponent(objEntity, EntityTreeComponent, {
-        parentEntity: UndefinedEntity
-      })
+      setComponent(objEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
     }
     return obj
   }

@@ -74,7 +74,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
   const rootUUID = GLTFSourceState.useScene(sceneID.value)?.root?.value
 
   useEffect(() => {
-    if (!sceneLoaded.value) return
+    if (!sceneLoaded.value || !rootUUID) return
 
     if (spectate) {
       dispatchAction(CameraActions.spectateUser({}))
@@ -98,7 +98,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
       avatarID: user.avatar.id!,
       name: user.name
     })
-  }, [sceneLoaded.value])
+  }, [sceneLoaded.value, rootUUID])
 }
 
 /**

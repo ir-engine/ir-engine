@@ -64,7 +64,6 @@ import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsS
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
-import { SceneComponent } from '@etherealengine/spatial/src/scene/SceneComponent'
 import { SpawnObjectActions } from '@etherealengine/spatial/src/transform/SpawnObjectActions'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
@@ -87,14 +86,7 @@ export const SceneLoadingReactor = () => {
   return (
     <>
       <QueryReactor
-        Components={[
-          EntityTreeComponent,
-          TransformComponent,
-          UUIDComponent,
-          SourceComponent,
-          Not(SceneComponent),
-          Not(GLTFLoadedComponent)
-        ]}
+        Components={[EntityTreeComponent, TransformComponent, UUIDComponent, SourceComponent, Not(GLTFLoadedComponent)]}
         ChildEntityReactor={NetworkedSceneObjectReactor}
       />
       {Object.keys(scenes.value).map((sceneID: SceneID) => (
