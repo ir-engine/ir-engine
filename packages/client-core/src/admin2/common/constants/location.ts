@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { t } from 'i18next'
 import { ITableHeadCell } from '../Table'
 
-type IdType = 'sceneId' | 'maxUsersPerInstance' | 'scene' | 'name' | 'locationType' | 'tags' | 'videoEnabled' | 'action'
+type IdType = 'sceneId' | 'maxUsersPerInstance' | 'scene' | 'name' | 'locationType' | 'videoEnabled' | 'action'
 
 export type LocationRowType = Record<IdType, string | JSX.Element | undefined>
 
@@ -39,7 +39,6 @@ export const locationColumns: ILocationColumn[] = [
   { id: 'sceneId', label: t('admin:components.location.columns.sceneId') },
   { id: 'maxUsersPerInstance', label: t('admin:components.location.columns.maxUsersPerInstance') },
   { id: 'locationType', label: t('admin:components.location.columns.locationType') },
-  { id: 'tags', label: t('admin:components.location.columns.tags') },
   { id: 'videoEnabled', label: t('admin:components.location.columns.videoEnabled') },
   { id: 'action', label: t('admin:components.location.columns.action') }
 ]

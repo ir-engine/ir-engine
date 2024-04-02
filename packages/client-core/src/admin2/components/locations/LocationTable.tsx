@@ -30,7 +30,6 @@ import { LocationType, SceneID, locationPath } from '@etherealengine/common/src/
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
 import { HiPencil, HiTrash } from 'react-icons/hi2'
 import { userHasAccess } from '../../../user/userHasAccess'
 import DataTable from '../../common/Table'
@@ -73,12 +72,6 @@ export default function LocationTable({ search }: { search: string }) {
       maxUsersPerInstance: row.maxUsersPerInstance.toString(),
       scene: row.slugifiedName,
       locationType: row.locationSetting.locationType,
-      tags: (
-        <>
-          {row.isFeatured ? <Badge label={t('admin:components.location.featured')} /> : null}{' '}
-          {row.isLobby ? <Badge label={t('admin:components.location.isLobby')} /> : null}
-        </>
-      ),
       videoEnabled: row.locationSetting.videoEnabled
         ? t('admin:components.common.yes')
         : t('admin:components.common.no'),
