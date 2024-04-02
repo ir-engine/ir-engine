@@ -27,7 +27,7 @@ import config from '@etherealengine/common/src/config'
 import { SceneDataType, SceneID, scenePath } from '@etherealengine/common/src/schema.type.module'
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import { Engine, getMutableComponent } from '@etherealengine/ecs'
-import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { SceneJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { SceneComponent } from '@etherealengine/spatial/src/scene/SceneComponent'
 
@@ -41,14 +41,14 @@ export const SceneServices = {
       .service(scenePath)
       .get('' as SceneID, { query: { sceneKey: sceneID } })
       .then((sceneData: SceneDataType) => {
-        const sceneRoot = GLTFSourceState.loadScene(sceneID, sceneData)
+        const sceneRoot = SceneState.loadScene(sceneID, sceneData)
         if (sceneRoot) {
           getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([sceneRoot])
         }
       })
 
     return () => {
-      GLTFSourceState.unloadScene(sceneID)
+      SceneState.unloadScene(sceneID)
     }
   },
 
@@ -57,7 +57,7 @@ export const SceneServices = {
     const sceneData = (await (
       await fetch(`${fileServer}/projects/${projectName}/${sceneName}.scene.json`)
     ).json()) as SceneJsonType
-    const sceneRoot = GLTFSourceState.loadScene(sceneID, {
+    const sceneRoot = SceneState.loadScene(sceneID, {
       scene: parseStorageProviderURLs(sceneData),
       name: sceneName,
       scenePath: sceneID,

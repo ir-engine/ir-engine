@@ -30,7 +30,7 @@ import multiLogger from '@etherealengine/common/src/logger'
 import { SceneDataType, scenePath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
@@ -87,7 +87,7 @@ export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }
 
 const SceneLoadingProgress = () => {
   const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
-  const loadingProgress = useHookstate(getMutableState(GLTFSourceState).loadingProgress).value
+  const loadingProgress = useHookstate(getMutableState(SceneState).loadingProgress).value
   return (
     <div style={{ top: '50px', position: 'relative' }}>
       <div
@@ -140,8 +140,8 @@ const onEditorError = (error) => {
 
 const onCloseProject = () => {
   const editorState = getMutableState(EditorState)
-  const gltfSourceState = getMutableState(GLTFSourceState)
-  gltfSourceState.sceneModified.set(false)
+  const SceneState = getMutableState(SceneState)
+  SceneState.sceneModified.set(false)
   editorState.projectName.set(null)
   editorState.sceneID.set(null)
   editorState.sceneName.set(null)
@@ -161,7 +161,7 @@ const onCloseProject = () => {
 
 const onSaveAs = async () => {
   const { projectName, sceneName } = getState(EditorState)
-  const { sceneLoaded, sceneModified } = getState(GLTFSourceState)
+  const { sceneLoaded, sceneModified } = getState(SceneState)
 
   // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
   if (!sceneLoaded) {
@@ -180,7 +180,7 @@ const onSaveAs = async () => {
       DialogState.setDialog(null)
       if (result?.name && projectName) {
         await saveScene(projectName, result.name, abortController.signal)
-        getMutableState(GLTFSourceState).sceneModified.set(false)
+        getMutableState(SceneState).sceneModified.set(false)
         const newSceneData = (await Engine.instance.api
           .service(scenePath)
           .get('', { query: { project: projectName, name: result.name, metadataOnly: true } })) as SceneDataType
@@ -213,7 +213,7 @@ const onImportAsset = async () => {
 
 const onSaveScene = async () => {
   const { projectName, sceneName } = getState(EditorState)
-  const { sceneModified, sceneLoaded } = getState(GLTFSourceState)
+  const { sceneModified, sceneLoaded } = getState(SceneState)
 
   if (!projectName) return
 
@@ -258,7 +258,7 @@ const onSaveScene = async () => {
   try {
     await saveScene(projectName, sceneName, abortController.signal)
 
-    getMutableState(GLTFSourceState).sceneModified.set(false)
+    getMutableState(SceneState).sceneModified.set(false)
 
     DialogState.setDialog(null)
   } catch (error) {
@@ -359,8 +359,8 @@ const tabs = [
  */
 const EditorContainer = () => {
   const { sceneName, projectName, sceneID } = useHookstate(getMutableState(EditorState))
-  const { sceneLoaded, sceneModified } = useHookstate(getMutableState(GLTFSourceState))
-  const { scenes } = useHookstate(getMutableState(GLTFSourceState))
+  const { sceneLoaded, sceneModified } = useHookstate(getMutableState(SceneState))
+  const { scenes } = useHookstate(getMutableState(SceneState))
 
   const sceneLoading = sceneID.value && !sceneLoaded.value
 
@@ -428,7 +428,7 @@ const EditorContainer = () => {
 
   useEffect(() => {
     if (!sceneID.value) return
-    const scene = getState(GLTFSourceState).scenes[sceneID.value]
+    const scene = getState(SceneState).scenes[sceneID.value]
     if (!scene) return
     sceneName.set(scene.name)
     projectName.set(scene.project)

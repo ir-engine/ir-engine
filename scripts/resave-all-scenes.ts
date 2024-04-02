@@ -96,12 +96,12 @@ const resaveAllProjects = async () => {
 
     // read scene file
     // const sceneJson = JSON.parse(fs.readFileSync(scene, { encoding: 'utf-8' })) as SceneJson
-    // getMutableState(GLTFSourceState).sceneData.set({
+    // getMutableState(SceneState).sceneData.set({
     //   scene: sceneJson,
     //   name: scene
     // } as any)
 
-    // const sceneState = getState(GLTFSourceState)
+    // const sceneState = getState(SceneState)
     // setComponent(sceneState.sceneEntity, EntityTreeComponent, { parentEntity: UndefinedEntity, uuid: sceneJson.root })
     // updateSceneEntity(sceneJson.root, sceneJson.entities[sceneJson.root])
     // updateSceneEntitiesFromJSON(sceneJson.root)

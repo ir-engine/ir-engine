@@ -30,14 +30,14 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { PresentationSystemGroup } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { XRLightProbeState } from '@etherealengine/spatial/src/xr/XRLightProbeSystem'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { Texture } from 'three'
 
 const reactor = () => {
-  const background = useHookstate(getMutableState(GLTFSourceState).background)
-  const environment = useHookstate(getMutableState(GLTFSourceState).environment)
+  const background = useHookstate(getMutableState(SceneState).background)
+  const environment = useHookstate(getMutableState(SceneState).environment)
   const sessionMode = useHookstate(getMutableState(XRState).sessionMode)
   const lightProbeEnvironment = useHookstate(getMutableState(XRLightProbeState).environment)
 

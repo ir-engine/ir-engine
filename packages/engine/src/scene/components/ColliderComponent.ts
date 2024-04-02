@@ -40,7 +40,7 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { ColliderComponent as NewColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
@@ -147,7 +147,7 @@ export const ColliderComponent = defineComponent({
     }
 
     if (
-      !getState(GLTFSourceState).sceneLoaded &&
+      !getState(SceneState).sceneLoaded &&
       hasComponent(entity, SourceComponent) &&
       !hasComponent(entity, RigidBodyComponent)
     )

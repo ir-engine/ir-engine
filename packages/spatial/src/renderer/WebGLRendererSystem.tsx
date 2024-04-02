@@ -65,7 +65,7 @@ import { RendererState } from './RendererState'
 import WebGL from './THREE.WebGL'
 import { GroupComponent } from './components/GroupComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
-import { defaultPostProcessingSchema } from './effects/PostProcessing'
+import { EffectMapType, defaultPostProcessingSchema } from './effects/PostProcessing'
 import { SDFSettingsState } from './effects/sdf/SDFSettingsState'
 import { changeRenderMode } from './functions/changeRenderMode'
 import { configureEffectComposer } from './functions/configureEffectComposer'
@@ -82,7 +82,7 @@ export const RendererComponent = defineComponent({
   }
 })
 
-export type EffectComposerWithSchema = EffectComposer // & EffectMapType
+export type EffectComposerWithSchema = EffectComposer & EffectMapType
 
 let lastRenderTime = 0
 

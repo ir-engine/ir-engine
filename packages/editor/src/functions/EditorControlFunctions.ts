@@ -39,11 +39,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import {
-  GLTFSourceState,
-  SceneSnapshotAction,
-  SceneSnapshotState
-} from '@etherealengine/engine/src/scene/GLTFSourceState'
+import { SceneSnapshotAction, SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
 import { materialFromId } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
@@ -221,7 +217,7 @@ const createObjectFromSceneElement = (
   beforeEntity?: Entity,
   updateSelection = true
 ) => {
-  parentEntity = parentEntity ?? GLTFSourceState.getRootEntity(getState(EditorState).sceneID!)
+  parentEntity = parentEntity ?? SceneState.getRootEntity(getState(EditorState).sceneID!)
   //cancelGrabOrPlacement()
 
   let childIndex = 0
@@ -451,7 +447,7 @@ const scaleObject = (entities: Entity[], scales: Vector3[], overrideScale = fals
 }
 
 const reparentObject = (entities: Entity[], before?: Entity | null, parent?: Entity | null) => {
-  parent = parent ?? GLTFSourceState.getRootEntity(getState(EditorState).sceneID!)
+  parent = parent ?? SceneState.getRootEntity(getState(EditorState).sceneID!)
   //cancelGrabOrPlacement()
 
   const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(getState(EditorState).sceneID!)
@@ -501,7 +497,7 @@ const groupObjects = (entities: Entity[]) => {
 
   const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(getState(EditorState).sceneID!)
 
-  const parentEntity = GLTFSourceState.getRootEntity(getState(EditorState).sceneID!)
+  const parentEntity = SceneState.getRootEntity(getState(EditorState).sceneID!)
   const parentEntityTreeComponent = getComponent(parentEntity, EntityTreeComponent)
   const childIndex = parentEntityTreeComponent.children.length
   const parentEntityUUID = getComponent(parentEntity, UUIDComponent)
@@ -561,7 +557,7 @@ const removeObject = (entities: Entity[]) => {
   getMutableState(SelectionState).selectedEntities.set([])
 
   const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(getState(EditorState).sceneID!)
-  const rootEntity = GLTFSourceState.getRootEntity(getState(EditorState).sceneID!)
+  const rootEntity = SceneState.getRootEntity(getState(EditorState).sceneID!)
 
   const removedParentNodes = filterParentEntities(rootEntity, entities, undefined, true, false)
   for (let i = 0; i < removedParentNodes.length; i++) {

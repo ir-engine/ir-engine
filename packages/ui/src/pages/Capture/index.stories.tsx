@@ -45,13 +45,13 @@ import Component from './index'
 import '@etherealengine/client/src/themes/base.css'
 import '@etherealengine/client/src/themes/components.css'
 import '@etherealengine/client/src/themes/utilities.css'
-import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import 'tailwindcss/tailwind.css'
 
 // import { useLocation } from 'react-router-dom'
 
 const initializeEngineForRecorder = async () => {
-  getMutableState(GLTFSourceState).sceneLoaded.set(true)
+  getMutableState(SceneState).sceneLoaded.set(true)
 }
 
 const argTypes = {}

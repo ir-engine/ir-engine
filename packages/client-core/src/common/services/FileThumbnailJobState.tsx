@@ -36,7 +36,6 @@ import {
 } from '@etherealengine/ecs'
 import { previewScreenshot } from '@etherealengine/editor/src/functions/takeScreenshot'
 import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceHooks'
-import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
@@ -147,7 +146,7 @@ const ThumbnailJobReactor = (props: { src: string }) => {
     entity: UndefinedEntity
   })
   const loadPromiseState = useHookstate(null as Promise<any> | null) // for asset loading
-  const gltfSourceState = useHookstate(getMutableState(GLTFSourceState).scenes) // for model rendering
+  const SceneState = useHookstate(getMutableState(SceneState).scenes) // for model rendering
   const [tex] = useTexture(state.fileType.value === 'texture' ? props.src : '') // for texture loading
 
   // Load and render image
@@ -228,7 +227,7 @@ const ThumbnailJobReactor = (props: { src: string }) => {
 
     const sceneID = getModelSceneID(entity)
 
-    if (!gltfSourceState.value[sceneID]) return
+    if (!SceneState.value[sceneID]) return
 
     updateBoundingBox(entity)
 
@@ -261,7 +260,7 @@ const ThumbnailJobReactor = (props: { src: string }) => {
 
     removeEntity(entity)
     removeEntity(cameraEntity)
-  }, [state.entity.value, gltfSourceState.keys])
+  }, [state.entity.value, SceneState.keys])
 
   return null
 }

@@ -56,7 +56,7 @@ import {
   useOptionalComponent,
   useQuery
 } from '@etherealengine/ecs'
-import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { NetworkState, NetworkTopics, SceneUser } from '@etherealengine/network'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -78,7 +78,7 @@ import { proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
 
 export const SceneLoadingReactor = () => {
-  const scenes = useHookstate(getMutableState(GLTFSourceState).scenes)
+  const scenes = useHookstate(getMutableState(SceneState).scenes)
 
   const physicsWorld = useHookstate(getMutableState(PhysicsState).physicsWorld)
   if (!physicsWorld.value) return null
@@ -130,7 +130,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
   const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
   const entities = useHookstate(UUIDComponent.entitiesByUUIDState)
 
-  const currentSceneSnapshotState = GLTFSourceState.useScene(props.sceneID)
+  const currentSceneSnapshotState = SceneState.useScene(props.sceneID)
   const sceneEntities = currentSceneSnapshotState.entities
   const rootUUID = currentSceneSnapshotState.root.value
 
@@ -138,7 +138,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
   const systemsLoaded = useHookstate([] as SystemImportType[])
 
   useEffect(() => {
-    if (!ready.value || getState(GLTFSourceState).sceneLoaded) return
+    if (!ready.value || getState(SceneState).sceneLoaded) return
 
     const entitiesCount = sceneEntities.keys.map(UUIDComponent.getEntityByUUID).filter(Boolean).length
     if (entitiesCount <= 1) return
@@ -148,16 +148,16 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     const loaded = values.reduce((acc, curr) => acc + curr.loadedAmount, 0)
     const progress = !sceneAssetPendingTagQuery.length || total === 0 ? 100 : Math.round((100 * loaded) / total)
 
-    getMutableState(GLTFSourceState).loadingProgress.set(progress)
+    getMutableState(SceneState).loadingProgress.set(progress)
 
-    if (!sceneAssetPendingTagQuery.length && !getState(GLTFSourceState).sceneLoaded) {
-      getMutableState(GLTFSourceState).sceneLoaded.set(true)
+    if (!sceneAssetPendingTagQuery.length && !getState(SceneState).sceneLoaded) {
+      getMutableState(SceneState).sceneLoaded.set(true)
       SceneAssetPendingTagComponent.loadingProgress.set({})
     }
   }, [sceneAssetPendingTagQuery.length, assetLoadingState, entities.keys])
 
   useEffect(() => {
-    const { project, scene } = getState(GLTFSourceState).scenes[props.sceneID]
+    const { project, scene } = getState(SceneState).scenes[props.sceneID]
     const systemPromises = getSystemsFromSceneData(project, scene)
     if (!systemPromises) {
       ready.set(true)
@@ -196,7 +196,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
 }
 
 const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) => {
-  const entityState = GLTFSourceState.useScene(props.sceneID).entities[props.entityUUID]
+  const entityState = SceneState.useScene(props.sceneID).entities[props.entityUUID]
   const parentEntity = UUIDComponent.useEntityByUUID(entityState.value.parent!)
   return (
     <>

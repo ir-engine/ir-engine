@@ -34,7 +34,7 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
-import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import {
   HyperFlux,
   NO_PROXY,
@@ -59,7 +59,7 @@ import styles from './styles.module.scss'
 
 const renderEntityTreeRoots = () => {
   return Object.fromEntries(
-    Object.values(getState(GLTFSourceState).scenes)
+    Object.values(getState(SceneState).scenes)
       .map((scene, i) => {
         const root = scene.scene.root
         const entity = UUIDComponent.getEntityByUUID(root)

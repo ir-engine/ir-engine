@@ -43,7 +43,7 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
@@ -109,7 +109,7 @@ export const ModelComponent = defineComponent({
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
      */
     if (
-      !getState(GLTFSourceState).sceneLoaded &&
+      !getState(SceneState).sceneLoaded &&
       hasComponent(entity, SourceComponent) &&
       component.src.value &&
       !component.asset.value
@@ -206,7 +206,7 @@ function ModelReactor(): JSX.Element {
     const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene)
     const uuid = getModelSceneID(entity)
 
-    GLTFSourceState.loadScene(uuid, {
+    SceneState.loadScene(uuid, {
       scene: {
         entities: loadedJsonHierarchy,
         root: getComponent(entity, UUIDComponent),
@@ -244,7 +244,7 @@ function ModelReactor(): JSX.Element {
       })
     }
     return () => {
-      GLTFSourceState.unloadScene(uuid)
+      SceneState.unloadScene(uuid)
     }
   }, [modelComponent.scene])
 

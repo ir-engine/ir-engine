@@ -31,7 +31,7 @@ import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFun
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
-import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { FogType } from '@etherealengine/engine/src/scene/constants/FogType'
 import { SceneLoadingSystem } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
@@ -96,14 +96,14 @@ describe('EditorControlFunctions', () => {
       // force re-render
       // assertions
 
-      GLTFSourceState.loadScene(sceneID, testScene)
+      SceneState.loadScene(sceneID, testScene)
       getMutableState(EditorState).sceneID.set(sceneID)
       applyIncomingActions()
 
       const { rerender, unmount } = render(sceneTag)
       await act(() => rerender(sceneTag))
 
-      const rootEntity = GLTFSourceState.getRootEntity(sceneID)
+      const rootEntity = SceneState.getRootEntity(sceneID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
@@ -150,7 +150,7 @@ describe('EditorControlFunctions', () => {
   describe('duplicateObject', () => {
     it('will execute the command', async () => {
       // load scene
-      GLTFSourceState.loadScene(sceneID, testScene)
+      SceneState.loadScene(sceneID, testScene)
       getMutableState(EditorState).sceneID.set(sceneID)
 
       // force re-render
@@ -160,7 +160,7 @@ describe('EditorControlFunctions', () => {
       await act(() => rerender(sceneTag))
 
       // assertions
-      const rootEntity = GLTFSourceState.getRootEntity(sceneID)
+      const rootEntity = SceneState.getRootEntity(sceneID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
@@ -200,7 +200,7 @@ describe('EditorControlFunctions', () => {
 
   describe('createObjectFromSceneElement', () => {
     it('creates components from given ID', async () => {
-      GLTFSourceState.loadScene(sceneID, testScene)
+      SceneState.loadScene(sceneID, testScene)
       getMutableState(EditorState).sceneID.set(sceneID)
 
       applyIncomingActions()
@@ -208,7 +208,7 @@ describe('EditorControlFunctions', () => {
       const { rerender, unmount } = render(sceneTag)
       await act(() => rerender(sceneTag))
 
-      const rootEntity = GLTFSourceState.getRootEntity(sceneID)
+      const rootEntity = SceneState.getRootEntity(sceneID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
@@ -261,7 +261,7 @@ describe('EditorControlFunctions', () => {
     })
 
     it('places created entity before passed entity', async () => {
-      GLTFSourceState.loadScene(sceneID, testScene)
+      SceneState.loadScene(sceneID, testScene)
       getMutableState(EditorState).sceneID.set(sceneID)
 
       applyIncomingActions()
@@ -269,7 +269,7 @@ describe('EditorControlFunctions', () => {
       const { rerender, unmount } = render(sceneTag)
       await act(() => rerender(sceneTag))
 
-      const rootEntity = GLTFSourceState.getRootEntity(sceneID)
+      const rootEntity = SceneState.getRootEntity(sceneID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
@@ -345,7 +345,7 @@ describe('EditorControlFunctions', () => {
     })
 
     it('creates unique name for each newly created objects', async () => {
-      GLTFSourceState.loadScene(sceneID, testScene)
+      SceneState.loadScene(sceneID, testScene)
       getMutableState(EditorState).sceneID.set(sceneID)
 
       applyIncomingActions()
@@ -353,7 +353,7 @@ describe('EditorControlFunctions', () => {
       const { rerender, unmount } = render(sceneTag)
       await act(() => rerender(sceneTag))
 
-      const rootEntity = GLTFSourceState.getRootEntity(sceneID)
+      const rootEntity = SceneState.getRootEntity(sceneID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
@@ -434,7 +434,7 @@ describe('EditorControlFunctions', () => {
 
   describe('groupObjects', () => {
     it('will execute command', async () => {
-      GLTFSourceState.loadScene(sceneID, testScene)
+      SceneState.loadScene(sceneID, testScene)
       getMutableState(EditorState).sceneID.set(sceneID)
 
       applyIncomingActions()
@@ -442,7 +442,7 @@ describe('EditorControlFunctions', () => {
       const { rerender, unmount } = render(sceneTag)
       await act(() => rerender(sceneTag))
 
-      const rootEntity = GLTFSourceState.getRootEntity(sceneID)
+      const rootEntity = SceneState.getRootEntity(sceneID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
@@ -567,14 +567,14 @@ describe('EditorControlFunctions', () => {
 
   describe('removeObjects', () => {
     it('Removes given nodes', async () => {
-      GLTFSourceState.loadScene(sceneID, testScene)
+      SceneState.loadScene(sceneID, testScene)
       getMutableState(EditorState).sceneID.set(sceneID)
       applyIncomingActions()
 
       const { rerender, unmount } = render(sceneTag)
       await act(() => rerender(sceneTag))
 
-      const rootEntity = GLTFSourceState.getRootEntity(sceneID)
+      const rootEntity = SceneState.getRootEntity(sceneID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(
@@ -609,7 +609,7 @@ describe('EditorControlFunctions', () => {
     })
 
     it('will not remove root node', async () => {
-      GLTFSourceState.loadScene(sceneID, testScene)
+      SceneState.loadScene(sceneID, testScene)
       getMutableState(EditorState).sceneID.set(sceneID)
 
       applyIncomingActions()
@@ -617,7 +617,7 @@ describe('EditorControlFunctions', () => {
       const { rerender, unmount } = render(sceneTag)
       await act(() => rerender(sceneTag))
 
-      const rootEntity = GLTFSourceState.getRootEntity(sceneID)
+      const rootEntity = SceneState.getRootEntity(sceneID)
       assert(rootEntity, 'root entity not found')
       assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
       assert.equal(

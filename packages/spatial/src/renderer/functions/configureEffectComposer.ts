@@ -70,7 +70,6 @@ export const configureEffectComposer = (entity: Entity): void => {
   }
 
   const composer = new EffectComposer(renderer.renderer) as EffectComposerWithSchema
-  composer.domElement = renderer.renderer.domElement
   renderer.effectComposer = composer
 
   // we always want to have at least the render pass enabled

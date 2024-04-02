@@ -44,7 +44,7 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { PresentationSystemGroup, UUIDComponent, UndefinedEntity } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
-import { SceneSnapshotAction, SceneSnapshotState } from '@etherealengine/engine/src/scene/GLTFSourceState'
+import { SceneSnapshotAction, SceneSnapshotState } from '@etherealengine/engine/src/scene/SceneState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'

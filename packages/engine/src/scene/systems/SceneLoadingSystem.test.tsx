@@ -29,7 +29,7 @@ import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFun
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -95,13 +95,13 @@ describe('SceneLoadingSystem', () => {
 
   it('will load entities', async () => {
     // init
-    GLTFSourceState.loadScene(sceneID, testScene)
+    SceneState.loadScene(sceneID, testScene)
 
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
     // assertions
-    const rootEntity = GLTFSourceState.getRootEntity(sceneID)
+    const rootEntity = SceneState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
@@ -204,12 +204,12 @@ describe('SceneLoadingSystem', () => {
   })
   it('will load correct data', async () => {
     // init
-    GLTFSourceState.loadScene(sceneID, testScene)
+    SceneState.loadScene(sceneID, testScene)
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
     // assertions
-    const rootEntity = GLTFSourceState.getRootEntity(sceneID)
+    const rootEntity = SceneState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
@@ -254,12 +254,12 @@ describe('SceneLoadingSystem', () => {
     // load scene
 
     // init
-    GLTFSourceState.loadScene(sceneID, testScene)
+    SceneState.loadScene(sceneID, testScene)
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
     // assertions
-    const rootEntity = GLTFSourceState.getRootEntity(sceneID)
+    const rootEntity = SceneState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
@@ -311,12 +311,12 @@ describe('SceneLoadingSystem', () => {
     // load scene
 
     // init
-    GLTFSourceState.loadScene(sceneID, testScene)
+    SceneState.loadScene(sceneID, testScene)
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
     // assertions
-    const rootEntity = GLTFSourceState.getRootEntity(sceneID)
+    const rootEntity = SceneState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
@@ -422,12 +422,12 @@ describe('SceneLoadingSystem', () => {
   })
 
   it('will load sub-scene from model component', async () => {
-    GLTFSourceState.loadScene(sceneID, testScene)
+    SceneState.loadScene(sceneID, testScene)
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
     // assertions
-    const rootEntity = GLTFSourceState.getRootEntity(sceneID)
+    const rootEntity = SceneState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
@@ -497,7 +497,7 @@ describe('SceneLoadingSystem', () => {
 
   it('will have sceneAssetPendingTagQuery when loading', async () => {
     // init
-    GLTFSourceState.loadScene(sceneID, testScene)
+    SceneState.loadScene(sceneID, testScene)
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
 
@@ -509,7 +509,7 @@ describe('SceneLoadingSystem', () => {
     const inLoadingEntities = sceneAssetPendingTagQuery()
     //after loading
     for (const entity of inLoadingEntities) {
-      if (entity === GLTFSourceState.getRootEntity(sceneID)) {
+      if (entity === SceneState.getRootEntity(sceneID)) {
         assert.equal(
           hasComponent(entity, SceneAssetPendingTagComponent),
           true,
@@ -525,7 +525,7 @@ describe('SceneLoadingSystem', () => {
       }
     }
 
-    const rootEntity = GLTFSourceState.getRootEntity(sceneID)
+    const rootEntity = SceneState.getRootEntity(sceneID)
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(

@@ -28,7 +28,7 @@ import assert from 'assert'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { UserID, identityProviderPath, locationPath } from '@etherealengine/common/src/schema.type.module'
-import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import appRootPath from 'app-root-path'
@@ -95,7 +95,7 @@ describe('InstanceLoad', () => {
 
     await loadLocation(query)
 
-    assert.equal(getState(GLTFSourceState).sceneLoaded, true)
+    assert.equal(getState(SceneState).sceneLoaded, true)
   })
 
   after(() => {

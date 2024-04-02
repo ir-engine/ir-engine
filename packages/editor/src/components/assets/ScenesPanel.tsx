@@ -36,7 +36,6 @@ import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { SceneDataType, SceneID } from '@etherealengine/common/src/schema.type.module'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
-import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFSourceState'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { TabData } from 'rc-dock'
 import { deleteScene, getScenes, onNewScene, renameScene, setSceneInState } from '../../functions/sceneFunctions'
@@ -64,7 +63,7 @@ export default function ScenesPanel() {
   const [isRenaming, setRenaming] = useState(false)
   const [loadedScene, setLoadedScene] = useState<SceneDataType | null>(null)
   const editorState = useHookstate(getMutableState(EditorState))
-  const gltfSourceState = useHookstate(getMutableState(GLTFSourceState))
+  const SceneState = useHookstate(getMutableState(SceneState))
   const [scenesLoading, setScenesLoading] = useState(true)
 
   const [thumbnails, setThumbnails] = useState<Map<string, string>>(new Map<string, string>())
@@ -112,7 +111,7 @@ export default function ScenesPanel() {
     if (loadedScene) {
       await deleteScene(editorState.projectName.value, loadedScene.name)
       if (editorState.sceneName.value === loadedScene.name) {
-        getMutableState(GLTFSourceState).sceneLoaded.set(false)
+        getMutableState(SceneState).sceneLoaded.set(false)
         editorState.sceneName.set(null)
       }
 
@@ -136,7 +135,7 @@ export default function ScenesPanel() {
   }
 
   const startRenaming = () => {
-    if (gltfSourceState.sceneModified.value) {
+    if (SceneState.sceneModified.value) {
       DialogState.setDialog(
         <ErrorDialog title={t('editor:errors.unsavedChanges')} message={t('editor:errors.unsavedChangesMsg')} />
       )
