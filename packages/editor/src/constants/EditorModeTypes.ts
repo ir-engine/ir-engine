@@ -23,33 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  SnapMode,
-  SnapModeType,
-  TransformMode,
-  TransformModeType,
-  TransformPivot,
-  TransformPivotType,
-  TransformSpace,
-  TransformSpaceType
-} from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
-import { EditorMode, EditorModeType } from '../constants/EditorModeTypes'
+export const EditorMode = {
+  Simple: 'Simple' as const,
+  Advanced: 'Advanced' as const
+}
 
-export const EditorHelperState = defineState({
-  name: 'EditorHelperState',
-  initial: () => ({
-    editorMode: EditorMode.Simple as EditorModeType,
-    transformMode: TransformMode.translate as TransformModeType,
-    transformModeOnCancel: TransformMode.translate as TransformModeType,
-    transformSpace: TransformSpace.world as TransformSpaceType,
-    transformPivot: TransformPivot.Selection as TransformPivotType,
-    gridSnap: SnapMode.Grid as SnapModeType,
-    translationSnap: 0.5,
-    rotationSnap: 10,
-    scaleSnap: 0.1
-  }),
-  onCreate: (store, state) => {
-    syncStateWithLocalStorage(EditorHelperState, ['snapMode', 'translationSnap', 'rotationSnap', 'scaleSnap'])
-  }
-})
+export type EditorModeType = (typeof EditorMode)[keyof typeof EditorMode]
