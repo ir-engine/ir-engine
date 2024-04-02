@@ -39,12 +39,19 @@ export interface ModalProps {
   submitButtonDisabled?: boolean
   closeButtonText?: string
   submitButtonText?: string
-  onClose?: () => void
+  onCloseHeader?: () => void
   onSubmit?: () => void
   onCancelFooter?: () => void
 }
 
-export const ModalHeader = ({ title, onClose }: { closeIcon?: boolean; title?: string; onClose?: () => void }) => {
+export const ModalHeader = ({
+  title,
+  onCloseHeader
+}: {
+  closeIcon?: boolean
+  title?: string
+  onCloseHeader?: () => void
+}) => {
   return (
     <div className="border-b-theme-primary relative flex items-center justify-center border-b px-6 py-5">
       {title && <Text>{title}</Text>}
@@ -52,7 +59,7 @@ export const ModalHeader = ({ title, onClose }: { closeIcon?: boolean; title?: s
         variant="outline"
         className="absolute right-0 border-0 dark:bg-transparent dark:text-[#A3A3A3]"
         startIcon={<MdClose />}
-        onClick={onClose}
+        onClick={onCloseHeader}
       />
     </div>
   )
@@ -90,7 +97,7 @@ export const ModalFooter = ({
 
 const Modal = ({
   title,
-  onClose,
+  onCloseHeader,
   onCancelFooter,
   onSubmit,
   hideFooter,
@@ -105,7 +112,7 @@ const Modal = ({
   return (
     <div className={twClassName}>
       <div className="bg-theme-primary relative rounded-lg shadow">
-        {onClose && <ModalHeader title={title} onClose={onClose} />}
+        {onCloseHeader && <ModalHeader title={title} onCloseHeader={onCloseHeader} />}
         <div className="w-full px-10 py-6">{children}</div>
         {!hideFooter && (
           <ModalFooter
