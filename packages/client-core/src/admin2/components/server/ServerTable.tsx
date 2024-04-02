@@ -87,7 +87,7 @@ export default function ServerTable({
         <div className="flex items-center gap-5">
           <Button
             size="small"
-            className="bg-blue-secondary h-min"
+            className="bg-theme-blue-secondary h-min"
             onClick={() => {
               PopoverState.showPopupover(
                 <ServerLogsModal podName={row.name} containerName={row.containers?.at(-1)?.name} />

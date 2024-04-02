@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { ProjectType, projectPath, projectPermissionPath } from '@etherealengine/common/src/schema.type.module'
 import React from 'react'
-import { IoFolderOutline, IoPeopleOutline, IoTerminalOutline } from 'react-icons/io5'
-import { RiDeleteBinLine } from 'react-icons/ri'
 import DataTable from '../../common/Table'
 import { ProjectRowType, projectsColumns } from '../../common/constants/project'
 
@@ -45,7 +43,14 @@ import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import Tooltip from '@etherealengine/ui/src/primitives/tailwind/ToolTip'
 import { useTranslation } from 'react-i18next'
-import { GrEdit, GrGithub } from 'react-icons/gr'
+import { GrGithub } from 'react-icons/gr'
+import {
+  HiOutlineArrowPath,
+  HiOutlineCommandLine,
+  HiOutlineFolder,
+  HiOutlineTrash,
+  HiOutlineUsers
+} from 'react-icons/hi2'
 import AddEditProjectModal from './AddEditProjectModal'
 import ManageUserPermissionModal from './ManageUserPermissionModal'
 
@@ -92,34 +97,11 @@ export default function ProjectTable() {
     const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)[project.name]).value
 
     return (
-      <div className="flex items-center justify-around p-1">
+      <div className="flex items-center justify-evenly p-1">
         <Button
-          startIcon={<GrGithub />}
-          size="small"
-          className="bg-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
-          disabled={!project || !project.repositoryPath || project.name === 'default-project'}
-          onClick={() => {
-            showConfirmDialog(
-              project,
-              `${t('admin:components.project.confirmPushProjectToGithub')}? ${project.name} - ${
-                project.repositoryPath
-              }`,
-              async () => {
-                modalProcessing.set(true)
-                await ProjectService.pushProject(project.id).catch(() => modalProcessing.set(false))
-                modalProcessing.set(false)
-
-                PopoverState.hidePopupover()
-              }
-            )
-          }}
-        >
-          {t('admin:components.project.actions.push')}
-        </Button>
-        <Button
-          startIcon={<GrEdit />}
-          size="small"
-          className="bg-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+          startIcon={<HiOutlineArrowPath />}
+          // size="small"
+          className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={project.name === 'default-project'}
           onClick={() => {
             PopoverState.showPopupover(
@@ -152,9 +134,33 @@ export default function ProjectTable() {
           {t('admin:components.project.actions.update')}
         </Button>
         <Button
-          startIcon={<IoPeopleOutline />}
-          size="small"
-          className="bg-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+          startIcon={<GrGithub />}
+          // size="small"
+          className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+          disabled={!project || !project.repositoryPath || project.name === 'default-project'}
+          onClick={() => {
+            showConfirmDialog(
+              project,
+              `${t('admin:components.project.confirmPushProjectToGithub')}? ${project.name} - ${
+                project.repositoryPath
+              }`,
+              async () => {
+                modalProcessing.set(true)
+                await ProjectService.pushProject(project.id).catch(() => modalProcessing.set(false))
+                modalProcessing.set(false)
+
+                PopoverState.hidePopupover()
+              }
+            )
+          }}
+        >
+          {t('admin:components.project.actions.push')}
+        </Button>
+
+        <Button
+          startIcon={<HiOutlineUsers />}
+          // size="small"
+          className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
           onClick={() => {
             activeProjectId.set(project.id)
             PopoverState.showPopupover(
@@ -165,9 +171,9 @@ export default function ProjectTable() {
           {t('admin:components.project.actions.access')}
         </Button>
         <Button
-          startIcon={<IoTerminalOutline />}
-          size="small"
-          className="bg-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+          startIcon={<HiOutlineCommandLine />}
+          // size="small"
+          className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={config.client.localBuildOrDev}
           onClick={() => {
             showConfirmDialog(
@@ -184,16 +190,16 @@ export default function ProjectTable() {
           {t('admin:components.project.actions.invalidateCache')}
         </Button>
         <Button
-          startIcon={<IoFolderOutline />}
-          size="small"
-          className="bg-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+          startIcon={<HiOutlineFolder />}
+          // size="small"
+          className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
         >
           {t('admin:components.common.view')}
         </Button>
         <Button
-          startIcon={<RiDeleteBinLine />}
-          size="small"
-          className="bg-blue-secondary h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+          startIcon={<HiOutlineTrash />}
+          // size="small"
+          className="bg-theme-blue-secondary h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={project.name === 'default-project'}
           onClick={() => {
             showConfirmDialog(

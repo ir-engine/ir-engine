@@ -95,7 +95,7 @@ export default function InviteTable({
       spawnDetails: row.spawnDetails ? JSON.stringify(row.spawnDetails) : '',
       action: (
         <Button
-          className="bg-blue-secondary text-[#214AA6]"
+          className="bg-theme-blue-secondary text-[#214AA6]"
           onClick={() => PopoverState.showPopupover(<AddEditInviteModal invite={row} />)}
         >
           {t('admin:components:invite.update')}
