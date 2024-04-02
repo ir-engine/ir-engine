@@ -374,7 +374,8 @@ export function FileBrowserItem({
     : useDrop({
         accept: [...SupportedFileTypes],
         drop: (dropItem) => dropItemsOnPanel(dropItem, item),
-        canDrop: () => item.isFolder && canDropItemOverFolder(item.key),
+        canDrop: (dropItem: Record<string, unknown>) =>
+          item.isFolder && ('key' in dropItem || canDropItemOverFolder(item.key)),
         collect: (monitor) => ({
           isOver: monitor.canDrop() && monitor.isOver()
         })

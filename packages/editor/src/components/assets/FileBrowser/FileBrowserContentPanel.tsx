@@ -377,7 +377,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const DropArea = () => {
     const [{ isFileDropOver }, fileDropRef] = useDrop({
       accept: [...SupportedFileTypes],
-      canDrop: () => canDropItemOverFolder(selectedDirectory.value),
+      canDrop: (item: Record<string, unknown>) => 'key' in item || canDropItemOverFolder(selectedDirectory.value),
       drop: (dropItem) => dropItemsOnPanel(dropItem as any),
       collect: (monitor) => ({ isFileDropOver: monitor.canDrop() && monitor.isOver() })
     })
