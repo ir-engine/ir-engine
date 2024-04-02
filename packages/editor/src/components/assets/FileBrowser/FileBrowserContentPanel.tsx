@@ -77,7 +77,7 @@ import ImageCompressionPanel from '../ImageCompressionPanel'
 import ImageConvertPanel from '../ImageConvertPanel'
 import ModelCompressionPanel from '../ModelCompressionPanel'
 import styles from '../styles.module.scss'
-import { FileBrowserItem, FileTableWrapper } from './FileBrowserGrid'
+import { canDropItemOverFolder, FileBrowserItem, FileTableWrapper } from './FileBrowserGrid'
 import { availableTableColumns, FilesViewModeSettings, FilesViewModeState } from './FileBrowserState'
 import { FileDataType } from './FileDataType'
 import { FilePropertiesPanel } from './FilePropertiesPanel'
@@ -336,7 +336,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
     return (
       <Breadcrumbs
-        style={{}}
         maxItems={3}
         classes={{ separator: styles.separator, li: styles.breadcrumb, ol: styles.breadcrumbList }}
         separator="›"
@@ -378,8 +377,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const DropArea = () => {
     const [{ isFileDropOver }, fileDropRef] = useDrop({
       accept: [...SupportedFileTypes],
+      canDrop: () => canDropItemOverFolder(selectedDirectory.value),
       drop: (dropItem) => dropItemsOnPanel(dropItem as any),
-      collect: (monitor) => ({ isFileDropOver: monitor.isOver() })
+      collect: (monitor) => ({ isFileDropOver: monitor.canDrop() && monitor.isOver() })
     })
 
     const isListView = filesViewMode.value === 'list'

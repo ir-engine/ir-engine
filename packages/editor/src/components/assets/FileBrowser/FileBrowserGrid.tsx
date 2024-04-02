@@ -69,6 +69,12 @@ const RenameInput = ({ fileName, onNameChanged }: { fileName: string; onNameChan
   )
 }
 
+export const canDropItemOverFolder = (folderName: string) =>
+  folderName.endsWith('/assets') ||
+  folderName.indexOf('/assets/') !== -1 ||
+  folderName.endsWith('/public') ||
+  folderName.indexOf('/public/') !== -1
+
 /**
  * if `wrap` is enabled, wraps the `children` inside a `TableBody` with Table Heading and Table Component attached
  */
@@ -368,10 +374,9 @@ export function FileBrowserItem({
     : useDrop({
         accept: [...SupportedFileTypes],
         drop: (dropItem) => dropItemsOnPanel(dropItem, item),
+        canDrop: () => item.isFolder && canDropItemOverFolder(item.key),
         collect: (monitor) => ({
-          isOver: monitor.isOver(),
-          canDrop: !!monitor.canDrop(),
-          moni: monitor.getItemType()
+          isOver: monitor.canDrop() && monitor.isOver()
         })
       })
 
@@ -396,7 +401,7 @@ export function FileBrowserItem({
           drag={drag}
         />
       ) : (
-        <div ref={drop} style={{ border: item.isFolder ? (isOver ? '3px solid #ccc' : '') : '' }}>
+        <div ref={drop} style={{ border: isOver ? '3px solid #ccc' : '' }}>
           <div ref={drag}>
             <div onContextMenu={handleContextMenu}>
               <FileGridItem
