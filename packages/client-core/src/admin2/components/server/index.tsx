@@ -78,7 +78,7 @@ export default function Servers() {
         {serverInfoQuery.data.map((info) => (
           <div
             key={info.id}
-            className={`bg-theme-highlight flex h-16 w-44 cursor-pointer items-start justify-between rounded-2xl p-4 ${
+            className={`bg-theme-surface-main flex h-16 w-44 cursor-pointer items-start justify-between rounded-2xl p-4 ${
               serverType.value === info.id && 'border-b-blue-primary border-b-2'
             }`}
             onClick={() => serverType.set(info.id)}
