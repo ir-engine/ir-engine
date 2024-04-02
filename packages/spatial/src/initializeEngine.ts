@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   ECSState,
+  UUIDComponent,
   createEntity,
   executeSystems,
   getComponent,
@@ -33,7 +34,7 @@ import {
   setComponent
 } from '@etherealengine/ecs'
 import { Engine, startEngine } from '@etherealengine/ecs/src/Engine'
-import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { Timer } from '@etherealengine/ecs/src/Timer'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { BoxGeometry, Group, Mesh, MeshNormalMaterial } from 'three'
@@ -64,25 +65,27 @@ export const createEngine = (canvas?: HTMLCanvasElement) => {
 
   Engine.instance.originEntity = createEntity()
   setComponent(Engine.instance.originEntity, NameComponent, 'origin')
+  setComponent(Engine.instance.originEntity, UUIDComponent, 'ee.origin' as EntityUUID)
   setComponent(Engine.instance.originEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
   setComponent(Engine.instance.originEntity, TransformComponent)
   setComponent(Engine.instance.originEntity, VisibleComponent, true)
 
   Engine.instance.localFloorEntity = createEntity()
   setComponent(Engine.instance.localFloorEntity, NameComponent, 'local floor')
+  setComponent(Engine.instance.localFloorEntity, UUIDComponent, 'ee.local-floor' as EntityUUID)
   setComponent(Engine.instance.localFloorEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
   setComponent(Engine.instance.localFloorEntity, TransformComponent)
   setComponent(Engine.instance.localFloorEntity, VisibleComponent, true)
   const origin = new Group()
   addObjectToGroup(Engine.instance.localFloorEntity, origin)
-  origin.name = 'world-origin'
   const originHelperMesh = new Mesh(new BoxGeometry(0.1, 0.1, 0.1), new MeshNormalMaterial())
   setObjectLayers(originHelperMesh, ObjectLayers.Gizmos)
   originHelperMesh.frustumCulled = false
   origin.add(originHelperMesh)
 
   Engine.instance.viewerEntity = createEntity()
-  setComponent(Engine.instance.viewerEntity, NameComponent, 'camera')
+  setComponent(Engine.instance.viewerEntity, NameComponent, 'viewer')
+  setComponent(Engine.instance.viewerEntity, UUIDComponent, 'ee.viewer' as EntityUUID)
   setComponent(Engine.instance.viewerEntity, CameraComponent)
   setComponent(Engine.instance.viewerEntity, VisibleComponent, true)
   setComponent(Engine.instance.viewerEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
