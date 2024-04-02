@@ -104,9 +104,9 @@ const MultiSelect = <T extends string | number>({
         {selectedOptions.map((selectedOption) => (
           <div
             key={selectedOption}
-            className="border-theme-primary m-1 flex h-7 items-center justify-center gap-1 rounded border bg-neutral-300 p-1 font-medium text-black"
+            className="border-theme-primary bg-theme-surface-main text-theme-primary m-1 flex h-7 items-center justify-center gap-1 rounded border p-1 font-medium"
           >
-            <Text className="text-black">{options.find((opt) => opt.value === selectedOption)?.label}</Text>
+            <Text className="text-theme-primary">{options.find((opt) => opt.value === selectedOption)?.label}</Text>
             <HiXCircle
               className="cursor-pointer"
               onClick={() => onChange(selectedOptions.filter((opt) => opt !== selectedOption))}
