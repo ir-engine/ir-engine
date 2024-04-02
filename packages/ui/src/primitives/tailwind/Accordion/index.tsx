@@ -53,7 +53,7 @@ const Accordion = forwardRef(
     return (
       <div className={twClassName} {...props} ref={ref}>
         <div
-          className="flex w-full cursor-pointer justify-between"
+          className="hover:bg-theme-highlight flex w-full cursor-pointer items-center justify-between"
           onClick={() => {
             openState.set((v) => !v)
           }}
