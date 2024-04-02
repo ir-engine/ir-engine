@@ -36,6 +36,7 @@ import {
 } from '@etherealengine/ecs'
 import { previewScreenshot } from '@etherealengine/editor/src/functions/takeScreenshot'
 import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
@@ -146,7 +147,7 @@ const ThumbnailJobReactor = (props: { src: string }) => {
     entity: UndefinedEntity
   })
   const loadPromiseState = useHookstate(null as Promise<any> | null) // for asset loading
-  const SceneState = useHookstate(getMutableState(SceneState).scenes) // for model rendering
+  const sceneState = useHookstate(getMutableState(SceneState).scenes) // for model rendering
   const [tex] = useTexture(state.fileType.value === 'texture' ? props.src : '') // for texture loading
 
   // Load and render image
@@ -227,7 +228,7 @@ const ThumbnailJobReactor = (props: { src: string }) => {
 
     const sceneID = getModelSceneID(entity)
 
-    if (!SceneState.value[sceneID]) return
+    if (!sceneState.value[sceneID]) return
 
     updateBoundingBox(entity)
 
@@ -260,7 +261,7 @@ const ThumbnailJobReactor = (props: { src: string }) => {
 
     removeEntity(entity)
     removeEntity(cameraEntity)
-  }, [state.entity.value, SceneState.keys])
+  }, [state.entity.value, sceneState.keys])
 
   return null
 }

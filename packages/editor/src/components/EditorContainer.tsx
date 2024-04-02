@@ -140,8 +140,8 @@ const onEditorError = (error) => {
 
 const onCloseProject = () => {
   const editorState = getMutableState(EditorState)
-  const SceneState = getMutableState(SceneState)
-  SceneState.sceneModified.set(false)
+  const sceneState = getMutableState(SceneState)
+  sceneState.sceneModified.set(false)
   editorState.projectName.set(null)
   editorState.sceneID.set(null)
   editorState.sceneName.set(null)

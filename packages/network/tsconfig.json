@@ -38,7 +38,7 @@
   "include": [
     "../../__global.d.ts",
     "../server-core/**/*",
-    "./*.ts",
-    "./*.tsx"
+    "./**/*.ts",
+    "./**/*.tsx"
   ]
 }
