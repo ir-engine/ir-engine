@@ -32,6 +32,7 @@ import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/com
 import { useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID, UUIDComponent, setComponent } from '@etherealengine/ecs'
+import { AssetPreviewCameraComponent } from '@etherealengine/engine/src/camera/components/AssetPreviewCameraComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -77,8 +78,7 @@ export const ModelPreviewPanel = (props) => {
     setComponent(sceneEntity, UUIDComponent, uuid)
     setComponent(sceneEntity, ModelComponent, { src: url, cameraOcclusion: false })
     setComponent(sceneEntity, EnvmapComponent, { type: 'Skybox', envMapIntensity: 2 }) // todo remove when lighting works
-
-    // setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: sceneEntity })
+    setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: sceneEntity })
 
     loading.set(false)
   }, [url])

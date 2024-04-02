@@ -65,7 +65,7 @@ import { RendererState } from './RendererState'
 import WebGL from './THREE.WebGL'
 import { GroupComponent } from './components/GroupComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
-import { EffectMapType, defaultPostProcessingSchema } from './effects/PostProcessing'
+import { defaultPostProcessingSchema } from './effects/PostProcessing'
 import { SDFSettingsState } from './effects/sdf/SDFSettingsState'
 import { changeRenderMode } from './functions/changeRenderMode'
 import { configureEffectComposer } from './functions/configureEffectComposer'
@@ -82,7 +82,7 @@ export const RendererComponent = defineComponent({
   }
 })
 
-export type EffectComposerWithSchema = EffectComposer & EffectMapType
+export type EffectComposerWithSchema = EffectComposer // & EffectMapType
 
 let lastRenderTime = 0
 
@@ -164,7 +164,7 @@ export class EngineRenderer {
 
     this.renderer.autoClear = true
 
-    configureEffectComposer(entity)
+    // configureEffectComposer(entity)
 
     //Todo: WebGL restore context
     this.webGLLostContext = context.getExtension('WEBGL_lose_context')
@@ -247,48 +247,45 @@ export const render = (
   const canvasParent = renderer.canvas.parentElement
   if (!canvasParent) return
 
+  const state = getState(RendererState)
+
+  const engineState = getState(EngineState)
+  if (!engineState.isEditor && state.automatic) changeQualityLevel(renderer)
+
+  if (renderer.needsResize) {
+    const curPixelRatio = renderer.renderer.getPixelRatio()
+    const scaledPixelRatio = window.devicePixelRatio * renderer.scaleFactor
+
+    if (curPixelRatio !== scaledPixelRatio) renderer.renderer.setPixelRatio(scaledPixelRatio)
+
+    const width = canvasParent.clientWidth
+    const height = canvasParent.clientHeight
+
+    if (camera.isPerspectiveCamera) {
+      camera.aspect = width / height
+      camera.updateProjectionMatrix()
+    }
+
+    state.qualityLevel > 0 && state.csm?.updateFrustums()
+
+    if (renderer.effectComposer) {
+      renderer.effectComposer.setSize(width, height, true)
+    } else {
+      renderer.renderer.setSize(width, height, true)
+    }
+
+    renderer.needsResize = false
+  }
+
   Engine.instance.scene.children = objects
 
   /** Postprocessing does not support multipass yet, so just use basic renderer when in VR */
-  if (xrFrame || !effectComposer) {
+  if (xrFrame || !effectComposer || !renderer.effectComposer) {
     for (const c of camera.cameras) c.layers.mask = camera.layers.mask
-
-    renderer.rendering = true
     renderer.renderer.clear()
     renderer.renderer.render(Engine.instance.scene, camera)
-    renderer.rendering = false
   } else {
-    const state = getState(RendererState)
-    const engineState = getState(EngineState)
-    if (!engineState.isEditor && state.automatic) changeQualityLevel(renderer)
-    if (renderer.needsResize) {
-      const curPixelRatio = renderer.renderer.getPixelRatio()
-      const scaledPixelRatio = window.devicePixelRatio * renderer.scaleFactor
-
-      if (curPixelRatio !== scaledPixelRatio) renderer.renderer.setPixelRatio(scaledPixelRatio)
-
-      const width = canvasParent.clientWidth
-      const height = canvasParent.clientHeight
-
-      if (camera.isPerspectiveCamera) {
-        camera.aspect = width / height
-        camera.updateProjectionMatrix()
-      }
-
-      state.qualityLevel > 0 && state.csm?.updateFrustums()
-      // Effect composer calls renderer.setSize internally
-      renderer.effectComposer.setSize(width, height, true)
-
-      renderer.needsResize = false
-    }
-
-    /**
-     * Editor should always use post processing, even if no postprocessing schema is in the scene,
-     *   it still uses post processing for effects such as outline.
-     */
-    renderer.rendering = true
     renderer.effectComposer.render(delta)
-    renderer.rendering = false
   }
 
   Engine.instance.scene.children = []

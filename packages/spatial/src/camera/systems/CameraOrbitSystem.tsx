@@ -96,7 +96,12 @@ const execute = () => {
     const zoom = axes[MouseScroll.VerticalScroll]
     const panning = buttons.AuxiliaryClick?.pressed
 
-    if (buttons.KeyF?.down) {
+    const transform = getComponent(cameraEid, TransformComponent)
+    const editorCameraCenter = cameraOrbit.cameraOrbitCenter.value
+    const distance = transform.position.distanceTo(editorCameraCenter)
+    const camera = getComponent(cameraEid, CameraComponent)
+
+    if (buttons.KeyF?.down || distance < cameraOrbit.minimumZoom.value) {
       cameraOrbit.refocus.set(true)
     }
     if (selecting) {
@@ -115,12 +120,7 @@ const execute = () => {
       }
     }
 
-    const editorCameraCenter = cameraOrbit.cameraOrbitCenter.value
-    const transform = getComponent(cameraEid, TransformComponent)
-    const camera = getComponent(cameraEid, CameraComponent)
-
     if (zoom) {
-      const distance = transform.position.distanceTo(cameraOrbit.cameraOrbitCenter.value)
       delta.set(0, 0, zoom * distance * ZOOM_SPEED)
       if (delta.length() < distance) {
         delta.applyMatrix3(normalMatrix.getNormalMatrix(camera.matrixWorld))
@@ -129,7 +129,7 @@ const execute = () => {
     }
 
     if (cameraOrbit.refocus.value) {
-      let distance = 0
+      let distance = cameraOrbit.minimumZoom.value
       if (cameraOrbit.focusedEntities.length === 0) {
         editorCameraCenter.set(0, 0, 0)
         distance = 10
@@ -152,7 +152,6 @@ const execute = () => {
             const position = getComponent(object, TransformComponent).position
             editorCameraCenter.copy(position)
           }
-          distance = 0.1
         } else {
           box.getCenter(editorCameraCenter)
           distance = box.getBoundingSphere(sphere).radius
