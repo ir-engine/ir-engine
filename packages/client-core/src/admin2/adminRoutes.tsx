@@ -37,7 +37,7 @@ import '@etherealengine/engine/src/EngineModule'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
 import { useTranslation } from 'react-i18next'
-import { HiArrowRightOnRectangle, HiMiniMoon, HiMiniSun } from 'react-icons/hi2'
+import { HiMiniMoon, HiMiniSun } from 'react-icons/hi2'
 import { RouterState } from '../common/services/RouterService'
 import { DefaultAdminRoutes } from './DefaultAdminRoutes'
 
@@ -77,7 +77,7 @@ const AdminSideBar = () => {
   const relativePath = fullPathName.split('/').slice(2).join('/')
 
   return (
-    <aside className="bg-theme-surface-main mx-8 h-[calc(100vh_-_88px_-_4rem)] overflow-y-auto overflow-x-hidden rounded-2xl px-2 py-4">
+    <aside className="bg-theme-surface-main mx-8 h-fit max-h-[calc(100vh_-_88px_-_4rem)] overflow-y-auto overflow-x-hidden rounded-2xl px-2 py-4">
       <ul className="space-y-2">
         {Object.entries(allowedRoutes)
           .filter(([_, sidebarItem]) => sidebarItem.access)
@@ -99,14 +99,6 @@ const AdminSideBar = () => {
               </li>
             )
           })}
-        <li>
-          <Button
-            className="bg-theme-surface-main text-theme-secondary my-2 flex items-center rounded-sm px-2 py-3"
-            startIcon={<HiArrowRightOnRectangle />}
-          >
-            {t('admin:components.common.logOut')}
-          </Button>
-        </li>
       </ul>
     </aside>
   )
