@@ -77,7 +77,7 @@ const AdminSideBar = () => {
   const relativePath = fullPathName.split('/').slice(2).join('/')
 
   return (
-    <aside className="bg-theme-surface-main mx-8 h-fit rounded-2xl px-2 py-4">
+    <aside className="bg-theme-surface-main mx-8 h-[calc(100vh_-_88px_-_4rem)] overflow-y-auto overflow-x-hidden rounded-2xl px-2 py-4">
       <ul className="space-y-2">
         {Object.entries(allowedRoutes)
           .filter(([_, sidebarItem]) => sidebarItem.access)
