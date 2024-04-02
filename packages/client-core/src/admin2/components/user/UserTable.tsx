@@ -83,6 +83,16 @@ export default function UserTable({
         name: row.name,
         avatar: <AvatarImage src={row.avatar.thumbnailResource?.url || ''} name={row.name} />,
         accountIdentifier: <AccountIdentifiers user={row} />,
+        lastLogin: row.lastLogin
+          ? new Date(row.lastLogin).toLocaleString('en-us', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: 'numeric'
+            })
+          : '-',
+        isGuest: row.isGuest.toString(),
         action: (
           <div className="flex items-center justify-around">
             <button

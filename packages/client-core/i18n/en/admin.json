@@ -584,6 +584,8 @@
         "name": "Name",
         "avatar": "Avatar",
         "accountIdentifier": "Linked Accounts",
+        "lastLogin": "Last Login",
+        "isGuest": "Is Guest",
         "action": "Action"
       },
       "users": "Users",

@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { UserType } from '@etherealengine/common/src/schema.type.module'
+import ToolTip from '@etherealengine/ui/src/primitives/tailwind/ToolTip'
 import React from 'react'
 import { MdEmail } from 'react-icons/md'
 import {
@@ -47,14 +48,46 @@ export default function AccountIdentifiers({ user }: { user: UserType }) {
 
   return (
     <div className="flex items-center gap-2">
-      {discordIp ? <RiDiscordFill className="h-6 w-6" /> : null}
-      {googleIp ? <RiGoogleFill className="h-6 w-6" /> : null}
-      {facebookIp ? <RiFacebookBoxFill className="h-6 w-6" /> : null}
-      {twitterIp ? <RiTwitterFill className="h-6 w-6" /> : null}
-      {linkedinIp ? <RiTwitterFill className="h-6 w-6" /> : null}
-      {githubIp ? <RiGithubFill className="h-6 w-6" /> : null}
-      {smsIp ? <RiMessage2Line className="h-6 w-6" /> : null}
-      {emailIp ? <MdEmail className="h-6 w-6" /> : null}
+      {discordIp ? (
+        <ToolTip title={discordIp.accountIdentifier!}>
+          <RiDiscordFill className="h-6 w-6" />
+        </ToolTip>
+      ) : null}
+      {googleIp ? (
+        <ToolTip title={googleIp.accountIdentifier!}>
+          <RiGoogleFill className="h-6 w-6" />
+        </ToolTip>
+      ) : null}
+      {facebookIp ? (
+        <ToolTip title={facebookIp.accountIdentifier!}>
+          <RiFacebookBoxFill className="h-6 w-6" />
+        </ToolTip>
+      ) : null}
+      {twitterIp ? (
+        <ToolTip title={twitterIp.accountIdentifier!}>
+          <RiTwitterFill className="h-6 w-6" />
+        </ToolTip>
+      ) : null}
+      {linkedinIp ? (
+        <ToolTip title={linkedinIp.accountIdentifier!}>
+          <RiTwitterFill className="h-6 w-6" />
+        </ToolTip>
+      ) : null}
+      {githubIp ? (
+        <ToolTip title={githubIp.accountIdentifier!}>
+          <RiGithubFill className="h-6 w-6" />
+        </ToolTip>
+      ) : null}
+      {smsIp ? (
+        <ToolTip title={smsIp.accountIdentifier!}>
+          <RiMessage2Line className="h-6 w-6" />
+        </ToolTip>
+      ) : null}
+      {emailIp ? (
+        <ToolTip title={emailIp.accountIdentifier!}>
+          <MdEmail className="h-6 w-6" />
+        </ToolTip>
+      ) : null}
     </div>
   )
 }
