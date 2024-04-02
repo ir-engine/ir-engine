@@ -66,8 +66,8 @@ const Badge = ({ label, className, textClassName, icon, variant }: BadgeProps) =
 
   if (variant && variantMap[variant]) {
     const { containerClass, iconColor, textClass } = variantMap[variant]
-    twClassName = twMerge(twClassName, containerClass)
-    twTextClassName = twMerge(twTextClassName, textClass)
+    twClassName = twMerge(containerClass, twClassName)
+    twTextClassName = twMerge(textClass, twTextClassName)
     variantIconColor = iconColor
   }
 
