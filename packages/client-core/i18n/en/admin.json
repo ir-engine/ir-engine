@@ -196,6 +196,7 @@
       "columns": {
         "name": "Name",
         "projectVersion": "Version",
+        "enabled": "Enabled",
         "commitSHA": "Commit SHA",
         "commitDate": "Commit Date",
         "actions": "Actions"

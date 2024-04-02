@@ -66,15 +66,18 @@ export default function Locations() {
             containerClassname="w-1/5 block"
             startComponent={<HiMagnifyingGlass />}
           />
-          <Button
-            startIcon={<HiPlus />}
-            size="small"
-            onClick={() => {
-              PopoverState.showPopupover(<AddEditLocationModal />)
-            }}
-          >
-            {t('admin:components.location.createLocation')}
-          </Button>
+          <div>
+            <Button
+              startIcon={<HiPlus />}
+              size="small"
+              fullWidth
+              onClick={() => {
+                PopoverState.showPopupover(<AddEditLocationModal />)
+              }}
+            >
+              {t('admin:components.location.createLocation')}
+            </Button>
+          </div>
         </div>
       </div>
       <LocationTable search={search.query.value} />

@@ -156,10 +156,16 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
             </div>
           ))}
           <div className="mb-3 grid grid-cols-8 gap-2">
-            <Button className="bg-theme-highlight text-primary col-span-1" fullWidth onClick={handleCancel}>
+            <Button
+              size="small"
+              className="bg-theme-highlight text-primary col-span-1"
+              fullWidth
+              onClick={handleCancel}
+            >
               {t('admin:components.setting.project.clear')}
             </Button>
             <Button
+              size="small"
               className="col-span-1"
               fullWidth
               onClick={handleSubmit}

@@ -66,13 +66,17 @@ export default function Invites() {
             containerClassname="w-1/5 block"
             startComponent={<HiMagnifyingGlass />}
           />
-          <Button
-            onClick={() => {
-              PopoverState.showPopupover(<PatchServerModal />)
-            }}
-          >
-            {t('admin:components.setting.patchInstanceserver')}
-          </Button>
+          <div>
+            <Button
+              size="small"
+              fullWidth
+              onClick={() => {
+                PopoverState.showPopupover(<PatchServerModal />)
+              }}
+            >
+              {t('admin:components.setting.patchInstanceserver')}
+            </Button>
+          </div>
         </div>
       </div>
       <InstanceTable search={search.query.value} />

@@ -66,15 +66,18 @@ export default function Resources() {
             containerClassname="w-1/5 block"
             startComponent={<HiMagnifyingGlass />}
           />
-          <Button
-            startIcon={<HiPlus />}
-            size="small"
-            onClick={() => {
-              PopoverState.showPopupover(<AddEditResourceModal />)
-            }}
-          >
-            {t('user:resource.createResource')}
-          </Button>
+          <div>
+            <Button
+              startIcon={<HiPlus />}
+              size="small"
+              fullWidth
+              onClick={() => {
+                PopoverState.showPopupover(<AddEditResourceModal />)
+              }}
+            >
+              {t('user:resource.createResource')}
+            </Button>
+          </div>
         </div>
       </div>
       <ResourceTable search={search.query.value} />

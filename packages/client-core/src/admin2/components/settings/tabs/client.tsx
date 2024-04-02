@@ -404,10 +404,11 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
       </div>
 
       <div className="mt-6 grid grid-cols-8 gap-6">
-        <Button className="bg-theme-highlight text-primary col-span-1" onClick={handleCancel} fullWidth>
+        <Button size="small" className="bg-theme-highlight text-primary col-span-1" onClick={handleCancel} fullWidth>
           {t('admin:components.common.reset')}
         </Button>
         <Button
+          size="small"
           variant="primary"
           className="col-span-1"
           onClick={handleSubmit}
