@@ -79,7 +79,11 @@ export default function ServerLogsModal({ podName, containerName }: { podName: s
   }, [autoRefresh])
 
   return (
-    <Modal title={t('admin:components.server.serverLogs')} onClose={() => PopoverState.hidePopupover()}>
+    <Modal
+      className="w-[50vw] max-w-2xl"
+      title={t('admin:components.server.serverLogs')}
+      onClose={() => PopoverState.hidePopupover()}
+    >
       <div className="space-y-4">
         <div className="space-between mb-2 flex w-full items-center">
           <Text fontSize="xl" component="h2">

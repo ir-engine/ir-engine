@@ -28,15 +28,16 @@ import { useTranslation } from 'react-i18next'
 
 import { RecordingType, recordingPath } from '@etherealengine/common/src/schema.type.module'
 
-import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import DataTable from '../../common/Table'
 
 import { recordingColumns } from '../../common/constants/recordings'
 
+import { useHookstate } from '@etherealengine/hyperflux'
+import showConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { HiTrash } from 'react-icons/hi2'
 import { PopoverState } from '../../../common/services/PopoverState'
-import DeleteRecordingModal from './DeleteRecordingModal'
 
 export default function RecordingsTable({ search }: { search: string }) {
   const { t } = useTranslation()
@@ -49,6 +50,9 @@ export default function RecordingsTable({ search }: { search: string }) {
   })
 
   useSearch(recordingsQuery, { search }, search)
+
+  const removeRecording = useMutation(recordingPath).remove
+  const modalProcessing = useHookstate(false)
 
   const createRows = (rows: readonly RecordingType[]) =>
     rows.map((row) => ({
@@ -65,7 +69,16 @@ export default function RecordingsTable({ search }: { search: string }) {
             className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0"
             rounded
             onClick={() => {
-              PopoverState.showPopupover(<DeleteRecordingModal recordingId={row.id} />)
+              showConfirmDialog(
+                `${t('admin:components.recording.confirmRecordingDelete')} (${row.id}) ?`,
+                async () => {
+                  modalProcessing.set(true)
+                  await removeRecording(row.id)
+                  PopoverState.hidePopupover()
+                  modalProcessing.set(false)
+                },
+                modalProcessing.value
+              )
             }}
           >
             <HiTrash className="place-self-center text-[#E11D48] dark:text-[#FB7185]" />

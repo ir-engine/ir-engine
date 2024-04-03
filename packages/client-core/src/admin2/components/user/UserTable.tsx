@@ -94,7 +94,7 @@ export default function UserTable({
           : '-',
         isGuest: row.isGuest.toString(),
         action: (
-          <div className="flex items-center justify-around">
+          <div className="flex items-center justify-start gap-3">
             <button
               disabled={!userHasAccess('location:write')}
               title={t('admin:components.common.view')}

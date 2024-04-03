@@ -22,42 +22,23 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
-import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import { useHookstate } from '@hookstate/core'
 import React from 'react'
-import { useTranslation } from 'react-i18next'
-import { ResourceService } from '../../../admin/services/ResourceService'
+import LoadingCircle from '../../../primitives/tailwind/LoadingCircle'
+import Modal from '../../../primitives/tailwind/Modal'
+import Text from '../../../primitives/tailwind/Text'
 
-export default function DeleteResourceModal({ resourceId, resourceKey }: { resourceId: string; resourceKey: string }) {
-  const { t } = useTranslation()
-
-  const modalProcessing = useHookstate(false)
-  const error = useHookstate('')
-
-  const handleSubmit = async () => {
-    modalProcessing.set(true)
-    error.set('')
-    try {
-      await ResourceService.removeResource(resourceId)
-      PopoverState.hidePopupover()
-    } catch (err) {
-      error.set(err.message)
-    }
-    modalProcessing.set(false)
-  }
-
-  return (
+const showConfirmDialog = (text: string, onSubmit: () => void, modalProcessing?: boolean) => {
+  PopoverState.showPopupover(
     <Modal
-      title={t('admin:components.resources.confirmation')}
-      onSubmit={handleSubmit}
-      onClose={PopoverState.hidePopupover}
-      submitLoading={modalProcessing.value}
+      onSubmit={onSubmit}
+      onClose={!modalProcessing ? () => PopoverState.hidePopupover() : undefined}
+      hideFooter={modalProcessing}
+      className="w-[50vw] max-w-2xl"
     >
-      {error.value && <p className="mb-3 text-rose-800">{error.value}</p>}
-      <Text>{`${t('admin:components.resources.confirmResourceDelete')} '${resourceKey}'?`}</Text>
+      {modalProcessing ? <LoadingCircle className="h-[10vh]" /> : <Text>{text}</Text>}
     </Modal>
   )
 }
+
+export default showConfirmDialog

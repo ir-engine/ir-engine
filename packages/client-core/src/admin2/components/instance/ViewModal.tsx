@@ -92,7 +92,7 @@ export default function ViewUsersModal({ instanceId }: { instanceId: string }) {
   return (
     <Modal
       title="View"
-      className="w-[50vw]"
+      className="w-[50vw] max-w-2xl"
       onClose={() => {
         PopoverState.hidePopupover()
       }}

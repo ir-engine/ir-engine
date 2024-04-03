@@ -28,16 +28,17 @@ import { useTranslation } from 'react-i18next'
 
 import { instancePath } from '@etherealengine/common/src/schema.type.module'
 
-import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import DataTable from '../../common/Table'
 
 import { instanceColumns } from '../../common/constants/instance'
 
 import { InstanceType } from '@etherealengine/common/src/schema.type.module'
+import { useHookstate } from '@etherealengine/hyperflux'
+import showConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { HiEye, HiTrash } from 'react-icons/hi2'
 import { PopoverState } from '../../../common/services/PopoverState'
-import RemoveInstanceModal from './RemoveInstanceModal'
 import ViewModal from './ViewModal'
 
 export default function InstanceTable({ search }: { search: string }) {
@@ -51,6 +52,9 @@ export default function InstanceTable({ search }: { search: string }) {
   })
 
   useSearch(instancesQuery, { search }, search)
+
+  const modalProcessing = useHookstate(false)
+  const removeInstance = useMutation(instancePath).remove
 
   const createRows = (rows: readonly InstanceType[]) =>
     rows.map((row) => ({
@@ -72,13 +76,23 @@ export default function InstanceTable({ search }: { search: string }) {
           >
             {t('admin:components.instance.actions.view')}
           </Button>
-          <Button className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0" rounded>
-            <HiTrash
-              className="text-theme-iconRed place-self-center"
-              onClick={() => {
-                PopoverState.showPopupover(<RemoveInstanceModal instanceId={row.id} />)
-              }}
-            />
+          <Button
+            className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0"
+            rounded
+            onClick={() => {
+              showConfirmDialog(
+                `${t('admin:components.instance.confirmInstanceDelete')} (${row.id}) ?`,
+                async () => {
+                  modalProcessing.set(true)
+                  await removeInstance(row.id)
+                  PopoverState.hidePopupover()
+                  modalProcessing.set(false)
+                },
+                modalProcessing.value
+              )
+            }}
+          >
+            <HiTrash className="text-theme-iconRed place-self-center" />
           </Button>
         </div>
       )

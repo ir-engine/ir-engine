@@ -146,7 +146,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
   return (
     <Modal
       title={user?.id ? t('admin:components.user.updateUser') : t('admin:components.user.addUser')}
-      className="w-[50vw]"
+      className="w-[50vw] max-w-2xl"
       onSubmit={handleSubmit}
       onClose={PopoverState.hidePopupover}
       submitLoading={submitLoading.value}
