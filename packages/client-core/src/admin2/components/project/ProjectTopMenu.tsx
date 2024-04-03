@@ -28,7 +28,7 @@ import { NotificationService } from '@etherealengine/client-core/src/common/serv
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import config from '@etherealengine/common/src/config'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import React, { useEffect } from 'react'
@@ -41,8 +41,6 @@ export default function ProjectTopMenu() {
   const { t } = useTranslation()
   const projectState = useHookstate(getMutableState(ProjectState))
   const modalProcessing = useHookstate(false)
-
-  const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)['tempProject']).value
 
   ProjectService.useAPIListeners()
 
@@ -60,6 +58,25 @@ export default function ProjectTopMenu() {
       if (interval) clearInterval(interval)
     }
   }, [projectState.rebuilding.value])
+
+  const handleSubmit = async () => {
+    modalProcessing.set(true)
+    const projectUpdateStatus = getMutableState(ProjectUpdateState)['tempProject'].get(NO_PROXY)
+    await ProjectService.uploadProject({
+      sourceURL: projectUpdateStatus.sourceURL,
+      destinationURL: projectUpdateStatus.destinationURL,
+      name: projectUpdateStatus.projectName,
+      reset: true,
+      commitSHA: projectUpdateStatus.selectedSHA,
+      sourceBranch: projectUpdateStatus.selectedBranch,
+      updateType: projectUpdateStatus.updateType,
+      updateSchedule: projectUpdateStatus.updateSchedule
+    }).catch((err) => {
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+    })
+    modalProcessing.set(false)
+  }
+
   return (
     <div className="mb-4 flex justify-between gap-2">
       <div className="flex gap-2">
@@ -85,27 +102,7 @@ export default function ProjectTopMenu() {
           size="small"
           onClick={() => {
             PopoverState.showPopupover(
-              <AddEditProjectModal
-                processing={modalProcessing.value}
-                onSubmit={async () => {
-                  modalProcessing.set(true)
-                  await ProjectService.uploadProject({
-                    sourceURL: projectUpdateStatus.sourceURL,
-                    destinationURL: projectUpdateStatus.destinationURL,
-                    name: projectUpdateStatus.projectName,
-                    reset: true,
-                    commitSHA: projectUpdateStatus.selectedSHA,
-                    sourceBranch: projectUpdateStatus.selectedBranch,
-                    updateType: projectUpdateStatus.updateType,
-                    updateSchedule: projectUpdateStatus.updateSchedule
-                  }).catch((err) => {
-                    NotificationService.dispatchNotify(err.message, { variant: 'error' })
-                  })
-                  modalProcessing.set(false)
-                }}
-                submitDisabled={projectUpdateStatus ? projectUpdateStatus.submitDisabled : true}
-                update={false}
-              />
+              <AddEditProjectModal processing={modalProcessing.value} onSubmit={handleSubmit} update={false} />
             )
           }}
         >

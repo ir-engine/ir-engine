@@ -89,7 +89,6 @@ export default function UpdateEngineModal() {
           inputProject={project}
           processing={false}
           update={true}
-          submitDisabled={false}
           onSubmit={() => {
             PopoverState.hidePopupover()
             projectsToUpdate.set((set) => {

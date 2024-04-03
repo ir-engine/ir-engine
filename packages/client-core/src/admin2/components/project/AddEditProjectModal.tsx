@@ -45,7 +45,7 @@ import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 import { useHookstate } from '@hookstate/core'
 import { t } from 'i18next'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CiCircleCheck, CiCircleRemove, CiWarning } from 'react-icons/ci'
 
@@ -80,38 +80,39 @@ const autoUpdateIntervalOptions = [
   }
 ]
 
+const getTempProject = () => ({
+  id: '',
+  name: 'tempProject',
+  thumbnail: '',
+  repositoryPath: '',
+  needsRebuild: false,
+  updateType: 'none' as ProjectType['updateType'],
+  commitSHA: '',
+  sourceBranch: '',
+  sourceRepo: '',
+  commitDate: toDateTimeSql(new Date())
+})
+
 export default function AddEditProjectModal({
   update,
   inputProject,
   onSubmit,
-  processing,
-  submitDisabled
+  processing
 }: {
   update: boolean
   inputProject?: ProjectType
   onSubmit: () => void
-  submitDisabled: boolean
   processing: boolean
 }) {
   const { t } = useTranslation()
   const showAutoUpdateOptions = useHookstate(false)
 
-  const project =
-    update && inputProject
-      ? inputProject
-      : {
-          id: '',
-          name: 'tempProject',
-          thumbnail: '',
-          repositoryPath: '',
-          needsRebuild: false,
-          updateType: 'none' as ProjectType['updateType'],
-          commitSHA: '',
-          sourceBranch: '',
-          sourceRepo: '',
-          commitDate: toDateTimeSql(new Date())
-        }
+  const project = update && inputProject ? inputProject : getTempProject()
+
   const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)[project.name])
+  useEffect(() => {
+    ProjectUpdateService.initializeProjectUpdate(project.name)
+  }, [project.name])
 
   const user = useHookstate(getMutableState(AuthState).user)
   const hasGithubProvider = user.identityProviders.value.find((ip) => ip.type === 'github')
@@ -123,7 +124,7 @@ export default function AddEditProjectModal({
 
   const branchSelectOptions = projectUpdateStatus?.value?.branchData.map((projectBranch: ProjectBranchType) => ({
     value: projectBranch.name,
-    name: `Branch: ${projectBranch.name} ${
+    label: `Branch: ${projectBranch.name} ${
       projectBranch.branchType === 'main'
         ? '(Main branch)'
         : projectBranch.branchType === 'deployment'
@@ -133,9 +134,9 @@ export default function AddEditProjectModal({
   }))
 
   const commitSelectOptions = projectUpdateStatus?.value?.commitData.map((projectCommit: ProjectCommitType) => {
-    let name = `Commit ${projectCommit.commitSHA?.slice(0, 8)}`
-    if (projectCommit.projectVersion) name += ` -- Project Ver. ${projectCommit.projectVersion}`
-    if (projectCommit.engineVersion) name += ` -- Engine Ver. ${projectCommit.engineVersion}`
+    let label = `Commit ${projectCommit.commitSHA?.slice(0, 8)}`
+    if (projectCommit.projectVersion) label += ` -- Project Ver. ${projectCommit.projectVersion}`
+    if (projectCommit.engineVersion) label += ` -- Engine Ver. ${projectCommit.engineVersion}`
     if (projectCommit.datetime) {
       const datetime = new Date(projectCommit.datetime).toLocaleString('en-us', {
         year: 'numeric',
@@ -144,11 +145,11 @@ export default function AddEditProjectModal({
         hour: 'numeric',
         minute: 'numeric'
       })
-      name += ` -- Pushed ${datetime}`
+      label += ` -- Pushed ${datetime}`
     }
     return {
       value: projectCommit.commitSHA,
-      name
+      label
     }
   })
 
@@ -225,13 +226,13 @@ export default function AddEditProjectModal({
     }
   }
 
-  const handleChangeDestination = (e) => {
+  const handleChangeDestination = (e: { target: { value: string } }) => {
     const { value } = e.target
     ProjectUpdateService.setDestinationError(project.name, value ? '' : t('admin:components.project.urlRequired'))
     ProjectUpdateService.setDestinationURL(project.name, value)
   }
 
-  const handleChangeDestinationRepo = async (e) => {
+  const handleChangeDestinationRepo = async (e: { target: { value: string } }) => {
     if (e.target.value && e.target.value.length > 0) {
       try {
         ProjectUpdateService.resetDestinationState(project.name, { resetDestinationURL: false })
@@ -247,7 +248,7 @@ export default function AddEditProjectModal({
           ProjectUpdateService.setDestinationError(project.name, destinationResponse.text!)
         } else {
           if (destinationResponse.destinationValid) {
-            if (update) ProjectUpdateService.setSubmitDisabled(project.name, false)
+            ProjectUpdateService.setSubmitDisabled(project.name, false)
             ProjectUpdateService.setDestinationValid(project.name, destinationResponse.destinationValid)
             if (destinationResponse.projectName)
               ProjectUpdateService.setDestinationProjectName(project.name, destinationResponse.projectName)
@@ -272,13 +273,13 @@ export default function AddEditProjectModal({
     }
   }
 
-  const handleChangeSource = (e) => {
+  const handleChangeSource = (e: { target: { value: string } }) => {
     const { value } = e.target
     ProjectUpdateService.setSourceURLError(project.name, value ? '' : t('admin:components.project.urlRequired'))
     ProjectUpdateService.setSourceURL(project.name, value)
   }
 
-  const handleChangeSourceRepo = async (e) => {
+  const handleChangeSourceRepo = async (e: { target: { value: string } }) => {
     try {
       ProjectUpdateService.resetSourceState(project.name, { resetSourceURL: false })
       ProjectUpdateService.setBranchProcessing(project.name, true)
@@ -306,6 +307,64 @@ export default function AddEditProjectModal({
     }
   }
 
+  useEffect(() => {
+    if (
+      projectUpdateStatus?.value?.destinationValid &&
+      projectUpdateStatus?.value?.sourceValid &&
+      !projectUpdateStatus?.value?.sourceVsDestinationChecked
+    ) {
+      ProjectUpdateService.setSourceVsDestinationProcessing(project.name, true)
+      ProjectService.checkSourceMatchesDestination({
+        sourceURL: projectUpdateStatus.value.sourceURL || '',
+        selectedSHA: projectUpdateStatus.value.selectedSHA || '',
+        destinationURL: projectUpdateStatus.value.destinationURL || '',
+        existingProject: inputProject ? true : false
+      }).then((res) => {
+        ProjectUpdateService.setSourceVsDestinationChecked(project.name, true)
+        ProjectUpdateService.setSourceVsDestinationProcessing(project.name, false)
+        if (res.error || res.text) {
+          ProjectUpdateService.setProjectName(project.name, '')
+          ProjectUpdateService.setSubmitDisabled(project.name, true)
+          ProjectUpdateService.setSourceProjectMatchesDestination(project.name, false)
+          ProjectUpdateService.setSourceVsDestinationError(project.name, res.text!)
+          ProjectUpdateService.setSourceValid(project.name, false)
+        } else {
+          ProjectUpdateService.setProjectName(project.name, res.projectName!)
+          ProjectUpdateService.setSubmitDisabled(project.name, !res.sourceProjectMatchesDestination)
+          ProjectUpdateService.setSourceProjectMatchesDestination(project.name, res.sourceProjectMatchesDestination!)
+          ProjectUpdateService.setSourceVsDestinationError(project.name, '')
+          ProjectUpdateService.setSourceValid(project.name, true)
+        }
+      })
+    } else {
+      if (!projectUpdateStatus?.value?.sourceVsDestinationChecked && !inputProject && update) {
+        ProjectUpdateService.setSourceVsDestinationProcessing(project.name, false)
+        ProjectUpdateService.setSourceVsDestinationChecked(project.name, false)
+        ProjectUpdateService.setProjectName(project.name, '')
+        ProjectUpdateService.setSubmitDisabled(project.name, true)
+        ProjectUpdateService.setSourceProjectMatchesDestination(project.name, false)
+      }
+    }
+  }, [
+    projectUpdateStatus?.value?.destinationValid,
+    projectUpdateStatus?.value?.sourceValid,
+    projectUpdateStatus?.value?.sourceVsDestinationChecked
+  ])
+
+  useEffect(() => {
+    if (
+      projectUpdateStatus?.value?.triggerSetDestination?.length > 0 &&
+      projectUpdateStatus?.value?.destinationURL?.length === 0
+    ) {
+      ProjectUpdateService.setDestinationURL(project.name, projectUpdateStatus.value.triggerSetDestination)
+      handleChangeDestinationRepo({
+        target: {
+          value: projectUpdateStatus.value.triggerSetDestination
+        }
+      })
+    }
+  }, [projectUpdateStatus?.value?.triggerSetDestination])
+
   return (
     <div className="relative max-h-full w-[50vw] max-w-2xl p-4">
       <div className="bg-theme-surface-main relative rounded-lg shadow">
@@ -323,7 +382,6 @@ export default function AddEditProjectModal({
                 <Input
                   label={`${t('admin:components.project.destination')} (${t('admin:components.project.githubUrl')})`}
                   placeholder="https://github.com/{user}/{repo}"
-                  disabled={update}
                   value={projectUpdateStatus.value?.destinationURL}
                   error={projectUpdateStatus.value?.destinationError}
                   onChange={handleChangeDestination}
@@ -346,7 +404,9 @@ export default function AddEditProjectModal({
               )}
               {projectUpdateStatus.value?.destinationProcessing && (
                 <div className="flex items-center gap-3">
-                  <LoadingCircle className="h-6 w-6" />
+                  <div>
+                    <LoadingCircle className="h-6 w-6" />
+                  </div>
                   <Text>{t('admin:components.project.destinationProcessing')}</Text>
                 </div>
               )}
@@ -357,7 +417,6 @@ export default function AddEditProjectModal({
                 <Input
                   label={`${t('admin:components.project.source')} (${t('admin:components.project.githubUrl')})`}
                   placeholder="https://github.com/{user}/{repo}"
-                  disabled={update}
                   value={projectUpdateStatus.value?.sourceURL}
                   error={projectUpdateStatus.value?.sourceURLError}
                   onChange={handleChangeSource}
@@ -373,12 +432,6 @@ export default function AddEditProjectModal({
               ) : (
                 <Text>{t('admin:components.project.needsGithubProvider')}</Text>
               )}
-              <div className="flex items-center gap-3">
-                <div>
-                  <LoadingCircle className="h-6 w-6" />
-                </div>
-                <Text>{t('admin:components.project.destinationProcessing')}</Text>
-              </div>
             </div>
 
             {!projectUpdateStatus.value?.branchProcessing &&
@@ -395,7 +448,9 @@ export default function AddEditProjectModal({
               )}
             {projectUpdateStatus.value?.branchProcessing && (
               <div className="flex items-center gap-3">
-                <LoadingCircle className="h-6 w-6" />
+                <div>
+                  <LoadingCircle className="h-6 w-6" />
+                </div>
                 <Text>{t('admin:components.project.branchProcessing')}</Text>
               </div>
             )}
@@ -421,14 +476,18 @@ export default function AddEditProjectModal({
               )}
             {projectUpdateStatus.value?.commitsProcessing && (
               <div className="flex items-center gap-3">
-                <LoadingCircle className="h-6 w-6" />
+                <div>
+                  <LoadingCircle className="h-6 w-6" />
+                </div>
                 <Text>{t('admin:components.project.commitsProcessing')}</Text>
               </div>
             )}
 
             {projectUpdateStatus.value?.sourceVsDestinationProcessing && (
               <div className="flex items-center gap-3">
-                <LoadingCircle className="h-6 w-6" />
+                <div>
+                  <LoadingCircle className="h-6 w-6" />
+                </div>
                 <Text>{t('admin:components.project.sourceVsDestinationProcessing')}</Text>
               </div>
             )}
@@ -497,7 +556,6 @@ export default function AddEditProjectModal({
             <Toggle
               value={showAutoUpdateOptions.value}
               onChange={(value) => {
-                console.log('debug1 the value was', value)
                 showAutoUpdateOptions.set(value)
               }}
               label={t('admin:components.project.enableAutoUpdate')}
@@ -544,7 +602,7 @@ export default function AddEditProjectModal({
           {onSubmit && (
             <Button
               onClick={onSubmit}
-              disabled={submitDisabled || processing}
+              disabled={projectUpdateStatus?.submitDisabled?.value || processing}
               endIcon={processing ? <LoadingCircle className="h-6 w-6" /> : undefined}
               className="place-self-end"
             >

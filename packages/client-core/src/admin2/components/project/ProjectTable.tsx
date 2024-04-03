@@ -112,7 +112,6 @@ export default function ProjectTable() {
                 update={true}
                 processing={modalProcessing.value}
                 inputProject={project}
-                submitDisabled={true}
                 onSubmit={async () => {
                   modalProcessing.set(true)
                   await ProjectService.uploadProject({
