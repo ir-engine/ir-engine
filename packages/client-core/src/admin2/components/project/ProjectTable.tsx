@@ -150,7 +150,6 @@ export default function ProjectTable() {
                 modalProcessing.set(true)
                 await ProjectService.pushProject(project.id).catch(() => modalProcessing.set(false))
                 modalProcessing.set(false)
-
                 PopoverState.hidePopupover()
               }
             )

@@ -48,6 +48,7 @@ import { t } from 'i18next'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CiCircleCheck, CiCircleRemove, CiWarning } from 'react-icons/ci'
+import { HiMiniClipboardDocumentList } from 'react-icons/hi2'
 
 const autoUpdateIntervalOptions = [
   {
@@ -414,21 +415,32 @@ export default function AddEditProjectModal({
 
             <div className="grid gap-2">
               {hasGithubProvider ? (
-                <Input
-                  label={`${t('admin:components.project.source')} (${t('admin:components.project.githubUrl')})`}
-                  placeholder="https://github.com/{user}/{repo}"
-                  value={projectUpdateStatus.value?.sourceURL}
-                  error={projectUpdateStatus.value?.sourceURLError}
-                  onChange={handleChangeSource}
-                  onBlur={handleChangeSourceRepo}
-                  description={
-                    !projectUpdateStatus.value?.destinationProcessing &&
-                    projectUpdateStatus.value?.destinationProjectName.length > 0
-                      ? `${t('admin:components.project.sourceProjectName')}: ${projectUpdateStatus.value
-                          ?.destinationProjectName}`
-                      : undefined
-                  }
-                />
+                <div className="flex gap-2">
+                  <Input
+                    label={`${t('admin:components.project.source')} (${t('admin:components.project.githubUrl')})`}
+                    placeholder="https://github.com/{user}/{repo}"
+                    value={projectUpdateStatus.value?.sourceURL}
+                    error={projectUpdateStatus.value?.sourceURLError}
+                    onChange={handleChangeSource}
+                    onBlur={handleChangeSourceRepo}
+                    description={
+                      !projectUpdateStatus.value?.destinationProcessing &&
+                      projectUpdateStatus.value?.destinationProjectName.length > 0
+                        ? `${t('admin:components.project.sourceProjectName')}: ${projectUpdateStatus.value
+                            ?.destinationProjectName}`
+                        : undefined
+                    }
+                  />
+                  <Button
+                    title={t('admin:components.project.copyDestination')}
+                    variant="outline"
+                    startIcon={<HiMiniClipboardDocumentList />}
+                    onClick={() => {
+                      handleChangeSource({ target: { value: projectUpdateStatus.value.destinationURL } })
+                      handleChangeSourceRepo({ target: { value: projectUpdateStatus.value.destinationURL } })
+                    }}
+                  />
+                </div>
               ) : (
                 <Text>{t('admin:components.project.needsGithubProvider')}</Text>
               )}
