@@ -102,11 +102,16 @@ export const PerformanceState = defineState({
   }
 })
 
-// API to get GPU timings, not currently in use due to poor support
-// Probably only useful right now as a debug metric for use in the editor
 const timeBeforeCheck = 3
 let timeAccum = 0
 let checkingRenderTime = false
+/**
+ * API to get GPU timings, with fallback if WebGL extension is not available (Not available on WebGL1 devices and Safari)
+ *
+ * @param renderer EngineRenderer
+ * @param dt delta time
+ * @returns Function to call after you call your render function
+ */
 const startGPUTiming = (renderer: EngineRenderer, dt: number): (() => void) => {
   timeAccum += dt
   if (checkingRenderTime || timeAccum < timeBeforeCheck) return () => {}
@@ -132,7 +137,6 @@ const timeRenderFrameGPU = (renderer: EngineRenderer, callback: (number) => void
     const gl = renderer.renderContext as WebGL2RenderingContext
     const ext = gl.getExtension('EXT_disjoint_timer_query_webgl2')
 
-    // Not super well supported, no Safari support
     if (ext) {
       const startQuery = gl.createQuery()
       const endQuery = gl.createQuery()
@@ -172,6 +176,15 @@ const timeRenderFrameGPU = (renderer: EngineRenderer, callback: (number) => void
   } else return fallback()
 }
 
+/**
+ *
+ * Debug function to get the GPU timings of a scene
+ *
+ * @param renderer EngineRenderer
+ * @param scene Scene
+ * @param camera Camera
+ * @param onFinished Callback with the render time as a parameter
+ */
 const timeRender = (renderer: EngineRenderer, scene: Scene, camera: Camera, onFinished: (ms: number) => void) => {
   const end = timeRenderFrameGPU(renderer, (renderTime) => {
     onFinished(renderTime)
