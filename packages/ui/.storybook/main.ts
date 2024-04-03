@@ -45,7 +45,8 @@ const config: StorybookConfig = {
     getAbsolutePath('@storybook/addon-interactions'),
     getAbsolutePath('@storybook/addon-a11y'),
     getAbsolutePath('@storybook/addon-jest'),
-    getAbsolutePath('storybook-addon-react-router-v6')
+    getAbsolutePath('storybook-addon-react-router-v6'),
+    getAbsolutePath('storybook-addon-sass-postcss')
   ],
   core: {},
   framework: {
