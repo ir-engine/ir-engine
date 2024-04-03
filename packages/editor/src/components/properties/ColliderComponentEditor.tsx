@@ -36,10 +36,10 @@ import {
   supportedColliderShapes
 } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
+import Vector3Input from '@etherealengine/ui/src/components/editor/Vector3Input'
 import InputGroup from '../inputs/InputGroup'
 import NumericInput from '../inputs/NumericInput'
 import SelectInput from '../inputs/SelectInput'
-import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, commitProperty } from './Util'
 

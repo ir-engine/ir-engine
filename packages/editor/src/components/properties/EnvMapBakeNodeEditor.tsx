@@ -31,12 +31,12 @@ import { EnvMapBakeTypes } from '@etherealengine/engine/src/scene/types/EnvMapBa
 
 import SportsGolfIcon from '@mui/icons-material/SportsGolf'
 
+import Vector3Input from '@etherealengine/ui/src/components/editor/Vector3Input'
 import { uploadBPCEMBakeToServer } from '../../functions/uploadEnvMapBake'
 import BooleanInput from '../inputs/BooleanInput'
 import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
-import Vector3Input from '../inputs/Vector3Input'
 import { EnvMapBakeProperties } from './EnvMapBakeProperties'
 import NodeEditor from './NodeEditor'
 import { commitProperty, updateProperty } from './Util'

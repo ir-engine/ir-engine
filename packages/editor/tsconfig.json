@@ -37,5 +37,5 @@
     "../server-core/src/",
     "./**/*.ts",
     "./**/*.tsx"
-  ]
+, "../ui/src/components/editor/Vector3Input.tsx"  ]
 }

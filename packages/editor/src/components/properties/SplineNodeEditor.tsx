@@ -33,11 +33,11 @@ import ClearIcon from '@mui/icons-material/Clear'
 import TimelineIcon from '@mui/icons-material/Timeline'
 
 import { NO_PROXY } from '@etherealengine/hyperflux'
+import Vector3Input from '@etherealengine/ui/src/components/editor/Vector3Input'
 import { Quaternion, Vector3 } from 'three'
 import { PropertiesPanelButton } from '../inputs/Button'
 import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
-import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, commitProperty } from './Util'
 
