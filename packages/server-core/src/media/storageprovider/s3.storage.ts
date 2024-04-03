@@ -71,6 +71,7 @@ import {
   assetsRegex,
   projectPublicRegex,
   projectRegex,
+  projectThumbnailsRegex,
   rootImageRegex,
   rootSceneJsonRegex
 } from '@etherealengine/common/src/constants/ProjectKeyConstants'
@@ -112,6 +113,7 @@ function handler(event) {
 export const getACL = (key: string) =>
   projectRegex.test(key) &&
   !projectPublicRegex.test(key) &&
+  !projectThumbnailsRegex.test(key) &&
   !assetsRegex.test(key) &&
   !rootImageRegex.test(key) &&
   !rootSceneJsonRegex.test(key)
