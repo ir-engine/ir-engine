@@ -75,6 +75,12 @@ export const SettingsTabsData = [
   }
 ]
 
+const getInitialTabIndex = () => {
+  const foundIndex = SettingsTabsData.findIndex((tab) => '#' + encodeURI(tab.label) === window.location.hash)
+  console.log('debug1 foundinex', foundIndex, 'and hash', window.location.hash)
+  return foundIndex === -1 ? 0 : foundIndex
+}
+
 export default function Settings() {
   const { t } = useTranslation()
 
@@ -90,8 +96,9 @@ export default function Settings() {
   }))
 
   const onTabChange = (index: number) => {
+    window.location.hash = SettingsTabsData[index].label
     openState.set(openState.value.map((_, i) => i === index))
   }
 
-  return <Tabs scrollable tabsData={tabsData} onTabChange={onTabChange} />
+  return <Tabs scrollable tabsData={tabsData} currentTabIndex={getInitialTabIndex()} onTabChange={onTabChange} />
 }

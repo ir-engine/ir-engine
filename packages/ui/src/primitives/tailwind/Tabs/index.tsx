@@ -40,6 +40,7 @@ export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
   tabContainerClassName?: string
   tabClassName?: string
   scrollable?: boolean
+  currentTabIndex?: number
   onTabChange?: (index: number) => void
 }
 
@@ -48,6 +49,7 @@ const Tabs = ({
   tabContainerClassName,
   tabClassName,
   scrollable,
+  currentTabIndex,
   onTabChange,
   ...props
 }: TabProps): JSX.Element => {
@@ -57,6 +59,12 @@ const Tabs = ({
     tabClassName
   )
   const currentTab = useHookstate(0)
+
+  useEffect(() => {
+    if (currentTabIndex) {
+      currentTab.set(currentTabIndex)
+    }
+  }, [currentTabIndex])
 
   useEffect(() => {
     if (
