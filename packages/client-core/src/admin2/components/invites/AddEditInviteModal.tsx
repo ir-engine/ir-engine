@@ -344,12 +344,14 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
             />
           </div>
         )}
-        <Checkbox
-          label={t('admin:components.invite.makeAdmin')}
-          value={makeAdmin.value}
-          onChange={(value) => makeAdmin.set(value)}
-          disabled={submitLoading.value}
-        />
+        {inviteType.value === 'new-user' && (
+          <Checkbox
+            label={t('admin:components.invite.makeAdmin')}
+            value={makeAdmin.value}
+            onChange={(value) => makeAdmin.set(value)}
+            disabled={submitLoading.value}
+          />
+        )}
       </div>
     </Modal>
   )

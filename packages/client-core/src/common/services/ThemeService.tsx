@@ -39,6 +39,7 @@ const lightTheme = {
   'bg-banner-informative': '#FFFBEB',
 
   'bg-tag-green': '#10B981',
+  'bg-tag-lime': '#9ACD32',
   'bg-tag-red': '#744364',
   'bg-tag-yellow': '#FEF3C7',
 
@@ -63,6 +64,7 @@ const darkTheme = {
   'bg-banner-informative': '#D9770633',
 
   'bg-tag-green': '#064E3B',
+  'bg-tag-lime': '#9ACD32',
   'bg-tag-red': '#FEE2E2',
   'bg-tag-yellow': '#CA8A04',
 

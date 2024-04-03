@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -28,45 +27,43 @@ Ethereal Engine. All Rights Reserved.
 
 module.exports = {
   mode: 'jit',
-  content: [
-    '../**/*.{ts,tsx}',
-  ],
-  darkMode: ["class", '[data-theme="dark"]'],
+  content: ['../**/*.{ts,tsx}'],
+  darkMode: ['class', '[data-theme="dark"]'],
   important: true, // important in prod is must be
   theme: {
-    
     extend: {
       textColor: {
         theme: {
-          primary: "var(--text-primary)",
-          secondary: "var(--text-secondary)",
-          highlight: "var(--text-highlight)",
-          iconGreen: "var(--icon-green)",
-          iconRed: "var(--icon-red)"
+          primary: 'var(--text-primary)',
+          secondary: 'var(--text-secondary)',
+          highlight: 'var(--text-highlight)',
+          iconGreen: 'var(--icon-green)',
+          iconRed: 'var(--icon-red)'
         }
       },
       backgroundColor: {
         theme: {
-          primary: "var(--bg-primary)",
-          secondary: "var(--bg-secondary)",
-          highlight: "var(--bg-highlight)",
-          surfaceInput: "var(--bg-surface-input)",
-          'surface-main': "var(--bg-surface-main)",
-          'table-secondary': "var(--bg-table-secondary)",
-          'blue-secondary': "var(--bg-blue-secondary)",
-          bannerInformative: "var(--bg-banner-informative)",
-          tagGreen: "var(--bg-tag-green)",
-          tagRed: "var(--bg-tag-red)",
-          tagYellow: "var(--bg-tag-yellow)"
+          primary: 'var(--bg-primary)',
+          secondary: 'var(--bg-secondary)',
+          highlight: 'var(--bg-highlight)',
+          surfaceInput: 'var(--bg-surface-input)',
+          'surface-main': 'var(--bg-surface-main)',
+          'table-secondary': 'var(--bg-table-secondary)',
+          'blue-secondary': 'var(--bg-blue-secondary)',
+          bannerInformative: 'var(--bg-banner-informative)',
+          tagGreen: 'var(--bg-tag-green)',
+          tagLime: 'var(--bg-tag-lime)',
+          tagRed: 'var(--bg-tag-red)',
+          tagYellow: 'var(--bg-tag-yellow)'
         }
       },
       borderColor: {
         theme: {
-          primary: "var(--border-primary)"
+          primary: 'var(--border-primary)'
         }
       },
       colors: {
-        'blue-primary': "#375DAF",
+        'blue-primary': '#375DAF'
       }
     }
   }
