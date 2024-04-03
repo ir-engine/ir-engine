@@ -254,7 +254,7 @@ export function unregisterMaterial(material: Material) {
     return matEntry
   } catch (error) {
     if (error instanceof MaterialNotFoundError) {
-      console.warn('material is already not registered')
+      console.warn('material is already unregistered')
       return undefined
     } else throw error
   }

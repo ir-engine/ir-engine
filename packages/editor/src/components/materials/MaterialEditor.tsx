@@ -81,7 +81,7 @@ export function MaterialEditor(props: { materialID: string }) {
   }))
   const thumbnails = useHookstate<Record<string, ThumbnailData>>({})
   const textureUnloadMap = useHookstate<Record<string, (() => void) | undefined>>({})
-  const selectedPlugin = useHookstate('vegetation')
+  const selectedPlugin = useHookstate('')
 
   const createThumbnail = async (field: string, texture: Texture) => {
     if (texture?.isTexture) {

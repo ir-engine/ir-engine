@@ -36,26 +36,25 @@ import {
   replaceMaterial,
   unregisterMaterial
 } from '../functions/MaterialLibraryFunctions'
-import { applyMaterialPlugin, removeMaterialPlugin } from '../functions/MaterialPluginFunctions'
 
-function MaterialReactor({ materialId }: { materialId: string }) {
-  const materialLibrary = useState(getMutableState(MaterialLibraryState))
-  const component = materialLibrary.materials[materialId]
-  useEffect(() => {
-    const material = component.material.value
-    component.plugins.value.forEach((plugin) => {
-      removeMaterialPlugin(material, plugin)
-      applyMaterialPlugin(material, plugin)
-    })
-  }, [component.plugins])
-  return null
-}
+// function MaterialReactor({ materialId }: { materialId: string }) {
+//   const materialLibrary = useState(getMutableState(MaterialLibraryState))
+//   const component = materialLibrary.materials[materialId]
+//   useEffect(() => {
+//     const material = component.material.value
+//     component.plugins.value.forEach((plugin) => {
+//       removeMaterialPlugin(material, plugin)
+//       applyMaterialPlugin(material, plugin)
+//     })
+//   }, [component.plugins])
+//   return null
+// }
 
-function PluginReactor({ pluginId }: { pluginId: string }) {
-  const materialLibrary = useState(getMutableState(MaterialLibraryState))
-  const component = materialLibrary.plugins[pluginId]
-  return null
-}
+// function PluginReactor({ pluginId }: { pluginId: string }) {
+//   const materialLibrary = useState(getMutableState(MaterialLibraryState))
+//   const component = materialLibrary.plugins[pluginId]
+//   return null
+// }
 
 function reactor(): ReactElement {
   useEffect(() => {
@@ -86,7 +85,6 @@ function reactor(): ReactElement {
         replaceMaterial(material, newMaterial)
         newMaterial.userData = material.userData
         delete newMaterial.userData.args
-        const comp = component.get(NO_PROXY)
         const src = JSON.parse(JSON.stringify(component.src.value))
         registerMaterial(newMaterial, src)
         unregisterMaterial(material)
@@ -94,17 +92,18 @@ function reactor(): ReactElement {
     }
   }, [materialLibrary.prototypes])
 
-  const plugins = materialLibrary.plugins
-  return (
-    <>
-      {materialLibrary.materials.keys.map((materialId) => (
-        <MaterialReactor key={materialId} materialId={materialId} />
-      ))}
-      {plugins.keys.map((pluginId) => (
-        <PluginReactor pluginId={pluginId} key={pluginId} />
-      ))}
-    </>
-  )
+  return <></>
+  // const plugins = materialLibrary.plugins
+  // return (
+  //   <>
+  //     {materialLibrary.materials.keys.map((materialId) => (
+  //       <MaterialReactor key={materialId} materialId={materialId} />
+  //     ))}
+  //     {plugins.keys.map((pluginId) => (
+  //       <PluginReactor pluginId={pluginId} key={pluginId} />
+  //     ))}
+  //   </>
+  // )
 }
 
 export const MaterialLibrarySystem = defineSystem({
