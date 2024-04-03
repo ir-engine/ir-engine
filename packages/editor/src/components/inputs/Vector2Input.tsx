@@ -30,13 +30,10 @@ import LinkIcon from '@mui/icons-material/Link'
 import LinkOffIcon from '@mui/icons-material/LinkOff'
 
 import { useHookstate } from '@etherealengine/hyperflux'
-import {
-  UniformButtonContainer,
-  Vector3InputContainer,
-  Vector3Scrubber
-} from '@etherealengine/ui/src/components/editor/Vector3Input'
+
 import Hidden from '../layout/Hidden'
 import NumericInput from './NumericInput'
+import { UniformButtonContainer, Vector3InputContainer, Vector3Scrubber } from './Vector3Input'
 
 let uniqueId = 0
 

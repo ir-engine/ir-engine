@@ -31,10 +31,10 @@ import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components
 import { EnvMapBakeRefreshTypes } from '@etherealengine/engine/src/scene/types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '@etherealengine/engine/src/scene/types/EnvMapBakeTypes'
 
-import Vector3Input from '@etherealengine/ui/src/components/editor/Vector3Input'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
+import Vector3Input from '../inputs/Vector3Input'
 import { BakePropertyTypes } from './EnvMapBakeNodeEditor'
 import { commitProperty, updateProperty } from './Util'
 
