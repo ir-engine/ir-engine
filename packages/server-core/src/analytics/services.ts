@@ -24,6 +24,5 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import Analytics from './analytics/analytics'
-import Profiling from './profiling/profiling'
 
-export default [Analytics, Profiling]
+export default [Analytics]

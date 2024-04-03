@@ -76,10 +76,10 @@ export interface System {
   avgSystemDuration: number
 }
 
-export const filterAndSortSystemsByAvgDuration = (maxAvg = 0.0): System[] => {
+export const filterAndSortSystemsByAvgDuration = (minAvg = 0.0): System[] => {
   const systems = SystemDefinitions
   const sorted = [...systems.values()]
-    .filter((system: System) => system.avgSystemDuration > maxAvg)
+    .filter((system: System) => system.avgSystemDuration > minAvg)
     .sort((left: System, right: System) => {
       return right.avgSystemDuration - left.avgSystemDuration
     })

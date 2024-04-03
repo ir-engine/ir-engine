@@ -315,7 +315,7 @@ const Callbacks = {
       resourceState: State<typeof ResourceState._TYPE>
     ) => {
       response.onUpdate = () => {
-        resource.metadata.merge({ onGPU: true })
+        if (resource && resource.value) resource.metadata.merge({ onGPU: true })
         //@ts-ignore
         response.onUpdate = null
       }
