@@ -58,6 +58,7 @@ import { TextComponent } from './components/TextComponent'
 import { VariantComponent } from './components/VariantComponent'
 import { VideoComponent } from './components/VideoComponent'
 import { VolumetricComponent } from './components/VolumetricComponent'
+import { EnvironmentSystem } from './systems/EnvironmentSystem'
 import { MeshBVHSystem } from './systems/MeshBVHSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
 import { PortalSystem } from './systems/PortalSystem'
@@ -111,6 +112,7 @@ export const SceneComponents = [
 ]
 
 export {
+  EnvironmentSystem,
   FogSystem,
   MaterialLibrarySystem,
   MountPointSystem,
