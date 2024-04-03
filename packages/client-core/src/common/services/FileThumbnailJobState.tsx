@@ -43,7 +43,10 @@ import { defineState, getMutableState, none, useHookstate } from '@etherealengin
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { getNestedVisibleChildren } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import {
@@ -52,7 +55,7 @@ import {
 } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import React, { useEffect } from 'react'
-import { MathUtils, Vector3 } from 'three'
+import { MathUtils, Scene, Vector3 } from 'three'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 
@@ -254,8 +257,16 @@ const ThumbnailJobReactor = (props: { src: string }) => {
     viewCamera.projectionMatrix.copy(camera.projectionMatrix)
     viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
     viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
+    setComponent(cameraEntity, SceneComponent, { children: [entity] })
 
-    previewScreenshot(90, 90, 0.9, 'png', getComponent(cameraEntity, CameraComponent), [entity])
+    const scene = new Scene()
+    scene.children = getComponent(cameraEntity, SceneComponent)
+      .children.map(getNestedVisibleChildren)
+      .flat()
+      .map((entity) => getComponent(entity, GroupComponent))
+      .flat()
+
+    previewScreenshot(90, 90, 0.9, 'png', scene, getComponent(cameraEntity, CameraComponent))
       .then((blob) => uploadThumbnail(props.src, jobState.project.value, jobState.id.value, blob))
       .then(() => jobState.set(none))
 

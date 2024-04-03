@@ -29,7 +29,7 @@ import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parse
 import { Engine, getMutableComponent } from '@etherealengine/ecs'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { SceneJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
-import { SceneComponent } from '@etherealengine/spatial/src/scene/SceneComponent'
+import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 
 const fileServer = config.client.fileServer
 

@@ -23,55 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { Mesh } from 'three'
-
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-
-import { Engine } from '@etherealengine/ecs'
-import { defineComponent, getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { Engine, defineQuery, defineSystem } from '@etherealengine/ecs'
+import { defineComponent, getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
-import { RendererState } from '../RendererState'
-import { PostProcessingSettingsState, RendererComponent } from '../WebGLRendererSystem'
+import { RendererComponent, WebGLRendererSystem } from '../WebGLRendererSystem'
+import { GroupComponent } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
 
-export const HighlightComponent = defineComponent({
-  name: 'HighlightComponent',
+export const HighlightComponent = defineComponent({ name: 'HighlightComponent' })
 
-  reactor: function () {
-    const entity = useEntityContext()
+const highlightQuery = defineQuery([HighlightComponent, MeshComponent, GroupComponent, VisibleComponent])
 
-    const postProcessingSettingsState = useHookstate(getMutableState(PostProcessingSettingsState))
-    const usePostProcessing = useHookstate(getMutableState(RendererState).usePostProcessing)
+const execute = () => {
+  /** @todo support multiple scenes */
+  if (!hasComponent(Engine.instance.viewerEntity, RendererComponent)) return
 
-    useEffect(() => {
-      iterateEntityNode(entity, (childEntity) => {
-        const obj = getOptionalComponent(childEntity, MeshComponent)
-        const visible = getOptionalComponent(childEntity, VisibleComponent)
-        if (!visible || obj?.type !== 'Mesh') return
-        addToSelection(obj as Mesh)
-      })
-      return () => {
-        iterateEntityNode(entity, (childEntity) => {
-          const obj = getOptionalComponent(childEntity, MeshComponent)
-          if (obj?.type !== 'Mesh') return
-          removeFromSelection(obj as Mesh)
-        })
-      }
-    }, [postProcessingSettingsState.effects, postProcessingSettingsState.enabled, usePostProcessing])
+  getComponent(Engine.instance.viewerEntity, RendererComponent).effectComposer?.HighlightEffect?.selection.set(
+    highlightQuery().map((entity) => getComponent(entity, MeshComponent))
+  )
+}
 
-    return null
-  }
+export const HighlightSystem = defineSystem({
+  uuid: 'HighlightSystem',
+  insert: { before: WebGLRendererSystem },
+  execute
 })
-
-const addToSelection = (obj: Mesh) => {
-  if (!getComponent(Engine.instance.viewerEntity, RendererComponent).effectComposer?.HighlightEffect) return
-  getComponent(Engine.instance.viewerEntity, RendererComponent).effectComposer.HighlightEffect.selection.add(obj)
-}
-
-const removeFromSelection = (obj: Mesh) => {
-  if (!getComponent(Engine.instance.viewerEntity, RendererComponent).effectComposer?.HighlightEffect) return
-  getComponent(Engine.instance.viewerEntity, RendererComponent).effectComposer.HighlightEffect.selection.delete(obj)
-}

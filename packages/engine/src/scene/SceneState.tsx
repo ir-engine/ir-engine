@@ -43,7 +43,6 @@ import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import React, { useLayoutEffect } from 'react'
-import { Color, Texture } from 'three'
 import matches, { Validator } from 'ts-matches'
 import { SourceComponent } from './components/SourceComponent'
 import { migrateOldColliders } from './functions/migrateOldColliders'
@@ -65,8 +64,6 @@ export const SceneState = defineState({
     scenes: {} as Record<SceneID, Omit<SceneDataType, 'scene'> & { scene: SceneJsonType }>,
     sceneLoaded: false,
     loadingProgress: 0,
-    background: null as null | Color | Texture,
-    environment: null as null | Texture,
     sceneModified: false
   }),
 

@@ -31,6 +31,7 @@ import {
   PerspectiveCamera,
   RGBAFormat,
   SRGBColorSpace,
+  Scene,
   UnsignedByteType,
   Vector2,
   WebGLRenderTarget
@@ -46,12 +47,11 @@ import { getState } from '@etherealengine/hyperflux'
 import { RendererComponent, render } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent, getNestedChildren } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
 import { getCanvasBlob } from '@etherealengine/client-core/src/common/utils'
-import { Entity } from '@etherealengine/ecs'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { EditorState } from '../services/EditorServices'
 
@@ -84,8 +84,8 @@ export async function previewScreenshot(
   height: number,
   quality = 0.9,
   format = 'jpeg' as 'jpeg' | 'png',
-  scenePreviewCamera?: PerspectiveCamera,
-  sceneEntities = [] as Entity[]
+  scene: Scene,
+  scenePreviewCamera?: PerspectiveCamera
 ): Promise<Blob | null> {
   // Getting Scene preview camera or creating one if not exists
   if (!scenePreviewCamera) {
@@ -130,8 +130,7 @@ export async function previewScreenshot(
 
   renderer.renderer.setRenderTarget(renderTarget)
 
-  const entitiesToRender = sceneEntities.map((sceneEntity) => getNestedChildren(sceneEntity)).flat()
-  render(0, new ArrayCamera([scenePreviewCamera]), renderer, entitiesToRender, false)
+  render(renderer, scene, new ArrayCamera([scenePreviewCamera]), 0, false)
 
   const pixels = new Uint8Array(4 * width * height)
   renderer.renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels)
@@ -203,7 +202,6 @@ export async function takeScreenshot(
 
   const { renderer, effectComposer, renderContext } = getComponent(Engine.instance.viewerEntity, RendererComponent)
 
-  const selection = effectComposer.HighlightEffect?.selection.values()
   if (hideHelpers) {
     effectComposer.HighlightEffect?.clearSelection()
   }
@@ -237,10 +235,6 @@ export async function takeScreenshot(
   })
 
   effectComposer.render()
-
-  if (hideHelpers) {
-    effectComposer.HighlightEffect?.setSelection(selection)
-  }
 
   const canvas = getResizedCanvas(renderer.domElement, width, height)
 

@@ -262,6 +262,13 @@ export function traverseEntityNodeParent(entity: Entity, cb: (parent: Entity) =>
   }
 }
 
+/**
+ * @todo rename to getAncestorWithComponent
+ * @param entity
+ * @param component
+ * @param closest
+ * @returns
+ */
 export function findAncestorWithComponent(entity: Entity, component: any, closest = true): Entity | undefined {
   let result: Entity | undefined
   if (closest && hasComponent(entity, component)) return entity
@@ -295,9 +302,10 @@ export function isDeepChildOf(child: Entity, parent: Entity): boolean {
   return isDeepChildOf(childTreeNode.parentEntity, parent)
 }
 
-export function getNestedChildren(entity: Entity): Entity[] {
+export function getNestedChildren(entity: Entity, predicate?: (e: Entity) => boolean): Entity[] {
   const children: Entity[] = []
   traverseEntityNode(entity, (child) => {
+    if (predicate && !predicate(child)) return
     children.push(child)
   })
   return children

@@ -27,7 +27,6 @@ import '../threejsPatches'
 
 import {
   ECSState,
-  Engine,
   Entity,
   PresentationSystemGroup,
   QueryReactor,
@@ -44,10 +43,15 @@ import { EffectComposer, NormalPass, RenderPass, SMAAPreset } from 'postprocessi
 import React, { useEffect } from 'react'
 import {
   ArrayCamera,
+  Color,
+  CubeTexture,
+  FogBase,
   LinearToneMapping,
   PCFSoftShadowMap,
   SRGBColorSpace,
+  Scene,
   ShadowMapType,
+  Texture,
   ToneMapping,
   WebGL1Renderer,
   WebGLRenderer,
@@ -56,14 +60,21 @@ import {
 import { EngineState } from '../EngineState'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
-import { SceneComponent } from '../scene/SceneComponent'
 import { getNestedChildren } from '../transform/components/EntityTree'
 import { WebXRManager, createWebXRManager } from '../xr/WebXRManager'
+import { XRLightProbeState } from '../xr/XRLightProbeSystem'
 import { XRState } from '../xr/XRState'
 import { PerformanceManager } from './PerformanceState'
 import { RendererState } from './RendererState'
 import WebGL from './THREE.WebGL'
 import { GroupComponent } from './components/GroupComponent'
+import {
+  BackgroundComponent,
+  EnvironmentMapComponent,
+  FogComponent,
+  SceneComponent
+} from './components/SceneComponents'
+import { VisibleComponent } from './components/VisibleComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
 import { EffectMapType, defaultPostProcessingSchema } from './effects/PostProcessing'
 import { SDFSettingsState } from './effects/sdf/SDFSettingsState'
@@ -85,6 +96,7 @@ export const RendererComponent = defineComponent({
 export type EffectComposerWithSchema = EffectComposer & EffectMapType
 
 let lastRenderTime = 0
+const _scene = new Scene()
 
 export class EngineRenderer {
   /** Is resize needed? */
@@ -117,9 +129,6 @@ export class EngineRenderer {
   /** @todo deprecate and replace with engine implementation */
   xrManager: WebXRManager = null!
   webGLLostContext: any = null
-
-  /** Array of entity hierarchies to render. */
-  // sceneEntities = [] as Entity[]
 
   initialize(entity: Entity) {
     this.supportWebGL2 = WebGL.isWebGL2Available()
@@ -232,16 +241,12 @@ const changeQualityLevel = (renderer: EngineRenderer) => {
  * @param delta Time since last frame.
  */
 export const render = (
-  delta: number,
-  camera: ArrayCamera,
   renderer: EngineRenderer,
-  entitiesToRender: Entity[],
+  scene: Scene,
+  camera: ArrayCamera,
+  delta: number,
   effectComposer = true
 ) => {
-  const objects = entitiesToRender
-    .filter((entity) => hasComponent(entity, GroupComponent))
-    .map((entity) => getComponent(entity, GroupComponent))
-    .flat()
   const xrFrame = getState(XRState).xrFrame
 
   const canvasParent = renderer.canvas.parentElement
@@ -277,18 +282,16 @@ export const render = (
     renderer.needsResize = false
   }
 
-  Engine.instance.scene.children = objects
-
   /** Postprocessing does not support multipass yet, so just use basic renderer when in VR */
   if (xrFrame || !effectComposer || !renderer.effectComposer) {
     for (const c of camera.cameras) c.layers.mask = camera.layers.mask
     renderer.renderer.clear()
-    renderer.renderer.render(Engine.instance.scene, camera)
+    renderer.renderer.render(scene, camera)
   } else {
+    renderer.effectComposer.setMainScene(scene)
+    renderer.effectComposer.setMainCamera(camera)
     renderer.effectComposer.render(delta)
   }
-
-  Engine.instance.scene.children = []
 }
 
 export const RenderSettingsState = defineState({
@@ -313,14 +316,42 @@ export const PostProcessingSettingsState = defineState({
 
 const rendererQuery = defineQuery([RendererComponent, CameraComponent, SceneComponent])
 
+export const filterVisible = (entity: Entity) =>
+  hasComponent(entity, VisibleComponent) && hasComponent(entity, GroupComponent)
+export const getNestedVisibleChildren = (entity: Entity) => getNestedChildren(entity, filterVisible)
+
 const execute = () => {
+  const deltaSeconds = getState(ECSState).deltaSeconds
+
   for (const entity of rendererQuery()) {
-    const deltaSeconds = getState(ECSState).deltaSeconds
     const camera = getComponent(entity, CameraComponent)
     const renderer = getComponent(entity, RendererComponent)
     const scene = getComponent(entity, SceneComponent)
-    const entitiesToRender = scene.children.map((sceneEntity) => getNestedChildren(sceneEntity)).flat()
-    render(deltaSeconds, camera, renderer, entitiesToRender)
+
+    let background: Color | Texture | CubeTexture | null = null
+    let environment: Texture | null = null
+    let fog: FogBase | null = null
+
+    const entitiesToRender = scene.children.map(getNestedVisibleChildren).flat()
+    for (const entity of entitiesToRender) {
+      if (hasComponent(entity, EnvironmentMapComponent)) environment = getComponent(entity, EnvironmentMapComponent)
+      if (hasComponent(entity, BackgroundComponent))
+        background = getComponent(entity, BackgroundComponent as any) as Color | Texture | CubeTexture
+      if (hasComponent(entity, FogComponent)) fog = getComponent(entity, FogComponent)
+    }
+    const objects = entitiesToRender.map((entity) => getComponent(entity, GroupComponent)).flat()
+
+    _scene.children = objects
+
+    const sessionMode = getState(XRState).sessionMode
+    _scene.background = sessionMode === 'immersive-ar' ? null : background
+
+    const lightProbe = getState(XRLightProbeState).environment
+    _scene.environment = lightProbe ?? environment
+
+    _scene.fog = fog
+
+    render(renderer, _scene, camera, deltaSeconds)
   }
 }
 

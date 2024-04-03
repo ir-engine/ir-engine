@@ -24,20 +24,56 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity, defineComponent } from '@etherealengine/ecs'
+import { Color, CubeTexture, FogBase, Texture } from 'three'
 
 export const SceneComponent = defineComponent({
   name: 'SceneComponent',
+
   onInit(entity) {
     return {
       children: [] as Entity[]
-      // environment
-      // background
-      // fog
     }
   },
+
   onSet(entity, component, json) {
     if (!json) return
 
     if (Array.isArray(json.children)) component.children.set(json.children)
+  }
+})
+
+export const BackgroundComponent = defineComponent({
+  name: 'BackgroundComponent',
+
+  onInit(entity) {
+    return null! as Color | Texture | CubeTexture
+  },
+
+  onSet(entity, component, json: Color | Texture | CubeTexture) {
+    if (typeof json === 'object') component.set(json)
+  }
+})
+
+export const EnvironmentMapComponent = defineComponent({
+  name: 'EnvironmentMapComponent',
+
+  onInit(entity) {
+    return null! as Texture
+  },
+
+  onSet(entity, component, json: Texture) {
+    if (typeof json === 'object') component.set(json)
+  }
+})
+
+export const FogComponent = defineComponent({
+  name: 'FogComponent',
+
+  onInit(entity) {
+    return null! as FogBase
+  },
+
+  onSet(entity, component, json: FogBase) {
+    if (typeof json === 'object') component.set(json)
   }
 })

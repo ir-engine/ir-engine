@@ -119,13 +119,13 @@ export function useQuery(components: QueryComponents) {
 
 export type Query = ReturnType<typeof defineQuery>
 
-const QuerySubReactor = memo((props: { entity: Entity; ChildEntityReactor: FC }) => {
+const QuerySubReactor = memo((props: { entity: Entity; ChildEntityReactor: FC; props?: any }) => {
   return (
     <>
       <QueryReactorErrorBoundary>
         <Suspense fallback={null}>
           <EntityContext.Provider value={props.entity}>
-            <props.ChildEntityReactor />
+            <props.ChildEntityReactor {...props.props} />
           </EntityContext.Provider>
         </Suspense>
       </QueryReactorErrorBoundary>
@@ -133,13 +133,13 @@ const QuerySubReactor = memo((props: { entity: Entity; ChildEntityReactor: FC })
   )
 })
 
-export const QueryReactor = memo((props: { Components: QueryComponents; ChildEntityReactor: FC }) => {
+export const QueryReactor = memo((props: { Components: QueryComponents; ChildEntityReactor: FC; props?: any }) => {
   const entities = useQuery(props.Components)
   const MemoChildEntityReactor = useMemo(() => memo(props.ChildEntityReactor), [props.ChildEntityReactor])
   return (
     <>
       {entities.map((entity) => (
-        <QuerySubReactor key={entity} entity={entity} ChildEntityReactor={MemoChildEntityReactor} />
+        <QuerySubReactor key={entity} entity={entity} ChildEntityReactor={MemoChildEntityReactor} props={props} />
       ))}
     </>
   )
