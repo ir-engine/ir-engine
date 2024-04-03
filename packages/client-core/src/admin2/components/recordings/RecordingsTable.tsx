@@ -69,12 +69,16 @@ export default function RecordingsTable({ search }: { search: string }) {
             className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0"
             rounded
             onClick={() => {
-              showConfirmDialog(`${t('admin:components.recording.confirmRecordingDelete')} (${row.id}) ?`, async () => {
-                modalProcessing.set(true)
-                await removeRecording(row.id)
-                PopoverState.hidePopupover()
-                modalProcessing.set(false)
-              })
+              showConfirmDialog(
+                `${t('admin:components.recording.confirmRecordingDelete')} (${row.id}) ?`,
+                async () => {
+                  modalProcessing.set(true)
+                  await removeRecording(row.id)
+                  PopoverState.hidePopupover()
+                  modalProcessing.set(false)
+                },
+                modalProcessing.value
+              )
             }}
           >
             <HiTrash className="place-self-center text-[#E11D48] dark:text-[#FB7185]" />

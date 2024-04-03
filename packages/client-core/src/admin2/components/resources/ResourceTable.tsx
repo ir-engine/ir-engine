@@ -84,12 +84,16 @@ export default function ResourceTable({ search }: { search: string }) {
             rounded
             className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0"
             onClick={() => {
-              showConfirmDialog(`${t('admin:components.resources.confirmResourceDelete')} '${el.key}'?`, async () => {
-                modalProcessing.set(true)
-                await ResourceService.removeResource(el.id)
-                PopoverState.hidePopupover()
-                modalProcessing.set(false)
-              })
+              showConfirmDialog(
+                `${t('admin:components.resources.confirmResourceDelete')} '${el.key}'?`,
+                async () => {
+                  modalProcessing.set(true)
+                  await ResourceService.removeResource(el.id)
+                  PopoverState.hidePopupover()
+                  modalProcessing.set(false)
+                },
+                modalProcessing.value
+              )
             }}
           >
             <HiTrash className="text-theme-iconRed place-self-center" />

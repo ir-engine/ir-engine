@@ -25,6 +25,7 @@ import { useTranslation } from 'react-i18next'
 import { timeAgo } from '@etherealengine/common/src/utils/datetime-sql'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import showConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Tooltip from '@etherealengine/ui/src/primitives/tailwind/ToolTip'
@@ -111,10 +112,16 @@ export default function ServerTable({
             className="border-0"
             startIcon={<HiTrash className="text-theme-iconRed" />}
             onClick={async () => {
-              modalProcessing.set(true)
-              await podRemove(row.name)
-              PopoverState.hidePopupover()
-              modalProcessing.set(false)
+              showConfirmDialog(
+                `${t('admin:components.server.confirmPodDelete')} ${row.name}?`,
+                async () => {
+                  modalProcessing.set(true)
+                  await podRemove(row.name)
+                  PopoverState.hidePopupover()
+                  modalProcessing.set(false)
+                },
+                modalProcessing.value
+              )
             }}
           />
         </div>

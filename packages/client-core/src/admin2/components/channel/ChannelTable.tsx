@@ -29,14 +29,15 @@ import { useTranslation } from 'react-i18next'
 import { ChannelType, channelPath } from '@etherealengine/common/src/schema.type.module'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { State, useHookstate } from '@etherealengine/hyperflux'
-import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { State } from '@etherealengine/hyperflux'
+import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
 import { HiPencil, HiTrash } from 'react-icons/hi2'
 import { channelColumns } from '../../../admin/common/variables/channel'
 import DataTable from '../../common/Table'
 import { ChannelRowType } from '../../common/constants/channel'
 import AddEditChannelModal from './AddEditChannelModal'
+import RemoveChannelModal from './RemoveChannelModal'
 
 export default function ChannelTable({
   search,
@@ -71,9 +72,6 @@ export default function ChannelTable({
     search
   )
 
-  const adminChannelRemove = useMutation(channelPath).remove
-  const modalProcessing = useHookstate(false)
-
   const createRows = (rows: readonly ChannelType[]): ChannelRowType[] =>
     rows.map((row) => ({
       select: (
@@ -99,16 +97,7 @@ export default function ChannelTable({
           <button
             title={t('admin:components.common.delete')}
             className="border-theme-primary grid h-8 w-8 rounded-full border disabled:opacity-50"
-            onClick={async () => {
-              modalProcessing.set(true)
-              await Promise.all(
-                [row].map((channel) => {
-                  adminChannelRemove(channel.id)
-                })
-              )
-              PopoverState.hidePopupover()
-              modalProcessing.set(false)
-            }}
+            onClick={() => PopoverState.showPopupover(<RemoveChannelModal channels={[row]} />)}
           >
             <HiTrash className="text-theme-iconRed place-self-center" />
           </button>

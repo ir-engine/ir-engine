@@ -80,12 +80,16 @@ export default function InstanceTable({ search }: { search: string }) {
             className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0"
             rounded
             onClick={() => {
-              showConfirmDialog(`${t('admin:components.instance.confirmInstanceDelete')} (${row.id}) ?`, async () => {
-                modalProcessing.set(true)
-                await removeInstance(row.id)
-                PopoverState.hidePopupover()
-                modalProcessing.set(false)
-              })
+              showConfirmDialog(
+                `${t('admin:components.instance.confirmInstanceDelete')} (${row.id}) ?`,
+                async () => {
+                  modalProcessing.set(true)
+                  await removeInstance(row.id)
+                  PopoverState.hidePopupover()
+                  modalProcessing.set(false)
+                },
+                modalProcessing.value
+              )
             }}
           >
             <HiTrash className="text-theme-iconRed place-self-center" />

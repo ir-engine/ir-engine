@@ -93,12 +93,16 @@ export default function LocationTable({ search }: { search: string }) {
             title={t('admin:components.common.delete')}
             className="border-theme-primary grid h-8 w-8 rounded-full border"
             onClick={() =>
-              showConfirmDialog(`${t('admin:components.location.confirmLocationDelete')} '${row.name}'?`, async () => {
-                modalProcessing.set(true)
-                await adminLocationRemove(row.id)
-                PopoverState.hidePopupover()
-                modalProcessing.set(false)
-              })
+              showConfirmDialog(
+                `${t('admin:components.location.confirmLocationDelete')} '${row.name}'?`,
+                async () => {
+                  modalProcessing.set(true)
+                  await adminLocationRemove(row.id)
+                  PopoverState.hidePopupover()
+                  modalProcessing.set(false)
+                },
+                modalProcessing.value
+              )
             }
           >
             <HiTrash className="text-theme-iconRed place-self-center" />
