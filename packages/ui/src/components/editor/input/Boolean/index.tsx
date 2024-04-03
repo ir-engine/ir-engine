@@ -38,11 +38,11 @@ interface BooleanInputProp {
 export const BooleanInput = (props: BooleanInputProp) => {
   const [checkboxId] = useState(() => `boolean-input-${uniqueId++}`)
 
-  const onChange = (e) => {
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     props.onChange(e.target.checked)
   }
 
-  const onBlur = (e) => {
+  const onBlur = () => {
     if (props.onRelease) props.onRelease(props.value)
   }
 
@@ -51,7 +51,7 @@ export const BooleanInput = (props: BooleanInputProp) => {
   }
 
   return (
-    <div className="flex items-center justify-center">
+    <div className="checkbox flex items-center justify-center">
       <input
         id={checkboxId}
         className="hidden"
@@ -63,13 +63,11 @@ export const BooleanInput = (props: BooleanInputProp) => {
       />
       <label
         htmlFor={checkboxId}
-        className={`w-18 h-18 flex cursor-pointer items-center justify-center p-0 ${
-          props.disabled ? 'grayscale-80 cursor-not-allowed opacity-80 filter' : ''
-        }`}
+        className="BooleanInputLabel w-18 h-18 flex cursor-pointer items-center justify-center"
         tabIndex={0}
         onKeyPress={onKeyPress}
       >
-        {props.value && <CheckIcon className="text-buttonTextColor h-auto w-full" />}
+        {props.value && <CheckIcon className="BooleanCheck text-buttonTextColor h-auto w-full" />}
       </label>
     </div>
   )

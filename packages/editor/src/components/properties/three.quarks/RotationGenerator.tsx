@@ -34,9 +34,9 @@ import {
 } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { State } from '@etherealengine/hyperflux'
 
-import Vector3Input from '@etherealengine/ui/src/components/editor/Vector3Input'
 import InputGroup from '../../inputs/InputGroup'
 import SelectInput from '../../inputs/SelectInput'
+import Vector3Input from '../../inputs/Vector3Input'
 import ValueGenerator from './ValueGenerator'
 
 export default function RotationGenerator({

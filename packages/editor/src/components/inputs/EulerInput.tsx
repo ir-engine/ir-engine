@@ -27,11 +27,7 @@ import { useHookstate } from '@hookstate/core'
 import React, { useCallback, useEffect } from 'react'
 import { Euler, Quaternion, MathUtils as _Math } from 'three'
 
-import {
-  UniformButtonContainer,
-  Vector3InputContainer,
-  Vector3Scrubber
-} from '@etherealengine/ui/src/components/editor/Vector3Input'
+import { UniformButtonContainer, Vector3InputContainer, Vector3Scrubber } from '../inputs/Vector3Input'
 import NumericInput from './NumericInput'
 
 const { RAD2DEG, DEG2RAD } = _Math
