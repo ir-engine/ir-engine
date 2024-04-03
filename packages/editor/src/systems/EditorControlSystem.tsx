@@ -90,8 +90,8 @@ const onKeyF = () => {
 const onKeyQ = () => {
   const nodes = SelectionState.getSelectedEntities()
   const gizmo = gizmoControlledQuery()
-  let gizmoEntity
-  if (gizmo.length > 0) gizmoEntity = gizmo[gizmo.length - 1]
+  if (gizmo.length === 0) return
+  const gizmoEntity = gizmo[gizmo.length - 1]
   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
   const editorHelperState = getState(EditorHelperState)
   EditorControlFunctions.rotateAround(
@@ -105,8 +105,8 @@ const onKeyQ = () => {
 const onKeyE = () => {
   const nodes = SelectionState.getSelectedEntities()
   const gizmo = gizmoControlledQuery()
-  let gizmoEntity
-  if (gizmo.length > 0) gizmoEntity = gizmo[gizmo.length - 1]
+  if (gizmo.length === 0) return
+  const gizmoEntity = gizmo[gizmo.length - 1]
   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
   const editorHelperState = getState(EditorHelperState)
   EditorControlFunctions.rotateAround(
