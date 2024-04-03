@@ -28,7 +28,7 @@ import React from 'react'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 
-interface Props {
+interface Props extends Record<string, unknown> {
   className?: string
   textClassName?: string
   title?: React.ReactNode
