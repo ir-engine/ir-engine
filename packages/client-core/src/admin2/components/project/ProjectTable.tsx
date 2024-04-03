@@ -36,11 +36,9 @@ import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import showConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import CopyText from '@etherealengine/ui/src/primitives/tailwind/CopyText'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
-import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
-import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 import Tooltip from '@etherealengine/ui/src/primitives/tailwind/ToolTip'
 import { useTranslation } from 'react-i18next'
@@ -78,18 +76,6 @@ export default function ProjectTable() {
       paginate: false
     }
   })
-
-  const showConfirmDialog = (_project: ProjectType, text: string, onSubmit: () => void) => {
-    PopoverState.showPopupover(
-      <Modal
-        onSubmit={onSubmit}
-        onClose={!modalProcessing.value ? () => PopoverState.hidePopupover() : undefined}
-        hideFooter={modalProcessing.value}
-      >
-        {modalProcessing.value ? <LoadingCircle className="h-[10vh]" /> : <Text>{text}</Text>}
-      </Modal>
-    )
-  }
 
   const handleEnabledChange = async (project: ProjectType) => {
     await ProjectService.setEnabled(project.id, !project.enabled)
@@ -143,7 +129,6 @@ export default function ProjectTable() {
           disabled={!project || !project.repositoryPath || project.name === 'default-project'}
           onClick={() => {
             showConfirmDialog(
-              project,
               `${t('admin:components.project.confirmPushProjectToGithub')}? ${project.name} - ${
                 project.repositoryPath
               }`,
@@ -153,7 +138,8 @@ export default function ProjectTable() {
                 modalProcessing.set(false)
 
                 PopoverState.hidePopupover()
-              }
+              },
+              modalProcessing.value
             )
           }}
         >
@@ -180,13 +166,13 @@ export default function ProjectTable() {
           disabled={config.client.localBuildOrDev}
           onClick={() => {
             showConfirmDialog(
-              project,
               `${t('admin:components.project.confirmProjectInvalidate')} '${project.name}'?`,
               async () => {
                 modalProcessing.set(true)
                 await ProjectService.invalidateProjectCache(project.name)
                 PopoverState.hidePopupover()
-              }
+              },
+              modalProcessing.value
             )
           }}
         >
@@ -206,13 +192,13 @@ export default function ProjectTable() {
           disabled={project.name === 'default-project'}
           onClick={() => {
             showConfirmDialog(
-              project,
               `${t('admin:components.project.confirmProjectDelete')} '${project.name}'?`,
               async () => {
                 modalProcessing.set(true)
                 await ProjectService.removeProject(project.id).catch((err) => logger.error(err))
                 PopoverState.hidePopupover()
-              }
+              },
+              modalProcessing.value
             )
           }}
         >

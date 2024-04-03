@@ -69,7 +69,7 @@ export default function AddEditChannelModal({ channel }: { channel?: ChannelType
   return (
     <Modal
       title={channel?.id ? t('admin:components.channel.update') : t('admin:components.channel.createChannel')}
-      className="w-[50vw]"
+      className="w-[50vw] max-w-2xl"
       onSubmit={handleSubmit}
       onClose={PopoverState.hidePopupover}
       submitLoading={submitLoading.value}

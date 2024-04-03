@@ -159,7 +159,7 @@ export default function CreateResourceModal({ selectedResource }: { selectedReso
     <Modal
       title={t('admin:components.resources.createResource')}
       onClose={PopoverState.hidePopupover}
-      className="w-[50vw]"
+      className="w-[50vw] max-w-2xl"
       onSubmit={handleSubmit}
     >
       <div className="grid w-full gap-4">

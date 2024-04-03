@@ -31,6 +31,7 @@ import { AvatarID, AvatarType, avatarPath } from '@etherealengine/common/src/sch
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { UserName } from '@etherealengine/common/src/schema.type.module'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import showConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import AvatarImage from '@etherealengine/ui/src/primitives/tailwind/AvatarImage'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 import { useHookstate } from '@hookstate/core'
@@ -38,7 +39,6 @@ import { HiPencil, HiTrash } from 'react-icons/hi2'
 import DataTable from '../../common/Table'
 import { AvatarRowType, avatarColumns } from '../../common/constants/avatar'
 import AddEditAvatarModal from './AddEditAvatarModal'
-import RemoveAvatarModal from './RemoveAvatarModal'
 
 export default function AvatarTable({ search }: { search: string }) {
   const { t } = useTranslation()
@@ -79,6 +79,9 @@ export default function AvatarTable({ search }: { search: string }) {
     )
   }
 
+  const adminAvatarRemove = useMutation(avatarPath).remove
+  const modalProcessing = useHookstate(false)
+
   const createRows = (rows: readonly AvatarType[]): AvatarRowType[] =>
     rows.map((row) => ({
       id: row.id,
@@ -98,7 +101,14 @@ export default function AvatarTable({ search }: { search: string }) {
           <button
             title={t('admin:components.common.delete')}
             className="border-theme-primary grid h-8 w-8 rounded-full border"
-            onClick={() => PopoverState.showPopupover(<RemoveAvatarModal avatar={row} />)}
+            onClick={() => {
+              showConfirmDialog(`${t('admin:components.avatar.confirmAvatarDelete')} '${row.name}'?`, async () => {
+                modalProcessing.set(true)
+                await adminAvatarRemove(row.id)
+                PopoverState.hidePopupover()
+                modalProcessing.set(false)
+              })
+            }}
           >
             <HiTrash className="text-theme-iconRed place-self-center" />
           </button>

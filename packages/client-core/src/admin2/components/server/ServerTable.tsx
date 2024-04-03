@@ -18,11 +18,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ServerPodInfoType } from '@etherealengine/common/src/schema.type.module'
+import { ServerPodInfoType, podsPath } from '@etherealengine/common/src/schema.type.module'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { timeAgo } from '@etherealengine/common/src/utils/datetime-sql'
+import { useHookstate } from '@etherealengine/hyperflux'
+import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Tooltip from '@etherealengine/ui/src/primitives/tailwind/ToolTip'
@@ -31,7 +33,6 @@ import { useServerInfoFind } from '../../../admin/services/ServerInfoQuery'
 import { PopoverState } from '../../../common/services/PopoverState'
 import DataTable from '../../common/Table'
 import { ServerRowType, serverColumns } from '../../common/constants/server'
-import RemoveServerModal from './RemoveServerModal'
 import ServerLogsModal from './ServerLogsModal'
 
 const containerColor = {
@@ -73,6 +74,8 @@ export default function ServerTable({
   serverInfoQuery: ReturnType<typeof useServerInfoFind>
 }) {
   const { t } = useTranslation()
+  const podRemove = useMutation(podsPath).remove
+  const modalProcessing = useHookstate(false)
 
   const createRows = (rows: readonly ServerPodInfoType[]): ServerRowType[] =>
     rows.map((row) => ({
@@ -100,7 +103,12 @@ export default function ServerTable({
             variant="outline"
             className="border-0"
             startIcon={<HiTrash className="text-theme-iconRed" />}
-            onClick={() => PopoverState.showPopupover(<RemoveServerModal serverPodInfo={row} />)}
+            onClick={async () => {
+              modalProcessing.set(true)
+              await podRemove(row.name)
+              PopoverState.hidePopupover()
+              modalProcessing.set(false)
+            }}
           />
         </div>
       )

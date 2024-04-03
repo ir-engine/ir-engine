@@ -20,7 +20,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { UserType, userPath } from '@etherealengine/common/src/schema.type.module'
 import { State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import AvatarImage from '@etherealengine/ui/src/primitives/tailwind/AvatarImage'
 import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
 import React from 'react'
@@ -34,7 +34,6 @@ import DataTable from '../../common/Table'
 import { UserRowType, userColumns } from '../../common/constants/user'
 import AccountIdentifiers from './AccountIdentifiers'
 import AddEditUserModal from './AddEditUserModal'
-import RemoveUserModal from './RemoveUserModal'
 
 export default function UserTable({
   search,
@@ -66,6 +65,9 @@ export default function UserTable({
     },
     search
   )
+
+  const adminUserRemove = useMutation(userPath).remove
+  const modalProcessing = useHookstate(false)
 
   const createRows = (rows: readonly UserType[]): UserRowType[] =>
     rows.map((row) => {
@@ -107,7 +109,12 @@ export default function UserTable({
               disabled={user.id.value === row.id}
               title={t('admin:components.common.delete')}
               className="border-theme-primary grid h-8 w-8 rounded-full border disabled:opacity-50"
-              onClick={() => PopoverState.showPopupover(<RemoveUserModal users={[row]} />)}
+              onClick={async () => {
+                modalProcessing.set(true)
+                await adminUserRemove(row.id)
+                PopoverState.hidePopupover()
+                modalProcessing.set(false)
+              }}
             >
               <HiTrash className="text-theme-iconRed place-self-center" />
             </button>

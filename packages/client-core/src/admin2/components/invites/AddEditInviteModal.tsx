@@ -199,7 +199,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
   return (
     <Modal
       title={invite?.id ? t('admin:components.invite.update') : t('admin:components.invite.create')}
-      className="w-[50vw]"
+      className="w-[50vw] max-w-2xl"
       onSubmit={handleSubmit}
       onClose={PopoverState.hidePopupover}
       submitLoading={submitLoading.value}

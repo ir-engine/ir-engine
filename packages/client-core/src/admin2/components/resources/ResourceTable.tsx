@@ -27,17 +27,20 @@ import React from 'react'
 
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 
+import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import showConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import { useTranslation } from 'react-i18next'
 import { HiEye, HiTrash } from 'react-icons/hi2'
-import { RESOURCE_PAGE_LIMIT } from '../../../admin/services/ResourceService'
+import { RESOURCE_PAGE_LIMIT, ResourceService } from '../../../admin/services/ResourceService'
 import { PopoverState } from '../../../common/services/PopoverState'
 import DataTable from '../../common/Table'
 import { resourceColumns } from '../../common/constants/resources'
 import AddEditResourceModal from './AddEditResourceModal'
-import DeleteResourceModal from './RemoveResourceModal'
 
 export default function ResourceTable({ search }: { search: string }) {
+  const { t } = useTranslation()
   const resourceQuery = useFind(staticResourcePath, {
     query: {
       action: 'admin',
@@ -57,6 +60,8 @@ export default function ResourceTable({ search }: { search: string }) {
     },
     search
   )
+
+  const modalProcessing = useHookstate(false)
 
   const createData = (el: StaticResourceType) => {
     return {
@@ -79,7 +84,12 @@ export default function ResourceTable({ search }: { search: string }) {
             rounded
             className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0"
             onClick={() => {
-              PopoverState.showPopupover(<DeleteResourceModal resourceId={el.id} resourceKey={el.key} />)
+              showConfirmDialog(`${t('admin:components.resources.confirmResourceDelete')} '${el.key}'?`, async () => {
+                modalProcessing.set(true)
+                await ResourceService.removeResource(el.id)
+                PopoverState.hidePopupover()
+                modalProcessing.set(false)
+              })
             }}
           >
             <HiTrash className="text-theme-iconRed place-self-center" />

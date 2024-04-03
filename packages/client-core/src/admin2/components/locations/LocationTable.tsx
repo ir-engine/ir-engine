@@ -29,13 +29,14 @@ import { useTranslation } from 'react-i18next'
 import { LocationType, SceneID, locationPath } from '@etherealengine/common/src/schema.type.module'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { useHookstate } from '@etherealengine/hyperflux'
+import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import showConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import { HiPencil, HiTrash } from 'react-icons/hi2'
 import { userHasAccess } from '../../../user/userHasAccess'
 import DataTable from '../../common/Table'
 import { LocationRowType, locationColumns } from '../../common/constants/location'
 import AddEditLocationModal from './AddEditLocationModal'
-import RemoveLocationModal from './RemoveLocationModal'
 
 const transformLink = (link: string) => link.toLowerCase().replace(' ', '-')
 
@@ -65,6 +66,9 @@ export default function LocationTable({ search }: { search: string }) {
     search
   )
 
+  const adminLocationRemove = useMutation(locationPath).remove
+  const modalProcessing = useHookstate(false)
+
   const createRows = (rows: readonly LocationType[]): LocationRowType[] =>
     rows.map((row) => ({
       name: <a href={`/location/${transformLink(row.name)}`}>{row.name}</a>,
@@ -88,7 +92,14 @@ export default function LocationTable({ search }: { search: string }) {
           <button
             title={t('admin:components.common.delete')}
             className="border-theme-primary grid h-8 w-8 rounded-full border"
-            onClick={() => PopoverState.showPopupover(<RemoveLocationModal location={row} />)}
+            onClick={() =>
+              showConfirmDialog(`${t('admin:components.location.confirmLocationDelete')} '${row.name}'?`, async () => {
+                modalProcessing.set(true)
+                await adminLocationRemove(row.id)
+                PopoverState.hidePopupover()
+                modalProcessing.set(false)
+              })
+            }
           >
             <HiTrash className="text-theme-iconRed place-self-center" />
           </button>

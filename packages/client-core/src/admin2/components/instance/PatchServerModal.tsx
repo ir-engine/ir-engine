@@ -66,7 +66,7 @@ export default function PatchServerModal() {
   return (
     <Modal
       title={t('admin:components.setting.patchInstanceserver')}
-      className="w-[50vw]"
+      className="w-[50vw] max-w-2xl"
       onSubmit={handleSubmit}
       onClose={PopoverState.hidePopupover}
       submitLoading={modalProcessing.value}

@@ -89,7 +89,7 @@ export default function ManageUserPermissionModal({
   return (
     <Modal
       title={t('admin:components.project.userAccess')}
-      className="w-[50vw]"
+      className="w-[50vw] max-w-2xl"
       onSubmit={() => {
         handleCreatePermission()
       }}

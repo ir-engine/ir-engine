@@ -126,7 +126,7 @@ export default function AddEditLocationModal({ location }: { location?: Location
       title={
         location?.id ? t('admin:components.location.updateLocation') : t('admin:components.location.createLocation')
       }
-      className="w-[50vw]"
+      className="w-[50vw] max-w-2xl"
       onSubmit={handleSubmit}
       onClose={PopoverState.hidePopupover}
       submitLoading={submitLoading.value}
