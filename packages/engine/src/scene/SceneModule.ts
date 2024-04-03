@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { FogSettingsComponent } from '@etherealengine/spatial/src/renderer/FogSettingsComponent'
 import { FogSystem } from '@etherealengine/spatial/src/renderer/FogSystem'
 import { PositionalAudioComponent } from '../audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '../avatar/components/LoopAnimationComponent'
@@ -79,7 +78,6 @@ export const SceneComponents = [
   // CloudComponent,
   EnvMapBakeComponent,
   EnvmapComponent,
-  FogSettingsComponent,
   GroundPlaneComponent,
   HyperspaceTagComponent,
   ImageComponent,

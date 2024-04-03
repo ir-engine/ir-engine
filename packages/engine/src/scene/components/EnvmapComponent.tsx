@@ -51,7 +51,6 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
@@ -117,7 +116,6 @@ export const EnvmapComponent = defineComponent({
     if (!isClient) return null
 
     const component = useComponent(entity, EnvmapComponent)
-    const background = useHookstate(getMutableState(SceneState).background)
     const mesh = useOptionalComponent(entity, MeshComponent)?.value as Mesh<any, any> | null
     const [envMapTexture, error] = useTexture(
       component.envMapTextureType.value === EnvMapTextureType.Equirectangular ? component.envMapSourceURL.value : '',
@@ -131,9 +129,9 @@ export const EnvmapComponent = defineComponent({
     useEffect(() => {
       if (component.type.value !== EnvMapSourceType.Skybox) return
       component.envmap.set(null)
-      updateEnvMap(mesh, background.value as Texture | null)
+      /** Setting the value from the skybox can be found in EnvironmentSystem */
       SceneAssetPendingTagComponent.removeResource(entity, EnvmapComponent.jsonID)
-    }, [component.type, mesh, background])
+    }, [component.type])
 
     useEffect(() => {
       if (component.type.value !== EnvMapSourceType.Color) return
@@ -241,7 +239,7 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
   return null
 }
 
-function updateEnvMap(obj: Mesh<any, any> | null, envmap: Texture | null) {
+export function updateEnvMap(obj: Mesh<any, any> | null, envmap: Texture | null) {
   if (!obj) return
   if (!obj.material) return
   if (Array.isArray(obj.material)) {
@@ -255,7 +253,7 @@ function updateEnvMap(obj: Mesh<any, any> | null, envmap: Texture | null) {
   }
 }
 
-const updateEnvMapIntensity = (obj: Mesh<any, any> | null, intensity: number) => {
+export const updateEnvMapIntensity = (obj: Mesh<any, any> | null, intensity: number) => {
   if (!obj) return
   if (!obj.material) return
   if (Array.isArray(obj.material)) {

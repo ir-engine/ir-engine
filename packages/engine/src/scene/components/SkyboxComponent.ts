@@ -30,8 +30,14 @@ import { config } from '@etherealengine/common/src/config'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { Engine } from '@etherealengine/ecs'
-import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { entityExists, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import {
+  defineComponent,
+  getComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { BackgroundComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { useTexture } from '../../assets/functions/resourceHooks'
@@ -84,7 +90,7 @@ export const SkyboxComponent = defineComponent({
 
   /** @todo remove this wil proper useEffect cleanups, after resource reworking callbacks */
   onRemove: (entity, component) => {
-    if (entityExists(entity)) setComponent(entity, BackgroundComponent, null)
+    removeComponent(entity, BackgroundComponent)
   },
 
   reactor: function () {

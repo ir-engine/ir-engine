@@ -334,10 +334,15 @@ const execute = () => {
 
     const entitiesToRender = scene.children.map(getNestedVisibleChildren).flat()
     for (const entity of entitiesToRender) {
-      if (hasComponent(entity, EnvironmentMapComponent)) environment = getComponent(entity, EnvironmentMapComponent)
-      if (hasComponent(entity, BackgroundComponent))
+      if (hasComponent(entity, EnvironmentMapComponent)) {
+        environment = getComponent(entity, EnvironmentMapComponent)
+      }
+      if (hasComponent(entity, BackgroundComponent)) {
         background = getComponent(entity, BackgroundComponent as any) as Color | Texture | CubeTexture
-      if (hasComponent(entity, FogComponent)) fog = getComponent(entity, FogComponent)
+      }
+      if (hasComponent(entity, FogComponent)) {
+        fog = getComponent(entity, FogComponent)
+      }
     }
     const objects = entitiesToRender.map((entity) => getComponent(entity, GroupComponent)).flat()
 
