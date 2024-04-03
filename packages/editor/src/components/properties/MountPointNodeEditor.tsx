@@ -29,10 +29,10 @@ import { useTranslation } from 'react-i18next'
 import { getMutableComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { MountPoint, MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 
+import Vector3Input from '@etherealengine/ui/src/components/editor/Vector3Input'
 import { Vector3 } from 'three'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
-import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
 import { EditorPropType, commitProperty } from './Util'
 
