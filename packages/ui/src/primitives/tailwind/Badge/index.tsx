@@ -31,7 +31,7 @@ export interface BadgeProps {
   className?: string
   textClassName?: string
   icon?: React.ReactNode
-  variant?: 'success' | 'danger' | 'neutral' | 'warning'
+  variant?: 'success' | 'successLight' | 'danger' | 'neutral' | 'warning'
 }
 
 const variantMap = {
@@ -39,6 +39,11 @@ const variantMap = {
     containerClass: 'bg-theme-tagGreen',
     iconColor: '#15803d',
     textClass: 'text-green-900 dark:text-white'
+  },
+  successLight: {
+    containerClass: 'bg-theme-tagLime',
+    iconColor: '#9ACD32',
+    textClass: 'text-[#9ACD32]-900 dark:text-white'
   },
   danger: {
     containerClass: 'bg-theme-tagRed',

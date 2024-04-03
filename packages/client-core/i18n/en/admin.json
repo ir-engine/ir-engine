@@ -286,8 +286,8 @@
       "columns": {
         "id": "Build #",
         "status": "Status",
-        "commitSHA":"Commit SHA",
-        "logs":"Logs",
+        "commitSHA": "Commit SHA",
+        "logs": "Logs",
         "dateStarted": "Date Started",
         "dateEnded": "Date Ended"
       },
@@ -525,7 +525,7 @@
         "port": "Port",
         "processInterval": "Process Interval"
       },
-      
+
       "plugins": "Plugins"
     },
     "avatar": {
@@ -637,7 +637,9 @@
       "serverStatus": {
         "succeeded": "Succeeded",
         "running": "Running",
-        "terminated": "Terminated"
+        "pending": "Pending",
+        "failed": "Failed",
+        "Unknown": "Unknown"
       },
       "type": "Type",
       "users": "Users",

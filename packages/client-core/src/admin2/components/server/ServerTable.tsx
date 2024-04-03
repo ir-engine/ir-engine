@@ -35,9 +35,10 @@ import RemoveServerModal from './RemoveServerModal'
 import ServerLogsModal from './ServerLogsModal'
 
 const containerColor = {
-  Succeeded: 'bg-theme-tagGreen',
-  Running: 'bg-theme-tagYellow',
-  Terminated: 'bg-theme-tagRed'
+  Running: 'bg-theme-tagLime',
+  Terminated: 'bg-theme-tagGreen',
+  Undefined: 'bg-theme-tagRed',
+  Waiting: 'bg-theme-tagYellow'
 }
 
 function ServerStatus({ serverPodInfo }: { serverPodInfo: ServerPodInfoType }) {
@@ -49,15 +50,21 @@ function ServerStatus({ serverPodInfo }: { serverPodInfo: ServerPodInfoType }) {
         <Badge className="rounded" variant="success" label={t('admin:components.server.serverStatus.succeeded')} />
       )}
       {serverPodInfo.status === 'Running' && (
-        <Badge className="rounded" variant="warning" label={t('admin:components.server.serverStatus.running')} />
+        <Badge className="rounded" variant="successLight" label={t('admin:components.server.serverStatus.running')} />
       )}
-      {serverPodInfo.status === 'Terminated' && (
-        <Badge className="rounded" variant="danger" label={t('admin:components.server.serverStatus.terminated')} />
+      {serverPodInfo.status === 'Pending' && (
+        <Badge className="rounded" variant="warning" label={t('admin:components.server.serverStatus.pending')} />
+      )}
+      {serverPodInfo.status === 'Failed' && (
+        <Badge className="rounded" variant="danger" label={t('admin:components.server.serverStatus.failed')} />
+      )}
+      {serverPodInfo.status === 'Unknown' && (
+        <Badge className="rounded" variant="neutral" label={t('admin:components.server.serverStatus.unknown')} />
       )}
       <div className="flex gap-1">
         {serverPodInfo.containers.map((container) => (
           <Tooltip key={container.name} title={`${t('admin:components.server.name')}: ${container.name}`}>
-            <div className={`${containerColor[serverPodInfo.status]} h-3.5 w-3.5 rounded-full`} />
+            <div className={`${containerColor[container.status]} h-3.5 w-3.5 rounded-full`} />
           </Tooltip>
         ))}
       </div>
