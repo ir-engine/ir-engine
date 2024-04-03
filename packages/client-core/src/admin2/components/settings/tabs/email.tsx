@@ -124,7 +124,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
       open={open}
     >
       <div className="my-4 grid grid-cols-2 gap-4">
-        <Text component="h2" fontSize="xl" fontWeight="semibold" className="col-span-full">
+        <Text component="h2" fontSize="base" fontWeight="semibold" className="col-span-full">
           {t('admin:components.setting.smtp')}
         </Text>
         <Input
@@ -143,7 +143,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
       </div>
 
       <div className="my-4 grid grid-cols-2 gap-4">
-        <Text component="h2" fontSize="xl" fontWeight="semibold" className="col-span-full">
+        <Text component="h2" fontSize="base" fontWeight="semibold" className="col-span-full">
           {t('admin:components.setting.from')}
         </Text>
         <Input
@@ -163,7 +163,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
       </div>
 
       <div className="my-4 grid grid-cols-2 gap-4">
-        <Text component="h2" fontSize="xl" fontWeight="semibold" className="col-span-full">
+        <Text component="h2" fontSize="base" fontWeight="semibold" className="col-span-full">
           {t('admin:components.setting.auth')}
         </Text>
         <Input
@@ -182,7 +182,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
       </div>
 
       <div className="my-4 grid grid-cols-2 gap-4">
-        <Text component="h2" fontSize="xl" fontWeight="semibold" className="col-span-full">
+        <Text component="h2" fontSize="base" fontWeight="semibold" className="col-span-full">
           {t('admin:components.setting.subject')}
         </Text>
         <Input

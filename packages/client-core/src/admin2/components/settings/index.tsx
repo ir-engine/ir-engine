@@ -36,7 +36,9 @@ import EmailTab from './tabs/email'
 import HelmTab from './tabs/helm'
 
 import { t } from 'i18next'
+import AwsTab from './tabs/aws'
 import InstanceServerTab from './tabs/instanceServer'
+import RedisTab from './tabs/redis'
 import ServerTab from './tabs/server'
 import TaskServerTab from './tabs/taskServer'
 
@@ -72,6 +74,14 @@ export const SettingsTabsData = [
   {
     label: t('admin:components.setting.authentication.header'),
     Component: AuthenticationTab
+  },
+  {
+    label: t('admin:components.setting.redis.header'),
+    Component: RedisTab
+  },
+  {
+    label: t('admin:components.setting.aws.header'),
+    Component: AwsTab
   }
 ]
 

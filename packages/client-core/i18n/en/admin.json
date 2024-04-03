@@ -378,7 +378,10 @@
       "icon": "Icon",
       "link": "Link",
       "resetTheme": "Reset to Default",
-      "aws": "AWS",
+      "aws": {
+        "header": "AWS",
+        "subtitle": "Edit AWS Settings"
+      },
       "keys": "Keys",
       "accessKeyId": "Access Key ID",
       "secretAccessKey": "Secret Access Key",
@@ -449,7 +452,10 @@
       "mode": "Mode",
       "locationName": "Location Name",
       "settings": "Settings",
-      "redis": "Redis",
+      "redis": {
+        "header": "Redis",
+        "subtitle": "Edit Redis Settings"
+      },
       "enabled": "Enabled",
       "address": "Address",
       "hostName": "Host Name",
