@@ -75,7 +75,7 @@ export const PerformanceState = defineState({
     // The lower the performance the higher the offset
     performanceOffset: 0,
     isMobileGPU: false as boolean | undefined,
-    // averageRenderTime: 0,
+    averageRenderTime: 0,
     gpu: 'unknown',
     device: 'unknown',
     budgets: {
@@ -116,7 +116,7 @@ const startGPUTiming = (renderer: EngineRenderer, dt: number): (() => void) => {
     checkingRenderTime = false
     timeAccum = 0
     const performanceState = getMutableState(PerformanceState)
-    // performanceState.averageRenderTime.set((performanceState.averageRenderTime.value + renderTime) / 2)
+    performanceState.averageRenderTime.set((performanceState.averageRenderTime.value + renderTime) / 2)
   })
 }
 

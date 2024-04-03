@@ -212,8 +212,10 @@ export class EngineRenderer {
       for (const c of xrCamera.cameras) c.layers.mask = camera.layers.mask
 
       this.rendering = true
+      const end = PerformanceManager.startGPUTiming(this, delta)
       this.renderer.clear()
       this.renderer.render(Engine.instance.scene, camera)
+      end()
       this.rendering = false
     } else {
       const state = getState(RendererState)
@@ -245,7 +247,9 @@ export class EngineRenderer {
        *   it still uses post processing for effects such as outline.
        */
       this.rendering = true
+      const end = PerformanceManager.startGPUTiming(this, delta)
       this.effectComposer.render(delta)
+      end()
       this.rendering = false
     }
   }
