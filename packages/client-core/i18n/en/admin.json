@@ -124,8 +124,9 @@
         "passcode": "Passcode",
         "type": "Type",
         "targetObjectId": "Target ID",
+        "spawnType": "Spawn Type",
         "spawnDetails": "Spawn Details",
-        "action": "Action"
+        "action": "Actions"
       },
       "invites": "Invites",
       "sendInvite": "Send Invite",

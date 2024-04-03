@@ -49,6 +49,7 @@ export const inviteColumns: IInviteColumn[] = [
   { id: 'passcode', label: t('admin:components.invite.columns.passcode') },
   { id: 'type', label: t('admin:components.invite.columns.type') },
   { id: 'targetObjectId', label: t('admin:components.invite.columns.targetObjectId') },
+  { id: 'spawnType', label: t('admin:components.invite.columns.spawnType') },
   { id: 'spawnDetails', label: t('admin:components.invite.columns.spawnDetails') },
   { id: 'action', label: t('admin:components.invite.columns.action') }
 ]
