@@ -51,7 +51,6 @@ const Tabs = ({
   tabClassName,
   scrollable,
   currentTabIndex,
-  backgroundTheme,
   onTabChange,
   ...props
 }: TabProps): JSX.Element => {
@@ -94,7 +93,7 @@ const Tabs = ({
           {tabsData[currentTab.value]?.title}
         </Text>
       )}
-      <div className={backgroundTheme + ' sticky top-0 flex justify-between'}>
+      <div className={'sticky top-0 flex justify-between'}>
         <div className={twMerge(twTabContainerClassName, tabContainerClassName)} {...props}>
           {tabsData.map((tab, index) => (
             <button
