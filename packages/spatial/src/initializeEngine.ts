@@ -92,7 +92,7 @@ export const createEngine = (canvas?: HTMLCanvasElement) => {
 
   if (canvas) {
     setComponent(Engine.instance.viewerEntity, RendererComponent, { canvas })
-    getComponent(Engine.instance.viewerEntity, RendererComponent).initialize(Engine.instance.viewerEntity)
+    getComponent(Engine.instance.viewerEntity, RendererComponent).initialize()
     setComponent(Engine.instance.viewerEntity, SceneComponent)
     getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([
       Engine.instance.originEntity,

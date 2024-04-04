@@ -135,7 +135,7 @@ export class EngineRenderer {
   xrManager: WebXRManager = null!
   webGLLostContext: any = null
 
-  initialize(entity: Entity) {
+  initialize() {
     this.supportWebGL2 = WebGL.isWebGL2Available()
 
     if (!this.canvas) throw new Error('Canvas is not defined')
@@ -174,36 +174,31 @@ export class EngineRenderer {
       this.needsResize = true
     }
 
+    canvas.addEventListener('resize', onResize, false)
     window.addEventListener('resize', onResize, false)
 
     this.renderer.autoClear = true
 
-    // configureEffectComposer(entity)
-
-    //Todo: WebGL restore context
+    /**
+     * This can be tested with document.getElementById('engine-renderer-canvas').getContext('webgl2').getExtension('WEBGL_lose_context').loseContext();
+     */
     this.webGLLostContext = context.getExtension('WEBGL_lose_context')
-
-    // TODO: for test purpose, need to remove when PR is merging
-    // webGLLostContext.loseContext() in inspect can simulate the conext lost
-    //@ts-ignore
-    window.webGLLostContext = this.webGLLostContext
 
     const handleWebGLConextLost = (e) => {
       console.log('Browser lost the context.', e)
       e.preventDefault()
       this.needsResize = false
       setTimeout(() => {
-        this.effectComposer.setSize(0, 0, true)
         if (this.webGLLostContext) this.webGLLostContext.restoreContext()
-      }, 1000)
+      }, 1)
     }
 
     const handleWebGLContextRestore = (e) => {
-      console.log("Browser's context is restored.", e)
-      this.canvas.removeEventListener('webglcontextlost', handleWebGLConextLost)
-      this.canvas.removeEventListener('webglcontextrestored', handleWebGLContextRestore)
-      this.initialize(entity)
+      canvas.removeEventListener('webglcontextlost', handleWebGLConextLost)
+      canvas.removeEventListener('webglcontextrestored', handleWebGLContextRestore)
+      this.initialize()
       this.needsResize = true
+      console.log("Browser's context is restored.", e)
     }
 
     if (this.webGLLostContext) {

@@ -23,40 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
-import { Vector3 } from 'three'
-
 import { createEntity, getComponent, setComponent } from '@etherealengine/ecs'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-// import { addClientInputListeners } from '@etherealengine/spatial/src/input/systems/ClientInputSystem'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { removeEntityNodeRecursively } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import React, { useEffect } from 'react'
 
 export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvasElement>) {
   const panelState = useHookstate(() => ({
     cameraEntity: createEntity(),
     sceneEntity: createEntity()
   }))
-
-  let id = ''
-  const resize = () => {
-    if (!canvas.current?.id) return
-    const entity = panelState.cameraEntity.value
-    const bounds = canvas.current.getBoundingClientRect()!
-    const camera = getComponent(entity, CameraComponent)
-    camera.aspect = bounds.width / bounds.height
-    camera.updateProjectionMatrix()
-    const renderer = getComponent(entity, RendererComponent)
-    renderer.renderer.setSize(bounds.width, bounds.height)
-  }
 
   useEffect(() => {
     const { cameraEntity, sceneEntity } = panelState.value
@@ -70,67 +54,17 @@ export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvas
   useEffect(() => {
     if (!canvas.current) return
 
-    id = canvas.current.id
-
-    console.log(canvas.current)
-
-    // if (!rendererState.environment.value.length) {
-    // const createLight = (rotation: Euler, intensity: number) => {
-    //   const light = createEntity()
-    //   ObjectLayerMaskComponent.setLayer(light, ObjectLayers.AssetPreview)
-    //   setComponent(light, TransformComponent, { rotation: new Quaternion().setFromEuler(rotation) })
-    //   setComponent(light, DirectionalLightComponent, {
-    //     intensity,
-    //     useInCSM: false
-    //   })
-    //   setComponent(light, VisibleComponent, true)
-    //   setComponent(light, NameComponent, '3D Preview Light')
-    //   return light
-    // }
-    /**@todo fix csm issues this causes */
-    // const backLight = createLight(new Euler(-0.5, 0, 0), 2)
-    // const frontLight1 = createLight(new Euler(-4, Math.PI * 0.1, 0), 2)
-    // const frontLight2 = createLight(new Euler(-4, -Math.PI * 0.1, 0), 2)
-    // rendererState.environment.set([backLight, frontLight1, frontLight2])
-    // }
-
     const { cameraEntity, sceneEntity } = panelState.value
     setComponent(cameraEntity, CameraComponent)
-    setComponent(cameraEntity, TransformComponent, { position: new Vector3(0, 0, 0) })
-    setComponent(cameraEntity, VisibleComponent, true)
-    setComponent(cameraEntity, NameComponent, '3D Preview Camera for ' + id)
+    setComponent(cameraEntity, TransformComponent)
+    setComponent(cameraEntity, VisibleComponent)
+    setComponent(cameraEntity, NameComponent, '3D Preview Camera for ' + canvas.current.id)
     setComponent(cameraEntity, CameraOrbitComponent, { refocus: true })
-    setComponent(cameraEntity, ObjectLayerMaskComponent)
     setComponent(cameraEntity, RendererComponent, { canvas: canvas.current })
-    getComponent(cameraEntity, RendererComponent).initialize(cameraEntity)
+    getComponent(cameraEntity, RendererComponent).initialize()
     setComponent(cameraEntity, SceneComponent, { children: [sceneEntity] })
     setComponent(cameraEntity, InputComponent)
-
-    resize()
-
-    window.addEventListener('resize', resize)
-
-    return () => {
-      window.removeEventListener('resize', resize)
-    }
   }, [canvas.current])
 
-  // useEffect(() => {
-  //   id = canvas.current.id
-  //   if (!canvas.current || !rendererState.renderers.value) return
-  //   const bounds = canvas.current.getBoundingClientRect()
-  //   const thisRenderer = rendererState.renderers.value[id]
-  //   thisRenderer.setSize(bounds.width, bounds.height)
-  //   canvas.current.appendChild(thisRenderer.domElement)
-  //   resize()
-
-  //   return () => {
-  //     if (canvas.current && rendererState.value[id]) canvas.current.removeChild(rendererState.value[id].domElement)
-  //   }
-  // }, [canvas.current])
-
-  return {
-    resize,
-    ...panelState.value
-  }
+  return panelState.value
 }
