@@ -45,7 +45,6 @@ import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, commitProperty, updateProperty } from './Util'
-//import BooleanInput from '../inputs/BooleanInput'
 
 const PlayModeOptions = [
   {

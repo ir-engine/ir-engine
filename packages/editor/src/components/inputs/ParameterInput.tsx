@@ -27,7 +27,7 @@ import React, { Fragment } from 'react'
 
 import { generateDefaults } from '@etherealengine/engine/src/scene/materials/constants/DefaultArgs'
 
-import BooleanInput from './BooleanInput'
+import BooleanInput from '@etherealengine/ui/src/components/editor/input/Boolean'
 import ColorInput from './ColorInput'
 import InputGroup from './InputGroup'
 import NumericInput from './NumericInput'

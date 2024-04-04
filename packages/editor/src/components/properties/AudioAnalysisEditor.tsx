@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { useComponent } from '@etherealengine/ecs'
 import { AudioAnalysisComponent } from '@etherealengine/engine/src/scene/components/AudioAnalysisComponent'
+import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import PropertyGroup from './PropertyGroup'

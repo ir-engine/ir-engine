@@ -31,7 +31,7 @@ import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import IntegrationInstructionsIcon from '@mui/icons-material/IntegrationInstructions'
 
 import { VisualScriptComponent } from '@etherealengine/engine'
-import BooleanInput from '../inputs/BooleanInput'
+import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
 import InputGroup from '../inputs/InputGroup'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, commitProperty } from './Util'

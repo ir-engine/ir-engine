@@ -42,7 +42,7 @@ import {
   ResourceType
 } from '@etherealengine/engine/src/assets/state/ResourceState'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import BooleanInput from '../inputs/BooleanInput'
+import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'

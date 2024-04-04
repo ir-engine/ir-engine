@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import { KTX2EncodeDefaultArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
 import { NO_PROXY, defineState, getMutableState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
+import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
 import { useHookstate } from '@hookstate/core'
 import {
   Box,
@@ -42,7 +43,6 @@ import { t } from 'i18next'
 import React, { useEffect, useState } from 'react'
 import { LODList, LODVariantDescriptor, defaultLODs } from '../../constants/GLTFPresets'
 import { DialogState } from '../dialogs/DialogState'
-import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'

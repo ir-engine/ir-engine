@@ -31,7 +31,7 @@ import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/
 
 import BoltIcon from '@mui/icons-material/Bolt'
 
-import BooleanInput from '../inputs/BooleanInput'
+import BooleanInput from '@etherealengine/ui/src/components/editor/input/Boolean'
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
