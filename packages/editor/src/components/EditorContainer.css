@@ -1,6 +1,9 @@
 /* this is basically style for the editor page*/
 /* we can drill down furthur if needed*/
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 .dock-panel {
   background: transparent;
