@@ -98,7 +98,7 @@ export default function ServerTable({
         <div className="flex items-center gap-5">
           <Button
             size="small"
-            className="bg-theme-blue-secondary h-min"
+            variant="primary"
             onClick={() => {
               PopoverState.showPopupover(
                 <ServerLogsModal podName={row.name} containerName={row.containers?.at(-1)?.name} />
@@ -107,10 +107,8 @@ export default function ServerTable({
           >
             {t('admin:components.server.viewLogs')}
           </Button>
-          <Button
-            variant="outline"
-            className="border-0"
-            startIcon={<HiTrash className="text-theme-iconRed" />}
+          <button
+            className="border-theme-primary grid h-8 w-8 rounded-full border"
             onClick={async () => {
               showConfirmDialog(
                 `${t('admin:components.server.confirmPodDelete')} ${row.name}?`,
@@ -123,7 +121,9 @@ export default function ServerTable({
                 modalProcessing.value
               )
             }}
-          />
+          >
+            <HiTrash className="text-theme-iconRed place-self-center" />
+          </button>
         </div>
       )
     }))
