@@ -220,11 +220,12 @@ export const LoopAnimationComponent = defineComponent({
         return
 
       animComponent.mixer.time.set(0)
-      const animations = gltf.animations ?? gltf.scene.animations
+      animComponent.mixer.value.stopAllAction()
+      const animations = gltf.animations
       for (let i = 0; i < animations.length; i++) retargetAnimationClip(animations[i], gltf.scene)
       lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
       animComponent.animations.set(animations)
-    }, [gltf, animComponent, loopAnimationComponent.animationPack, modelComponent?.asset])
+    }, [gltf, animComponent, modelComponent?.asset])
 
     return null
   }
