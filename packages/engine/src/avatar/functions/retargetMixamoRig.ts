@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { VRM } from '@pixiv/three-vrm'
 import { AnimationClip, KeyframeTrack, Object3D, Quaternion, QuaternionKeyframeTrack, VectorKeyframeTrack } from 'three'
-import { mixamoVRMRigMap } from '../AvatarBoneMatching'
+import { mixamoVRMRigMap, recursiveHipsLookup } from '../AvatarBoneMatching'
 
 const restRotationInverse = new Quaternion()
 const parentRestWorldRotation = new Quaternion()
@@ -33,7 +33,7 @@ const _quatA = new Quaternion()
 
 /**Retargets an animation clip into normalized bone space for use with any T-Posed normalized humanoid rig */
 export const retargetAnimationClip = (clip: AnimationClip, mixamoScene: Object3D) => {
-  const hipsPositionScale = mixamoScene.getObjectByName('Armature')!.scale.y
+  const hipsPositionScale = recursiveHipsLookup(mixamoScene).parent.scale.y
 
   for (let i = 0; i < clip.tracks.length; i++) {
     const track = clip.tracks[i]
