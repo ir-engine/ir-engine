@@ -118,7 +118,7 @@ const DataTable = ({ query, columns, rows }: DataTableProps) => {
           <Text className="mx-1">{t('common:table.refetching')}</Text>
         </div>
       )}
-      <Table containerClassname={`${query.status === 'pending' && 'opacity-50'} h-[calc(100%_-_160px)]`}>
+      <Table containerClassName={`${query.status === 'pending' && 'opacity-50'} h-[calc(100%_-_160px)]`}>
         <TableHead
           order={order}
           orderBy={orderBy}

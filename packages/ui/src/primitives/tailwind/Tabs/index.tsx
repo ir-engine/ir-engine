@@ -38,7 +38,7 @@ export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
     disabled?: boolean
   }[]
   backgroundTheme?: string
-  tabContainerClassName?: string
+  tabcontainerClassName?: string
   tabClassName?: string
   scrollable?: boolean
   currentTabIndex?: number
@@ -47,14 +47,14 @@ export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const Tabs = ({
   tabsData,
-  tabContainerClassName,
+  tabcontainerClassName,
   tabClassName,
   scrollable,
   currentTabIndex,
   onTabChange,
   ...props
 }: TabProps): JSX.Element => {
-  const twTabContainerClassName = twMerge('flex gap-4', tabContainerClassName)
+  const twTabcontainerClassName = twMerge('flex gap-4', tabcontainerClassName)
   const twTabClassName = twMerge(
     'text-theme-secondary p-3 text-sm disabled:cursor-not-allowed disabled:opacity-50 dark:hover:border-b dark:hover:border-b-blue-400',
     tabClassName
@@ -94,7 +94,7 @@ const Tabs = ({
         </Text>
       )}
       <div className={'sticky top-0 flex justify-between'}>
-        <div className={twMerge(twTabContainerClassName, tabContainerClassName)} {...props}>
+        <div className={twMerge(twTabcontainerClassName, tabcontainerClassName)} {...props}>
           {tabsData.map((tab, index) => (
             <button
               key={index}

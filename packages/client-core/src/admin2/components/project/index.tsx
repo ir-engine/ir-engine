@@ -50,7 +50,7 @@ export default function AdminProject() {
           disabled: config.client.localBuildOrDev
         }
       ]}
-      tabContainerClassName="bg-theme-primary"
+      tabcontainerClassName="bg-theme-primary"
     />
   )
 }

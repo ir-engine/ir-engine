@@ -135,7 +135,7 @@
       "confirmInviteDelete": "Do you want to delete invite",
       "confirmMultiInviteDelete": "Do you want to delete all of the selected invites?",
       "create": "Create Invite",
-      "recipients": "Recipents",
+      "recipients": "Recipients",
       "type": "Type",
       "singleTargetLabel": "Invite recipient",
       "targetLabel": "Invite recipients",
