@@ -209,6 +209,7 @@ const execute = () => {
 
   const controller = getComponent(selfAvatarEntity, AvatarControllerComponent)
 
+  const xrState = getState(XRState)
   const { isCameraAttachedToAvatar, isMovementControlsEnabled } = getState(XRControlsState)
 
   if (!isMovementControlsEnabled) return
@@ -243,7 +244,7 @@ const execute = () => {
   controller.gamepadLocalInput.set(0, 0, 0)
 
   const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
-  if (!inputPointerEntity) return
+  if (!inputPointerEntity && !xrState.session) return
 
   const buttons = InputSourceComponent.getMergedButtons()
 
