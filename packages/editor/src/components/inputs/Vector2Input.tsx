@@ -93,7 +93,14 @@ export const Vector2Input = ({ value, onChange, onRelease, uniformScaling, hideL
         onRelease={onReleaseX}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} tag="div" value={vx} onChange={onChangeX} onPointerUp={onRelease} axis="x">
+            <Vector3Scrubber
+              {...rest}
+              tag="div"
+              value={vx}
+              onChange={onChangeX}
+              onPointerUp={(ev) => onRelease?.(value)}
+              axis="x"
+            >
               X
             </Vector3Scrubber>
           )
@@ -106,7 +113,14 @@ export const Vector2Input = ({ value, onChange, onRelease, uniformScaling, hideL
         onRelease={onReleaseY}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} tag="div" value={vy} onChange={onChangeY} onPointerUp={onRelease} axis="y">
+            <Vector3Scrubber
+              {...rest}
+              tag="div"
+              value={vy}
+              onChange={onChangeY}
+              onPointerUp={(ev) => onRelease?.(value)}
+              axis="y"
+            >
               Y
             </Vector3Scrubber>
           )
