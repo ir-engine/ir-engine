@@ -184,7 +184,7 @@ export const XRDetectedPlaneComponent = defineComponent({
 
   foundPlane: (plane: XRPlane) => {
     const entity = createEntity()
-    setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+    setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
     setComponent(entity, TransformComponent)
     setVisibleComponent(entity, true)
     setComponent(entity, XRDetectedPlaneComponent)

@@ -43,7 +43,7 @@ describe('InputComponent', () => {
   })
 
   it('test input component', async () => {
-    const entity = Engine.instance.originEntity
+    const entity = Engine.instance.localFloorEntity
 
     const json = { highlight: true, grow: true }
     ReactorReconciler.flushSync(() => {

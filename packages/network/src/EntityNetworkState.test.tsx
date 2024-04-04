@@ -84,6 +84,7 @@ describe('EntityNetworkState', () => {
 
       dispatchAction(
         WorldNetworkAction.spawnEntity({
+          parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
           ownerID: network.hostUserID, // from  host
           networkId: objNetId,
           $topic: NetworkTopics.world,
@@ -130,6 +131,7 @@ describe('EntityNetworkState', () => {
 
       dispatchAction(
         WorldNetworkAction.spawnEntity({
+          parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
           ownerID: userId, // from  user
           networkId: objNetId,
           $peer: Engine.instance.store.peerID,
@@ -177,6 +179,7 @@ describe('EntityNetworkState', () => {
 
       dispatchAction(
         WorldNetworkAction.spawnEntity({
+          parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
           ownerID: userId2, // from other user
           networkId: objNetId,
           $peer: peerID3,
@@ -217,6 +220,7 @@ describe('EntityNetworkState', () => {
 
       dispatchAction(
         WorldNetworkAction.spawnEntity({
+          parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
           networkId: 42 as NetworkId,
           $peer: peerID,
           entityUUID: Engine.instance.userID as string as EntityUUID
@@ -257,6 +261,7 @@ describe('EntityNetworkState', () => {
 
       dispatchAction(
         WorldNetworkAction.spawnEntity({
+          parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
           ownerID: userId,
           networkId: objNetId,
           $topic: NetworkTopics.world,
@@ -326,6 +331,7 @@ describe('EntityNetworkState', () => {
 
     dispatchAction(
       WorldNetworkAction.spawnEntity({
+        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
         ownerID: hostUserId, // from  host
         networkId: objNetId,
         $topic: NetworkTopics.world,
@@ -396,6 +402,7 @@ describe('EntityNetworkState', () => {
     for (let i = 0; i < 10000; i++) {
       dispatchAction(
         WorldNetworkAction.spawnEntity({
+          parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
           ownerID: hostUserId, // from  host
           networkId: objNetId,
           $topic: NetworkTopics.world,
@@ -420,6 +427,7 @@ describe('EntityNetworkState', () => {
 
     dispatchAction(
       WorldNetworkAction.spawnEntity({
+        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
         ownerID: hostUserId, // from  host
         networkId: objNetId,
         $topic: NetworkTopics.world,

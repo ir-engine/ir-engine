@@ -32,7 +32,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 
-import { Engine, UndefinedEntity } from '@etherealengine/ecs'
+import { UndefinedEntity } from '@etherealengine/ecs'
 import { TransformPivot } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
@@ -162,12 +162,7 @@ export const TransformGizmoControlledComponent = defineComponent({
 
           for (let i = 0; i < controlledEntities.length; i++) {
             const parentEnt = controlledEntities[i]
-            const isUuid = typeof parentEnt === 'string'
-            if (isUuid) {
-              box.expandByObject(Engine.instance.scene.getObjectByProperty('uuid', parentEnt)!)
-            } else {
-              box.expandByPoint(getComponent(parentEnt, TransformComponent).position)
-            }
+            box.expandByPoint(getComponent(parentEnt, TransformComponent).position)
           }
           box.getCenter(newPosition)
 

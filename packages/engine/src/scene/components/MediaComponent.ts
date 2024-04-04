@@ -30,6 +30,7 @@ import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 import { State, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { Engine } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -45,7 +46,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
@@ -247,6 +248,7 @@ export function MediaReactor() {
   if (!isClient) return null
 
   useEffect(() => {
+    const { renderer } = getComponent(Engine.instance.viewerEntity, RendererComponent)
     // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
     // in order to ensure media will play programmatically
     const handleAutoplay = () => {
@@ -262,16 +264,16 @@ export function MediaReactor() {
       window.removeEventListener('touchend', handleAutoplay)
       document.body.removeEventListener('pointerup', handleAutoplay)
       document.body.removeEventListener('touchend', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.removeEventListener('pointerup', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.removeEventListener('touchend', handleAutoplay)
+      renderer.domElement.removeEventListener('pointerup', handleAutoplay)
+      renderer.domElement.removeEventListener('touchend', handleAutoplay)
     }
     window.addEventListener('pointerup', handleAutoplay)
     window.addEventListener('keypress', handleAutoplay)
     window.addEventListener('touchend', handleAutoplay)
     document.body.addEventListener('pointerup', handleAutoplay)
     document.body.addEventListener('touchend', handleAutoplay)
-    EngineRenderer.instance.renderer.domElement.addEventListener('pointerup', handleAutoplay)
-    EngineRenderer.instance.renderer.domElement.addEventListener('touchend', handleAutoplay)
+    renderer.domElement.addEventListener('pointerup', handleAutoplay)
+    renderer.domElement.addEventListener('touchend', handleAutoplay)
 
     return () => {
       window.removeEventListener('pointerup', handleAutoplay)
@@ -279,8 +281,8 @@ export function MediaReactor() {
       window.removeEventListener('touchend', handleAutoplay)
       document.body.removeEventListener('pointerup', handleAutoplay)
       document.body.removeEventListener('touchend', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.removeEventListener('pointerup', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.removeEventListener('touchend', handleAutoplay)
+      renderer.domElement.removeEventListener('pointerup', handleAutoplay)
+      renderer.domElement.removeEventListener('touchend', handleAutoplay)
     }
   }, [])
 

@@ -57,6 +57,8 @@ const boundingBoxQuery = defineQuery([BoundingBoxComponent])
 const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCameraComponent])
 const frustumCulledQuery = defineQuery([TransformComponent, FrustumCullCameraComponent])
 
+const cameraQuery = defineQuery([TransformComponent, CameraComponent])
+
 //isProxified: used to check if an object is proxified
 declare module 'three/src/core/Object3D' {
   export interface Object3D {
@@ -113,9 +115,12 @@ const updateOriginChildEntities = (entity: Entity) => {
   const referenceEntity = getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity
   const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
 
-  if (referenceEntity && (originChildEntities.has(referenceEntity) || referenceEntity === Engine.instance.originEntity))
+  if (
+    referenceEntity &&
+    (originChildEntities.has(referenceEntity) || referenceEntity === Engine.instance.localFloorEntity)
+  )
     originChildEntities.add(referenceEntity)
-  if (parentEntity && (originChildEntities.has(parentEntity) || parentEntity === Engine.instance.originEntity))
+  if (parentEntity && (originChildEntities.has(parentEntity) || parentEntity === Engine.instance.localFloorEntity))
     originChildEntities.add(parentEntity)
 }
 
@@ -196,8 +201,12 @@ const execute = () => {
   const dirtyOrAnimatingGroupEntities = groupQuery().filter(isDirty)
   for (const entity of dirtyOrAnimatingGroupEntities) updateGroupChildren(entity)
 
-  if (!xrFrame) {
-    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  const cameraEntities = cameraQuery()
+
+  for (const entity of cameraEntities) {
+    if (entity === Engine.instance.viewerEntity && xrFrame) continue
+
+    const camera = getComponent(entity, CameraComponent)
     camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
     const viewCamera = camera.cameras[0]
     viewCamera.matrixWorld.copy(camera.matrixWorld)
@@ -209,8 +218,8 @@ const execute = () => {
   const dirtyBoundingBoxes = boundingBoxQuery().filter(isDirty)
   for (const entity of dirtyBoundingBoxes) updateBoundingBox(entity)
 
-  const cameraPosition = getComponent(Engine.instance.cameraEntity, TransformComponent).position
-  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  const cameraPosition = getComponent(Engine.instance.viewerEntity, TransformComponent).position
+  const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
   for (const entity of distanceFromCameraQuery())
     DistanceFromCameraComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(entity, cameraPosition)
 
