@@ -23,21 +23,49 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material } from 'three'
+import { Shader, Material as ThreeMaterial } from 'three'
 
+import { defineComponent } from '@etherealengine/ecs'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { MaterialSource } from './MaterialSource'
 
-export type MaterialWithEntity = Material & { entity: Entity }
+export type MaterialWithEntity = ThreeMaterial & { entity: Entity }
 
 export type MaterialStatus = 'LOADED' | 'MISSING' | 'UNLOADED'
 
 export type MaterialComponentType = {
   prototype: string
-  material: Material
+  material: ThreeMaterial
   parameters: { [field: string]: any }
   plugins: string[]
   src: MaterialSource
   status: MaterialStatus
   instances: Entity[]
+}
+
+export const MaterialComponent = defineComponent({
+  name: 'MaterialComponent',
+  jsonID: 'EE_material',
+  onInit: (entity) => {
+    return {
+      uuid: [] as string[],
+      plugins: [] as string[]
+    }
+  },
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (json.uuid) component.uuid.set(json.uuid)
+    if (json.plugins) component.plugins.set(json.plugins)
+  }
+})
+
+declare module 'three/src/materials/Material' {
+  export interface Material {
+    shader: Shader
+    plugins?: PluginType[]
+    _onBeforeCompile: typeof Material.prototype.onBeforeCompile
+    entity: Entity
+    needsUpdate: boolean
+  }
 }

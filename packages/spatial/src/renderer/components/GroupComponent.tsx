@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { FC, memo } from 'react'
-import { Camera, Object3D } from 'three'
+import { Camera, Mesh, Object3D } from 'three'
 
-import { none } from '@etherealengine/hyperflux'
+import { getState, none } from '@etherealengine/hyperflux'
 
 import {
   defineComponent,
@@ -41,10 +41,18 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { QueryComponents, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
+import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
+import { MaterialComponent } from '@etherealengine/engine/src/scene/materials/components/MaterialComponent'
+import {
+  materialIsRegistered,
+  registerMaterial
+} from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Layer } from './ObjectLayerComponent'
 import { RenderOrderComponent } from './RenderOrderComponent'
+
+import { SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
 
 export type Object3DWithEntity = Object3D & { entity: Entity }
 
@@ -84,6 +92,7 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.matrix = transform.matrix
   obj.matrixWorld = transform.matrixWorld
   obj.layers = new Layer(entity)
+
   obj.frustumCulled = false
 
   if (!hasComponent(entity, RenderOrderComponent)) setComponent(entity, RenderOrderComponent, obj.renderOrder)
@@ -103,6 +112,26 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirtyTransforms, obj.position)
   proxifyQuaternionWithDirty(TransformComponent.rotation, entity, TransformComponent.dirtyTransforms, obj.quaternion)
   proxifyVector3WithDirty(TransformComponent.scale, entity, TransformComponent.dirtyTransforms, obj.scale)
+
+  if (!(object as Mesh).material) return
+  const material = (object as Mesh).material
+  const materialLibrary = getState(MaterialLibraryState)
+  const materials = Array.isArray(material) ? material : [material]
+  setComponent(entity, MaterialComponent, { uuid: materials.map((material) => material.uuid) })
+  materials
+    .filter((material) => !materialLibrary.materials[material.uuid])
+    .map((material) => {
+      if (!materialIsRegistered(material.uuid)) {
+        if (material.plugins) {
+          material.customProgramCacheKey = () =>
+            material.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
+        }
+        //wip, instead of using the material component type, use the ecs component for holding all relevant data
+        const materialComponent = registerMaterial(material, { type: SourceType.BUILT_IN, path: '' })
+        getMutableComponent(entity, MaterialComponent).plugins.set(material.userData['plugins'])
+      }
+      // registerMaterialInstance(material, entity)
+    })
 }
 
 export function removeGroupComponent(entity: Entity) {

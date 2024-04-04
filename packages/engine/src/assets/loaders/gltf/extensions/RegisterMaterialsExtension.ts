@@ -23,43 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Mesh, Object3D } from 'three'
+import { Object3D } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
-
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
-import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
-import { MaterialLibraryState } from '../../../../scene/materials/MaterialLibrary'
 import { SourceType } from '../../../../scene/materials/components/MaterialSource'
-import {
-  materialIsRegistered,
-  registerMaterial,
-  registerMaterialInstance
-} from '../../../../scene/materials/functions/MaterialLibraryFunctions'
 import { GLTF, GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
 
 export function registerMaterials(root: Object3D, type: SourceType = SourceType.EDITOR_SESSION, path = '') {
-  const materialLibrary = getState(MaterialLibraryState)
-  iterateObject3D(root, (mesh: Mesh) => {
-    if (!mesh?.isMesh) return
-    mesh.entity = UUIDComponent.getOrCreateEntityByUUID(mesh.uuid as EntityUUID)
-    const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
-    materials
-      .filter((material) => !materialLibrary.materials[material.uuid])
-      .map((material) => {
-        if (!materialIsRegistered(material)) {
-          if (material.plugins) {
-            material.customProgramCacheKey = () =>
-              material.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
-          }
-          const materialComponent = registerMaterial(material, { type, path })
-          material.userData?.plugins && materialComponent.plugins.set(material.userData['plugins'])
-        }
-        registerMaterialInstance(material, mesh.entity)
-        //iterate intersected object in the scene and set material
-      })
-  })
+  // const materialLibrary = getState(MaterialLibraryState)
+  // iterateObject3D(root, (mesh: Mesh) => {
+  //   if (!mesh?.isMesh) return
+  //   mesh.entity = UUIDComponent.getOrCreateEntityByUUID(mesh.uuid as EntityUUID)
+  //   const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+  //   materials
+  //     .filter((material) => !materialLibrary.materials[material.uuid])
+  //     .map((material) => {
+  //       if (!materialIsRegistered(material.uuid)) {
+  //         if (material.plugins) {
+  //           material.customProgramCacheKey = () =>
+  //             material.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
+  //         }
+  //         const materialComponent = registerMaterial(material, { type, path })
+  //         material.userData?.plugins && materialComponent.plugins.set(material.userData['plugins'])
+  //       }
+  //       registerMaterialInstance(material, mesh.entity)
+  //       //iterate intersected object in the scene and set material
+  //     })
+  // })
 }
 export default class RegisterMaterialsExtension extends ImporterExtension implements GLTFLoaderPlugin {
   name = 'EE_RegisterMaterialsExtension'

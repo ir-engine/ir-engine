@@ -87,9 +87,9 @@ export function formatMaterialArgs(args, defaultArgs: any = undefined) {
   )
 }
 
-export function materialIsRegistered(material: Material): boolean {
+export function materialIsRegistered(uuid: string): boolean {
   const materialLibrary = getState(MaterialLibraryState)
-  return materialLibrary.materials[material.uuid] !== undefined
+  return materialLibrary.materials[uuid] !== undefined
 }
 
 export function materialFromId(matId: string): MaterialComponentType {

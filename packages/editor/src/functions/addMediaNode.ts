@@ -101,12 +101,12 @@ export async function addMediaNode(
           (mesh: Mesh) => mesh?.isMesh
         )[0]
         if (!material) return
-        if (materialIsRegistered(material)) material = materialFromId(material.uuid).material
+        if (materialIsRegistered(material.uuid)) material = materialFromId(material.uuid).material
         iterateObject3D(intersected.object, (mesh: Mesh) => {
           if (!mesh?.isMesh) return
           const src = getMaterialSource(mesh.material as Material)
           if (!src) return
-          if (!materialIsRegistered(material)) registerMaterial(material, { type: SourceType.MODEL, path: src })
+          if (!materialIsRegistered(material.uuid)) registerMaterial(material, { type: SourceType.MODEL, path: src })
           registerMaterialInstance(material, mesh.entity)
           if (unregisterMaterialInstance(mesh.material as Material, mesh.entity) === 0) {
             unregisterMaterial(mesh.material as Material)
