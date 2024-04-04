@@ -31,6 +31,7 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 import { defineComponent, hasComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { useObj } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { matches } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { NameComponent } from '../../common/NameComponent'
@@ -108,13 +109,7 @@ export const DirectionalLightComponent = defineComponent({
   jsonID: 'EE_directional_light',
 
   onInit: (entity) => {
-    const light = new DirectionalLight()
-    light.target.position.set(0, 0, 1)
-    light.target.name = 'light-target'
-    light.shadow.camera.near = 0.01
-    light.shadow.camera.updateProjectionMatrix()
     return {
-      light,
       color: new Color(),
       intensity: 1,
       castShadow: false,
@@ -137,16 +132,6 @@ export const DirectionalLightComponent = defineComponent({
     if (matches.number.test(json.shadowBias)) component.shadowBias.set(json.shadowBias)
     if (matches.number.test(json.shadowRadius)) component.shadowRadius.set(json.shadowRadius)
     if (matches.boolean.test(json.useInCSM)) component.useInCSM.set(json.useInCSM)
-
-    const light = component.light.value
-    light.color.copy(component.color.value)
-    light.intensity = component.intensity.value
-    light.castShadow = component.castShadow.value
-    light.shadow.bias = component.shadowBias.value
-    light.shadow.radius = component.shadowRadius.value
-    light.shadow.camera.far = component.cameraFar.value
-    light.shadow.camera.updateProjectionMatrix()
-    light.shadow.needsUpdate = true
   },
 
   toJSON: (entity, component) => {
@@ -167,9 +152,9 @@ export const DirectionalLightComponent = defineComponent({
     const renderState = useHookstate(getMutableState(RendererState))
     const debugEnabled = renderState.nodeHelperVisibility
     const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
+    const [light] = useObj(DirectionalLight, entity)
 
     useEffect(() => {
-      const light = directionalLightComponent.light.value
       addObjectToGroup(entity, light)
       return () => {
         removeObjectFromGroup(entity, light)
@@ -177,7 +162,7 @@ export const DirectionalLightComponent = defineComponent({
     }, [])
 
     useEffect(() => {
-      directionalLightComponent.light.value.color.set(directionalLightComponent.color.value)
+      light.color.set(directionalLightComponent.color.value)
       if (directionalLightComponent.helper.value) {
         const helper = directionalLightComponent.helper.value
         if (directionalLightComponent.color.value) {
@@ -188,35 +173,33 @@ export const DirectionalLightComponent = defineComponent({
     }, [directionalLightComponent.color])
 
     useEffect(() => {
-      directionalLightComponent.light.value.intensity = directionalLightComponent.intensity.value
+      light.intensity = directionalLightComponent.intensity.value
     }, [directionalLightComponent.intensity])
 
     useEffect(() => {
-      directionalLightComponent.light.value.castShadow =
-        directionalLightComponent.castShadow.value &&
-        renderState.csm.value?.sourceLight !== directionalLightComponent.light.value
+      light.castShadow = directionalLightComponent.castShadow.value && renderState.csm.value?.sourceLight !== light
     }, [directionalLightComponent.castShadow, renderState.csm])
 
     useEffect(() => {
-      directionalLightComponent.light.value.shadow.camera.far = directionalLightComponent.cameraFar.value
-      directionalLightComponent.light.shadow.camera.value.updateProjectionMatrix()
+      light.shadow.camera.far = directionalLightComponent.cameraFar.value
+      light.shadow.camera.updateProjectionMatrix()
     }, [directionalLightComponent.cameraFar])
 
     useEffect(() => {
-      directionalLightComponent.light.value.shadow.bias = directionalLightComponent.shadowBias.value
+      light.shadow.bias = directionalLightComponent.shadowBias.value
     }, [directionalLightComponent.shadowBias])
 
     useEffect(() => {
-      directionalLightComponent.light.value.shadow.radius = directionalLightComponent.shadowRadius.value
+      light.shadow.radius = directionalLightComponent.shadowRadius.value
     }, [directionalLightComponent.shadowRadius])
 
     useEffect(() => {
-      if (directionalLightComponent.light.value.shadow.mapSize.x !== renderState.shadowMapResolution.value) {
-        directionalLightComponent.light.value.shadow.mapSize.setScalar(renderState.shadowMapResolution.value)
-        directionalLightComponent.light.value.shadow.map?.dispose()
-        directionalLightComponent.light.value.shadow.map = null as any
-        directionalLightComponent.light.value.shadow.camera.updateProjectionMatrix()
-        directionalLightComponent.light.value.shadow.needsUpdate = true
+      if (light.shadow.mapSize.x !== renderState.shadowMapResolution.value) {
+        light.shadow.mapSize.setScalar(renderState.shadowMapResolution.value)
+        light.shadow.map?.dispose()
+        light.shadow.map = null as any
+        light.shadow.camera.updateProjectionMatrix()
+        light.shadow.needsUpdate = true
       }
     }, [renderState.shadowMapResolution])
 
@@ -256,7 +239,7 @@ export const DirectionalLightComponent = defineComponent({
       }
     }, [debugEnabled])
 
-    useUpdateLight(directionalLightComponent.light.value)
+    useUpdateLight(light)
 
     return null
   }
