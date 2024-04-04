@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import CheckIcon from '@mui/icons-material/Check'
 import React, { KeyboardEvent, useState } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 let uniqueId = 0
 
@@ -37,7 +38,11 @@ interface BooleanInputProp {
 
 export const BooleanInput = (props: BooleanInputProp) => {
   const [checkboxId] = useState(() => `boolean-input-${uniqueId++}`)
-
+  const labelStyle = twMerge([
+    'm-0 h-6 rounded border border-solid border-[color:var(--inputOutline)] bg-[color:var(--inputBackground)] px-2 py-1.5 text-[color:var(--textColor)] hover:border-[color:var(--blueHover)] focus:border-[color:var(--blue)] disabled:bg-[color:var(--disabled)] disabled:text-[color:var(--disabledText)]',
+    'flex h-[18px] w-[18px] items-center justify-center p-0',
+    props.disabled ? 'cursor-[initial] opacity-80 grayscale-[0.8]' : 'cursor-pointer'
+  ])
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     props.onChange(e.target.checked)
   }
@@ -54,20 +59,15 @@ export const BooleanInput = (props: BooleanInputProp) => {
     <div className="checkbox flex items-center justify-center">
       <input
         id={checkboxId}
-        className="hidden"
+        className="m-0 hidden"
         type="checkbox"
         checked={props.value}
         onChange={onChange}
         onBlur={onBlur}
         disabled={props.disabled}
       />
-      <label
-        htmlFor={checkboxId}
-        className="BooleanInputLabel w-18 h-18 flex cursor-pointer items-center justify-center"
-        tabIndex={0}
-        onKeyPress={onKeyPress}
-      >
-        {props.value && <CheckIcon className="BooleanCheck text-buttonTextColor h-auto w-full" />}
+      <label htmlFor={checkboxId} className={labelStyle} tabIndex={0} onKeyPress={onKeyPress}>
+        {props.value && <CheckIcon className="h-auto w-full text-[color:var(--buttonTextColor)]" />}
       </label>
     </div>
   )
