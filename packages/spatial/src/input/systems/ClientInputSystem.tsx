@@ -281,7 +281,6 @@ const useNonSpatialInputSources = () => {
 
     document.addEventListener('DOMMouseScroll', preventDefault, false)
     document.addEventListener('gesturestart', preventDefault)
-    document.addEventListener('contextmenu', preventDefault)
     document.addEventListener('keydown', preventDefaultKeyDown, false)
 
     const onKeyEvent = (event: KeyboardEvent) => {
@@ -331,7 +330,6 @@ const useNonSpatialInputSources = () => {
     return () => {
       document.removeEventListener('DOMMouseScroll', preventDefault, false)
       document.removeEventListener('gesturestart', preventDefault)
-      document.removeEventListener('contextmenu', preventDefault)
       document.removeEventListener('keyup', onKeyEvent)
       document.removeEventListener('keydown', onKeyEvent)
       document.removeEventListener('touchstickmove', handleTouchDirectionalPad)
@@ -372,6 +370,7 @@ const usePointerInputSources = () => {
     const canvas = rendererComponent.canvas
 
     canvas.addEventListener('dragstart', preventDefault, false)
+    canvas.addEventListener('contextmenu', preventDefault)
 
     // TODO: follow this spec more closely https://immersive-web.github.io/webxr/#transient-input
     // const pointerEntities = new Map<number, Entity>()
@@ -460,6 +459,7 @@ const usePointerInputSources = () => {
 
     return () => {
       canvas.removeEventListener('dragstart', preventDefault, false)
+      canvas.removeEventListener('contextmenu', preventDefault)
       canvas.removeEventListener('pointerenter', pointerEnter)
       canvas.removeEventListener('pointerleave', pointerLeave)
       canvas.removeEventListener('blur', clearPointerState)

@@ -37,13 +37,14 @@ import { SxProps, Theme } from '@mui/material/styles'
 
 import styles from './index.module.scss'
 
-import { Engine, EntityUUID, setComponent, UUIDComponent } from '@etherealengine/ecs'
+import { createEntity, EntityUUID, setComponent, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
 import { defaultAnimationPath, preloadedAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { AssetPreviewCameraComponent } from '@etherealengine/engine/src/camera/components/AssetPreviewCameraComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { EnvMapSourceType } from '@etherealengine/engine/src/scene/constants/EnvMapEnum'
+import { AmbientLightComponent, TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
@@ -74,12 +75,18 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
       activeClipIndex: 5
     })
     setComponent(sceneEntity, ModelComponent, { src: avatarUrl, convertToVRM: true })
-    /** @todo is originEntity is the correct parent? */
-    setComponent(sceneEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+    setComponent(sceneEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
     setComponent(sceneEntity, VisibleComponent, true)
     setComponent(sceneEntity, EnvmapComponent, { type: EnvMapSourceType.Skybox })
 
     setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: sceneEntity })
+
+    const lightEntity = createEntity()
+    setComponent(lightEntity, AmbientLightComponent)
+    setComponent(lightEntity, TransformComponent)
+    setComponent(lightEntity, VisibleComponent)
+    setComponent(lightEntity, NameComponent, 'Ambient Light')
+    setComponent(lightEntity, EntityTreeComponent, { parentEntity: sceneEntity })
   }, [avatarUrl])
 
   return (
