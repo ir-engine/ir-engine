@@ -23,9 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import debounce from 'lodash.debounce'
 import React, { useEffect, useRef } from 'react'
-import ResizeObserver from 'resize-observer-polyfill'
 
 import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -40,34 +38,10 @@ import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/component
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { MathUtils, Mesh, SphereGeometry } from 'three'
 
-export const MaterialPreviewPanel = (props) => {
+export const MaterialPreviewCanvas = () => {
   const panelRef = useRef() as React.MutableRefObject<HTMLCanvasElement>
   const renderPanel = useRender3DPanelSystem(panelRef)
   const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
-
-  useEffect(() => {
-    const handleSizeChange = () => {
-      renderPanel.resize()
-    }
-
-    const handleSizeChangeDebounced = debounce(handleSizeChange, 100)
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.target === panelRef.current) {
-          handleSizeChangeDebounced()
-        }
-      }
-    })
-
-    if (panelRef.current) {
-      resizeObserver.observe(panelRef.current)
-    }
-
-    return () => {
-      resizeObserver.disconnect()
-      handleSizeChangeDebounced.cancel()
-    }
-  }, [])
 
   useEffect(() => {
     if (!selectedMaterial.value) return
@@ -94,4 +68,11 @@ export const MaterialPreviewPanel = (props) => {
       </div>
     </>
   )
+}
+
+export const MaterialPreviewPanel = (props) => {
+  const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
+  if (!selectedMaterial.value) return null
+
+  return <MaterialPreviewCanvas key={selectedMaterial.value} />
 }
