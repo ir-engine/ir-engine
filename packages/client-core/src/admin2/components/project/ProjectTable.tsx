@@ -46,6 +46,7 @@ import { GrGithub } from 'react-icons/gr'
 import {
   HiOutlineArrowPath,
   HiOutlineCommandLine,
+  HiOutlineExclamationCircle,
   HiOutlineFolder,
   HiOutlineTrash,
   HiOutlineUsers
@@ -210,9 +211,21 @@ export default function ProjectTable() {
     rows.map((row) => {
       return {
         name: (
-          <a href={`/studio/${row.name}`} className={row.needsRebuild ? 'text-blue-400' : 'text-theme-primary'}>
-            {row.name}
-          </a>
+          <div className="flex items-center gap-2">
+            <a href={`/studio/${row.name}`} className={row.needsRebuild ? 'text-blue-400' : 'text-theme-primary'}>
+              {row.name}
+            </a>
+            {row.needsRebuild && (
+              <Tooltip title={t('admin:components.project.outdatedBuild')}>
+                <HiOutlineExclamationCircle className="text-orange-400" />
+              </Tooltip>
+            )}
+            {row.hasLocalChanges && (
+              <Tooltip title={t('admin:components.project.hasLocalChanges')}>
+                <HiOutlineExclamationCircle className="text-yellow-400" />
+              </Tooltip>
+            )}
+          </div>
         ),
         projectVersion: row.version,
         enabled: (
