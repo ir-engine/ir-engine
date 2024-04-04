@@ -175,7 +175,7 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
     },
     parent: {
       get() {
-        if (EngineRenderer.activeRender) return // hack to check if renderer is rendering
+        if (EngineRenderer.activeRender) return null // hack to check if renderer is rendering
         if (getOptionalComponent(objEntity, EntityTreeComponent)?.parentEntity) {
           const result = getOptionalComponent(
             getComponent(objEntity, EntityTreeComponent).parentEntity!,

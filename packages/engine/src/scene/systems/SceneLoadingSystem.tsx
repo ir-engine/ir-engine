@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, getOptionalComponent } from '@etherealengine/ecs'
 import {
   ErrorBoundary,
   NO_PROXY,
@@ -101,7 +101,7 @@ const NetworkedSceneObjectReactor = () => {
 
   useEffect(() => {
     const entityUUID = getComponent(entity, UUIDComponent)
-    const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
+    const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
     if (!parentEntity) return console.warn('Entity has no parent', entityUUID)
     const parentUUID = getComponent(parentEntity, UUIDComponent)
     const transform = getComponent(entity, TransformComponent)
