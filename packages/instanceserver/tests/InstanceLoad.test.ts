@@ -28,7 +28,7 @@ import assert from 'assert'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { UserID, identityProviderPath, locationPath } from '@etherealengine/common/src/schema.type.module'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import appRootPath from 'app-root-path'

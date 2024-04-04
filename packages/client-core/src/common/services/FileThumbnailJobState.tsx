@@ -31,35 +31,31 @@ import {
   UndefinedEntity,
   createEntity,
   getComponent,
-  removeComponent,
   removeEntity,
   setComponent
 } from '@etherealengine/ecs'
 import { previewScreenshot } from '@etherealengine/editor/src/functions/takeScreenshot'
 import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceHooks'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { getNestedVisibleChildren } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import {
-  ObjectLayerComponents,
-  ObjectLayerMaskComponent
-} from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import {
   BoundingBoxComponent,
   updateBoundingBox
 } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
-import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import React, { useEffect } from 'react'
-import { Group, MathUtils, Vector3 } from 'three'
+import { MathUtils, Scene, Vector3 } from 'three'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 
@@ -224,8 +220,6 @@ const ThumbnailJobReactor = (props: { src: string }) => {
     setComponent(entity, VisibleComponent)
     setComponent(entity, BoundingBoxComponent)
 
-    ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.AssetPreview)
-
     state.entity.set(entity)
   }, [state.fileType.value])
 
@@ -262,22 +256,19 @@ const ThumbnailJobReactor = (props: { src: string }) => {
     viewCamera.matrixWorldInverse.copy(camera.matrixWorldInverse)
     viewCamera.projectionMatrix.copy(camera.projectionMatrix)
     viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
-    ObjectLayerMaskComponent.setLayer(cameraEntity, ObjectLayers.AssetPreview)
     viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
+    setComponent(cameraEntity, SceneComponent, { children: [entity] })
 
-    const group = getComponent(entity, GroupComponent)[0] as Group
+    const scene = new Scene()
+    scene.children = getComponent(cameraEntity, SceneComponent)
+      .children.map(getNestedVisibleChildren)
+      .flat()
+      .map((entity) => getComponent(entity, GroupComponent))
+      .flat()
 
-    iterateEntityNode(entity, (child) => {
-      setComponent(child, ObjectLayerComponents[ObjectLayers.AssetPreview])
-    })
-
-    previewScreenshot(90, 90, 0.9, 'png', getComponent(cameraEntity, CameraComponent), group, ObjectLayers.AssetPreview)
+    previewScreenshot(90, 90, 0.9, 'png', scene, getComponent(cameraEntity, CameraComponent))
       .then((blob) => uploadThumbnail(props.src, jobState.project.value, jobState.id.value, blob))
       .then(() => jobState.set(none))
-
-    iterateEntityNode(entity, (child) => {
-      removeComponent(child, ObjectLayerComponents[ObjectLayers.AssetPreview])
-    })
 
     removeEntity(entity)
     removeEntity(cameraEntity)

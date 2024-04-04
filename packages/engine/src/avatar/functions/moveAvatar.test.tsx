@@ -29,7 +29,7 @@ import { Quaternion, Vector3 } from 'three'
 import { EntityUUID } from '@etherealengine/ecs'
 import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { AvatarID, SceneID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { EventDispatcher } from '@etherealengine/spatial/src/common/classes/EventDispatcher'
@@ -49,6 +49,7 @@ import { Network, NetworkPeerFunctions, NetworkState, NetworkWorldUserStateSyste
 import { createMockNetwork } from '@etherealengine/network/tests/createMockNetwork'
 import { act, render } from '@testing-library/react'
 import React from 'react'
+import { SceneState } from '../../scene/SceneState'
 import { AvatarComponent } from '../components/AvatarComponent'
 
 describe('moveAvatar function tests', () => {
@@ -95,6 +96,7 @@ describe('moveAvatar function tests', () => {
 
     dispatchAction(
       AvatarNetworkAction.spawn({
+        parentUUID: SceneState.getScene('test' as SceneID).scene.root,
         position: new Vector3(),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,
@@ -135,6 +137,7 @@ describe('moveAvatar function tests', () => {
 
     dispatchAction(
       AvatarNetworkAction.spawn({
+        parentUUID: SceneState.getScene('test' as SceneID).scene.root,
         position: new Vector3(),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,
@@ -177,6 +180,7 @@ describe('moveAvatar function tests', () => {
 
     dispatchAction(
       AvatarNetworkAction.spawn({
+        parentUUID: SceneState.getScene('test' as SceneID).scene.root,
         position: new Vector3(),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,
@@ -216,6 +220,7 @@ describe('moveAvatar function tests', () => {
 
     dispatchAction(
       AvatarNetworkAction.spawn({
+        parentUUID: SceneState.getScene('test' as SceneID).scene.root,
         position: new Vector3(),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,

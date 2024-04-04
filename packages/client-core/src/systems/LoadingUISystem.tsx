@@ -36,13 +36,13 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { setVisibleComponent, VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent
@@ -136,8 +136,8 @@ const LoadingReactor = () => {
     mesh.material.map = loadingTexture
     mesh.material.needsUpdate = true
     mesh.material.map.needsUpdate = true
-    EngineRenderer.instance.renderer
-      .compileAsync(mesh, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
+    getComponent(Engine.instance.viewerEntity, RendererComponent)
+      .renderer.compileAsync(mesh, getComponent(Engine.instance.viewerEntity, CameraComponent))
       .then(() => {
         state.ready.set(true)
       })
@@ -245,7 +245,7 @@ const execute = () => {
         const uiContainer = ui.container.rootLayer.querySelector('#loading-ui')
         if (!uiContainer) return
         const uiSize = uiContainer.domSize
-        const screenSize = EngineRenderer.instance.renderer.getSize(SCREEN_SIZE)
+        const screenSize = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.getSize(SCREEN_SIZE)
         const aspectRatio = screenSize.x / screenSize.y
         const scaleMultiplier = aspectRatio < 1 ? 1 / aspectRatio : 1
         const scale =

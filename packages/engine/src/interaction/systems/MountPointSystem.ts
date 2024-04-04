@@ -28,7 +28,7 @@ import { Box3, Quaternion, Vector3 } from 'three'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { UUIDComponent } from '@etherealengine/ecs'
+import { Engine, UUIDComponent } from '@etherealengine/ecs'
 import {
   getComponent,
   getOptionalComponent,
@@ -50,7 +50,9 @@ import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { MountPoint, MountPointComponent } from '../../scene/components/MountPointComponent'
 import { SittingComponent } from '../../scene/components/SittingComponent'
 
-import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { ClientInputSystem } from '@etherealengine/spatial'
+import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
 import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
@@ -155,15 +157,6 @@ const execute = () => {
     }
   }
 
-  const buttons = InputSourceComponent.getMergedButtons()
-
-  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSources()
-  for (const entity of nonCapturedInputSource) {
-    const inputSource = getComponent(entity, InputSourceComponent)
-    if (buttons.KeyE?.down || inputSource.buttons[XRStandardGamepadButton.Trigger]?.down)
-      mountEntity(selfAvatarEntity, getState(InteractState).available[0])
-  }
-
   /*Consider mocap inputs in the event we want to snap a real world seated person
     to a mount point, to maintain physical continuity
   */
@@ -220,7 +213,28 @@ const reactor = () => {
 
 export const MountPointSystem = defineSystem({
   uuid: 'ee.engine.MountPointSystem',
-  insert: { before: InputSystemGroup },
+  insert: { with: AnimationSystemGroup },
   execute,
   reactor
+})
+
+const executeInput = () => {
+  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  if (!inputPointerEntity) return
+
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+  const buttons = InputSourceComponent.getMergedButtons()
+
+  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSources()
+  for (const entity of nonCapturedInputSource) {
+    const inputSource = getComponent(entity, InputSourceComponent)
+    if (buttons.KeyE?.down || inputSource.buttons[XRStandardGamepadButton.Trigger]?.down)
+      mountEntity(selfAvatarEntity, getState(InteractState).available[0])
+  }
+}
+
+export const MountPointInputSystem = defineSystem({
+  uuid: 'ee.engine.MountPointInputSystem',
+  insert: { after: ClientInputSystem },
+  execute: executeInput
 })

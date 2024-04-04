@@ -33,6 +33,7 @@ export class WorldNetworkAction {
   static spawnEntity = defineAction({
     type: 'ee.network.SPAWN_ENTITY',
     entityUUID: matchesEntityUUID,
+    parentUUID: matchesEntityUUID,
     networkId: matchesWithDefault(matchesNetworkId, () => NetworkObjectComponent.createNetworkId()),
     ownerID: matchesWithDefault(matchesUserID, () => Engine.instance.userID),
     authorityPeerId: matchesPeerID.optional(),
