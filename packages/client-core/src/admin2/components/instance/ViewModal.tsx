@@ -33,13 +33,14 @@ import {
 } from '@etherealengine/common/src/schema.type.module'
 import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import AvatarImage from '@etherealengine/ui/src/primitives/tailwind/AvatarImage'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
-import Table, { TableBody, TableCell, TableRow } from '@etherealengine/ui/src/primitives/tailwind/Table'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { NotificationService } from '../../../common/services/NotificationService'
 
 const useKickUser = () => {
   const createUserKick = useMutation(userKickPath).create
@@ -51,7 +52,11 @@ const useKickUser = () => {
     } else {
       duration.setHours(duration.getHours() + parseInt(kickData.duration, 10))
     }
-    createUserKick({ ...kickData, duration: toDateTimeSql(duration) })
+    try {
+      createUserKick({ ...kickData, duration: toDateTimeSql(duration) })
+    } catch (err) {
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+    }
   }
 }
 
@@ -102,45 +107,44 @@ export default function ViewUsersModal({ instanceId }: { instanceId: string }) {
           {t('admin:components.instance.noInstanceUsers')}
         </Text>
       ) : null}
-      <Table>
-        <TableBody>
-          {instanceUsersQuery.data.map((el) => (
-            <TableRow>
-              <TableCell>
-                <img src={el.avatar.thumbnailResource?.url} className="mx-auto max-h-full max-w-full rounded-full" />
-              </TableCell>
-              <TableCell>
-                <Button
-                  onClick={() => {
-                    kickData.merge({
-                      userId: el.id,
-                      instanceId: instanceId as InstanceID,
-                      duration: '8'
-                    })
-                    kickUser(kickData.value)
-                  }}
-                >
-                  {t('admin:components.instance.kick')}
-                </Button>
-              </TableCell>
-              <TableCell>
-                <Button
-                  onClick={() => {
-                    kickData.merge({
-                      userId: el.id,
-                      instanceId: instanceId as InstanceID,
-                      duration: 'INFINITY'
-                    })
-                    kickUser(kickData.value)
-                  }}
-                >
-                  {t('admin:components.instance.ban')}
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <div className="grid gap-2">
+        {instanceUsersQuery.data.map((el) => (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <AvatarImage src={el.avatar.thumbnailResource?.url ?? ''} />
+              <Text>{el.name}</Text>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  kickData.merge({
+                    userId: el.id,
+                    instanceId: instanceId as InstanceID,
+                    duration: '8'
+                  })
+                  kickUser(kickData.value)
+                }}
+              >
+                {t('admin:components.instance.kick')}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  kickData.merge({
+                    userId: el.id,
+                    instanceId: instanceId as InstanceID,
+                    duration: 'INFINITY'
+                  })
+                  kickUser(kickData.value)
+                }}
+              >
+                {t('admin:components.instance.ban')}
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
     </Modal>
   )
 }
