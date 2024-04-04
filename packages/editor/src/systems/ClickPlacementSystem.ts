@@ -22,35 +22,34 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
-import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { SceneSnapshotAction, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import {
+  Engine,
+  Entity,
+  UUIDComponent,
+  defineQuery,
+  defineSystem,
   getComponent,
   getOptionalComponent,
   removeComponent,
+  removeEntity,
   setComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { createSceneEntity } from '@etherealengine/engine/src/ecs/functions/createSceneEntity'
-import { InputState } from '@etherealengine/engine/src/input/state/InputState'
-import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+} from '@etherealengine/ecs'
+import { SceneSnapshotAction, SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { ObjectLayerComponents } from '@etherealengine/engine/src/scene/components/ObjectLayerComponent'
-import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { createSceneEntity } from '@etherealengine/engine/src/scene/functions/createSceneEntity'
 import { toEntityJson } from '@etherealengine/engine/src/scene/functions/serializeWorld'
-import { TransformSystem } from '@etherealengine/engine/src/transform/TransformModule'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { NO_PROXY, defineState, dispatchAction, getMutableState, getState, useState } from '@etherealengine/hyperflux'
+import { TransformComponent, TransformSystem } from '@etherealengine/spatial'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
 import { Cache, Intersection, Quaternion, Raycaster, Vector3 } from 'three'
 import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
@@ -75,18 +74,20 @@ export const ClickPlacementSystem = defineSystem({
     const engineState = useState(getMutableState(EngineState))
     const sceneState = useState(getMutableState(SceneState))
 
+    const renderers = defineQuery([RendererComponent])
+
     const getParentEntity = () => {
-      if (!sceneState.activeScene.value) return null
-      const sceneID = sceneState.activeScene.value!
+      if (!sceneState.scenes.value) return null
+      const sceneID = sceneState.scenes.keys[0] as SceneID
       const scene = SceneState.getScene(sceneID)
       if (!scene) return null
-      const entity = UUIDComponent.getEntityByUUID(scene.root)
+      const entity = UUIDComponent.getEntityByUUID(scene.scene.root)
       return entity
     }
 
     const createPlacementEntity = (parentEntity: Entity) => {
-      const placementEntity = createSceneEntity('Placement', parentEntity, sceneState.activeScene.value!)
-      removeComponent(placementEntity, SceneObjectComponent)
+      const placementEntity = createSceneEntity('Placement', parentEntity)
+      removeComponent(placementEntity, SourceComponent)
       return placementEntity
     }
 
@@ -96,8 +97,9 @@ export const ClickPlacementSystem = defineSystem({
       if (!parentEntity) return
       const placementEntity = clickState.placementEntity.value
       if (!placementEntity) return
-      setComponent(placementEntity, SceneObjectComponent)
-      const snapshot = SceneState.cloneCurrentSnapshot(sceneState.activeScene.value!)
+      const sceneID = getComponent(parentEntity, SourceComponent)
+      setComponent(placementEntity, SourceComponent, sceneID)
+      const snapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
       const uuid = getComponent(placementEntity, UUIDComponent)
       snapshot.data.entities[uuid] = toEntityJson(placementEntity)
       dispatchAction(SceneSnapshotAction.createSnapshot(snapshot))
@@ -109,7 +111,8 @@ export const ClickPlacementSystem = defineSystem({
 
     useEffect(() => {
       const placementMode = editorState.placementMode.value
-      const canvas = EngineRenderer.instance.renderer.domElement
+      const renderer = getComponent(renderers()[0], RendererComponent)
+      const canvas = renderer.canvas
       if (placementMode === PlacementMode.CLICK) {
         canvas.addEventListener('click', clickListener)
       } else {
@@ -128,7 +131,7 @@ export const ClickPlacementSystem = defineSystem({
         removeEntity(clickState.placementEntity.value)
         clickState.placementEntity.set(null)
       }
-    }, [editorState.placementMode, sceneState.activeScene, engineState.sceneLoaded])
+    }, [editorState.placementMode, sceneState.scenes, sceneState.sceneLoaded])
 
     useEffect(() => {
       if (!clickState.selectedAsset.value || !clickState.placementEntity.value) return
@@ -153,7 +156,9 @@ export const ClickPlacementSystem = defineSystem({
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     const pointerScreenRaycaster = new Raycaster()
 
-    const mouse = getState(InputState).pointerState.position
+    const mouseEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+    if (!mouseEntity) return
+    const mouse = getComponent(mouseEntity, InputPointerComponent).position
     pointerScreenRaycaster.setFromCamera(mouse, camera) // Assuming 'camera' is your Three.js camera
 
     pointerScreenRaycaster.setFromCamera(mouse, camera) // Assuming 'camera' is your Three.js camera
