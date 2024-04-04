@@ -57,8 +57,8 @@ import { AllCollisionMask } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
+import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
-import { RendererComponent } from '../../renderer/components/RendererComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
@@ -216,7 +216,7 @@ const execute = () => {
         : raycaster.layers.disable(ObjectLayers.TransformGizmo)
       const hits = raycaster.intersectObjects<Object3D>(objects, true)
       for (const hit of hits) {
-        const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => obj.parent === Engine.instance.scene)
+        const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => !obj.parent)
         if (parentObject?.entity) {
           intersectionData.push({ entity: parentObject.entity, distance: hit.distance })
         }
@@ -279,7 +279,6 @@ const useNonSpatialInputSources = () => {
     setComponent(eid, NameComponent, 'InputSource-nonspatial')
     const inputSourceComponent = getComponent(eid, InputSourceComponent)
 
-    // const canvas = EngineRenderer.instance.renderer.domElement
     document.addEventListener('DOMMouseScroll', preventDefault, false)
     document.addEventListener('gesturestart', preventDefault)
     document.addEventListener('contextmenu', preventDefault)
@@ -370,7 +369,9 @@ const usePointerInputSources = () => {
     if (xrState.session.value) return // pointer input sources are automatically handled by webxr
 
     const rendererComponent = getComponent(canvasEntity, RendererComponent)
-    const canvas = rendererComponent.renderer.domElement
+    const canvas = rendererComponent.canvas
+
+    canvas.addEventListener('dragstart', preventDefault, false)
 
     // TODO: follow this spec more closely https://immersive-web.github.io/webxr/#transient-input
     // const pointerEntities = new Map<number, Entity>()
@@ -458,6 +459,7 @@ const usePointerInputSources = () => {
     canvas.addEventListener('touchend', handleMouseClick)
 
     return () => {
+      canvas.removeEventListener('dragstart', preventDefault, false)
       canvas.removeEventListener('pointerenter', pointerEnter)
       canvas.removeEventListener('pointerleave', pointerLeave)
       canvas.removeEventListener('blur', clearPointerState)
@@ -488,7 +490,7 @@ const useXRInputSources = () => {
       setComponent(eid, InputSourceComponent, { source })
       setComponent(eid, EntityTreeComponent, {
         parentEntity:
-          source.targetRayMode === 'tracked-pointer' ? Engine.instance.originEntity : Engine.instance.cameraEntity
+          source.targetRayMode === 'tracked-pointer' ? Engine.instance.localFloorEntity : Engine.instance.cameraEntity
       })
       setComponent(eid, TransformComponent)
       setComponent(eid, NameComponent, 'InputSource-handed:' + source.handedness + '-mode:' + source.targetRayMode)

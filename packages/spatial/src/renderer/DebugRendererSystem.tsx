@@ -28,6 +28,7 @@ import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { Engine } from '@etherealengine/ecs'
 import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
@@ -39,6 +40,7 @@ import { GroupComponent, addObjectToGroup } from '../renderer/components/GroupCo
 import { setObjectLayers } from '../renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../renderer/constants/ObjectLayers'
+import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { createInfiniteGridHelper } from './components/InfiniteGridHelper'
 
 const execute = () => {
@@ -59,6 +61,7 @@ const reactor = () => {
   const engineRendererSettings = useHookstate(getMutableState(RendererState))
 
   useEffect(() => {
+    /** @todo move physics debug to physics module */
     if (!engineRendererSettings.physicsDebug.value) return
 
     const lineMaterial = new LineBasicMaterial({ vertexColors: true })
@@ -69,6 +72,8 @@ const reactor = () => {
     setComponent(lineSegmentsEntity, NameComponent, 'Physics Debug')
     setVisibleComponent(lineSegmentsEntity, true)
     addObjectToGroup(lineSegmentsEntity, lineSegments)
+    // TODO: when we have multiple scenes, we need to set the parentEntity to the current scene
+    setComponent(lineSegmentsEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setObjectLayers(lineSegments, ObjectLayers.PhysicsHelper)
     engineRendererSettings.physicsDebugEntity.set(lineSegmentsEntity)
 
@@ -82,6 +87,7 @@ const reactor = () => {
     if (!engineRendererSettings.gridVisibility.value) return
 
     const infiniteGridHelperEntity = createInfiniteGridHelper()
+    setComponent(infiniteGridHelperEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     getMutableState(RendererState).infiniteGridHelperEntity.set(infiniteGridHelperEntity)
     return () => {
       removeEntity(infiniteGridHelperEntity)

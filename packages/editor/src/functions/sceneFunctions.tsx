@@ -37,7 +37,7 @@ import {
 import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { SceneSnapshotState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneSnapshotState } from '@etherealengine/engine/src/scene/SceneState'
 import { GLTFLoadedComponent } from '@etherealengine/engine/src/scene/components/GLTFLoadedComponent'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { SceneParams } from '@etherealengine/server-core/src/projects/scene/scene.class'

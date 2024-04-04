@@ -43,12 +43,12 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { Shape } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { VRM } from '@pixiv/three-vrm'
@@ -69,6 +69,9 @@ import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { SourceComponent } from './SourceComponent'
 
+/**
+ * ModelComponent is an entity/object hierarchy loaded from a resource
+ */
 export const ModelComponent = defineComponent({
   name: 'ModelComponent',
   jsonID: 'EE_model',
@@ -122,7 +125,6 @@ export const ModelComponent = defineComponent({
 function ModelReactor(): JSX.Element {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
-  const uuidComponent = useOptionalComponent(entity, UUIDComponent)
 
   const [gltf, error, progress] = useGLTF(modelComponent.src.value, entity, {
     forceAssetType: modelComponent.assetTypeOverride.value,
@@ -222,9 +224,11 @@ function ModelReactor(): JSX.Element {
       setComponent(entity, ObjectGridSnapComponent)
     }
 
-    if (EngineRenderer.instance)
-      EngineRenderer.instance.renderer
-        .compileAsync(scene, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
+    const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)
+
+    if (renderer)
+      renderer.renderer
+        .compileAsync(scene, getComponent(Engine.instance.viewerEntity, CameraComponent))
         .catch(() => {
           addError(entity, ModelComponent, 'LOADING_ERROR', 'Error compiling model')
         })

@@ -44,7 +44,7 @@ const initializeLogs = async () => {
   pipeLogs(Engine.instance.api)
 }
 
-createEngine()
+createEngine(document.getElementById('engine-renderer-canvas') as HTMLCanvasElement)
 getMutableState(EngineState).publicPath.set(
   // @ts-ignore
   import.meta.env.BASE_URL === '/client/' ? location.origin : import.meta.env.BASE_URL!.slice(0, -1) // remove trailing '/'

@@ -32,8 +32,8 @@ import { VisualScriptActions, visualScriptQuery } from '@etherealengine/engine'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { WorldNetworkAction } from '@etherealengine/network'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
@@ -44,6 +44,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { TransformGizmoControlledComponent } from '../../../classes/TransformGizmoControlledComponent'
+import { EditorState } from '../../../services/EditorServices'
 import { transformGizmoControlledQuery } from '../../../systems/GizmoSystem'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
@@ -71,9 +72,11 @@ const PlayModeTool = () => {
       const avatarDetails = authState.user.avatar.value
 
       const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userID)
+      const currentScene = getState(SceneState).scenes[getState(EditorState).sceneID!].scene.root
 
       if (avatarDetails)
         spawnLocalAvatarInWorld({
+          parentUUID: currentScene,
           avatarSpawnPose,
           avatarID: avatarDetails.id!,
           name: authState.user.name.value

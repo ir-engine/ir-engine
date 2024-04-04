@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Camera, Intersection, Object3D, Raycaster, Vector2 } from 'three'
+import { Camera, Intersection, Mesh, Object3D, Raycaster, Vector2 } from 'three'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -32,7 +32,9 @@ import { getState } from '@etherealengine/hyperflux'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 
+import { defineQuery } from '@etherealengine/ecs'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { SelectionState } from '../services/SelectionServices'
 
 type RaycastIntersectionNode = Intersection<Object3D> & {
@@ -65,7 +67,7 @@ export function getIntersectingNode(results: Intersection<Object3D>[]): RaycastI
       return result
     }
 
-    if (obj && (obj as Object3D) !== Engine.instance.scene) {
+    if (obj) {
       result.obj3d = obj
       result.node = obj.entity
       //if(result.node && hasComponent(result.node.entity, GroupComponent))
@@ -86,7 +88,13 @@ export const getIntersectingNodeOnScreen = (
 ): RaycastIntersectionNode | undefined => {
   raycaster.setFromCamera(coord, camera)
   raycaster.layers.enable(ObjectLayers.NodeHelper)
-  raycaster.intersectObject<Object3D>(object ?? Engine.instance.scene, recursive, target as Intersection<Object3D>[])
+  raycaster.intersectObjects(
+    object ? ([object] as Mesh[]) : (allMeshes().map((e) => getComponent(e, MeshComponent)) as Mesh[]),
+    recursive,
+    target as Intersection<Object3D>[]
+  )
   raycaster.layers.disable(ObjectLayers.NodeHelper)
   return getIntersectingNode(target as Intersection<Object3D>[])
 }
+
+const allMeshes = defineQuery([MeshComponent])

@@ -98,7 +98,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
   const rigidbody = getComponent(entity, RigidBodyComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
   const eyeHeight = getComponent(entity, AvatarComponent).eyeHeight
-  const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
+  const originTransform = getComponent(Engine.instance.localFloorEntity, TransformComponent)
   desiredMovement.copy(V_000)
 
   const { isMovementControlsEnabled, isCameraAttachedToAvatar } = getState(XRControlsState)
@@ -202,7 +202,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
 }
 
 export const updateReferenceSpaceFromAvatarMovement = (entity: Entity, movement: Vector3) => {
-  const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
+  const originTransform = getComponent(Engine.instance.localFloorEntity, TransformComponent)
   originTransform.position.add(movement)
   computeAndUpdateWorldOrigin()
   updateLocalAvatarPosition(entity)
@@ -362,7 +362,7 @@ export const translateAndRotateAvatar = (entity: Entity, translation: Vector3, r
   const { isCameraAttachedToAvatar } = getState(XRControlsState)
   if (isCameraAttachedToAvatar) {
     const avatarTransform = getComponent(entity, TransformComponent)
-    const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
+    const originTransform = getComponent(Engine.instance.localFloorEntity, TransformComponent)
 
     originRelativeToAvatarMatrix.copy(avatarTransform.matrix).invert().multiply(originTransform.matrix)
     desiredAvatarMatrix.compose(
@@ -403,7 +403,7 @@ const _updateLocalAvatarRotationAttachedMode = (entity: Entity) => {
 
   if (!viewerPose) return
 
-  const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
+  const originTransform = getComponent(Engine.instance.localFloorEntity, TransformComponent)
   const viewerOrientation = viewerPose.transform.orientation
 
   //if angle between rigidbody forward and viewer forward is greater than 15 degrees, rotate rigidbody to viewer forward
