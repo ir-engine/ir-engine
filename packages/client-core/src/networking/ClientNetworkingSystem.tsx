@@ -23,22 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React, { useLayoutEffect } from 'react'
 
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { State, defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
-import { NetworkActions, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
-import { MediasoupMediaConsumerActions } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { PeerID } from '@etherealengine/hyperflux'
 import {
+  MediasoupMediaConsumerActions,
   MediasoupTransportActions,
   MediasoupTransportObjectsState,
-  MediasoupTransportState
-} from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
+  MediasoupTransportState,
+  NetworkActions,
+  NetworkPeerFunctions,
+  NetworkState
+} from '@etherealengine/network'
 import { PeerMediaConsumers } from '../media/PeerMedia'
 import {
   SocketWebRTCClientNetwork,
@@ -62,7 +63,7 @@ const execute = () => {
     if (!network) continue
 
     for (const peer of action.peers) {
-      NetworkPeerFunctions.createPeer(network, peer.peerID, peer.peerIndex, peer.userID, peer.userIndex, peer.name)
+      NetworkPeerFunctions.createPeer(network, peer.peerID, peer.peerIndex, peer.userID, peer.userIndex)
     }
     for (const [peerID, peer] of Object.entries(network.peers))
       if (!action.peers.find((p) => p.peerID === peerID)) {
@@ -73,9 +74,12 @@ const execute = () => {
 
 const NetworkConnectionReactor = (props: { networkID: InstanceID }) => {
   const transportState = useHookstate(getMutableState(MediasoupTransportObjectsState))
+  const networkState = useHookstate(
+    getMutableState(NetworkState).networks[props.networkID]
+  ) as State<SocketWebRTCClientNetwork>
 
-  useEffect(() => {
-    const networkState = getMutableState(NetworkState).networks[props.networkID] as State<SocketWebRTCClientNetwork>
+  useLayoutEffect(() => {
+    if (!networkState.value) return
     const topic = networkState.topic.value
     const topicEnabled = getState(NetworkState).config[topic]
     if (topicEnabled) {
@@ -85,7 +89,7 @@ const NetworkConnectionReactor = (props: { networkID: InstanceID }) => {
     } else {
       networkState.ready.set(true)
     }
-  }, [transportState])
+  }, [transportState, networkState])
 
   return null
 }

@@ -27,10 +27,10 @@ import { createState, useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { getMutableState } from '@etherealengine/hyperflux'
+import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import ProgressBar from './SimpleProgressBar'
 import LoadingDetailViewStyle from './style'
 
@@ -51,7 +51,7 @@ export function createLoaderDetailView() {
 }
 
 const LoadingDetailView = () => {
-  const engineState = useHookstate(getMutableState(EngineState))
+  const engineState = useHookstate(getMutableState(SceneState))
   const { t } = useTranslation()
 
   const sceneLoaded = engineState.sceneLoaded.value

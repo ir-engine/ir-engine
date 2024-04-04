@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ComponentJsonType } from '@etherealengine/common/src/schema.type.module'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { getAllComponents, serializeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getAllComponents, serializeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 
 type ComponentCopyDataType = { name: string; json: Record<string, unknown> }
 

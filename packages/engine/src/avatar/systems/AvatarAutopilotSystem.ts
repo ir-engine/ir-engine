@@ -23,13 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '../../ecs/classes/Engine'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { defineQuery } from '@etherealengine/ecs'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { NetworkObjectAuthorityTag } from '@etherealengine/network'
+import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { applyAutopilotInput } from '../functions/moveAvatar'
 import { AvatarMovementSystem } from './AvatarMovementSystem'
 
+const controllableAvatarQuery = defineQuery([AvatarControllerComponent, NetworkObjectAuthorityTag])
+
 const execute = () => {
-  applyAutopilotInput(Engine.instance.localClientEntity)
+  for (const entity of controllableAvatarQuery()) {
+    applyAutopilotInput(entity)
+  }
 }
 
 export const AvatarAutopilotSystem = defineSystem({

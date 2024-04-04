@@ -24,15 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { AdminAssetUploadArgumentsType } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import multiLogger from '@etherealengine/common/src/logger'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import {
   StaticResourceFiltersType,
   StaticResourceType,
   staticResourceFiltersPath,
-  staticResourcePath
+  staticResourcePath,
+  uploadAssetPath
 } from '@etherealengine/common/src/schema.type.module'
 import { Paginated } from '@feathersjs/feathers'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -61,7 +62,7 @@ export const AdminResourceState = defineState({
 export const ResourceService = {
   createOrUpdateResource: async (resource: AdminAssetUploadArgumentsType, resourceBlob: File) => {
     try {
-      await uploadToFeathersService('upload-asset', [resourceBlob], {
+      await uploadToFeathersService(uploadAssetPath, [resourceBlob], {
         type: 'admin-file-upload',
         args: resource
       })

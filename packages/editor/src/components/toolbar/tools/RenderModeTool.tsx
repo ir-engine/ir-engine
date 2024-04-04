@@ -26,9 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import React, { useState } from 'react'
 
 import { ShadowMapResolutionOptions } from '@etherealengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
-import { RenderModes, RenderModesType } from '@etherealengine/engine/src/renderer/constants/RenderModes'
-import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { RenderModes, RenderModesType } from '@etherealengine/spatial/src/renderer/constants/RenderModes'
 
 import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined'
 

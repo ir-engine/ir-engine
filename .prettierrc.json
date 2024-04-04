@@ -13,5 +13,6 @@
   "proseWrap": "never",
   "endOfLine": "lf",
   "importOrder": ["<THIRD_PARTY_MODULES>", "", "^@etherealengine/(.*)$", "", "^@mui/(.*)$", "", "^[./]"],
-  "plugins": ["@ianvs/prettier-plugin-sort-imports", "prettier-plugin-organize-imports"]
+  "plugins": ["@ianvs/prettier-plugin-sort-imports", "prettier-plugin-organize-imports", "prettier-plugin-tailwindcss"],
+  "tailwindFunctions": ["twMerge"]
 }

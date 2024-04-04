@@ -23,20 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import logger from '@etherealengine/common/src/logger'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
-import logger from '@etherealengine/engine/src/common/functions/logger'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
-import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import {
+  DataChannelRegistryState,
+  DataChannelType,
   MediasoupDataConsumerActions,
   MediasoupDataProducerConsumerState,
-  MediasoupDataProducersConsumersObjectsState
-} from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
-import { MediasoupTransportState } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
-import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+  MediasoupDataProducersConsumersObjectsState,
+  MediasoupTransportState,
+  NetworkState,
+  NetworkTopics
+} from '@etherealengine/network'
 import { none, useHookstate } from '@hookstate/core'
 import { DataProducer, DataProducerOptions } from 'mediasoup-client/lib/DataProducer'
 import { decode } from 'msgpackr'
@@ -159,7 +159,7 @@ export const DataChannel = (props: { networkID: InstanceID; dataChannelType: Dat
     return () => {
       // todo - cleanup
     }
-  }, [networkState.ready])
+  }, [networkState.ready.value])
 
   return null
 }

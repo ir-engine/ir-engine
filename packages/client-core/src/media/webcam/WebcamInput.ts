@@ -23,23 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { FaceDetection, FaceExpressions } from '@vladmandic/face-api'
+/** @todo reassess if we want to use this face-api package */
+// import type { FaceDetection, FaceExpressions } from '@vladmandic/face-api'
+type FaceDetection = any
+type FaceExpressions = any
 import * as Comlink from 'comlink'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils/createWorkerFromCrossOriginURL'
+import { UUIDComponent } from '@etherealengine/ecs'
+import { getOptionalComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { getComponent, hasComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { WebcamInputComponent } from '@etherealengine/engine/src/input/components/WebcamInputComponent'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { WebcamInputComponent } from './WebcamInputComponent'
 
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
+import { SkinnedMeshComponent } from '@etherealengine/engine/src/avatar/components/SkinnedMeshComponent'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
-import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
+import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { MediaStreamState } from '../../transports/MediaStreams'
 
 const FACE_EXPRESSION_THRESHOLD = 0.1
@@ -107,17 +111,16 @@ export const startFaceTracking = async () => {
 }
 
 export async function faceToInput(detection: { detection: FaceDetection; expressions: FaceExpressions }) {
-  if (!hasComponent(Engine.instance.localClientEntity, WebcamInputComponent)) return
-
-  const entity = Engine.instance.localClientEntity
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+  if (!selfAvatarEntity || !hasComponent(selfAvatarEntity, WebcamInputComponent)) return
 
   if (detection !== undefined && detection.expressions !== undefined) {
     for (const expression in detection.expressions) {
       const aboveThreshold = detection.expressions[expression] > FACE_EXPRESSION_THRESHOLD
       if (aboveThreshold) {
         const inputIndex = expressionByIndex.findIndex((exp) => exp === expression)!
-        WebcamInputComponent.expressionIndex[entity] = inputIndex
-        WebcamInputComponent.expressionValue[entity] = detection.expressions[expression]
+        WebcamInputComponent.expressionIndex[selfAvatarEntity] = inputIndex
+        WebcamInputComponent.expressionValue[selfAvatarEntity] = detection.expressions[expression]
       }
     }
   }
@@ -158,7 +161,8 @@ export const startLipsyncTracking = () => {
   audioProcessor.connect(audioContext.destination)
 
   audioProcessor.onaudioprocess = () => {
-    if (!lipsyncTracking || !hasComponent(Engine.instance.localClientEntity, WebcamInputComponent)) return
+    const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+    if (!lipsyncTracking || !selfAvatarEntity || !hasComponent(selfAvatarEntity, WebcamInputComponent)) return
     // bincount returns array which is half the FFT_SIZE
     spectrum = new Float32Array(userSpeechAnalyzer.frequencyBinCount)
     // Populate frequency data for computing frequency intensities
@@ -196,20 +200,18 @@ export const startLipsyncTracking = () => {
     const widen = 3 * Math.max(EnergyBinMasc[3], EnergyBinFem[3])
     const open = 0.8 * (Math.max(EnergyBinMasc[1], EnergyBinFem[1]) - Math.max(EnergyBinMasc[3], EnergyBinFem[3]))
 
-    const entity = Engine.instance.localClientEntity
-
-    if (pucker > PUCKER_EXPRESSION_THRESHOLD && pucker >= WebcamInputComponent.expressionValue[entity]) {
+    if (pucker > PUCKER_EXPRESSION_THRESHOLD && pucker >= WebcamInputComponent.expressionValue[selfAvatarEntity]) {
       const inputIndex = expressionByIndex.findIndex((exp) => exp === 'pucker')!
-      WebcamInputComponent.expressionIndex[entity] = inputIndex
-      WebcamInputComponent.expressionValue[entity] = 1
-    } else if (widen > WIDEN_EXPRESSION_THRESHOLD && widen >= WebcamInputComponent.expressionValue[entity]) {
+      WebcamInputComponent.expressionIndex[selfAvatarEntity] = inputIndex
+      WebcamInputComponent.expressionValue[selfAvatarEntity] = 1
+    } else if (widen > WIDEN_EXPRESSION_THRESHOLD && widen >= WebcamInputComponent.expressionValue[selfAvatarEntity]) {
       const inputIndex = expressionByIndex.findIndex((exp) => exp === 'widen')!
-      WebcamInputComponent.expressionIndex[entity] = inputIndex
-      WebcamInputComponent.expressionValue[entity] = 1
-    } else if (open > OPEN_EXPRESSION_THRESHOLD && open >= WebcamInputComponent.expressionValue[entity]) {
+      WebcamInputComponent.expressionIndex[selfAvatarEntity] = inputIndex
+      WebcamInputComponent.expressionValue[selfAvatarEntity] = 1
+    } else if (open > OPEN_EXPRESSION_THRESHOLD && open >= WebcamInputComponent.expressionValue[selfAvatarEntity]) {
       const inputIndex = expressionByIndex.findIndex((exp) => exp === 'open')!
-      WebcamInputComponent.expressionIndex[entity] = inputIndex
-      WebcamInputComponent.expressionValue[entity] = 1
+      WebcamInputComponent.expressionIndex[selfAvatarEntity] = inputIndex
+      WebcamInputComponent.expressionValue[selfAvatarEntity] = 1
     }
   }
 }
@@ -254,25 +256,25 @@ const setAvatarExpression = (entity: Entity): void => {
   if (morphValue === 0) return
 
   const morphName = morphNameByIndex[WebcamInputComponent.expressionIndex[entity]]
-  const skinnedMeshes = getComponent(entity, AvatarComponent).skinnedMeshes
 
-  for (const obj of skinnedMeshes) {
-    if (!obj.morphTargetDictionary || !obj.morphTargetInfluences) continue
+  iterateEntityNode(entity, (entity) => {
+    const skinnedMesh = getOptionalComponent(entity, SkinnedMeshComponent)
+    if (!skinnedMesh?.morphTargetDictionary || !skinnedMesh?.morphTargetInfluences) return
 
-    const morphIndex = obj.morphTargetDictionary[morphName]
+    const morphIndex = skinnedMesh.morphTargetDictionary[morphName]
 
     if (typeof morphIndex !== 'number') {
-      for (const morphName in obj.morphTargetDictionary)
-        obj.morphTargetInfluences[obj.morphTargetDictionary[morphName]] = 0
+      for (const morphName in skinnedMesh.morphTargetDictionary)
+        skinnedMesh.morphTargetInfluences[skinnedMesh.morphTargetDictionary[morphName]] = 0
       return
     }
 
     if (morphName && morphValue !== null) {
       if (typeof morphValue === 'number') {
-        obj.morphTargetInfluences[morphIndex] = morphValue // 0.0 - 1.0
+        skinnedMesh.morphTargetInfluences[morphIndex] = morphValue // 0.0 - 1.0
       }
     }
-  }
+  })
 }
 const webcamQuery = defineQuery([GroupComponent, AvatarRigComponent, WebcamInputComponent])
 const avatarSpawnQueue = defineActionQueue(AvatarNetworkAction.spawn.matches)

@@ -24,18 +24,19 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { AvatarID } from '@etherealengine/common/src/schema.type.module'
+import { matchesEntityUUID } from '@etherealengine/ecs'
 import { defineAction } from '@etherealengine/hyperflux'
+import { NetworkTopics } from '@etherealengine/network'
+import { SpawnObjectActions } from '@etherealengine/spatial/src/transform/SpawnObjectActions'
 import matches, { Validator } from 'ts-matches'
-import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
-import { NetworkTopics } from '../../networking/classes/Network'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { matchesIkTarget } from '../animation/Util'
 
 export class AvatarNetworkAction {
   static spawn = defineAction(
-    WorldNetworkAction.spawnObject.extend({
+    SpawnObjectActions.spawnObject.extend({
       type: 'ee.engine.avatar.SPAWN',
-      avatarID: matches.string as Validator<unknown, AvatarID>
+      avatarID: matches.string as Validator<unknown, AvatarID>,
+      name: matches.string
     })
   )
 
@@ -60,8 +61,18 @@ export class AvatarNetworkAction {
     $topic: NetworkTopics.world
   })
 
+  static setName = defineAction({
+    type: 'ee.engine.avatar.SET_AVATAR_ID',
+    entityUUID: matchesEntityUUID,
+    name: matches.string,
+    $cache: {
+      removePrevious: true
+    },
+    $topic: NetworkTopics.world
+  })
+
   static spawnIKTarget = defineAction(
-    WorldNetworkAction.spawnObject.extend({
+    SpawnObjectActions.spawnObject.extend({
       type: 'ee.engine.avatar.SPAWN_IK_TARGET',
       name: matchesIkTarget,
       blendWeight: matches.number

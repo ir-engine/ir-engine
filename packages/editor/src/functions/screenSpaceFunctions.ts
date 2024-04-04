@@ -25,11 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { Intersection, Object3D, Raycaster, Vector2, Vector3 } from 'three'
 
-import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { SnapMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { getState } from '@etherealengine/hyperflux'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
+import { Engine, getComponent } from '@etherealengine/ecs'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
 
@@ -92,7 +93,7 @@ export const getSpawnPositionAtCenter = (() => {
  * @returns
  */
 export function getCursorSpawnPosition(mousePos: Vector2, target = new Vector3()): Vector3 {
-  const rect = EngineRenderer.instance.renderer.domElement.getBoundingClientRect()
+  const rect = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement.getBoundingClientRect()
   const position = new Vector2()
   position.x = ((mousePos.x - rect.left) / rect.width) * 2 - 1
   position.y = ((mousePos.y - rect.top) / rect.height) * -2 + 1

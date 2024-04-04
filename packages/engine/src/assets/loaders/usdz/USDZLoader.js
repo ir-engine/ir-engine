@@ -29,10 +29,8 @@ import {
 	BufferAttribute,
 	BufferGeometry,
 	ClampToEdgeWrapping,
-	FileLoader,
 	Group,
 	InstancedMesh,
-	Loader,
 	Material,
 	Matrix4,
 	Mesh,
@@ -45,6 +43,8 @@ import {
 	TextureLoader,
 	Vector3,
 } from 'three';
+import { FileLoader } from '../base/FileLoader';
+import { Loader } from '../base/Loader';
 
 import * as fflate from 'fflate';
 
@@ -188,7 +188,7 @@ class USDZLoader extends Loader {
 		this.plugins = this.plugins.filter(_plugin => plugin !== _plugin)
 	}
 
-	load( url, onLoad, onProgress, onError ) {
+	load( url, onLoad, onProgress, onError, signal ) {
 
 		const scope = this;
 
@@ -217,7 +217,7 @@ class USDZLoader extends Loader {
 				scope.manager.itemError( url );
 
 			}
-		}, onProgress, onError );
+		}, onProgress, onError, signal );
 
 	}
 

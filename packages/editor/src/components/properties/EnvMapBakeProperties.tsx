@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { ComponentType } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { ComponentType } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvMapBakeRefreshTypes } from '@etherealengine/engine/src/scene/types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '@etherealengine/engine/src/scene/types/EnvMapBakeTypes'

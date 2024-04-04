@@ -24,24 +24,23 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import {
-  Color,
-  CubeReflectionMapping,
-  CubeTexture,
-  EquirectangularReflectionMapping,
-  SRGBColorSpace,
-  Texture
-} from 'three'
+import { Color, CubeReflectionMapping, CubeTexture, EquirectangularReflectionMapping, SRGBColorSpace } from 'three'
 
 import { config } from '@etherealengine/common/src/config'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { isClient } from '../../common/functions/getEnvironment'
-import { SceneState } from '../../ecs/classes/Scene'
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { Engine } from '@etherealengine/ecs'
+import {
+  defineComponent,
+  getComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { BackgroundComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import { useTexture } from '../../assets/functions/resourceHooks'
 import { Sky } from '../classes/Sky'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'
 import { loadCubeMapTexture } from '../constants/Util'
@@ -50,7 +49,7 @@ import { addError, removeError } from '../functions/ErrorFunctions'
 export const SkyboxComponent = defineComponent({
   name: 'SkyboxComponent',
 
-  jsonID: 'skybox',
+  jsonID: 'EE_skybox',
 
   onInit: (entity) => {
     return {
@@ -89,8 +88,9 @@ export const SkyboxComponent = defineComponent({
     }
   },
 
+  /** @todo remove this wil proper useEffect cleanups, after resource reworking callbacks */
   onRemove: (entity, component) => {
-    getMutableState(SceneState).background.set(null)
+    removeComponent(entity, BackgroundComponent)
   },
 
   reactor: function () {
@@ -98,11 +98,25 @@ export const SkyboxComponent = defineComponent({
     if (!isClient) return null
 
     const skyboxState = useComponent(entity, SkyboxComponent)
-    const background = useHookstate(getMutableState(SceneState).background)
+
+    const [texture, error] = useTexture(skyboxState.equirectangularPath.value, entity)
+
+    useEffect(() => {
+      if (skyboxState.backgroundType.value !== SkyTypeEnum.equirectangular) return
+
+      if (texture) {
+        texture.colorSpace = SRGBColorSpace
+        texture.mapping = EquirectangularReflectionMapping
+        setComponent(entity, BackgroundComponent, texture)
+        removeError(entity, SkyboxComponent, 'FILE_ERROR')
+      } else if (error) {
+        addError(entity, SkyboxComponent, 'FILE_ERROR', error.message)
+      }
+    }, [texture, error, skyboxState.backgroundType, skyboxState.equirectangularPath])
 
     useEffect(() => {
       if (skyboxState.backgroundType.value !== SkyTypeEnum.color) return
-      background.set(skyboxState.backgroundColor.value)
+      setComponent(entity, BackgroundComponent, skyboxState.backgroundColor.value)
     }, [skyboxState.backgroundType, skyboxState.backgroundColor])
 
     useEffect(() => {
@@ -110,7 +124,7 @@ export const SkyboxComponent = defineComponent({
       const onLoad = (texture: CubeTexture) => {
         texture.colorSpace = SRGBColorSpace
         texture.mapping = CubeReflectionMapping
-        background.set(texture)
+        setComponent(entity, BackgroundComponent, texture)
         removeError(entity, SkyboxComponent, 'FILE_ERROR')
       }
       const loadArgs: [
@@ -124,26 +138,9 @@ export const SkyboxComponent = defineComponent({
         undefined,
         (error) => addError(entity, SkyboxComponent, 'FILE_ERROR', error.message)
       ]
+      /** @todo replace this with useCubemap */
       loadCubeMapTexture(...loadArgs)
     }, [skyboxState.backgroundType, skyboxState.cubemapPath])
-
-    useEffect(() => {
-      if (skyboxState.backgroundType.value !== SkyTypeEnum.equirectangular) return
-      AssetLoader.load(
-        skyboxState.equirectangularPath.value,
-        {},
-        (texture: Texture) => {
-          texture.colorSpace = SRGBColorSpace
-          texture.mapping = EquirectangularReflectionMapping
-          background.set(texture)
-          removeError(entity, SkyboxComponent, 'FILE_ERROR')
-        },
-        undefined,
-        (error) => {
-          addError(entity, SkyboxComponent, 'FILE_ERROR', error.message)
-        }
-      )
-    }, [skyboxState.backgroundType, skyboxState.equirectangularPath])
 
     useEffect(() => {
       if (skyboxState.backgroundType.value !== SkyTypeEnum.skybox) {
@@ -164,9 +161,12 @@ export const SkyboxComponent = defineComponent({
       sky.turbidity = skyboxState.skyboxProps.value.turbidity
       sky.luminance = skyboxState.skyboxProps.value.luminance
 
-      const texture = sky.generateSkyboxTextureCube(EngineRenderer.instance.renderer)
+      const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
+
+      const texture = sky.generateSkyboxTextureCube(renderer.renderer)
       texture.mapping = CubeReflectionMapping
-      background.set(texture)
+
+      setComponent(entity, BackgroundComponent, texture)
       sky.dispose()
     }, [
       skyboxState.backgroundType,

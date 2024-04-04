@@ -23,20 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import debounce from 'lodash.debounce'
 import React, { useEffect, useRef } from 'react'
-import ResizeObserver from 'resize-observer-polyfill'
 
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
-import { setupSceneForPreview } from '@etherealengine/client-core/src/user/components/Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
-import { SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
-import { removeMaterialSource } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { InfiniteGridHelper } from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { useHookstate } from '@etherealengine/hyperflux'
 
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { EntityUUID, UUIDComponent, createEntity, setComponent } from '@etherealengine/ecs'
+import { AssetPreviewCameraComponent } from '@etherealengine/engine/src/camera/components/AssetPreviewCameraComponent'
+import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { AmbientLightComponent, TransformComponent } from '@etherealengine/spatial'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { MathUtils } from 'three'
 import styles from '../styles.module.scss'
 
 export const ModelPreviewPanel = (props) => {
@@ -44,55 +45,25 @@ export const ModelPreviewPanel = (props) => {
   const loading = useHookstate(true)
 
   const error = useHookstate('')
-  const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
+  const panelRef = useRef() as React.MutableRefObject<HTMLCanvasElement>
   const renderPanel = useRender3DPanelSystem(panelRef)
-  const { camera, entity, scene, renderer } = renderPanel.state
-  const gridHelper = new InfiniteGridHelper()
-  gridHelper.add(...InfiniteGridHelper.createLines(8000))
-  gridHelper.layers.set(ObjectLayers.Panel)
-  gridHelper.children.forEach((child) => {
-    child.layers.set(ObjectLayers.Panel)
-  })
 
   useEffect(() => {
-    scene.value.add(gridHelper)
-    const handleSizeChange = () => {
-      renderPanel.resize()
-    }
+    const { sceneEntity, cameraEntity } = renderPanel
+    setComponent(sceneEntity, NameComponent, '3D Preview Entity')
+    const uuid = MathUtils.generateUUID() as EntityUUID
+    setComponent(sceneEntity, UUIDComponent, uuid)
+    setComponent(sceneEntity, ModelComponent, { src: url, cameraOcclusion: false })
+    setComponent(sceneEntity, EnvmapComponent, { type: 'Skybox', envMapIntensity: 2 }) // todo remove when lighting works
+    setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: sceneEntity })
 
-    const handleSizeChangeDebounced = debounce(handleSizeChange, 100)
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.target === panelRef.current) {
-          handleSizeChangeDebounced()
-        }
-      }
-    })
-
-    if (panelRef.current) {
-      resizeObserver.observe(panelRef.current)
-    }
-
-    return () => {
-      resizeObserver.disconnect()
-      handleSizeChangeDebounced.cancel()
-      scene.value.remove(gridHelper)
-    }
-  }, [])
-
-  useEffect(() => {
-    //add to the threejs scene for previewing
-    AssetLoader.loadAsync(url).then((avatar) => {
-      scene.value.add(setupSceneForPreview(avatar))
-    })
-
-    return () => {
-      const sceneVal = scene.value
-      const avatar = sceneVal.children.find((child) => child.name === 'avatar')
-      if (avatar?.userData['src']) {
-        removeMaterialSource({ type: SourceType.MODEL, path: avatar.userData['src'] })
-      }
-    }
+    const lightEntity = createEntity()
+    setComponent(lightEntity, AmbientLightComponent)
+    setComponent(lightEntity, TransformComponent)
+    setComponent(lightEntity, VisibleComponent)
+    setComponent(lightEntity, NameComponent, 'Ambient Light')
+    setComponent(lightEntity, EntityTreeComponent, { parentEntity: sceneEntity })
+    loading.set(false)
   }, [url])
 
   return (
@@ -103,7 +74,9 @@ export const ModelPreviewPanel = (props) => {
           <h1 className={styles.error}>{error.value}</h1>
         </div>
       )}
-      <div id="stage" ref={panelRef} style={{ minHeight: '250px', width: '100%', height: '100%' }}></div>
+      <div id="modelPreview" style={{ width: '100%', height: '100%' }}>
+        <canvas ref={panelRef} style={{ width: '100%', height: '100%', pointerEvents: 'all' }} />
+      </div>
     </>
   )
 }

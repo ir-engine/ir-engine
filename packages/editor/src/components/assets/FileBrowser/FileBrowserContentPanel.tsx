@@ -27,7 +27,6 @@ import { Downgraded } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
-import { saveAs } from 'save-as'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
@@ -47,19 +46,14 @@ import {
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
 import { getMutableState, getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
-import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew'
 import AddIcon from '@mui/icons-material/Add'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder'
 import DownloadIcon from '@mui/icons-material/Download'
-import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual'
 import SettingsIcon from '@mui/icons-material/Settings'
-import VideocamIcon from '@mui/icons-material/Videocam'
-import ViewInArIcon from '@mui/icons-material/ViewInAr'
-import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { Breadcrumbs, Link, Popover, TablePagination } from '@mui/material'
@@ -68,14 +62,15 @@ import InputSlider from '@etherealengine/client-core/src/common/components/Input
 import { archiverPath, fileBrowserUploadPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
-import { inputFileWithAddToScene } from '../../../functions/assetFunctions'
+import { downloadBlobAsZip, inputFileWithAddToScene } from '../../../functions/assetFunctions'
 import { bytesToSize, unique } from '../../../functions/utils'
 import { EditorHelperState, PlacementMode } from '../../../services/EditorHelperState'
+import { EditorState } from '../../../services/EditorServices'
 import { ClickPlacementState } from '../../../systems/ClickPlacementSystem'
 import StringInput from '../../inputs/StringInput'
 import { ToolButton } from '../../toolbar/ToolButton'
@@ -88,37 +83,6 @@ import { FileBrowserItem, FileTableWrapper } from './FileBrowserGrid'
 import { availableTableColumns, FilesViewModeSettings, FilesViewModeState } from './FileBrowserState'
 import { FileDataType } from './FileDataType'
 import { FilePropertiesPanel } from './FilePropertiesPanel'
-
-export const FileIconType = {
-  gltf: ViewInArIcon,
-  'gltf-binary': ViewInArIcon,
-  glb: ViewInArIcon,
-  vrm: AccessibilityNewIcon,
-  usdz: ViewInArIcon,
-  fbx: ViewInArIcon,
-  png: PhotoSizeSelectActualIcon,
-  jpeg: PhotoSizeSelectActualIcon,
-  jpg: PhotoSizeSelectActualIcon,
-  ktx2: PhotoSizeSelectActualIcon,
-  m3u8: VideocamIcon,
-  mp4: VideocamIcon,
-  mpeg: VolumeUpIcon,
-  mp3: VolumeUpIcon,
-  'model/gltf-binary': ViewInArIcon,
-  'model/gltf': ViewInArIcon,
-  'model/glb': ViewInArIcon,
-  'model/vrm': AccessibilityNewIcon,
-  'model/usdz': ViewInArIcon,
-  'model/fbx': ViewInArIcon,
-  'image/png': PhotoSizeSelectActualIcon,
-  'image/jpeg': PhotoSizeSelectActualIcon,
-  'image/jpg': PhotoSizeSelectActualIcon,
-  'application/pdf': null,
-  'application/vnd.apple.mpegurl': VideocamIcon,
-  'video/mp4': VideocamIcon,
-  'audio/mpeg': VolumeUpIcon,
-  'audio/mp3': VolumeUpIcon
-}
 
 type FileBrowserContentPanelProps = {
   onSelectionChanged: (assetSelectionChange: AssetSelectionChangePropsType) => void
@@ -178,8 +142,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const openConfirm = useHookstate(false)
   const contentToDeletePath = useHookstate('')
 
-  const activeScene = useHookstate(getMutableState(SceneState).activeScene)
-
   const filesViewMode = useHookstate(getMutableState(FilesViewModeState).viewMode)
   const viewModeSettingsAnchorPosition = useHookstate({ left: 0, top: 0 })
 
@@ -197,8 +159,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       size: file.size ? bytesToSize(file.size) : '0',
       path: isFolder ? file.key.split(file.name)[0] : file.key.split(fullName)[0],
       fullName,
-      isFolder,
-      Icon: FileIconType[file.type]
+      isFolder
     }
   })
 
@@ -210,7 +171,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   useEffect(() => {
     refreshDirectory()
-  }, [selectedDirectory, activeScene])
+  }, [selectedDirectory])
 
   const refreshDirectory = async () => {
     await FileBrowserService.fetchFiles(selectedDirectory.value, page)
@@ -267,12 +228,16 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             // file is directory
             await FileBrowserService.addNewFolder(`${path}${file.name}`)
           } else {
-            const name = processFileName(file.name)
-            await uploadToFeathersService(fileBrowserUploadPath, [file], {
-              fileName: name,
-              path,
-              contentType: file.type
-            }).promise
+            try {
+              const name = processFileName(file.name)
+              await uploadToFeathersService(fileBrowserUploadPath, [file], {
+                fileName: name,
+                path,
+                contentType: file.type
+              }).promise
+            } catch (err) {
+              NotificationService.dispatchNotify(err.message, { variant: 'error' })
+            }
           }
         })
       )
@@ -352,7 +317,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       fileName = selectedDirectory.value.split('/').at(-1) as string
     }
 
-    saveAs(blob, fileName + '.zip')
+    downloadBlobAsZip(blob, fileName)
   }
 
   const BreadcrumbItems = () => {
@@ -373,9 +338,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
     const nestedIndex = breadcrumbDirectoryFiles.indexOf(nestingDirectory.value)
 
-    breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((file, idx) => {
-      return idx >= nestedIndex
-    })
+    breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx >= nestedIndex)
 
     return (
       <Breadcrumbs
@@ -411,6 +374,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   useEffect(() => {
     validFiles.set(files.filter((file) => file.fullName.toLowerCase().includes(searchText.value.toLowerCase())))
   }, [searchText.value, fileState.files])
+
+  const projectName = useHookstate(getMutableState(EditorState).projectName)
+
+  const makeAllThumbnails = async () => {
+    await FileBrowserService.fetchAllFiles(`/projects/${projectName.value}`)
+  }
 
   const DropArea = () => {
     const [{ isFileDropOver }, fileDropRef] = useDrop({
@@ -538,6 +507,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                     <div>
                       {availableTableColumns.map((column) => (
                         <FormControlLabel
+                          key={column}
                           classes={{
                             label: styles.viewModeSettingsLabel
                           }}
@@ -556,6 +526,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                 </>
               )}
             </div>
+          </div>
+          <div style={{ display: 'flex', width: '200px', flexDirection: 'column' }}>
+            <Button className={'medium-button button'} style={{ width: '100%' }} onClick={() => makeAllThumbnails()}>
+              Generate thumbnails
+            </Button>
           </div>
         </Popover>
       </>
@@ -638,8 +613,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         {showUploadAndDownloadButtons && (
           <ToolButton
             tooltip={t('editor:layout.filebrowser.uploadAsset')}
-            onClick={() => {
-              inputFileWithAddToScene({ directoryPath: selectedDirectory.value }).then(refreshDirectory)
+            onClick={async () => {
+              await inputFileWithAddToScene({ directoryPath: selectedDirectory.value })
+                .then(refreshDirectory)
+                .catch((err) => {
+                  NotificationService.dispatchNotify(err.message, { variant: 'error' })
+                })
             }}
             icon={AddIcon}
             id="uploadAsset"

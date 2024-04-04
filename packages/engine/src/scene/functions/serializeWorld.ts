@@ -23,19 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ComponentJsonType, EntityJsonType } from '@etherealengine/common/src/schema.type.module'
-import { Entity } from '../../ecs/classes/Entity'
+import { UUIDComponent } from '@etherealengine/ecs'
 import {
   getAllComponents,
   getComponent,
   getOptionalComponent,
   hasComponent,
   serializeComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
-import { NameComponent } from '../components/NameComponent'
-import { UUIDComponent } from '../components/UUIDComponent'
+import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
 
 export const serializeEntity = (entity: Entity) => {
   const ignoreComponents = getOptionalComponent(entity, GLTFLoadedComponent)

@@ -33,9 +33,9 @@ import {
   parseStorageProviderURLs,
   sceneCorsPathIdentifier,
   sceneRelativePathIdentifier
-} from '@etherealengine/engine/src/common/functions/parseSceneJSON'
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { createEngine } from '@etherealengine/engine/src/initializeEngine'
+} from '@etherealengine/common/src/utils/parseSceneJSON'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { createDefaultStorageProvider } from '../../media/storageprovider/storageprovider'
 import { StorageProviderInterface } from '../../media/storageprovider/storageprovider.interface'
 
@@ -65,7 +65,7 @@ describe('Scene Helper Functions', () => {
     })
 
     after(() => {
-      destroyEngine()
+      return destroyEngine()
     })
 
     it('should parse saved data', async function () {

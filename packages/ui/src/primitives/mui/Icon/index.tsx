@@ -30,6 +30,7 @@ import AccessibilityNew from '@mui/icons-material/AccessibilityNew'
 import AccountCircle from '@mui/icons-material/AccountCircle'
 import Add from '@mui/icons-material/Add'
 import AdminPanelSettings from '@mui/icons-material/AdminPanelSettings'
+import AllOutIcon from '@mui/icons-material/AllOut'
 import Anchor from '@mui/icons-material/Anchor'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import ArrowBackIos from '@mui/icons-material/ArrowBackIos'
@@ -458,6 +459,8 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
       return <FlipCameraAndroid {...props} />
     case 'Poll':
       return <Poll {...props} />
+    case 'AllOutIcon':
+      return <AllOutIcon {...props} />
   }
 }
 

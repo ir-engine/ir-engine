@@ -7,11 +7,11 @@
 - [x] Motion Capture & Full body IK
 - [x] Behave Graph Integration
 - [x] Spatialized Input System
-- [ ] Playback and Recording system
-- [ ] Migrate from Sequelize to Typebox & JSON Schema
+- [x] Playback and Recording system
+- [x] Migrate from Sequelize to Typebox & JSON Schema
 - [ ] '/chat' 2D interface to media sessions
 - [ ] Finish migration to tailwind
-- [ ] Migrate Scene Hierarchy from threejs to ECS
+- [x] Migrate Scene Hierarchy from threejs to ECS
 
 ### Q4
 

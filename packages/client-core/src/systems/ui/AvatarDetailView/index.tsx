@@ -27,14 +27,15 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { CircleGeometry, Mesh, MeshBasicMaterial } from 'three'
 
-import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
-import { useXRUIState } from '@etherealengine/engine/src/xrui/functions/useXRUIState'
+import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { createState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
+import { useXRUIState } from '@etherealengine/spatial/src/xrui/functions/useXRUIState'
 
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { userPath } from '@etherealengine/common/src/schema.type.module'
+import { NetworkState } from '@etherealengine/network'
+import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { AvatarUIState } from '../../state/AvatarUIState'
 import styleString from './index.scss?inline'
 
@@ -58,19 +59,19 @@ interface AvatarDetailState {
 const AvatarDetailView = () => {
   const { t } = useTranslation()
   const detailState = useXRUIState<AvatarDetailState>()
-  const user = NetworkState.worldNetworkState?.peers
+  const networkPeer = NetworkState.worldNetworkState?.peers
     ? Object.values(NetworkState.worldNetwork.peers).find((peer) => peer.userId === detailState.id.value)
     : undefined
-  const worldState = useHookstate(getMutableState(WorldState)).get({ noproxy: true })
+  const user = useGet(userPath, networkPeer?.userId)
   const usersTypingState = useHookstate(getMutableState(AvatarUIState).usersTyping)
   const usersTyping = usersTypingState[detailState.id.value]?.value
-  const username = worldState?.userNames && user ? worldState.userNames[user.userId] : 'A user'
+  const username = user.data?.name ?? 'A user'
 
   return (
     <>
       <link href="https://fonts.googleapis.com/css?family=Lato:400" rel="stylesheet" type="text/css" />
       <style>{styleString}</style>
-      {user && (
+      {networkPeer && (
         <div className="avatarName">
           {username}
           {usersTyping && <h6 className="typingIndicator">{t('common:typing')}</h6>}

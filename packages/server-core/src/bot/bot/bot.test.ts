@@ -27,7 +27,7 @@ import assert from 'assert'
 import { v1 } from 'uuid'
 
 import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { BotType, botPath } from '@etherealengine/common/src/schemas/bot/bot.schema'
 import { InstanceType, instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
@@ -65,7 +65,7 @@ describe('bot.service', () => {
         name: 'test-bot-location-' + v1(),
         slugifiedName: '',
         sceneId: ('test-bot-scene-id-' + v1()) as SceneID,
-        maxUsersPerInstance: 30,
+        maxUsersPerInstance: 20,
         locationSetting: {
           id: '',
           locationType: 'public',

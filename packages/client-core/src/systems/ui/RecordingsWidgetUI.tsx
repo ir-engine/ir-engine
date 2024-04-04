@@ -28,19 +28,19 @@ import { State, useHookstate } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { PlayIcon, PlusCircleIcon } from '@heroicons/react/24/solid'
+import { PeerID } from '@etherealengine/hyperflux'
+import { HiPlay, HiPlusCircle } from 'react-icons/hi2'
 
 import { RecordingType, recordingPath } from '@etherealengine/common/src/schema.type.module'
-import { useFind, useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import {
   ECSRecordingActions,
   PlaybackState,
   RecordingState
 } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
-import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { NetworkState } from '@etherealengine/network'
+import { useFind, useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { WidgetAppService } from '@etherealengine/spatial/src/xrui/WidgetAppService'
 import { startPlayback } from '@etherealengine/ui/src/pages/Capture'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 
@@ -359,10 +359,7 @@ const RecordingsList = () => {
                 getMutableState(RecordingUIState).mode.set('playback')
               }}
               label={
-                <PlayIcon
-                  style={{ display: 'block', width: '24px', height: '24px' }}
-                  className="block min-w-6 min-h-6"
-                />
+                <HiPlay style={{ display: 'block', width: '24px', height: '24px' }} className="block min-h-6 min-w-6" />
               }
             />
             <Button
@@ -371,9 +368,9 @@ const RecordingsList = () => {
                 getMutableState(RecordingUIState).mode.set('playback')
               }}
               label={
-                <PlusCircleIcon
+                <HiPlusCircle
                   style={{ display: 'block', width: '24px', height: '24px' }}
-                  className="block min-w-6 min-h-6"
+                  className="block min-h-6 min-w-6"
                 />
               }
             />

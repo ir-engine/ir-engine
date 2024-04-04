@@ -23,18 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
+import multiLogger from '@etherealengine/common/src/logger'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
-import { ProjectType, projectPath } from '@etherealengine/common/src/schema.type.module'
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { ProjectType, projectPath, projectPermissionPath } from '@etherealengine/common/src/schema.type.module'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { useHookstate } from '@hookstate/core'
+import InputSwitch from '../../../common/components/InputSwitch'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'
 import { useUserHasAccessHook } from '../../../user/userHasAccess'
@@ -67,9 +69,9 @@ const defaultConfirm: ConfirmData = {
 
 const ProjectTable = ({ className }: Props) => {
   const { t } = useTranslation()
+  const activeProject = useHookstate<ProjectType | null>(null)
   const [processing, setProcessing] = useState(false)
   const [confirm, setConfirm] = useState({ ...defaultConfirm })
-  const [project, _setProject] = useState<ProjectType | undefined>()
   const [showProjectFiles, setShowProjectFiles] = useState(false)
   const [openProjectDrawer, setOpenProjectDrawer] = useState(false)
   const [openUserPermissionDrawer, setOpenUserPermissionDrawer] = useState(false)
@@ -86,23 +88,23 @@ const ProjectTable = ({ className }: Props) => {
     }
   })
 
+  const projectPermissionsFindQuery = useFind(projectPermissionPath, {
+    query: {
+      projectId: activeProject?.value?.id,
+      paginate: false
+    }
+  })
+
   const projectsData = projectsQuery.data as ProjectType[]
 
-  const projectRef = useRef(project)
-
-  const setProject = (project: ProjectType | undefined) => {
-    projectRef.current = project
-    _setProject(project)
-  }
-
   useEffect(() => {
-    if (project) setProject(projectsData.find((proj) => proj.name === project.name)!)
+    if (activeProject.value) activeProject.set(projectsData.find((proj) => proj.name === activeProject.value!.name)!)
   }, [projectsData])
 
   const handleRemoveProject = async () => {
     try {
-      if (projectRef.current) {
-        const projectToRemove = projectsData.find((p) => p.name === projectRef.current?.name)!
+      if (activeProject.value) {
+        const projectToRemove = projectsData.find((p) => p.name === activeProject.value!.name)!
         if (projectToRemove) {
           await ProjectService.removeProject(projectToRemove.id)
           handleCloseConfirmation()
@@ -117,11 +119,11 @@ const ProjectTable = ({ className }: Props) => {
 
   const handlePushProjectToGithub = async () => {
     try {
-      if (projectRef.current) {
-        if (!projectRef.current.repositoryPath && projectRef.current.name !== 'default-project') return
+      if (activeProject) {
+        if (!activeProject.value!.repositoryPath && activeProject.value!.name !== 'default-project') return
 
         setProcessing(true)
-        await ProjectService.pushProject(projectRef.current.id)
+        await ProjectService.pushProject(activeProject.value!.id)
         setProcessing(false)
 
         handleCloseConfirmation()
@@ -135,7 +137,7 @@ const ProjectTable = ({ className }: Props) => {
   const handleInvalidateCache = async () => {
     try {
       setProcessing(true)
-      await ProjectService.invalidateProjectCache(projectRef.current!.name)
+      await ProjectService.invalidateProjectCache(activeProject!.value!.name)
       setProcessing(false)
 
       handleCloseConfirmation()
@@ -145,8 +147,13 @@ const ProjectTable = ({ className }: Props) => {
     }
   }
 
+  const handleEnabledChange = async (project: ProjectType) => {
+    await ProjectService.setEnabled(activeProject.value!.id, !activeProject.value!.enabled)
+    projectsQuery.refetch()
+  }
+
   const openPushConfirmation = (row) => {
-    setProject(row)
+    activeProject.set(row)
 
     setConfirm({
       open: true,
@@ -157,7 +164,7 @@ const ProjectTable = ({ className }: Props) => {
   }
 
   const openInvalidateConfirmation = (row) => {
-    setProject(row)
+    activeProject.set(row)
 
     setConfirm({
       open: true,
@@ -168,7 +175,7 @@ const ProjectTable = ({ className }: Props) => {
   }
 
   const openRemoveConfirmation = (row) => {
-    setProject(row)
+    activeProject.set(row)
 
     setConfirm({
       open: true,
@@ -179,36 +186,36 @@ const ProjectTable = ({ className }: Props) => {
   }
 
   const openViewProject = (row) => {
-    setProject(row)
+    activeProject.set(row)
     setShowProjectFiles(true)
   }
 
   const handleOpenProjectDrawer = (row, changeDestination = false) => {
-    setProject(row)
+    activeProject.set(row)
     setChangeDestination(changeDestination)
     setOpenProjectDrawer(true)
   }
 
   const handleOpenUserPermissionDrawer = (row) => {
-    setProject(row)
+    activeProject.set(row)
     setOpenUserPermissionDrawer(true)
   }
 
   const handleCloseProjectDrawer = () => {
     setChangeDestination(false)
     setOpenProjectDrawer(false)
-    setProject(undefined)
+    activeProject.set(null)
   }
 
   const handleCloseUserPermissionDrawer = () => {
     setOpenUserPermissionDrawer(false)
-    setProject(undefined)
+    activeProject.set(null)
   }
 
   const handleCloseConfirmation = () => {
     setConfirm({ ...confirm, open: false })
     setConfirm({ ...defaultConfirm })
-    setProject(undefined)
+    activeProject.set(null)
   }
 
   const copyShaToClipboard = (sha: string) => {
@@ -234,11 +241,26 @@ const ProjectTable = ({ className }: Props) => {
               <Icon type="ErrorOutline" sx={{ marginLeft: 1 }} className={styles.orangeColor} />
             </Tooltip>
           )}
+          {Boolean(el.hasLocalChanges) && (
+            <Tooltip title={t('admin:components.project.hasLocalChanges')} arrow>
+              <Icon type="ErrorOutline" sx={{ marginLeft: 1 }} className={styles.goldColor} />
+            </Tooltip>
+          )}
         </Box>
       ),
       projectVersion: (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <span>{el.version}</span>
+        </Box>
+      ),
+      enabled: (
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <InputSwitch
+            name="enabled"
+            disabled={el.name === 'default-project'}
+            checked={el.enabled}
+            onChange={() => handleEnabledChange(el)}
+          />
         </Box>
       ),
       commitSHA: (
@@ -367,26 +389,27 @@ const ProjectTable = ({ className }: Props) => {
     <Box className={className}>
       <TableComponent query={projectsQuery} rows={rows} column={projectsColumns} />
 
-      {openProjectDrawer && project && (
+      {openProjectDrawer && activeProject.value && (
         <ProjectDrawer
           open={openProjectDrawer}
           changeDestination={changeDestination}
-          inputProject={project}
+          inputProject={activeProject.value}
           existingProject={true}
           onClose={() => handleCloseProjectDrawer()}
         />
       )}
 
-      {project && (
+      {activeProject.value && (
         <UserPermissionDrawer
           open={openUserPermissionDrawer}
-          project={project}
+          project={activeProject.value}
+          projectPermissions={projectPermissionsFindQuery.data}
           onClose={handleCloseUserPermissionDrawer}
         />
       )}
 
-      {showProjectFiles && project && (
-        <ProjectFilesDrawer open selectedProject={project} onClose={() => setShowProjectFiles(false)} />
+      {showProjectFiles && activeProject.value && (
+        <ProjectFilesDrawer open selectedProject={activeProject.value} onClose={() => setShowProjectFiles(false)} />
       )}
 
       <ConfirmDialog

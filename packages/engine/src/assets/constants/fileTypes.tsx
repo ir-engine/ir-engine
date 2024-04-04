@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { AssetType } from '../enum/AssetType'
+
 // array containing audio file type
 export const AudioFileTypes = ['.mp3', '.mpeg', 'audio/mpeg', '.ogg']
 //array containing video file type
@@ -40,7 +42,7 @@ export const ImageFileTypes = [
   'image/ktx2'
 ]
 //array containing model file type.
-export const ModelFileTypes = ['.glb', '.gltf', 'model/gltf-binary', 'model/gltf-embedded', '.fbx', '.usdz', '.vrm']
+export const ModelFileTypes = ['.glb', '.gltf', 'model/gltf-binary', 'model/gltf+json', '.fbx', '.usdz', '.vrm']
 //array containing volumetric file type.
 export const VolumetricFileTypes = ['.manifest']
 //array containing custom script type.
@@ -59,3 +61,45 @@ export const AllFileTypes = [
 
 //creating comma separated string contains all file types
 export const AcceptsAllFileTypes = AllFileTypes.join(',')
+
+export const MimeTypeToAssetType = {
+  'audio/mpeg': AssetType.MP3,
+  'video/mp4': AssetType.MP4,
+  'image/png': AssetType.PNG,
+  'image/jpeg': AssetType.JPEG,
+  'image/ktx2': AssetType.KTX2,
+  'model/gltf-binary': AssetType.glB,
+  'model/gltf+json': AssetType.glTF
+} as Record<string, AssetType>
+
+export const AssetTypeToMimeType = {
+  [AssetType.MP3]: 'audio/mpeg',
+  [AssetType.MP4]: 'video/mp4',
+  [AssetType.PNG]: 'image/png',
+  [AssetType.JPEG]: 'image/jpeg',
+  [AssetType.KTX2]: 'image/ktx2',
+  [AssetType.glB]: 'model/gltf-binary',
+  [AssetType.glTF]: 'model/gltf+json'
+} as Record<AssetType, string>
+
+export const ExtensionToAssetType = {
+  gltf: AssetType.glTF,
+  glb: AssetType.glB,
+  usdz: AssetType.USDZ,
+  fbx: AssetType.FBX,
+  vrm: AssetType.VRM,
+  tga: AssetType.TGA,
+  ktx2: AssetType.KTX2,
+  ddx: AssetType.DDS,
+  png: AssetType.PNG,
+  jpg: AssetType.JPEG,
+  jpeg: AssetType.JPEG,
+  mp3: AssetType.MP3,
+  aac: AssetType.AAC,
+  ogg: AssetType.OGG,
+  m4a: AssetType.M4A,
+  mp4: AssetType.MP4,
+  mkv: AssetType.MKV,
+  m3u8: AssetType.M3U8,
+  material: AssetType.MAT
+}

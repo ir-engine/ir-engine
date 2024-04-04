@@ -1,7 +1,8 @@
-ARG ECR_URL
+ARG REPO_URL
 ARG REPO_NAME
 ARG STAGE
-FROM ${ECR_URL}/${REPO_NAME}-root:latest_${STAGE} as apiBuilder
+ARG TAG
+FROM ${REPO_URL}/${REPO_NAME}-root:${TAG} as apiBuilder
 
 # Create app directory
 WORKDIR /app
@@ -23,7 +24,7 @@ RUN rm -r packages/ui
 
 ENV APP_ENV=production
 
-FROM ${ECR_URL}/${REPO_NAME}-root:latest_${STAGE} as clientBuilder
+FROM ${REPO_URL}/${REPO_NAME}-root:${TAG} as clientBuilder
 
 # Create app directory
 WORKDIR /app
@@ -33,6 +34,7 @@ COPY packages/client/package.json ./packages/client/
 COPY packages/client-core/package.json ./packages/client-core/
 COPY packages/editor/package.json ./packages/editor/
 COPY packages/hyperflux/package.json ./packages/hyperflux/
+COPY project-package-jsons ./
 COPY packages/ui/package.json ./packages/ui/
 COPY patches/ ./patches/
 
@@ -44,6 +46,7 @@ RUN npm install react-is
 # copy then compile the code
 COPY . .
 
+ARG KUBERNETES
 ARG STAGE
 ARG STORAGE_PROVIDER
 ARG STORAGE_CLOUDFRONT_DOMAIN
@@ -77,6 +80,7 @@ ARG VITE_DISABLE_LOG
 ARG AUTH_SECRET
 ARG VITE_AVATURN_URL
 ARG VITE_AVATURN_API
+ENV KUBERNETES=$KUBERNETES
 ENV AUTH_SECRET=$AUTH_SECRET
 ENV STORAGE_CLOUDFRONT_DOMAIN=$STORAGE_CLOUDFRONT_DOMAIN
 ENV STORAGE_CLOUDFRONT_DISTRIBUTION_ID=$STORAGE_CLOUDFRONT_DISTRIBUTION_ID

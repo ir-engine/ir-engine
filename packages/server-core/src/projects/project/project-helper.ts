@@ -42,6 +42,7 @@ import fs from 'fs'
 import { PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
+import { projectResourcesPath } from '@etherealengine/common/src/schemas/media/project-resource.schema'
 import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { ProjectBuilderTagsType } from '@etherealengine/common/src/schemas/projects/project-builder-tags.schema'
 import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/common/src/schemas/projects/project-check-source-destination-match.schema'
@@ -58,6 +59,12 @@ import {
   IdentityProviderType
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { userPath, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
+import { getDateTimeSql, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import {
+  copyFolderRecursiveSync,
+  deleteFolderRecursive,
+  getFilesRecursive
+} from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
@@ -68,7 +75,6 @@ import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/pods/pods-helper'
-import { projectResourcesPath } from '../../media/static-resource/project-resource.service'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
@@ -77,9 +83,7 @@ import { createStaticResourceHash } from '../../media/upload-asset/upload-asset.
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 import { BUILDER_CHART_REGEX } from '../../setting/helm-setting/helm-setting'
-import { getDateTimeSql, toDateTimeSql } from '../../util/datetime-sql'
 import { getContentType } from '../../util/fileUtils'
-import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
 import { getGitConfigData, getGitHeadData, getGitOrigHeadData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
 import { getAuthenticatedRepo, getOctokitForChecking, getUserRepos } from './github-helper'
@@ -198,7 +202,7 @@ export const updateBuilder = async (
 export const checkBuilderService = async (app: Application): Promise<{ failed: boolean; succeeded: boolean }> => {
   const jobStatus = {
     failed: false,
-    succeeded: false
+    succeeded: !config.kubernetes.enabled // if no k8s, assume success
   }
   const k8DefaultClient = getState(ServerState).k8DefaultClient
   const k8BatchClient = getState(ServerState).k8BatchClient
@@ -311,6 +315,11 @@ export const getProjectPackageJson = (projectName: string): ProjectPackageJsonTy
 
 export const getEnginePackageJson = (): ProjectPackageJsonType => {
   return require(path.resolve(appRootPath.path, 'packages/server-core/package.json'))
+}
+
+export const getProjectEnabled = (projectName: string) => {
+  const matchesVersion = getProjectPackageJson(projectName).etherealEngine?.version === getEnginePackageJson().version
+  return config.allowOutOfDateProjects ? true : matchesVersion
 }
 
 //DO NOT REMOVE!
@@ -479,7 +488,7 @@ export const checkProjectDestinationMatch = async (
         })
         resolve(destinationPackage)
       } catch (err) {
-        logger.error('destination package fetch error', err)
+        logger.error('destination package fetch error %o', err)
         if (err.status === 404) {
           resolve({
             error: 'destinationPackageMissing',
@@ -577,7 +586,7 @@ export const checkDestination = async (app: Application, url: string, params?: P
     try {
       destinationPackage = await octoKit.rest.repos.getContent({ owner, repo, path: 'package.json' })
     } catch (err) {
-      logger.error('destination package fetch error', err)
+      logger.error('destination package fetch error %o', err)
       if (err.status !== 404) throw err
     }
     if (destinationPackage)
@@ -612,7 +621,7 @@ export const checkDestination = async (app: Application, url: string, params?: P
           returned.text = `The new destination repo contains project '${returned.projectName}', which is different than the current project '${existingProjectName}'`
         }
       } catch (err) {
-        logger.error('destination package fetch error', err)
+        logger.error('destination package fetch error %o', err)
         if (err.status !== 404) throw err
       }
     }
@@ -709,7 +718,7 @@ export const getProjectCommits = async (
 
     const enginePackageJson = getEnginePackageJson()
     const repoResponse = await octoKit.rest.repos.get({ owner, repo })
-    const branchName = params!.query!.branchName || (repoResponse as any).default_branch
+    const branchName = params!.query!.sourceBranch || (repoResponse as any).default_branch
     const headResponse = await octoKit.rest.repos.listCommits({
       owner,
       repo,
@@ -772,7 +781,7 @@ export const getProjectCommits = async (
 }
 
 export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> => {
-  const builderRepo = (process.env.BUILDER_REPOSITORY as string) || ''
+  const builderRepo = `${process.env.SOURCE_REPO_URL}/${process.env.SOURCE_REPO_NAME_STEM}-builder` || ''
   const publicECRExec = publicECRRepoRegex.exec(builderRepo)
   const privateECRExec = privateECRRepoRegex.exec(builderRepo)
   if (publicECRExec) {
@@ -834,13 +843,12 @@ export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> 
         }
       })
   } else {
-    const repoSplit = builderRepo.split('/')
-    const registry = repoSplit.length === 1 ? 'etherealengine' : repoSplit[0]
-    const repo =
-      repoSplit.length === 1 ? (repoSplit[0].length === 0 ? 'etherealengine-builder' : repoSplit[0]) : repoSplit[1]
+    const registry = /docker.io\//.test(process.env.SOURCE_REPO_URL!)
+      ? process.env.SOURCE_REPO_URL!.split('/')[1]
+      : process.env.SOURCE_REPO_URL
     try {
       const result = await fetch(
-        `https://registry.hub.docker.com/v2/repositories/${registry}/${repo}/tags?page_size=100`
+        `https://registry.hub.docker.com/v2/repositories/${registry}/${process.env.SOURCE_REPO_NAME_STEM}-builder/tags?page_size=100`
       )
       const body = JSON.parse(Buffer.from(await result.arrayBuffer()).toString())
       return body.results.map((imageDetails) => {
@@ -1053,7 +1061,7 @@ export async function getProjectPushJobBody(
   }
   return {
     metadata: {
-      name: `${process.env.RELEASE_NAME}-${project.name}-gh-push`,
+      name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-gh-push`,
       labels: {
         'etherealengine/projectPusher': 'true',
         'etherealengine/projectField': project.name,
@@ -1073,7 +1081,7 @@ export async function getProjectPushJobBody(
           serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
           containers: [
             {
-              name: `${process.env.RELEASE_NAME}-${project.name}-push`,
+              name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-push`,
               image,
               imagePullPolicy: 'IfNotPresent',
               command,
@@ -1092,7 +1100,7 @@ export async function getProjectPushJobBody(
 export const getCronJobBody = (project: ProjectType, image: string): object => {
   return {
     metadata: {
-      name: `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
+      name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-auto-update`,
       labels: {
         'etherealengine/projectUpdater': 'true',
         'etherealengine/autoUpdate': 'true',
@@ -1122,7 +1130,7 @@ export const getCronJobBody = (project: ProjectType, image: string): object => {
               serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
               containers: [
                 {
-                  name: `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
+                  name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-auto-update`,
                   image,
                   imagePullPolicy: 'IfNotPresent',
                   command: [
@@ -1299,11 +1307,11 @@ export const checkProjectAutoUpdate = async (app: Application, projectName: stri
   } else if (project.updateType === 'commit') {
     const commits = await getProjectCommits(app, project.sourceRepo!, {
       user,
-      query: { branchName: project.branchName! }
+      query: { sourceBranch: project.sourceBranch! }
     })
     if (commits && commits[0].commitSHA !== project.commitSHA) commitSHA = commits[0].commitSHA
   }
-  if (commitSHA)
+  if (commitSHA && !project.hasLocalChanges)
     await app.service(projectPath).update(
       '',
       {
@@ -1505,6 +1513,8 @@ export const updateProject = async (
 
   const projectConfig = getProjectConfig(projectName) ?? {}
 
+  const enabled = getProjectEnabled(projectName)
+
   // when we have successfully re-installed the project, remove the database entry if it already exists
   const existingProjectResult = (await app.service(projectPath).find({
     query: {
@@ -1528,8 +1538,10 @@ export const updateProject = async (
         {
           id: v4(),
           name: projectName,
+          enabled,
           repositoryPath,
           needsRebuild: data.needsRebuild ? data.needsRebuild : true,
+          hasLocalChanges: false,
           sourceRepo: data.sourceURL,
           sourceBranch: data.sourceBranch,
           updateType: data.updateType,
@@ -1545,7 +1557,9 @@ export const updateProject = async (
     : await app.service(projectPath).patch(
         existingProject.id,
         {
+          enabled,
           commitSHA,
+          hasLocalChanges: false,
           commitDate: toDateTimeSql(commitDate),
           sourceRepo: data.sourceURL,
           sourceBranch: data.sourceBranch,
@@ -1684,7 +1698,7 @@ export const uploadLocalProjectToProvider = async (
 
     for (const item of manifest) {
       if (existingKeySet.has(item.key)) {
-        logger.info(`Skipping upload of static resource: "${item.key}"`)
+        // logger.info(`Skipping upload of static resource: "${item.key}"`)
         continue
       }
       const url = getCachedURL(item.key, cacheDomain)
@@ -1716,7 +1730,7 @@ export const uploadLocalProjectToProvider = async (
         ...newResource,
         url
       })
-      logger.info(`Uploaded static resource ${item.key} from resources.json`)
+      // logger.info(`Uploaded static resource ${item.key} from resources.json`)
     }
   }
 
@@ -1746,37 +1760,39 @@ export const uploadLocalProjectToProvider = async (
         ]
         const thisFileClass = AssetLoader.getAssetClass(file)
         if (filePathRelative.startsWith('/assets/') && staticResourceClasses.includes(thisFileClass)) {
-          const hash = createStaticResourceHash(fileResult, { mimeType: contentType, assetURL: key })
+          const hash = createStaticResourceHash(fileResult)
           if (existingContentSet.has(resourceKey(key, hash))) {
-            logger.info(`Skipping upload of static resource of class ${thisFileClass}: "${key}"`)
-          } else if (existingKeySet.has(key)) {
-            logger.info(`Updating static resource of class ${thisFileClass}: "${key}"`)
-            await app.service(staticResourcePath).patch(
-              null,
-              {
+            // logger.info(`Skipping upload of static resource of class ${thisFileClass}: "${key}"`)
+          } else {
+            if (existingKeySet.has(key)) {
+              logger.info(`Updating static resource of class ${thisFileClass}: "${key}"`)
+              await app.service(staticResourcePath).patch(
+                null,
+                {
+                  hash,
+                  url,
+                  mimeType: contentType,
+                  tags: [thisFileClass]
+                },
+                {
+                  query: {
+                    key,
+                    project: projectName
+                  }
+                }
+              )
+            } else {
+              logger.info(`Creating static resource of class ${thisFileClass}: "${key}"`)
+              await app.service(staticResourcePath).create({
+                key: `projects/${projectName}${filePathRelative}`,
+                project: projectName,
                 hash,
                 url,
                 mimeType: contentType,
                 tags: [thisFileClass]
-              },
-              {
-                query: {
-                  key,
-                  project: projectName
-                }
-              }
-            )
-          }
-          {
-            await app.service(staticResourcePath).create({
-              key: `projects/${projectName}${filePathRelative}`,
-              project: projectName,
-              hash,
-              url,
-              mimeType: contentType,
-              tags: [thisFileClass]
-            })
-            logger.info(`Uploaded static resource of class ${thisFileClass}: "${key}"`)
+              })
+            }
+            // logger.info(`Uploaded static resource of class ${thisFileClass}: "${key}"`)
           }
         }
       }

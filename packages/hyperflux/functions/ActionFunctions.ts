@@ -27,12 +27,10 @@ import { MathUtils } from 'three'
 import { matches, Parser, Validator } from 'ts-matches'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { InstanceID, UserID } from '@etherealengine/common/src/schema.type.module'
-import { deepEqual } from '@etherealengine/engine/src/common/functions/deepEqual'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
+import multiLogger from '@etherealengine/common/src/logger'
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
+import { deepEqual } from '@etherealengine/common/src/utils/deepEqual'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { ReactorRoot } from './ReactorFunctions'
 import { setInitialState, StateDefinitions } from './StateFunctions'
@@ -40,7 +38,14 @@ import { HyperFlux } from './StoreFunctions'
 
 const logger = multiLogger.child({ component: 'hyperflux:Action' })
 
-export type Topic = OpaqueType<'topicId'> & string
+export type PeerID = OpaqueType<'PeerID'> & string
+
+const matchesPeerID = matches.string as Validator<unknown, PeerID>
+
+export { matches, Validator } from 'ts-matches'
+export { matchesPeerID }
+
+export type Topic = OpaqueType<'Topic'> & string
 
 export type Action = {
   /**
@@ -49,13 +54,13 @@ export type Action = {
   type: string | string[]
 } & ActionOptions
 
-export type ActionRecipients = EntityUUID | PeerID | PeerID[] | 'all' | 'others'
+export type ActionRecipients = PeerID | PeerID[] | 'all' | 'others'
 
 export type ActionCacheOptions =
   | boolean
   | {
       /**
-       * If non-falsy, remove previous actions in the cache that match `$from` and `type` fields,
+       * If non-falsy, remove previous actions in the cache that match `$peer` and `type` fields,
        * and any specified fields
        */
       removePrevious?: boolean | string[]
@@ -76,12 +81,6 @@ export type ActionOptions = {
    * Will be undefined if dispatched locally or not in a network
    */
   $peer?: PeerID
-
-  /**
-   * The id of the sender
-   * @deprecated see getDispatchId
-   */
-  $from?: UserID
 
   /**
    * The intended recipients
@@ -291,7 +290,6 @@ export function defineAction<Shape extends Omit<ActionShape<Action>, keyof Actio
       ]) as [string, any]
     )
     const action = {
-      $from: HyperFlux.store?.getDispatchId(),
       ...allValuesNull,
       ...Object.fromEntries([...optionEntries, ...literalEntries]),
       ...defaultValues,
@@ -324,11 +322,11 @@ export function defineAction<Shape extends Omit<ActionShape<Action>, keyof Actio
  * @param topics @todo potentially in the future, support dispatching to multiple topics
  * @param store
  */
-export const dispatchAction = <A extends Action>(action: A) => {
-  const storeId = HyperFlux.store.getDispatchId()
+export const dispatchAction = <A extends Action>(_action: A) => {
+  const action = JSON.parse(JSON.stringify(_action))
+
   const agentId = HyperFlux.store.peerID
 
-  action.$from = action.$from ?? (storeId as UserID)
   action.$peer = action.$peer ?? agentId
   action.$to = action.$to ?? 'all'
   action.$time = action.$time ?? HyperFlux.store.getDispatchTime() + HyperFlux.store.defaultDispatchDelay()
@@ -371,8 +369,7 @@ const _updateCachedActions = (incomingAction: Required<ResolvedActionType>) => {
 
       if (remove) {
         for (const a of [...cachedActions]) {
-          // TODO - is it safe to change $from to $peer here?
-          if (a.$from === incomingAction.$from && a.type === incomingAction.type) {
+          if (a.$peer === incomingAction.$peer && a.type === incomingAction.type) {
             if (remove === true) {
               const idx = cachedActions.indexOf(a)
               cachedActions.splice(idx, 1)
@@ -436,15 +433,25 @@ const createEventSourceQueues = (action: Required<ResolvedActionType>) => {
         receptorActionQueue.resync()
       }
 
+      let hasNewActions = false
+
       // apply each action to each matching receptor, in order
       for (const action of receptorActionQueue()) {
         for (const receptor of Object.values(definition.receptors!)) {
           try {
-            receptor.matchesAction.test(action) && receptor(action)
+            if (receptor.matchesAction.test(action)) {
+              receptor(action)
+              hasNewActions = true
+            }
           } catch (e) {
             logger.error(e)
           }
         }
+      }
+
+      // if new actions were applied, synchronously run the reactor
+      if (hasNewActions && HyperFlux.store.stateReactors[definition.name]) {
+        HyperFlux.store.stateReactors[definition.name].run()
       }
     }
 
@@ -480,7 +487,6 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
     //actions had circular references. Just try/catching the logger.info call was not catching them properly,
     //So the solution was to attempt to JSON.stringify them manually first to see if that would error.
     try {
-      const jsonStringified = JSON.stringify(action)
       logger.info(`[Action]: ${action.type} %o`, action)
     } catch (err) {
       console.log('error in logging action', action)
@@ -633,4 +639,8 @@ export type ActionCreator<A extends ActionShape<Action>> = {
   resolvedActionShape: ResolvedActionShape<A>
   type: A['type']
   matches: Validator<unknown, ResolvedActionType<A>>
+}
+
+export const matchesWithDefault = <A>(matches: Validator<unknown, A>, defaultValue: () => A): MatchesWithDefault<A> => {
+  return { matches, defaultValue }
 }

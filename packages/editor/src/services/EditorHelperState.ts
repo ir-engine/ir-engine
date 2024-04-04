@@ -43,7 +43,6 @@ export enum PlacementMode {
 export const EditorHelperState = defineState({
   name: 'EditorHelperState',
   initial: () => ({
-    isFlyModeEnabled: false,
     transformMode: TransformMode.translate as TransformModeType,
     transformModeOnCancel: TransformMode.translate as TransformModeType,
     transformSpace: TransformSpace.world as TransformSpaceType,

@@ -30,15 +30,18 @@ import { NotificationService } from '@etherealengine/client-core/src/common/serv
 import { useNetwork } from '@etherealengine/client-core/src/components/World/EngineHooks'
 import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { ECSRecordingActions } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { defineActionQueue, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import CaptureUI from '@etherealengine/ui/src/pages/Capture'
 
 import { LocationService, LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import '@etherealengine/client-core/src/world/ClientNetworkModule'
+import { getMutableComponent, hasComponent, useQuery } from '@etherealengine/ecs'
 import '@etherealengine/engine/src/EngineModule'
+import { AvatarControllerComponent } from '@etherealengine/engine/src/avatar/components/AvatarControllerComponent'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 
 const ecsRecordingErrorActionQueue = defineActionQueue(ECSRecordingActions.error.matches)
 
@@ -67,6 +70,14 @@ export const CaptureLocation = () => {
   useEffect(() => {
     if (locationState.locationName.value) LocationService.getLocationByName(locationState.locationName.value)
   }, [locationState.locationName.value])
+
+  const avatarQuery = useQuery([AvatarControllerComponent, RigidBodyComponent])
+
+  useEffect(() => {
+    //removeComponent(avatarQuery[0], AvatarControllerComponent)
+    if (hasComponent(avatarQuery[0], RigidBodyComponent))
+      getMutableComponent(avatarQuery[0], RigidBodyComponent).type.set('fixed')
+  }, [avatarQuery])
 
   useNetwork({ online: !!locationName })
 

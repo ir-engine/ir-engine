@@ -36,21 +36,21 @@ export const InvitationSent = () => {
     { name: 'John Laouireen' as UserName, date: '12 Aug 2021' }
   ]
   return (
-    <div className="w-[460px] h-[86%] bg-[#15171B]">
-      <div className="flex flex-wrap gap-1 mt-2">
+    <div className="h-[86%] w-[460px] bg-[#15171B]">
+      <div className="mt-2 flex flex-wrap gap-1">
         {InviteSent.map((item) => {
           return (
-            <div className="rounded-[10px] bg-[#15171B] w-[450px] h-[45px] flex flex-wrap mt-1 ml-4">
-              <div className="rounded-full ml-4 my-2 bg-[#26282B] w-[30px] h-[30px] justify-between">
-                <img className="max-w-full w-[13.64px] mx-2 h-[28.64px] overflow-hidden" alt="" src={UserIcon} />
+            <div className="ml-4 mt-1 flex h-[45px] w-[450px] flex-wrap rounded-[10px] bg-[#15171B]">
+              <div className="my-2 ml-4 h-[30px] w-[30px] justify-between rounded-full bg-[#26282B]">
+                <img className="mx-2 h-[28.64px] w-[13.64px] max-w-full overflow-hidden" alt="" src={UserIcon} />
               </div>
-              <div className="justify-items-start ml-1">
-                <p className="text-[12px] w-[120px] font-bold text-white mt-[9px] justify-items-start">{item.name}</p>
-                <p className="text-[8px] w-[80px] font-normal text-white justify-items-start">{item.date}</p>
+              <div className="ml-1 justify-items-start">
+                <p className="mt-[9px] w-[120px] justify-items-start text-[12px] font-bold text-white">{item.name}</p>
+                <p className="w-[80px] justify-items-start text-[8px] font-normal text-white">{item.date}</p>
               </div>
-              <div className="ml-[144px] flex flex-wrap gap-3 mt-2">
-                <button className="m-0 cursor-pointer rounded-[20px] p-0 bg-[#3C3230] w-[98px] h-7">
-                  <div className="[text-align-last:center] rounded-2xl text-[11px] text-sm font-segoe-ui text-[#DD3333] text-left">
+              <div className="ml-[144px] mt-2 flex flex-wrap gap-3">
+                <button className="m-0 h-7 w-[98px] cursor-pointer rounded-[20px] bg-[#3C3230] p-0">
+                  <div className="font-segoe-ui rounded-2xl text-left text-[11px] text-sm text-[#DD3333] [text-align-last:center]">
                     UNINVITE
                   </div>
                 </button>

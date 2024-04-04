@@ -24,12 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { getState } from '@etherealengine/hyperflux'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { EditorState } from '../../services/EditorServices'
 
 export type HeirarchyTreeNodeType = {
@@ -39,7 +39,6 @@ export type HeirarchyTreeNodeType = {
   lastChild: boolean
   isLeaf?: boolean
   isCollapsed?: boolean
-  selected?: boolean
   active?: boolean
 }
 
@@ -52,7 +51,7 @@ export type HeirarchyTreeCollapsedNodeType = { [key: number]: boolean }
  */
 
 export function* heirarchyTreeWalker(
-  activeScene: SceneID,
+  sceneID: SceneID,
   treeNode: Entity,
   selectedEntities: Entity[]
 ): Generator<HeirarchyTreeNodeType> {
@@ -66,24 +65,23 @@ export function* heirarchyTreeWalker(
     const { depth, entity: entityNode, childIndex, lastChild } = stack.pop() as HeirarchyTreeNodeType
 
     if (!entityExists(entityNode)) continue
-    if (!hasComponent(entityNode, SceneObjectComponent)) continue
+    if (!hasComponent(entityNode, SourceComponent)) continue
 
     const expandedNodes = getState(EditorState).expandedNodes
 
-    const isCollapsed = !expandedNodes[activeScene]?.[entityNode]
+    const isCollapsed = !expandedNodes[sceneID]?.[entityNode]
 
     const entityTreeComponent = getComponent(entityNode as Entity, EntityTreeComponent)
 
     // treat entites with all helper children as leaf nodes
     const allhelperChildren =
-      false || entityTreeComponent.children.every((child) => !hasComponent(child, SceneObjectComponent))
+      false || entityTreeComponent.children.every((child) => !hasComponent(child, SourceComponent))
 
     yield {
       isLeaf: entityTreeComponent.children.length === 0 || allhelperChildren,
       isCollapsed,
       depth,
       entity: entityNode,
-      selected: selectedEntities.includes(entityNode),
       active: selectedEntities.length > 0 && entityNode === selectedEntities[selectedEntities.length - 1],
       childIndex,
       lastChild

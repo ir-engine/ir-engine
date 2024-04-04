@@ -23,15 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import {
-  Component,
-  SerializedComponentType,
-  updateComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { UUIDComponent } from '@etherealengine/ecs'
+import { Component, SerializedComponentType, updateComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -64,13 +58,12 @@ export const updateProperties = <C extends Component>(
   nodes?: Entity[]
 ) => {
   const editorState = getMutableState(EditorState)
-  const selectionState = getMutableState(SelectionState)
 
   const affectedNodes = nodes
     ? nodes
     : editorState.lockPropertiesPanel.value
     ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value)]
-    : selectionState.selectedEntities.value
+    : SelectionState.getSelectedEntities()
   for (let i = 0; i < affectedNodes.length; i++) {
     const node = affectedNodes[i]
     updateComponent(node, component, properties)
@@ -93,23 +86,12 @@ export const commitProperties = <C extends Component>(
   nodes?: Entity[]
 ) => {
   const editorState = getMutableState(EditorState)
-  const selectionState = getMutableState(SelectionState)
 
   const affectedNodes = nodes
     ? nodes
     : editorState.lockPropertiesPanel.value
     ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value)]
-    : selectionState.selectedEntities.value
+    : SelectionState.getSelectedEntities()
 
   EditorControlFunctions.modifyProperty(affectedNodes, component, properties)
-}
-
-export function traverseScene<T>(
-  callback: (node: Entity) => T,
-  predicate: (node: Entity) => boolean = () => true,
-  snubChildren = false
-): T[] {
-  const result: T[] = []
-  iterateEntityNode(SceneState.getRootEntity(), (node) => result.push(callback(node)), predicate, snubChildren)
-  return result
 }

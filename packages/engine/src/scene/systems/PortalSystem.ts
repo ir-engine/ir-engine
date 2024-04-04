@@ -25,17 +25,18 @@ Ethereal Engine. All Rights Reserved.
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { UUIDComponent } from '@etherealengine/ecs'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { SpawnPoseState } from '@etherealengine/spatial'
+import { switchCameraMode } from '@etherealengine/spatial/src/camera/functions/switchCameraMode'
+import { CameraMode } from '@etherealengine/spatial/src/camera/types/CameraMode'
 import { useEffect } from 'react'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
-import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
-import { CameraMode } from '../../camera/types/CameraMode'
-import { Engine } from '../../ecs/classes/Engine'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '../../ecs/functions/SystemGroups'
-import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
 import { PortalComponent, PortalState } from '../components/PortalComponent'
-import { UUIDComponent } from '../components/UUIDComponent'
 
 const reactor = () => {
   const activePortalEntityState = useHookstate(getMutableState(PortalState).activePortalEntity)
@@ -45,14 +46,15 @@ const reactor = () => {
     if (!activePortalEntity) return
     const activePortal = getComponent(activePortalEntity, PortalComponent)
     switchCameraMode(Engine.instance.cameraEntity, { cameraMode: CameraMode.ShoulderCam })
-    AvatarControllerComponent.captureMovement(Engine.instance.localClientEntity, activePortalEntity)
+    const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+    AvatarControllerComponent.captureMovement(selfAvatarEntity, activePortalEntity)
 
     return () => {
-      const localClientEntity = Engine.instance.localClientEntity
-      getState(EntityNetworkState)[getComponent(localClientEntity, UUIDComponent)].spawnPosition.copy(
+      const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+      getState(SpawnPoseState)[getComponent(selfAvatarEntity, UUIDComponent)].spawnPosition.copy(
         activePortal.remoteSpawnPosition
       )
-      AvatarControllerComponent.releaseMovement(Engine.instance.localClientEntity, activePortalEntity)
+      AvatarControllerComponent.releaseMovement(selfAvatarEntity, activePortalEntity)
       getMutableState(PortalState).lastPortalTimeout.set(Date.now())
     }
   }, [activePortalEntityState])

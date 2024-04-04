@@ -25,15 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { isMobile } from '../../common/functions/isMobile'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { getComponent, getMutableComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { PresentationSystemGroup } from '@etherealengine/ecs'
+import { getComponent, getMutableComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
-import { SceneLoadingSystem } from './SceneLoadingSystem'
 
 let accumulator = 0
 
@@ -45,7 +46,7 @@ const execute = () => {
   const engineState = getState(EngineState)
   if (engineState.isEditor) return
 
-  accumulator += engineState.deltaSeconds
+  accumulator += getState(ECSState).deltaSeconds
 
   if (accumulator < 1) {
     return
@@ -53,7 +54,8 @@ const execute = () => {
 
   accumulator = 0
 
-  const avatarPosition = getOptionalComponent(Engine.instance.localClientEntity, TransformComponent)?.position
+  const selfAvatar = AvatarComponent.getSelfAvatarEntity()
+  const avatarPosition = getOptionalComponent(selfAvatar, TransformComponent)?.position
   if (!avatarPosition) return
 
   for (const entity of dynamicLoadQuery()) {
@@ -71,6 +73,6 @@ const execute = () => {
 
 export const SceneObjectDynamicLoadSystem = defineSystem({
   uuid: 'ee.engine.scene.SceneObjectDynamicLoadSystem',
-  insert: { with: SceneLoadingSystem },
+  insert: { after: PresentationSystemGroup },
   execute
 })

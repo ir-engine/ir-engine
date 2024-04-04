@@ -46,10 +46,6 @@ const parseModuleName = (moduleName: string) => {
   if (moduleName.includes('medisoup')) {
     return `vendor_medisoup-client_${moduleName.toString().split('client/lib/')[1].split('/')[0].toString()}`
   }
-  // chunk @fortawesome
-  if (moduleName.includes('@fortawesome')) {
-    return `vendor_@fortawesome_${moduleName.toString().split('@fortawesome/')[1].split('/')[0].toString()}`
-  }
   // chunk apexcharts
   if (moduleName.includes('apexcharts')) {
     return `vendor_apexcharts_${moduleName.toString().split('dist/')[1].split('/')[0].toString()}`
@@ -73,10 +69,6 @@ const parseModuleName = (moduleName: string) => {
     return `vendor_react-icons_${moduleName.toString().split('react-icons/')[1].split('/')[0].toString()}`
   }
 
-  // chunk react-color
-  if (moduleName.includes('react-color')) {
-    return `vendor_react-color_${moduleName.toString().split('react-color/')[1].split('/')[0].toString()}`
-  }
   // chunk @pixiv vrm
   if (moduleName.includes('@pixiv')) {
     if (moduleName.includes('@pixiv/three-vrm')) {
@@ -277,8 +269,8 @@ export default defineConfig(async () => {
       ...(isDevOrLocal
         ? {
             https: {
-              key: fs.readFileSync(path.join(packageRoot.path, 'certs/key.pem')),
-              cert: fs.readFileSync(path.join(packageRoot.path, 'certs/cert.pem'))
+              key: fs.readFileSync(path.join(packageRoot.path, process.env.KEY || 'certs/key.pem')),
+              cert: fs.readFileSync(path.join(packageRoot.path, process.env.CERT || 'certs/cert.pem'))
             }
           }
         : {})
@@ -286,7 +278,6 @@ export default defineConfig(async () => {
     base,
     optimizeDeps: {
       entries: ['./src/main.tsx'],
-      exclude: ['@etherealengine/volumetric'],
       include: ['@reactflow/core', '@reactflow/minimap', '@reactflow/controls', '@reactflow/background'],
       esbuildOptions: {
         target: 'es2020'

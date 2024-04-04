@@ -29,8 +29,8 @@ import { useTranslation } from 'react-i18next'
 import { ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
 import Badge from '@etherealengine/ui/src/primitives/mui/Badge'
 import Card from '@etherealengine/ui/src/primitives/mui/Card'
@@ -44,7 +44,7 @@ import MessageIcon from '@mui/icons-material/Message'
 import Fab from '@mui/material/Fab'
 
 import { InstanceID, MessageID, UserName, messagePath } from '@etherealengine/common/src/schema.type.module'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { NetworkState } from '@etherealengine/network'
 import { AppState } from '../../common/services/AppService'
 import { AvatarUIActions, AvatarUIState } from '../../systems/state/AvatarUIState'
 import { useUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'
@@ -237,6 +237,19 @@ export const InstanceChat = ({ styles = defaultStyles }: InstanceChatProps) => {
     )
   }, [chatState.messageCreated.value])
 
+  // When messages change, scroll to most recent message if the previous most-recent message is at least partially visible
+  useEffect(() => {
+    const lastMessage = sortedMessages[sortedMessages.length - 1]
+    if (!sortedMessages.length) return
+    const lastMessageElement = document.getElementById(lastMessage.id)
+    if (!lastMessageElement) return
+    const rect = lastMessageElement.getBoundingClientRect()
+    const elemTop = rect.top
+    const elemBottom = rect.bottom
+    const isVisible = elemTop < window.innerHeight && elemBottom >= 0
+    if (isVisible) messageRef.current.scrollTop = messageRef.current.scrollHeight
+  }, [messages.data])
+
   const messageRef = useRef<any>()
 
   useEffect(() => {
@@ -289,7 +302,7 @@ export const InstanceChat = ({ styles = defaultStyles }: InstanceChatProps) => {
     return (
       <Fragment key={message.id as MessageID}>
         {message.isNotification ? (
-          <div key={message.id as MessageID} className={`${styles.selfEnd} ${styles.noMargin}`}>
+          <div key={message.id as MessageID} id={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
             <div className={styles.dFlex}>
               <div className={`${styles.msgNotification} ${styles.mx2}`}>
                 <p className={styles.shadowText}>{message.text}</p>
@@ -297,7 +310,11 @@ export const InstanceChat = ({ styles = defaultStyles }: InstanceChatProps) => {
             </div>
           </div>
         ) : (
-          <div key={message.id as MessageID} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
+          <div
+            key={message.id as MessageID}
+            id={message.id}
+            className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}
+          >
             <div className={`${styles.selfEnd} ${styles.noMargin}`}>
               <div
                 className={`${message.senderId !== user?.id.value ? styles.msgReplyContainer : styles.msgOwner} ${

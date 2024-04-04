@@ -28,7 +28,7 @@ import { v1 } from 'uuid'
 
 import { locationSettingPath } from '@etherealengine/common/src/schemas/social/location-setting.schema'
 import { LocationID, LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { Application } from '../../../declarations'
@@ -59,7 +59,7 @@ describe('location.test', () => {
         name,
         slugifiedName: '',
         sceneId,
-        maxUsersPerInstance: 30,
+        maxUsersPerInstance: 20,
         locationSetting: {
           id: '',
           locationType: 'public',

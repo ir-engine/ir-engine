@@ -23,16 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BotUserAgent } from '@etherealengine/common/src/constants/BotUserAgent'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 import { WebLayerManager } from '@etherealengine/xrui'
 
-import { CameraComponent } from './camera/components/CameraComponent'
-import { Engine } from './ecs/classes/Engine'
-import { EngineState } from './ecs/classes/EngineState'
-import { getComponent } from './ecs/functions/ComponentFunctions'
-import { EngineRenderer } from './renderer/WebGLRendererSystem'
-import { ObjectLayers } from './scene/constants/ObjectLayers'
+import { ECSState } from '@etherealengine/ecs'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { PerformanceManager } from '@etherealengine/spatial/src/renderer/PerformanceState'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
+import { AssetLoaderState } from './assets/state/AssetLoaderState'
 
 /**
  * initializeBrowser
@@ -40,36 +42,25 @@ import { ObjectLayers } from './scene/constants/ObjectLayers'
  * initializes everything for the browser context
  */
 export const initializeBrowser = () => {
-  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
 
   camera.layers.disableAll()
   camera.layers.enable(ObjectLayers.Scene)
   camera.layers.enable(ObjectLayers.Avatar)
   camera.layers.enable(ObjectLayers.UI)
   camera.layers.enable(ObjectLayers.TransformGizmo)
+  camera.layers.enable(ObjectLayers.UVOL)
 
-  getMutableState(EngineState).isBot.set(navigator.userAgent === BotUserAgent)
+  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
+  if (!renderer?.renderer) throw new Error('renderer does not exist!')
 
-  const renderer = EngineRenderer.instance.renderer
-  if (!renderer) throw new Error('EngineRenderer.instance.renderer does not exist!')
+  const gltfLoader = getState(AssetLoaderState).gltfLoader
+  initializeKTX2Loader(gltfLoader)
 
-  WebLayerManager.initialize(renderer)
+  WebLayerManager.initialize(renderer.renderer, gltfLoader.ktx2Loader!)
   WebLayerManager.instance.ktx2Encoder.pool.setWorkerLimit(1)
 
-  setupInitialClickListener()
-  Engine.instance.engineTimer.start()
-}
-
-const setupInitialClickListener = () => {
-  const canvas = EngineRenderer.instance.renderer.domElement
-  const initialClickListener = () => {
-    window.removeEventListener('click', initialClickListener)
-    window.removeEventListener('touchend', initialClickListener)
-    canvas.removeEventListener('click', initialClickListener)
-    canvas.removeEventListener('touchend', initialClickListener)
-  }
-  window.addEventListener('click', initialClickListener)
-  window.addEventListener('touchend', initialClickListener)
-  canvas.addEventListener('click', initialClickListener)
-  canvas.addEventListener('touchend', initialClickListener)
+  PerformanceManager.buildPerformanceState(renderer, () => {
+    getState(ECSState).timer.start()
+  })
 }

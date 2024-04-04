@@ -40,7 +40,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { ProjectBuilderTagsType, ProjectType, helmSettingPath } from '@etherealengine/common/src/schema.type.module'
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import DrawerView from '../../common/DrawerView'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
@@ -66,8 +66,6 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
   const adminProjectState = useHookstate(getMutableState(ProjectState))
   const adminProjects = adminProjectState.projects
   const engineCommit = adminProjectState.builderInfo.engineCommit
-
-  ProjectService.useAPIListeners()
 
   const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState))
 

@@ -31,14 +31,18 @@ import path from 'path/posix'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
 import { isDev } from '@etherealengine/common/src/config'
+import { ProjectType, projectPath } from '@etherealengine/common/src/schema.type.module'
 import {
   FileBrowserContentType,
   FileBrowserPatch,
   FileBrowserUpdate
 } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
-import { projectPermissionPath } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
-import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
+import {
+  ProjectPermissionType,
+  projectPermissionPath
+} from '@etherealengine/common/src/schemas/projects/project-permission.schema'
+import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
@@ -123,7 +127,7 @@ export class FileBrowserService
     checkDirectoryInsideNesting(directory, params.nestingDirectory)
 
     let result = await storageProvider.listFolderContent(directory)
-    const total = result.length
+    let total = result.length
 
     result = result.slice(skip, skip + limit)
     result.forEach((file) => {
@@ -132,12 +136,17 @@ export class FileBrowserService
 
     if (params.provider && !isAdmin) {
       const knexClient: Knex = this.app.get('knexClient')
-      const projectPermissions = await knexClient
-        .from(projectPermissionPath)
-        .join('project', `${projectPermissionPath}.projectId`, 'project.id')
-        .where(`${projectPermissionPath}.userId`, params.user!.id)
-        .select()
-        .options({ nestTables: true })
+      const projectPermissions: { 'project-permission': ProjectPermissionType; project: ProjectType }[] =
+        await knexClient
+          .from(projectPermissionPath)
+          .join(projectPath, `${projectPermissionPath}.projectId`, `${projectPath}.id`)
+          .where(`${projectPermissionPath}.userId`, params.user!.id)
+          .select()
+          .options({ nestTables: true })
+
+      if (directory === 'projects/') {
+        total = projectPermissions.length
+      }
 
       const allowedProjectNames = projectPermissions.map((permission) => permission.project.name)
       result = result.filter((item) => {
@@ -268,7 +277,7 @@ export class FileBrowserService
       fs.writeFileSync(filePath, data.body)
     }
 
-    const hash = createStaticResourceHash(data.body, { mimeType: data.contentType, assetURL: key })
+    const hash = createStaticResourceHash(data.body)
     const cacheDomain = getCacheDomain(storageProvider, params && params.provider == null)
     const url = getCachedURL(key, cacheDomain)
 

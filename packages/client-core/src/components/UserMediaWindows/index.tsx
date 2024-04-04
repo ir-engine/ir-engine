@@ -26,12 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import { useHookstate } from '@hookstate/core'
 import React from 'react'
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { PeerID, getMutableState } from '@etherealengine/hyperflux'
 
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { NetworkState } from '@etherealengine/network'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 import { FilteredUsersState } from '../../transports/FilteredUsersSystem'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
@@ -60,7 +59,7 @@ export const useMediaWindows = () => {
     { cam: PeerMediaStreamInterface; screen: PeerMediaStreamInterface }
   ][]
 
-  const selfPeerID = Engine.instance.peerID
+  const selfPeerID = Engine.instance.store.peerID
   const selfUserID = Engine.instance.userID
 
   const camActive = (cam: PeerMediaStreamInterface) =>
@@ -82,7 +81,9 @@ export const useMediaWindows = () => {
         })
 
       const userScreens = consumers
-        .filter(([peerID, { cam, screen }]) => peerIDs.includes(peerID) && screen?.videoStream)
+        .filter(
+          ([peerID, { cam, screen }]) => peerIDs.includes(peerID) && screen?.videoStream && !screen?.videoStream?.closed
+        )
         .map(([peerID]) => {
           return { peerID, type: 'screen' as const }
         })
@@ -111,7 +112,12 @@ export const useMediaWindows = () => {
     ? filteredUsersState.nearbyLayerUsers.value.map((userID) => mediaNetwork.users[userID]).flat()
     : []
 
-  return windows.filter(({ peerID }) => peerID === Engine.instance.store.peerID || nearbyPeers.includes(peerID))
+  return windows.filter(
+    ({ peerID }) =>
+      peerID === Engine.instance.store.peerID ||
+      mediaNetwork?.peers[peerID].userId === Engine.instance.userID ||
+      nearbyPeers.includes(peerID)
+  )
 }
 
 export const UserMediaWindows = () => {
@@ -162,7 +168,7 @@ export const UserMediaWindowsWidget = () => {
 
   windows.push(...screens, ...cams)
 
-  const selfPeerID = Engine.instance.peerID
+  const selfPeerID = Engine.instance.store.peerID
   const selfUserID = Engine.instance.userID
   const mediaNetwork = NetworkState.mediaNetwork
 

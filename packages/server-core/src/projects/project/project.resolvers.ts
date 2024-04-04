@@ -37,8 +37,8 @@ import {
   ProjectSettingType,
   ProjectType
 } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const projectDbToSchema = (rawData: ProjectDatabaseType): ProjectType => {
   let settings: ProjectSettingType[]
@@ -69,12 +69,14 @@ export const projectDbToSchema = (rawData: ProjectDatabaseType): ProjectType => 
 export const projectResolver = resolve<ProjectType, HookContext>(
   {
     projectPermissions: virtual(async (project, context) => {
-      return (await context.app.service(projectPermissionPath).find({
-        query: {
-          projectId: project.id
-        },
-        paginate: false
-      })) as any as ProjectPermissionType[]
+      return context.params.populateProjectPermissions
+        ? ((await context.app.service(projectPermissionPath).find({
+            query: {
+              projectId: project.id
+            },
+            paginate: false
+          })) as ProjectPermissionType[])
+        : []
     }),
 
     commitDate: virtual(async (project) => {

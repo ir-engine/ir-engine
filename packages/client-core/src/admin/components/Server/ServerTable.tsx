@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import TimeAgo from 'javascript-time-ago'
-import en from 'javascript-time-ago/locale/en'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -37,16 +35,13 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { ServerPodInfoType, podsPath } from '@etherealengine/common/src/schema.type.module'
-import { useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { getTimeSince } from '../../../util/getTimeSince'
 import TableComponent from '../../common/Table'
 import { ServerColumn, ServerPodData } from '../../common/variables/server'
 import { useServerInfoFind } from '../../services/ServerInfoQuery'
 import styles from '../../styles/admin.module.scss'
 import { ServerLogsInputsType } from './ServerLogs'
-
-TimeAgo.addDefaultLocale(en)
-
-const timeAgo = new TimeAgo('en-US')
 
 interface Props {
   selectedCard: string
@@ -88,7 +83,7 @@ const ServerTable = ({ selectedCard, setServerLogsInputs }: Props) => {
       status: el.status,
       type: el.type || '',
       currentUsers: el.currentUsers?.toString() || '',
-      age: timeAgo.format(new Date(el.age)),
+      age: getTimeSince(new Date(el.age)),
       restarts: el.containers.map((item) => item.restarts).join(', '),
       instanceId: el.instanceId ? (
         <a

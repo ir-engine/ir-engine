@@ -26,16 +26,22 @@ Ethereal Engine. All Rights Reserved.
 import i18n from 'i18next'
 
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { SceneDataType, SceneID, scenePath, sceneUploadPath } from '@etherealengine/common/src/schema.type.module'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import multiLogger from '@etherealengine/common/src/logger'
+import {
+  SceneDataType,
+  SceneID,
+  SceneMetadataCreate,
+  scenePath,
+  sceneUploadPath
+} from '@etherealengine/common/src/schema.type.module'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { SceneSnapshotState } from '@etherealengine/engine/src/scene/SceneState'
 import { GLTFLoadedComponent } from '@etherealengine/engine/src/scene/components/GLTFLoadedComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { SceneParams } from '@etherealengine/server-core/src/projects/scene/scene.class'
+import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { EditorState } from '../services/EditorServices'
 
 const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
@@ -49,7 +55,7 @@ export const getScenes = async (projectName: string): Promise<SceneDataType[]> =
   try {
     const result = (await Engine.instance.api
       .service(scenePath)
-      .find({ query: { project: projectName, metadataOnly: true, paginate: false } })) as SceneDataType[]
+      .find({ query: { project: projectName, metadataOnly: true, paginate: false } })) as any as SceneDataType[]
     return result
   } catch (error) {
     logger.error(error, 'Error in getting project getScenes()')
@@ -65,9 +71,9 @@ export const getScenes = async (projectName: string): Promise<SceneDataType[]> =
  */
 export const getScene = async (projectName: string, sceneName: string, metadataOnly = true): Promise<SceneDataType> => {
   try {
-    return await Engine.instance.api
+    return (await Engine.instance.api
       .service(scenePath)
-      .get(null, { query: { project: projectName, name: sceneName, metadataOnly: metadataOnly } })
+      .get('', { query: { project: projectName, name: sceneName, metadataOnly: metadataOnly } })) as SceneDataType
   } catch (error) {
     logger.error(error, 'Error in getting project getScene()')
     throw error
@@ -90,9 +96,16 @@ export const deleteScene = async (projectName, sceneName): Promise<any> => {
   return true
 }
 
-export const renameScene = async (projectName: string, newSceneName: string, oldSceneName: string): Promise<any> => {
+export const renameScene = async (
+  projectName: string,
+  newSceneName: string,
+  oldSceneName: string,
+  params?: SceneParams
+) => {
   try {
-    await Engine.instance.api.service(scenePath).patch(null, { newSceneName, oldSceneName, project: projectName })
+    await Engine.instance.api
+      .service(scenePath)
+      .patch(null, { newSceneName, oldSceneName, project: projectName }, params)
   } catch (error) {
     logger.error(error, 'Error in renaming project')
     throw error
@@ -112,7 +125,7 @@ export const renameScene = async (projectName: string, newSceneName: string, old
 export const saveScene = async (projectName: string, sceneName: string, signal: AbortSignal) => {
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
 
-  const sceneData = getState(SceneState).scenes[getState(SceneState).activeScene!].snapshots.at(-1)?.data
+  const sceneData = getState(SceneSnapshotState)[getState(EditorState).sceneID!].snapshots.at(-1)?.data
 
   try {
     if (!sceneData) throw new Error(i18n.t('editor:errors.sceneDataNotFound'))
@@ -160,9 +173,9 @@ export const onNewScene = async () => {
   }
 }
 
-export const createNewScene = async (projectName: string) => {
+export const createNewScene = async (projectName: string, params?: SceneParams) => {
   try {
-    return Engine.instance.api.service(scenePath).create({ project: projectName })
+    return Engine.instance.api.service(scenePath).create({ project: projectName }, params) as any as SceneMetadataCreate
   } catch (error) {
     logger.error(error, 'Error in creating project')
     throw error

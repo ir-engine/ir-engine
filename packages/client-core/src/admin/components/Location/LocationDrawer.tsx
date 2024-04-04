@@ -38,7 +38,7 @@ import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
-import { useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
@@ -213,9 +213,13 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
 
     if (validateForm(state.value, state.formErrors.value)) {
       if (mode === LocationDrawerMode.Create) {
-        locationMutation.create(data)
+        locationMutation.create(data).catch((error) => {
+          NotificationService.dispatchNotify(error.message, { variant: 'error' })
+        })
       } else if (selectedLocation) {
-        locationMutation.patch(selectedLocation.id, data)
+        locationMutation.patch(selectedLocation.id, data).catch((error) => {
+          NotificationService.dispatchNotify(error.message, { variant: 'error' })
+        })
         editMode.set(false)
       }
 

@@ -23,24 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   getComponent,
   getOptionalComponent,
   hasComponent,
   setComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { useEffect } from 'react'
 import { Box3, Color, LineBasicMaterial, LineSegments, Matrix4, Quaternion, Vector3 } from 'three'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
@@ -51,8 +51,10 @@ const objectGridQuery = defineQuery([ObjectGridSnapComponent])
 
 function isParentSelected(entity: Entity) {
   let walker: Entity | null = entity
+
   const placementEntity = getState(ClickPlacementState).placementEntity
-  const selectedEntities = getState(SelectionState).selectedEntities
+
+  const selectedEntities = SelectionState.getSelectedEntities()
   while (walker) {
     if (walker === placementEntity || selectedEntities.includes(walker)) return walker
     walker = getOptionalComponent(walker, EntityTreeComponent)?.parentEntity ?? null
@@ -236,10 +238,11 @@ export const ObjectGridSnapSystem = defineSystem({
     }, [snapState.enabled])
 
     useEffect(() => {
-      const selectedEntities = [...selectionState.selectedEntities.value]
+      const selectedEntities = SelectionState.getSelectedEntities()
       return () => {
+        const currentSelectedEntities = SelectionState.getSelectedEntities()
         for (const entity of selectedEntities) {
-          if (selectionState.selectedEntities.value.includes(entity)) continue
+          if (currentSelectedEntities.includes(entity)) continue
           if (!hasComponent(entity, ObjectGridSnapComponent)) continue
           resetHelperTransform(entity)
         }

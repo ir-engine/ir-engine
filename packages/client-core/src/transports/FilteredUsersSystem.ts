@@ -24,14 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { getNearbyUsers } from '@etherealengine/engine/src/networking/functions/getNearbyUsers'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { getNearbyUsers } from '@etherealengine/engine/src/avatar/functions/getNearbyUsers'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { NetworkState } from '@etherealengine/network'
 import { useEffect } from 'react'
 import { MediaInstanceState, useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
 import { SocketWebRTCClientNetwork } from './SocketWebRTCClientFunctions'
@@ -71,8 +71,9 @@ export const updateNearbyAvatars = () => {
 
   if (!nearbyUserIds.length) return
 
+  /** @todo move this to event sourcing state */
   // for (const consumer of network.consumers) {
-  //   if (consumer.appData.peerID === Engine.instance.peerID) continue
+  //   if (consumer.appData.peerID === Engine.instance.store.peerID) continue
   //   if (!nearbyUserIds.includes(network.peers.get(consumer.appData.peerID)?.userId!)) {
   //     dispatchAction(
   //       MediaConsumerActions.consumerClosed({
@@ -89,7 +90,7 @@ const NEARBY_AVATAR_UPDATE_PERIOD = 5
 let accumulator = 0
 
 const execute = () => {
-  accumulator += getState(EngineState).deltaSeconds
+  accumulator += getState(ECSState).deltaSeconds
   if (accumulator > NEARBY_AVATAR_UPDATE_PERIOD) {
     accumulator = 0
     updateNearbyAvatars()

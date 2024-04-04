@@ -30,7 +30,7 @@ import { v4 } from 'uuid'
 import { MatchUserQuery, MatchUserType } from '@etherealengine/common/src/schemas/matchmaking/match-user.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const matchUserResolver = resolve<MatchUserType, HookContext>({
   createdAt: virtual(async (matchUser) => fromDateTimeSql(matchUser.createdAt)),

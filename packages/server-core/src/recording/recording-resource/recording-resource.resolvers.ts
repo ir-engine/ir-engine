@@ -34,7 +34,7 @@ import {
   RecordingResourceQuery,
   RecordingResourceType
 } from '@etherealengine/common/src/schemas/recording/recording-resource.schema'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const recordingResourceResolver = resolve<RecordingResourceType, HookContext>({
   staticResource: virtual(async (recordingResource, context) => {

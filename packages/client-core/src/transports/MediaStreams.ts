@@ -23,13 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import {
-  localAudioConstraints,
-  localVideoConstraints
-} from '@etherealengine/engine/src/networking/constants/VideoConstants'
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import multiLogger from '@etherealengine/common/src/logger'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+import { VideoConstants } from '@etherealengine/network'
 
+import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
 import { ProducerExtension } from './SocketWebRTCClientFunctions'
 
 const logger = multiLogger.child({ component: 'client-core:MediaStreams' })
@@ -184,9 +182,14 @@ export const MediaStreamService = {
    */
   async getVideoStream() {
     const state = getMutableState(MediaStreamState)
+    const clientSettingState = getState(AdminClientSettingsState)
     try {
-      logger.info('Getting video stream %o', localVideoConstraints)
-      const videoStream = await navigator.mediaDevices.getUserMedia(localVideoConstraints)
+      const { maxResolution } = clientSettingState.client[0].mediaSettings.video
+      const constraints = {
+        video: VideoConstants.VIDEO_CONSTRAINTS[maxResolution] || VideoConstants.VIDEO_CONSTRAINTS.hd
+      }
+      const videoStream = await navigator.mediaDevices.getUserMedia(constraints)
+      logger.info('Getting video stream %o', constraints)
       state.videoStream.set(videoStream)
       if (state.camVideoProducer.value && !state.camVideoProducer.value.closed) {
         await state.camVideoProducer.value.replaceTrack({
@@ -212,8 +215,8 @@ export const MediaStreamService = {
   async getAudioStream() {
     const state = getMutableState(MediaStreamState)
     try {
-      logger.info('Getting audio stream %o', localAudioConstraints)
-      const audioStream = await navigator.mediaDevices.getUserMedia(localAudioConstraints)
+      logger.info('Getting audio stream %o', VideoConstants.localAudioConstraints)
+      const audioStream = await navigator.mediaDevices.getUserMedia(VideoConstants.localAudioConstraints)
       if (!audioStream.active) {
         state.audioStream.set(null)
         return false
