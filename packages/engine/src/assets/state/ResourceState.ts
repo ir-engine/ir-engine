@@ -28,7 +28,7 @@ import { Engine, Entity, getOptionalComponent } from '@etherealengine/ecs'
 import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
 import { PerformanceState } from '@etherealengine/spatial/src/renderer/PerformanceState'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import {
   Cache,
   CompressedTexture,
@@ -260,10 +260,11 @@ const getTotalVertexCount = () => {
 }
 
 const getRendererInfo = () => {
-  if (!EngineRenderer.instance || !EngineRenderer.instance.renderer) return {}
+  const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)?.renderer
+  if (!renderer) return {}
   return {
-    memory: EngineRenderer.instance.renderer.info.memory,
-    programCount: EngineRenderer.instance.renderer.info.programs?.length
+    memory: renderer.info.memory,
+    programCount: renderer.info.programs?.length
   }
 }
 
@@ -610,10 +611,6 @@ const unloadObj = <T extends Object3D>(obj: T, sceneID: SceneID | undefined) => 
     debugLog('ResourceManager:unloadObj Unloading Object3D: ' + obj.name + ' for scene: ' + sceneID)
     const light = obj as Light // anything with dispose function
     if (typeof light.dispose === 'function') light.dispose()
-
-    const scene = Engine.instance.scene
-    const index = scene.children.indexOf(obj)
-    if (index > -1) scene.children.splice(index, 1)
   }
 
   if (obj.isProxified) {
