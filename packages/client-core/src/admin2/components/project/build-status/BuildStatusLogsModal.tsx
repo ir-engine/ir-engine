@@ -37,6 +37,7 @@ import { PopoverState } from '../../../../common/services/PopoverState'
 const BuildStatusBadgeVariant = {
   success: 'success',
   ended: 'neutral',
+  pending: 'neutral',
   failed: 'danger'
 }
 
