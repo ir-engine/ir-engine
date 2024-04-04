@@ -30,10 +30,11 @@ import { getState } from '@etherealengine/hyperflux'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { act, render } from '@testing-library/react'
 import React, { useEffect } from 'react'
+import sinon from 'sinon'
 import { DirectionalLight } from 'three'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { ResourceState } from '../state/ResourceState'
-import { useGLTF, useObj, useTexture } from './resourceHooks'
+import { useGLTF, useObj, useResource, useTexture } from './resourceHooks'
 
 describe('ResourceHooks', () => {
   const gltfURL = '/packages/projects/default-project/assets/collisioncube.glb'
@@ -247,6 +248,142 @@ describe('ResourceHooks', () => {
       const resourceState = getState(ResourceState)
       assert(objUUID && !resourceState.resources[objUUID])
       unmount()
+      done()
+    })
+  })
+
+  it('Can track any asset', (done) => {
+    const entity = createEntity()
+
+    const spy = sinon.spy()
+
+    const resourceObj = {
+      data: new ArrayBuffer(128),
+      dispose: function () {
+        spy()
+        this.data = null
+      }
+    }
+
+    const Reactor = () => {
+      useResource(resourceObj, entity)
+      return <></>
+    }
+
+    const { rerender, unmount } = render(<Reactor />)
+
+    act(async () => {
+      rerender(<Reactor />)
+    }).then(() => {
+      unmount()
+      sinon.assert.calledOnce(spy)
+      assert(!resourceObj.data)
+      done()
+    })
+  })
+
+  it('Can track any asset tied to an id', (done) => {
+    const entity = createEntity()
+
+    const spy = sinon.spy()
+
+    const id = '3456345623216'
+
+    const resourceObj = {
+      data: new ArrayBuffer(128),
+      dispose: function () {
+        spy()
+        this.data = null
+      }
+    }
+
+    const Reactor = () => {
+      useResource(resourceObj, entity, id)
+      return <></>
+    }
+
+    const { rerender, unmount } = render(<Reactor />)
+
+    act(async () => {
+      rerender(<Reactor />)
+    }).then(() => {
+      const resourceState = getState(ResourceState)
+      assert(resourceState.resources[id])
+      unmount()
+      sinon.assert.calledOnce(spy)
+      assert(!resourceObj.data)
+      assert(!resourceState.resources[id])
+      done()
+    })
+  })
+
+  it('Can unload any asset tied to an id', (done) => {
+    const entity = createEntity()
+
+    const spy = sinon.spy()
+
+    const id = '3456345623215'
+
+    const resourceObj = {
+      data: new ArrayBuffer(128),
+      dispose: function () {
+        spy()
+        this.data = null
+      }
+    }
+
+    const Reactor = () => {
+      const [resource, unload] = useResource(resourceObj, entity, id)
+
+      useEffect(() => {
+        unload()
+      }, [])
+
+      return <></>
+    }
+
+    const { rerender, unmount } = render(<Reactor />)
+
+    act(async () => {
+      rerender(<Reactor />)
+    }).then(() => {
+      const resourceState = getState(ResourceState)
+      sinon.assert.calledOnce(spy)
+      assert(!resourceObj.data)
+      assert(!resourceState.resources[id])
+      unmount()
+      done()
+    })
+  })
+
+  it('Can track any asset and callback when unloaded', (done) => {
+    const entity = createEntity()
+
+    const spy = sinon.spy()
+
+    const resourceObj = {
+      data: new ArrayBuffer(128),
+      onUnload: function () {
+        spy()
+        this.data = null
+      }
+    }
+
+    const Reactor = () => {
+      useResource(resourceObj, entity, undefined, () => {
+        resourceObj.onUnload()
+      })
+      return <></>
+    }
+
+    const { rerender, unmount } = render(<Reactor />)
+
+    act(async () => {
+      rerender(<Reactor />)
+    }).then(() => {
+      unmount()
+      sinon.assert.calledOnce(spy)
+      assert(!resourceObj.data)
       done()
     })
   })

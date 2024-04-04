@@ -432,7 +432,12 @@ const Callbacks = {
     onLoad: (response: Material, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
-    onUnload: (asset: AssetType, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {}
+    onUnload: (asset: AssetType, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
+      const obj = asset as any
+      if (obj.dispose && typeof obj.dispose === 'function') {
+        obj.dispose()
+      }
+    }
   }
 } as {
   [key in ResourceType]: {
@@ -535,7 +540,8 @@ const loadObj = <T extends Object3D>(object3D: { new (): T }, entity: Entity): T
   resources.merge({
     [id]: {
       id: id,
-      status: ResourceStatus.Unloaded,
+      asset: obj,
+      status: ResourceStatus.Loaded,
       type: ResourceType.Object3D,
       references: [entity],
       metadata: {},
@@ -545,8 +551,30 @@ const loadObj = <T extends Object3D>(object3D: { new (): T }, entity: Entity): T
 
   const resource = resources[id]
   callbacks.onStart(resource)
-  debugLog('ResourceManager:load Loading object resource: ' + id + ' for entity: ' + entity)
+  debugLog('ResourceManager:loadObj Loading object resource: ' + id + ' for entity: ' + entity)
   return obj
+}
+
+const addResource = <T>(res: T, id: string, entity: Entity): T => {
+  const resourceState = getMutableState(ResourceState)
+  const resources = resourceState.nested('resources')
+  const callbacks = Callbacks[ResourceType.Unknown]
+  resources.merge({
+    [id]: {
+      id: id,
+      asset: res as any,
+      status: ResourceStatus.Loaded,
+      type: ResourceType.Unknown,
+      references: [entity],
+      metadata: {},
+      onLoads: {}
+    }
+  })
+
+  const resource = resources[id]
+  callbacks.onStart(resource)
+  debugLog('ResourceManager:addResource Loading resource: ' + id + ' for entity: ' + entity)
+  return res
 }
 
 const update = (id: string) => {
@@ -671,6 +699,7 @@ const removeResource = (id: string) => {
 export const ResourceManager = {
   load,
   loadObj,
+  addResource,
   unload,
   unloadObj,
   update,

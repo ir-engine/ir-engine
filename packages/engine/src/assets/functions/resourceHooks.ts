@@ -312,7 +312,7 @@ export async function getTextureAsync(
  * @returns A unique instance of the class that is passed in for object3D
  */
 export function useObj<T extends Object3D>(object3D: { new (): T }, entity: Entity = UndefinedEntity): [T, () => void] {
-  const objState = useHookstate<T>(ResourceManager.loadObj(object3D, entity))
+  const objState = useHookstate<T>(() => ResourceManager.loadObj(object3D, entity))
 
   const unload = () => {
     if (objState.value) {
@@ -325,4 +325,36 @@ export function useObj<T extends Object3D>(object3D: { new (): T }, entity: Enti
   }, [])
 
   return [objState.get(NO_PROXY), unload]
+}
+
+/**
+ *
+ * Hook to add any resource to be tracked by the resource manager
+ * If the resource has a cleanup method that isn't called 'dispose', you'll need to pass in a callback function for onUnload to manage the cleanup
+ *
+ * @param resource the resource to track
+ * @param entity *Optional* the entity that is loading the object
+ * @param id *Optional* a unique id to track the resource with, a UUID will be created if an id is not provided
+ * @param onUnload *Optional* a callback called when the resource is unloaded
+ * @returns the resource object passed in
+ */
+export function useResource<T>(
+  resource: T,
+  entity: Entity = UndefinedEntity,
+  id?: string,
+  onUnload?: () => void
+): [T, () => void] {
+  const uniqueID = useHookstate<string>(id || MathUtils.generateUUID())
+  const resourceState = useHookstate<T>(() => ResourceManager.addResource(resource, uniqueID.value, entity))
+
+  const unload = () => {
+    ResourceManager.unload(uniqueID.value, entity)
+    if (onUnload) onUnload()
+  }
+
+  useEffect(() => {
+    return unload
+  }, [])
+
+  return [resourceState.get(NO_PROXY), unload]
 }
