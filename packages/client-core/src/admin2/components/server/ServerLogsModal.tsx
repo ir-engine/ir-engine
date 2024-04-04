@@ -80,7 +80,7 @@ export default function ServerLogsModal({ podName, containerName }: { podName: s
 
   return (
     <Modal
-      className="w-[50vw] max-w-2xl"
+      className="w-[50vw] max-w-[50vw]"
       title={t('admin:components.server.serverLogs')}
       onClose={() => PopoverState.hidePopupover()}
     >
