@@ -293,11 +293,15 @@ export const render = (
   if (xrFrame || !effectComposer || !renderer.effectComposer) {
     for (const c of camera.cameras) c.layers.mask = camera.layers.mask
     renderer.renderer.clear()
+    const end = PerformanceManager.startGPUTiming(renderer, delta)
     renderer.renderer.render(scene, camera)
+    end()
   } else {
     renderer.effectComposer.setMainScene(scene)
     renderer.effectComposer.setMainCamera(camera)
+    const end = PerformanceManager.startGPUTiming(renderer, delta)
     renderer.effectComposer.render(delta)
+    end()
   }
 
   EngineRenderer.activeRender = false

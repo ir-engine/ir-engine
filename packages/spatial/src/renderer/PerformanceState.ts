@@ -107,6 +107,7 @@ let timeAccum = 0
 let checkingRenderTime = false
 /**
  * API to get GPU timings, with fallback if WebGL extension is not available (Not available on WebGL1 devices and Safari)
+ * Will only run if not already running and the number of elapsed seconds since it last ran is greater than timeBeforeCheck
  *
  * @param renderer EngineRenderer
  * @param dt delta time
