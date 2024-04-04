@@ -98,7 +98,7 @@ export const Vector2Input = ({ value, onChange, onRelease, uniformScaling, hideL
               tag="div"
               value={vx}
               onChange={onChangeX}
-              onPointerUp={(ev) => onRelease?.(value)}
+              onPointerUp={(ev) => onReleaseX(value.x)}
               axis="x"
             >
               X
@@ -118,7 +118,7 @@ export const Vector2Input = ({ value, onChange, onRelease, uniformScaling, hideL
               tag="div"
               value={vy}
               onChange={onChangeY}
-              onPointerUp={(ev) => onRelease?.(value)}
+              onPointerUp={(ev) => onReleaseY(value.y)}
               axis="y"
             >
               Y
