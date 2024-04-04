@@ -41,7 +41,7 @@ const BuildStatusBadgeVariant = {
 }
 
 export function BuildStatusBadge({ status }: { status: string }) {
-  return <Badge label={status} variant={BuildStatusBadgeVariant[status]} className="w-20 rounded" />
+  return <Badge label={status} variant={BuildStatusBadgeVariant[status] || 'neutral'} className="w-20 rounded" />
 }
 
 export function getStartOrEndDate(dateString: string, endDate = false) {

@@ -39,6 +39,7 @@ import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ResourceService } from '../../../admin/services/ResourceService'
+import { NotificationService } from '../../../common/services/NotificationService'
 
 const getNameAndType = async (url: string) => {
   const urlParts = url.split('/')
@@ -151,6 +152,7 @@ export default function CreateResourceModal({ selectedResource }: { selectedReso
       }
       PopoverState.hidePopupover()
     } catch (e) {
+      NotificationService.dispatchNotify(e.message, { variant: 'error' })
       errors.serverError.set(e.message)
     }
   }

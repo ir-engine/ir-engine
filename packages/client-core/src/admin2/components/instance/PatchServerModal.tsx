@@ -32,6 +32,7 @@ import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { NotificationService } from '../../../common/services/NotificationService'
 
 export default function PatchServerModal() {
   const { t } = useTranslation()
@@ -45,7 +46,10 @@ export default function PatchServerModal() {
   const handleSubmit = () => {
     modalProcessing.set(true)
     patchInstanceserver({ locationId: state.locationId.value as LocationID, count: state.count.value })
-      .then(() => {
+      .then((patchResponse) => {
+        NotificationService.dispatchNotify(patchResponse.message, {
+          variant: patchResponse.status ? 'success' : 'error'
+        })
         PopoverState.hidePopupover()
       })
       .catch((e) => {
