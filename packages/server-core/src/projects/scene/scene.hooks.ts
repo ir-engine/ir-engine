@@ -57,7 +57,7 @@ import { SceneService } from './scene.class'
 
 const DEFAULT_DIRECTORY = 'packages/projects/default-project'
 const NEW_SCENE_NAME = 'New-Scene'
-const SCENE_ASSET_FILES = ['.scene.json', '.thumbnail.jpg', '.envmap.ktx2']
+export const SCENE_ASSET_FILES = ['.scene.json', '.thumbnail.jpg', '.envmap.ktx2', '.loadingscreen.ktx2']
 
 export const getSceneFiles = async (directory: string, storageProviderName?: string) => {
   const storageProvider = getStorageProvider(storageProviderName)
@@ -120,6 +120,7 @@ const findScene = async (context: HookContext<SceneService>) => {
 /**
  * Checks if project in query exists
  * @param context Hook context
+ * @param {string} project
  * @returns
  */
 const checkIfProjectExists = async (context: HookContext<SceneService>, project: string) => {
@@ -276,28 +277,30 @@ const renameSceneInStorageProvider = async (context: HookContext<SceneService>) 
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
-  const { newSceneName, oldSceneName, storageProviderName, directory } = context.data as ScenePatch
+  const { newSceneName, oldSceneName, storageProviderName, directory, isCopy, oldProjectName } =
+    context.data as ScenePatch
 
   const storageProvider = getStorageProvider(storageProviderName)
 
   for (const ext of SCENE_ASSET_FILES) {
-    const oldSceneJsonName = `${oldSceneName}${ext}`
-    const newSceneJsonName = `${newSceneName}${ext}`
+    const oldSceneFileName = `${oldSceneName}${ext}`
+    const newSceneFileName = `${newSceneName}${ext}`
 
-    if (await storageProvider.doesExist(oldSceneJsonName, directory!)) {
-      await storageProvider.moveObject(oldSceneJsonName, newSceneJsonName, directory!, directory!)
+    const oldDirectory = oldProjectName ? `projects/${oldProjectName}/` : directory
+    if (await storageProvider.doesExist(oldSceneFileName, oldDirectory!)) {
+      await storageProvider.moveObject(oldSceneFileName, newSceneFileName, oldDirectory!, directory!, isCopy)
       try {
-        await storageProvider.createInvalidation([directory + oldSceneJsonName, directory + newSceneJsonName])
+        await storageProvider.createInvalidation([oldDirectory + oldSceneFileName, directory + newSceneFileName])
       } catch (e) {
         logger.error(e)
-        logger.info(directory + oldSceneJsonName, directory + newSceneJsonName)
+        logger.info(oldDirectory + oldSceneFileName, directory + newSceneFileName)
       }
     }
   }
 }
 
 /**
- * Renames scene in local stoprage
+ * Renames scene in local storage
  * @param context Hook context
  * @returns
  */
@@ -306,14 +309,16 @@ const renameSceneLocally = async (context: HookContext<SceneService>) => {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
-  const { newSceneName, oldSceneName, localDirectory } = context.data as ScenePatch
+  const { newSceneName, oldSceneName, localDirectory, isCopy, oldProjectName } = context.data as ScenePatch
 
+  const oldLocalDirectory = oldProjectName ? `packages/projects/projects/${oldProjectName}/` : localDirectory
   if (isDev) {
     for (const ext of SCENE_ASSET_FILES) {
-      const oldSceneJsonPath = path.resolve(appRootPath.path, `${localDirectory}${oldSceneName}${ext}`)
-      if (fs.existsSync(oldSceneJsonPath)) {
-        const newSceneJsonPath = path.resolve(appRootPath.path, `${localDirectory}${newSceneName}${ext}`)
-        fs.renameSync(oldSceneJsonPath, newSceneJsonPath)
+      const oldSceneFileName = path.resolve(appRootPath.path, `${oldLocalDirectory}${oldSceneName}${ext}`)
+      if (fs.existsSync(oldSceneFileName)) {
+        const newSceneFileName = path.resolve(appRootPath.path, `${localDirectory}${newSceneName}${ext}`)
+        if (isCopy) fs.copyFileSync(oldSceneFileName, newSceneFileName)
+        else fs.renameSync(oldSceneFileName, newSceneFileName)
       }
     }
   }

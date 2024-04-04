@@ -135,8 +135,10 @@ export const scenePatchSchema = Type.Object(
   {
     newSceneName: Type.Optional(Type.String()),
     oldSceneName: Type.Optional(Type.String()),
+    isCopy: Type.Optional(Type.Boolean()),
     storageProviderName: Type.Optional(Type.String()),
     project: Type.Optional(Type.String()),
+    oldProjectName: Type.Optional(Type.String()),
     directory: Type.Optional(Type.String()),
     localDirectory: Type.Optional(Type.String())
   },
@@ -169,6 +171,14 @@ export const sceneQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export interface SceneQuery extends Static<typeof sceneQuerySchema> {}
+
+export interface SaveSceneOptions {
+  projectName: string
+  sceneName: string
+  signal: AbortSignal
+  oldProjectName?: string
+  oldSceneName?: string
+}
 
 // export const componentJsonValidator = /* @__PURE__ */ getValidator(componentJsonSchema, dataValidator)
 // export const entityJsonValidator = /* @__PURE__ */ getValidator(entityJsonSchema, dataValidator)
