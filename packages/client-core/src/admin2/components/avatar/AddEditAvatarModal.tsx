@@ -217,7 +217,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
   return (
     <Modal
       title={avatar?.id ? t('admin:components.avatar.update') : t('admin:components.avatar.add')}
-      className="h-[90vh] w-[50vw] max-w-2xl overflow-y-scroll"
+      className="h-[90vh] w-[50vw] overflow-y-scroll"
       onSubmit={handleSubmit}
       onClose={PopoverState.hidePopupover}
       submitButtonDisabled={
@@ -241,132 +241,139 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
             { label: 'File', value: 'file' }
           ]}
           horizontal
+          className="w-fit"
           onChange={(value) => avatarAssets.source.set(value)}
         />
-        {avatarAssets.source.value === 'url' && (
-          <Input
-            label={t('admin:components.avatar.avatarUrl')}
-            value={avatarAssets.modelURL.value}
-            onChange={(event) => avatarAssets.modelURL.set(event.target.value)}
-            spellCheck={false}
-            error={error.modelURL.value}
-          />
-        )}
       </div>
-      <DragNDrop
-        onDropEvent={(files) => {
-          avatarAssets.model.set(files[0])
-        }}
-        acceptedDropTypes={ItemTypes.Models}
-        className={`relative mt-5 h-64 ${
-          avatarAssets.model.value || avatarAssets.source.value === 'url' ? 'border-solid' : ''
-        }`}
-        acceptInput={!isAvatarSet.value && avatarAssets.source.value === 'file'}
-        externalChildren={
-          <>
-            {error.model.value && (
-              <p className="absolute right-2 top-2 max-w-[50%] text-wrap text-rose-700">{error.model.value}</p>
-            )}
-            {avatarAssets.source.value === 'file' && (
-              <Button
-                disabled={!avatarAssets.model.value}
-                startIcon={<HiArrowPath />}
-                onClick={clearAvatar}
-                className="absolute left-2 top-2"
-              >
-                {t('admin:components.avatar.clearAvatar')}
-              </Button>
-            )}
-          </>
-        }
-        id="avatar-drop-zone"
-      >
-        <AssetsPreviewPanel
-          ref={previewPanelRef}
-          previewPanelProps={{
-            style: {
-              width: isAvatarSet.value ? 'auto' : '0',
-              aspectRatio: '1/1'
-            }
-          }}
-        />
-        {!isAvatarSet.value && (
-          <span className="z-20 w-full text-center">
-            {avatarAssets.source.value === 'file'
-              ? t('admin:components.avatar.uploadAvatar')
-              : t('admin:components.avatar.avatarUrlPreview')}
-          </span>
-        )}
-      </DragNDrop>
 
-      {avatarAssets.source.value === 'url' && (
-        <Input
-          containerClassname="mt-4"
-          label={t('admin:components.avatar.thumbnailUrl')}
-          value={avatarAssets.thumbnailURL.value}
-          onChange={(event) => avatarAssets.thumbnailURL.set(event.target.value)}
-          spellCheck={false}
-          error={error.thumbnailURL.value}
-        />
-      )}
-      <DragNDrop
-        onDropEvent={(files) => {
-          avatarAssets.thumbnail.set(files[0])
-        }}
-        acceptedDropTypes={ItemTypes.Images}
-        className={`relative mt-5 h-64 ${
-          avatarAssets.thumbnail.value || avatarAssets.source.value === 'url' ? 'border-solid' : ''
-        }`}
-        acceptInput={!isThumbnailSet.value && avatarAssets.source.value === 'file'}
-        externalChildren={
-          <>
-            {error.thumbnail.value && (
-              <p className="absolute right-2 top-2 max-w-[50%] text-wrap text-rose-700">{error.thumbnail.value}</p>
-            )}
-            {avatarAssets.source.value === 'file' && (
-              <Button
-                disabled={!avatarAssets.thumbnail.value}
-                startIcon={<HiArrowPath />}
-                onClick={clearThumbnail}
-                className="absolute left-2 top-2"
-              >
-                {t('admin:components.avatar.clearThumbnail')}
-              </Button>
-            )}
-          </>
-        }
-      >
-        {isThumbnailSet.value ? (
-          <img
-            className="mx-auto max-h-full max-w-full"
-            src={
-              avatarAssets.source.value === 'url'
-                ? avatarAssets.thumbnailURL.value
-                : avatarAssets.thumbnail.value
-                ? URL.createObjectURL(avatarAssets.thumbnail.value)
-                : ''
+      <div className="mt-4 grid grid-cols-2 gap-4">
+        <div className="col-span-1">
+          {avatarAssets.source.value === 'url' && (
+            <Input
+              label={t('admin:components.avatar.avatarUrl')}
+              value={avatarAssets.modelURL.value}
+              onChange={(event) => avatarAssets.modelURL.set(event.target.value)}
+              spellCheck={false}
+              error={error.modelURL.value}
+            />
+          )}
+          <DragNDrop
+            onDropEvent={(files) => {
+              avatarAssets.model.set(files[0])
+            }}
+            acceptedDropTypes={ItemTypes.Models}
+            className={`relative mt-5 h-64 ${
+              avatarAssets.model.value || avatarAssets.source.value === 'url' ? 'border-solid' : ''
+            }`}
+            acceptInput={!isAvatarSet.value && avatarAssets.source.value === 'file'}
+            externalChildren={
+              <>
+                {error.model.value && (
+                  <p className="absolute right-2 top-2 max-w-[50%] text-wrap text-rose-700">{error.model.value}</p>
+                )}
+                {avatarAssets.source.value === 'file' && (
+                  <Button
+                    disabled={!avatarAssets.model.value}
+                    startIcon={<HiArrowPath />}
+                    onClick={clearAvatar}
+                    className="absolute left-2 top-2"
+                  >
+                    {t('admin:components.avatar.clearAvatar')}
+                  </Button>
+                )}
+              </>
             }
-            alt={t('admin:components.avatar.columns.thumbnail')}
-          />
-        ) : (
-          <span className="w-full text-center">
-            {avatarAssets.source.value === 'file'
-              ? t('admin:components.avatar.uploadThumbnail')
-              : t('admin:components.avatar.thumbnailURLPreview')}
-          </span>
-        )}
-      </DragNDrop>
+            id="avatar-drop-zone"
+          >
+            <AssetsPreviewPanel
+              ref={previewPanelRef}
+              previewPanelProps={{
+                style: {
+                  width: isAvatarSet.value ? 'auto' : '0',
+                  aspectRatio: '1/1'
+                }
+              }}
+            />
+            {!isAvatarSet.value && (
+              <span className="z-20 w-full text-center">
+                {avatarAssets.source.value === 'file'
+                  ? t('admin:components.avatar.uploadAvatar')
+                  : t('admin:components.avatar.avatarUrlPreview')}
+              </span>
+            )}
+          </DragNDrop>
+        </div>
 
-      <Button
-        onClick={handleGenerateThumbnail}
-        disabled={
-          (avatarAssets.source.value === 'file' && !avatarAssets.model.value) ||
-          (avatarAssets.source.value === 'url' && !avatarAssets.modelURL.value)
-        }
-        className="mt-2"
-      >
-        Generate Thumbnail
-      </Button>
+        <div className="col-span-1">
+          {avatarAssets.source.value === 'url' && (
+            <Input
+              label={t('admin:components.avatar.thumbnailUrl')}
+              value={avatarAssets.thumbnailURL.value}
+              onChange={(event) => avatarAssets.thumbnailURL.set(event.target.value)}
+              spellCheck={false}
+              error={error.thumbnailURL.value}
+            />
+          )}
+          <DragNDrop
+            onDropEvent={(files) => {
+              avatarAssets.thumbnail.set(files[0])
+            }}
+            acceptedDropTypes={ItemTypes.Images}
+            className={`relative mt-5 h-64 ${
+              avatarAssets.thumbnail.value || avatarAssets.source.value === 'url' ? 'border-solid' : ''
+            }`}
+            acceptInput={!isThumbnailSet.value && avatarAssets.source.value === 'file'}
+            externalChildren={
+              <>
+                {error.thumbnail.value && (
+                  <p className="absolute right-2 top-2 max-w-[50%] text-wrap text-rose-700">{error.thumbnail.value}</p>
+                )}
+                {avatarAssets.source.value === 'file' && (
+                  <Button
+                    disabled={!avatarAssets.thumbnail.value}
+                    startIcon={<HiArrowPath />}
+                    onClick={clearThumbnail}
+                    className="absolute left-2 top-2"
+                  >
+                    {t('admin:components.avatar.clearThumbnail')}
+                  </Button>
+                )}
+              </>
+            }
+          >
+            {isThumbnailSet.value ? (
+              <img
+                className="mx-auto max-h-full max-w-full"
+                src={
+                  avatarAssets.source.value === 'url'
+                    ? avatarAssets.thumbnailURL.value
+                    : avatarAssets.thumbnail.value
+                    ? URL.createObjectURL(avatarAssets.thumbnail.value)
+                    : ''
+                }
+                alt={t('admin:components.avatar.columns.thumbnail')}
+              />
+            ) : (
+              <span className="w-full text-center">
+                {avatarAssets.source.value === 'file'
+                  ? t('admin:components.avatar.uploadThumbnail')
+                  : t('admin:components.avatar.thumbnailURLPreview')}
+              </span>
+            )}
+          </DragNDrop>
+
+          <Button
+            onClick={handleGenerateThumbnail}
+            disabled={
+              (avatarAssets.source.value === 'file' && !avatarAssets.model.value) ||
+              (avatarAssets.source.value === 'url' && !avatarAssets.modelURL.value)
+            }
+            className="mt-2"
+          >
+            Generate Thumbnail
+          </Button>
+        </div>
+      </div>
     </Modal>
   )
 }
