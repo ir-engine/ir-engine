@@ -140,6 +140,13 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
           value={smtp?.value?.port || ''}
           onChange={(e) => handleUpdateSmtp(e, 'port')}
         />
+
+        <Toggle
+          className="col-span-2"
+          label={t('admin:components.setting.secure')}
+          value={smtp?.value?.secure || false}
+          onChange={handleSmtpSecure}
+        />
       </div>
 
       <div className="my-4 grid grid-cols-2 gap-4">
@@ -151,14 +158,6 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
           label={t('admin:components.setting.from')}
           value={from?.value || ''}
           onChange={(e) => from.set(e.target.value)}
-        />
-
-        <Toggle
-          className="col-span-2 mt-5"
-          labelClassName="mt-5"
-          label={t('admin:components.setting.secure')}
-          value={smtp?.value?.secure || false}
-          onChange={handleSmtpSecure}
         />
       </div>
 

@@ -436,10 +436,11 @@
       "auth": "Auth",
       "from": "From",
       "subject": "Subject",
-      "login": "login",
-      "friend": "friend",
+      "login": "Login",
+      "friend": "Friend",
       "group": "group",
       "party": "Party",
+      "channel": "Channel",
       "smsNameCharLimit": "SMS Name Character Limit",
       "instanceServer": {
         "header": "Instance Server",
