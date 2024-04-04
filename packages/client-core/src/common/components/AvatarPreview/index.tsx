@@ -37,7 +37,7 @@ import { SxProps, Theme } from '@mui/material/styles'
 
 import styles from './index.module.scss'
 
-import { EntityUUID, setComponent, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
+import { Engine, EntityUUID, setComponent, UUIDComponent } from '@etherealengine/ecs'
 import { defaultAnimationPath, preloadedAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { AssetPreviewCameraComponent } from '@etherealengine/engine/src/camera/components/AssetPreviewCameraComponent'
@@ -74,7 +74,8 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
       activeClipIndex: 5
     })
     setComponent(sceneEntity, ModelComponent, { src: avatarUrl, convertToVRM: true })
-    setComponent(sceneEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
+    /** @todo is originEntity is the correct parent? */
+    setComponent(sceneEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setComponent(sceneEntity, VisibleComponent, true)
     setComponent(sceneEntity, EnvmapComponent, { type: EnvMapSourceType.Skybox })
 

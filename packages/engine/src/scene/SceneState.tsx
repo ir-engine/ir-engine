@@ -275,6 +275,7 @@ const createRootEntity = (sceneID: SceneID, sceneData: SceneJsonType) => {
   setComponent(entity, VisibleComponent, true)
   setComponent(entity, SourceComponent, sceneID)
   setComponent(entity, TransformComponent)
+  /** We don't want a parent here, because we want whatever loaded the scene to have the responsibility of determining where this scene is renderer */
   setComponent(entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
   return entity
 }
