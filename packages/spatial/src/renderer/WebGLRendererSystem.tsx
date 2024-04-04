@@ -97,6 +97,9 @@ export type EffectComposerWithSchema = EffectComposer & EffectMapType
 
 let lastRenderTime = 0
 const _scene = new Scene()
+_scene.matrixAutoUpdate = false
+_scene.matrixWorldAutoUpdate = false
+_scene.layers.set(ObjectLayers.Scene)
 
 export class EngineRenderer {
   /** @deprecated will be removed once threejs objects are not proxified. Should only be used in loadGLTFModel.ts */
