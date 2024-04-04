@@ -208,7 +208,6 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             value={state[strategyName].value}
             disabled={strategyName === 'jwt'}
             onChange={(value) => onSwitchHandle(state[strategyName], value)}
-            size="lg"
           />
         ))}
       </div>
