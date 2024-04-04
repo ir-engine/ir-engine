@@ -56,7 +56,7 @@ import { State } from '@etherealengine/hyperflux'
 
 import ScatterPlotOutlined from '@mui/icons-material/ScatterPlotOutlined'
 
-import BooleanInput from '../inputs/BooleanInput'
+import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'

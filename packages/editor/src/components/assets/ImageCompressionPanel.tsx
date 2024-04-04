@@ -40,7 +40,7 @@ import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
-import BooleanInput from '../inputs/BooleanInput'
+import BooleanInput from '@etherealengine/ui/src/components/editor/input/Boolean'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'

@@ -40,7 +40,7 @@ import {
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 
-import BooleanInput from '../inputs/BooleanInput'
+import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'

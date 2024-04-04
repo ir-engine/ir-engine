@@ -29,7 +29,7 @@ import { useTranslation } from 'react-i18next'
 import { Component, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 
-import BooleanInput from '../inputs/BooleanInput'
+import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import { commitProperty, updateProperty } from './Util'

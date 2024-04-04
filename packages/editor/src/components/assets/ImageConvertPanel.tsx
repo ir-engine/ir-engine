@@ -31,7 +31,7 @@ import { State } from '@etherealengine/hyperflux'
 
 import { Dialog, DialogTitle, Grid, Typography } from '@mui/material'
 
-import BooleanInput from '../inputs/BooleanInput'
+import BooleanInput from '@etherealengine/ui/src/components/editor/input/Boolean'
 import { Button } from '../inputs/Button'
 import NumericInput from '../inputs/NumericInput'
 import SelectInput from '../inputs/SelectInput'

@@ -50,9 +50,9 @@ import { NO_PROXY, State, getMutableState } from '@etherealengine/hyperflux/func
 
 import { modelTransformPath } from '@etherealengine/common/src/schema.type.module'
 import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
+import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
 import exportGLTF from '../../functions/exportGLTF'
 import { SelectionState } from '../../services/SelectionServices'
-import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'

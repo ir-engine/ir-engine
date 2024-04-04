@@ -32,7 +32,6 @@ import { getState, NO_PROXY, State, useHookstate } from '@etherealengine/hyperfl
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import styles from './styles.module.scss'
 
@@ -63,6 +62,7 @@ import {
   EntityTreeComponent,
   removeEntityNodeRecursively
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import BooleanInput from '@etherealengine/ui/src/components/editor/input/Boolean'
 import { Box, List, ListItem, ListItemButton, ListItemText, Modal } from '@mui/material'
 import { Group, LoaderUtils, MathUtils } from 'three'
 import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'

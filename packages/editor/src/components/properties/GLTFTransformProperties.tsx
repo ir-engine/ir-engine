@@ -32,7 +32,7 @@ import {
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { State } from '@etherealengine/hyperflux'
 
-import BooleanInput from '../inputs/BooleanInput'
+import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
 import InputGroup from '../inputs/InputGroup'
 import NumericInput from '../inputs/NumericInput'
 import NumericInputGroup from '../inputs/NumericInputGroup'

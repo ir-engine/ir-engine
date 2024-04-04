@@ -31,8 +31,8 @@ import { ScreenshareTargetComponent } from '@etherealengine/engine/src/scene/com
 
 import ScreenShareIcon from '@mui/icons-material/ScreenShare'
 
+import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import BooleanInput from '../inputs/BooleanInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType } from './Util'
 

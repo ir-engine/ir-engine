@@ -31,8 +31,8 @@ import { EnvMapBakeTypes } from '@etherealengine/engine/src/scene/types/EnvMapBa
 
 import SportsGolfIcon from '@mui/icons-material/SportsGolf'
 
+import BooleanInput from '@etherealengine/ui/src/components/editor/input/Boolean'
 import { uploadBPCEMBakeToServer } from '../../functions/uploadEnvMapBake'
-import BooleanInput from '../inputs/BooleanInput'
 import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'

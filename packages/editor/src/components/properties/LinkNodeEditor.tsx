@@ -32,7 +32,7 @@ import LinkIcon from '@mui/icons-material/Link'
 
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
-import BooleanInput from '../inputs/BooleanInput'
+import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
 import InputGroup from '../inputs/InputGroup'
 import { ControlledStringInput } from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
