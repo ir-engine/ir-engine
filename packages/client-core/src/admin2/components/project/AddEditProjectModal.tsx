@@ -113,6 +113,15 @@ export default function AddEditProjectModal({
   const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)[project.name])
   useEffect(() => {
     ProjectUpdateService.initializeProjectUpdate(project.name)
+    if (inputProject) {
+      ProjectUpdateService.setTriggerSetDestination(
+        inputProject.name,
+        inputProject.repositoryPath,
+        inputProject.updateType,
+        inputProject.updateSchedule
+      )
+    }
+    return () => ProjectUpdateService.clearProjectUpdate(project.name)
   }, [project.name])
 
   const user = useHookstate(getMutableState(AuthState).user)
