@@ -23,20 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { t } from 'i18next'
 import React from 'react'
-import LoadingCircle from '../../../primitives/tailwind/LoadingCircle'
 import Modal from '../../../primitives/tailwind/Modal'
 import Text from '../../../primitives/tailwind/Text'
 
 const showConfirmDialog = (text: string, onSubmit: () => void, modalProcessing?: boolean) => {
   PopoverState.showPopupover(
     <Modal
+      title={t('admin:components.common.confirmation')}
       onSubmit={onSubmit}
       onClose={!modalProcessing ? () => PopoverState.hidePopupover() : undefined}
       hideFooter={modalProcessing}
       className="w-[50vw] max-w-2xl"
+      submitLoading={modalProcessing}
     >
-      {modalProcessing ? <LoadingCircle className="h-[10vh]" /> : <Text>{text}</Text>}
+      <Text>{text}</Text>
     </Modal>
   )
 }

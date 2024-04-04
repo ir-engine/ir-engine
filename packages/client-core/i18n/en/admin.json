@@ -65,6 +65,7 @@
     "common": {
       "cancel": "Cancel",
       "close": "Close",
+      "confirmation": "Confirmation",
       "edit": "Edit",
       "submit": "Submit",
       "save": "Save",

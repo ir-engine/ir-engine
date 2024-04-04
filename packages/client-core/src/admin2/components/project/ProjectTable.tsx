@@ -215,13 +215,13 @@ export default function ProjectTable() {
             <a href={`/studio/${row.name}`} className={row.needsRebuild ? 'text-blue-400' : 'text-theme-primary'}>
               {row.name}
             </a>
-            {row.needsRebuild && (
-              <Tooltip title={t('admin:components.project.outdatedBuild')}>
+            {!!row.needsRebuild && (
+              <Tooltip title={t('admin:components.project.outdatedBuild')} direction="right">
                 <HiOutlineExclamationCircle className="text-orange-400" />
               </Tooltip>
             )}
-            {row.hasLocalChanges && (
-              <Tooltip title={t('admin:components.project.hasLocalChanges')}>
+            {!!row.hasLocalChanges && (
+              <Tooltip title={t('admin:components.project.hasLocalChanges')} direction="right">
                 <HiOutlineExclamationCircle className="text-yellow-400" />
               </Tooltip>
             )}
