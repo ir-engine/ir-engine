@@ -41,5 +41,5 @@
     "../ecs/**/*",
     "./**/*.ts",
     "./**/*.tsx"
-, "../engine/src/scene/components/VolumetricNodes.ts"  ]
+  ]
 }

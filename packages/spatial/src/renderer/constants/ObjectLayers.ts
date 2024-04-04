@@ -56,7 +56,5 @@ export const ObjectLayers = {
   // transform gizmo
   HighlightEffect: 11 as const,
 
-  UVOL: 30 as const,
-
-  AssetPreview: 31 as const
+  UVOL: 30 as const
 } as Record<string, number>

@@ -46,7 +46,7 @@ import { InputComponent } from '@etherealengine/spatial/src/input/components/Inp
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
@@ -166,7 +166,7 @@ export const LinkComponent = defineComponent({
 
     useEffect(() => {
       if (getState(EngineState).isEditor || !input) return
-      const canvas = EngineRenderer.instance.renderer.domElement
+      const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).canvas
       if (input.inputSources.length > 0) {
         canvas.style.cursor = 'pointer'
       }

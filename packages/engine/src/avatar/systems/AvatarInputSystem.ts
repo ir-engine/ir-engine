@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Quaternion, Vector3 } from 'three'
 
-import { isDev } from '@etherealengine/common/src/config'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import {
   ComponentType,
@@ -53,7 +52,6 @@ import { RigidBodyFixedTagComponent } from '@etherealengine/spatial/src/physics/
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
 import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
@@ -138,10 +136,6 @@ const onShiftLeft = () => {
   controller.isWalking.set(!controller.isWalking.value)
 }
 
-const onKeyP = () => {
-  getMutableState(RendererState).physicsDebug.set(!getMutableState(RendererState).physicsDebug.value)
-}
-
 // const isAvatarClicked = () => {
 //   const pointerState = getState(InputState).pointerState
 //   const hits = Physics.castRayFromCamera(
@@ -197,8 +191,6 @@ const getAvatarDoubleClick = (buttons): boolean => {
   return false
 }
 
-const inputSourceQuery = defineQuery([InputSourceComponent])
-
 const walkableQuery = defineQuery([RigidBodyFixedTagComponent, InputComponent])
 
 let mouseMovedDuringPrimaryClick = false
@@ -217,7 +209,10 @@ const execute = () => {
 
   const controller = getComponent(selfAvatarEntity, AvatarControllerComponent)
 
+  const xrState = getState(XRState)
   const { isCameraAttachedToAvatar, isMovementControlsEnabled } = getState(XRControlsState)
+
+  if (!isMovementControlsEnabled) return
 
   if (!isCameraAttachedToAvatar && !getState(XRState).session) {
     const firstWalkableEntityWithInput = walkableQuery().find(
@@ -246,17 +241,16 @@ const execute = () => {
     }
   }
 
+  controller.gamepadLocalInput.set(0, 0, 0)
+
+  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  if (!inputPointerEntity && !xrState.session) return
+
   const buttons = InputSourceComponent.getMergedButtons()
 
   if (buttons.ShiftLeft?.down) onShiftLeft()
 
   const gamepadJump = buttons[StandardGamepadButton.ButtonA]?.down
-
-  if (isDev) {
-    if (buttons.KeyP?.down) onKeyP()
-  }
-
-  if (!isMovementControlsEnabled) return
 
   //** touch input (only for avatar jump)*/
   const doubleClicked = isCameraAttachedToAvatar ? false : getAvatarDoubleClick(buttons)
