@@ -32,6 +32,7 @@ import {
   defineComponent,
   getComponent,
   getMutableComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -41,18 +42,19 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { QueryComponents, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
 import { MaterialComponent } from '@etherealengine/engine/src/scene/materials/components/MaterialComponent'
+import { SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
 import {
   materialIsRegistered,
-  registerMaterial
+  registerMaterial,
+  registerMaterialInstance
 } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Layer } from './ObjectLayerComponent'
 import { RenderOrderComponent } from './RenderOrderComponent'
-
-import { SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
 
 export type Object3DWithEntity = Object3D & { entity: Entity }
 
@@ -126,11 +128,13 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
           material.customProgramCacheKey = () =>
             material.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
         }
-        //wip, instead of using the material component type, use the ecs component for holding all relevant data
-        const materialComponent = registerMaterial(material, { type: SourceType.BUILT_IN, path: '' })
-        getMutableComponent(entity, MaterialComponent).plugins.set(material.userData['plugins'])
+        const materialComponent = registerMaterial(material, {
+          type: SourceType.BUILT_IN,
+          path: getOptionalComponent(entity, SourceComponent) ?? ''
+        })
+        material.userData?.plugins && materialComponent.plugins.set(material.userData['plugins'])
       }
-      // registerMaterialInstance(material, entity)
+      registerMaterialInstance(material, entity)
     })
 }
 

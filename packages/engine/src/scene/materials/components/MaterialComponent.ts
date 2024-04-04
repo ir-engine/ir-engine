@@ -49,14 +49,12 @@ export const MaterialComponent = defineComponent({
   jsonID: 'EE_material',
   onInit: (entity) => {
     return {
-      uuid: [] as string[],
-      plugins: [] as string[]
+      uuid: [] as string[]
     }
   },
   onSet: (entity, component, json) => {
     if (!json) return
     if (json.uuid) component.uuid.set(json.uuid)
-    if (json.plugins) component.plugins.set(json.plugins)
   }
 })
 
