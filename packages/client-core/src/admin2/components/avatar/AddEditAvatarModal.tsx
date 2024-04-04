@@ -217,7 +217,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
   return (
     <Modal
       title={avatar?.id ? t('admin:components.avatar.update') : t('admin:components.avatar.add')}
-      className="h-[90vh] w-[50vw] overflow-y-scroll"
+      className="w-[50vw]"
       onSubmit={handleSubmit}
       onClose={PopoverState.hidePopupover}
       submitButtonDisabled={
