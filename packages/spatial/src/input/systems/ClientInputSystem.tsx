@@ -216,7 +216,7 @@ const execute = () => {
         : raycaster.layers.disable(ObjectLayers.TransformGizmo)
       const hits = raycaster.intersectObjects<Object3D>(objects, true)
       for (const hit of hits) {
-        const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => obj.parent === Engine.instance.scene)
+        const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => !obj.parent)
         if (parentObject?.entity) {
           intersectionData.push({ entity: parentObject.entity, distance: hit.distance })
         }

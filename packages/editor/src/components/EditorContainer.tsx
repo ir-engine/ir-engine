@@ -173,9 +173,7 @@ const onSaveAs = async () => {
   try {
     if (sceneName || sceneModified) {
       const result: { name: string } | void = await new Promise((resolve) => {
-        DialogState.setDialog(
-          <SaveNewSceneDialog initialName={Engine.instance.scene.name} onConfirm={resolve} onCancel={resolve} />
-        )
+        DialogState.setDialog(<SaveNewSceneDialog initialName={'New Scene'} onConfirm={resolve} onCancel={resolve} />)
       })
       DialogState.setDialog(null)
       if (result?.name && projectName) {

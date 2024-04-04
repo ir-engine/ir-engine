@@ -24,15 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import {
-  defineQuery,
-  defineSystem,
-  getComponent,
-  getMutableComponent,
-  getOptionalComponent,
-  hasComponent,
-  setComponent
-} from '@etherealengine/ecs'
+import { defineQuery, defineSystem, getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
@@ -41,7 +33,6 @@ import { InputSourceComponent } from '@etherealengine/spatial/src/input/componen
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { Not } from 'bitecs'
 import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
-import obj3dFromUuid from '../../common/functions/obj3dFromUuid'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputPointerComponent } from '../../input/components/InputPointerComponent'
 import { MouseScroll } from '../../input/state/ButtonState'
@@ -136,22 +127,15 @@ const execute = () => {
       } else {
         box.makeEmpty()
         for (const object of cameraOrbit.focusedEntities.value) {
-          const group =
-            typeof object === 'string' ? [obj3dFromUuid(object)] : getOptionalComponent(object, GroupComponent) || []
+          const group = getComponent(object, GroupComponent)
           for (const obj of group) {
             box.expandByObject(obj)
           }
         }
         if (box.isEmpty()) {
-          // Focusing on an Group, AmbientLight, etc
-          const object = cameraOrbit.focusedEntities[0].value
-
-          if (typeof object === 'string') {
-            editorCameraCenter.setFromMatrixPosition(obj3dFromUuid(object).matrixWorld)
-          } else if (hasComponent(object, TransformComponent)) {
-            const position = getComponent(object, TransformComponent).position
-            editorCameraCenter.copy(position)
-          }
+          const entity = cameraOrbit.focusedEntities[0].value
+          const position = getComponent(entity, TransformComponent).position
+          editorCameraCenter.copy(position)
         } else {
           box.getCenter(editorCameraCenter)
           distance = box.getBoundingSphere(sphere).radius

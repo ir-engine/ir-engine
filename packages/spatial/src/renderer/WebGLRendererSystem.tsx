@@ -99,6 +99,8 @@ let lastRenderTime = 0
 const _scene = new Scene()
 
 export class EngineRenderer {
+  /** @deprecated will be removed once threejs objects are not proxified. Should only be used in loadGLTFModel.ts */
+  static activeRender = false
   /** Is resize needed? */
   needsResize: boolean
 
@@ -282,6 +284,8 @@ export const render = (
     renderer.needsResize = false
   }
 
+  EngineRenderer.activeRender = true
+
   /** Postprocessing does not support multipass yet, so just use basic renderer when in VR */
   if (xrFrame || !effectComposer || !renderer.effectComposer) {
     for (const c of camera.cameras) c.layers.mask = camera.layers.mask
@@ -292,6 +296,8 @@ export const render = (
     renderer.effectComposer.setMainCamera(camera)
     renderer.effectComposer.render(delta)
   }
+
+  EngineRenderer.activeRender = false
 }
 
 export const RenderSettingsState = defineState({

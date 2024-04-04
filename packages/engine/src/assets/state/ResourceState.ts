@@ -574,10 +574,6 @@ const unloadObj = (obj: Object3D, sceneID: SceneID | undefined) => {
     debugLog('ResourceManager:unloadObj Unloading Object3D: ' + obj.name + ' for scene: ' + sceneID)
     const light = obj as Light // anything with dispose function
     if (typeof light.dispose === 'function') light.dispose()
-
-    const scene = Engine.instance.scene
-    const index = scene.children.indexOf(obj)
-    if (index > -1) scene.children.splice(index, 1)
   }
 
   if (obj.isProxified) {

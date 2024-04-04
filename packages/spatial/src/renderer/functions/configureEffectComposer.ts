@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine, Entity, getComponent } from '@etherealengine/ecs'
+import { Entity, getComponent } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
 import {
   BlendFunction,
@@ -39,7 +39,7 @@ import {
   TextureEffect
 } from 'postprocessing'
 import { VelocityDepthNormalPass } from 'realism-effects'
-import { DepthTexture, NearestFilter, RGBAFormat, UnsignedIntType, WebGLRenderTarget } from 'three'
+import { DepthTexture, NearestFilter, RGBAFormat, Scene, UnsignedIntType, WebGLRenderTarget } from 'three'
 import { EngineState } from '../../EngineState'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
@@ -62,7 +62,7 @@ export const configureEffectComposer = (entity: Entity): void => {
   const camera = getComponent(entity, CameraComponent)
   if (!renderer || !camera) return
 
-  const scene = Engine.instance.scene
+  const scene = new Scene()
 
   if (renderer.effectComposer) {
     renderer.effectComposer.dispose()

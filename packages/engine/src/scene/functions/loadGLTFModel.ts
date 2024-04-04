@@ -34,11 +34,11 @@ import {
   hasComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
+import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
@@ -175,14 +175,15 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
     },
     parent: {
       get() {
-        if (Engine.instance.scene.children.length) return // hack to check if renderer is rendering
+        if (EngineRenderer.activeRender) return // hack to check if renderer is rendering
         if (getOptionalComponent(objEntity, EntityTreeComponent)?.parentEntity) {
-          const result =
-            getOptionalComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)?.[0] ??
-            Engine.instance.scene
+          const result = getOptionalComponent(
+            getComponent(objEntity, EntityTreeComponent).parentEntity!,
+            GroupComponent
+          )?.[0]
           return result ?? null
         }
-        return Engine.instance.scene
+        return null
       },
       set(value) {
         if (value != undefined) throw new Error('Cannot set parent of proxified object')
@@ -191,7 +192,7 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
     },
     children: {
       get() {
-        if (Engine.instance.scene.children.length) return [] // hack to check if renderer is rendering
+        if (EngineRenderer.activeRender) return [] // hack to check if renderer is rendering
         if (hasComponent(objEntity, EntityTreeComponent)) {
           const childEntities = getComponent(objEntity, EntityTreeComponent).children
           const result: Object3D[] = []

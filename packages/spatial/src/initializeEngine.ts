@@ -59,10 +59,6 @@ import { XRState } from './xr/XRState'
 export const createEngine = (canvas?: HTMLCanvasElement) => {
   startEngine()
 
-  Engine.instance.scene.matrixAutoUpdate = false
-  Engine.instance.scene.matrixWorldAutoUpdate = false
-  Engine.instance.scene.layers.set(ObjectLayers.Scene)
-
   Engine.instance.originEntity = createEntity()
   setComponent(Engine.instance.originEntity, NameComponent, 'origin')
   setComponent(Engine.instance.originEntity, UUIDComponent, 'ee.origin' as EntityUUID)

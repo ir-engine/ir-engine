@@ -34,7 +34,6 @@ import type { FeathersApplication } from '@feathersjs/feathers'
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 
 import { getAllEntities } from 'bitecs'
-import { Scene } from 'three'
 import { ECSState } from './ECSState'
 import { Entity, UndefinedEntity } from './Entity'
 import { removeEntity } from './EntityFunctions'
@@ -50,11 +49,6 @@ export class Engine {
   userID: UserID
 
   store: HyperStore
-
-  /**
-   * Reference to the three.js scene object.
-   */
-  scene = new Scene()
 
   /**
    * Represents the reference space of the xr session local floor.
