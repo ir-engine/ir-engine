@@ -72,12 +72,13 @@ export enum ResourceType {
   Texture = 'Texture',
   Geometry = 'Geometry',
   Material = 'Material',
+  Object3D = 'Object3D',
   Unknown = 'Unknown'
   // ECSData = 'ECSData',
   // Audio = 'Audio',
 }
 
-export type AssetType = GLTF | Texture | CompressedTexture | Geometry | Material | Mesh
+export type AssetType = GLTF | Texture | CompressedTexture | Geometry | Material | Mesh | Object3D
 
 type BaseMetadata = {
   size?: number
@@ -413,6 +414,18 @@ const Callbacks = {
       }
     }
   },
+  [ResourceType.Object3D]: {
+    onStart: (resource: State<Resource>) => {},
+    onLoad: (response: Material, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
+    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
+    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
+    onUnload: (asset: Object3D, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
+      const obj = asset as Light
+      if (obj.dispose && typeof obj.dispose === 'function') {
+        obj.dispose()
+      }
+    }
+  },
   [ResourceType.Unknown]: {
     onStart: (resource: State<Resource>) => {},
     onLoad: (response: Material, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
@@ -511,25 +524,49 @@ const load = <T extends AssetType>(
   )
 }
 
-const update = (url: string) => {
+const loadObj = <T extends Object3D>(object3D: { new (): T }, entity: Entity): T => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
-  const resource = resources[url]
+  const obj = new object3D()
+  const id = obj.uuid
+  const callbacks = Callbacks[ResourceType.Object3D]
+  // Only one object can exist per UUID
+  resources.merge({
+    [id]: {
+      id: id,
+      status: ResourceStatus.Unloaded,
+      type: ResourceType.Object3D,
+      references: [entity],
+      metadata: {},
+      onLoads: {}
+    }
+  })
+
+  const resource = resources[id]
+  callbacks.onStart(resource)
+  debugLog('ResourceManager:load Loading object resource: ' + id + ' for entity: ' + entity)
+  return obj
+}
+
+const update = (id: string) => {
+  const resourceState = getMutableState(ResourceState)
+  const resources = resourceState.nested('resources')
+  const resource = resources[id]
   if (!resource.value) {
-    console.warn('ResourceManager:update No resource found to update for url: ' + url)
+    console.warn('ResourceManager:update No resource found to update for id: ' + id)
     return
   }
   const onLoads = resource.onLoads.get(NO_PROXY)
   if (!onLoads) {
-    console.warn('ResourceManager:update No callbacks found to update for url: ' + url)
+    console.warn('ResourceManager:update No callbacks found to update for id: ' + id)
     return
   }
 
-  debugLog('ResourceManager:update Updating asset for url: ' + url)
+  debugLog('ResourceManager:update Updating asset for id: ' + id)
   removeReferencedResources(resource)
   for (const [_, onLoad] of Object.entries(onLoads)) {
     AssetLoader.load(
-      url,
+      id,
       resource.args.value || {},
       (response: AssetType) => {
         resource.asset.set(response)
@@ -541,16 +578,16 @@ const update = (url: string) => {
   }
 }
 
-const unload = (url: string, entity: Entity, uuid?: string) => {
+const unload = (id: string, entity: Entity, uuid?: string) => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
-  if (!resources[url].value) {
-    console.warn('ResourceManager:unload No resource exists for url: ' + url)
+  if (!resources[id].value) {
+    console.warn('ResourceManager:unload No resource exists for id: ' + id)
     return
   }
 
-  debugLog('ResourceManager:unload Unloading resource: ' + url + ' for entity: ' + entity)
-  const resource = resources[url]
+  debugLog('ResourceManager:unload Unloading resource: ' + id + ' for entity: ' + entity)
+  const resource = resources[id]
   if (uuid) resource.onLoads.merge({ [uuid]: none })
   resource.references.set((entities) => {
     const index = entities.indexOf(entity)
@@ -563,12 +600,12 @@ const unload = (url: string, entity: Entity, uuid?: string) => {
   if (resource.references.length == 0) {
     if (debug) debugLog('Before Removing Resources: ' + JSON.stringify(getRendererInfo()))
     removeReferencedResources(resource)
-    removeResource(url)
+    removeResource(id)
     if (debug) debugLog('After Removing Resources: ' + JSON.stringify(getRendererInfo()))
   }
 }
 
-const unloadObj = (obj: Object3D, sceneID: SceneID | undefined) => {
+const unloadObj = <T extends Object3D>(obj: T, sceneID: SceneID | undefined) => {
   const remove = (obj: Object3D) => {
     debugLog('ResourceManager:unloadObj Unloading Object3D: ' + obj.name + ' for scene: ' + sceneID)
     const light = obj as Light // anything with dispose function
@@ -636,6 +673,7 @@ const removeResource = (id: string) => {
 
 export const ResourceManager = {
   load,
+  loadObj,
   unload,
   unloadObj,
   update,

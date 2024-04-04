@@ -30,9 +30,10 @@ import { getState } from '@etherealengine/hyperflux'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { act, render } from '@testing-library/react'
 import React, { useEffect } from 'react'
+import { DirectionalLight } from 'three'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { ResourceState } from '../state/ResourceState'
-import { useGLTF, useTexture } from './resourceHooks'
+import { useGLTF, useObj, useTexture } from './resourceHooks'
 
 describe('ResourceHooks', () => {
   const gltfURL = '/packages/projects/default-project/assets/collisioncube.glb'
@@ -192,6 +193,61 @@ describe('ResourceHooks', () => {
         unmount()
         done()
       })
+    })
+  })
+
+  it('Loads an Object3D correctly', (done) => {
+    const entity = createEntity()
+
+    let objUUID = undefined as undefined | string
+    const Reactor = () => {
+      const [light] = useObj(DirectionalLight, entity)
+      objUUID = light.uuid
+
+      useEffect(() => {
+        assert(light.isDirectionalLight)
+      }, [])
+
+      return <></>
+    }
+
+    const { rerender, unmount } = render(<Reactor />)
+
+    act(async () => {
+      rerender(<Reactor />)
+    }).then(() => {
+      const resourceState = getState(ResourceState)
+      assert(objUUID && resourceState.resources[objUUID])
+      unmount()
+      assert(!resourceState.resources[objUUID])
+      done()
+    })
+  })
+
+  it('Unloads an Object3D correctly', (done) => {
+    const entity = createEntity()
+
+    let objUUID = undefined as undefined | string
+    const Reactor = () => {
+      const [light, unload] = useObj(DirectionalLight, entity)
+      objUUID = light.uuid
+
+      useEffect(() => {
+        unload()
+      }, [])
+
+      return <></>
+    }
+
+    const { rerender, unmount } = render(<Reactor />)
+
+    act(async () => {
+      rerender(<Reactor />)
+    }).then(() => {
+      const resourceState = getState(ResourceState)
+      assert(objUUID && !resourceState.resources[objUUID])
+      unmount()
+      done()
     })
   })
 })

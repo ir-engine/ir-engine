@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Entity, UndefinedEntity } from '@etherealengine/ecs'
 import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { MathUtils, Texture } from 'three'
+import { MathUtils, Object3D, Texture } from 'three'
 import { LoadingArgs } from '../classes/AssetLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { AssetType, ResourceManager, ResourceType } from '../state/ResourceState'
@@ -300,4 +300,29 @@ export async function getTextureAsync(
   params?: LoadingArgs
 ): Promise<[Texture | null, () => void, ErrorEvent | Error | null]> {
   return getLoader<Texture>(url, ResourceType.Texture, entity, params)
+}
+
+/**
+ *
+ * Object3D loader hook for creating an instance of a class that extends Object3D,
+ * but has it's lifecycle managed by the resource manager
+ *
+ * @param object3D A class that extends Object3D eg. DirectionalLight
+ * @param entity *Optional* the entity that is loading the object
+ * @returns A unique instance of the class that is passed in for object3D
+ */
+export function useObj<T extends Object3D>(object3D: { new (): T }, entity: Entity = UndefinedEntity): [T, () => void] {
+  const objState = useHookstate<T>(ResourceManager.loadObj(object3D, entity))
+
+  const unload = () => {
+    if (objState.value) {
+      ResourceManager.unload(objState.get(NO_PROXY).uuid, entity)
+    }
+  }
+
+  useEffect(() => {
+    return unload
+  }, [])
+
+  return [objState.get(NO_PROXY), unload]
 }
