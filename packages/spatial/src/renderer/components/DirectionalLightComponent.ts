@@ -110,6 +110,7 @@ export const DirectionalLightComponent = defineComponent({
 
   onInit: (entity) => {
     return {
+      light: null! as DirectionalLight,
       color: new Color(),
       intensity: 1,
       castShadow: false,
@@ -155,6 +156,7 @@ export const DirectionalLightComponent = defineComponent({
     const [light] = useObj(DirectionalLight, entity)
 
     useEffect(() => {
+      directionalLightComponent.light.set(light)
       addObjectToGroup(entity, light)
       return () => {
         removeObjectFromGroup(entity, light)
