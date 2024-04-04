@@ -50,6 +50,7 @@ export default function AdminProject() {
           disabled: config.client.localBuildOrDev
         }
       ]}
+      backgroundTheme="bg-theme-primary"
     />
   )
 }

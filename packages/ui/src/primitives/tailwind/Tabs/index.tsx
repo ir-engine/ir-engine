@@ -30,13 +30,14 @@ import Text from '../Text'
 
 export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
   tabsData: {
-    title: string
     tabLabel: string
+    title?: string
     bottomComponent?: ReactNode
     rightComponent?: ReactNode
     ref?: React.RefObject<HTMLDivElement>
     disabled?: boolean
   }[]
+  backgroundTheme?: string
   tabContainerClassName?: string
   tabClassName?: string
   scrollable?: boolean
@@ -50,6 +51,7 @@ const Tabs = ({
   tabClassName,
   scrollable,
   currentTabIndex,
+  backgroundTheme,
   onTabChange,
   ...props
 }: TabProps): JSX.Element => {
@@ -87,10 +89,12 @@ const Tabs = ({
 
   return (
     <div className="relative overflow-y-auto">
-      <Text component="h2" fontSize="xl" className="mb-6">
-        {tabsData[currentTab.value]?.title}
-      </Text>
-      <div className="bg-theme-primary sticky top-0 flex justify-between">
+      {tabsData[currentTab.value]?.title && (
+        <Text component="h2" fontSize="xl" className="mb-6">
+          {tabsData[currentTab.value]?.title}
+        </Text>
+      )}
+      <div className={backgroundTheme + ' sticky top-0 flex justify-between'}>
         <div className={twMerge(twTabContainerClassName, tabContainerClassName)} {...props}>
           {tabsData.map((tab, index) => (
             <button
