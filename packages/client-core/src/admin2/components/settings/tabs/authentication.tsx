@@ -37,6 +37,7 @@ import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 import { initialAuthState } from '../../../../common/initialAuthState'
+import { NotificationService } from '../../../../common/services/NotificationService'
 
 const OAUTH_TYPES = {
   DISCORD: 'discord',
@@ -109,6 +110,9 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     patchAuthSettings(id, { authStrategies: auth, oauth: oauth })
       .then(() => {
         loadingState.set({ loading: false, errorMessage: '' })
+        NotificationService.dispatchNotify(t('admin:components.setting.authSettingsRefreshNotification'), {
+          variant: 'warning'
+        })
       })
       .catch((e) => {
         loadingState.set({ loading: false, errorMessage: e.message })
@@ -208,7 +212,6 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             value={state[strategyName].value}
             disabled={strategyName === 'jwt'}
             onChange={(value) => onSwitchHandle(state[strategyName], value)}
-            size="lg"
           />
         ))}
       </div>

@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -43,6 +44,9 @@ const CopyText = ({ text, className, size = 'small' }: CopyTextProps) => {
 
   const copyText = () => {
     navigator.clipboard.writeText(text)
+    NotificationService.dispatchNotify('Text Copied', {
+      variant: 'success'
+    })
     buttonIcon.set(<HiCheck />)
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
     timeoutRef.current = setTimeout(() => {
