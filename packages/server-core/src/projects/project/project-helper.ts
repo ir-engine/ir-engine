@@ -42,6 +42,7 @@ import fs from 'fs'
 import { PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
+import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import { projectResourcesPath } from '@etherealengine/common/src/schemas/media/project-resource.schema'
 import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { ProjectBuilderTagsType } from '@etherealengine/common/src/schemas/projects/project-builder-tags.schema'
@@ -133,7 +134,9 @@ export const updateBuilder = async (
 ) => {
   try {
     // invalidate cache for all installed projects
-    await getStorageProvider(storageProviderName).createInvalidation(['projects*'])
+    await app.service(invalidationPath).create({
+      path: 'projects*'
+    })
   } catch (e) {
     logger.error(e, `[Project Rebuild]: Failed to invalidate cache with error: ${e.message}`)
   }
@@ -1634,14 +1637,20 @@ export const getCommitSHADate = async (projectName: string): Promise<{ commitSHA
   }
 }
 
-export const deleteProjectFilesInStorageProvider = async (projectName: string, storageProviderName?: string) => {
+export const deleteProjectFilesInStorageProvider = async (
+  app: Application,
+  projectName: string,
+  storageProviderName?: string
+) => {
   const storageProvider = getStorageProvider(storageProviderName)
   try {
     const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
     if (existingFiles.length) {
       await Promise.all([
         storageProvider.deleteResources(existingFiles),
-        storageProvider.createInvalidation([`projects/${projectName}*`])
+        app.service(invalidationPath).create({
+          path: `projects/${projectName}*`
+        })
       ])
     }
   } catch (e) {
@@ -1668,7 +1677,7 @@ export const uploadLocalProjectToProvider = async (
   // remove exiting storage provider files
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" started at "${new Date()}".`)
   if (remove) {
-    await deleteProjectFilesInStorageProvider(projectName)
+    await deleteProjectFilesInStorageProvider(app, projectName)
   }
 
   // upload new files to storage provider

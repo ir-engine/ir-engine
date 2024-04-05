@@ -31,6 +31,7 @@ import path from 'path'
 import { AvatarID, avatarPath, AvatarType } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 
+import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import { Application } from '../../../declarations'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { addAssetAsStaticResource } from '../../media/upload-asset/upload-asset.service'
@@ -90,11 +91,13 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
 
   const uploadDependencies = (filePaths: string[]) => {
     return Promise.all([
-      provider.createInvalidation(filePaths),
-      ...filePaths.map((filePath) => {
+      ...filePaths.map(async (filePath) => {
         const key = `static-resources/avatar/public${filePath.replace(avatarsFolder, '')}`
         const file = fs.readFileSync(filePath)
         const mimeType = getContentType(filePath)
+        await app.service(invalidationPath).create({
+          path: filePath
+        })
         return provider.putObject(
           {
             Key: key,

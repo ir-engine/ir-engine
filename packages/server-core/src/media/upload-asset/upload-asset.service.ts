@@ -39,6 +39,7 @@ import { CommonKnownContentTypes, MimeTypeToExtension } from '@etherealengine/co
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
 import { uploadAssetPath } from '@etherealengine/common/src/schema.type.module'
+import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { Application } from '../../../declarations'
 import verifyScope from '../../hooks/verify-scope'
@@ -116,11 +117,13 @@ export const getFileMetadata = async (data: { name?: string; file: UploadFile | 
   }
 }
 
-const addFileToStorageProvider = async (file: Buffer, mimeType: string, key: string) => {
+const addFileToStorageProvider = async (app: Application, file: Buffer, mimeType: string, key: string) => {
   logger.info(`Uploading ${key} to storage provider`)
   const provider = getStorageProvider()
   try {
-    await provider.createInvalidation([key])
+    await app.service(invalidationPath).create({
+      path: key
+    })
   } catch (e) {
     logger.info(`[ERROR lod-upload while invalidating ${key}]:`, e)
   }
@@ -271,7 +274,7 @@ export const addAssetAsStaticResource = async (
   // if (args.userId) body.userId = args.userId
 
   if (typeof file.buffer !== 'string') {
-    await addFileToStorageProvider(file.buffer, file.mimetype, primaryKey)
+    await addFileToStorageProvider(app, file.buffer, file.mimetype, primaryKey)
   }
 
   let resourceId = ''
