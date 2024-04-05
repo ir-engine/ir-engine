@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import CheckIcon from '@mui/icons-material/Check'
 import React, { KeyboardEvent, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 let uniqueId = 0
 
-interface BooleanInputProp {
+export interface BooleanInputProp {
   value: boolean
   onChange: (value: boolean) => void
   onRelease?: (value: boolean) => void
@@ -38,11 +37,14 @@ interface BooleanInputProp {
 
 export const BooleanInput = (props: BooleanInputProp) => {
   const [checkboxId] = useState(() => `boolean-input-${uniqueId++}`)
+
   const labelStyle = twMerge([
-    'm-0 h-6 rounded border border-solid border-[color:var(--inputOutline)] bg-[color:var(--inputBackground)] px-2 py-1.5 text-[color:var(--textColor)] hover:border-[color:var(--blueHover)] focus:border-[color:var(--blue)] disabled:bg-[color:var(--disabled)] disabled:text-[color:var(--disabledText)]',
-    'flex h-[18px] w-[18px] items-center justify-center p-0',
+    'h-[21px] w-[22px] rounded-sm border px-1 py-1',
+    props.value ? 'border-blue-800 bg-zinc-900 ' : 'border-zinc-800 bg-neutral-900',
+    'hover: bg-zinc-900 hover:border-blue-800',
     props.disabled ? 'cursor-[initial] opacity-80 grayscale-[0.8]' : 'cursor-pointer'
   ])
+
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     props.onChange(e.target.checked)
   }
@@ -67,7 +69,24 @@ export const BooleanInput = (props: BooleanInputProp) => {
         disabled={props.disabled}
       />
       <label htmlFor={checkboxId} className={labelStyle} tabIndex={0} onKeyPress={onKeyPress}>
-        {props.value && <CheckIcon className="h-auto w-full text-[color:var(--buttonTextColor)]" />}
+        {props.value && (
+          <svg
+            className="h-full w-full"
+            width="12"
+            height="9"
+            viewBox="0 0 12 9"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M11 1L4.125 8L1 4.81818"
+              stroke="#375DAF"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        )}
       </label>
     </div>
   )

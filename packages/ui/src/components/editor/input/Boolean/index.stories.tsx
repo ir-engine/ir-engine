@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import Component, { BooleanInputProp } from './index'
 
-const argTypes = {}
+const argTypes: BooleanInputProp = { value: false, onChange: () => {} }
 
 export default {
   title: 'Editor/Input/Boolean',
