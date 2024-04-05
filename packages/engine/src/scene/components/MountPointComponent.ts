@@ -39,6 +39,7 @@ import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { createObj } from '../../assets/functions/resourceHooks'
 import { SpawnPointComponent } from './SpawnPointComponent'
 
 export const MountPoint = {
@@ -80,7 +81,7 @@ export const MountPointComponent = defineComponent({
     useEffect(() => {
       if (!debugEnabled.value) return
 
-      const helper = new ArrowHelper(new Vector3(0, 0, 1), new Vector3(0, 0, 0), 0.5, 0xffffff)
+      const [helper, unload] = createObj(ArrowHelper, entity, new Vector3(0, 0, 1), new Vector3(0, 0, 0), 0.5, 0xffffff)
       helper.name = `mount-point-helper-${entity}`
 
       const helperEntity = createEntity()
@@ -95,6 +96,7 @@ export const MountPointComponent = defineComponent({
         removeEntity(helperEntity)
         if (!hasComponent(entity, SpawnPointComponent)) return
         mountPoint.helperEntity.set(none)
+        unload()
       }
     }, [debugEnabled])
 

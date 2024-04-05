@@ -44,8 +44,9 @@ import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/Colli
 import { BodyTypes, Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { enableObjectLayer } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { useObj } from '../../assets/functions/resourceHooks'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SourceComponent } from './SourceComponent'
 
@@ -56,8 +57,7 @@ export const GroundPlaneComponent = defineComponent({
   onInit(entity) {
     return {
       color: new Color(),
-      visible: true,
-      mesh: null! as Mesh<PlaneGeometry, MeshLambertMaterial | ShadowMaterial>
+      visible: true
     }
   },
 
@@ -67,7 +67,6 @@ export const GroundPlaneComponent = defineComponent({
     if (matches.object.test(json.color) || matches.string.test(json.color) || matches.number.test(json.color))
       component.color.value.set(json.color)
     if (matches.boolean.test(json.visible)) component.visible.set(json.visible)
-    if (matches.object.test(json.mesh)) component.mesh.set(json.mesh as any)
 
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
@@ -91,13 +90,12 @@ export const GroundPlaneComponent = defineComponent({
     const entity = useEntityContext()
 
     const component = useComponent(entity, GroundPlaneComponent)
+    const [planeGeom] = useObj(PlaneGeometry, entity, 10000, 10000)
+    const [meshMaterial] = useObj(MeshLambertMaterial, entity)
+    const [groundShadowMaterial] = useObj(ShadowMaterial, entity, { opacity: 0.5 })
+    const [mesh] = useObj(Mesh, entity, planeGeom, component.visible.value ? meshMaterial : groundShadowMaterial)
 
     useLayoutEffect(() => {
-      const mesh = new Mesh(
-        new PlaneGeometry(10000, 10000),
-        component.visible.value ? new MeshLambertMaterial() : new ShadowMaterial({ opacity: 0.5 })
-      )
-      component.mesh.set(mesh)
       mesh.geometry.rotateX(-Math.PI / 2)
       mesh.name = 'GroundPlaneMesh'
       mesh.material.polygonOffset = true
@@ -105,7 +103,7 @@ export const GroundPlaneComponent = defineComponent({
       mesh.material.polygonOffsetUnits = 1
 
       addObjectToGroup(entity, mesh)
-      enableObjectLayer(mesh, ObjectLayers.Camera, true)
+      setComponent(entity, ObjectLayerMaskComponent, ObjectLayers.Camera)
       setComponent(entity, MeshComponent, mesh)
 
       setComponent(entity, RigidBodyComponent, { type: BodyTypes.Fixed })
@@ -124,14 +122,12 @@ export const GroundPlaneComponent = defineComponent({
     }, [])
 
     useLayoutEffect(() => {
-      if (component.mesh.value) component.mesh.value.material.color.set(component.color.value)
+      mesh.material.color.set(component.color.value)
     }, [component.color])
 
     useLayoutEffect(() => {
-      if (component.mesh.value)
-        component.mesh.value.material = component.visible.value
-          ? new MeshLambertMaterial({ color: component.color.value })
-          : new ShadowMaterial({ opacity: 0.5 })
+      mesh.material = component.visible.value ? meshMaterial : groundShadowMaterial
+      mesh.material.color.set(component.color.value)
     }, [component.visible])
 
     return null

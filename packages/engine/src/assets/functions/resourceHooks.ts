@@ -29,7 +29,7 @@ import { useEffect } from 'react'
 import { MathUtils, Texture } from 'three'
 import { LoadingArgs } from '../classes/AssetLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
-import { AssetType, ObjectLike, ResourceManager, ResourceType } from '../state/ResourceState'
+import { AssetType, DisposableObject, ResourceManager, ResourceType } from '../state/ResourceState'
 
 function useLoader<T extends AssetType>(
   url: string,
@@ -312,7 +312,7 @@ export async function getTextureAsync(
  * @param args *Optional* arguments to pass to the constructor of object3D
  * @returns A unique instance of the class that is passed in for object3D
  */
-export function useObj<T extends ObjectLike>(
+export function useObj<T extends DisposableObject>(
   objectLike: { new (...params: any[]): T },
   entity: Entity = UndefinedEntity,
   ...args: any[]
@@ -343,7 +343,7 @@ export function useObj<T extends ObjectLike>(
  * @param args *Optional* arguments to pass to the constructor of object3D
  * @returns A unique instance of the class that is passed in for object3D and a callback to unload the object
  */
-export function getObj<T extends ObjectLike>(
+export function createObj<T extends DisposableObject>(
   objectLike: { new (...params: any[]): T },
   entity: Entity = UndefinedEntity,
   ...args: any[]

@@ -54,7 +54,7 @@ import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { getObj, useTexture } from '../../assets/functions/resourceHooks'
+import { createObj, useTexture } from '../../assets/functions/resourceHooks'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
@@ -138,7 +138,7 @@ export const EnvmapComponent = defineComponent({
 
       const col = component.envMapSourceColor.value ?? tempColor
       const resolution = 64 // Min value required
-      const [texture, unload] = getObj(DataTexture, entity, getRGBArray(col), resolution, resolution, RGBAFormat)
+      const [texture, unload] = createObj(DataTexture, entity, getRGBArray(col), resolution, resolution, RGBAFormat)
       texture.needsUpdate = true
       texture.colorSpace = SRGBColorSpace
       texture.mapping = EquirectangularReflectionMapping

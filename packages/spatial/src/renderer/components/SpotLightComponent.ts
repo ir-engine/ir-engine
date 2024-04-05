@@ -40,7 +40,7 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getObj, useObj } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { createObj, useObj } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { matches } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { NameComponent } from '../../common/NameComponent'
@@ -177,7 +177,7 @@ export const SpotLightComponent = defineComponent({
 
     useEffect(() => {
       if (!debugEnabled.value) return
-      const [helper, unload] = getObj(Mesh, entity, geom, helperMaterial)
+      const [helper, unload] = createObj(Mesh, entity, geom, helperMaterial)
       helper.name = `spotlight-helper-${entity}`
 
       const helperEntity = createEntity()

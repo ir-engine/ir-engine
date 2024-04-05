@@ -29,13 +29,12 @@ import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
 import { PerformanceState } from '@etherealengine/spatial/src/renderer/PerformanceState'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { useEffect } from 'react'
 import {
   Cache,
   CompressedTexture,
   DefaultLoadingManager,
-  InstancedMesh,
-  Light,
   LoadingManager,
   Material,
   Mesh,
@@ -58,9 +57,10 @@ declare module 'three/src/core/Object3D' {
   }
 }
 
-export interface ObjectLike {
+export interface DisposableObject {
   uuid: string
   id: number
+  entity?: Entity
   dispose?: () => void
 }
 
@@ -85,7 +85,7 @@ export enum ResourceType {
   // Audio = 'Audio',
 }
 
-export type AssetType = GLTF | Texture | CompressedTexture | Geometry | Material | Mesh | ObjectLike
+export type AssetType = GLTF | Texture | CompressedTexture | Geometry | Material | Mesh | DisposableObject
 
 type BaseMetadata = {
   size?: number
@@ -415,9 +415,9 @@ const Callbacks = {
       }
 
       // InstancedMesh or anything with a dispose function
-      const instancedMesh = asset as InstancedMesh
-      if (instancedMesh.isInstancedMesh || typeof instancedMesh.dispose === 'function') {
-        instancedMesh.dispose()
+      const disposable = asset as DisposableObject
+      if (typeof disposable.dispose === 'function') {
+        disposable.dispose()
       }
     }
   },
@@ -426,11 +426,12 @@ const Callbacks = {
     onLoad: (response: Material, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
-    onUnload: (asset: Object3D, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
-      const obj = asset as Light
-      if (obj.dispose && typeof obj.dispose === 'function') {
-        obj.dispose()
-      }
+    onUnload: (
+      asset: DisposableObject,
+      resource: State<Resource>,
+      resourceState: State<typeof ResourceState._TYPE>
+    ) => {
+      tryUnloadObj(asset)
     }
   },
   [ResourceType.Unknown]: {
@@ -439,8 +440,8 @@ const Callbacks = {
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
     onUnload: (asset: AssetType, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
-      const obj = asset as any
-      if (obj.dispose && typeof obj.dispose === 'function') {
+      const obj = asset as DisposableObject
+      if (typeof obj.dispose === 'function') {
         obj.dispose()
       }
     }
@@ -536,7 +537,7 @@ const load = <T extends AssetType>(
   )
 }
 
-const loadObj = <T extends ObjectLike>(
+const loadObj = <T extends DisposableObject>(
   objectLike: { new (...params: any[]): T },
   entity: Entity,
   ...args: any[]
@@ -544,6 +545,7 @@ const loadObj = <T extends ObjectLike>(
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
   const obj = new objectLike(...args)
+  if (entity) obj.entity = entity
   const id = obj.uuid
   const callbacks = Callbacks[ResourceType.Object3D]
   // Only one object can exist per UUID
@@ -644,11 +646,20 @@ const unload = (id: string, entity: Entity, uuid?: string) => {
   }
 }
 
+const tryUnloadObj = (obj: DisposableObject) => {
+  const obj3D = obj as Object3D
+  const entity = obj.entity
+  if (!entity || !obj3D.isObject3D) return
+
+  removeObjectFromGroup(entity, obj3D)
+  unloadObj(obj3D, getOptionalComponent(entity, SourceComponent))
+}
+
 const unloadObj = <T extends Object3D>(obj: T, sceneID: SceneID | undefined) => {
   const remove = (obj: Object3D) => {
     debugLog('ResourceManager:unloadObj Unloading Object3D: ' + obj.name + ' for scene: ' + sceneID)
-    const light = obj as Light // anything with dispose function
-    if (typeof light.dispose === 'function') light.dispose()
+    const disposable = obj as DisposableObject // anything with dispose function
+    if (typeof disposable.dispose === 'function') disposable.dispose()
   }
 
   if (obj.isProxified) {
