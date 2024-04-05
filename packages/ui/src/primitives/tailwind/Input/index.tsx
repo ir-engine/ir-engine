@@ -96,7 +96,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
           {endComponent && (
             <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-3.5">
-              <div onClick={onEndIconClick} className={onEndIconClick ? 'cursor-pointer' : ''}>
+              <div onClick={onEndIconClick} className={onEndIconClick ? 'pointer-events-auto cursor-pointer' : ''}>
                 {endComponent}
               </div>
             </div>
