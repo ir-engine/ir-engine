@@ -23,22 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Collider, KinematicCharacterController } from '@dimforge/rapier3d-compat'
+import { KinematicCharacterController } from '@dimforge/rapier3d-compat'
 import { Vector3 } from 'three'
 
-import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { defineComponent, getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { entityExists, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState, matches, useHookstate } from '@etherealengine/hyperflux'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
-import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
 import { useEffect } from 'react'
-import { createAvatarCollider } from '../functions/spawnAvatarReceptor'
 import { AvatarComponent } from './AvatarComponent'
 
 export const AvatarControllerComponent = defineComponent({
@@ -49,7 +53,6 @@ export const AvatarControllerComponent = defineComponent({
       /** The camera entity that should be updated by this controller */
       cameraEntity: Engine.instance.cameraEntity,
       controller: null! as KinematicCharacterController,
-      bodyCollider: null! as Collider,
       movementCaptured: [] as Array<Entity>,
       isJumping: false,
       isWalking: false,
@@ -70,7 +73,6 @@ export const AvatarControllerComponent = defineComponent({
 
     if (matches.number.test(json.cameraEntity)) component.cameraEntity.set(json.cameraEntity)
     if (matches.object.test(json.controller)) component.controller.set(json.controller as KinematicCharacterController)
-    if (matches.object.test(json.bodyCollider)) component.bodyCollider.set(json.bodyCollider as Collider)
     if (matches.array.test(json.movementCaptured)) component.movementCaptured.set(json.movementCaptured)
     if (matches.boolean.test(json.isJumping)) component.isJumping.set(json.isJumping)
     if (matches.boolean.test(json.isWalking)) component.isWalking.set(json.isWalking)
@@ -97,21 +99,13 @@ export const AvatarControllerComponent = defineComponent({
     const entity = useEntityContext()
     const avatarComponent = useComponent(entity, AvatarComponent)
     const avatarControllerComponent = useComponent(entity, AvatarControllerComponent)
-    const uuidComponent = useComponent(entity, UUIDComponent)
+    const isCameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar)
 
     useEffect(() => {
-      if ((uuidComponent.value as any as UserID) === Engine.instance.userID) {
-        Engine.instance.localClientEntity = entity
-        return () => {
-          Engine.instance.localClientEntity = UndefinedEntity
-        }
-      }
-    }, [])
-
-    useEffect(() => {
-      Physics.removeCollidersFromRigidBody(entity, getState(PhysicsState).physicsWorld)
-      const collider = createAvatarCollider(entity)
-      avatarControllerComponent.bodyCollider.set(collider)
+      /** @todo fix this */
+      // getState(PhysicsState).physicsWorld.removeCollider(avatarControllerComponent.bodyCollider.value, false)
+      // const collider = createAvatarCollider(entity)
+      // avatarControllerComponent.bodyCollider.set(collider)
 
       const cameraEntity = avatarControllerComponent.cameraEntity.value
       if (cameraEntity && entityExists(cameraEntity) && hasComponent(cameraEntity, FollowCameraComponent)) {
@@ -120,6 +114,41 @@ export const AvatarControllerComponent = defineComponent({
       }
     }, [avatarComponent.avatarHeight])
 
+    useEffect(() => {
+      if (isCameraAttachedToAvatar.value) {
+        const controller = getComponent(entity, AvatarControllerComponent)
+        removeComponent(controller.cameraEntity, FollowCameraComponent)
+      } else {
+        const controller = getComponent(entity, AvatarControllerComponent)
+        const targetCameraRotation = getComponent(controller.cameraEntity, TargetCameraRotationComponent)
+        setComponent(controller.cameraEntity, FollowCameraComponent, {
+          targetEntity: entity,
+          phi: targetCameraRotation.phi,
+          theta: targetCameraRotation.theta
+        })
+      }
+    }, [isCameraAttachedToAvatar])
+
+    useEffect(() => {
+      getMutableState(PhysicsState).cameraAttachedRigidbodyEntity.set(entity)
+      return () => {
+        getMutableState(PhysicsState).cameraAttachedRigidbodyEntity.set(UndefinedEntity)
+      }
+    }, [])
+
     return null
+  }
+})
+
+export const AvatarColliderComponent = defineComponent({
+  name: 'AvatarColliderComponent',
+  onInit(entity) {
+    return {
+      colliderEntity: UndefinedEntity
+    }
+  },
+  onSet(entity, component, json) {
+    if (!json) return
+    if (matches.number.test(json.colliderEntity)) component.colliderEntity.set(json.colliderEntity)
   }
 })

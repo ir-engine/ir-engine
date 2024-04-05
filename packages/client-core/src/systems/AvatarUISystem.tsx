@@ -34,18 +34,19 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { MediaSettingsState } from '@etherealengine/engine/src/audio/MediaSettingsState'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { applyVideoToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
+import {
+  NetworkObjectComponent,
+  NetworkObjectOwnedTag,
+  NetworkState,
+  webcamVideoDataChannelType
+} from '@etherealengine/network'
 import { easeOutElastic } from '@etherealengine/spatial/src/common/functions/MathFunctions'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
-import { MediaSettingsState } from '@etherealengine/spatial/src/networking/MediaSettingsState'
-import { NetworkState, webcamVideoDataChannelType } from '@etherealengine/spatial/src/networking/NetworkState'
-import {
-  NetworkObjectComponent,
-  NetworkObjectOwnedTag
-} from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
 import { Physics, RaycastArgs } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
@@ -57,9 +58,10 @@ import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIC
 
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { MediasoupMediaProducerConsumerState } from '@etherealengine/network'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
-import { MediasoupMediaProducerConsumerState } from '@etherealengine/spatial/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
@@ -130,10 +132,12 @@ const raycastComponentData = {
 
 const onSecondaryClick = () => {
   const { physicsWorld } = getState(PhysicsState)
-  const pointerState = getState(InputState).pointerState
+  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  if (!inputPointerEntity) return
+  const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
   const hits = Physics.castRayFromCamera(
     getComponent(Engine.instance.cameraEntity, CameraComponent),
-    pointerState.position,
+    pointerPosition,
     physicsWorld,
     raycastComponentData
   )
@@ -141,7 +145,7 @@ const onSecondaryClick = () => {
   if (hits.length) {
     const hit = hits[0]
     const hitEntity = (hit.body?.userData as any)?.entity as Entity
-    if (typeof hitEntity !== 'undefined' && hitEntity !== Engine.instance.localClientEntity) {
+    if (typeof hitEntity !== 'undefined' && hitEntity !== AvatarComponent.getSelfAvatarEntity()) {
       if (hasComponent(hitEntity, NetworkObjectComponent)) {
         const userId = getComponent(hitEntity, NetworkObjectComponent).ownerId
         state.id.set(userId)
@@ -157,13 +161,9 @@ const onSecondaryClick = () => {
 const execute = () => {
   const ecsState = getState(ECSState)
 
-  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
-  if (nonCapturedInputSource) {
-    const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
-    const keys = inputSource.buttons
-    if (keys.PrimaryClick?.down) onPrimaryClick()
-    if (keys.SecondaryClick?.down) onSecondaryClick()
-  }
+  const buttons = InputSourceComponent.getMergedButtons()
+  if (buttons.PrimaryClick?.down) onPrimaryClick()
+  if (buttons.SecondaryClick?.down) onSecondaryClick()
 
   videoPreviewTimer += ecsState.deltaSeconds
   if (videoPreviewTimer > 1) videoPreviewTimer = 0

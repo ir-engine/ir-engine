@@ -24,8 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
+import { Engine } from '@etherealengine/ecs'
 import {
   defineComponent,
+  getComponent,
   getMutableComponent,
   hasComponent,
   removeComponent,
@@ -40,7 +42,7 @@ import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { useEffect, useMemo, useRef } from 'react'
 import {
@@ -51,7 +53,9 @@ import {
   PlaneGeometry,
   SRGBColorSpace,
   ShaderMaterial,
-  Texture
+  Sphere,
+  Texture,
+  Vector3
 } from 'three'
 import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
@@ -229,7 +233,8 @@ function UVOL1Reactor() {
       mesh.geometry.attributes.position.needsUpdate = true
 
       videoTexture.needsUpdate = true
-      EngineRenderer.instance.renderer.initTexture(videoTexture)
+      const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
+      renderer.renderer.initTexture(videoTexture)
 
       if (volumetric.useLoadingEffect.value) {
         mesh.material = UVOLDissolveComponent.createDissolveMaterial(mesh)
@@ -263,7 +268,7 @@ function UVOL1Reactor() {
         mesh.geometry.attributes.position.needsUpdate = true
 
         videoTexture.needsUpdate = true
-        EngineRenderer.instance.renderer.initTexture(videoTexture)
+        getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.initTexture(videoTexture)
       }
       removePlayedBuffer(frameToPlay)
     }
@@ -319,6 +324,7 @@ function UVOL1Reactor() {
                 throw new Error('VDEBUG Entity ${entity} Invalid geometry frame: ' + i.toString())
               }
 
+              geometry.boundingSphere = new Sphere().set(new Vector3(), Infinity)
               meshBuffer.set(i, geometry)
               pendingRequests.current -= 1
 

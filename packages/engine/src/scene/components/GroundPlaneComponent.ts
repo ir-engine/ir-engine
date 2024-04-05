@@ -23,29 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial, Vector3 } from 'three'
+import { useLayoutEffect } from 'react'
+import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { defineComponent, hasComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { TransformComponent } from '@etherealengine/spatial'
-import { matches } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { matches } from '@etherealengine/hyperflux'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
+import { BodyTypes, Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { enableObjectLayer } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { SceneObjectComponent } from './SceneObjectComponent'
+import { SourceComponent } from './SourceComponent'
 
 export const GroundPlaneComponent = defineComponent({
   name: 'GroundPlaneComponent',
-  jsonID: 'ground-plane',
+  jsonID: 'EE_ground_plane',
 
   onInit(entity) {
     return {
@@ -68,7 +74,7 @@ export const GroundPlaneComponent = defineComponent({
      */
     if (
       !getState(SceneState).sceneLoaded &&
-      hasComponent(entity, SceneObjectComponent) &&
+      hasComponent(entity, SourceComponent) &&
       !hasComponent(entity, RigidBodyComponent)
     )
       SceneAssetPendingTagComponent.addResource(entity, GroundPlaneComponent.jsonID)
@@ -86,11 +92,9 @@ export const GroundPlaneComponent = defineComponent({
 
     const component = useComponent(entity, GroundPlaneComponent)
 
-    useEffect(() => {
-      const radius = 10000
-
+    useLayoutEffect(() => {
       const mesh = new Mesh(
-        new PlaneGeometry(1, 1),
+        new PlaneGeometry(10000, 10000),
         component.visible.value ? new MeshLambertMaterial() : new ShadowMaterial({ opacity: 0.5 })
       )
       component.mesh.set(mesh)
@@ -104,11 +108,9 @@ export const GroundPlaneComponent = defineComponent({
       enableObjectLayer(mesh, ObjectLayers.Camera, true)
       setComponent(entity, MeshComponent, mesh)
 
-      setComponent(entity, TransformComponent, { scale: new Vector3(radius * 2, 0.001, radius * 2) })
-
-      setComponent(entity, RigidBodyComponent, { type: 'fixed' })
+      setComponent(entity, RigidBodyComponent, { type: BodyTypes.Fixed })
       setComponent(entity, ColliderComponent, {
-        shape: 'box',
+        shape: Shapes.Plane,
         collisionLayer: CollisionGroups.Ground,
         collisionMask: CollisionGroups.Default | CollisionGroups.Avatars
       })
@@ -121,11 +123,11 @@ export const GroundPlaneComponent = defineComponent({
       }
     }, [])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (component.mesh.value) component.mesh.value.material.color.set(component.color.value)
     }, [component.color])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (component.mesh.value)
         component.mesh.value.material = component.visible.value
           ? new MeshLambertMaterial({ color: component.color.value })

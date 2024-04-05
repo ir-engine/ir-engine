@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
@@ -40,6 +39,7 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
  * @returns List of parent entities
  */
 export const filterParentEntities = (
+  rootEntity: Entity,
   entityList: Entity[],
   parentEntityList: Entity[] = [],
   filterUnremovable = true,
@@ -69,7 +69,7 @@ export const filterParentEntities = (
     }
   }
 
-  traverseParentOnly(SceneState.getRootEntity())
+  traverseParentOnly(rootEntity)
 
   return parentEntityList
 }

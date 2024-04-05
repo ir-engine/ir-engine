@@ -23,11 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import { FC, useEffect } from 'react'
 import { AnimationMixer, BoxGeometry, CapsuleGeometry, CylinderGeometry, Group, Scene, SphereGeometry } from 'three'
 
-import { NO_PROXY, createState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { QueryReactor, UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -42,63 +43,48 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { Shape } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { VRM } from '@pixiv/three-vrm'
+import { Not } from 'bitecs'
 import React from 'react'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
+import { useGLTF } from '../../assets/functions/resourceHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
-import { autoconvertMixamoAvatar, isAvaturn } from '../../avatar/functions/avatarFunctions'
-import { SourceType } from '../../scene/materials/components/MaterialSource'
-import { removeMaterialSource } from '../../scene/materials/functions/MaterialLibraryFunctions'
+import { autoconvertMixamoAvatar } from '../../avatar/functions/avatarFunctions'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
-import { getModelSceneID } from '../functions/loaders/ModelFunctions'
+import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
 import { EnvmapComponent } from './EnvmapComponent'
 import { ObjectGridSnapComponent } from './ObjectGridSnapComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { SceneObjectComponent } from './SceneObjectComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { SourceComponent } from './SourceComponent'
-import { VariantComponent } from './VariantComponent'
 
-function clearMaterials(src: string) {
-  try {
-    removeMaterialSource({ type: SourceType.MODEL, path: src ?? '' })
-  } catch (e) {
-    if (e?.name === 'MaterialNotFound') {
-      console.warn('could not find material in source ' + src)
-    } else {
-      throw e
-    }
-  }
-}
-
-const entitiesInModelHierarchy = {} as Record<Entity, Entity[]>
-
+/**
+ * ModelComponent is an entity/object hierarchy loaded from a resource
+ */
 export const ModelComponent = defineComponent({
-  name: 'Model Component',
-  jsonID: 'gltf-model',
+  name: 'ModelComponent',
+  jsonID: 'EE_model',
 
   onInit: (entity) => {
     return {
       src: '',
       cameraOcclusion: true,
       /** optional, only for bone matchable avatars */
-      convertToVRM: false as boolean,
+      convertToVRM: false,
       // internal
-      scene: null as Scene | null,
+      assetTypeOverride: null as null | AssetType,
+      scene: null as Group | null,
       asset: null as VRM | GLTF | null
     }
   },
@@ -124,116 +110,94 @@ export const ModelComponent = defineComponent({
      */
     if (
       !getState(SceneState).sceneLoaded &&
-      hasComponent(entity, SceneObjectComponent) &&
+      hasComponent(entity, SourceComponent) &&
       component.src.value &&
-      !component.scene.value
+      !component.asset.value
     )
-      SceneAssetPendingTagComponent.addResource(entity, component.src.value)
+      SceneAssetPendingTagComponent.addResource(entity, ModelComponent.jsonID)
   },
 
   errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
 
-  reactor: ModelReactor,
-
-  /** Tracks all child entities loaded by this model */
-  entitiesInModelHierarchyState: createState(entitiesInModelHierarchy),
-  entitiesInModelHierarchy: entitiesInModelHierarchy as Readonly<typeof entitiesInModelHierarchy>
+  reactor: ModelReactor
 })
 
 function ModelReactor(): JSX.Element {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
-  const uuidComponent = useComponent(entity, UUIDComponent)
-  const variantComponent = useOptionalComponent(entity, VariantComponent)
+
+  const [gltf, error, progress] = useGLTF(modelComponent.src.value, entity, {
+    forceAssetType: modelComponent.assetTypeOverride.value,
+    ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
+  })
 
   useEffect(() => {
-    let aborted = false
-    if (variantComponent && !variantComponent.calculated.value) return
-    const model = modelComponent.value
-    const src = model.src
-    if (!src) {
-      modelComponent.scene.set(null)
-      modelComponent.asset.set(null)
+    if (!progress) return
+    if (hasComponent(entity, SceneAssetPendingTagComponent))
+      SceneAssetPendingTagComponent.loadingProgress.merge({
+        [entity]: {
+          loadedAmount: progress.loaded,
+          totalAmount: progress.total
+        }
+      })
+  }, [progress])
+
+  useEffect(() => {
+    if (!error) return
+
+    console.error(error)
+    addError(entity, ModelComponent, 'INVALID_SOURCE', error.message)
+    SceneAssetPendingTagComponent.removeResource(entity, ModelComponent.jsonID)
+  }, [error])
+
+  useEffect(() => {
+    if (!gltf) {
+      if (!hasComponent(entity, GroupComponent)) {
+        const obj3d = new Group()
+        obj3d.entity = entity
+        addObjectToGroup(entity, obj3d)
+        proxifyParentChildRelationships(obj3d)
+      }
       return
     }
 
-    if (!hasComponent(entity, GroupComponent)) {
-      const obj3d = new Group()
-      obj3d.entity = entity
-      addObjectToGroup(entity, obj3d)
-      proxifyParentChildRelationships(obj3d)
+    if (typeof gltf !== 'object') {
+      addError(entity, ModelComponent, 'INVALID_SOURCE', 'Invalid URL')
+      return
     }
 
-    /** @todo this is a hack */
-    const override = !isAvaturn(src) ? undefined : AssetType.glB
+    const boneMatchedAsset =
+      gltf instanceof VRM || modelComponent.convertToVRM.value ? (autoconvertMixamoAvatar(gltf) as GLTF) : gltf
 
-    AssetLoader.load(
-      src,
-      {
-        forceAssetType: override,
-        ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
-      },
-      (loadedAsset) => {
-        if (variantComponent && !variantComponent.calculated.value) return
-        if (aborted) return
-        if (typeof loadedAsset !== 'object') {
-          addError(entity, ModelComponent, 'INVALID_SOURCE', 'Invalid URL')
-          return
-        }
-        const boneMatchedAsset = modelComponent.convertToVRM.value
-          ? (autoconvertMixamoAvatar(loadedAsset) as GLTF)
-          : loadedAsset
-        /**if we've loaded or converted to vrm, create animation component whose mixer's root is the normalized rig */
-        if (boneMatchedAsset instanceof VRM)
-          setComponent(entity, AnimationComponent, {
-            animations: loadedAsset.animations,
-            mixer: new AnimationMixer(boneMatchedAsset.humanoid.normalizedHumanBonesRoot)
-          })
-        modelComponent.asset.set(boneMatchedAsset)
-      },
-      (onprogress) => {
-        if (aborted) return
-        if (getOptionalComponent(entity, SceneAssetPendingTagComponent)?.includes(src))
-          SceneAssetPendingTagComponent.loadingProgress.merge({
-            [entity]: {
-              loadedAmount: onprogress.loaded,
-              totalAmount: onprogress.total
-            }
-          })
-      },
-      (err: Error) => {
-        if (aborted) return
-        console.error(err)
-        addError(entity, ModelComponent, 'INVALID_SOURCE', err.message)
-        SceneAssetPendingTagComponent.removeResource(entity, src)
-      }
-    )
-    return () => {
-      aborted = true
-      SceneAssetPendingTagComponent.removeResource(entity, src)
-    }
-  }, [modelComponent.src, modelComponent.convertToVRM, variantComponent?.calculated])
+    /**if we've loaded or converted to vrm, create animation component whose mixer's root is the normalized rig */
+    if (boneMatchedAsset instanceof VRM)
+      setComponent(entity, AnimationComponent, {
+        animations: gltf.animations,
+        mixer: new AnimationMixer(boneMatchedAsset.humanoid.normalizedHumanBonesRoot)
+      })
+
+    modelComponent.asset.set(boneMatchedAsset)
+  }, [gltf])
 
   useEffect(() => {
     const model = modelComponent.get(NO_PROXY)!
     const asset = model.asset as GLTF | null
     if (!asset) return
+
     const group = getOptionalComponent(entity, GroupComponent)
     if (!group) return
+
     removeError(entity, ModelComponent, 'INVALID_SOURCE')
     removeError(entity, ModelComponent, 'LOADING_ERROR')
-    const sceneObj = group[0] as Scene
+    const sceneObj = group[0] as Group
 
     sceneObj.userData.src = model.src
-    sceneObj.userData.sceneID = getModelSceneID(entity)
-    //sceneObj.userData.type === 'glb' && delete asset.scene.userData.type
     modelComponent.scene.set(sceneObj)
   }, [modelComponent.asset])
 
   // update scene
   useEffect(() => {
-    const scene = getComponent(entity, ModelComponent).scene
-    const asset = getComponent(entity, ModelComponent).asset
+    const { scene, asset, src } = getComponent(entity, ModelComponent)
 
     if (!scene || !asset) return
 
@@ -254,37 +218,39 @@ function ModelReactor(): JSX.Element {
       project: '',
       thumbnailUrl: ''
     })
-    const src = modelComponent.src.value
+
     if (!hasComponent(entity, AvatarRigComponent)) {
       //if this is not an avatar, add bbox snap
       setComponent(entity, ObjectGridSnapComponent)
     }
 
-    if (EngineRenderer.instance)
-      EngineRenderer.instance.renderer
-        .compileAsync(scene, getComponent(Engine.instance.cameraEntity, CameraComponent), Engine.instance.scene)
+    const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)
+
+    if (renderer)
+      renderer.renderer
+        .compileAsync(scene, getComponent(Engine.instance.viewerEntity, CameraComponent))
         .catch(() => {
           addError(entity, ModelComponent, 'LOADING_ERROR', 'Error compiling model')
         })
         .finally(() => {
-          SceneAssetPendingTagComponent.removeResource(entity, src)
+          SceneAssetPendingTagComponent.removeResource(entity, ModelComponent.jsonID)
         })
 
+    const gltf = asset as GLTF
+    if (gltf.animations?.length) scene.animations = gltf.animations
+    if (scene.animations?.length) {
+      setComponent(entity, AnimationComponent, {
+        mixer: new AnimationMixer(scene),
+        animations: scene.animations
+      })
+    }
     return () => {
-      if (!(asset instanceof VRM)) clearMaterials(src) /** @todo Replace with hooks and refrence counting */
-      getMutableState(SceneState).scenes[uuid].set(none)
+      SceneState.unloadScene(uuid)
     }
   }, [modelComponent.scene])
 
-  const childQuery = useQuery([SourceComponent])
-  useEffect(() => {
-    const modelSceneID = getModelSceneID(entity)
-    ModelComponent.entitiesInModelHierarchyState[entity].set(
-      childQuery.filter((e) => getComponent(e, SourceComponent) === modelSceneID)
-    )
-  }, [JSON.stringify(childQuery)])
-
-  const childEntities = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
+  const sceneInstanceID = useModelSceneID(entity)
+  const childEntities = useHookstate(SourceComponent.entitiesBySourceState[sceneInstanceID])
 
   return (
     <>
@@ -302,7 +268,7 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
 
   useEffect(() => {
     SceneAssetPendingTagComponent.removeResource(props.entity, `${props.parentEntity}`)
-    SceneAssetPendingTagComponent.removeResource(props.parentEntity, modelComponent.src.value)
+    SceneAssetPendingTagComponent.removeResource(props.parentEntity, ModelComponent.jsonID)
   }, [])
 
   const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)
@@ -370,8 +336,29 @@ export const useMeshOrModel = (entity: Entity) => {
   return isEntityHierarchyOrMesh
 }
 
-export const useContainsMesh = (entity: Entity) => {
-  const meshComponent = useOptionalComponent(entity, MeshComponent)
-  const childEntities = useHookstate(ModelComponent.entitiesInModelHierarchyState[entity])
-  return !!meshComponent || !!childEntities.value?.find((e: Entity) => getComponent(e, MeshComponent))
+export const MeshOrModelQuery = (props: { ChildReactor: FC<{ entity: Entity; rootEntity: Entity }> }) => {
+  const ModelReactor = () => {
+    const entity = useEntityContext()
+    const sceneInstanceID = useModelSceneID(entity)
+    const childEntities = useHookstate(SourceComponent.entitiesBySourceState[sceneInstanceID])
+    return (
+      <>
+        {childEntities.value?.map((childEntity) => (
+          <props.ChildReactor entity={childEntity} rootEntity={entity} key={childEntity} />
+        ))}
+      </>
+    )
+  }
+
+  const MeshReactor = () => {
+    const entity = useEntityContext()
+    return <props.ChildReactor entity={entity} rootEntity={entity} key={entity} />
+  }
+
+  return (
+    <>
+      <QueryReactor Components={[ModelComponent]} ChildEntityReactor={ModelReactor} />
+      <QueryReactor Components={[Not(SourceComponent), MeshComponent]} ChildEntityReactor={MeshReactor} />
+    </>
+  )
 }

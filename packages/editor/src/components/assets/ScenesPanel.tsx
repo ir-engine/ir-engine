@@ -24,20 +24,19 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import multiLogger from '@etherealengine/common/src/logger'
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CompressedTexture } from 'three'
 
 import MoreVert from '@mui/icons-material/MoreVert'
 import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { SceneDataType, SceneID } from '@etherealengine/common/src/schema.type.module'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { TabData } from 'rc-dock'
 import { deleteScene, getScenes, onNewScene, renameScene, setSceneInState } from '../../functions/sceneFunctions'
@@ -63,7 +62,7 @@ export default function ScenesPanel() {
   const [anchorEl, setAnchorEl] = useState(null)
   const [newName, setNewName] = useState('')
   const [isRenaming, setRenaming] = useState(false)
-  const [activeScene, setActiveScene] = useState<SceneDataType | null>(null)
+  const [loadedScene, setLoadedScene] = useState<SceneDataType | null>(null)
   const editorState = useHookstate(getMutableState(EditorState))
   const sceneState = useHookstate(getMutableState(SceneState))
   const [scenesLoading, setScenesLoading] = useState(true)
@@ -74,7 +73,7 @@ export default function ScenesPanel() {
       const data = await getScenes(editorState.projectName.value!)
       for (let i = 0; i < data.length; i++) {
         const ktx2url = await getSceneURL(data[i].thumbnailUrl)
-        thumbnails.set(data[i].name, ktx2url)
+        thumbnails.set(data[i].name, ktx2url!)
       }
       setScenes(data ?? [])
     } catch (error) {
@@ -105,14 +104,14 @@ export default function ScenesPanel() {
   }
 
   const closeDeleteDialog = () => {
-    setActiveScene(null)
+    setLoadedScene(null)
     setDeleteOpen(false)
   }
 
   const deleteActiveScene = async () => {
-    if (activeScene) {
-      await deleteScene(editorState.projectName.value, activeScene.name)
-      if (editorState.sceneName.value === activeScene.name) {
+    if (loadedScene) {
+      await deleteScene(editorState.projectName.value, loadedScene.name)
+      if (editorState.sceneName.value === loadedScene.name) {
         getMutableState(SceneState).sceneLoaded.set(false)
         editorState.sceneName.set(null)
       }
@@ -125,7 +124,7 @@ export default function ScenesPanel() {
 
   const openContextMenu = (e, scene) => {
     e.stopPropagation()
-    setActiveScene(scene)
+    setLoadedScene(scene)
     setContextMenuOpen(true)
     setAnchorEl(e.target)
   }
@@ -133,7 +132,7 @@ export default function ScenesPanel() {
   const closeContextMenu = () => {
     setContextMenuOpen(false)
     setAnchorEl(null)
-    setActiveScene(null)
+    setLoadedScene(null)
   }
 
   const startRenaming = () => {
@@ -146,26 +145,28 @@ export default function ScenesPanel() {
     setContextMenuOpen(false)
     setAnchorEl(null)
     setRenaming(true)
-    setNewName(activeScene!.name)
+    setNewName(loadedScene!.name)
   }
 
   const finishRenaming = async () => {
     setRenaming(false)
-    await renameScene(editorState.projectName.value as string, newName, activeScene!.name)
-    if (activeScene) setSceneInState(activeScene.scenePath.replace(activeScene.name, newName) as SceneID)
+    await renameScene(editorState.projectName.value as string, newName, loadedScene!.name)
+    if (loadedScene) setSceneInState(loadedScene.scenePath.replace(loadedScene.name, newName) as SceneID)
     setNewName('')
     fetchItems()
   }
 
   const renameSceneToNewName = async (e) => {
-    if (e.key == 'Enter' && activeScene) finishRenaming()
+    if (e.key == 'Enter' && loadedScene) finishRenaming()
   }
 
   const getSceneURL = async (url) => {
-    const texture = (await AssetLoader.loadAsync(url)) as CompressedTexture
-    const outUrl = (await createReadableTexture(texture, { url: true })) as string
-    texture.dispose()
-    return outUrl
+    const [texture, unload] = await getTextureAsync(url)
+    if (texture) {
+      const outUrl = (await createReadableTexture(texture, { url: true })) as string
+      unload()
+      return outUrl
+    }
   }
 
   return (
@@ -197,7 +198,7 @@ export default function ScenesPanel() {
                     />
                   </div>
                   <div className={styles.detailBlock}>
-                    {activeScene === scene && isRenaming ? (
+                    {loadedScene === scene && isRenaming ? (
                       <Paper component="div" className={styles.inputContainer}>
                         <ClickAwayListener onClickAway={finishRenaming}>
                           <InputBase

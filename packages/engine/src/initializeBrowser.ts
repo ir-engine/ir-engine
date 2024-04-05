@@ -23,15 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BotUserAgent } from '@etherealengine/common/src/constants/BotUserAgent'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 import { WebLayerManager } from '@etherealengine/xrui'
 
+import { ECSState } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { PerformanceManager } from '@etherealengine/spatial/src/renderer/PerformanceState'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
 import { AssetLoaderState } from './assets/state/AssetLoaderState'
@@ -42,24 +42,25 @@ import { AssetLoaderState } from './assets/state/AssetLoaderState'
  * initializes everything for the browser context
  */
 export const initializeBrowser = () => {
-  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
 
   camera.layers.disableAll()
   camera.layers.enable(ObjectLayers.Scene)
   camera.layers.enable(ObjectLayers.Avatar)
   camera.layers.enable(ObjectLayers.UI)
   camera.layers.enable(ObjectLayers.TransformGizmo)
+  camera.layers.enable(ObjectLayers.UVOL)
 
-  getMutableState(EngineState).isBot.set(navigator.userAgent === BotUserAgent)
-
-  const renderer = EngineRenderer.instance.renderer
-  if (!renderer) throw new Error('EngineRenderer.instance.renderer does not exist!')
+  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
+  if (!renderer?.renderer) throw new Error('renderer does not exist!')
 
   const gltfLoader = getState(AssetLoaderState).gltfLoader
   initializeKTX2Loader(gltfLoader)
 
-  WebLayerManager.initialize(renderer, gltfLoader.ktx2Loader!)
+  WebLayerManager.initialize(renderer.renderer, gltfLoader.ktx2Loader!)
   WebLayerManager.instance.ktx2Encoder.pool.setWorkerLimit(1)
 
-  Engine.instance.engineTimer.start()
+  PerformanceManager.buildPerformanceState(renderer, () => {
+    getState(ECSState).timer.start()
+  })
 }

@@ -25,14 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { sceneUploadPath } from '@etherealengine/common/src/schemas/projects/scene-upload.schema'
-import { SceneDataType, SceneJsonType, scenePath } from '@etherealengine/common/src/schemas/projects/scene.schema'
+import { SceneDataType, scenePath } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import { UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
-import { parseStorageProviderURLs } from '@etherealengine/spatial/src/common/functions/parseSceneJSON'
 import assert from 'assert'
 import { v1 } from 'uuid'
 import { Application } from '../../../declarations'
@@ -79,7 +79,7 @@ describe('scene-upload.test', () => {
 
   it('should upload a new scene', async () => {
     const sceneName = `test-scene-name-${v1()}`
-    const sceneData = structuredClone(defaultSceneSeed) as unknown as SceneJsonType
+    const sceneData = structuredClone(defaultSceneSeed)
     const parsedSceneData = parseStorageProviderURLs(structuredClone(defaultSceneSeed))
 
     await app.service(sceneUploadPath).create(

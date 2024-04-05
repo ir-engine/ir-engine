@@ -26,14 +26,13 @@ Ethereal Engine. All Rights Reserved.
 // spawnPose is temporary - just so portals work for now - will be removed in favor of instanceserver-instanceserver communication
 import { Quaternion, Vector3 } from 'three'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
-import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
+import { EntityUUID } from '@etherealengine/ecs'
+import { dispatchAction } from '@etherealengine/hyperflux'
+import { Action, PeerID } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
-import { AvatarID, InviteCode, UserName } from '@etherealengine/common/src/schema.type.module'
+import { AvatarID, InviteCode } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
-import { WorldState } from '@etherealengine/spatial/src/networking/interfaces/WorldState'
+import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
 import { ikTargets } from '../../avatar/animation/Util'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 
@@ -46,6 +45,7 @@ export enum AuthError {
 
 export type AuthTask = {
   status: 'success' | 'fail' | 'pending'
+  hostPeerID?: PeerID
   routerRtpCapabilities?: any
   cachedActions?: Required<Action>[]
   error?: AuthError
@@ -61,38 +61,44 @@ export type JoinWorldProps = {
 }
 
 export type SpawnInWorldProps = {
+  parentUUID: EntityUUID
   avatarSpawnPose: { position: Vector3; rotation: Quaternion }
   avatarID: AvatarID
-  name: UserName
+  name: string
 }
 
 export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
-  const { avatarSpawnPose, avatarID, name } = props
-  console.log('SPAWN IN WORLD', avatarSpawnPose, avatarID, name)
-  const worldState = getMutableState(WorldState)
-  const entityUUID = Engine.instance.userID as string as EntityUUID
-  worldState.userNames[Engine.instance.userID].set(name)
-  dispatchAction(AvatarNetworkAction.spawn({ ...avatarSpawnPose, avatarID, entityUUID }))
+  const { avatarSpawnPose, avatarID, parentUUID } = props
+  console.log('SPAWN IN WORLD', avatarSpawnPose, avatarID)
+  const entityUUID = Engine.instance.userID
   dispatchAction(
-    WorldNetworkAction.spawnCamera({
-      entityUUID: ('camera_' + entityUUID) as EntityUUID
+    AvatarNetworkAction.spawn({
+      ...avatarSpawnPose,
+      parentUUID,
+      avatarID,
+      entityUUID: (entityUUID + '_avatar') as EntityUUID,
+      name: props.name
     })
   )
-  createIkTargetsForLocalAvatar()
-}
+  dispatchAction(CameraActions.spawnCamera({ parentUUID, entityUUID: (entityUUID + '_camera') as EntityUUID }))
 
-/** @todo put in a reactor in IK system */
-export const createIkTargetsForLocalAvatar = () => {
-  const { userID } = Engine.instance
-  const headUUID = (userID + ikTargets.head) as EntityUUID
-  const leftHandUUID = (userID + ikTargets.leftHand) as EntityUUID
-  const rightHandUUID = (userID + ikTargets.rightHand) as EntityUUID
-  const leftFootUUID = (userID + ikTargets.leftFoot) as EntityUUID
-  const rightFootUUID = (userID + ikTargets.rightFoot) as EntityUUID
+  const headUUID = (entityUUID + ikTargets.head) as EntityUUID
+  const leftHandUUID = (entityUUID + ikTargets.leftHand) as EntityUUID
+  const rightHandUUID = (entityUUID + ikTargets.rightHand) as EntityUUID
+  const leftFootUUID = (entityUUID + ikTargets.leftFoot) as EntityUUID
+  const rightFootUUID = (entityUUID + ikTargets.rightFoot) as EntityUUID
 
-  dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: headUUID, name: 'head', blendWeight: 0 }))
-  dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: leftHandUUID, name: 'leftHand', blendWeight: 0 }))
-  dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: rightHandUUID, name: 'rightHand', blendWeight: 0 }))
-  dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: leftFootUUID, name: 'leftFoot', blendWeight: 0 }))
-  dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: rightFootUUID, name: 'rightFoot', blendWeight: 0 }))
+  dispatchAction(AvatarNetworkAction.spawnIKTarget({ parentUUID, entityUUID: headUUID, name: 'head', blendWeight: 0 }))
+  dispatchAction(
+    AvatarNetworkAction.spawnIKTarget({ parentUUID, entityUUID: leftHandUUID, name: 'leftHand', blendWeight: 0 })
+  )
+  dispatchAction(
+    AvatarNetworkAction.spawnIKTarget({ parentUUID, entityUUID: rightHandUUID, name: 'rightHand', blendWeight: 0 })
+  )
+  dispatchAction(
+    AvatarNetworkAction.spawnIKTarget({ parentUUID, entityUUID: leftFootUUID, name: 'leftFoot', blendWeight: 0 })
+  )
+  dispatchAction(
+    AvatarNetworkAction.spawnIKTarget({ parentUUID, entityUUID: rightFootUUID, name: 'rightFoot', blendWeight: 0 })
+  )
 }

@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Vector3 } from 'three'
+import { Scene, Vector3 } from 'three'
 
 import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import CubemapCapturer from '@etherealengine/engine/src/scene/classes/CubemapCapturer'
 import {
   convertCubemapToEquiImageData,
@@ -38,7 +38,7 @@ import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { getState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
@@ -75,7 +75,7 @@ const getScenePositionForBake = (entity?: Entity) => {
  */
 
 export const uploadBPCEMBakeToServer = async (entity: Entity) => {
-  const isSceneEntity = entity === SceneState.getRootEntity()
+  const isSceneEntity = entity === SceneState.getRootEntity(getState(EditorState).sceneID!)
 
   if (isSceneEntity) {
     if (!hasComponent(entity, EnvMapBakeComponent)) {
@@ -86,17 +86,17 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
   const bakeComponent = getComponent(entity, EnvMapBakeComponent)
   const position = getScenePositionForBake(isSceneEntity ? undefined : entity)
 
-  const cubemapCapturer = new CubemapCapturer(
-    EngineRenderer.instance.renderer,
-    Engine.instance.scene,
-    bakeComponent.resolution
-  )
+  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer
+
+  const scene = new Scene()
+
+  const cubemapCapturer = new CubemapCapturer(renderer, scene, bakeComponent.resolution)
   const renderTarget = cubemapCapturer.update(position)
 
-  if (isSceneEntity) Engine.instance.scene.environment = renderTarget.texture
+  if (isSceneEntity) scene.environment = renderTarget.texture
 
   const envmapImageData = convertCubemapToEquiImageData(
-    EngineRenderer.instance.renderer,
+    renderer,
     renderTarget.texture,
     bakeComponent.resolution,
     bakeComponent.resolution
@@ -120,28 +120,30 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
 /** @todo replace resolution with LODs */
 export const generateEnvmapBake = (resolution = 2048) => {
   const position = getScenePositionForBake()
+  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer
 
-  const cubemapCapturer = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.instance.scene, resolution)
+  const scene = new Scene()
+
+  const cubemapCapturer = new CubemapCapturer(renderer, scene, resolution)
   const renderTarget = cubemapCapturer.update(position)
 
-  const originalEnvironment = Engine.instance.scene.environment
-  Engine.instance.scene.environment = renderTarget.texture
+  const originalEnvironment = scene.environment
+  scene.environment = renderTarget.texture
 
   const envmapImageData = convertCubemapToEquiImageData(
-    EngineRenderer.instance.renderer,
+    renderer,
     renderTarget.texture,
     resolution,
     resolution
   ) as ImageData
 
-  Engine.instance.scene.environment = originalEnvironment
+  scene.environment = originalEnvironment
 
   return envmapImageData
 }
 
 const resolution = 1024
 
-const previewCubemapCapturer = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.instance.scene, resolution)
 /**
  * Generates a low res cubemap at a specific position in the world for preview.
  *
@@ -149,9 +151,11 @@ const previewCubemapCapturer = new CubemapCapturer(EngineRenderer.instance.rende
  * @returns
  */
 export const bakeEnvmapTexture = async (position: Vector3) => {
+  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer
+  const previewCubemapCapturer = new CubemapCapturer(renderer, new Scene(), resolution)
   const renderTarget = previewCubemapCapturer.update(position)
   const bake = (await convertCubemapToEquiImageData(
-    EngineRenderer.instance.renderer,
+    renderer,
     renderTarget.texture,
     resolution,
     resolution

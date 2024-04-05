@@ -23,14 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { decode, encode } from 'msgpackr'
-import { PassThrough } from 'stream'
-
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import multiLogger from '@etherealengine/common/src/logger'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import {
+  RecordingID,
+  RecordingSchemaType,
+  UserID,
+  recordingPath,
+  userPath
+} from '@etherealengine/common/src/schema.type.module'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import {
+  ECSState,
+  Engine,
+  EntityUUID,
+  PresentationSystemGroup,
+  UUIDComponent,
+  defineSystem,
+  getComponent
+} from '@etherealengine/ecs'
+import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import {
   ECSDeserializer,
   ECSSerialization,
@@ -38,47 +49,35 @@ import {
   SerializedChunk
 } from '@etherealengine/engine/src/recording/ECSSerializerSystem'
 import {
+  PeerID,
+  Topic,
   defineAction,
   defineActionQueue,
   defineState,
   dispatchAction,
   getMutableState,
-  getState,
-  Topic
+  getState
 } from '@etherealengine/hyperflux'
-import { Network, NetworkTopics } from '@etherealengine/spatial/src/networking/classes/Network'
-import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
 import {
+  DataChannelRegistryState,
+  DataChannelType,
+  Network,
+  NetworkPeerFunctions,
   NetworkState,
+  NetworkTopics,
+  SerializationSchema,
+  WorldNetworkAction,
+  addDataChannelHandler,
+  matchesUserID,
+  removeDataChannelHandler,
+  updatePeers,
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
-} from '@etherealengine/spatial/src/networking/NetworkState'
-import { SerializationSchema } from '@etherealengine/spatial/src/networking/serialization/Utils'
-
-import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import {
-  AvatarID,
-  RecordingID,
-  recordingPath,
-  RecordingSchemaType,
-  UserID,
-  userPath
-} from '@etherealengine/common/src/schema.type.module'
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
+} from '@etherealengine/network'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
-import { matchesUserId } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
-import { NetworkPeerFunctions } from '@etherealengine/spatial/src/networking/functions/NetworkPeerFunctions'
-import {
-  addDataChannelHandler,
-  DataChannelRegistryState,
-  removeDataChannelHandler
-} from '@etherealengine/spatial/src/networking/systems/DataChannelRegistry'
-import { updatePeers } from '@etherealengine/spatial/src/networking/systems/OutgoingActionSystem'
 import { PhysicsSerialization } from '@etherealengine/spatial/src/physics/PhysicsSerialization'
+import { decode, encode } from 'msgpackr'
+import { PassThrough } from 'stream'
 import matches, { Validator } from 'ts-matches'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { mocapDataChannelType } from '../mocap/MotionCaptureSystem'
@@ -104,7 +103,7 @@ export class ECSRecordingActions {
   static startPlayback = defineAction({
     type: 'ee.core.motioncapture.PLAY_RECORDING' as const,
     recordingID: matches.string as Validator<unknown, RecordingID>,
-    targetUser: matchesUserId.optional(),
+    targetUser: matchesUserID.optional(),
     autoplay: matches.boolean
   })
 
@@ -635,8 +634,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
                   peerID,
                   network.peerIndexCount++,
                   entityID as any as UserID,
-                  network.userIndexCount++,
-                  user.name + ' (Playback)'
+                  network.userIndexCount++
                 )
                 updatePeers(network)
               }
@@ -645,16 +643,11 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
             if (!UUIDComponent.getEntityByUUID(entityID) && isClone) {
               dispatchAction(
                 AvatarNetworkAction.spawn({
-                  $from: entityID,
-                  entityUUID: entityID,
-                  avatarID: '' as AvatarID
-                })
-              )
-              dispatchAction(
-                AvatarNetworkAction.setAvatarID({
-                  $from: entityID,
+                  parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
+                  ownerID: entityID,
+                  entityUUID: (entityID + '_avatar') as EntityUUID,
                   avatarID: user.avatar.id!,
-                  entityUUID: entityID
+                  name: user.name + "'s Clone"
                 })
               )
               entitiesSpawned.push(entityID)
@@ -724,7 +717,7 @@ const playbackStopped = (userId: UserID, recordingID: RecordingID, network?: Net
 
   for (const entityUUID of activePlayback.entitiesSpawned) {
     dispatchAction(
-      WorldNetworkAction.destroyObject({
+      WorldNetworkAction.destroyEntity({
         entityUUID: entityUUID as EntityUUID
       })
     )
@@ -826,7 +819,7 @@ const execute = () => {
         const encodedData = encode(frame.data)
 
         /** PeerID must be the original peerID if server playback, otherwise it is our peerID */
-        const peerID = isClient ? Engine.instance.peerID : chunks.fromPeerID
+        const peerID = isClient ? Engine.instance.store.peerID : chunks.fromPeerID
         if (isClient) {
           const dataChannelFunctions = getState(DataChannelRegistryState)[dataChannel]
           if (dataChannelFunctions) {

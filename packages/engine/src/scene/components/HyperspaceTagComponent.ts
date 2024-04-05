@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import config from '@etherealengine/common/src/config'
+import { PresentationSystemGroup } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -37,7 +38,7 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -66,9 +67,9 @@ import {
   TubeGeometry,
   Vector3
 } from 'three'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { useTexture } from '../../assets/functions/resourceHooks'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { teleportAvatar } from '../../avatar/functions/moveAvatar'
-import { SceneLoadingSystem } from '../SceneModule'
 import { PortalComponent, PortalEffects, PortalState } from './PortalComponent'
 
 export const HyperspacePortalEffect = 'Hyperspace'
@@ -167,35 +168,12 @@ export const HyperspaceTagComponent = defineComponent({
   name: 'HyperspaceTagComponent',
 
   onInit(entity) {
-    const hyperspaceEffectEntity = createEntity()
-    const hyperspaceEffect = new PortalEffect(hyperspaceEffectEntity)
-    addObjectToGroup(hyperspaceEffectEntity, hyperspaceEffect)
-    setObjectLayers(hyperspaceEffect, ObjectLayers.Portal)
-
-    AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/assets/galaxyTexture.jpg`).then(
-      (texture) => {
-        hyperspaceEffect.texture = texture
-      }
-    )
-
-    getComponent(hyperspaceEffectEntity, TransformComponent).scale.set(10, 10, 10)
-    setComponent(hyperspaceEffectEntity, EntityTreeComponent, { parentEntity: entity })
-    setComponent(hyperspaceEffectEntity, VisibleComponent)
-
-    const ambientLightEntity = createEntity()
-    const light = new AmbientLight('#aaa')
-    light.layers.enable(ObjectLayers.Portal)
-    addObjectToGroup(ambientLightEntity, light)
-
-    setComponent(ambientLightEntity, EntityTreeComponent, { parentEntity: hyperspaceEffectEntity })
-    setComponent(ambientLightEntity, VisibleComponent)
-
     return {
       // all internals
       sceneVisible: true,
       transition: createTransitionState(0.5, 'OUT'),
-      hyperspaceEffectEntity,
-      ambientLightEntity
+      hyperspaceEffectEntity: UndefinedEntity,
+      ambientLightEntity: UndefinedEntity
     }
   },
 
@@ -206,28 +184,65 @@ export const HyperspaceTagComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const { transition, hyperspaceEffectEntity } = getComponent(entity, HyperspaceTagComponent)
-    const hyperspaceEffect = getComponent(hyperspaceEffectEntity, GroupComponent)[0] as any as PortalEffect
-    const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    const [galaxyTexture] = useTexture(
+      `${config.client.fileServer}/projects/default-project/assets/galaxyTexture.jpg`,
+      entity
+    )
 
     useEffect(() => {
+      const hyperspaceEffectEntity = createEntity()
+      const hyperspaceEffect = new PortalEffect(hyperspaceEffectEntity)
+      addObjectToGroup(hyperspaceEffectEntity, hyperspaceEffect)
+      setObjectLayers(hyperspaceEffect, ObjectLayers.Portal)
+
+      getComponent(hyperspaceEffectEntity, TransformComponent).scale.set(10, 10, 10)
+      setComponent(hyperspaceEffectEntity, EntityTreeComponent, { parentEntity: entity })
+      setComponent(hyperspaceEffectEntity, VisibleComponent)
+
+      const ambientLightEntity = createEntity()
+      const light = new AmbientLight('#aaa')
+      light.layers.enable(ObjectLayers.Portal)
+      addObjectToGroup(ambientLightEntity, light)
+
+      setComponent(ambientLightEntity, EntityTreeComponent, { parentEntity: hyperspaceEffectEntity })
+      setComponent(ambientLightEntity, VisibleComponent)
+
+      const transition = getComponent(entity, HyperspaceTagComponent).transition
       // TODO: add BPCEM of old and new scenes and fade them in and out too
       transition.setState('IN')
 
+      const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+      const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
       camera.layers.enable(ObjectLayers.Portal)
-
       camera.zoom = 1.5
 
       hyperspaceEffect.quaternion.setFromUnitVectors(
         ObjectDirection.Forward,
         new Vector3(0, 0, 1).applyQuaternion(cameraTransform.rotation).setY(0).normalize()
       )
+
+      getMutableComponent(entity, HyperspaceTagComponent).hyperspaceEffectEntity.set(hyperspaceEffectEntity)
+      getMutableComponent(entity, HyperspaceTagComponent).ambientLightEntity.set(ambientLightEntity)
     }, [])
+
+    useEffect(() => {
+      if (!galaxyTexture) return
+
+      const hyperspaceEffectEntity = getComponent(entity, HyperspaceTagComponent).hyperspaceEffectEntity
+      const hyperspaceEffect = getComponent(hyperspaceEffectEntity, GroupComponent)[0] as any as PortalEffect
+      hyperspaceEffect.texture = galaxyTexture
+    }, [galaxyTexture])
 
     useExecute(
       () => {
         if (!hasComponent(entity, HyperspaceTagComponent)) return
+
+        const { transition, hyperspaceEffectEntity } = getComponent(entity, HyperspaceTagComponent)
+        if (!hyperspaceEffectEntity) return
+
+        const hyperspaceEffect = getComponent(hyperspaceEffectEntity, GroupComponent)[0] as any as PortalEffect
+        const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+        const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
         const ecsState = getState(ECSState)
         const sceneLoaded = getState(SceneState).sceneLoaded
 
@@ -250,7 +265,7 @@ export const HyperspaceTagComponent = defineComponent({
           getMutableState(PortalState).portalReady.set(true)
           const activePortal = getComponent(getState(PortalState).activePortalEntity, PortalComponent)
           // teleport player to where the portal spawn position is
-          teleportAvatar(Engine.instance.localClientEntity, activePortal!.remoteSpawnPosition, true)
+          teleportAvatar(AvatarComponent.getSelfAvatarEntity(), activePortal!.remoteSpawnPosition, true)
           camera.layers.disable(ObjectLayers.Scene)
           sceneVisible.set(false)
         }
@@ -271,7 +286,7 @@ export const HyperspaceTagComponent = defineComponent({
           camera.updateProjectionMatrix()
         }
       },
-      { with: SceneLoadingSystem }
+      { after: PresentationSystemGroup }
     )
 
     return null

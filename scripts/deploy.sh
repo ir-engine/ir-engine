@@ -6,13 +6,13 @@ TAG=$2
 #kubectl delete job $STAGE-etherealengine-testbot
 
 npx cross-env ts-node --swc scripts/fetch-helm-versions.ts --stage=${RELEASE_NAME}
-docker manifest inspect $ECR_URL/$REPO_NAME-api:$TAG >api-image.txt 2>&1
+docker manifest inspect $DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-api:$TAG >api-image.txt 2>&1
 if [ "$SERVE_CLIENT_FROM_API" != "true" ] && [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" != "true"]
 then
-  docker manifest inspect $ECR_URL/$REPO_NAME-client:$TAG > client-image.txt  2>&1
+  docker manifest inspect $DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-client:$TAG > client-image.txt  2>&1
 fi
-docker manifest inspect $ECR_URL/$REPO_NAME-instanceserver:$TAG > instanceserver-image.txt 2>&1
-docker manifest inspect $ECR_URL/$REPO_NAME-taskserver:$TAG > taskserver-image.txt 2>&1
+docker manifest inspect $DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-instanceserver:$TAG > instanceserver-image.txt 2>&1
+docker manifest inspect $DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-taskserver:$TAG > taskserver-image.txt 2>&1
 
 HELM_MAIN_VERSION=$(cat helm-main-version.txt)
 
@@ -35,8 +35,8 @@ then
 else
   if [ "$SERVE_CLIENT_FROM_API" = "true" ] || [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true"]
   then
-    helm upgrade --reuse-values --version $HELM_MAIN_VERSION --set taskserver.image.repository=$ECR_URL/$REPO_NAME-taskserver,taskserver.image.tag=$TAG,api.image.repository=$ECR_URL/$REPO_NAME-api,api.image.tag=$TAG,instanceserver.image.repository=$ECR_URL/$REPO_NAME-instanceserver,instanceserver.image.tag=$TAG,testbot.image.repository=$ECR_URL/$REPO_NAME-testbot,testbot.image.tag=$TAG $STAGE etherealengine/etherealengine
+    helm upgrade --reuse-values --version $HELM_MAIN_VERSION --set taskserver.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-taskserver,taskserver.image.tag=$TAG,api.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-api,api.image.tag=$TAG,instanceserver.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-instanceserver,instanceserver.image.tag=$TAG,testbot.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-testbot,testbot.image.tag=$TAG $STAGE etherealengine/etherealengine
   else
-    helm upgrade --reuse-values --version $HELM_MAIN_VERSION --set taskserver.image.repository=$ECR_URL/$REPO_NAME-taskserver,taskserver.image.tag=$TAG,api.image.repository=$ECR_URL/$REPO_NAME-api,api.image.tag=$TAG,instanceserver.image.repository=$ECR_URL/$REPO_NAME-instanceserver,instanceserver.image.tag=$TAG,testbot.image.repository=$ECR_URL/$REPO_NAME-testbot,testbot.image.tag=$TAG,client.image.repository=$ECR_URL/$REPO_NAME-client,client.image.tag=$TAG $STAGE etherealengine/etherealengine
+    helm upgrade --reuse-values --version $HELM_MAIN_VERSION --set taskserver.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-taskserver,taskserver.image.tag=$TAG,api.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-api,api.image.tag=$TAG,instanceserver.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-instanceserver,instanceserver.image.tag=$TAG,testbot.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-testbot,testbot.image.tag=$TAG,client.image.repository=$DESTINATION_REPO_URL/$DESTINATION_REPO_NAME_STEM-client,client.image.tag=$TAG $STAGE etherealengine/etherealengine
   fi
 fi

@@ -39,7 +39,7 @@ import {
 import logger from '@etherealengine/common/src/logger'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkState } from '@etherealengine/network'
 import { endXRSession, requestXRSession } from '@etherealengine/spatial/src/xr/XRSessionFunctions'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
@@ -82,6 +82,9 @@ export const MediaIconsBox = () => {
     : false
   const audioEnabled = currentLocation?.locationSetting?.value
     ? currentLocation?.locationSetting?.audioEnabled?.value
+    : false
+  const screenshareEnabled = currentLocation?.locationSetting?.value
+    ? currentLocation?.locationSetting?.screenSharingEnabled?.value
     : false
 
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
@@ -136,7 +139,7 @@ export const MediaIconsBox = () => {
 
   return (
     <section className={`${styles.drawerBox} ${topShelfStyle}`}>
-      {networkState.config.media.value && !mediaNetworkState?.ready.value && (
+      {networkState.config.media.value && !mediaNetworkState?.ready?.value && (
         <div className={styles.loader}>
           <CircularProgress />
           <div
@@ -152,7 +155,7 @@ export const MediaIconsBox = () => {
           </div>
         </div>
       )}
-      {audioEnabled && hasAudioDevice.value && mediaNetworkReady && mediaNetworkState?.ready.value ? (
+      {audioEnabled && hasAudioDevice.value && mediaNetworkReady && mediaNetworkState?.ready?.value ? (
         <IconButtonWithTooltip
           id="UserAudio"
           title={t('user:menu.toggleMute')}
@@ -194,6 +197,10 @@ export const MediaIconsBox = () => {
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             icon={<Icon type={'Accessibility'} />}
           />
+        </>
+      ) : null}
+      {screenshareEnabled && mediaNetworkReady && mediaNetworkState?.ready.value ? (
+        <>
           <IconButtonWithTooltip
             id="UserScreenSharing"
             title={t('user:menu.shareScreen')}

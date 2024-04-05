@@ -60,10 +60,15 @@ import {
 } from '@mui/material'
 
 import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
-import { InviteCode, projectPath, ProjectType } from '@etherealengine/common/src/schema.type.module'
+import {
+  InviteCode,
+  ProjectType,
+  projectPath,
+  projectPermissionPath
+} from '@etherealengine/common/src/schema.type.module'
 import { useNavigate } from 'react-router-dom'
 import { EditorState } from '../../services/EditorServices'
-import { Button, MediumButton } from '../inputs/Button'
+import { Button } from '../inputs/Button'
 import { CreateProjectDialog } from './CreateProjectDialog'
 import { DeleteDialog } from './DeleteDialog'
 import { EditPermissionsDialog } from './EditPermissionsDialog'
@@ -184,7 +189,7 @@ const ProjectsPage = () => {
     activeProject.value?.hasWriteAccess || (userHasAccess('admin:admin') && userHasAccess('projects:write'))
 
   const authState = useHookstate(getMutableState(AuthState))
-  const projectState = useHookstate(getMutableState(ProjectState))
+  const refreshingGithubRepoAccess = useHookstate(getMutableState(ProjectState).refreshingGithubRepoAccess)
   const authUser = authState.authUser
   const user = authState.user
 
@@ -197,6 +202,13 @@ const ProjectsPage = () => {
       allowed: true,
       ...(!!search.query.value && { name: { $like: `%${search.query.value}%` } }),
       $sort: { name: 1 }
+    }
+  })
+
+  const projectPermissionsFindQuery = useFind(projectPermissionPath, {
+    query: {
+      projectId: activeProject?.value?.id,
+      paginate: false
     }
   })
 
@@ -229,15 +241,10 @@ const ProjectsPage = () => {
   }, [installedProjects])
 
   const refreshGithubRepoAccess = () => {
-    ProjectService.refreshGithubRepoAccess()
-    projectFindQuery.refetch()
+    ProjectService.refreshGithubRepoAccess().then(() => {
+      projectFindQuery.refetch()
+    })
   }
-
-  useEffect(() => {
-    if (!authUser || !user) return
-    if (authUser.accessToken.value == null || authUser.accessToken.value.length <= 0 || user.id.value == null) return
-    projectFindQuery.refetch()
-  }, [authUser.accessToken])
 
   // TODO: Implement tutorial #7257
   const openTutorial = () => {
@@ -258,23 +265,20 @@ const ProjectsPage = () => {
     }
   }
 
-  const onCreateProject = async (name: string) => {
-    projectCreateQuery({ name }, { query: { action: 'studio' } })
+  const onCreateProject = async (name: string, repositoryPath?: string) => {
+    projectCreateQuery({ name, repositoryPath }, { query: { action: 'studio' } })
   }
 
   const onCreatePermission = async (userInviteCode: InviteCode, projectId: string) => {
     await ProjectService.createPermission(userInviteCode, projectId)
-    projectFindQuery.refetch()
   }
 
   const onPatchPermission = async (id: string, type: string) => {
     await ProjectService.patchPermission(id, type)
-    projectFindQuery.refetch()
   }
 
   const onRemovePermission = async (id: string) => {
     await ProjectService.removePermission(id)
-    projectFindQuery.refetch()
   }
 
   const openDeleteConfirm = () => isDeleteDialogOpen.set(true)
@@ -472,10 +476,10 @@ const ProjectsPage = () => {
                   type="button"
                   variant="contained"
                   color="primary"
-                  disabled={projectState.refreshingGithubRepoAccess.value}
+                  disabled={refreshingGithubRepoAccess.value}
                   onClick={() => refreshGithubRepoAccess()}
                 >
-                  {projectState.refreshingGithubRepoAccess.value ? (
+                  {refreshingGithubRepoAccess.value ? (
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <CircularProgress color="inherit" size={24} sx={{ marginRight: 1 }} />
                       {t('admin:components.project.refreshingGithubRepoAccess')}
@@ -521,13 +525,13 @@ const ProjectsPage = () => {
             )}
           </div>
         </div>
-        {installedProjects.length < 2 && projectFindQuery.status === 'pending' ? (
+        {/* {installedProjects.length < 2 && projectFindQuery.status === 'pending' ? (
           <div className={styles.welcomeContainer}>
             <h1>{t('editor.projects.welcomeMsg')}</h1>
             <h2>{t('editor.projects.description')}</h2>
             <MediumButton onClick={openTutorial}>{t('editor.projects.lbl-startTutorial')}</MediumButton>
           </div>
-        ) : null}
+        ) : null} */}
       </div>
       {activeProject.value?.name !== 'default-project' && (
         <Menu
@@ -594,12 +598,12 @@ const ProjectsPage = () => {
         </Menu>
       )}
       <CreateProjectDialog open={isCreateDialogOpen.value} onSuccess={onCreateProject} onClose={closeCreateDialog} />
-      {activeProject.value && activeProject.value.projectPermissions && (
+      {activeProject.value && projectPermissionsFindQuery.data && (
         <EditPermissionsDialog
           open={editPermissionsDialogOpen.value}
           onClose={closeEditPermissionsDialog}
           project={activeProject.value}
-          projectPermissions={activeProject.value.projectPermissions}
+          projectPermissions={projectPermissionsFindQuery.data}
           addPermission={onCreatePermission}
           patchPermission={onPatchPermission}
           removePermission={onRemovePermission}

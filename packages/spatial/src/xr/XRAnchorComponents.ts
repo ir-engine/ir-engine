@@ -27,9 +27,10 @@ import { useEffect } from 'react'
 import { BufferGeometry, Mesh, MeshLambertMaterial, MeshStandardMaterial, Object3D, ShadowMaterial } from 'three'
 import matches from 'ts-matches'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID } from '@etherealengine/ecs'
 import { defineAction, getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -39,7 +40,6 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { matchesQuaternion, matchesVector3 } from '../common/functions/MatchesUtils'
 import { addObjectToGroup, GroupComponent } from '../renderer/components/GroupComponent'
@@ -52,7 +52,7 @@ import { XRState } from './XRState'
  */
 export const PersistentAnchorComponent = defineComponent({
   name: 'PersistentAnchorComponent',
-  jsonID: 'persistent-anchor',
+  jsonID: 'EE_persistent_anchor',
 
   /**
    * Set default initialization values
@@ -184,7 +184,7 @@ function PersistentAnchorReactor() {
       /** remove from scene and add to world origins */
       const originalParent = getComponent(getComponent(entity, EntityTreeComponent).parentEntity, UUIDComponent)
       originalParentEntityUUID.set(originalParent)
-      setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+      setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
       TransformComponent.dirtyTransforms[entity] = true
 
       const wireframe = anchor.wireframe.value

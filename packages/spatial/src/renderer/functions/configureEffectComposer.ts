@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Entity, getComponent } from '@etherealengine/ecs'
+import { getState } from '@etherealengine/hyperflux'
 import {
   BlendFunction,
   DepthDownsamplingPass,
@@ -30,62 +32,59 @@ import {
   EdgeDetectionMode,
   EffectComposer,
   EffectPass,
-  NormalPass,
   OutlineEffect,
   RenderPass,
   SMAAEffect,
-  SMAAPreset,
+  ShaderPass,
   TextureEffect
 } from 'postprocessing'
 import { VelocityDepthNormalPass } from 'realism-effects'
-import { DepthTexture, NearestFilter, PerspectiveCamera, RGBAFormat, UnsignedIntType, WebGLRenderTarget } from 'three'
-
-import { getState } from '@etherealengine/hyperflux'
-
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { ShaderPass } from 'postprocessing'
+import { DepthTexture, NearestFilter, RGBAFormat, Scene, UnsignedIntType, WebGLRenderTarget } from 'three'
 import { EngineState } from '../../EngineState'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { HighlightState } from '../HighlightState'
 import { RendererState } from '../RendererState'
-import { EffectComposerWithSchema, EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
+import {
+  EffectComposerWithSchema,
+  PostProcessingSettingsState,
+  RenderSettingsState,
+  RendererComponent
+} from '../WebGLRendererSystem'
 import { EffectMap, EffectPropsSchema, Effects } from '../effects/PostProcessing'
 import { SDFSettingsState } from '../effects/sdf/SDFSettingsState'
 import { SDFShader } from '../effects/sdf/SDFShader'
+import { CustomNormalPass } from '../passes/CustomNormalPass'
 import { changeRenderMode } from './changeRenderMode'
 
-export const configureEffectComposer = (
-  remove?: boolean,
-  camera: PerspectiveCamera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-): void => {
-  if (!EngineRenderer.instance) return
-  if (!camera) return
+export const configureEffectComposer = (entity: Entity): void => {
+  const renderer = getComponent(entity, RendererComponent)
+  const camera = getComponent(entity, CameraComponent)
+  if (!renderer || !camera) return
 
-  const scene = Engine.instance.scene
+  const scene = new Scene()
 
-  EngineRenderer.instance.renderPass = null!
-  EngineRenderer.instance.effectComposer.dispose()
-  const composer = new EffectComposer(EngineRenderer.instance.renderer) as EffectComposerWithSchema
-  EngineRenderer.instance.effectComposer = composer
+  if (renderer.effectComposer) {
+    renderer.effectComposer.dispose()
+    renderer.renderPass = null!
+  }
+
+  const composer = new EffectComposer(renderer.renderer) as EffectComposerWithSchema
+  renderer.effectComposer = composer
 
   // we always want to have at least the render pass enabled
   const renderPass = new RenderPass(scene, camera)
-  EngineRenderer.instance.effectComposer.addPass(renderPass)
-  EngineRenderer.instance.renderPass = renderPass
-
-  if (remove) {
-    return
-  }
+  renderer.effectComposer.addPass(renderPass)
+  renderer.renderPass = renderPass
 
   const renderSettings = getState(RendererState)
   if (!renderSettings.usePostProcessing) return
 
   const effects: any[] = []
 
+  const smaaPreset = getState(RenderSettingsState).smaaPreset
   const smaaEffect = new SMAAEffect({
-    preset: SMAAPreset.HIGH,
+    preset: smaaPreset,
     edgeDetectionMode: EdgeDetectionMode.COLOR
   })
   composer.SMAAEffect = smaaEffect
@@ -105,7 +104,7 @@ export const configureEffectComposer = (
 
   const effectKeys = Object.keys(EffectMap)
 
-  const normalPass = new NormalPass(scene, camera)
+  const normalPass = new CustomNormalPass(scene, camera)
 
   const depthDownsamplingPass = new DepthDownsamplingPass({
     normalBuffer: normalPass.texture,
@@ -155,8 +154,9 @@ export const configureEffectComposer = (
       useDepthDownsamplingPass = true
       composer[key] = eff
       effects.push(eff)
-    } else if (key === Effects.SSREffect) {
-      const eff = new EffectClass(scene, camera, velocityDepthNormalPass, effectOptions)
+    } else if (key === Effects.SSREffect || key === Effects.SSGIEffect) {
+      // SSR is just a mode of SSGI, and can't both be run at the same time
+      const eff = new EffectClass(composer, scene, camera, { ...effectOptions, velocityDepthNormalPass })
       useVelocityDepthNormalPass = true
       composer[key] = eff
       effects.push(eff)
@@ -164,9 +164,6 @@ export const configureEffectComposer = (
       const eff = new EffectClass(camera, effectOptions)
       composer[key] = eff
       effects.push(eff)
-    } else if (key === Effects.SSGIEffect) {
-      const eff = new EffectClass(scene, camera, velocityDepthNormalPass, effectOptions)
-      useVelocityDepthNormalPass = true
     } else if (key === Effects.TRAAEffect) {
       // todo support more than 1 texture
       const textureCount = 1

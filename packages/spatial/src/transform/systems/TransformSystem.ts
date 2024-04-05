@@ -23,12 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { Camera, Frustum, Matrix4, Mesh, Vector3 } from 'three'
-
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
-import { getMutableState, getState, none } from '@etherealengine/hyperflux'
-
 import {
   AnimationSystemGroup,
   Engine,
@@ -39,20 +34,19 @@ import {
   getOptionalComponent,
   hasComponent
 } from '@etherealengine/ecs'
+import { getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/network'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { useEffect } from 'react'
+import { Camera, Frustum, Matrix4, Mesh, Vector3 } from 'three'
 import { CameraComponent } from '../../camera/components/CameraComponent'
-import { NetworkState } from '../../networking/NetworkState'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
 import { TransformSerialization } from '../TransformSerialization'
 import { BoundingBoxComponent, updateBoundingBox } from '../components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
-import {
-  DistanceFromCameraComponent,
-  DistanceFromLocalClientComponent,
-  FrustumCullCameraComponent
-} from '../components/DistanceComponents'
+import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../components/DistanceComponents'
 import { TransformComponent, composeMatrix } from '../components/TransformComponent'
 
 const transformQuery = defineQuery([TransformComponent])
@@ -60,9 +54,10 @@ const groupQuery = defineQuery([GroupComponent, VisibleComponent])
 
 const boundingBoxQuery = defineQuery([BoundingBoxComponent])
 
-const distanceFromLocalClientQuery = defineQuery([TransformComponent, DistanceFromLocalClientComponent])
 const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCameraComponent])
 const frustumCulledQuery = defineQuery([TransformComponent, FrustumCullCameraComponent])
+
+const cameraQuery = defineQuery([TransformComponent, CameraComponent])
 
 //isProxified: used to check if an object is proxified
 declare module 'three/src/core/Object3D' {
@@ -106,7 +101,7 @@ export const updateGroupChildren = (entity: Entity) => {
 
 const _tempDistSqrVec3 = new Vector3()
 
-const getDistanceSquaredFromTarget = (entity: Entity, targetPosition: Vector3) => {
+export const getDistanceSquaredFromTarget = (entity: Entity, targetPosition: Vector3) => {
   return TransformComponent.getWorldPosition(entity, _tempDistSqrVec3).distanceToSquared(targetPosition)
 }
 
@@ -120,9 +115,12 @@ const updateOriginChildEntities = (entity: Entity) => {
   const referenceEntity = getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity
   const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
 
-  if (referenceEntity && (originChildEntities.has(referenceEntity) || referenceEntity === Engine.instance.originEntity))
+  if (
+    referenceEntity &&
+    (originChildEntities.has(referenceEntity) || referenceEntity === Engine.instance.localFloorEntity)
+  )
     originChildEntities.add(referenceEntity)
-  if (parentEntity && (originChildEntities.has(parentEntity) || parentEntity === Engine.instance.originEntity))
+  if (parentEntity && (originChildEntities.has(parentEntity) || parentEntity === Engine.instance.localFloorEntity))
     originChildEntities.add(parentEntity)
 }
 
@@ -153,7 +151,6 @@ export const isDirty = (entity: Entity) => TransformComponent.dirtyTransforms[en
 const sortedTransformEntities = [] as Entity[]
 
 const execute = () => {
-  const { localClientEntity } = Engine.instance
   // TODO: move entity tree mutation logic here for more deterministic and less redundant calculations
 
   // if transform order is dirty, sort by reference depth
@@ -204,8 +201,12 @@ const execute = () => {
   const dirtyOrAnimatingGroupEntities = groupQuery().filter(isDirty)
   for (const entity of dirtyOrAnimatingGroupEntities) updateGroupChildren(entity)
 
-  if (!xrFrame) {
-    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  const cameraEntities = cameraQuery()
+
+  for (const entity of cameraEntities) {
+    if (entity === Engine.instance.viewerEntity && xrFrame) continue
+
+    const camera = getComponent(entity, CameraComponent)
     camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
     const viewCamera = camera.cameras[0]
     viewCamera.matrixWorld.copy(camera.matrixWorld)
@@ -217,8 +218,8 @@ const execute = () => {
   const dirtyBoundingBoxes = boundingBoxQuery().filter(isDirty)
   for (const entity of dirtyBoundingBoxes) updateBoundingBox(entity)
 
-  const cameraPosition = getComponent(Engine.instance.cameraEntity, TransformComponent).position
-  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  const cameraPosition = getComponent(Engine.instance.viewerEntity, TransformComponent).position
+  const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
   for (const entity of distanceFromCameraQuery())
     DistanceFromCameraComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(entity, cameraPosition)
 
@@ -235,19 +236,7 @@ const execute = () => {
       : _frustum.containsPoint(getComponent(entity, TransformComponent).position)
     FrustumCullCameraComponent.isCulled[entity] = cull ? 0 : 1
   }
-  if (localClientEntity) {
-    const localClientPosition = TransformComponent.getWorldPosition(localClientEntity, vec3)
-    if (localClientPosition) {
-      for (const entity of distanceFromLocalClientQuery())
-        DistanceFromLocalClientComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(
-          entity,
-          localClientPosition
-        )
-    }
-  }
 }
-
-const vec3 = new Vector3()
 
 const reactor = () => {
   useEffect(() => {

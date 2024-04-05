@@ -26,19 +26,20 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { ArrowHelper, Vector3 } from 'three'
 
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, matches, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineComponent, hasComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { matches, matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { SpawnPointComponent } from './SpawnPointComponent'
 
 export const MountPoint = {
   seat: 'seat' as const
@@ -48,7 +49,7 @@ export type MountPointTypes = (typeof MountPoint)[keyof typeof MountPoint]
 
 export const MountPointComponent = defineComponent({
   name: 'MountPointComponent',
-  jsonID: 'mount-point',
+  jsonID: 'EE_mount_point',
 
   onInit: (entity) => {
     return {
@@ -92,6 +93,7 @@ export const MountPointComponent = defineComponent({
 
       return () => {
         removeEntity(helperEntity)
+        if (!hasComponent(entity, SpawnPointComponent)) return
         mountPoint.helperEntity.set(none)
       }
     }, [debugEnabled])

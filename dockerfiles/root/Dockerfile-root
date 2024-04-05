@@ -4,7 +4,7 @@ RUN apt update
 # Create app directory
 WORKDIR /app
 
-RUN apt-get -y install build-essential meson python3-testresources python3-venv python3-pip git
+RUN apt -y install build-essential meson python3-testresources python3-venv python3-pip git
 
 COPY patches/ ./patches/
 COPY package.json .
@@ -13,11 +13,12 @@ COPY packages/ecs/package.json ./packages/ecs/
 COPY packages/engine/package.json ./packages/engine/
 COPY packages/hyperflux/package.json ./packages/hyperflux/
 COPY packages/matchmaking/package.json ./packages/matchmaking/
+COPY packages/network/package.json ./packages/network/
 COPY packages/projects/package.json ./packages/projects/
 COPY packages/server-core/package.json ./packages/server-core/
 COPY packages/spatial/package.json ./packages/spatial/
+COPY packages/visual-script/package.json ./packages/visual-script/
 COPY packages/xrui/package.json ./packages/xrui/
-COPY project-package-jsons ./
 
 ARG NODE_ENV
 RUN npm install --loglevel notice --legacy-peer-deps

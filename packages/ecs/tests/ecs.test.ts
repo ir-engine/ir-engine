@@ -36,7 +36,7 @@ import {
   removeComponent,
   setComponent
 } from '../src/ComponentFunctions'
-import { Engine, destroyEngine } from '../src/Engine'
+import { destroyEngine, startEngine } from '../src/Engine'
 import { Entity } from '../src/Entity'
 import { AnimationSystemGroup } from '../src/SystemGroups'
 
@@ -80,8 +80,8 @@ const MockSystem = ECS.defineSystem({
 })
 
 describe('ECS', () => {
-  beforeEach(async () => {
-    Engine.instance = new Engine()
+  beforeEach(() => {
+    startEngine()
   })
 
   afterEach(() => {

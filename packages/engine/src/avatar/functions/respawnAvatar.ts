@@ -25,15 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
-import { EntityNetworkState } from '@etherealengine/spatial/src/networking/state/EntityNetworkState'
+import { SpawnPoseState } from '@etherealengine/spatial'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { teleportAvatar } from './moveAvatar'
 
-export const respawnAvatar = (entity: Entity) => {
-  const { spawnPosition } = getState(EntityNetworkState)[getComponent(entity, UUIDComponent)]
+export const respawnAvatar = (entity?: Entity) => {
+  if (!entity) return
+  const { spawnPosition } = getState(SpawnPoseState)[getComponent(entity, UUIDComponent)]
   const controller = getComponent(entity, AvatarControllerComponent)
   controller.verticalVelocity = 0
   teleportAvatar(entity, spawnPosition)

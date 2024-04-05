@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import type { UserID } from '@etherealengine/common/src/schema.type.module'
 import * as Hyperflux from '@etherealengine/hyperflux'
-import { createHyperStore, getState } from '@etherealengine/hyperflux'
-import { HyperFlux, HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
+import { ReactorReconciler, createHyperStore, getState } from '@etherealengine/hyperflux'
+import { HyperFlux, HyperStore, disposeStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 import * as bitECS from 'bitecs'
 
 import type { FeathersApplication } from '@feathersjs/feathers'
@@ -34,74 +34,61 @@ import type { FeathersApplication } from '@feathersjs/feathers'
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 
 import { getAllEntities } from 'bitecs'
-import { Group, Scene } from 'three'
 import { ECSState } from './ECSState'
 import { Entity, UndefinedEntity } from './Entity'
 import { removeEntity } from './EntityFunctions'
 import { removeQuery } from './QueryFunctions'
 import { SystemState } from './SystemState'
-import { Timer } from './Timer'
 
 export class Engine {
   static instance: Engine
-
-  constructor() {
-    const UndefinedEntity = bitECS.addEntity(HyperFlux.store)
-  }
 
   api: FeathersApplication<ServiceTypes>
 
   /** The uuid of the logged-in user */
   userID: UserID
 
+  store: HyperStore
+
   /**
-   * The peerID of the logged-in user
-   * @deprecated - use Engine.instance.store.peerID instead
+   * Represents the reference space of the xr session local floor.
    */
-  get peerID() {
-    return Engine.instance.store.peerID
-  }
-
-  store = createHyperStore({
-    getDispatchId: () => Engine.instance.userID,
-    getDispatchTime: () => getState(ECSState).simulationTime,
-    defaultDispatchDelay: () => getState(ECSState).simulationTimestep,
-    getCurrentReactorRoot: () => getState(SystemState).activeSystemReactors.get(getState(SystemState).currentSystemUUID)
-  }) as HyperStore
-
-  engineTimer = null! as ReturnType<typeof Timer>
+  localFloorEntity = UndefinedEntity
 
   /**
-   * Reference to the three.js scene object.
-   */
-  scene = new Scene()
-
-  /**
-   * The xr origin reference space entity
+   * Represents the reference space for the absolute origin of the rendering context.
    */
   originEntity = UndefinedEntity
 
   /**
-   * The xr origin group
+   * Represents the reference space for the viewer.
    */
-  origin = new Group()
+  viewerEntity = UndefinedEntity
 
-  /**
-   * The camera entity
-   */
-  cameraEntity = UndefinedEntity
-
-  /**
-   * The local client entity
-   */
-  localClientEntity = UndefinedEntity
+  /** @deprecated use viewerEntity instead */
+  get cameraEntity() {
+    return this.viewerEntity
+  }
 }
 
 globalThis.Engine = Engine
 globalThis.Hyperflux = Hyperflux
 
+export function startEngine() {
+  if (Engine.instance) throw new Error('Store already exists')
+  Engine.instance = new Engine()
+  Engine.instance.store = bitECS.createWorld(
+    createHyperStore({
+      getDispatchTime: () => getState(ECSState).simulationTime,
+      getCurrentReactorRoot: () =>
+        getState(SystemState).activeSystemReactors.get(getState(SystemState).currentSystemUUID)
+    })
+  ) as HyperStore
+  const UndefinedEntity = bitECS.addEntity(HyperFlux.store)
+}
+
 export async function destroyEngine() {
-  Engine.instance.engineTimer?.clear()
+  getState(ECSState).timer?.clear()
 
   if (Engine.instance.api) {
     if ((Engine.instance.api as any).server) await Engine.instance.api.teardown()
@@ -113,22 +100,15 @@ export async function destroyEngine() {
   /** Remove all entities */
   const entities = getAllEntities(HyperFlux.store) as Entity[]
 
-  const entityPromises = [] as Promise<void>[]
-
-  for (const entity of entities) if (entity) entityPromises.push(...removeEntity(entity))
-
-  await Promise.all(entityPromises)
+  ReactorReconciler.flushSync(() => {
+    for (const entity of entities) removeEntity(entity)
+  })
 
   for (const query of getState(SystemState).reactiveQueryStates) {
     removeQuery(query.query)
   }
 
-  const activeReactors = [] as Promise<void>[]
-
-  for (const reactor of Engine.instance.store.activeReactors) {
-    activeReactors.push(reactor.stop())
-  }
-  await Promise.all(activeReactors)
+  disposeStore()
 
   /** @todo include in next bitecs update */
   // bitecs.deleteWorld(Engine.instance)

@@ -165,3 +165,8 @@ project-package-jsons/*
 feathers/*
 /packages/ui/tests/jest-test-results.json
 packages/ui/tests/jest-test-results.json
+
+/.temp
+
+# tailscale cert/key
+certs/tailscale

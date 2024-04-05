@@ -103,19 +103,19 @@ export const ChatSection = () => {
         maxWidth={385}
       >
         <div className="h-[100vh] [background:linear-gradient(180deg,_#e3e5e8,_#f2f3f5_6.7%,_#f2f3f5_94.1%,_#e3e5e8)]">
-          <div className="h-[90px] mx-2 flex flex-wrap gap-[92px] justify-center">
+          <div className="mx-2 flex h-[90px] flex-wrap justify-center gap-[92px]">
             <div className="mt-6">
               <b className="text-3xl">Chats</b>
             </div>
             <div className="flex justify-center gap-2">
               <button className="m-0">
-                <img className="max-w-full w-6 h-6 overflow-hidden" alt="" src={NotificationIcon} />
+                <img className="h-6 w-6 max-w-full overflow-hidden" alt="" src={NotificationIcon} />
               </button>
               <button className="m-0">
-                <img className="max-w-full w-6 h-6 overflow-hidden" alt="" src={BoxSearch} />
+                <img className="h-6 w-6 max-w-full overflow-hidden" alt="" src={BoxSearch} />
               </button>
               <button onClick={() => openModal(1)}>
-                <img className="w-6 h-6 overflow-hidden" alt="" src={AddSquare} />
+                <img className="h-6 w-6 overflow-hidden" alt="" src={AddSquare} />
                 {/* {isModalOpen === 1 && (
                   <div
                     ref={modalRef}
@@ -129,21 +129,21 @@ export const ChatSection = () => {
             </div>
           </div>
           <div className="box-border border-t-[1px] border-solid border-[#D1D3D7]" />
-          <div className="w-full h-[77.5vh] mb-[90px] justify-center overflow-scroll hide-scroll">
+          <div className="hide-scroll mb-[90px] h-[77.5vh] w-full justify-center overflow-scroll">
             <ChannelsList />
           </div>
-          <div className="absolute bottom-0 w-full h-[75px] gap-4 flex flex-wrap justify-center bg-[#ECECEC]">
-            <img className="max-w-full rounded-[38px] mt-3 w-11 h-11 object-cover" alt="" src={userThumbnail} />
+          <div className="absolute bottom-0 flex h-[75px] w-full flex-wrap justify-center gap-4 bg-[#ECECEC]">
+            <img className="mt-3 h-11 w-11 max-w-full rounded-[38px] object-cover" alt="" src={userThumbnail} />
             <div className="mt-3">
               <p className="font-bold text-[#3F3960]">{userName}</p>
               <div className="flex flex-wrap gap-1">
                 <div
-                  className={`${isToggleOn ? 'bg-[#57C290]' : 'bg-[#b3b5b9]'} rounded-[50%] mt-[4.2px] w-2.5 h-2.5`}
+                  className={`${isToggleOn ? 'bg-[#57C290]' : 'bg-[#b3b5b9]'} mt-[4.2px] h-2.5 w-2.5 rounded-[50%]`}
                 />
                 <p className="h-4 text-xs text-[#787589]">Active now</p>
               </div>
             </div>
-            <label className="cursor-pointer mt-[24px]">
+            <label className="mt-[24px] cursor-pointer">
               <div className="relative">
                 <input
                   type="checkbox"
@@ -153,19 +153,19 @@ export const ChatSection = () => {
                   onClick={switchToggle}
                 />
                 <div
-                  className={`toggle__line w-10 h-5  rounded-full shadow-inner ${
+                  className={`toggle__line h-5 w-10  rounded-full shadow-inner ${
                     checked ? 'bg-[#3F3960]' : 'bg-gray-400'
                   }`}
                 ></div>
                 <div
-                  className={`toggle__dot absolute w-4 h-4 bg-white rounded-full shadow inset-y-[2px] inset-x-[2px] ${
+                  className={`toggle__dot absolute inset-x-[2px] inset-y-[2px] h-4 w-4 rounded-full bg-white shadow ${
                     checked ? 'translate-x-5' : ''
                   }`}
                 ></div>
               </div>
             </label>
             <button className="m-0">
-              <img className="max-w-full w-6 h-6 overflow-hidden" alt="" src={SettingIcon} />
+              <img className="h-6 w-6 max-w-full overflow-hidden" alt="" src={SettingIcon} />
             </button>
           </div>
         </div>

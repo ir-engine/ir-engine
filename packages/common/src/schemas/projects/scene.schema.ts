@@ -19,11 +19,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import type { Static } from '@feathersjs/typebox'
 import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
-import { TypedRecord, TypedString } from '../../types/TypeboxUtils'
+import { TypedString } from '../../types/TypeboxUtils'
 import { dataValidator } from '../validators'
 
 export const scenePath = 'scene'
@@ -32,47 +31,46 @@ export const sceneMethods = ['get', 'update', 'create', 'find', 'patch', 'remove
 
 export type SceneID = OpaqueType<'SceneID'> & string
 
-export const componentJsonSchema = Type.Object(
-  {
-    name: Type.String(),
-    props: Type.Optional(Type.Any())
-  },
-  { $id: 'ComponentJson', additionalProperties: false }
-)
-export interface ComponentJsonType extends Static<typeof componentJsonSchema> {}
+// export const componentJsonSchema = Type.Object(
+//   {
+//     name: Type.String(),
+//     props: Type.Optional(Type.Any())
+//   },
+//   { $id: 'ComponentJson', additionalProperties: false }
+// )
+// export interface ComponentJsonType extends Static<typeof componentJsonSchema> {}
 
-export const entityJsonSchema = Type.Object(
-  {
-    name: Type.Union([
-      Type.String(),
-      TypedString<EntityUUID>({
-        format: 'uuid'
-      })
-    ]),
-    type: Type.Optional(Type.String()),
-    components: Type.Array(Type.Ref(componentJsonSchema)),
-    parent: Type.Optional(
-      TypedString<EntityUUID>({
-        format: 'uuid'
-      })
-    ),
-    index: Type.Optional(Type.Number())
-  },
-  { $id: 'EntityJson', additionalProperties: false }
-)
-export interface EntityJsonType extends Static<typeof entityJsonSchema> {}
+// export const entityJsonSchema = Type.Object(
+//   {
+//     name: Type.Union([
+//       Type.String(),
+//       TypedString<EntityUUID>({
+//         format: 'uuid'
+//       })
+//     ]),
+//     components: Type.Array(Type.Ref(componentJsonSchema)),
+//     parent: Type.Optional(
+//       TypedString<EntityUUID>({
+//         format: 'uuid'
+//       })
+//     ),
+//     index: Type.Optional(Type.Number())
+//   },
+//   { $id: 'EntityJson', additionalProperties: false }
+// )
+// export interface EntityJsonType extends Static<typeof entityJsonSchema> {}
 
-export const sceneJsonSchema = Type.Object(
-  {
-    entities: TypedRecord(TypedString<EntityUUID>({ format: 'uuid' }), Type.Ref(entityJsonSchema)),
-    root: TypedString<EntityUUID>({
-      format: 'uuid'
-    }),
-    version: Type.Number()
-  },
-  { $id: 'SceneJson', additionalProperties: false }
-)
-export interface SceneJsonType extends Static<typeof sceneJsonSchema> {}
+// export const sceneJsonSchema = Type.Object(
+//   {
+//     entities: TypedRecord(TypedString<EntityUUID>({ format: 'uuid' }), Type.Ref(entityJsonSchema)),
+//     root: TypedString<EntityUUID>({
+//       format: 'uuid'
+//     }),
+//     version: Type.Number()
+//   },
+//   { $id: 'SceneJson', additionalProperties: false }
+// )
+// export interface SceneJsonType extends Static<typeof sceneJsonSchema> {}
 
 export const sceneMetadataSchema = Type.Object(
   {
@@ -87,7 +85,7 @@ export interface SceneMetadataType extends Static<typeof sceneMetadataSchema> {}
 export const sceneDataSchema = Type.Object(
   {
     ...sceneMetadataSchema.properties,
-    scene: Type.Ref(sceneJsonSchema),
+    scene: Type.Any(),
     scenePath: TypedString<SceneID>()
   },
   { $id: 'SceneData', additionalProperties: false }
@@ -99,7 +97,7 @@ export const sceneCreateDataSchema = Type.Object(
   {
     storageProvider: Type.Optional(Type.String()),
     name: Type.Optional(Type.String()),
-    sceneData: Type.Optional(Type.Ref(sceneJsonSchema)),
+    sceneData: Type.Optional(Type.Any()),
     thumbnailBuffer: Type.Optional(Type.Any()),
     storageProviderName: Type.Optional(Type.String()),
     project: Type.Optional(Type.String()),
@@ -172,8 +170,8 @@ export const sceneQuerySchema = Type.Intersect(
 )
 export interface SceneQuery extends Static<typeof sceneQuerySchema> {}
 
-export const componentJsonValidator = /* @__PURE__ */ getValidator(componentJsonSchema, dataValidator)
-export const entityJsonValidator = /* @__PURE__ */ getValidator(entityJsonSchema, dataValidator)
-export const sceneJsonValidator = /* @__PURE__ */ getValidator(sceneJsonSchema, dataValidator)
+// export const componentJsonValidator = /* @__PURE__ */ getValidator(componentJsonSchema, dataValidator)
+// export const entityJsonValidator = /* @__PURE__ */ getValidator(entityJsonSchema, dataValidator)
+// export const sceneJsonValidator = /* @__PURE__ */ getValidator(sceneJsonSchema, dataValidator)
 export const sceneMetadataValidator = /* @__PURE__ */ getValidator(sceneMetadataSchema, dataValidator)
 export const sceneDataValidator = /* @__PURE__ */ getValidator(sceneDataSchema, dataValidator)

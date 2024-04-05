@@ -41,9 +41,14 @@ export interface ModalProps {
 
 export const ModalHeader = ({ title, onClose }: { closeIcon?: boolean; title?: string; onClose?: () => void }) => {
   return (
-    <div className="relative flex justify-center items-center p-5 border-b border-b-gray-200">
+    <div className="border-b-theme-primary relative flex items-center justify-center border-b px-6 py-5">
       {title && <Text>{title}</Text>}
-      <Button variant="outline" className="border-0 absolute right-0" startIcon={<MdClose />} onClick={onClose} />
+      <Button
+        variant="outline"
+        className="absolute right-0 border-0 dark:bg-transparent dark:text-[#A3A3A3]"
+        startIcon={<MdClose />}
+        onClick={onClose}
+      />
     </div>
   )
 }
@@ -51,7 +56,7 @@ export const ModalHeader = ({ title, onClose }: { closeIcon?: boolean; title?: s
 export const ModalFooter = ({ onCancel, onSubmit }: { onCancel?: () => void; onSubmit?: () => void }) => {
   const { t } = useTranslation()
   return (
-    <div className=" grid grid-flow-col border-t border-t-gray-200 py-5 px-6">
+    <div className="border-t-theme-primary grid grid-flow-col border-t px-6 py-5">
       <Button variant="outline" onClick={onCancel}>
         {t('common:components.cancel')}
       </Button>
@@ -65,12 +70,12 @@ export const ModalFooter = ({ onCancel, onSubmit }: { onCancel?: () => void; onS
 }
 
 const Modal = ({ title, onClose, onSubmit, hideFooter, children, className }: ModalProps) => {
-  const twClassName = twMerge('relative p-4 w-full max-w-2xl max-h-full', className)
+  const twClassName = twMerge('relative max-h-full w-full max-w-2xl p-4', className)
   return (
     <div className={twClassName}>
-      <div className="relative bg-theme-primary rounded-lg shadow">
-        <ModalHeader title={title} onClose={onClose} />
-        <div className="py-5 px-10">{children}</div>
+      <div className="bg-theme-primary relative rounded-lg shadow">
+        {onClose && <ModalHeader title={title} onClose={onClose} />}
+        <div className="w-full px-10 py-6">{children}</div>
         {!hideFooter && <ModalFooter onCancel={onClose} onSubmit={onSubmit} />}
       </div>
     </div>

@@ -35,7 +35,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
-import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
+import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
 import { Physics, RaycastArgs } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
@@ -66,11 +66,13 @@ export const autopilotSetPosition = (entity: Entity) => {
 
   const { physicsWorld } = getState(PhysicsState)
 
-  const pointerState = getState(InputState).pointerState
+  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  if (!inputPointerEntity) return
+  const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
 
   const castedRay = Physics.castRayFromCamera(
     getComponent(Engine.instance.cameraEntity, CameraComponent),
-    pointerState.position,
+    pointerPosition,
     physicsWorld,
     autopilotRaycastArgs
   )

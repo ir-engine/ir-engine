@@ -24,12 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { State } from '@hookstate/core'
-import * as bitecs from 'bitecs'
 import { v4 as uuidv4 } from 'uuid'
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { PeerID } from '@etherealengine/hyperflux'
 import { ActionQueueHandle, ActionQueueInstance, ResolvedActionType, Topic } from './ActionFunctions'
-import { ReactorRoot } from './ReactorFunctions'
+import { ReactorReconciler, ReactorRoot } from './ReactorFunctions'
 
 export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never
 export interface HyperStore {
@@ -41,11 +40,6 @@ export interface HyperStore {
    *  Topics that should forward their incoming actions to the outgoing queue.
    */
   forwardingTopics: Set<Topic>
-  /**
-   * A function which returns the dispatch id assigned to actions
-   * @deprecated can be derived from agentId via mapping
-   * */
-  getDispatchId: () => string
   /**
    * The agent id
    */
@@ -66,6 +60,8 @@ export interface HyperStore {
    * State dictionary
    */
   stateMap: Record<string, State<any>>
+
+  stateReactors: Record<string, ReactorRoot>
 
   actions: {
     /** All queues that have been created */
@@ -103,7 +99,6 @@ export class HyperFlux {
 }
 
 export function createHyperStore(options: {
-  getDispatchId: () => string
   getDispatchTime: () => number
   defaultDispatchDelay?: () => number
   getCurrentReactorRoot?: () => ReactorRoot | undefined
@@ -111,12 +106,12 @@ export function createHyperStore(options: {
   const store: HyperStore = {
     defaultTopic: 'default' as Topic,
     forwardingTopics: new Set<Topic>(),
-    getDispatchId: options.getDispatchId,
     getDispatchTime: options.getDispatchTime,
     defaultDispatchDelay: options.defaultDispatchDelay ?? (() => 0),
     getCurrentReactorRoot: options.getCurrentReactorRoot ?? (() => undefined),
     peerID: uuidv4() as PeerID,
     stateMap: {},
+    stateReactors: {},
     actions: {
       queues: new Map(),
       cached: [],
@@ -138,6 +133,11 @@ export function createHyperStore(options: {
     // },
   }
   HyperFlux.store = store
-  bitecs.createWorld(store)
   return store
+}
+
+export const disposeStore = (store = HyperFlux.store) => {
+  for (const reactor of store.activeReactors) {
+    ReactorReconciler.flushSync(() => reactor.stop())
+  }
 }

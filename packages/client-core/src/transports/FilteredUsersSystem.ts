@@ -31,7 +31,7 @@ import { defineState, getMutableState, getState } from '@etherealengine/hyperflu
 
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkState } from '@etherealengine/network'
 import { useEffect } from 'react'
 import { MediaInstanceState, useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
 import { SocketWebRTCClientNetwork } from './SocketWebRTCClientFunctions'
@@ -73,7 +73,7 @@ export const updateNearbyAvatars = () => {
 
   /** @todo move this to event sourcing state */
   // for (const consumer of network.consumers) {
-  //   if (consumer.appData.peerID === Engine.instance.peerID) continue
+  //   if (consumer.appData.peerID === Engine.instance.store.peerID) continue
   //   if (!nearbyUserIds.includes(network.peers.get(consumer.appData.peerID)?.userId!)) {
   //     dispatchAction(
   //       MediaConsumerActions.consumerClosed({

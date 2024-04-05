@@ -162,7 +162,7 @@ export class CSMHelper {
       shadowLine.frustumCulled = false
       const shadowLinesEntity = createEntity()
       addObjectToGroup(shadowLinesEntity, shadowLine)
-      setComponent(shadowLinesEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
+      setComponent(shadowLinesEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
       setComponent(shadowLinesEntity, NameComponent, 'CSM shadow line ' + cascadeLines.length)
       setObjectLayers(shadowLine, ObjectLayers.NodeHelper)
       shadowLines.push(shadowLinesEntity)

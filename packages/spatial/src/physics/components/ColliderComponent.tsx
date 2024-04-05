@@ -28,6 +28,7 @@ import {
   Entity,
   UndefinedEntity,
   defineComponent,
+  entityExists,
   getComponent,
   hasComponent,
   useComponent,
@@ -35,9 +36,10 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs'
 import { getState, useHookstate } from '@etherealengine/hyperflux'
-import React, { useEffect } from 'react'
+import React, { useLayoutEffect } from 'react'
 import { Vector3 } from 'three'
 import { traverseEntityNodeParent } from '../../transform/components/EntityTree'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { PhysicsState } from '../state/PhysicsState'
@@ -106,7 +108,7 @@ function ColliderComponentReactor() {
   const rigidbodyEntity = useHookstate(UndefinedEntity)
 
   /** @todo we may need to use a useHierarchyComponent sort of thing here */
-  useEffect(() => {
+  useLayoutEffect(() => {
     let parentRigidbodyEntity = UndefinedEntity
     if (hasComponent(entity, RigidBodyComponent)) {
       parentRigidbodyEntity = entity
@@ -132,8 +134,9 @@ function ColliderComponentRigidbodyReactor(props: { entity: Entity; rigidbodyEnt
   const rigidbodyComponent = useComponent(props.rigidbodyEntity, RigidBodyComponent)
   const isTrigger = !!useOptionalComponent(props.entity, TriggerComponent)
   const colliderComponent = useComponent(props.entity, ColliderComponent)
+  const transformComponent = useComponent(props.entity, TransformComponent)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!rigidbodyComponent.body.value) return
 
     const colliderDesc = Physics.createColliderDesc(
@@ -144,16 +147,18 @@ function ColliderComponentRigidbodyReactor(props: { entity: Entity; rigidbodyEnt
     const rigidbody = rigidbodyComponent.body.value
 
     const physicsWorld = getState(PhysicsState).physicsWorld
-    const collider = physicsWorld.createCollider(colliderDesc, rigidbody)
+    const collider = Physics.attachCollider(physicsWorld, colliderDesc, rigidbody)
     colliderComponent.collider.set(collider)
 
     return () => {
-      colliderComponent.collider.set(null)
-      physicsWorld.removeCollider(collider, false)
+      if (entityExists(props.entity) && hasComponent(props.entity, ColliderComponent)) {
+        colliderComponent.collider.set(null)
+      }
+      Physics.removeCollider(physicsWorld, collider)
     }
-  }, [rigidbodyComponent.body])
+  }, [rigidbodyComponent.body, transformComponent.scale])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!colliderComponent.collider.value) return
 
     const collider = colliderComponent.collider.value

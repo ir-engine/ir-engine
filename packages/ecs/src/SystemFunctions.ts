@@ -62,6 +62,7 @@ export interface System {
    * Defaults to 'variable'.
    */
   timeStep: number | 'variable'
+  /** @deprecated use defineState reactor instead */
   reactor?: FC
   insert?: InsertSystem
   preSystems: SystemUUID[]
@@ -91,6 +92,7 @@ export function executeSystem(systemUUID: SystemUUID) {
     executeSystem(system.preSystems[i])
   }
 
+  /** @todo when we fully remove deprecated system reactors in favour of state reactors, we can just wrap system.execute with flushSync */
   if (system.reactor && !getState(SystemState).activeSystemReactors.has(system.uuid)) {
     const reactor = startReactor(system.reactor)
     getState(SystemState).activeSystemReactors.set(system.uuid, reactor)
@@ -137,15 +139,13 @@ export function defineSystem(systemConfig: SystemArgs) {
     throw new Error(`System ${systemConfig.uuid} already exists.`)
   }
 
-  console.log(`Registered system ${systemConfig.uuid}`)
-
   const system = {
     preSystems: [],
-    execute: () => {},
     subSystems: [],
     postSystems: [],
     sceneSystem: false,
     timeStep: 'variable',
+    execute: () => {},
     ...systemConfig,
     uuid: systemConfig.uuid as SystemUUID,
     enabled: false,
@@ -156,19 +156,39 @@ export function defineSystem(systemConfig: SystemArgs) {
 
   const insert = system.insert
 
+  /** these are here to ensure we aren't failing to specify an insertion system that ts-node fails with higher level module imports */
+  if ('before' in insert && typeof insert.before === 'undefined') {
+    console.log(system)
+    throw new Error('System insert.before is undefined')
+  }
+  if ('with' in insert && typeof insert.with === 'undefined') {
+    console.log(system)
+    throw new Error('System insert.with is undefined')
+  }
+  if ('after' in insert && typeof insert.after === 'undefined') {
+    console.log(system)
+    throw new Error('System insert.after is undefined')
+  }
+
   if (insert?.before) {
     const referenceSystem = SystemDefinitions.get(insert.before)!
+    if (!referenceSystem) throw new Error(`System ${insert.before} does not exist.`)
     referenceSystem.preSystems.push(system.uuid)
+    console.log(`Registered system ${systemConfig.uuid} before ${insert.before}`)
   }
 
   if (insert?.with) {
     const referenceSystem = SystemDefinitions.get(insert.with)!
+    if (!referenceSystem) throw new Error(`System ${insert.with} does not exist.`)
     referenceSystem.subSystems.push(system.uuid)
+    console.log(`Registered system ${systemConfig.uuid} with ${insert.with}`)
   }
 
   if (insert?.after) {
     const referenceSystem = SystemDefinitions.get(insert.after)!
+    if (!referenceSystem) throw new Error(`System ${insert.after} does not exist.`)
     referenceSystem.postSystems.push(system.uuid)
+    console.log(`Registered system ${systemConfig.uuid} after ${insert.after}`)
   }
 
   return systemConfig.uuid as SystemUUID

@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { FogSystem } from '@etherealengine/spatial/src/renderer/FogSystem'
 import { PositionalAudioComponent } from '../audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '../avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '../interaction/components/GrabbableComponent'
@@ -30,25 +31,22 @@ import { MountPointSystem } from '../interaction/systems/MountPointSystem'
 import { NoiseOffsetSystem } from '../scene/materials/constants/plugins/NoiseOffsetPlugin'
 import { MaterialLibrarySystem } from '../scene/materials/systems/MaterialLibrarySystem'
 import { CameraSettingsComponent } from './components/CameraSettingsComponent'
-import { CloudComponent } from './components/CloudComponent'
 import { EnvMapBakeComponent } from './components/EnvMapBakeComponent'
 import { EnvmapComponent } from './components/EnvmapComponent'
-import { FogSettingsComponent } from './components/FogSettingsComponent'
 import { GroundPlaneComponent } from './components/GroundPlaneComponent'
 import { HyperspaceTagComponent } from './components/HyperspaceTagComponent'
 import { ImageComponent } from './components/ImageComponent'
-import { InteriorComponent } from './components/InteriorComponent'
 import { LinkComponent } from './components/LinkComponent'
 import { MediaComponent } from './components/MediaComponent'
 import { MediaSettingsComponent } from './components/MediaSettingsComponent'
 import { MountPointComponent } from './components/MountPointComponent'
-import { OceanComponent } from './components/OceanComponent'
 import { ParticleSystemComponent } from './components/ParticleSystemComponent'
 import { PostProcessingComponent } from './components/PostProcessingComponent'
 import { PrimitiveGeometryComponent } from './components/PrimitiveGeometryComponent'
 import { RenderSettingsComponent } from './components/RenderSettingsComponent'
 import { SceneDynamicLoadTagComponent } from './components/SceneDynamicLoadTagComponent'
 import { ScenePreviewCameraComponent } from './components/ScenePreviewCamera'
+import { SceneSettingsComponent } from './components/SceneSettingsComponent'
 import { ScreenshareTargetComponent } from './components/ScreenshareTargetComponent'
 import { ShadowComponent } from './components/ShadowComponent'
 import { SkyboxComponent } from './components/SkyboxComponent'
@@ -60,12 +58,12 @@ import { TextComponent } from './components/TextComponent'
 import { VariantComponent } from './components/VariantComponent'
 import { VideoComponent } from './components/VideoComponent'
 import { VolumetricComponent } from './components/VolumetricComponent'
-import { WaterComponent } from './components/WaterComponent'
 import { EnvironmentSystem } from './systems/EnvironmentSystem'
-import { FogSystem } from './systems/FogSystem'
+import { MeshBVHSystem } from './systems/MeshBVHSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
 import { PortalSystem } from './systems/PortalSystem'
 import { SDFSystem } from './systems/SDFSystem'
+import { SceneKillHeightSystem } from './systems/SceneKillHeightSystem'
 import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
 import { SceneObjectDynamicLoadSystem } from './systems/SceneObjectDynamicLoadSystem'
 import { SceneObjectSystem } from './systems/SceneObjectSystem'
@@ -78,24 +76,24 @@ export const SceneComponents = [
   LoopAnimationComponent,
   GrabbableComponent,
   CameraSettingsComponent,
-  CloudComponent,
+  // CloudComponent,
   EnvMapBakeComponent,
   EnvmapComponent,
-  FogSettingsComponent,
   GroundPlaneComponent,
   HyperspaceTagComponent,
   ImageComponent,
-  InteriorComponent,
+  // InteriorComponent,
   MediaComponent,
   MediaSettingsComponent,
   MountPointComponent,
-  OceanComponent,
+  // OceanComponent,
   ParticleSystemComponent,
   PostProcessingComponent,
   PrimitiveGeometryComponent,
   RenderSettingsComponent,
   SceneDynamicLoadTagComponent,
   ScenePreviewCameraComponent,
+  SceneSettingsComponent,
   PostProcessingComponent,
   ScreenshareTargetComponent,
   ShadowComponent,
@@ -108,7 +106,7 @@ export const SceneComponents = [
   VariantComponent,
   VideoComponent,
   VolumetricComponent,
-  WaterComponent,
+  // WaterComponent,
   LinkComponent,
   TextComponent
 ]
@@ -119,9 +117,11 @@ export {
   MaterialLibrarySystem,
   MountPointSystem,
   NoiseOffsetSystem,
+  MeshBVHSystem,
   ParticleSystem,
   PortalSystem,
   SceneLoadingSystem,
+  SceneKillHeightSystem,
   SceneObjectDynamicLoadSystem,
   SceneObjectSystem,
   SDFSystem,

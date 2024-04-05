@@ -28,7 +28,6 @@ import {
   SceneCreateData,
   SceneDataType,
   SceneID,
-  SceneJsonType,
   ScenePatch,
   SceneQuery,
   SceneUpdate
@@ -51,7 +50,7 @@ import { getSceneData } from './scene-helper'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
-import { cleanStorageProviderURLs } from '@etherealengine/spatial/src/common/functions/parseSceneJSON'
+import { cleanStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import { ProjectParams } from '../project/project.class'
 import { SceneService } from './scene.class'
@@ -380,11 +379,7 @@ const saveSceneInStorageProvider = async (context: HookContext<SceneService>) =>
   const newSceneJsonPath = `${directory}${name}.scene.json`
   await storageProvider.putObject({
     Key: newSceneJsonPath,
-    Body: Buffer.from(
-      JSON.stringify(
-        cleanStorageProviderURLs(context.parsedSceneData ?? (defaultSceneSeed as unknown as SceneJsonType))
-      )
-    ),
+    Body: Buffer.from(JSON.stringify(cleanStorageProviderURLs(context.parsedSceneData ?? defaultSceneSeed))),
     ContentType: 'application/json'
   })
 
@@ -422,11 +417,7 @@ const saveSceneLocally = async (context: HookContext<SceneService>) => {
 
     fs.writeFileSync(
       path.resolve(newSceneJsonPathLocal),
-      JSON.stringify(
-        cleanStorageProviderURLs(context.parsedSceneData ?? (defaultSceneSeed as unknown as SceneJsonType)),
-        null,
-        2
-      )
+      JSON.stringify(cleanStorageProviderURLs(context.parsedSceneData ?? defaultSceneSeed), null, 2)
     )
 
     if (thumbnailBuffer && Buffer.isBuffer(thumbnailBuffer)) {
@@ -446,7 +437,18 @@ const setSceneSaveResult = async (context: HookContext<SceneService>) => {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
-  const { name, directory } = context.data as SceneCreateData
+  const { name, directory, project } = context.data as SceneCreateData
+
+  const projectResult = await context.app.service(projectPath).find({
+    query: {
+      name: project
+    }
+  })
+
+  if (projectResult.total > 0)
+    await context.app.service(projectPath).patch(projectResult.data[0].id, {
+      hasLocalChanges: true
+    })
 
   // return scene id for update hooks
   context.result = { id: `${directory!.split('/')[1]}/${name}` } as SceneUpdate

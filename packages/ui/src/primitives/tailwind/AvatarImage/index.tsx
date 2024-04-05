@@ -32,7 +32,8 @@ const sizes = {
   small: 'w-8 h-8',
   medium: 'w-10 h-10',
   large: 'w-20 h-20',
-  extraLarge: 'w-36 h-36'
+  extraLarge: 'w-36 h-36',
+  fill: ''
 }
 
 export interface AvatarImageProps extends React.HTMLAttributes<HTMLImageElement> {
@@ -48,9 +49,9 @@ const AvatarPlaceholder = ({ className }: { className: string }) => (
   </div>
 )
 
-const AvatarImage = ({ src, size = 'medium' }: AvatarImageProps) => {
+const AvatarImage = ({ src, size = 'medium', className }: AvatarImageProps) => {
   const imageLoaded = useHookstate(true)
-  const twClassName = twMerge(`${sizes[size]} rounded-full`)
+  const twClassName = twMerge(`${sizes[size]} rounded-full`, className)
 
   return imageLoaded.value ? (
     <img className={twClassName} src={src} alt={src.split('/').at(-1)} onError={() => imageLoaded.set(false)} />

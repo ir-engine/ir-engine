@@ -19,12 +19,14 @@ COPY packages/engine/package.json ./packages/engine/
 COPY packages/instanceserver/package.json ./packages/instanceserver/
 COPY packages/hyperflux/package.json ./packages/hyperflux/
 COPY packages/matchmaking/package.json ./packages/matchmaking/
+COPY packages/network/package.json ./packages/network/
 COPY packages/server/package.json ./packages/server/
 COPY packages/server-core/package.json ./packages/server-core/
 COPY packages/spatial/package.json ./packages/spatial/
 COPY packages/taskserver/package.json ./packages/taskserver/
-COPY packages/xrui/package.json ./packages/xrui/
 COPY packages/ui/package.json ./packages/ui/
+COPY packages/visual-script/package.json ./packages/visual-script/
+COPY packages/xrui/package.json ./packages/xrui/
 COPY packages/projects/package.json ./packages/projects/
 COPY project-package-jsons ./
 COPY patches/ ./patches/

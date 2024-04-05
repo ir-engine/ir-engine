@@ -59,7 +59,7 @@ describe('location.test', () => {
         name,
         slugifiedName: '',
         sceneId,
-        maxUsersPerInstance: 30,
+        maxUsersPerInstance: 20,
         locationSetting: {
           id: '',
           locationType: 'public',

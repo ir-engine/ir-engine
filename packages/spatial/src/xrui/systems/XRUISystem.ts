@@ -52,6 +52,7 @@ const normalColor = new Color(0xffffff)
 const visibleInteractableXRUIQuery = defineQuery([XRUIComponent, VisibleComponent, InputComponent])
 const visibleXRUIQuery = defineQuery([XRUIComponent, VisibleComponent])
 const xruiQuery = defineQuery([XRUIComponent])
+const inputSourceQuery = defineQuery([InputSourceComponent])
 
 // redirect DOM events from the canvas, to the 3D scene,
 // to the appropriate child Web3DLayer, and finally (back) to the
@@ -59,11 +60,13 @@ const xruiQuery = defineQuery([XRUIComponent])
 const redirectDOMEvent = (evt) => {
   for (const entity of visibleInteractableXRUIQuery()) {
     const layer = getComponent(entity, XRUIComponent)
-    const assigned = InputSourceComponent.isAssignedButtons(entity)
-    if (!assigned) continue
+    const inputSources = getComponent(entity, InputComponent).inputSources
+    if (!inputSources.length) continue
+    const inputSource = getComponent(inputSources[0], InputSourceComponent) // assume only one input source per XRUI
+    if (inputSource.intersections.length && inputSource.intersections[0].entity !== entity) continue // only handle events for the first intersection
     layer.updateWorldMatrix(true, true)
-    const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
-    const hit = layer.hitTest(pointerScreenRaycaster.ray)
+    const raycaster = inputSource.raycaster
+    const hit = layer.hitTest(raycaster.ray)
     if (hit && hit.intersection.object.visible) {
       hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
       hit.target.focus()
@@ -80,8 +83,8 @@ const updateControllerRayInteraction = (entity: Entity, xruiEntities: Entity[]) 
   let hit = null! as ReturnType<typeof WebContainer3D.prototype.hitTest>
 
   for (const entity of xruiEntities) {
-    const assigned = InputSourceComponent.isAssignedButtons(entity)
-    if (!assigned) continue
+    const hasSource = getComponent(entity, InputComponent).inputSources.length
+    if (!hasSource) continue
 
     const layer = getComponent(entity, XRUIComponent)
 
@@ -95,7 +98,7 @@ const updateControllerRayInteraction = (entity: Entity, xruiEntities: Entity[]) 
   pointerComponentState.lastHit.set(hit)
 
   if (hit) {
-    const interactable = window.getComputedStyle(hit.target).cursor == 'pointer'
+    const interactable = window.getComputedStyle(hit.target).cursor === 'pointer'
 
     if (cursor) {
       cursor.visible = true
@@ -129,6 +132,8 @@ const updateClickEventsForController = (entity: Entity) => {
 }
 
 const execute = () => {
+  if (!isClient) return
+
   const xruiState = getState(XRUIState)
   const xrFrame = getState(XRState).xrFrame
 
@@ -142,7 +147,7 @@ const execute = () => {
 
   const interactableXRUIEntities = visibleInteractableXRUIQuery()
 
-  const inputSourceEntities = InputSourceComponent.nonCapturedInputSourceQuery()
+  const inputSourceEntities = inputSourceQuery()
 
   /** do intersection tests */
   for (const inputSourceEntity of inputSourceEntities) {
@@ -181,6 +186,7 @@ const execute = () => {
   for (const entity of visibleXRUIQuery()) {
     const xrui = getComponent(entity, XRUIComponent)
     xrui.update()
+    xrui.updateWorldMatrix(true, true)
   }
 
   /** @todo remove this once XRUI no longer forces it internally */

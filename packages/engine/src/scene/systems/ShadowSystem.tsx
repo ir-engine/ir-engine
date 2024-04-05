@@ -34,7 +34,6 @@ import {
   Quaternion,
   Raycaster,
   Sphere,
-  Texture,
   Vector3
 } from 'three'
 
@@ -63,7 +62,7 @@ import {
   createSortAndApplyPriorityQueue
 } from '@etherealengine/spatial/src/common/functions/PriorityQueue'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { EngineRenderer, RenderSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RenderSettingsState, RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
 import {
   GroupComponent,
@@ -85,7 +84,7 @@ import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { XRLightProbeState } from '@etherealengine/spatial/src/xr/XRLightProbeSystem'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { useTexture } from '../../assets/functions/resourceHooks'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { useMeshOrModel } from '../components/ModelComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
@@ -409,23 +408,32 @@ const execute = () => {
   }
 }
 
+const RendererShadowReactor = () => {
+  const entity = useEntityContext()
+  const useShadows = useShadowsEnabled()
+
+  useEffect(() => {
+    const renderer = getComponent(entity, RendererComponent).renderer
+    renderer.shadowMap.enabled = renderer.shadowMap.autoUpdate = useShadows
+  }, [useShadows])
+
+  return null
+}
+
 const reactor = () => {
   if (!isClient) return null
 
   const useShadows = useShadowsEnabled()
 
-  useEffect(() => {
-    AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/assets/drop-shadow.png`).then(
-      (texture: Texture) => {
-        shadowMaterial.map = texture
-        shadowMaterial.needsUpdate = true
-        shadowState.set(shadowMaterial)
-      }
-    )
-  }, [])
+  const [shadowTexture] = useTexture(`${config.client.fileServer}/projects/default-project/assets/drop-shadow.png`)
 
-  EngineRenderer.instance.renderer.shadowMap.enabled = EngineRenderer.instance.renderer.shadowMap.autoUpdate =
-    useShadows
+  useEffect(() => {
+    if (!shadowTexture) return
+
+    shadowMaterial.map = shadowTexture
+    shadowMaterial.needsUpdate = true
+    shadowState.set(shadowMaterial)
+  }, [shadowTexture])
 
   return (
     <>
@@ -435,6 +443,7 @@ const reactor = () => {
         <QueryReactor Components={[VisibleComponent, ShadowComponent]} ChildEntityReactor={DropShadowReactor} />
       )}
       <GroupQueryReactor GroupChildReactor={ShadowMeshReactor} Components={[VisibleComponent, ShadowComponent]} />
+      <QueryReactor Components={[RendererComponent]} ChildEntityReactor={RendererShadowReactor} />
     </>
   )
 }

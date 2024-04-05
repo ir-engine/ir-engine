@@ -255,6 +255,8 @@ export const projectInvalidatePath = 'project-invalidate'
 
 export const projectPath = 'project'
 
+export const projectsPath = 'projects'
+
 export const scenePath = 'scene'
 
 export const builderInfoPath = 'builder-info'
@@ -281,8 +283,6 @@ export const sceneUploadPath = 'scene-upload'
 
 export const logsApiPath = 'logs-api'
 
-export const projectsPath = 'projects'
-
 export const projectGithubPushPath = 'project-github-push'
 
 export const projectCommitsPath = 'project-commits'
@@ -292,3 +292,5 @@ export const podsPath = 'pods'
 export const buildStatusPath = 'build-status'
 export const helmSettingPath = 'helm-setting'
 export const apiJobPath = 'api-job'
+
+export const uploadAssetPath = 'upload-asset'

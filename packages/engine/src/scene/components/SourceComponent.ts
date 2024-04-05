@@ -26,33 +26,30 @@ Ethereal Engine. All Rights Reserved.
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { createState, none } from '@etherealengine/hyperflux'
+import { hookstate, none } from '@etherealengine/hyperflux'
 
 const entitiesBySource = {} as Record<SceneID, Entity[]>
 
 export const SourceComponent = defineComponent({
-  name: 'Source Component',
+  name: 'SourceComponent',
+
   onInit: (entity) => '' as SceneID,
+
   onSet: (entity, component, src: SceneID) => {
     if (typeof src !== 'string') throw new Error('SourceComponent expects a non-empty string')
 
-    const currentSource = component.value
-
-    if (currentSource !== '') {
-      const currentEntities = SourceComponent.entitiesBySource[currentSource]
-      const entities = currentEntities.filter((currentEntity) => currentEntity !== entity)
-      if (entities.length === 0) {
-        SourceComponent.entitiesBySourceState[currentSource].set(none)
-      } else {
-        SourceComponent.entitiesBySourceState[currentSource].set(entities)
-      }
-    }
-
     component.set(src)
 
-    const nuEntities = SourceComponent.entitiesBySource[src] ?? []
-    SourceComponent.entitiesBySourceState[src].set([...nuEntities, entity])
+    const exists = SourceComponent.entitiesBySource[src]
+    const entitiesBySourceState = SourceComponent.entitiesBySourceState[src]
+    if (exists) {
+      if (exists.includes(entity)) return
+      entitiesBySourceState.merge([entity])
+    } else {
+      entitiesBySourceState.set([entity])
+    }
   },
+
   onRemove: (entity, component) => {
     const src = component.value
 
@@ -63,6 +60,7 @@ export const SourceComponent = defineComponent({
       SourceComponent.entitiesBySourceState[src].set(entities)
     }
   },
-  entitiesBySourceState: createState(entitiesBySource),
+
+  entitiesBySourceState: hookstate(entitiesBySource),
   entitiesBySource: entitiesBySource as Readonly<typeof entitiesBySource>
 })

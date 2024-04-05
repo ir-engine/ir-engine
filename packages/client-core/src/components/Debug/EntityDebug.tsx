@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import {
   Component,
   ComponentMap,
@@ -33,7 +34,7 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import {
   HyperFlux,
   NO_PROXY,
@@ -43,7 +44,6 @@ import {
   syncStateWithLocalStorage
 } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { useHookstate } from '@hookstate/core'
 import { getEntityComponents } from 'bitecs'
@@ -61,7 +61,7 @@ const renderEntityTreeRoots = () => {
   return Object.fromEntries(
     Object.values(getState(SceneState).scenes)
       .map((scene, i) => {
-        const root = scene.snapshots[scene.index].data.root
+        const root = scene.scene.root
         const entity = UUIDComponent.getEntityByUUID(root)
         if (!entity || !entityExists(entity)) return []
         return [
@@ -136,7 +136,6 @@ const renderAllEntities = (filter: string, queryString: string) => {
           return [label, renderEntityComponents(eid)]
         })
         .filter((exists) => !!exists)
-        .sort(([a], [b]) => a.localeCompare(b))
     )
   }
 }

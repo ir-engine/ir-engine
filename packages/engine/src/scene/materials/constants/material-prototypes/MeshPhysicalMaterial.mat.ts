@@ -35,6 +35,7 @@ export const DefaultArgs = {
   clearcoat: { ...NormalizedFloatArg, default: 0.5 },
   clearcoatMap: TextureArg,
   clearcoatNormalMap: TextureArg,
+  clearcoatRoughness: { ...NormalizedFloatArg, default: 0.5 },
   ior: { ...FloatArg, default: 1.5, min: 1.0, max: 2.333 },
   iridescence: NormalizedFloatArg,
   iridescenceMap: TextureArg,

@@ -23,23 +23,52 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
+import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { useEffect } from 'react'
+import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
+import { TransformGizmoControlledComponent } from '../classes/TransformGizmoControlledComponent'
+import { controlUpdate, gizmoUpdate, planeUpdate } from '../functions/gizmoHelper'
+import { SelectionState } from '../services/SelectionServices'
 
-const gizmoQuery = defineQuery([TransformGizmoComponent])
+const sourceQuery = defineQuery([SourceComponent, TransformGizmoControlledComponent])
+export const transformGizmoControllerQuery = defineQuery([TransformGizmoControlComponent])
+export const transformGizmoControlledQuery = defineQuery([TransformGizmoControlledComponent])
 
 const execute = () => {
-  for (const entity of gizmoQuery()) {
-    const gizmo = getComponent(entity, TransformGizmoComponent)
-    gizmo.updateMatrixWorld()
+  for (const gizmoEntity of transformGizmoControllerQuery()) {
+    const gizmoControlComponent = getComponent(gizmoEntity, TransformGizmoControlComponent)
+    if (!gizmoControlComponent.enabled) return
+
+    if (!gizmoControlComponent.visualEntity) return
+    gizmoUpdate(gizmoEntity)
+    if (!gizmoControlComponent.planeEntity) return
+    planeUpdate(gizmoEntity)
+    controlUpdate(gizmoEntity)
   }
+}
+
+const reactor = () => {
+  const selectedEntities = SelectionState.useSelectedEntities()
+
+  for (const entity of sourceQuery()) removeComponent(entity, TransformGizmoControlledComponent)
+
+  useEffect(() => {
+    if (!selectedEntities) return
+    const lastSelection = selectedEntities[selectedEntities.length - 1]
+    if (!lastSelection) return
+    setComponent(lastSelection, TransformGizmoControlledComponent)
+  }, [selectedEntities])
+
+  return null
 }
 
 export const GizmoSystem = defineSystem({
   uuid: 'ee.editor.GizmoSystem',
-  insert: { before: PresentationSystemGroup },
-  execute
+  insert: { with: AnimationSystemGroup },
+  execute,
+  reactor
 })

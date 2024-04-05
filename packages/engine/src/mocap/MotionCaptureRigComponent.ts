@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { QuaternionSchema, Vector3Schema } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { NormalizedLandmarkList } from '@mediapipe/pose'
+import { NormalizedLandmark } from '@mediapipe/tasks-vision'
 import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 
@@ -34,12 +34,16 @@ export const MotionCaptureRigComponent = defineComponent({
   name: 'MotionCaptureRigComponent',
   onInit: () => {
     return {
-      prevWorldLandmarks: null as NormalizedLandmarkList | null,
-      prevScreenLandmarks: null as NormalizedLandmarkList | null
+      prevWorldLandmarks: null as NormalizedLandmark[] | null,
+      prevScreenLandmarks: null as NormalizedLandmark[] | null
     }
   },
   schema: {
     rig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, QuaternionSchema])) as Record<
+      VRMHumanBoneName,
+      typeof QuaternionSchema
+    >,
+    slerpedRig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, QuaternionSchema])) as Record<
       VRMHumanBoneName,
       typeof QuaternionSchema
     >,

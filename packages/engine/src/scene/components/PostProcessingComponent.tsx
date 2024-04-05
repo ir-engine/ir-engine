@@ -23,17 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { ReactElement, useEffect } from 'react'
+import { useEffect } from 'react'
 
 import { NO_PROXY_STEALTH, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { EngineRenderer, PostProcessingSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { PostProcessingSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 
 export const PostProcessingComponent = defineComponent({
   name: 'PostProcessingComponent',
-  jsonID: 'postprocessing',
+  jsonID: 'EE_postprocessing',
 
   onInit(entity): typeof PostProcessingSettingsState._TYPE {
     return typeof PostProcessingSettingsState.initial === 'function'
@@ -58,7 +58,7 @@ export const PostProcessingComponent = defineComponent({
   reactor: PostProcessingComponentReactor
 })
 
-function PostProcessingComponentReactor(): ReactElement {
+function PostProcessingComponentReactor() {
   const entity = useEntityContext()
   const component = useHookstate(useComponent(entity, PostProcessingComponent))
 
@@ -70,7 +70,5 @@ function PostProcessingComponentReactor(): ReactElement {
     getMutableState(PostProcessingSettingsState).merge({ effects: component.effects.get(NO_PROXY_STEALTH) })
   }, [component.effects])
 
-  if (!EngineRenderer.instance?.effectComposer) return <></>
-
-  return <></>
+  return null
 }

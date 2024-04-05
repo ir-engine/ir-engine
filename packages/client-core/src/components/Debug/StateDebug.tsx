@@ -34,7 +34,7 @@ import {
 } from '@etherealengine/hyperflux'
 
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkState } from '@etherealengine/network'
 import styles from './styles.module.scss'
 
 const labelRenderer = (data: Record<string | number, any>) => {
@@ -72,7 +72,7 @@ export function StateDebug() {
       ? Engine.instance.store.stateMap
       : Object.fromEntries(
           Object.entries(Engine.instance.store.stateMap)
-            .filter(([key]) => key.toLowerCase().includes(stateSearch.value))
+            .filter(([key]) => key.toLowerCase().includes(stateSearch.value.toLowerCase()))
             .map(([key, value]) => [key, value.get(NO_PROXY_STEALTH)])
         )
 

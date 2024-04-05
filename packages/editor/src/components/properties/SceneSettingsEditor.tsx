@@ -47,6 +47,7 @@ import { PropertiesPanelButton } from '../inputs/Button'
 import ColorInput from '../inputs/ColorInput'
 import ImagePreviewInput from '../inputs/ImagePreviewInput'
 import InputGroup from '../inputs/InputGroup'
+import NumericInputGroup from '../inputs/NumericInputGroup'
 import PropertyGroup from './PropertyGroup'
 import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
 
@@ -161,61 +162,75 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
         label={t('editor:properties.sceneSettings.lbl-thumbnail')}
         info={t('editor:properties.sceneSettings.info-thumbnail')}
       >
-        <PropertiesPanelButton onClick={createThumbnail}>
-          {t('editor:properties.sceneSettings.generate')}
-        </PropertiesPanelButton>
-        {state.uploadingThumbnail.value ? (
-          <LoadingCircle />
-        ) : (
-          <PropertiesPanelButton onClick={uploadThumbnail} disabled={!state.thumbnail.value}>
-            {t('editor:properties.sceneSettings.save')}
+        <div>
+          <ImagePreviewInput value={state.thumbnailURL.value ?? sceneSettingsComponent.thumbnailURL.value} />
+
+          <PropertiesPanelButton onClick={createThumbnail}>
+            {t('editor:properties.sceneSettings.generate')}
           </PropertiesPanelButton>
-        )}
-        <ImagePreviewInput value={state.thumbnailURL.value ?? sceneSettingsComponent.thumbnailURL.value} />
+          {state.uploadingThumbnail.value ? (
+            <LoadingCircle />
+          ) : (
+            <PropertiesPanelButton onClick={uploadThumbnail} disabled={!state.thumbnail.value}>
+              {t('editor:properties.sceneSettings.save')}
+            </PropertiesPanelButton>
+          )}
+        </div>
       </InputGroup>
       <InputGroup
         name="Loading Screen"
         label={t('editor:properties.sceneSettings.lbl-loading')}
         info={t('editor:properties.sceneSettings.info-loading')}
       >
-        <PropertiesPanelButton onClick={createLoadingScreen}>
-          {t('editor:properties.sceneSettings.generate')}
-        </PropertiesPanelButton>
-        {state.uploadingLoadingScreen.value ? (
-          <LoadingCircle />
-        ) : (
-          <PropertiesPanelButton onClick={uploadLoadingScreen} disabled={!state.loadingScreenImageData.value}>
-            {t('editor:properties.sceneSettings.save')}
+        <div>
+          <ImagePreviewInput value={state.loadingScreenURL.value ?? sceneSettingsComponent.loadingScreenURL.value} />
+          <PropertiesPanelButton onClick={createLoadingScreen}>
+            {t('editor:properties.sceneSettings.generate')}
           </PropertiesPanelButton>
-        )}
-        <ImagePreviewInput value={state.loadingScreenURL.value ?? sceneSettingsComponent.loadingScreenURL.value} />
+          {state.uploadingLoadingScreen.value ? (
+            <LoadingCircle />
+          ) : (
+            <PropertiesPanelButton onClick={uploadLoadingScreen} disabled={!state.loadingScreenImageData.value}>
+              {t('editor:properties.sceneSettings.save')}
+            </PropertiesPanelButton>
+          )}
+        </div>
       </InputGroup>
       <InputGroup name="Primary Color" label={t('editor:properties.sceneSettings.lbl-colors')}>
-        <PropertiesPanelButton onClick={generateColors}>
-          {t('editor:properties.sceneSettings.generate')}
-        </PropertiesPanelButton>
-        <ColorInput
-          disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
-          value={new Color(sceneSettingsComponent.primaryColor.value)}
-          onSelect={(val) => updateProperty(SceneSettingsComponent, 'primaryColor')('#' + val.getHexString())}
-          onChange={(val) => updateProperty(SceneSettingsComponent, 'primaryColor')('#' + val.getHexString())}
-          onRelease={(val) => commitProperty(SceneSettingsComponent, 'primaryColor')('#' + val.getHexString())}
-        />
-        <ColorInput
-          disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
-          value={new Color(sceneSettingsComponent.backgroundColor.value)}
-          onSelect={(val) => updateProperty(SceneSettingsComponent, 'backgroundColor')('#' + val.getHexString())}
-          onChange={(val) => updateProperty(SceneSettingsComponent, 'backgroundColor')('#' + val.getHexString())}
-          onRelease={(val) => commitProperty(SceneSettingsComponent, 'backgroundColor')('#' + val.getHexString())}
-        />
-        <ColorInput
-          disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
-          value={new Color(sceneSettingsComponent.alternativeColor.value)}
-          onSelect={(val) => updateProperty(SceneSettingsComponent, 'alternativeColor')('#' + val.getHexString())}
-          onChange={(val) => updateProperty(SceneSettingsComponent, 'alternativeColor')('#' + val.getHexString())}
-          onRelease={(val) => commitProperty(SceneSettingsComponent, 'alternativeColor')('#' + val.getHexString())}
-        />
+        <div>
+          <ColorInput
+            disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
+            value={new Color(sceneSettingsComponent.primaryColor.value)}
+            onSelect={(val) => updateProperty(SceneSettingsComponent, 'primaryColor')('#' + val.getHexString())}
+            onChange={(val) => updateProperty(SceneSettingsComponent, 'primaryColor')('#' + val.getHexString())}
+            onRelease={(val) => commitProperty(SceneSettingsComponent, 'primaryColor')('#' + val.getHexString())}
+          />
+          <ColorInput
+            disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
+            value={new Color(sceneSettingsComponent.backgroundColor.value)}
+            onSelect={(val) => updateProperty(SceneSettingsComponent, 'backgroundColor')('#' + val.getHexString())}
+            onChange={(val) => updateProperty(SceneSettingsComponent, 'backgroundColor')('#' + val.getHexString())}
+            onRelease={(val) => commitProperty(SceneSettingsComponent, 'backgroundColor')('#' + val.getHexString())}
+          />
+          <ColorInput
+            disabled={!state.thumbnailURL.value && !sceneSettingsComponent.thumbnailURL.value}
+            value={new Color(sceneSettingsComponent.alternativeColor.value)}
+            onSelect={(val) => updateProperty(SceneSettingsComponent, 'alternativeColor')('#' + val.getHexString())}
+            onChange={(val) => updateProperty(SceneSettingsComponent, 'alternativeColor')('#' + val.getHexString())}
+            onRelease={(val) => commitProperty(SceneSettingsComponent, 'alternativeColor')('#' + val.getHexString())}
+          />
+          <PropertiesPanelButton onClick={generateColors}>
+            {t('editor:properties.sceneSettings.generate')}
+          </PropertiesPanelButton>
+        </div>
       </InputGroup>
+      <NumericInputGroup
+        name="Kill Height"
+        label={t('editor:properties.sceneSettings.lbl-killHeight')}
+        value={sceneSettingsComponent.sceneKillHeight.value}
+        onChange={updateProperty(SceneSettingsComponent, 'sceneKillHeight')}
+        onRelease={commitProperty(SceneSettingsComponent, 'sceneKillHeight')}
+      />
     </PropertyGroup>
   )
 }

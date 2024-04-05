@@ -148,7 +148,7 @@ export const XRDetectedMeshComponent = defineComponent({
 
   foundMesh: (mesh: XRMesh) => {
     const entity = createEntity()
-    setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+    setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
     setComponent(entity, TransformComponent)
     setVisibleComponent(entity, true)
     setComponent(entity, XRDetectedMeshComponent)

@@ -23,7 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { getState, none } from '@etherealengine/hyperflux'
@@ -44,7 +49,11 @@ export const evaluatePose = (entity: Entity) => {
   if (!rig) return
 
   const deltaSeconds = getState(ECSState).deltaSeconds
+
+  if (!hasComponent(entity, MotionCapturePoseComponent)) setComponent(entity, MotionCapturePoseComponent)
+
   const pose = getMutableComponent(entity, MotionCapturePoseComponent)
+
   if (!MotionCaptureRigComponent.solvingLowerBody[entity]) return 'none'
 
   /**Detect if our legs pose has changed by their angle */

@@ -29,11 +29,11 @@ import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { MediaSettingsState } from '@etherealengine/spatial/src/networking/MediaSettingsState'
+import { MediaSettingsState } from '@etherealengine/engine/src/audio/MediaSettingsState'
 
 export const MediaSettingsComponent = defineComponent({
   name: 'MediaSettingsComponent',
-  jsonID: 'media-settings',
+  jsonID: 'EE_media_settings',
 
   onInit(entity): typeof MediaSettingsState._TYPE {
     return typeof MediaSettingsState.initial === 'function'

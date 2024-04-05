@@ -23,20 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
-
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineState, dispatchAction, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
-
 import { AvatarID, AvatarType, avatarPath, userAvatarPath } from '@etherealengine/common/src/schema.type.module'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { EntityUUID, UUIDComponent, getOptionalComponent, setComponent } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
-import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
+import { defineState, dispatchAction, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { WorldNetworkAction } from '@etherealengine/network'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { Paginated } from '@feathersjs/feathers'
+import React, { useEffect, useLayoutEffect } from 'react'
+import { AvatarColliderComponent } from '../components/AvatarControllerComponent'
 import { loadAvatarModelAsset, unloadAvatarForUser } from '../functions/avatarFunctions'
 import { spawnAvatarReceptor } from '../functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from './AvatarNetworkActions'
@@ -48,17 +45,21 @@ export const AvatarState = defineState({
     EntityUUID,
     {
       avatarID: AvatarID
+      name: string
     }
   >,
 
   receptors: {
     onSpawn: AvatarNetworkAction.spawn.receive((action) => {
-      getMutableState(AvatarState)[action.entityUUID].set({ avatarID: action.avatarID })
+      getMutableState(AvatarState)[action.entityUUID].set({ avatarID: action.avatarID, name: action.name })
     }),
     onSetAvatarID: AvatarNetworkAction.setAvatarID.receive((action) => {
-      getMutableState(AvatarState)[action.entityUUID].set({ avatarID: action.avatarID })
+      getMutableState(AvatarState)[action.entityUUID].merge({ avatarID: action.avatarID })
     }),
-    onDestroyObject: WorldNetworkAction.destroyObject.receive((action) => {
+    onSetAvatarName: AvatarNetworkAction.setName.receive((action) => {
+      getMutableState(AvatarState)[action.entityUUID].merge({ name: action.name })
+    }),
+    onDestroyObject: WorldNetworkAction.destroyEntity.receive((action) => {
       getMutableState(AvatarState)[action.entityUUID].set(none)
     })
   },
@@ -81,17 +82,33 @@ export const AvatarState = defineState({
         dispatchAction(
           AvatarNetworkAction.setAvatarID({
             avatarID: avatarId as AvatarID,
-            entityUUID: Engine.instance.userID as any as EntityUUID
+            entityUUID: (Engine.instance.userID + '_avatar') as any as EntityUUID
           })
         )
       })
+  },
+
+  reactor: () => {
+    const avatarState = useHookstate(getMutableState(AvatarState))
+    return (
+      <>
+        {avatarState.keys.map((entityUUID: EntityUUID) => (
+          <AvatarReactor key={entityUUID} entityUUID={entityUUID} />
+        ))}
+      </>
+    )
   }
 })
 
 const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
-  const avatarID = useHookstate(getMutableState(AvatarState)[entityUUID].avatarID)
+  const { avatarID, name } = useHookstate(getMutableState(AvatarState)[entityUUID])
   const userAvatarDetails = useHookstate(null as string | null)
   const entity = UUIDComponent.useEntityByUUID(entityUUID)
+
+  useLayoutEffect(() => {
+    if (!entity) return
+    spawnAvatarReceptor(entityUUID)
+  }, [entity])
 
   useEffect(() => {
     let aborted = false
@@ -113,37 +130,25 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   }, [avatarID])
 
   useEffect(() => {
-    if (!entity) return
+    if (!isClient) return
+    if (!entity || !userAvatarDetails.value) return
 
-    if (!userAvatarDetails.value) return
-
-    spawnAvatarReceptor(entityUUID)
-
-    if (isClient) loadAvatarModelAsset(entity, userAvatarDetails.value)
+    loadAvatarModelAsset(entity, userAvatarDetails.value)
 
     return () => {
       if (!entityExists(entity)) return
-
-      if (isClient) unloadAvatarForUser(entity)
+      unloadAvatarForUser(entity)
     }
   }, [userAvatarDetails, entity])
 
+  useEffect(() => {
+    if (!entity) return
+    setComponent(entity, NameComponent, name.value + "'s avatar")
+    const colliderEntity = getOptionalComponent(entity, AvatarColliderComponent)?.colliderEntity
+    if (colliderEntity) {
+      setComponent(colliderEntity, NameComponent, name.value + "'s collider")
+    }
+  }, [name, entity])
+
   return null
 }
-
-export const AvatarStateReactor = () => {
-  const avatarState = useHookstate(getMutableState(AvatarState))
-  return (
-    <>
-      {avatarState.keys.map((entityUUID: EntityUUID) => (
-        <AvatarReactor key={entityUUID} entityUUID={entityUUID} />
-      ))}
-    </>
-  )
-}
-
-export const AvatarNetworkSystem = defineSystem({
-  uuid: 'ee.engine.avatar.AvatarNetworkSystem',
-  insert: { with: SimulationSystemGroup },
-  reactor: AvatarStateReactor
-})

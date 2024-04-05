@@ -28,7 +28,6 @@ import {
   AnimationAction,
   AnimationActionLoopStyles,
   AnimationBlendMode,
-  AnimationMixer,
   LoopRepeat,
   NormalAnimationBlendMode
 } from 'three'
@@ -38,7 +37,6 @@ import {
   defineComponent,
   getComponent,
   hasComponent,
-  setComponent,
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -46,14 +44,14 @@ import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { CallbackComponent, StandardCallbacks, setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { VRM } from '@pixiv/three-vrm'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { useGLTF } from '../../assets/functions/resourceHooks'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { AnimationComponent } from './AnimationComponent'
 
 export const LoopAnimationComponent = defineComponent({
   name: 'LoopAnimationComponent',
-  jsonID: 'loop-animation',
+  jsonID: 'EE_loop_animation',
 
   onInit: (entity) => {
     return {
@@ -118,8 +116,8 @@ export const LoopAnimationComponent = defineComponent({
     const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
     const modelComponent = useOptionalComponent(entity, ModelComponent)
     const animComponent = useOptionalComponent(entity, AnimationComponent)
-    const lastAnimationPack = useHookstate('')
 
+    const lastAnimationPack = useHookstate('')
     useEffect(() => {
       if (!animComponent?.animations?.value) return
       const clip = animComponent.animations.value[loopAnimationComponent.activeClipIndex.value]
@@ -141,7 +139,7 @@ export const LoopAnimationComponent = defineComponent({
       } catch (e) {
         console.warn('Failed to bind animation in LoopAnimationComponent', entity, e)
       }
-    }, [animComponent?.animations, loopAnimationComponent.activeClipIndex, modelComponent?.asset])
+    }, [loopAnimationComponent.activeClipIndex, modelComponent?.asset, animComponent?.animations])
 
     useEffect(() => {
       if (loopAnimationComponent._action.value?.isRunning()) {
@@ -206,38 +204,28 @@ export const LoopAnimationComponent = defineComponent({
       const asset = modelComponent?.asset.get(NO_PROXY) ?? null
       if (!asset?.scene) return
       const model = getComponent(entity, ModelComponent)
-
-      if (!hasComponent(entity, AnimationComponent)) {
-        setComponent(entity, AnimationComponent, {
-          mixer: new AnimationMixer(model.asset!.scene)
-        })
-      }
     }, [modelComponent?.asset])
+
+    const [gltf] = useGLTF(loopAnimationComponent.animationPack.value, entity)
 
     useEffect(() => {
       const asset = modelComponent?.asset.get(NO_PROXY) ?? null
       if (
-        !asset?.scene ||
+        !gltf ||
         !animComponent ||
+        !asset?.scene ||
         !loopAnimationComponent.animationPack.value ||
         lastAnimationPack.value === loopAnimationComponent.animationPack.value
       )
         return
 
-      let aborted = false
       animComponent.mixer.time.set(0)
-      AssetLoader.loadAsync(loopAnimationComponent.animationPack.value).then((model) => {
-        if (aborted) return
-        const animations = model.animations ?? model.scene.animations
-        for (let i = 0; i < animations.length; i++) retargetAnimationClip(animations[i], model.scene)
-        lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
-        animComponent.animations.set(animations)
-      })
-
-      return () => {
-        aborted = true
-      }
-    }, [animComponent, loopAnimationComponent.animationPack, modelComponent?.scene])
+      animComponent.mixer.value.stopAllAction()
+      const animations = gltf.animations
+      for (let i = 0; i < animations.length; i++) retargetAnimationClip(animations[i], gltf.scene)
+      lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
+      animComponent.animations.set(animations)
+    }, [gltf, animComponent])
 
     return null
   }

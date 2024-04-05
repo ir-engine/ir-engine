@@ -37,26 +37,21 @@ import { LocationState } from '@etherealengine/client-core/src/social/services/L
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/network'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
 
 import Component from './index'
 
 import '@etherealengine/client/src/themes/base.css'
 import '@etherealengine/client/src/themes/components.css'
 import '@etherealengine/client/src/themes/utilities.css'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import 'tailwindcss/tailwind.css'
 
 // import { useLocation } from 'react-router-dom'
 
 const initializeEngineForRecorder = async () => {
-  // const projects = API.instance.client.service(projectsPath).find()
-  // await loadEngineInjection(await projects)
-  getMutableState(SceneState).merge({
-    sceneLoading: false,
-    sceneLoaded: true
-  })
+  getMutableState(SceneState).sceneLoaded.set(true)
 }
 
 const argTypes = {}
@@ -120,7 +115,7 @@ const decorators = [
     // const engineState = useHookstate(getMutableState(EngineState))
 
     return (
-      <div className="w-full h-full container mx-auto">
+      <div className="container mx-auto h-full w-full">
         <Story />
         {projectComponents}
       </div>

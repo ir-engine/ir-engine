@@ -27,6 +27,7 @@ import React, { ReactElement, useEffect } from 'react'
 import matches from 'ts-matches'
 
 import {
+  ComponentType,
   defineComponent,
   getOptionalComponent,
   hasComponent,
@@ -39,7 +40,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { DistanceFromCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
-import { setInstancedMeshVariant, setMeshVariant, setModelVariant } from '../functions/loaders/VariantFunctions'
+import { setInstancedMeshVariant, updateModelVariant } from '../functions/loaders/VariantFunctions'
 import { InstancingComponent } from './InstancingComponent'
 import { ModelComponent } from './ModelComponent'
 
@@ -48,15 +49,31 @@ export type VariantLevel = {
   metadata: Record<string, any>
 }
 
+export enum Heuristic {
+  DISTANCE = 'DISTANCE',
+  SCENE_SCALE = 'SCENE_SCALE',
+  MANUAL = 'MANUAL',
+  DEVICE = 'DEVICE',
+  BUDGET = 'BUDGET'
+}
+
+export const distanceBased = (variantComponent: ComponentType<typeof VariantComponent>): boolean => {
+  return (
+    variantComponent.heuristic === Heuristic.DISTANCE ||
+    (variantComponent.heuristic === Heuristic.BUDGET && variantComponent.useDistance)
+  )
+}
+
 export const VariantComponent = defineComponent({
   name: 'EE_variant',
-
-  jsonID: 'variant',
+  jsonID: 'EE_variant',
 
   onInit: (entity) => ({
     levels: [] as VariantLevel[],
-    heuristic: 'MANUAL' as 'DISTANCE' | 'SCENE_SCALE' | 'MANUAL' | 'DEVICE',
-    calculated: false
+    heuristic: Heuristic.MANUAL,
+    useDistance: false,
+    currentLevel: 0,
+    budgetLevel: 0
   }),
 
   onSet: (entity, component, json) => {
@@ -74,9 +91,19 @@ export const VariantComponent = defineComponent({
         )
         .test(json.levels)
     ) {
+      if (component.heuristic.value === Heuristic.BUDGET) {
+        json.levels = json.levels.sort((left, right) => {
+          const leftVertexCount = left.metadata['vertexCount'] ? (left.metadata['vertexCount'] as number) : 0
+          const rightVertexCount = right.metadata['vertexCount'] ? (right.metadata['vertexCount'] as number) : 0
+          return rightVertexCount - leftVertexCount
+        })
+      }
       component.levels.set(json.levels)
     }
-    if (typeof json.calculated === 'boolean') component.calculated.set(json.calculated)
+
+    if (typeof json.useDistance === 'boolean') component.useDistance.set(json.useDistance)
+    if (typeof json.currentLevel === 'number') component.currentLevel.set(json.currentLevel)
+    if (typeof json.budgetLevel === 'number') component.currentLevel.set(json.budgetLevel)
   },
 
   toJSON: (entity, component) => ({
@@ -86,7 +113,8 @@ export const VariantComponent = defineComponent({
         metadata: level.metadata
       }
     }),
-    heuristic: component.heuristic.value
+    heuristic: component.heuristic.value,
+    useDistance: component.useDistance.value
   }),
 
   reactor: VariantReactor
@@ -95,11 +123,33 @@ export const VariantComponent = defineComponent({
 function VariantReactor(): ReactElement {
   const entity = useEntityContext()
   const variantComponent = useComponent(entity, VariantComponent)
-
+  const modelComponent = useOptionalComponent(entity, ModelComponent)
   const meshComponent = getOptionalComponent(entity, MeshComponent)
 
   useEffect(() => {
-    if (variantComponent.heuristic.value === 'DISTANCE' && meshComponent) {
+    const currentLevel = variantComponent.currentLevel.value
+    let src: string | undefined = undefined
+    if (variantComponent.heuristic.value === Heuristic.BUDGET) {
+      const budgetLevel = variantComponent.budgetLevel.value
+      if (currentLevel >= budgetLevel) {
+        src = variantComponent.levels[currentLevel].src.value
+      } else {
+        src = variantComponent.levels[budgetLevel].src.value
+      }
+    } else {
+      src = variantComponent.levels[currentLevel].src && variantComponent.levels[currentLevel].src.value
+    }
+
+    if (src && modelComponent && modelComponent.src.value !== src) modelComponent.src.set(src)
+  }, [variantComponent.currentLevel])
+
+  useEffect(() => {
+    if (variantComponent.heuristic.value === Heuristic.BUDGET)
+      updateModelVariant(entity, variantComponent, modelComponent!)
+  }, [variantComponent.budgetLevel])
+
+  useEffect(() => {
+    if (distanceBased(variantComponent.value) && meshComponent) {
       meshComponent.removeFromParent()
     }
   }, [meshComponent])
@@ -117,11 +167,9 @@ const VariantLevelReactor = React.memo(({ entity, level }: { level: number; enti
   const variantComponent = useComponent(entity, VariantComponent)
   const variantLevel = variantComponent.levels[level]
 
-  const modelComponent = useOptionalComponent(entity, ModelComponent)
-
   useEffect(() => {
     //if the variant heuristic is set to Distance, add the DistanceFromCameraComponent
-    if (variantComponent.heuristic.value === 'DISTANCE') {
+    if (distanceBased(variantComponent.value)) {
       setComponent(entity, DistanceFromCameraComponent)
       variantLevel.metadata['minDistance'].value === undefined && variantLevel.metadata['minDistance'].set(0)
       variantLevel.metadata['maxDistance'].value === undefined && variantLevel.metadata['maxDistance'].set(0)
@@ -131,15 +179,10 @@ const VariantLevelReactor = React.memo(({ entity, level }: { level: number; enti
     }
   }, [variantComponent.heuristic])
 
-  useEffect(() => {
-    modelComponent && setModelVariant(entity)
-  }, [variantLevel.src, variantLevel.metadata, modelComponent])
-
   const meshComponent = useOptionalComponent(entity, MeshComponent)
   const instancingComponent = getOptionalComponent(entity, InstancingComponent)
 
   useEffect(() => {
-    meshComponent && !instancingComponent && setMeshVariant(entity)
     meshComponent && instancingComponent && setInstancedMeshVariant(entity)
   }, [variantLevel.src, variantLevel.metadata, meshComponent])
 

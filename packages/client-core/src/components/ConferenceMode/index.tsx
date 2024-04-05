@@ -30,9 +30,9 @@ import { MediaInstanceState } from '@etherealengine/client-core/src/common/servi
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { NetworkState, screenshareVideoDataChannelType } from '@etherealengine/spatial/src/networking/NetworkState'
+import { NetworkState, screenshareVideoDataChannelType } from '@etherealengine/network'
 
-import { MediasoupMediaProducerConsumerState } from '@etherealengine/spatial/src/networking/systems/MediasoupMediaProducerConsumerState'
+import { MediasoupMediaProducerConsumerState } from '@etherealengine/network'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import ConferenceModeParticipant from './ConferenceModeParticipant'
 import styles from './index.module.scss'
@@ -85,11 +85,15 @@ const ConferenceMode = (): JSX.Element => {
       {(isScreenVideoEnabled || isScreenAudioEnabled) && (
         <ConferenceModeParticipant
           type={'screen'}
-          peerID={Engine.instance.peerID}
-          key={'screen_' + Engine.instance.peerID}
+          peerID={Engine.instance.store.peerID}
+          key={'screen_' + Engine.instance.store.peerID}
         />
       )}
-      <ConferenceModeParticipant type={'cam'} peerID={Engine.instance.peerID} key={'cam_' + Engine.instance.peerID} />
+      <ConferenceModeParticipant
+        type={'cam'}
+        peerID={Engine.instance.store.peerID}
+        key={'cam_' + Engine.instance.store.peerID}
+      />
       {Object.values(consumers.value).map((consumer) => {
         const peerID = consumer.peerID
         const type = consumer.mediaTag === screenshareVideoDataChannelType ? 'screen' : 'cam'

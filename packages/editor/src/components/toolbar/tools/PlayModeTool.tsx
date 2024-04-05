@@ -23,28 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { VisualScriptActions, visualScriptQuery } from '@etherealengine/engine'
+import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { WorldNetworkAction } from '@etherealengine/network'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
-import { WorldNetworkAction } from '@etherealengine/spatial/src/networking/functions/WorldNetworkAction'
 import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
-
 import PauseIcon from '@mui/icons-material/Pause'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
-
-import { BehaveGraphActions, graphQuery } from '@etherealengine/engine/src/behave-graph/systems/BehaveGraphSystem'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { TransformGizmoControlledComponent } from '../../../classes/TransformGizmoControlledComponent'
+import { EditorState } from '../../../services/EditorServices'
+import { transformGizmoControlledQuery } from '../../../systems/GizmoSystem'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
@@ -56,27 +57,26 @@ const PlayModeTool = () => {
   const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded).value
 
   const onTogglePlayMode = () => {
-    if (Engine.instance.localClientEntity) {
-      dispatchAction(
-        WorldNetworkAction.destroyObject({ entityUUID: getComponent(Engine.instance.localClientEntity, UUIDComponent) })
-      )
+    const entity = AvatarComponent.getSelfAvatarEntity()
+    if (entity) {
+      dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID: getComponent(entity, UUIDComponent) }))
       const cameraComputed = getComponent(Engine.instance.cameraEntity, ComputedTransformComponent)
       removeEntity(cameraComputed.referenceEntity)
       removeComponent(Engine.instance.cameraEntity, ComputedTransformComponent)
       removeComponent(Engine.instance.cameraEntity, FollowCameraComponent)
       removeComponent(Engine.instance.cameraEntity, TargetCameraRotationComponent)
       getMutableState(EngineState).isEditing.set(true)
-      graphQuery().forEach((entity) => dispatchAction(BehaveGraphActions.stop({ entity })))
-
-      SceneState.applyCurrentSnapshot(getState(SceneState).activeScene!)
-      // stop all behave graph logic
+      visualScriptQuery().forEach((entity) => dispatchAction(VisualScriptActions.stop({ entity })))
+      // stop all visual script logic
     } else {
       const avatarDetails = authState.user.avatar.value
 
       const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userID)
+      const currentScene = getState(SceneState).scenes[getState(EditorState).sceneID!].scene.root
 
       if (avatarDetails)
         spawnLocalAvatarInWorld({
+          parentUUID: currentScene,
           avatarSpawnPose,
           avatarID: avatarDetails.id!,
           name: authState.user.name.value
@@ -84,8 +84,10 @@ const PlayModeTool = () => {
 
       // todo
       // getMutableState(EngineState).isEditing.set(false)
-      // run all behave graph logic
-      graphQuery().forEach((entity) => dispatchAction(BehaveGraphActions.execute({ entity })))
+      // run all visual script logic
+      visualScriptQuery().forEach((entity) => dispatchAction(VisualScriptActions.execute({ entity })))
+      transformGizmoControlledQuery().forEach((entity) => removeComponent(entity, TransformGizmoControlledComponent))
+      //just remove all gizmo in the scene
     }
   }
 

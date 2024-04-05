@@ -23,36 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 import assert, { strictEqual } from 'assert'
-import { Mesh, MeshNormalMaterial, Quaternion, SphereGeometry, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { AvatarID, UserID, UserName } from '@etherealengine/common/src/schema.type.module'
+import { AvatarID, SceneID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { EntityUUID } from '@etherealengine/ecs'
 import {
+  PeerID,
   applyIncomingActions,
   clearOutgoingActions,
   dispatchAction,
-  getMutableState,
-  getState
+  getMutableState
 } from '@etherealengine/hyperflux'
 
 import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { NetworkObjectComponent, NetworkPeerFunctions, NetworkState } from '@etherealengine/network'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
-import { NetworkState } from '@etherealengine/spatial/src/networking/NetworkState'
-import { Network } from '@etherealengine/spatial/src/networking/classes/Network'
-import { NetworkObjectComponent } from '@etherealengine/spatial/src/networking/components/NetworkObjectComponent'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { BodyTypes, Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
+import { SceneState } from '../../scene/SceneState'
 import { GrabbedComponent, GrabberComponent } from '../components/GrabbableComponent'
 import { dropEntity, grabEntity } from './GrabbableSystem'
 
@@ -65,6 +65,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     await Physics.load()
     Engine.instance.store.defaultDispatchDelay = () => 0
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
+    loadEmptyScene()
   })
 
   afterEach(() => {
@@ -77,19 +78,20 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
     setComponent(player, NetworkObjectComponent, {
       ownerId: Engine.instance.userID,
-      authorityPeerID: Engine.instance.peerID,
+      authorityPeerID: Engine.instance.store.peerID,
       networkId: 0 as NetworkId
     })
     const networkObject = getComponent(player, NetworkObjectComponent)
 
     dispatchAction(
       AvatarNetworkAction.spawn({
-        $from: Engine.instance.userID,
+        parentUUID: SceneState.getScene('test' as SceneID).scene.root,
         networkId: networkObject.networkId,
         position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,
-        avatarID: '' as AvatarID
+        avatarID: '' as AvatarID,
+        name: ''
       })
     )
     applyIncomingActions()
@@ -127,43 +129,24 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
   it('Can equip and unequip', async () => {
     const hostUserId = 'world' as UserID & PeerID
-    ;(NetworkState.worldNetwork as Network).hostId = hostUserId
+    NetworkState.worldNetwork.hostPeerID = hostUserId
     const hostIndex = 0
 
-    NetworkState.worldNetwork.peers[hostUserId] = {
-      peerID: hostUserId,
-      peerIndex: hostIndex,
-      userId: hostUserId,
-      userIndex: hostIndex
-    }
+    NetworkPeerFunctions.createPeer(NetworkState.worldNetwork, hostUserId, hostIndex, hostUserId, hostIndex)
 
     const userId = 'user id' as UserID
-    const userName = 'user name' as UserName
-    const userIndex = 1
     Engine.instance.userID = userId
 
     const grabbableEntity = createEntity()
 
     setComponent(grabbableEntity, TransformComponent)
-
-    // physics mock stuff
-    const type = ShapeType.Cuboid
-    const geom = new SphereGeometry()
-
-    const mesh = new Mesh(geom, new MeshNormalMaterial())
-    const bodyOptions = {
-      type,
-      bodyType: RigidBodyType.Dynamic
-    }
-    mesh.userData = bodyOptions
-
-    addObjectToGroup(grabbableEntity, mesh)
-    Physics.createRigidBodyForGroup(grabbableEntity, getState(PhysicsState).physicsWorld, bodyOptions)
+    setComponent(grabbableEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+    setComponent(grabbableEntity, ColliderComponent, { shape: Shapes.Sphere })
     // network mock stuff
     // initially the object is owned by server
     setComponent(grabbableEntity, NetworkObjectComponent, {
-      ownerId: NetworkState.worldNetwork.hostId,
-      authorityPeerID: Engine.instance.peerID,
+      ownerId: NetworkState.worldNetwork.hostUserID,
+      authorityPeerID: Engine.instance.store.peerID,
       networkId: 0 as NetworkId
     })
 

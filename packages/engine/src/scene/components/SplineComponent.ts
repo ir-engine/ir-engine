@@ -59,7 +59,7 @@ lineGeometry.setAttribute('position', new BufferAttribute(new Float32Array(ARC_S
 
 export const SplineComponent = defineComponent({
   name: 'SplineComponent',
-  jsonID: 'spline',
+  jsonID: 'EE_spline',
 
   onInit: (entity) => {
     return {

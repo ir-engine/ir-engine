@@ -34,6 +34,7 @@ import CSMHelper from './csm/CSMHelper'
 export const RendererState = defineState({
   name: 'RendererState',
   initial: () => ({
+    mainCanvasEntity: null as Entity | null,
     csm: null as CSM | null,
     csmHelper: null as CSMHelper | null,
     qualityLevel: isIPhone ? 2 : 5, // range from 0 to 5
@@ -42,6 +43,7 @@ export const RendererState = defineState({
     usePostProcessing: isIPhone ? false : true,
     useShadows: isIPhone ? false : true,
     physicsDebug: false,
+    bvhDebug: false,
     avatarDebug: false,
     renderMode: RenderModes.SHADOW as RenderModesType,
     nodeHelperVisibility: false,
@@ -60,6 +62,7 @@ export const RendererState = defineState({
       'usePostProcessing',
       'useShadows',
       'physicsDebug',
+      'bvhDebug',
       'avatarDebug',
       'renderMode',
       'nodeHelperVisibility',

@@ -23,15 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  UndefinedEntity,
-  defineComponent,
-  getMutableComponent,
-  useComponent,
-  useEntityContext
-} from '@etherealengine/ecs'
+import { UndefinedEntity, defineComponent, matchesEntity, useComponent, useEntityContext } from '@etherealengine/ecs'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
-import { matchesEntity } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { useEffect } from 'react'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 
@@ -51,12 +44,14 @@ export const AssetPreviewCameraComponent = defineComponent({
     const entity = useEntityContext()
     const previewCameraComponent = useComponent(entity, AssetPreviewCameraComponent)
     const modelComponent = useComponent(previewCameraComponent.targetModelEntity.value, ModelComponent)
+    const cameraOrbitComponent = useComponent(entity, CameraOrbitComponent)
+
     useEffect(() => {
       if (!modelComponent.scene.value) return
-      const cameraOrbitComponent = getMutableComponent(entity, CameraOrbitComponent)
       cameraOrbitComponent.focusedEntities.set([previewCameraComponent.targetModelEntity.value])
       cameraOrbitComponent.refocus.set(true)
-    }, [modelComponent.scene])
+    }, [modelComponent.scene, cameraOrbitComponent])
+
     return null
   }
 })

@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getOptionalComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ComponentType, getOptionalComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { ComponentType } from 'bitecs'
 import { clamp } from 'lodash'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
@@ -49,16 +48,11 @@ export const setTargetCameraRotation = (entity: Entity, phi: number, theta: numb
   }
 }
 
-let lastScrollValue = 0
-
 /**
  * Change camera distance.
  * @param cameraEntity Entity holding camera and input component.
  */
-export const handleCameraZoom = (cameraEntity: Entity, value: number): void => {
-  const scrollDelta = Math.sign(value - lastScrollValue) * 0.5
-  lastScrollValue = value
-
+export const handleCameraZoom = (cameraEntity: Entity, scrollDelta: number): void => {
   if (scrollDelta === 0) {
     return
   }

@@ -27,11 +27,11 @@ import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
+import { defineQuery } from '@etherealengine/ecs'
 import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { UUIDComponent } from '@etherealengine/spatial/src/common/UUIDComponent'
 import { Q_Y_180 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
@@ -120,19 +120,22 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
 export const leftControllerOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI / 2, 0))
 export const rightControllerOffset = new Quaternion().setFromEuler(new Euler(0, -Math.PI / 2, 0))
 
+const inputSourceQuery = defineQuery([InputSourceComponent])
+
 /**
  * Pulls pose data from input sources into the ECS
  */
-export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
+export const applyInputSourcePoseToIKTargets = (userID: UserID) => {
   const xrFrame = getState(XRState).xrFrame!
   const referenceSpace = ReferenceSpace.origin
 
-  const uuid = getComponent(localClientEntity, UUIDComponent)
-  const ikTargetLeftHand = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftHand) as EntityUUID)
-  const ikTargetRightHand = UUIDComponent.getEntityByUUID((uuid + ikTargets.rightHand) as EntityUUID)
-  const ikTargetHead = UUIDComponent.getEntityByUUID((uuid + ikTargets.head) as EntityUUID)
-  const ikTargetLeftFoot = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftFoot) as EntityUUID)
-  const ikTargetRightFoot = UUIDComponent.getEntityByUUID((uuid + ikTargets.rightFoot) as EntityUUID)
+  const localClientEntity = AvatarComponent.getUserAvatarEntity(userID)
+
+  const ikTargetLeftHand = AvatarIKTargetComponent.getTargetEntity(userID, ikTargets.leftHand)
+  const ikTargetRightHand = AvatarIKTargetComponent.getTargetEntity(userID, ikTargets.rightHand)
+  const ikTargetHead = AvatarIKTargetComponent.getTargetEntity(userID, ikTargets.head)
+  const ikTargetLeftFoot = AvatarIKTargetComponent.getTargetEntity(userID, ikTargets.leftFoot)
+  const ikTargetRightFoot = AvatarIKTargetComponent.getTargetEntity(userID, ikTargets.rightFoot)
 
   // reset all IK targets
   if (ikTargetHead) AvatarIKTargetComponent.blendWeight[ikTargetHead] = 0
@@ -172,9 +175,8 @@ export const applyInputSourcePoseToIKTargets = (localClientEntity: Entity) => {
   const inverseWorldScale = 1 / XRState.worldScale
 
   const localClientTransform = getComponent(localClientEntity, TransformComponent)
-  const nonCapturedInputSourceEntities = InputSourceComponent.nonCapturedInputSourceQuery()
 
-  for (const inputSourceEntity of nonCapturedInputSourceEntities) {
+  for (const inputSourceEntity of inputSourceQuery()) {
     const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
     const handedness = inputSourceComponent.source.handedness
     if (handedness === 'none') continue
