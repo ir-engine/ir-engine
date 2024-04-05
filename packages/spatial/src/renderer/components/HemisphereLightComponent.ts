@@ -28,6 +28,7 @@ import { Color, HemisphereLight } from 'three'
 
 import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { useObj } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { matches } from '@etherealengine/hyperflux'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
@@ -36,9 +37,7 @@ export const HemisphereLightComponent = defineComponent({
   jsonID: 'EE_hemisphere_light',
 
   onInit: (entity) => {
-    const light = new HemisphereLight()
     return {
-      light,
       skyColor: new Color(),
       groundColor: new Color(),
       intensity: 1
@@ -66,25 +65,26 @@ export const HemisphereLightComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const light = useComponent(entity, HemisphereLightComponent)
+    const hemisphereLightComponent = useComponent(entity, HemisphereLightComponent)
+    const [light] = useObj(HemisphereLight, entity)
+
     useEffect(() => {
-      const lightObj = light.light.value
-      addObjectToGroup(entity, lightObj)
+      addObjectToGroup(entity, light)
       return () => {
-        removeObjectFromGroup(entity, lightObj)
+        removeObjectFromGroup(entity, light)
       }
     }, [])
     useEffect(() => {
-      light.light.value.groundColor.set(light.groundColor.value)
-    }, [light.groundColor])
+      light.groundColor.set(hemisphereLightComponent.groundColor.value)
+    }, [hemisphereLightComponent.groundColor])
 
     useEffect(() => {
-      light.light.value.color.set(light.skyColor.value)
-    }, [light.skyColor])
+      light.color.set(hemisphereLightComponent.skyColor.value)
+    }, [hemisphereLightComponent.skyColor])
 
     useEffect(() => {
-      light.light.value.intensity = light.intensity.value
-    }, [light.intensity])
+      light.intensity = hemisphereLightComponent.intensity.value
+    }, [hemisphereLightComponent.intensity])
 
     return null
   }

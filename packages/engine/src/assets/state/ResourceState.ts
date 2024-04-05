@@ -29,6 +29,7 @@ import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
 import { PerformanceState } from '@etherealengine/spatial/src/renderer/PerformanceState'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { useEffect } from 'react'
 import {
   Cache,
   CompressedTexture,
@@ -109,11 +110,7 @@ type Resource = {
 }
 
 const debug = false
-const debugLog = debug
-  ? (message?: any, ...optionalParams: any[]) => {
-      console.log(message)
-    }
-  : () => {}
+const debugLog = debug ? console.log : () => {}
 
 export const ResourceState = defineState({
   name: 'ResourceManagerState',
@@ -122,7 +119,12 @@ export const ResourceState = defineState({
     referencedAssets: {} as Record<string, string[]>,
     totalVertexCount: 0,
     totalBufferCount: 0
-  })
+  }),
+  reactor: () => {
+    useEffect(() => {
+      setDefaultLoadingManager()
+    }, [])
+  }
 })
 
 const setDefaultLoadingManager = (
@@ -178,7 +180,6 @@ const onLoad = () => {
 const onItemLoadedFor = <T extends AssetType>(url: string, resourceType: ResourceType, id: string, asset: T) => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
-  const referencedAssets = resourceState.nested('referencedAssets')
   if (!resources[url].value) {
     // Volumetric models load assets that aren't managed by the resource manager
     // console.warn('ResourceManager:loadedFor asset loaded for asset that is not loaded: ' + url)
@@ -189,6 +190,7 @@ const onItemLoadedFor = <T extends AssetType>(url: string, resourceType: Resourc
     'ResourceManager:loadedFor loading asset of type ' + resourceType + ' with ID: ' + id + ' for asset at url: ' + url
   )
 
+  const referencedAssets = resourceState.nested('referencedAssets')
   if (!referencedAssets[id].value) {
     referencedAssets.merge({
       [id]: []
@@ -222,8 +224,6 @@ const onItemLoadedFor = <T extends AssetType>(url: string, resourceType: Resourc
 
 const onProgress = (url: string, loaded: number, total: number) => {}
 const onError = (url: string) => {}
-
-setDefaultLoadingManager()
 
 const getTotalSizeOfResources = () => {
   let size = 0
@@ -530,10 +530,10 @@ const load = <T extends AssetType>(
   )
 }
 
-const loadObj = <T extends Object3D>(object3D: { new (): T }, entity: Entity): T => {
+const loadObj = <T extends Object3D>(object3D: { new (...params: any[]): T }, entity: Entity, ...args: any[]): T => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
-  const obj = new object3D()
+  const obj = new object3D(...args)
   const id = obj.uuid
   const callbacks = Callbacks[ResourceType.Object3D]
   // Only one object can exist per UUID

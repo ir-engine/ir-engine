@@ -53,6 +53,7 @@ import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { getObj } from '../../assets/functions/resourceHooks'
 import {
   envmapParsReplaceLambert,
   envmapPhysicalParsReplace,
@@ -61,6 +62,9 @@ import {
 } from '../classes/BPCEMShader'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
+
+const sphereGeometry = new SphereGeometry(0.75)
+const helperMeshMaterial = new MeshPhysicalMaterial({ roughness: 0, metalness: 1 })
 
 export const EnvMapBakeComponent = defineComponent({
   name: 'EnvMapBakeComponent',
@@ -112,10 +116,8 @@ export const EnvMapBakeComponent = defineComponent({
 
     useLayoutEffect(() => {
       if (!debugEnabled.value) return
-
-      const helper = new Mesh(new SphereGeometry(0.75), new MeshPhysicalMaterial({ roughness: 0, metalness: 1 }))
+      const [helper, unload] = getObj(Mesh, entity, sphereGeometry, helperMeshMaterial)
       helper.name = `envmap-bake-helper-${entity}`
-
       const helperEntity = createEntity()
       addObjectToGroup(helperEntity, helper)
       setComponent(helperEntity, NameComponent, helper.name)
@@ -128,6 +130,7 @@ export const EnvMapBakeComponent = defineComponent({
         removeEntity(helperEntity)
         if (!hasComponent(entity, EnvMapBakeComponent)) return
         bake.helperEntity.set(none)
+        unload()
       }
     }, [debugEnabled])
 

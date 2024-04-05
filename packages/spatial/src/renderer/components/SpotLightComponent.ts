@@ -40,6 +40,7 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { getObj, useObj } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { matches } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { NameComponent } from '../../common/NameComponent'
@@ -51,14 +52,18 @@ import { useUpdateLight } from '../functions/useUpdateLight'
 import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { setVisibleComponent } from './VisibleComponent'
 
+const ringGeom = new TorusGeometry(0.1, 0.025, 8, 12)
+const coneGeom = new ConeGeometry(0.25, 0.5, 8, 1, true)
+coneGeom.translate(0, -0.25, 0)
+coneGeom.rotateX(-Math.PI / 2)
+const geom = mergeBufferGeometries([ringGeom, coneGeom])!
+const helperMaterial = new MeshBasicMaterial({ fog: false, transparent: true, opacity: 0.5, side: DoubleSide })
+
 export const SpotLightComponent = defineComponent({
   name: 'SpotLightComponent',
   jsonID: 'EE_spot_light',
 
   onInit: (entity) => {
-    const light = new SpotLight()
-    light.target.position.set(1, 0, 0)
-    light.target.name = 'light-target'
     return {
       color: new Color(),
       intensity: 10,
@@ -69,7 +74,6 @@ export const SpotLightComponent = defineComponent({
       castShadow: false,
       shadowBias: 0.00001,
       shadowRadius: 1,
-      light,
       helperEntity: null as Entity | null
     }
   },
@@ -107,82 +111,73 @@ export const SpotLightComponent = defineComponent({
     const entity = useEntityContext()
     const renderState = useHookstate(getMutableState(RendererState))
     const debugEnabled = renderState.nodeHelperVisibility
-    const light = useComponent(entity, SpotLightComponent)
+    const spotLightComponent = useComponent(entity, SpotLightComponent)
+    const [light] = useObj(SpotLight, entity)
 
     useEffect(() => {
       if (isMobileXRHeadset) return
-      const lightObj = light.light.value
-      addObjectToGroup(entity, lightObj)
+      light.target.position.set(1, 0, 0)
+      light.target.name = 'light-target'
+      addObjectToGroup(entity, light)
       return () => {
-        removeObjectFromGroup(entity, lightObj)
+        removeObjectFromGroup(entity, light)
       }
     }, [])
 
     useEffect(() => {
-      light.light.value.color.set(light.color.value)
-      const helperEntity = light.helperEntity.value
+      light.color.set(spotLightComponent.color.value)
+      const helperEntity = spotLightComponent.helperEntity.value
       if (helperEntity) {
         const helper = getComponent(helperEntity, GroupComponent)[0] as any as Mesh<BufferGeometry, MeshBasicMaterial>
-        helper.material.color.set(light.color.value)
+        helper.material.color.set(spotLightComponent.color.value)
       }
-    }, [light.color])
+    }, [spotLightComponent.color])
 
     useEffect(() => {
-      light.light.value.intensity = light.intensity.value
-    }, [light.intensity])
+      light.intensity = spotLightComponent.intensity.value
+    }, [spotLightComponent.intensity])
 
     useEffect(() => {
-      light.light.value.distance = light.range.value
-    }, [light.range])
+      light.distance = spotLightComponent.range.value
+    }, [spotLightComponent.range])
 
     useEffect(() => {
-      light.light.value.decay = light.decay.value
-    }, [light.decay])
+      light.decay = spotLightComponent.decay.value
+    }, [spotLightComponent.decay])
 
     useEffect(() => {
-      light.light.value.angle = light.angle.value
-    }, [light.angle])
+      light.angle = spotLightComponent.angle.value
+    }, [spotLightComponent.angle])
 
     useEffect(() => {
-      light.light.value.penumbra = light.penumbra.value
-    }, [light.penumbra])
+      light.penumbra = spotLightComponent.penumbra.value
+    }, [spotLightComponent.penumbra])
 
     useEffect(() => {
-      light.light.value.shadow.bias = light.shadowBias.value
-    }, [light.shadowBias])
+      light.shadow.bias = spotLightComponent.shadowBias.value
+    }, [spotLightComponent.shadowBias])
 
     useEffect(() => {
-      light.light.value.shadow.radius = light.shadowRadius.value
-    }, [light.shadowRadius])
+      light.shadow.radius = spotLightComponent.shadowRadius.value
+    }, [spotLightComponent.shadowRadius])
 
     useEffect(() => {
-      light.light.value.castShadow = light.castShadow.value
-    }, [light.castShadow])
+      light.castShadow = spotLightComponent.castShadow.value
+    }, [spotLightComponent.castShadow])
 
     useEffect(() => {
-      if (light.light.value.shadow.mapSize.x !== renderState.shadowMapResolution.value) {
-        light.light.value.shadow.mapSize.set(
-          renderState.shadowMapResolution.value,
-          renderState.shadowMapResolution.value
-        )
-        light.light.value.shadow.map?.dispose()
-        light.light.value.shadow.map = null as any
-        light.light.value.shadow.camera.updateProjectionMatrix()
-        light.light.value.shadow.needsUpdate = true
+      if (light.shadow.mapSize.x !== renderState.shadowMapResolution.value) {
+        light.shadow.mapSize.set(renderState.shadowMapResolution.value, renderState.shadowMapResolution.value)
+        light.shadow.map?.dispose()
+        light.shadow.map = null as any
+        light.shadow.camera.updateProjectionMatrix()
+        light.shadow.needsUpdate = true
       }
     }, [renderState.shadowMapResolution])
 
     useEffect(() => {
       if (!debugEnabled.value) return
-      const ringGeom = new TorusGeometry(0.1, 0.025, 8, 12)
-      const coneGeom = new ConeGeometry(0.25, 0.5, 8, 1, true)
-      coneGeom.translate(0, -0.25, 0)
-      coneGeom.rotateX(-Math.PI / 2)
-      const geom = mergeBufferGeometries([ringGeom, coneGeom])!
-      const helper = new Mesh(
-        geom,
-        new MeshBasicMaterial({ fog: false, transparent: true, opacity: 0.5, side: DoubleSide })
-      )
+      const [helper, unload] = getObj(Mesh, entity, geom, helperMaterial)
       helper.name = `spotlight-helper-${entity}`
 
       const helperEntity = createEntity()
@@ -193,15 +188,16 @@ export const SpotLightComponent = defineComponent({
 
       helper.layers.set(ObjectLayers.NodeHelper)
 
-      light.helperEntity.set(helperEntity)
+      spotLightComponent.helperEntity.set(helperEntity)
 
       return () => {
         removeEntity(helperEntity)
-        light.helperEntity.set(none)
+        spotLightComponent.helperEntity.set(none)
+        unload()
       }
     }, [debugEnabled])
 
-    useUpdateLight(light.light.value)
+    useUpdateLight(light)
 
     return null
   }

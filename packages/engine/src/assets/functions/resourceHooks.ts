@@ -304,15 +304,20 @@ export async function getTextureAsync(
 
 /**
  *
- * Object3D loader hook for creating an instance of a class that extends Object3D,
- * but has it's lifecycle managed by the resource manager
+ * Object3D loader hook for creating an instance of a class that extends Object3D in a React context,
+ * but has it's lifecycle managed by the ResourceManager in ResourceState.ts
  *
  * @param object3D A class that extends Object3D eg. DirectionalLight
  * @param entity *Optional* the entity that is loading the object
+ * @param args *Optional* arguments to pass to the constructor of object3D
  * @returns A unique instance of the class that is passed in for object3D
  */
-export function useObj<T extends Object3D>(object3D: { new (): T }, entity: Entity = UndefinedEntity): [T, () => void] {
-  const objState = useHookstate<T>(() => ResourceManager.loadObj(object3D, entity))
+export function useObj<T extends Object3D>(
+  object3D: { new (): T },
+  entity: Entity = UndefinedEntity,
+  ...args: any[]
+): [T, () => void] {
+  const objState = useHookstate<T>(() => ResourceManager.loadObj(object3D, entity, ...args))
 
   const unload = () => {
     if (objState.value) {
@@ -325,6 +330,31 @@ export function useObj<T extends Object3D>(object3D: { new (): T }, entity: Enti
   }, [])
 
   return [objState.get(NO_PROXY), unload]
+}
+
+/**
+ *
+ * Object3D loader hook for creating an instance of a class that extends Object3D in a non-React context,
+ * Tracked by the ResourceManager in ResourceState.ts, but will not be unloaded unless the unload function that is returned is called
+ * Useful for when you only want to create the object if a condition is met (eg. is debug enabled)
+ *
+ * @param object3D A class that extends Object3D eg. DirectionalLight
+ * @param entity *Optional* the entity that is loading the object
+ * @param args *Optional* arguments to pass to the constructor of object3D
+ * @returns A unique instance of the class that is passed in for object3D and a callback to unload the object
+ */
+export function getObj<T extends Object3D>(
+  object3D: { new (): T },
+  entity: Entity = UndefinedEntity,
+  ...args: any[]
+): [T, () => void] {
+  const obj = ResourceManager.loadObj(object3D, entity, ...args)
+
+  const unload = () => {
+    ResourceManager.unload(obj.uuid, entity)
+  }
+
+  return [obj, unload]
 }
 
 /**
