@@ -61,7 +61,7 @@ export default function Recordings() {
             }}
             className="dark:bg-[#1A1B1E]"
             containerClassName="w-1/5 block"
-            icon={<HiMagnifyingGlass />}
+            startComponent={<HiMagnifyingGlass />}
           />
         </div>
       </div>
