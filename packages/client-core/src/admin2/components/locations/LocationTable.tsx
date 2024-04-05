@@ -32,6 +32,7 @@ import { PopoverState } from '@etherealengine/client-core/src/common/services/Po
 import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { HiPencil, HiTrash } from 'react-icons/hi2'
 import { userHasAccess } from '../../../user/userHasAccess'
 import DataTable from '../../common/Table'
@@ -81,17 +82,21 @@ export default function LocationTable({ search }: { search: string }) {
         : t('admin:components.common.no'),
       action: (
         <div className="flex items-center justify-start gap-3">
-          <button
+          <Button
+            rounded
+            variant="outline"
+            className="h-8 w-8"
             disabled={!userHasAccess('location:write')}
             title={t('admin:components.common.view')}
-            className="border-theme-primary grid h-8 w-8 rounded-full border"
             onClick={() => PopoverState.showPopupover(<AddEditLocationModal location={row} />)}
           >
             <HiPencil className="text-theme-iconGreen place-self-center" />
-          </button>
-          <button
+          </Button>
+          <Button
+            rounded
+            variant="outline"
+            className="h-8 w-8"
             title={t('admin:components.common.delete')}
-            className="border-theme-primary grid h-8 w-8 rounded-full border"
             onClick={() =>
               PopoverState.showPopupover(
                 <ConfirmDialog
@@ -104,7 +109,7 @@ export default function LocationTable({ search }: { search: string }) {
             }
           >
             <HiTrash className="text-theme-iconRed place-self-center" />
-          </button>
+          </Button>
         </div>
       )
     }))
