@@ -45,7 +45,7 @@ const Redis = () => {
   return (
     <Box>
       <Typography component="h1" className={styles.settingsHeading}>
-        {t('admin:components.setting.redis')}
+        {t('admin:components.setting.redis.header')}
       </Typography>
       <InputSwitch
         name="enabled"
