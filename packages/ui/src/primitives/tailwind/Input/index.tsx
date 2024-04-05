@@ -39,6 +39,7 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   disabled?: boolean
   startComponent?: JSX.Element
   endComponent?: JSX.Element
+  onEndIconClick?: (e: any) => void
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -56,6 +57,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       disabled,
       startComponent,
       endComponent,
+      onEndIconClick,
       ...props
     },
     ref
@@ -93,7 +95,11 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           />
 
           {endComponent && (
-            <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-3.5">{endComponent}</div>
+            <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-3.5">
+              <div onClick={onEndIconClick} className={onEndIconClick ? 'cursor-pointer' : ''}>
+                {endComponent}
+              </div>
+            </div>
           )}
         </div>
         {description && <p className="text-theme-secondary self-stretch text-xs">{description}</p>}
