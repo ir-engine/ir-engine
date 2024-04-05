@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
+  Engine,
   UndefinedEntity,
   createEntity,
   defineComponent,
@@ -38,6 +39,7 @@ import { InputComponent } from '@etherealengine/spatial/src/input/components/Inp
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformGizmoTagComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { useEffect } from 'react'
 import {
@@ -396,6 +398,7 @@ export const TransformGizmoVisualComponent = defineComponent({
         addObjectToGroup(gizmo[mode], gizmoObject[mode])
         setComponent(gizmo[mode], TransformGizmoTagComponent)
         setComponent(gizmo[mode], VisibleComponent)
+        setComponent(gizmo[mode], EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
 
         visualComponent.gizmo[mode].set(gizmo[mode])
 
@@ -403,6 +406,7 @@ export const TransformGizmoVisualComponent = defineComponent({
         addObjectToGroup(helper[mode], helperObject[mode])
         setComponent(helper[mode], TransformGizmoTagComponent)
         setComponent(helper[mode], VisibleComponent)
+        setComponent(helper[mode], EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
 
         visualComponent.helper[mode].set(helper[mode])
 
@@ -411,6 +415,7 @@ export const TransformGizmoVisualComponent = defineComponent({
         addObjectToGroup(picker[mode], pickerObject[mode])
         setComponent(picker[mode], TransformGizmoTagComponent)
         setComponent(picker[mode], VisibleComponent)
+        setComponent(picker[mode], EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
 
         visualComponent.picker[mode].set(picker[mode])
 
