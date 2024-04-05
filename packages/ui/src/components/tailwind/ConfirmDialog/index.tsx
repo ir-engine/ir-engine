@@ -25,10 +25,15 @@ Ethereal Engine. All Rights Reserved.
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { t } from 'i18next'
 import React from 'react'
-import Modal from '../../../primitives/tailwind/Modal'
+import Modal, { ModalProps } from '../../../primitives/tailwind/Modal'
 import Text from '../../../primitives/tailwind/Text'
 
-const showConfirmDialog = (text: string, onSubmit: () => void, modalProcessing?: boolean) => {
+const showConfirmDialog = (
+  text: string,
+  onSubmit: () => void,
+  modalProcessing?: boolean,
+  modalProps?: Partial<ModalProps>
+) => {
   PopoverState.showPopupover(
     <Modal
       title={t('admin:components.common.confirmation')}
@@ -37,6 +42,7 @@ const showConfirmDialog = (text: string, onSubmit: () => void, modalProcessing?:
       hideFooter={modalProcessing}
       className="w-[50vw] max-w-2xl"
       submitLoading={modalProcessing}
+      {...modalProps}
     >
       <Text>{text}</Text>
     </Modal>
