@@ -29,7 +29,7 @@ import { Quaternion, Vector3 } from 'three'
 import { EntityUUID } from '@etherealengine/ecs'
 import { ReactorReconciler, applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { AvatarID, SceneID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { SystemDefinitions } from '@etherealengine/ecs'
 import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
@@ -47,6 +47,7 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { act, render } from '@testing-library/react'
 import React from 'react'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
+import { SceneState } from '../../scene/SceneState'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -95,6 +96,7 @@ describe('spawnAvatarReceptor', () => {
     // mock entity to apply incoming unreliable updates to
     dispatchAction(
       AvatarNetworkAction.spawn({
+        parentUUID: SceneState.getScene('test' as SceneID).scene.root,
         position: new Vector3(),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,

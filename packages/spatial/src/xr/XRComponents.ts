@@ -309,7 +309,7 @@ export const XRSpaceComponent = defineComponent({
     let parentEntity = UndefinedEntity
     switch (args.baseSpace) {
       case ReferenceSpace.localFloor:
-        parentEntity = Engine.instance.originEntity
+        parentEntity = Engine.instance.localFloorEntity
         break
       case ReferenceSpace.viewer:
         parentEntity = Engine.instance.cameraEntity

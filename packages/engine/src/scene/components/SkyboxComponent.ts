@@ -27,13 +27,19 @@ import { useEffect } from 'react'
 import { Color, CubeReflectionMapping, CubeTexture, EquirectangularReflectionMapping, SRGBColorSpace } from 'three'
 
 import { config } from '@etherealengine/common/src/config'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs'
+import {
+  defineComponent,
+  getComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { BackgroundComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { useTexture } from '../../assets/functions/resourceHooks'
 import { Sky } from '../classes/Sky'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'
@@ -82,8 +88,9 @@ export const SkyboxComponent = defineComponent({
     }
   },
 
+  /** @todo remove this wil proper useEffect cleanups, after resource reworking callbacks */
   onRemove: (entity, component) => {
-    getMutableState(SceneState).background.set(null)
+    removeComponent(entity, BackgroundComponent)
   },
 
   reactor: function () {
@@ -91,7 +98,6 @@ export const SkyboxComponent = defineComponent({
     if (!isClient) return null
 
     const skyboxState = useComponent(entity, SkyboxComponent)
-    const background = useHookstate(getMutableState(SceneState).background)
 
     const [texture, error] = useTexture(skyboxState.equirectangularPath.value, entity)
 
@@ -101,7 +107,7 @@ export const SkyboxComponent = defineComponent({
       if (texture) {
         texture.colorSpace = SRGBColorSpace
         texture.mapping = EquirectangularReflectionMapping
-        background.set(texture)
+        setComponent(entity, BackgroundComponent, texture)
         removeError(entity, SkyboxComponent, 'FILE_ERROR')
       } else if (error) {
         addError(entity, SkyboxComponent, 'FILE_ERROR', error.message)
@@ -110,7 +116,7 @@ export const SkyboxComponent = defineComponent({
 
     useEffect(() => {
       if (skyboxState.backgroundType.value !== SkyTypeEnum.color) return
-      background.set(skyboxState.backgroundColor.value)
+      setComponent(entity, BackgroundComponent, skyboxState.backgroundColor.value)
     }, [skyboxState.backgroundType, skyboxState.backgroundColor])
 
     useEffect(() => {
@@ -118,7 +124,7 @@ export const SkyboxComponent = defineComponent({
       const onLoad = (texture: CubeTexture) => {
         texture.colorSpace = SRGBColorSpace
         texture.mapping = CubeReflectionMapping
-        background.set(texture)
+        setComponent(entity, BackgroundComponent, texture)
         removeError(entity, SkyboxComponent, 'FILE_ERROR')
       }
       const loadArgs: [
@@ -132,6 +138,7 @@ export const SkyboxComponent = defineComponent({
         undefined,
         (error) => addError(entity, SkyboxComponent, 'FILE_ERROR', error.message)
       ]
+      /** @todo replace this with useCubemap */
       loadCubeMapTexture(...loadArgs)
     }, [skyboxState.backgroundType, skyboxState.cubemapPath])
 
@@ -154,9 +161,12 @@ export const SkyboxComponent = defineComponent({
       sky.turbidity = skyboxState.skyboxProps.value.turbidity
       sky.luminance = skyboxState.skyboxProps.value.luminance
 
-      const texture = sky.generateSkyboxTextureCube(EngineRenderer.instance.renderer)
+      const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
+
+      const texture = sky.generateSkyboxTextureCube(renderer.renderer)
       texture.mapping = CubeReflectionMapping
-      background.set(texture)
+
+      setComponent(entity, BackgroundComponent, texture)
       sky.dispose()
     }, [
       skyboxState.backgroundType,

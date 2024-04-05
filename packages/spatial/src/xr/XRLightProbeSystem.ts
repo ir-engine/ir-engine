@@ -28,12 +28,13 @@ import { Color, CubeTexture, LightProbe, Vector3, WebGLCubeRenderTarget } from '
 
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { Engine } from '@etherealengine/ecs'
 import { getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { V_000 } from '../common/constants/MathConstants'
-import { EngineRenderer } from '../renderer/WebGLRendererSystem'
+import { RendererComponent } from '../renderer/WebGLRendererSystem'
 import { DirectionalLightComponent } from '../renderer/components/DirectionalLightComponent'
 import { addObjectToGroup } from '../renderer/components/GroupComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
@@ -81,7 +82,9 @@ const updateReflection = () => {
 
   if (!xrLightProbeState.environment || !xrLightProbeState.xrWebGLBinding || !xrLightProbeState.probe) return
 
-  const textureProperties = EngineRenderer.instance.renderer.properties.get(xrLightProbeState.environment)
+  const textureProperties = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.properties.get(
+    xrLightProbeState.environment
+  )
 
   if (textureProperties) {
     const cubeMap = xrLightProbeState.xrWebGLBinding!.getReflectionCubeMap?.(xrLightProbeState.probe)
@@ -216,7 +219,7 @@ const reactor = () => {
       const cubeRenderTarget = new WebGLCubeRenderTarget(16)
       xrLightProbeState.environment.set(cubeRenderTarget.texture)
 
-      const gl = EngineRenderer.instance.renderer.getContext()
+      const gl = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.getContext()
 
       // Ensure that we have any extensions needed to use the preferred cube map format.
       switch (session.preferredReflectionFormat) {

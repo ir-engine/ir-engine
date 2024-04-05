@@ -63,7 +63,9 @@ import {
   NetworkTopics,
   WorldNetworkAction
 } from '@etherealengine/network'
+import { ClientInputSystem } from '@etherealengine/spatial'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
@@ -362,18 +364,6 @@ const onGrab = (targetEntity: Entity, handedness = getState(InputState).preferre
 const execute = () => {
   if (getState(EngineState).isEditor) return
 
-  const buttons = InputSourceComponent.getMergedButtons()
-  if (buttons.KeyU?.down) onDrop()
-
-  /** @todo this should move to input group */
-  const nonCapturedInputSources = InputSourceComponent.nonCapturedInputSources()
-  for (const entity of nonCapturedInputSources) {
-    const inputSource = getComponent(entity, InputSourceComponent)
-    /** @todo currently mouse has to be over the grabbable for it to be grabbed */
-    if (buttons.KeyE?.down || inputSource.buttons[XRStandardGamepadButton.Trigger]?.down)
-      onGrab(getState(InteractState).available[0], inputSource.source.handedness === 'left' ? 'left' : 'right')
-  }
-
   for (const action of transferAuthorityOfObjectQueue()) transferAuthorityOfObjectReceptor(action)
 
   /**
@@ -394,8 +384,31 @@ const execute = () => {
   }
 }
 
+const executeInput = () => {
+  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  if (!inputPointerEntity) return
+
+  const buttons = InputSourceComponent.getMergedButtons()
+  if (buttons.KeyU?.down) onDrop()
+
+  /** @todo this should move to input group */
+  const nonCapturedInputSources = InputSourceComponent.nonCapturedInputSources()
+  for (const entity of nonCapturedInputSources) {
+    const inputSource = getComponent(entity, InputSourceComponent)
+    /** @todo currently mouse has to be over the grabbable for it to be grabbed */
+    if (buttons.KeyE?.down || inputSource.buttons[XRStandardGamepadButton.Trigger]?.down)
+      onGrab(getState(InteractState).available[0], inputSource.source.handedness === 'left' ? 'left' : 'right')
+  }
+}
+
 export const GrabbableSystem = defineSystem({
   uuid: 'ee.engine.GrabbableSystem',
   insert: { with: SimulationSystemGroup },
   execute
+})
+
+export const GrabbableInputSystem = defineSystem({
+  uuid: 'ee.engine.GrabbableInputSystem',
+  insert: { after: ClientInputSystem },
+  execute: executeInput
 })

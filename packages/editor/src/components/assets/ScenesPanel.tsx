@@ -36,7 +36,7 @@ import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { SceneDataType, SceneID } from '@etherealengine/common/src/schema.type.module'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { TabData } from 'rc-dock'
 import { deleteScene, getScenes, onNewScene, renameScene, setSceneInState } from '../../functions/sceneFunctions'

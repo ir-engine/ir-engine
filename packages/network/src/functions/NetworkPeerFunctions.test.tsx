@@ -27,7 +27,7 @@ import assert from 'assert'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { InstanceID, UserID } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
 import { PeerID, applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
@@ -153,6 +153,7 @@ describe('NetworkPeerFunctions', () => {
 
       dispatchAction(
         SpawnObjectActions.spawnObject({
+          parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
           ownerID: userId, // from  user
           networkId: networkId,
           $peer: anotherPeerID,

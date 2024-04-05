@@ -117,7 +117,6 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   setComponent(entity, GrabberComponent)
   setComponent(entity, AvatarRigComponent)
 
-  setComponent(entity, EntityTreeComponent)
   setComponent(entity, InputComponent)
 }
 

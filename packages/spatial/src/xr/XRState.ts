@@ -28,7 +28,6 @@ import matches from 'ts-matches'
 
 import { defineAction, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEffect } from 'react'
 import { DepthDataTexture } from './DepthDataTexture'
 
@@ -73,7 +72,6 @@ export const XRState = defineState({
       /** Stores the depth map data - will exist if depth map is supported */
       depthDataTexture: null as DepthDataTexture | null,
       is8thWallActive: false,
-      viewerInputSourceEntity: 0 as Entity,
       viewerPose: null as XRViewerPose | null | undefined,
       /** @todo replace with proper proportions API */
       userEyeHeight: 1.75,

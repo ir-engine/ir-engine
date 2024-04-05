@@ -34,7 +34,6 @@ import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { StandardCallbacks, setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { MediaComponent } from '../../scene/components/MediaComponent'
 import { VideoComponent, VideoTexturePriorityQueueState } from '../../scene/components/VideoComponent'
@@ -154,15 +153,15 @@ const reactor = () => {
       window.removeEventListener('pointerup', handleAutoplay)
       window.removeEventListener('keypress', handleAutoplay)
       window.removeEventListener('touchend', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.removeEventListener('pointerup', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.removeEventListener('touchend', handleAutoplay)
+      window.removeEventListener('pointerup', handleAutoplay)
+      window.removeEventListener('touchend', handleAutoplay)
     }
     // TODO: add destroy callbacks
     window.addEventListener('pointerup', handleAutoplay)
     window.addEventListener('keypress', handleAutoplay)
     window.addEventListener('touchend', handleAutoplay)
-    EngineRenderer.instance.renderer.domElement.addEventListener('pointerup', handleAutoplay)
-    EngineRenderer.instance.renderer.domElement.addEventListener('touchend', handleAutoplay)
+    window.addEventListener('pointerup', handleAutoplay)
+    window.addEventListener('touchend', handleAutoplay)
 
     return () => {
       for (const sound of Object.values(AudioEffectPlayer.SOUNDS)) delete AudioEffectPlayer.instance.bufferMap[sound]
