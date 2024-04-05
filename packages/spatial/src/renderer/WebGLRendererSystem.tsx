@@ -34,6 +34,7 @@ import {
   defineQuery,
   defineSystem,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   useComponent,
   useEntityContext
@@ -100,6 +101,7 @@ const _scene = new Scene()
 _scene.matrixAutoUpdate = false
 _scene.matrixWorldAutoUpdate = false
 _scene.layers.set(ObjectLayers.Scene)
+globalThis._scene = _scene
 
 export class EngineRenderer {
   /** @deprecated will be removed once threejs objects are not proxified. Should only be used in loadGLTFModel.ts */
@@ -324,8 +326,7 @@ export const PostProcessingSettingsState = defineState({
 
 const rendererQuery = defineQuery([RendererComponent, CameraComponent, SceneComponent])
 
-export const filterVisible = (entity: Entity) =>
-  hasComponent(entity, VisibleComponent) && hasComponent(entity, GroupComponent)
+export const filterVisible = (entity: Entity) => hasComponent(entity, VisibleComponent)
 export const getNestedVisibleChildren = (entity: Entity) => getNestedChildren(entity, filterVisible)
 
 const execute = () => {
@@ -352,7 +353,10 @@ const execute = () => {
         fog = getComponent(entity, FogComponent)
       }
     }
-    const objects = entitiesToRender.map((entity) => getComponent(entity, GroupComponent)).flat()
+    const objects = entitiesToRender
+      .map((entity) => getOptionalComponent(entity, GroupComponent)!)
+      .flat()
+      .filter(Boolean)
 
     _scene.children = objects
 

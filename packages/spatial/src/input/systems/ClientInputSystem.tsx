@@ -119,7 +119,7 @@ export function updateGamepadInput(eid: Entity) {
 
 const pointers = defineQuery([InputPointerComponent, InputSourceComponent, Not(XRSpaceComponent)])
 const xrSpaces = defineQuery([XRSpaceComponent, TransformComponent])
-const inputSources = defineQuery([InputSourceComponent])
+const inputSources = defineQuery([InputSourceComponent, TransformComponent])
 const inputs = defineQuery([InputComponent])
 
 const inputXRUIs = defineQuery([InputComponent, VisibleComponent, XRUIComponent])
