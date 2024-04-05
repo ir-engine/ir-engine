@@ -20,14 +20,17 @@ Ethereal Engine. All Rights Reserved.
 
 import { UserType, userPath } from '@etherealengine/common/src/schema.type.module'
 import { State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import AvatarImage from '@etherealengine/ui/src/primitives/tailwind/AvatarImage'
 import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiPencil, HiTrash } from 'react-icons/hi2'
 
+import { UserParams } from '@etherealengine/server-core/src/user/user/user.class'
+import showConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import { Id, NullableId } from '@feathersjs/feathers'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { AuthState } from '../../../user/services/AuthService'
 import { userHasAccess } from '../../../user/userHasAccess'
@@ -35,7 +38,25 @@ import DataTable from '../../common/Table'
 import { UserRowType, userColumns } from '../../common/constants/user'
 import AccountIdentifiers from './AccountIdentifiers'
 import AddEditUserModal from './AddEditUserModal'
-import RemoveUserModal from './RemoveUserModal'
+
+export const removeUsers = async (
+  modalProcessing: State<boolean>,
+  adminUserRemove: {
+    (id: Id, params?: UserParams | undefined): Promise<UserType>
+    (id: null, params?: UserParams | undefined): Promise<UserType[]>
+    (id: NullableId, params?: UserParams | undefined): Promise<any>
+  },
+  users: UserType[]
+) => {
+  modalProcessing.set(true)
+  await Promise.all(
+    users.map((user) => {
+      adminUserRemove(user.id)
+    })
+  )
+  PopoverState.hidePopupover()
+  modalProcessing.set(false)
+}
 
 export default function UserTable({
   search,
@@ -67,6 +88,9 @@ export default function UserTable({
     },
     search
   )
+
+  const adminUserRemove = useMutation(userPath).remove
+  const modalProcessing = useHookstate(false)
 
   const createRows = (rows: readonly UserType[]): UserRowType[] =>
     rows.map((row) => {
@@ -112,7 +136,13 @@ export default function UserTable({
               className="h-8 w-8"
               disabled={user.id.value === row.id}
               title={t('admin:components.common.delete')}
-              onClick={() => PopoverState.showPopupover(<RemoveUserModal users={[row]} />)}
+              onClick={() => {
+                showConfirmDialog(
+                  `${t('admin:components.user.confirmUserDelete')} '${row.name}'?`,
+                  () => removeUsers(modalProcessing, adminUserRemove, [row]),
+                  modalProcessing.value
+                )
+              }}
             >
               <HiTrash className="text-theme-iconRed place-self-center" />
             </Button>
