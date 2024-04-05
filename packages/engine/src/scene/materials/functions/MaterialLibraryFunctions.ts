@@ -27,14 +27,15 @@ import { Color, Material, Texture } from 'three'
 
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
-import { Entity, defineQuery } from '@etherealengine/ecs'
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { SceneID } from '@etherealengine/common/src/schema.type.module'
+import { Entity, EntityUUID, UUIDComponent, createEntity, defineQuery } from '@etherealengine/ecs'
+import { getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { stringHash } from '@etherealengine/spatial/src/common/functions/MathFunctions'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { SourceComponent } from '../../components/SourceComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
 import { MaterialSelectionState } from '../MaterialLibraryState'
-import { MaterialComponentType } from '../components/MaterialComponent'
+import { MaterialComponent, MaterialComponentType } from '../components/MaterialComponent'
 import { MaterialPrototypeComponentType } from '../components/MaterialPrototypeComponent'
 import { MaterialSource, MaterialSourceComponentType } from '../components/MaterialSource'
 import { LibraryEntryType } from '../constants/LibraryEntry'
@@ -206,33 +207,37 @@ export function registerMaterial(material: Material, src: MaterialSource, params
       ...materialLibrary.sources[hashMaterialSource(src)].entries.value,
       material.uuid
     ])
-  try {
-    const prototype = prototypeFromId(prototypeId)
-    const parameters =
-      params ?? Object.fromEntries(Object.keys(extractDefaults(prototype.arguments)).map((k) => [k, material[k]]))
-    materialLibrary.materials[material.uuid].set({
-      material,
-      parameters,
-      plugins: [],
-      prototype: prototype.prototypeId,
-      src,
-      status: 'LOADED',
-      instances: []
-    })
-  } catch (error) {
-    if (error instanceof PrototypeNotFoundError) {
-      console.warn('material prototype ' + prototypeId + ' not found, registering as missing material')
-      materialLibrary.materials[material.uuid].set({
-        material,
-        parameters: params ?? {},
-        plugins: [],
-        prototype: prototypeId,
-        src,
-        status: 'MISSING',
-        instances: []
-      })
-    } else throw error
-  }
+  const materialEntity = createEntity()
+  setComponent(materialEntity, MaterialComponent, { material })
+  setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
+  setComponent(materialEntity, SourceComponent, src.path as SceneID)
+  // try {
+  //   const prototype = prototypeFromId(prototypeId)
+  //   const parameters =
+  //     params ?? Object.fromEntries(Object.keys(extractDefaults(prototype.arguments)).map((k) => [k, material[k]]))
+  //   materialLibrary.materials[material.uuid].set({
+  //     material,
+  //     parameters,
+  //     plugins: [],
+  //     prototype: prototype.prototypeId,
+  //     src,
+  //     status: 'LOADED',
+  //     instances: []
+  //   })
+  // } catch (error) {
+  //   if (error instanceof PrototypeNotFoundError) {
+  //     console.warn('material prototype ' + prototypeId + ' not found, registering as missing material')
+  //     materialLibrary.materials[material.uuid].set({
+  //       material,
+  //       parameters: params ?? {},
+  //       plugins: [],
+  //       prototype: prototypeId,
+  //       src,
+  //       status: 'MISSING',
+  //       instances: []
+  //     })
+  //   } else throw error
+  // }
 
   return materialLibrary.materials[material.uuid]
 }
@@ -274,8 +279,8 @@ export function registerMaterialPrototype(prototype: MaterialPrototypeComponentT
 }
 
 export function registerMaterialInstance(material: Material, entity: Entity) {
-  const materialLibrary = getMutableState(MaterialLibraryState)
-  const materialComponent = materialLibrary.materials[material.uuid]
+  const materialEntity = UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)
+  const materialComponent = getMutableComponent(materialEntity, MaterialComponent)
   materialComponent.instances.set([...materialComponent.instances.value, entity])
 }
 
