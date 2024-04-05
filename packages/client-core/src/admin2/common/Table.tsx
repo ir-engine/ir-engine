@@ -107,7 +107,10 @@ const DataTable = ({ query, columns, rows }: DataTableProps) => {
   return !storedRows.fetched.value ? (
     <div className="flex animate-pulse flex-col gap-2">
       {Array.from({ length: 20 }, (_, i) => i).map((idx) => (
-        <div key={idx} className="h-12 w-full odd:bg-gray-300 even:bg-gray-200" />
+        <div
+          key={idx}
+          className="h-12 w-full odd:bg-gray-300 even:bg-gray-200 dark:odd:bg-gray-800 dark:even:bg-gray-700"
+        />
       ))}
     </div>
   ) : (
