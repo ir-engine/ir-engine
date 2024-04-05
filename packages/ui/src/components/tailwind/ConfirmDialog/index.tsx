@@ -23,30 +23,46 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { useHookstate } from '@etherealengine/hyperflux'
 import { t } from 'i18next'
 import React from 'react'
 import Modal, { ModalProps } from '../../../primitives/tailwind/Modal'
 import Text from '../../../primitives/tailwind/Text'
 
-const showConfirmDialog = (
-  text: string,
-  onSubmit: () => void,
-  modalProcessing?: boolean,
+interface ConfirmDialogProps {
+  text: string
+  onSubmit: () => Promise<void>
   modalProps?: Partial<ModalProps>
-) => {
-  PopoverState.showPopupover(
+}
+
+export const ConfirmDialog = ({ text, onSubmit, modalProps }: ConfirmDialogProps) => {
+  const errorText = useHookstate('')
+  const modalProcessing = useHookstate(false)
+
+  const handled = async () => {
+    try {
+      await onSubmit()
+      PopoverState.hidePopupover()
+    } catch (error) {
+      errorText.set(error.message)
+    }
+  }
+
+  return (
     <Modal
       title={t('admin:components.common.confirmation')}
-      onSubmit={onSubmit}
-      onClose={!modalProcessing ? () => PopoverState.hidePopupover() : undefined}
-      hideFooter={modalProcessing}
+      onSubmit={handled}
+      onClose={PopoverState.hidePopupover}
       className="w-[50vw] max-w-2xl"
-      submitLoading={modalProcessing}
+      submitLoading={modalProcessing.value}
       {...modalProps}
     >
-      <Text>{text}</Text>
+      <div className="flex flex-col items-center gap-2">
+        <Text>{text}</Text>
+        {errorText.value && <Text className="text-red-700	">{errorText.value}</Text>}
+      </div>
     </Modal>
   )
 }
 
-export default showConfirmDialog
+export default ConfirmDialog

@@ -59,7 +59,7 @@ export default function RemoveChannelModal({ channels }: { channels: ChannelType
       onClose={PopoverState.hidePopupover}
       submitLoading={modalProcessing.value}
     >
-      {error.value && <p className="mb-3 text-rose-800">{error.value}</p>}
+      {error.value && <p className="mb-3 text-red-700">{error.value}</p>}
       <Text>
         {channels.length === 1
           ? `${t('admin:components.channel.confirmChannelDelete')} '${channels[0].name}'?`

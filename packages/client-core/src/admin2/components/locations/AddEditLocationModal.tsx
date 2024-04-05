@@ -132,7 +132,7 @@ export default function AddEditLocationModal({ location }: { location?: Location
       submitLoading={submitLoading.value}
     >
       <div className="relative grid w-full gap-6">
-        {errors.serverError.value && <p className="mb-3 text-rose-800">{errors.serverError.value}</p>}
+        {errors.serverError.value && <p className="mb-3 text-red-700">{errors.serverError.value}</p>}
         <Input
           label={t('admin:components.location.lbl-name')}
           value={name.value}

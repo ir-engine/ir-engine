@@ -227,7 +227,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
       }
     >
       <div className="grid gap-6">
-        {error.value && <p className="mt-2 text-rose-800">{error.serverError.value}</p>}
+        {error.value && <p className="mt-2 text-red-700">{error.serverError.value}</p>}
         <Input
           label={t('admin:components.common.name')}
           value={avatarAssets.name.value}
@@ -269,7 +269,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
             externalChildren={
               <>
                 {error.model.value && (
-                  <p className="absolute right-2 top-2 max-w-[50%] text-wrap text-rose-700">{error.model.value}</p>
+                  <p className="absolute right-2 top-2 max-w-[50%] text-wrap text-red-700">{error.model.value}</p>
                 )}
                 {avatarAssets.source.value === 'file' && (
                   <Button
@@ -326,7 +326,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
             externalChildren={
               <>
                 {error.thumbnail.value && (
-                  <p className="absolute right-2 top-2 max-w-[50%] text-wrap text-rose-700">{error.thumbnail.value}</p>
+                  <p className="absolute right-2 top-2 max-w-[50%] text-wrap text-red-700">{error.thumbnail.value}</p>
                 )}
                 {avatarAssets.source.value === 'file' && (
                   <Button

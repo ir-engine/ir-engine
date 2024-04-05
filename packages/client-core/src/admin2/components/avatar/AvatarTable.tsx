@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AvatarID, AvatarType, avatarPath } from '@etherealengine/common/src/schema.type.module'
@@ -31,7 +31,7 @@ import { AvatarID, AvatarType, avatarPath } from '@etherealengine/common/src/sch
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { UserName } from '@etherealengine/common/src/schema.type.module'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import showConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
+import { ConfirmDialog } from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import AvatarImage from '@etherealengine/ui/src/primitives/tailwind/AvatarImage'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
@@ -81,7 +81,13 @@ export default function AvatarTable({ search }: { search: string }) {
   }
 
   const adminAvatarRemove = useMutation(avatarPath).remove
-  const modalProcessing = useHookstate(false)
+  const errorText = useHookstate('')
+
+  useEffect(() => {
+    setTimeout(() => {
+      errorText.set('I AM ERROR')
+    }, 5000)
+  }, [])
 
   const createRows = (rows: readonly AvatarType[]): AvatarRowType[] =>
     rows.map((row) => ({
@@ -107,15 +113,13 @@ export default function AvatarTable({ search }: { search: string }) {
             className="h-8 w-8"
             title={t('admin:components.common.delete')}
             onClick={() => {
-              showConfirmDialog(
-                `${t('admin:components.avatar.confirmAvatarDelete')} '${row.name}'?`,
-                async () => {
-                  modalProcessing.set(true)
-                  await adminAvatarRemove(row.id)
-                  PopoverState.hidePopupover()
-                  modalProcessing.set(false)
-                },
-                modalProcessing.value
+              PopoverState.showPopupover(
+                <ConfirmDialog
+                  text={`${t('admin:components.avatar.confirmAvatarDelete')} '${row.name}'?`}
+                  onSubmit={async () => {
+                    await adminAvatarRemove(row.id)
+                  }}
+                />
               )
             }}
           >
