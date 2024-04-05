@@ -140,7 +140,7 @@ export class GLTFLoader extends Loader {
     })
   }
 
-  load(url, onLoad, onProgress, onError, signal?) {
+  load(url, onLoad, onProgress?, onError?, signal?) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const scope = this
 
