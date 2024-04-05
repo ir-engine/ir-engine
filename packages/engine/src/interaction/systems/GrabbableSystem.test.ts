@@ -27,7 +27,7 @@ import assert, { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
-import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { AvatarID, SceneID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID } from '@etherealengine/ecs'
 import {
   PeerID,
@@ -48,9 +48,11 @@ import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/componen
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { BodyTypes, Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
+import { SceneState } from '../../scene/SceneState'
 import { GrabbedComponent, GrabberComponent } from '../components/GrabbableComponent'
 import { dropEntity, grabEntity } from './GrabbableSystem'
 
@@ -63,6 +65,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     await Physics.load()
     Engine.instance.store.defaultDispatchDelay = () => 0
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
+    loadEmptyScene()
   })
 
   afterEach(() => {
@@ -82,6 +85,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
     dispatchAction(
       AvatarNetworkAction.spawn({
+        parentUUID: SceneState.getScene('test' as SceneID).scene.root,
         networkId: networkObject.networkId,
         position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942),
         rotation: new Quaternion(),

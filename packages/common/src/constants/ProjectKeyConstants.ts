@@ -28,6 +28,7 @@ Ethereal Engine. All Rights Reserved.
 export const assetsRegex = /projects\/[a-zA-Z0-9-_]+\/assets\//
 export const projectRegex = /projects\/[a-zA-Z0-9-_]+/
 export const projectPublicRegex = /projects\/[a-zA-Z0-9-_]+\/public\//
+export const projectThumbnailsRegex = /projects\/[a-zA-Z0-9-_]+\/thumbnails\//
 //FIXME: These should be removed once scenes and their assets like envmaps, loading screens, and thumbnails
 //are moved to the /public folder
 export const rootImageRegex = /projects\/[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_.]+.(jpg|jpeg|ktx2|png)/

@@ -81,7 +81,7 @@ export const updateHitTest = (entity: Entity) => {
   const pose = hitTestResults[0].getPose(ReferenceSpace.localFloor!)
   if (!pose) return
 
-  const parentEntity = Engine.instance.originEntity
+  const parentEntity = Engine.instance.localFloorEntity
   setComponent(entity, EntityTreeComponent, { parentEntity })
 
   const transform = getComponent(entity, TransformComponent)
@@ -193,7 +193,7 @@ export const XRAnchorSystemState = defineState({
     const scenePlacementEntity = createEntity()
     setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
     setComponent(scenePlacementEntity, TransformComponent)
-    setComponent(scenePlacementEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+    setComponent(scenePlacementEntity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
     setComponent(scenePlacementEntity, VisibleComponent, true)
     setComponent(scenePlacementEntity, InputComponent, { highlight: false, grow: false })
 
@@ -230,7 +230,7 @@ const execute = () => {
 
   for (const action of xrSessionChangedQueue()) {
     if (!action.active) {
-      setComponent(Engine.instance.originEntity, TransformComponent) // reset world origin
+      setComponent(Engine.instance.localFloorEntity, TransformComponent) // reset world origin
       getMutableState(XRState).scenePlacementMode.set('unplaced')
       for (const e of xrHitTestQuery()) removeComponent(e, XRHitTestComponent)
       for (const e of xrAnchorQuery()) removeComponent(e, XRAnchorComponent)

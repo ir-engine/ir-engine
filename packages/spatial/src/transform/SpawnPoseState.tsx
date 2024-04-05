@@ -23,16 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Quaternion, Vector3 } from 'three'
-
-import { EntityUUID } from '@etherealengine/ecs'
-
+import { EntityUUID, UUIDComponent, setComponent } from '@etherealengine/ecs'
 import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-
-import { UUIDComponent, setComponent } from '@etherealengine/ecs'
 import React, { useLayoutEffect } from 'react'
-import { TransformComponent } from '../SpatialModule'
+import { Quaternion, Vector3 } from 'three'
 import { SpawnObjectActions } from './SpawnObjectActions'
+import { TransformComponent } from './components/TransformComponent'
 
 export const SpawnPoseState = defineState({
   name: 'ee.SpawnPoseState',

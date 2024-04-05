@@ -130,11 +130,11 @@ const raycastComponentData = {
   groups: interactionGroups
 } as RaycastArgs
 
-const pointerQuery = defineQuery([InputPointerComponent])
-
 const onSecondaryClick = () => {
   const { physicsWorld } = getState(PhysicsState)
-  const pointerPosition = getComponent(pointerQuery()[0], InputPointerComponent).position
+  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  if (!inputPointerEntity) return
+  const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
   const hits = Physics.castRayFromCamera(
     getComponent(Engine.instance.cameraEntity, CameraComponent),
     pointerPosition,

@@ -32,7 +32,15 @@ import {
   userPath
 } from '@etherealengine/common/src/schema.type.module'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { ECSState, Engine, EntityUUID, PresentationSystemGroup, UUIDComponent, defineSystem } from '@etherealengine/ecs'
+import {
+  ECSState,
+  Engine,
+  EntityUUID,
+  PresentationSystemGroup,
+  UUIDComponent,
+  defineSystem,
+  getComponent
+} from '@etherealengine/ecs'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import {
   ECSDeserializer,
@@ -635,6 +643,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
             if (!UUIDComponent.getEntityByUUID(entityID) && isClone) {
               dispatchAction(
                 AvatarNetworkAction.spawn({
+                  parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
                   ownerID: entityID,
                   entityUUID: (entityID + '_avatar') as EntityUUID,
                   avatarID: user.avatar.id!,

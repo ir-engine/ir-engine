@@ -23,19 +23,57 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { WebGLRenderer } from 'three'
+import { Entity, defineComponent } from '@etherealengine/ecs'
+import { Color, CubeTexture, FogBase, Texture } from 'three'
 
-export const RendererComponent = defineComponent({
-  name: 'RendererComponent',
+export const SceneComponent = defineComponent({
+  name: 'SceneComponent',
 
-  onInit() {
+  onInit(entity) {
     return {
-      renderer: null! as WebGLRenderer
+      children: [] as Entity[]
     }
   },
 
   onSet(entity, component, json) {
-    json?.renderer && component.renderer.set(json.renderer)
+    if (!json) return
+
+    if (Array.isArray(json.children)) component.children.set(json.children)
+  }
+})
+
+export const BackgroundComponent = defineComponent({
+  name: 'BackgroundComponent',
+
+  onInit(entity) {
+    return null! as Color | Texture | CubeTexture
+  },
+
+  onSet(entity, component, json: Color | Texture | CubeTexture) {
+    if (typeof json === 'object') component.set(json)
+  }
+})
+
+export const EnvironmentMapComponent = defineComponent({
+  name: 'EnvironmentMapComponent',
+
+  onInit(entity) {
+    return null! as Texture
+  },
+
+  onSet(entity, component, json: Texture) {
+    if (typeof json === 'object') component.set(json)
+  }
+})
+
+export const FogComponent = defineComponent({
+  name: 'FogComponent',
+
+  onInit(entity) {
+    return null! as FogBase
+  },
+
+  onSet(entity, component, json: FogBase) {
+    if (typeof json === 'object') component.set(json)
   }
 })

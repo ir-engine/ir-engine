@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, UndefinedEntity } from '@etherealengine/ecs'
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity, defineComponent, defineQuery, getComponent } from '@etherealengine/ecs'
 import { Vector2 } from 'three'
 
 export const InputPointerComponent = defineComponent({
@@ -43,5 +42,11 @@ export const InputPointerComponent = defineComponent({
   onSet(entity, component, args: { pointerId: number; canvasEntity: Entity }) {
     component.pointerId.set(args.pointerId)
     component.canvasEntity.set(args.canvasEntity)
+  },
+
+  getPointerForCanvas(canvasEntity: Entity) {
+    return pointerQuery().find((entity) => getComponent(entity, InputPointerComponent).canvasEntity === canvasEntity)
   }
 })
+
+const pointerQuery = defineQuery([InputPointerComponent])
