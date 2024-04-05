@@ -32,7 +32,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 
-import { UndefinedEntity } from '@etherealengine/ecs'
+import { Engine, UndefinedEntity } from '@etherealengine/ecs'
 import { TransformPivot } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
@@ -72,7 +72,7 @@ export const TransformGizmoControlledComponent = defineComponent({
       setComponent(pivotEntity, NameComponent, 'gizmoPivotEntity')
       setComponent(pivotEntity, TransformComponent)
       setComponent(pivotEntity, VisibleComponent)
-      setComponent(pivotEntity, EntityTreeComponent)
+      setComponent(pivotEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
       setComponent(pivotEntity, TransformGizmoTagComponent)
 
       /*addObjectToGroup(
@@ -87,6 +87,9 @@ export const TransformGizmoControlledComponent = defineComponent({
       const gizmoControlEntity = createEntity()
       const gizmoVisualEntity = createEntity()
       const gizmoPlaneEntity = createEntity()
+      setComponent(gizmoControlEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+      setComponent(gizmoVisualEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+      setComponent(gizmoPlaneEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
 
       const controlledEntities = [entity]
       setComponent(gizmoControlEntity, NameComponent, 'gizmoControllerEntity')
