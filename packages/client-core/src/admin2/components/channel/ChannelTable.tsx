@@ -31,6 +31,7 @@ import { ChannelType, channelPath } from '@etherealengine/common/src/schema.type
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { State } from '@etherealengine/hyperflux'
 import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
 import { HiPencil, HiTrash } from 'react-icons/hi2'
 import { channelColumns } from '../../../admin/common/variables/channel'
@@ -87,20 +88,24 @@ export default function ChannelTable({
       name: row.name,
       action: (
         <div className="flex items-center justify-start gap-3">
-          <button
+          <Button
+            rounded
+            variant="outline"
+            className="h-8 w-8"
             title={t('admin:components.common.view')}
-            className="border-theme-primary grid h-8 w-8 rounded-full border"
             onClick={() => PopoverState.showPopupover(<AddEditChannelModal channel={row} />)}
           >
             <HiPencil className="text-theme-iconGreen place-self-center" />
-          </button>
-          <button
+          </Button>
+          <Button
+            rounded
+            variant="outline"
+            className="h-8 w-8"
             title={t('admin:components.common.delete')}
-            className="border-theme-primary grid h-8 w-8 rounded-full border disabled:opacity-50"
             onClick={() => PopoverState.showPopupover(<RemoveChannelModal channels={[row]} />)}
           >
             <HiTrash className="text-theme-iconRed place-self-center" />
-          </button>
+          </Button>
         </div>
       )
     }))
