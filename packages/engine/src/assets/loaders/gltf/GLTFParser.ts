@@ -102,6 +102,26 @@ function getImageURIMimeType(uri) {
   return 'image/png'
 }
 
+declare module '@gltf-transform/core/dist/types/gltf.d.ts' {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace GLTF {
+    interface INode {
+      isBone?: boolean
+    }
+    interface IMesh {
+      isSkinnedMesh?: boolean
+    }
+    interface IBuffer {
+      type?: string
+    }
+    interface IAnimation {
+      parameters?: any
+    }
+  }
+}
+
+/** Override GLTF.IGLTF types that threejs uses as temp defintions */
+
 const _identityMatrix = new Matrix4()
 
 /* GLTF PARSER */
@@ -158,12 +178,12 @@ export class GLTFParser {
 
     let isSafari = false
     let isFirefox = false
-    let firefoxVersion = -1
+    let firefoxVersion = -1 as any // ???
 
     if (typeof navigator !== 'undefined') {
       isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent) === true
       isFirefox = navigator.userAgent.indexOf('Firefox') > -1
-      firefoxVersion = isFirefox ? navigator.userAgent.match(/Firefox\/([0-9]+)\./)[1] : -1
+      firefoxVersion = isFirefox ? navigator.userAgent.match(/Firefox\/([0-9]+)\./)![1] : -1
     }
 
     if (typeof createImageBitmap === 'undefined' || isSafari || (isFirefox && firefoxVersion < 98)) {
@@ -192,6 +212,7 @@ export class GLTFParser {
   }
 
   parse(onLoad, onError) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const parser = this
     const json = this.json
     const extensions = this.extensions
@@ -451,6 +472,7 @@ export class GLTFParser {
     let dependencies = this.cache.get(type)
 
     if (!dependencies) {
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
       const parser = this
       const defs = this.json[type + (type === 'mesh' ? 'es' : 's')] || []
 
@@ -472,7 +494,7 @@ export class GLTFParser {
    * @return {Promise<ArrayBuffer>}
    */
   loadBuffer(bufferIndex) {
-    const bufferDef = this.json.buffers[bufferIndex]
+    const bufferDef = this.json.buffers![bufferIndex]
     const loader = this.fileLoader
 
     if (bufferDef.type && bufferDef.type !== 'arraybuffer') {
@@ -487,7 +509,7 @@ export class GLTFParser {
     const options = this.options
 
     return new Promise(function (resolve, reject) {
-      loader.load(LoaderUtils.resolveURL(bufferDef.uri, options.path), resolve, undefined, function () {
+      loader.load(LoaderUtils.resolveURL(bufferDef.uri!, options.path), resolve, undefined, function () {
         reject(new Error('THREE.GLTFLoader: Failed to load buffer "' + bufferDef.uri + '".'))
       })
     })
@@ -499,7 +521,7 @@ export class GLTFParser {
    * @return {Promise<ArrayBuffer>}
    */
   loadBufferView(bufferViewIndex) {
-    const bufferViewDef = this.json.bufferViews[bufferViewIndex]
+    const bufferViewDef = this.json.bufferViews![bufferViewIndex]
 
     return this.getDependency('buffer', bufferViewDef.buffer).then(function (buffer) {
       const byteLength = bufferViewDef.byteLength || 0
@@ -514,10 +536,11 @@ export class GLTFParser {
    * @return {Promise<BufferAttribute|InterleavedBufferAttribute>}
    */
   loadAccessor(accessorIndex) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const parser = this
     const json = this.json
 
-    const accessorDef = this.json.accessors[accessorIndex]
+    const accessorDef = this.json.accessors![accessorIndex]
 
     if (accessorDef.bufferView === undefined && accessorDef.sparse === undefined) {
       const itemSize = WEBGL_TYPE_SIZES[accessorDef.type]
@@ -528,7 +551,7 @@ export class GLTFParser {
       return Promise.resolve(new BufferAttribute(array, itemSize, normalized))
     }
 
-    const pendingBufferViews = []
+    const pendingBufferViews = [] as any[] // todo
 
     if (accessorDef.bufferView !== undefined) {
       pendingBufferViews.push(this.getDependency('bufferView', accessorDef.bufferView))
@@ -552,7 +575,7 @@ export class GLTFParser {
       const itemBytes = elementBytes * itemSize
       const byteOffset = accessorDef.byteOffset || 0
       const byteStride =
-        accessorDef.bufferView !== undefined ? json.bufferViews[accessorDef.bufferView].byteStride : undefined
+        accessorDef.bufferView !== undefined ? json.bufferViews![accessorDef.bufferView].byteStride : undefined
       const normalized = accessorDef.normalized === true
       let array, bufferAttribute
 
@@ -644,9 +667,9 @@ export class GLTFParser {
   loadTexture(textureIndex) {
     const json = this.json
     const options = this.options
-    const textureDef = json.textures[textureIndex]
-    const sourceIndex = textureDef.source
-    const sourceDef = json.images[sourceIndex]
+    const textureDef = json.textures![textureIndex]
+    const sourceIndex = textureDef.source!
+    const sourceDef = json.images![sourceIndex]
 
     let loader = this.textureLoader
 
@@ -659,11 +682,12 @@ export class GLTFParser {
   }
 
   loadTextureImage(textureIndex, sourceIndex, loader) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const parser = this
     const json = this.json
 
-    const textureDef = json.textures[textureIndex]
-    const sourceDef = json.images[sourceIndex]
+    const textureDef = json.textures![textureIndex]
+    const sourceDef = json.images![sourceIndex]
 
     const cacheKey = (sourceDef.uri || sourceDef.bufferView) + ':' + textureDef.sampler
 
@@ -687,7 +711,7 @@ export class GLTFParser {
         }
 
         const samplers = json.samplers || {}
-        const sampler = samplers[textureDef.sampler] || {}
+        const sampler = samplers[textureDef.sampler!] || {}
 
         texture.magFilter = WEBGL_FILTERS[sampler.magFilter] || LinearFilter
         texture.minFilter = WEBGL_FILTERS[sampler.minFilter] || LinearMipmapLinearFilter
@@ -714,6 +738,7 @@ export class GLTFParser {
   }
 
   loadImageSource(sourceIndex, loader) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const parser = this
     const json = this.json
     const options = this.options
@@ -722,7 +747,7 @@ export class GLTFParser {
       return this.sourceCache[sourceIndex].then((texture) => texture.clone())
     }
 
-    const sourceDef = json.images[sourceIndex]
+    const sourceDef = json.images![sourceIndex]
 
     const URL = self.URL || self.webkitURL
 
@@ -744,7 +769,7 @@ export class GLTFParser {
 
     const promise = Promise.resolve(sourceURI)
       .then(function (sourceURI) {
-        return new Promise(function (resolve, reject) {
+        return new Promise<any>(function (resolve, reject) {
           let onLoad = resolve
 
           if (loader.isImageBitmapLoader === true) {
@@ -788,7 +813,8 @@ export class GLTFParser {
    * @param {Object} mapDef
    * @return {Promise<Texture>}
    */
-  assignTexture(materialParams, mapName, mapDef, colorSpace) {
+  assignTexture(materialParams, mapName, mapDef, colorSpace?) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const parser = this
 
     return this.getDependency('texture', mapDef.index).then(function (texture) {
@@ -912,10 +938,11 @@ export class GLTFParser {
    * @return {Promise<Material>}
    */
   loadMaterial(materialIndex) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const parser = this
     const json = this.json
     const extensions = this.extensions
-    const materialDef = json.materials[materialIndex]
+    const materialDef = json.materials![materialIndex]
 
     let materialType
     const materialParams = {} as any // todo
@@ -1064,6 +1091,7 @@ export class GLTFParser {
    * @return {Promise<Array<BufferGeometry>>}
    */
   loadGeometries(primitives) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const parser = this
     const extensions = this.extensions
     const cache = this.primitiveCache
@@ -1076,7 +1104,7 @@ export class GLTFParser {
         })
     }
 
-    const pending = []
+    const pending = [] as any[] // todo
 
     for (let i = 0, il = primitives.length; i < il; i++) {
       const primitive = primitives[i]
@@ -1115,11 +1143,12 @@ export class GLTFParser {
    * @return {Promise<Group|Mesh|SkinnedMesh>}
    */
   loadMesh(meshIndex) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const parser = this
     const json = this.json
     const extensions = this.extensions
 
-    const meshDef = json.meshes[meshIndex]
+    const meshDef = json.meshes![meshIndex]
     const primitives = meshDef.primitives
 
     const pending = [] as any[] // todo
@@ -1139,7 +1168,7 @@ export class GLTFParser {
       const materials = results.slice(0, results.length - 1)
       const geometries = results[results.length - 1]
 
-      const meshes = []
+      const meshes = [] as any[] // todo
 
       for (let i = 0, il = geometries.length; i < il; i++) {
         const geometry = geometries[i]
@@ -1234,8 +1263,8 @@ export class GLTFParser {
    */
   loadCamera(cameraIndex) {
     let camera
-    const cameraDef = this.json.cameras[cameraIndex]
-    const params = cameraDef[cameraDef.type]
+    const cameraDef = this.json.cameras![cameraIndex]
+    const params = cameraDef[cameraDef.type] as any // todo
 
     if (!params) {
       console.warn('THREE.GLTFLoader: Missing camera parameters.')
@@ -1266,9 +1295,9 @@ export class GLTFParser {
    * @return {Promise<Skeleton>}
    */
   loadSkin(skinIndex) {
-    const skinDef = this.json.skins[skinIndex]
+    const skinDef = this.json.skins![skinIndex]
 
-    const pending = []
+    const pending = [] as any[] // todo
 
     for (let i = 0, il = skinDef.joints.length; i < il; i++) {
       pending.push(this._loadNodeShallow(skinDef.joints[i]))
@@ -1287,8 +1316,8 @@ export class GLTFParser {
       // Note that bones (joint nodes) may or may not be in the
       // scene graph at this time.
 
-      const bones = []
-      const boneInverses = []
+      const bones = [] as any[] // todo
+      const boneInverses = [] as any[] // todo
 
       for (let i = 0, il = jointNodes.length; i < il; i++) {
         const jointNode = jointNodes[i]
@@ -1319,16 +1348,17 @@ export class GLTFParser {
    */
   loadAnimation(animationIndex) {
     const json = this.json
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const parser = this
 
-    const animationDef = json.animations[animationIndex]
+    const animationDef = json.animations![animationIndex]
     const animationName = animationDef.name ? animationDef.name : 'animation_' + animationIndex
 
-    const pendingNodes = []
-    const pendingInputAccessors = []
-    const pendingOutputAccessors = []
-    const pendingSamplers = []
-    const pendingTargets = []
+    const pendingNodes = [] as any[] // todo
+    const pendingInputAccessors = [] as any[] // todo
+    const pendingOutputAccessors = [] as any[] // todo
+    const pendingSamplers = [] as any[] // todo
+    const pendingTargets = [] as any[] // todo
 
     for (let i = 0, il = animationDef.channels.length; i < il; i++) {
       const channel = animationDef.channels[i]
@@ -1360,7 +1390,7 @@ export class GLTFParser {
       const samplers = dependencies[3]
       const targets = dependencies[4]
 
-      const tracks = []
+      const tracks = [] as any[] // todo
 
       for (let i = 0, il = nodes.length; i < il; i++) {
         const node = nodes[i]
@@ -1390,8 +1420,9 @@ export class GLTFParser {
 
   createNodeMesh(nodeIndex) {
     const json = this.json
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const parser = this
-    const nodeDef = json.nodes[nodeIndex]
+    const nodeDef = json.nodes![nodeIndex]
 
     if (nodeDef.mesh === undefined) return null
 
@@ -1403,8 +1434,8 @@ export class GLTFParser {
         node.traverse(function (o) {
           if (!o.isMesh) return
 
-          for (let i = 0, il = nodeDef.weights.length; i < il; i++) {
-            o.morphTargetInfluences[i] = nodeDef.weights[i]
+          for (let i = 0, il = nodeDef.weights!.length; i < il; i++) {
+            o.morphTargetInfluences[i] = nodeDef.weights![i]
           }
         })
       }
@@ -1420,13 +1451,14 @@ export class GLTFParser {
    */
   loadNode(nodeIndex) {
     const json = this.json
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const parser = this
 
-    const nodeDef = json.nodes[nodeIndex]
+    const nodeDef = json.nodes![nodeIndex]
 
     const nodePending = parser._loadNodeShallow(nodeIndex)
 
-    const childPending = []
+    const childPending = [] as any[] // todo
     const childrenDef = nodeDef.children || []
 
     for (let i = 0, il = childrenDef.length; i < il; i++) {
@@ -1464,6 +1496,7 @@ export class GLTFParser {
   _loadNodeShallow(nodeIndex) {
     const json = this.json
     const extensions = this.extensions
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const parser = this
 
     // This method is called from .loadNode() and .loadSkin().
@@ -1473,12 +1506,12 @@ export class GLTFParser {
       return this.nodeCache[nodeIndex]
     }
 
-    const nodeDef = json.nodes[nodeIndex]
+    const nodeDef = json.nodes![nodeIndex]
 
     // reserve node's name before its dependencies, so the root has the intended name.
     const nodeName = nodeDef.name ? parser.createUniqueName(nodeDef.name) : ''
 
-    const pending = []
+    const pending = [] as Promise<any>[]
 
     const meshPromise = parser._invokeOne(function (ext) {
       return ext.createNodeMesh && ext.createNodeMesh(nodeIndex)
@@ -1570,7 +1603,8 @@ export class GLTFParser {
    */
   loadScene(sceneIndex) {
     const extensions = this.extensions
-    const sceneDef = this.json.scenes[sceneIndex]
+    const sceneDef = this.json.scenes![sceneIndex]
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const parser = this
 
     // Loader returns Group, not Scene.
@@ -1584,7 +1618,7 @@ export class GLTFParser {
 
     const nodeIds = sceneDef.nodes || []
 
-    const pending = []
+    const pending = [] as any[] // todo
 
     for (let i = 0, il = nodeIds.length; i < il; i++) {
       pending.push(parser.getDependency('node', nodeIds[i]))
@@ -1624,10 +1658,10 @@ export class GLTFParser {
   }
 
   _createAnimationTracks(node, inputAccessor, outputAccessor, sampler, target) {
-    const tracks = []
+    const tracks = [] as any[] // todo
 
     const targetName = node.name ? node.name : node.uuid
-    const targetNames = []
+    const targetNames = [] as string[]
 
     if (PATH_PROPERTIES[target.path] === PATH_PROPERTIES.weights) {
       node.traverse(function (object) {

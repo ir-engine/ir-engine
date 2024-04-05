@@ -100,7 +100,9 @@ export class GLTFLightsExtension {
     for (let nodeIndex = 0, nodeLength = nodeDefs.length; nodeIndex < nodeLength; nodeIndex++) {
       const nodeDef = nodeDefs[nodeIndex]
 
+      // @ts-ignore -- TODO type extensions
       if (nodeDef.extensions && nodeDef.extensions[this.name] && nodeDef.extensions[this.name].light !== undefined) {
+        // @ts-ignore -- TODO type extensions
         parser._addNodeRef(this.cache, nodeDef.extensions[this.name].light)
       }
     }
@@ -115,6 +117,7 @@ export class GLTFLightsExtension {
 
     const json = parser.json
     const extensions = (json.extensions && json.extensions[this.name]) || {}
+    // @ts-ignore -- TODO type extensions
     const lightDefs = extensions.lights || []
     const lightDef = lightDefs[lightIndex]
     let lightNode
@@ -186,8 +189,9 @@ export class GLTFLightsExtension {
     const self = this
     const parser = this.parser
     const json = parser.json
-    const nodeDef = json.nodes[nodeIndex]
+    const nodeDef = json.nodes?.[nodeIndex]!
     const lightDef = (nodeDef.extensions && nodeDef.extensions[this.name]) || {}
+    // @ts-ignore -- TODO type extensions
     const lightIndex = lightDef.light
 
     if (lightIndex === undefined) return null
@@ -250,12 +254,14 @@ export class GLTFMaterialsEmissiveStrengthExtension {
 
   extendMaterialParams(materialIndex, materialParams) {
     const parser = this.parser
-    const materialDef = parser.json.materials[materialIndex]
+    const materialDef = parser.json.materials?.[materialIndex]
 
+    // @ts-ignore -- TODO type extensions
     if (!materialDef.extensions || !materialDef.extensions[this.name]) {
       return Promise.resolve()
     }
 
+    // @ts-ignore -- TODO type extensions
     const emissiveStrength = materialDef.extensions[this.name].emissiveStrength
 
     if (emissiveStrength !== undefined) {
@@ -281,24 +287,24 @@ export class GLTFMaterialsClearcoatExtension {
 
   getMaterialType(materialIndex) {
     const parser = this.parser
-    const materialDef = parser.json.materials[materialIndex]
+    const materialDef = parser.json.materials?.[materialIndex]
 
-    if (!materialDef.extensions || !materialDef.extensions[this.name]) return null
+    if (!materialDef?.extensions || !materialDef.extensions[this.name]) return null
 
     return MeshPhysicalMaterial
   }
 
   extendMaterialParams(materialIndex, materialParams) {
     const parser = this.parser
-    const materialDef = parser.json.materials[materialIndex]
+    const materialDef = parser.json.materials?.[materialIndex]
 
-    if (!materialDef.extensions || !materialDef.extensions[this.name]) {
+    if (!materialDef?.extensions || !materialDef.extensions[this.name]) {
       return Promise.resolve()
     }
 
-    const pending = []
+    const pending = [] as Promise<any>[]
 
-    const extension = materialDef.extensions[this.name]
+    const extension = materialDef.extensions[this.name] as any // TODO type extensions
 
     if (extension.clearcoatFactor !== undefined) {
       materialParams.clearcoat = extension.clearcoatFactor
@@ -345,6 +351,7 @@ export class GLTFMaterialsIridescenceExtension {
 
   getMaterialType(materialIndex) {
     const parser = this.parser
+    // @ts-ignore -- TODO type extensions
     const materialDef = parser.json.materials[materialIndex]
 
     if (!materialDef.extensions || !materialDef.extensions[this.name]) return null
@@ -354,6 +361,7 @@ export class GLTFMaterialsIridescenceExtension {
 
   extendMaterialParams(materialIndex, materialParams) {
     const parser = this.parser
+    // @ts-ignore -- TODO type extensions
     const materialDef = parser.json.materials[materialIndex]
 
     if (!materialDef.extensions || !materialDef.extensions[this.name]) {
@@ -362,7 +370,7 @@ export class GLTFMaterialsIridescenceExtension {
 
     const pending = [] as Promise<any>[]
 
-    const extension = materialDef.extensions[this.name]
+    const extension = materialDef.extensions[this.name] as any // TODO type extensions
 
     if (extension.iridescenceFactor !== undefined) {
       materialParams.iridescence = extension.iridescenceFactor
@@ -413,6 +421,7 @@ export class GLTFMaterialsSheenExtension {
 
   getMaterialType(materialIndex) {
     const parser = this.parser
+    // @ts-ignore -- TODO type extensions
     const materialDef = parser.json.materials[materialIndex]
 
     if (!materialDef.extensions || !materialDef.extensions[this.name]) return null
@@ -422,19 +431,20 @@ export class GLTFMaterialsSheenExtension {
 
   extendMaterialParams(materialIndex, materialParams) {
     const parser = this.parser
+    // @ts-ignore -- TODO type extensions
     const materialDef = parser.json.materials[materialIndex]
 
     if (!materialDef.extensions || !materialDef.extensions[this.name]) {
       return Promise.resolve()
     }
 
-    const pending = []
+    const pending = [] as Promise<any>[]
 
     materialParams.sheenColor = new Color(0, 0, 0)
     materialParams.sheenRoughness = 0
     materialParams.sheen = 1
 
-    const extension = materialDef.extensions[this.name]
+    const extension = materialDef.extensions[this.name] as any // TODO type extensions
 
     if (extension.sheenColorFactor !== undefined) {
       const colorFactor = extension.sheenColorFactor
@@ -473,6 +483,8 @@ export class GLTFMaterialsTransmissionExtension {
 
   getMaterialType(materialIndex) {
     const parser = this.parser
+
+    // @ts-ignore -- TODO type extensions
     const materialDef = parser.json.materials[materialIndex]
 
     if (!materialDef.extensions || !materialDef.extensions[this.name]) return null
@@ -482,15 +494,16 @@ export class GLTFMaterialsTransmissionExtension {
 
   extendMaterialParams(materialIndex, materialParams) {
     const parser = this.parser
+    // @ts-ignore -- TODO type extensions
     const materialDef = parser.json.materials[materialIndex]
 
     if (!materialDef.extensions || !materialDef.extensions[this.name]) {
       return Promise.resolve()
     }
 
-    const pending = []
+    const pending = [] as Promise<any>[]
 
-    const extension = materialDef.extensions[this.name]
+    const extension = materialDef.extensions[this.name] as any // TODO type extensions
 
     if (extension.transmissionFactor !== undefined) {
       materialParams.transmission = extension.transmissionFactor
@@ -519,6 +532,7 @@ export class GLTFMaterialsVolumeExtension {
 
   getMaterialType(materialIndex) {
     const parser = this.parser
+    // @ts-ignore -- TODO type extensions
     const materialDef = parser.json.materials[materialIndex]
 
     if (!materialDef.extensions || !materialDef.extensions[this.name]) return null
@@ -528,15 +542,16 @@ export class GLTFMaterialsVolumeExtension {
 
   extendMaterialParams(materialIndex, materialParams) {
     const parser = this.parser
+    // @ts-ignore -- TODO type extensions
     const materialDef = parser.json.materials[materialIndex]
 
     if (!materialDef.extensions || !materialDef.extensions[this.name]) {
       return Promise.resolve()
     }
 
-    const pending = []
+    const pending = [] as Promise<any>[]
 
-    const extension = materialDef.extensions[this.name]
+    const extension = materialDef.extensions[this.name] as any // TODO type extensions
 
     materialParams.thickness = extension.thicknessFactor !== undefined ? extension.thicknessFactor : 0
 
@@ -573,6 +588,7 @@ export class GLTFMaterialsIorExtension {
 
   getMaterialType(materialIndex) {
     const parser = this.parser
+    // @ts-ignore -- TODO type extensions
     const materialDef = parser.json.materials[materialIndex]
 
     if (!materialDef.extensions || !materialDef.extensions[this.name]) return null
@@ -582,13 +598,14 @@ export class GLTFMaterialsIorExtension {
 
   extendMaterialParams(materialIndex, materialParams) {
     const parser = this.parser
+    // @ts-ignore -- TODO type extensions
     const materialDef = parser.json.materials[materialIndex]
 
     if (!materialDef.extensions || !materialDef.extensions[this.name]) {
       return Promise.resolve()
     }
 
-    const extension = materialDef.extensions[this.name]
+    const extension = materialDef.extensions[this.name] as any // TODO type extensions
 
     materialParams.ior = extension.ior !== undefined ? extension.ior : 1.5
 
@@ -611,6 +628,7 @@ export class GLTFMaterialsSpecularExtension {
 
   getMaterialType(materialIndex) {
     const parser = this.parser
+    // @ts-ignore -- TODO type extensions
     const materialDef = parser.json.materials[materialIndex]
 
     if (!materialDef.extensions || !materialDef.extensions[this.name]) return null
@@ -620,15 +638,16 @@ export class GLTFMaterialsSpecularExtension {
 
   extendMaterialParams(materialIndex, materialParams) {
     const parser = this.parser
+    // @ts-ignore -- TODO type extensions
     const materialDef = parser.json.materials[materialIndex]
 
     if (!materialDef.extensions || !materialDef.extensions[this.name]) {
       return Promise.resolve()
     }
 
-    const pending = []
+    const pending = [] as Promise<any>[]
 
-    const extension = materialDef.extensions[this.name]
+    const extension = materialDef.extensions[this.name] as any // TODO type extensions
 
     materialParams.specularIntensity = extension.specularFactor !== undefined ? extension.specularFactor : 1.0
 
@@ -664,6 +683,7 @@ export class GLTFMaterialsBumpExtension {
 
   getMaterialType(materialIndex) {
     const parser = this.parser
+    // @ts-ignore -- TODO type extensions
     const materialDef = parser.json.materials[materialIndex]
 
     if (!materialDef.extensions || !materialDef.extensions[this.name]) return null
@@ -673,15 +693,16 @@ export class GLTFMaterialsBumpExtension {
 
   extendMaterialParams(materialIndex, materialParams) {
     const parser = this.parser
+    // @ts-ignore -- TODO type extensions
     const materialDef = parser.json.materials[materialIndex]
 
     if (!materialDef.extensions || !materialDef.extensions[this.name]) {
       return Promise.resolve()
     }
 
-    const pending = []
+    const pending = [] as Promise<any>[]
 
-    const extension = materialDef.extensions[this.name]
+    const extension = materialDef.extensions[this.name] as any // TODO type extensions
 
     materialParams.bumpScale = extension.bumpFactor !== undefined ? extension.bumpFactor : 1.0
 
@@ -708,6 +729,7 @@ export class GLTFMaterialsAnisotropyExtension {
 
   getMaterialType(materialIndex) {
     const parser = this.parser
+    // @ts-ignore -- TODO type extensions
     const materialDef = parser.json.materials[materialIndex]
 
     if (!materialDef.extensions || !materialDef.extensions[this.name]) return null
@@ -717,15 +739,16 @@ export class GLTFMaterialsAnisotropyExtension {
 
   extendMaterialParams(materialIndex, materialParams) {
     const parser = this.parser
+    // @ts-ignore -- TODO type extensions
     const materialDef = parser.json.materials[materialIndex]
 
     if (!materialDef.extensions || !materialDef.extensions[this.name]) {
       return Promise.resolve()
     }
 
-    const pending = []
+    const pending = [] as Promise<any>[]
 
-    const extension = materialDef.extensions[this.name]
+    const extension = materialDef.extensions[this.name] as any // TODO type extensions
 
     if (extension.anisotropyStrength !== undefined) {
       materialParams.anisotropy = extension.anisotropyStrength
@@ -769,13 +792,14 @@ export class GLTFTextureBasisUExtension {
       }
     }*/
 
+    // @ts-ignore -- TODO type extensions
     const textureDef = json.textures[textureIndex]
 
     if (!textureDef.extensions || !textureDef.extensions[this.name]) {
       return null
     }
 
-    const extension = textureDef.extensions[this.name]
+    const extension = textureDef.extensions[this.name] as any // TODO type extensions
     const loader = parser.options.ktx2Loader
 
     if (!loader) {
@@ -810,13 +834,15 @@ export class GLTFTextureWebPExtension {
     const parser = this.parser
     const json = parser.json
 
+    // @ts-ignore -- TODO type extensions
     const textureDef = json.textures[textureIndex]
 
     if (!textureDef.extensions || !textureDef.extensions[name]) {
       return null
     }
 
-    const extension = textureDef.extensions[name]
+    const extension = textureDef.extensions[name] as any // TODO type extensions
+    // @ts-ignore -- TODO type extensions
     const source = json.images[extension.source]
 
     let loader = parser.textureLoader
@@ -875,13 +901,15 @@ export class GLTFTextureAVIFExtension {
     const parser = this.parser
     const json = parser.json
 
+    // @ts-ignore -- TODO type extensions
     const textureDef = json.textures[textureIndex]
 
     if (!textureDef.extensions || !textureDef.extensions[name]) {
       return null
     }
 
-    const extension = textureDef.extensions[name]
+    const extension = textureDef.extensions[name] as any // TODO type extensions
+    // @ts-ignore -- TODO type extensions
     const source = json.images[extension.source]
 
     let loader = parser.textureLoader
@@ -935,10 +963,11 @@ export class GLTFMeshoptCompression {
 
   loadBufferView(index) {
     const json = this.parser.json
+    // @ts-ignore -- TODO type extensions
     const bufferView = json.bufferViews[index]
 
     if (bufferView.extensions && bufferView.extensions[this.name]) {
-      const extensionDef = bufferView.extensions[this.name]
+      const extensionDef = bufferView.extensions[this.name] as any // TODO type extensions
 
       const buffer = this.parser.getDependency('buffer', extensionDef.buffer)
       const decoder = this.parser.options.meshoptDecoder
@@ -1005,12 +1034,14 @@ export class GLTFMeshGpuInstancing {
 
   createNodeMesh(nodeIndex) {
     const json = this.parser.json
+    // @ts-ignore -- TODO type extensions
     const nodeDef = json.nodes[nodeIndex]
 
     if (!nodeDef.extensions || !nodeDef.extensions[this.name] || nodeDef.mesh === undefined) {
       return null
     }
 
+    // @ts-ignore -- TODO type extensions
     const meshDef = json.meshes[nodeDef.mesh]
 
     // No Points or Lines + Instancing support yet
@@ -1026,7 +1057,7 @@ export class GLTFMeshGpuInstancing {
       }
     }
 
-    const extensionDef = nodeDef.extensions[this.name]
+    const extensionDef = nodeDef.extensions[this.name] as any // TODO type extensions
     const attributesDef = extensionDef.attributes
 
     // @TODO: Can we support InstancedMesh + SkinnedMesh?
@@ -1209,6 +1240,7 @@ export class GLTFDracoMeshCompressionExtension {
       const threeAttributeName = ATTRIBUTES[attributeName] || attributeName.toLowerCase()
 
       if (gltfAttributeMap[attributeName] !== undefined) {
+        // @ts-ignore -- TODO type extensions
         const accessorDef = json.accessors[primitive.attributes[attributeName]]
         const componentType = WEBGL_COMPONENT_TYPES[accessorDef.componentType]
 

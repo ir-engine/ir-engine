@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { LoaderUtils, LoadingManager } from 'three'
+import { AnimationClip, Camera, LoaderUtils, LoadingManager, Scene } from 'three'
 
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
-import { GLTF } from '@gltf-transform/core'
+import { GLTF as GLTFDocument } from '@gltf-transform/core'
 import { FileLoader } from '../base/FileLoader'
 import { Loader } from '../base/Loader'
 import {
@@ -224,7 +224,7 @@ export class GLTFLoader extends Loader {
   }
 
   parse(data, path, onLoad, onError, url = '') {
-    let json: GLTF.IGLTF
+    let json: GLTFDocument.IGLTF
     const extensions = {}
     const plugins = {}
     const textDecoder = new TextDecoder()
@@ -327,4 +327,21 @@ export class GLTFLoader extends Loader {
       scope.parse(data, path, resolve, reject)
     })
   }
+}
+
+export interface GLTF {
+  animations: AnimationClip[]
+  scene: Scene
+  scenes: Scene[]
+  cameras: Camera[]
+  asset: {
+    copyright?: string | undefined
+    generator?: string | undefined
+    version?: string | undefined
+    minVersion?: string | undefined
+    extensions?: any
+    extras?: any
+  }
+  parser: GLTFParser
+  userData: any
 }

@@ -114,6 +114,7 @@ export const ATTRIBUTES = {
 }
 
 export const PATH_PROPERTIES = {
+  position: 'position', // This isnt in threejs, check if it should be...
   scale: 'scale',
   translation: 'position',
   rotation: 'quaternion',
