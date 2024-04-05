@@ -33,6 +33,7 @@ import { UserName } from '@etherealengine/common/src/schema.type.module'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import showConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import AvatarImage from '@etherealengine/ui/src/primitives/tailwind/AvatarImage'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 import { useHookstate } from '@hookstate/core'
 import { HiPencil, HiTrash } from 'react-icons/hi2'
@@ -91,16 +92,20 @@ export default function AvatarTable({ search }: { search: string }) {
       thumbnail: <AvatarImage src={row.thumbnailResource?.url + '?' + new Date().getTime()} className="mx-auto" />,
       action: (
         <div className="flex items-center justify-start gap-3">
-          <button
+          <Button
+            rounded
+            variant="outline"
+            className="h-8 w-8"
             title={t('admin:components.common.view')}
-            className="border-theme-primary grid h-8 w-8 rounded-full border"
             onClick={() => PopoverState.showPopupover(<AddEditAvatarModal avatar={row} />)}
           >
             <HiPencil className="text-theme-iconGreen place-self-center" />
-          </button>
-          <button
+          </Button>
+          <Button
+            rounded
+            variant="outline"
+            className="h-8 w-8"
             title={t('admin:components.common.delete')}
-            className="border-theme-primary grid h-8 w-8 rounded-full border"
             onClick={() => {
               showConfirmDialog(
                 `${t('admin:components.avatar.confirmAvatarDelete')} '${row.name}'?`,
@@ -115,7 +120,7 @@ export default function AvatarTable({ search }: { search: string }) {
             }}
           >
             <HiTrash className="text-theme-iconRed place-self-center" />
-          </button>
+          </Button>
         </div>
       )
     }))
