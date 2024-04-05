@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { BufferAttribute, Color, Material, Object3D, Texture } from 'three'
 
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
@@ -38,7 +37,7 @@ export default async function bakeToVertices<T extends Material>(
   material: T,
   colors: (keyof T)[],
   maps: { field: keyof T; attribName: string }[],
-  root: Object3D | null = Engine.instance.scene,
+  root: Object3D | null,
   nuPrototype = 'MeshMatcapMaterial'
 ) {
   const pending = new Array<Promise<void>>()

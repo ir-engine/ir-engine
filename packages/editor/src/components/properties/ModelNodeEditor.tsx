@@ -144,7 +144,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       {bonematchable.value && (
-        <InputGroup name="Convert to VRM" label={t('editor:properties.model.lbl-convertToVRM')}>
+        <InputGroup name="Force VRM" label={t('editor:properties.model.lbl-convertToVRM')}>
           <BooleanInput
             value={modelComponent.convertToVRM.value}
             onChange={commitProperty(ModelComponent, 'convertToVRM')}

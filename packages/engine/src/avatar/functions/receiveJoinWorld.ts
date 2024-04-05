@@ -61,39 +61,44 @@ export type JoinWorldProps = {
 }
 
 export type SpawnInWorldProps = {
+  parentUUID: EntityUUID
   avatarSpawnPose: { position: Vector3; rotation: Quaternion }
   avatarID: AvatarID
   name: string
 }
 
 export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
-  const { avatarSpawnPose, avatarID } = props
+  const { avatarSpawnPose, avatarID, parentUUID } = props
   console.log('SPAWN IN WORLD', avatarSpawnPose, avatarID)
   const entityUUID = Engine.instance.userID
   dispatchAction(
     AvatarNetworkAction.spawn({
       ...avatarSpawnPose,
+      parentUUID,
       avatarID,
       entityUUID: (entityUUID + '_avatar') as EntityUUID,
       name: props.name
     })
   )
-  dispatchAction(CameraActions.spawnCamera({ entityUUID: (entityUUID + '_camera') as EntityUUID }))
-  createIkTargetsForLocalAvatar()
-}
+  dispatchAction(CameraActions.spawnCamera({ parentUUID, entityUUID: (entityUUID + '_camera') as EntityUUID }))
 
-/** @todo put in a reactor in IK system */
-export const createIkTargetsForLocalAvatar = () => {
-  const userID = Engine.instance.userID
-  const headUUID = (userID + ikTargets.head) as EntityUUID
-  const leftHandUUID = (userID + ikTargets.leftHand) as EntityUUID
-  const rightHandUUID = (userID + ikTargets.rightHand) as EntityUUID
-  const leftFootUUID = (userID + ikTargets.leftFoot) as EntityUUID
-  const rightFootUUID = (userID + ikTargets.rightFoot) as EntityUUID
+  const headUUID = (entityUUID + ikTargets.head) as EntityUUID
+  const leftHandUUID = (entityUUID + ikTargets.leftHand) as EntityUUID
+  const rightHandUUID = (entityUUID + ikTargets.rightHand) as EntityUUID
+  const leftFootUUID = (entityUUID + ikTargets.leftFoot) as EntityUUID
+  const rightFootUUID = (entityUUID + ikTargets.rightFoot) as EntityUUID
 
-  dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: headUUID, name: 'head', blendWeight: 0 }))
-  dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: leftHandUUID, name: 'leftHand', blendWeight: 0 }))
-  dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: rightHandUUID, name: 'rightHand', blendWeight: 0 }))
-  dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: leftFootUUID, name: 'leftFoot', blendWeight: 0 }))
-  dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: rightFootUUID, name: 'rightFoot', blendWeight: 0 }))
+  dispatchAction(AvatarNetworkAction.spawnIKTarget({ parentUUID, entityUUID: headUUID, name: 'head', blendWeight: 0 }))
+  dispatchAction(
+    AvatarNetworkAction.spawnIKTarget({ parentUUID, entityUUID: leftHandUUID, name: 'leftHand', blendWeight: 0 })
+  )
+  dispatchAction(
+    AvatarNetworkAction.spawnIKTarget({ parentUUID, entityUUID: rightHandUUID, name: 'rightHand', blendWeight: 0 })
+  )
+  dispatchAction(
+    AvatarNetworkAction.spawnIKTarget({ parentUUID, entityUUID: leftFootUUID, name: 'leftFoot', blendWeight: 0 })
+  )
+  dispatchAction(
+    AvatarNetworkAction.spawnIKTarget({ parentUUID, entityUUID: rightFootUUID, name: 'rightFoot', blendWeight: 0 })
+  )
 }

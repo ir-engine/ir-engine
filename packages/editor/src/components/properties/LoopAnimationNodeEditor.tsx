@@ -33,6 +33,7 @@ import { useState } from '@etherealengine/hyperflux'
 import { getCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 
 import AnimationIcon from '@mui/icons-material/Animation'
+import { VRM } from '@pixiv/three-vrm'
 
 import { AnimationComponent } from '@etherealengine/engine/src/avatar/components/AnimationComponent'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
@@ -90,7 +91,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
           onChange={onChangePlayingAnimation}
         />
       </InputGroup>
-      {modelComponent?.convertToVRM.value && (
+      {modelComponent?.asset.value instanceof VRM && (
         <InputGroup name="Animation Pack" label="Animation Pack (via Mixamo Rig)">
           <ModelInput
             value={loopAnimationComponent.animationPack.value}

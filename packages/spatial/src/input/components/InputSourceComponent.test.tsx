@@ -37,7 +37,7 @@ describe('InputSourceComponent', () => {
   //     profiles: ['test'],
   //     hand: undefined
   //   }) as XRInputSource
-  //   const entity = Engine.instance.originEntity
+  //   const entity = Engine.instance.localFloorEntity
   //   setComponent(entity, InputSourceComponent, { source: mockXRInputSource })
   //   assert(hasComponent(entity, InputSourceComponent))
   //   const inputSourceComponent = getComponent(entity, InputSourceComponent)
@@ -65,7 +65,7 @@ describe('InputSourceComponent', () => {
   //     profiles: ['test'],
   //     hand: undefined
   //   }) as XRInputSource
-  //   const entity = Engine.instance.originEntity
+  //   const entity = Engine.instance.localFloorEntity
   //   setComponent(entity, InputSourceComponent, { source: mockXRInputSource })
   //   const hands = ['left', 'right', 'none']
   //   const state = getMutableState(InputSourceCaptureState)
