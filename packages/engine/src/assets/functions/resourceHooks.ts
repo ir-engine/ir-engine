@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { Entity, UndefinedEntity } from '@etherealengine/ecs'
 import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { MathUtils, Object3D, Texture } from 'three'
+import { MathUtils, Texture } from 'three'
 import { LoadingArgs } from '../classes/AssetLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
-import { AssetType, ResourceManager, ResourceType } from '../state/ResourceState'
+import { AssetType, ObjectLike, ResourceManager, ResourceType } from '../state/ResourceState'
 
 function useLoader<T extends AssetType>(
   url: string,
@@ -304,20 +304,20 @@ export async function getTextureAsync(
 
 /**
  *
- * Object3D loader hook for creating an instance of a class that extends Object3D in a React context,
+ * Object loader hook for creating an instance of a class that implements the ObjectLike interface in ResourceState.ts in a React context,
  * but has it's lifecycle managed by the ResourceManager in ResourceState.ts
  *
- * @param object3D A class that extends Object3D eg. DirectionalLight
+ * @param objectLike A class that extends Object3D eg. DirectionalLight
  * @param entity *Optional* the entity that is loading the object
  * @param args *Optional* arguments to pass to the constructor of object3D
  * @returns A unique instance of the class that is passed in for object3D
  */
-export function useObj<T extends Object3D>(
-  object3D: { new (): T },
+export function useObj<T extends ObjectLike>(
+  objectLike: { new (...params: any[]): T },
   entity: Entity = UndefinedEntity,
   ...args: any[]
 ): [T, () => void] {
-  const objState = useHookstate<T>(() => ResourceManager.loadObj(object3D, entity, ...args))
+  const objState = useHookstate<T>(() => ResourceManager.loadObj(objectLike, entity, ...args))
 
   const unload = () => {
     if (objState.value) {
@@ -334,21 +334,21 @@ export function useObj<T extends Object3D>(
 
 /**
  *
- * Object3D loader hook for creating an instance of a class that extends Object3D in a non-React context,
+ * Object loader hook for creating an instance of a class that extends Object3D in a non-React context,
  * Tracked by the ResourceManager in ResourceState.ts, but will not be unloaded unless the unload function that is returned is called
  * Useful for when you only want to create the object if a condition is met (eg. is debug enabled)
  *
- * @param object3D A class that extends Object3D eg. DirectionalLight
+ * @param objectLike A class that implements the ObjectLike interface in ResourceState.ts eg. DirectionalLight
  * @param entity *Optional* the entity that is loading the object
  * @param args *Optional* arguments to pass to the constructor of object3D
  * @returns A unique instance of the class that is passed in for object3D and a callback to unload the object
  */
-export function getObj<T extends Object3D>(
-  object3D: { new (): T },
+export function getObj<T extends ObjectLike>(
+  objectLike: { new (...params: any[]): T },
   entity: Entity = UndefinedEntity,
   ...args: any[]
 ): [T, () => void] {
-  const obj = ResourceManager.loadObj(object3D, entity, ...args)
+  const obj = ResourceManager.loadObj(objectLike, entity, ...args)
 
   const unload = () => {
     ResourceManager.unload(obj.uuid, entity)

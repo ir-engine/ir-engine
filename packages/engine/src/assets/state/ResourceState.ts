@@ -58,6 +58,12 @@ declare module 'three/src/core/Object3D' {
   }
 }
 
+export interface ObjectLike {
+  uuid: string
+  id: number
+  dispose?: () => void
+}
+
 Cache.enabled = true
 
 export enum ResourceStatus {
@@ -79,7 +85,7 @@ export enum ResourceType {
   // Audio = 'Audio',
 }
 
-export type AssetType = GLTF | Texture | CompressedTexture | Geometry | Material | Mesh | Object3D
+export type AssetType = GLTF | Texture | CompressedTexture | Geometry | Material | Mesh | ObjectLike
 
 type BaseMetadata = {
   size?: number
@@ -530,17 +536,21 @@ const load = <T extends AssetType>(
   )
 }
 
-const loadObj = <T extends Object3D>(object3D: { new (...params: any[]): T }, entity: Entity, ...args: any[]): T => {
+const loadObj = <T extends ObjectLike>(
+  objectLike: { new (...params: any[]): T },
+  entity: Entity,
+  ...args: any[]
+): T => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
-  const obj = new object3D(...args)
+  const obj = new objectLike(...args)
   const id = obj.uuid
   const callbacks = Callbacks[ResourceType.Object3D]
   // Only one object can exist per UUID
   resources.merge({
     [id]: {
       id: id,
-      asset: obj,
+      asset: obj as any,
       status: ResourceStatus.Loaded,
       type: ResourceType.Object3D,
       references: [entity],
