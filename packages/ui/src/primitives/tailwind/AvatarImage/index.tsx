@@ -39,7 +39,6 @@ const sizes = {
 export interface AvatarImageProps extends React.HTMLAttributes<HTMLImageElement> {
   src: string
   size?: keyof typeof sizes
-  name?: string
 }
 
 const AvatarPlaceholder = ({ className }: { className: string }) => (
