@@ -127,6 +127,7 @@ export class GLTFLoader extends Loader {
   }
 
   load(url, onLoad, onProgress, onError, signal) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const scope = this
 
     let resourcePath
@@ -319,6 +320,7 @@ export class GLTFLoader extends Loader {
   }
 
   parseAsync(data, path) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const scope = this
 
     return new Promise(function (resolve, reject) {

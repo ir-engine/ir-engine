@@ -58,7 +58,7 @@ export function toTrianglesDrawMode(geometry, drawMode) {
     // generate index if not present
 
     if (index === null) {
-      const indices = []
+      const indices = [] as number[]
 
       const position = geometry.getAttribute('position')
 
@@ -80,7 +80,7 @@ export function toTrianglesDrawMode(geometry, drawMode) {
     //
 
     const numberOfTriangles = index.count - 2
-    const newIndices = []
+    const newIndices = [] as number[]
 
     if (drawMode === TriangleFanDrawMode) {
       // gl.TRIANGLE_FAN
@@ -162,9 +162,9 @@ export function addMorphTargets(geometry, targets, parser) {
 
   if (!hasMorphPosition && !hasMorphNormal && !hasMorphColor) return Promise.resolve(geometry)
 
-  const pendingPositionAccessors = []
-  const pendingNormalAccessors = []
-  const pendingColorAccessors = []
+  const pendingPositionAccessors = [] as Promise<unknown>[]
+  const pendingNormalAccessors = [] as Promise<unknown>[]
+  const pendingColorAccessors = [] as Promise<unknown>[]
 
   for (let i = 0, il = targets.length; i < il; i++) {
     const target = targets[i]
@@ -394,7 +394,7 @@ export function computeBounds(geometry, primitiveDef, parser) {
 export function addPrimitiveAttributes(geometry, primitiveDef, parser) {
   const attributes = primitiveDef.attributes
 
-  const pending = []
+  const pending = [] as Promise<unknown>[]
 
   function assignAttributeAccessor(accessorIndex, attributeName) {
     return parser.getDependency('accessor', accessorIndex).then(function (accessor) {
