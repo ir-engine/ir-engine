@@ -107,8 +107,10 @@ export default function ServerTable({
           >
             {t('admin:components.server.viewLogs')}
           </Button>
-          <button
-            className="border-theme-primary grid h-8 w-8 rounded-full border"
+          <Button
+            rounded
+            variant="outline"
+            className="h-8 w-8"
             onClick={async () => {
               showConfirmDialog(
                 `${t('admin:components.server.confirmPodDelete')} ${row.name}?`,
@@ -123,7 +125,7 @@ export default function ServerTable({
             }}
           >
             <HiTrash className="text-theme-iconRed place-self-center" />
-          </button>
+          </Button>
         </div>
       )
     }))

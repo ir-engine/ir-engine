@@ -27,6 +27,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiPencil, HiTrash } from 'react-icons/hi2'
 
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { AuthState } from '../../../user/services/AuthService'
 import { userHasAccess } from '../../../user/userHasAccess'
@@ -95,22 +96,26 @@ export default function UserTable({
         isGuest: row.isGuest.toString(),
         action: (
           <div className="flex items-center justify-start gap-3">
-            <button
+            <Button
+              rounded
+              variant="outline"
+              className="h-8 w-8"
               disabled={!userHasAccess('location:write')}
               title={t('admin:components.common.view')}
-              className="border-theme-primary grid h-8 w-8 rounded-full border"
               onClick={() => PopoverState.showPopupover(<AddEditUserModal user={row} />)}
             >
               <HiPencil className="text-theme-iconGreen place-self-center" />
-            </button>
-            <button
+            </Button>
+            <Button
+              rounded
+              variant="outline"
+              className="h-8 w-8"
               disabled={user.id.value === row.id}
               title={t('admin:components.common.delete')}
-              className="border-theme-primary grid h-8 w-8 rounded-full border disabled:opacity-50"
               onClick={() => PopoverState.showPopupover(<RemoveUserModal users={[row]} />)}
             >
               <HiTrash className="text-theme-iconRed place-self-center" />
-            </button>
+            </Button>
           </div>
         )
       }
