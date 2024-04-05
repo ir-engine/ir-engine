@@ -39,19 +39,11 @@ export interface ModalProps {
   submitButtonDisabled?: boolean
   closeButtonText?: string
   submitButtonText?: string
-  onCloseHeader?: () => void
+  onClose?: () => void
   onSubmit?: () => void
-  onCancelFooter?: () => void
 }
 
-export const ModalHeader = ({
-  title,
-  onCloseHeader
-}: {
-  closeIcon?: boolean
-  title?: string
-  onCloseHeader?: () => void
-}) => {
+export const ModalHeader = ({ title, onClose }: { closeIcon?: boolean; title?: string; onClose?: () => void }) => {
   return (
     <div className="border-b-theme-primary relative flex items-center justify-center border-b px-6 py-5">
       {title && <Text>{title}</Text>}
@@ -59,21 +51,21 @@ export const ModalHeader = ({
         variant="outline"
         className="absolute right-0 border-0 dark:bg-transparent dark:text-[#A3A3A3]"
         startIcon={<MdClose />}
-        onClick={onCloseHeader}
+        onClick={onClose}
       />
     </div>
   )
 }
 
 export const ModalFooter = ({
-  onCancelFooter,
+  onCancel,
   onSubmit,
   cancelButtonText = 'common:components.cancel',
   submitButtonText = 'common:components.confirm',
   closeButtonDisabled,
   submitButtonDisabled
 }: {
-  onCancelFooter?: () => void
+  onCancel?: () => void
   onSubmit?: () => void
   cancelButtonText?: string
   submitButtonText?: string
@@ -83,7 +75,7 @@ export const ModalFooter = ({
   const { t } = useTranslation()
   return (
     <div className="border-t-theme-primary grid grid-flow-col border-t px-6 py-5">
-      <Button variant="outline" onClick={onCancelFooter} disabled={closeButtonDisabled}>
+      <Button variant="outline" onClick={onCancel} disabled={closeButtonDisabled}>
         {t(cancelButtonText)}
       </Button>
       {onSubmit && (
@@ -97,8 +89,7 @@ export const ModalFooter = ({
 
 const Modal = ({
   title,
-  onCloseHeader,
-  onCancelFooter,
+  onClose,
   onSubmit,
   hideFooter,
   children,
@@ -112,11 +103,11 @@ const Modal = ({
   return (
     <div className={twClassName}>
       <div className="bg-theme-primary relative rounded-lg shadow">
-        {onCloseHeader && <ModalHeader title={title} onCloseHeader={onCloseHeader} />}
+        {onClose && <ModalHeader title={title} onClose={onClose} />}
         <div className="w-full px-10 py-6">{children}</div>
         {!hideFooter && (
           <ModalFooter
-            onCancelFooter={onCancelFooter}
+            onCancel={onClose}
             onSubmit={onSubmit}
             cancelButtonText={closeButtonText}
             submitButtonText={submitButtonText}
