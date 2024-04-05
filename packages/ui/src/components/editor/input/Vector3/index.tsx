@@ -35,10 +35,11 @@ import Hidden from '@etherealengine/editor/src/components/layout/Hidden'
 
 // style inheritance
 import Scrubber from '@etherealengine/editor/src/components/inputs/Scrubber'
+import { twMerge } from 'tailwind-merge'
 import './Vector3Input.css'
 
 export const Vector3InputContainer: React.FC<{ children?: any }> = ({ children }) => {
-  return <div className="Vector3InputContainer">{children}</div>
+  return <div className="flex flex-auto flex-row justify-start gap-1.5">{children}</div>
 }
 
 interface Vector3ScrubberProps {
@@ -52,7 +53,20 @@ interface Vector3ScrubberProps {
 }
 
 export const Vector3Scrubber = ({ tag, axis, onChange, value, children, ...props }: Vector3ScrubberProps) => {
-  props.className = `Vector3Scrubber ${axis}`
+  const color = (() => {
+    switch (axis) {
+      case 'x':
+        return '[color:var(--red)]'
+      case 'y':
+        return '[color:var(--green)]'
+      case 'z':
+        return '[color:var(--blue)]'
+      default:
+        return 'inherit'
+    }
+  })()
+
+  props.className = twMerge([`bg-${color}`])
   const content = children ?? axis?.toUpperCase()
   return (
     <Scrubber tag={tag} onChange={onChange} value={value} {...props}>
@@ -62,7 +76,11 @@ export const Vector3Scrubber = ({ tag, axis, onChange, value, children, ...props
 }
 
 export const UniformButtonContainer: React.FC<{ children?: any }> = ({ children }) => {
-  return <div className="UniformButtonContainer">{children}</div>
+  return (
+    <div className="flex w-[18px] items-center hover:text-[color:var(--blueHover)] [&>*:where(label)]:text-[color:var(--textColor)] [&>*:where(ul)]:w-full">
+      {children}
+    </div>
+  )
 }
 
 let uniqueId = 0
