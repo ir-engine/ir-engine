@@ -23,7 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID, UUIDComponent, UndefinedEntity, createEntity, setComponent } from '@etherealengine/ecs'
+import {
+  Entity,
+  EntityUUID,
+  UUIDComponent,
+  UndefinedEntity,
+  createEntity,
+  removeEntity,
+  setComponent
+} from '@etherealengine/ecs'
 import { defineState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -48,5 +56,9 @@ export const GLTFState = defineState({
     setComponent(entity, EntityTreeComponent, { parentEntity })
     setComponent(entity, ModelComponent, { src: source })
     return entity
+  },
+
+  unload: (source: string, entity: Entity) => {
+    removeEntity(entity)
   }
 })

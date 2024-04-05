@@ -85,9 +85,9 @@ export const useLoadLocation = (props: { locationName: string }) => {
 export const useLoadScene = (props: { projectName: string; sceneName: string }) => {
   useEffect(() => {
     if (!props.sceneName || !props.projectName) return
-    const sceneID = `projects/${props.projectName}/${props.sceneName}.scene.json` as SceneID
-    LocationState.setLocationName(sceneID)
-    getMutableState(LocationState).currentLocation.location.sceneId.set(sceneID)
-    SceneServices.loadSceneJsonOffline(props.projectName, props.sceneName)
+    const sceneName = props.sceneName.endsWith('.scene.json') ? `${props.sceneName}.scene.json` : props.sceneName
+    const sceneID = `projects/${props.projectName}/${sceneName}` as SceneID
+    if (props.sceneName.endsWith('.scene.json')) SceneServices.loadSceneJsonOffline(props.projectName, props.sceneName)
+    else return SceneServices.loadSceneGLTFOffline(sceneID)
   }, [])
 }

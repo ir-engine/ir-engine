@@ -27,26 +27,39 @@ import config from '@etherealengine/common/src/config'
 import { SceneDataType, SceneID, scenePath } from '@etherealengine/common/src/schema.type.module'
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import { Engine, getMutableComponent } from '@etherealengine/ecs'
+import { GLTFState } from '@etherealengine/engine/src/scene/GLTFState'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { SceneJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import { LocationState } from '../social/services/LocationService'
 
 const fileServer = config.client.fileServer
 
 export const SceneServices = {
   setCurrentScene: (sceneID: SceneID) => {
-    Engine.instance.api
-      .service(scenePath)
-      .get('' as SceneID, { query: { sceneKey: sceneID } })
-      .then((sceneData: SceneDataType) => {
-        const sceneRoot = SceneState.loadScene(sceneID, sceneData)
-        if (sceneRoot) {
-          getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([sceneRoot])
-        }
-      })
+    const isSceneJson = sceneID.endsWith('.scene.json')
+    if (isSceneJson) {
+      Engine.instance.api
+        .service(scenePath)
+        .get('' as SceneID, { query: { sceneKey: sceneID } })
+        .then((sceneData: SceneDataType) => {
+          const sceneRoot = SceneState.loadScene(sceneID, sceneData)
+          if (sceneRoot) {
+            getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([sceneRoot])
+          }
+        })
 
+      return () => {
+        SceneState.unloadScene(sceneID)
+      }
+    }
+
+    const gltfEntity = GLTFState.load(sceneID)
+    getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
     return () => {
-      SceneState.unloadScene(sceneID)
+      GLTFState.unload(sceneID, gltfEntity)
     }
   },
 
@@ -64,6 +77,24 @@ export const SceneServices = {
     })
     if (sceneRoot) {
       getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([sceneRoot])
+
+      LocationState.setLocationName(sceneID)
+      getMutableState(LocationState).currentLocation.location.sceneId.set(sceneID)
+    }
+    return () => {
+      SceneState.unloadScene(sceneID)
+    }
+  },
+
+  loadSceneGLTFOffline: (file: string) => {
+    const gltfEntity = GLTFState.load(config.client.fileServer + '/' + file)
+    getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
+    const sceneID = getModelSceneID(gltfEntity)
+    LocationState.setLocationName(sceneID)
+    getMutableState(LocationState).currentLocation.location.sceneId.set(sceneID)
+
+    return () => {
+      GLTFState.unload(config.client.fileServer + '/' + file, gltfEntity)
     }
   }
 }
