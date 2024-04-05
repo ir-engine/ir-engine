@@ -30,8 +30,7 @@ Ethereal Engine. All Rights Reserved.
  *
  */
 import { InstancedMesh, Object3D } from 'three'
-
-import type { GLTFParser } from '../GLTFLoader'
+import { GLTFParser } from '../GLTFParser'
 
 export class GPUInstancingExtension {
   name = 'EXT_mesh_gpu_instancing'
@@ -42,13 +41,13 @@ export class GPUInstancingExtension {
 
   createNodeMesh(nodeIndex) {
     const json = this.parser.json
-    const nodeDef = json.nodes[nodeIndex]
+    const nodeDef = json.nodes![nodeIndex]
 
     if (!nodeDef.extensions || !nodeDef.extensions[this.name] || nodeDef.mesh === undefined) {
       return null
     }
 
-    const extensionDef = nodeDef.extensions[this.name]
+    const extensionDef = nodeDef.extensions[this.name] as any
     const attributesDef = extensionDef.attributes
 
     // @TODO: Should we directly create InstancedMesh, not from regular Mesh?

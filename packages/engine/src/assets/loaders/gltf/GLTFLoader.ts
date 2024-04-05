@@ -23,12 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AnimationClip, Camera, LoaderUtils, LoadingManager, Scene } from 'three'
+import {
+  AnimationClip,
+  Camera,
+  Group,
+  LoaderUtils,
+  LoadingManager,
+  Material,
+  Mesh,
+  Object3D,
+  Scene,
+  SkinnedMesh,
+  Texture
+} from 'three'
 
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import { GLTF as GLTFDocument } from '@gltf-transform/core'
 import { FileLoader } from '../base/FileLoader'
 import { Loader } from '../base/Loader'
+import { DRACOLoader } from './DRACOLoader'
 import {
   BINARY_EXTENSION_HEADER_MAGIC,
   EXTENSIONS,
@@ -54,10 +67,11 @@ import {
   GLTFTextureWebPExtension
 } from './GLTFExtensions'
 import { GLTFParser } from './GLTFParser'
+import { KTX2Loader } from './KTX2Loader'
 
 export class GLTFLoader extends Loader {
-  dracoLoader = null
-  ktx2Loader = null
+  dracoLoader = null as null | DRACOLoader
+  ktx2Loader = null as null | KTX2Loader
   meshoptDecoder = null
 
   pluginCallbacks = [] as any[]
@@ -126,7 +140,7 @@ export class GLTFLoader extends Loader {
     })
   }
 
-  load(url, onLoad, onProgress, onError, signal) {
+  load(url, onLoad, onProgress, onError, signal?) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const scope = this
 
@@ -344,4 +358,18 @@ export interface GLTF {
   }
   parser: GLTFParser
   userData: any
+}
+
+export interface GLTFLoaderPlugin {
+  beforeRoot?: (() => Promise<void> | null) | undefined
+  afterRoot?: ((result: GLTF) => Promise<void> | null) | undefined
+  loadMesh?: ((meshIndex: number) => Promise<Group | Mesh | SkinnedMesh> | null) | undefined
+  loadBufferView?: ((bufferViewIndex: number) => Promise<ArrayBuffer> | null) | undefined
+  loadMaterial?: ((materialIndex: number) => Promise<Material> | null) | undefined
+  loadTexture?: ((textureIndex: number) => Promise<Texture> | null) | undefined
+  getMaterialType?: ((materialIndex: number) => typeof Material | null) | undefined
+  extendMaterialParams?:
+    | ((materialIndex: number, materialParams: { [key: string]: any }) => Promise<any> | null)
+    | undefined
+  createNodeAttachment?: ((nodeIndex: number) => Promise<Object3D> | null) | undefined
 }

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { GLTFParser } from '../GLTFLoader'
+import { GLTFParser } from '../GLTFParser'
 
 export class RemoveMaterialsExtension {
   name = 'EXT_remove_materials'

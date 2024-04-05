@@ -156,17 +156,3 @@
 //   loadNode: (nodeIndex: number) => Promise<Object3D>
 //   loadScene: () => Promise<Group>
 // }
-
-// export interface GLTFLoaderPlugin {
-//   beforeRoot?: (() => Promise<void> | null) | undefined
-//   afterRoot?: ((result: GLTF) => Promise<void> | null) | undefined
-//   loadMesh?: ((meshIndex: number) => Promise<Group | Mesh | SkinnedMesh> | null) | undefined
-//   loadBufferView?: ((bufferViewIndex: number) => Promise<ArrayBuffer> | null) | undefined
-//   loadMaterial?: ((materialIndex: number) => Promise<Material> | null) | undefined
-//   loadTexture?: ((textureIndex: number) => Promise<Texture> | null) | undefined
-//   getMaterialType?: ((materialIndex: number) => typeof Material | null) | undefined
-//   extendMaterialParams?:
-//     | ((materialIndex: number, materialParams: { [key: string]: any }) => Promise<any> | null)
-//     | undefined
-//   createNodeAttachment?: ((nodeIndex: number) => Promise<Object3D> | null) | undefined
-// }
