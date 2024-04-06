@@ -28,18 +28,20 @@ import { Camera, Mesh, Object3D } from 'three'
 
 import { getState, none } from '@etherealengine/hyperflux'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  getOptionalMutableComponent,
   hasComponent,
   removeComponent,
   setComponent,
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { QueryComponents, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
@@ -47,7 +49,7 @@ import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials
 import { MaterialComponent } from '@etherealengine/engine/src/scene/materials/components/MaterialComponent'
 import { SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
 import {
-  materialIsRegistered,
+  hashMaterial,
   registerMaterial,
   registerMaterialInstance
 } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
@@ -119,18 +121,26 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   const material = (object as Mesh).material
   const materialLibrary = getState(MaterialLibraryState)
   const materials = Array.isArray(material) ? material : [material]
-  setComponent(entity, MaterialComponent, { uuid: materials.map((material) => material.uuid) })
   materials
     .filter((material) => !materialLibrary.materials[material.uuid])
     .map((material) => {
-      if (!materialIsRegistered(material.uuid)) {
+      const path = getOptionalComponent(entity, SourceComponent)?.slice(37) ?? ''
+      //if we already have a unique material hash, we don't need to register it again, reuse the existing one
+      const entityFromHash = MaterialComponent.materialByHash[hashMaterial(path, material.name)]
+      if (entityFromHash) {
+        const materialComponent = getOptionalMutableComponent(entity, MaterialComponent)
+        if (!materialComponent) setComponent(entity, MaterialComponent, { uuid: [entityFromHash] })
+        else materialComponent.uuid.set([...materialComponent.uuid.value, entityFromHash])
+        return
+      }
+      if (!UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)) {
         if (material.plugins) {
           material.customProgramCacheKey = () =>
             material.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
         }
         const materialComponent = registerMaterial(material, {
           type: SourceType.BUILT_IN,
-          path: getOptionalComponent(entity, SourceComponent) ?? ''
+          path
         })
         material.userData?.plugins && materialComponent.plugins.set(material.userData['plugins'])
       }

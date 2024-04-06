@@ -88,11 +88,6 @@ export function formatMaterialArgs(args, defaultArgs: any = undefined) {
   )
 }
 
-export function materialIsRegistered(uuid: string): boolean {
-  const materialLibrary = getState(MaterialLibraryState)
-  return materialLibrary.materials[uuid] !== undefined
-}
-
 export function materialFromId(matId: string): MaterialComponentType {
   const materialLibrary = getState(MaterialLibraryState)
   const material = materialLibrary.materials[matId]
@@ -153,6 +148,10 @@ export function hashMaterialSource(src: MaterialSource): string {
   return `${stringHash(src.path) ^ stringHash(src.type)}`
 }
 
+export const hashMaterial = (source: string, name: string) => {
+  return `${stringHash(source) ^ stringHash(name)}`
+}
+
 export function addMaterialSource(src: MaterialSource): boolean {
   const materialLibrary = getMutableState(MaterialLibraryState)
   const srcId = hashMaterialSource(src)
@@ -197,7 +196,7 @@ export function removeMaterialSource(src: MaterialSource): boolean {
   } else return false
 }
 
-export function registerMaterial(material: Material, src: MaterialSource, params?: { [_: string]: any }) {
+export const registerMaterial = (material: Material, src: MaterialSource, params?: { [_: string]: any }) => {
   const materialLibrary = getMutableState(MaterialLibraryState)
   const prototypeId = material.userData.type ?? material.type
   addMaterialSource(src)
@@ -211,6 +210,8 @@ export function registerMaterial(material: Material, src: MaterialSource, params
   setComponent(materialEntity, MaterialComponent, { material })
   setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
   setComponent(materialEntity, SourceComponent, src.path as SceneID)
+  setComponent(materialEntity, MaterialComponent, { hash: hashMaterial(src.path, material.name) })
+
   // try {
   //   const prototype = prototypeFromId(prototypeId)
   //   const parameters =

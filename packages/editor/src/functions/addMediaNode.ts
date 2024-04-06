@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getContentType } from '@etherealengine/common/src/utils/getContentType'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
@@ -32,6 +32,7 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
@@ -40,7 +41,6 @@ import { SourceType } from '@etherealengine/engine/src/scene/materials/component
 import {
   getMaterialSource,
   materialFromId,
-  materialIsRegistered,
   registerMaterial,
   registerMaterialInstance,
   unregisterMaterial,
@@ -79,7 +79,7 @@ export async function addMediaNode(
       const objectLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Scene]])
       const sceneObjects = objectLayerQuery().flatMap((entity) => getComponent(entity, GroupComponent))
       //const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Scene] || [])
-      let mouse = new Vector2()
+      const mouse = new Vector2()
       const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
       const pointerScreenRaycaster = new Raycaster()
 
@@ -101,12 +101,14 @@ export async function addMediaNode(
           (mesh: Mesh) => mesh?.isMesh
         )[0]
         if (!material) return
-        if (materialIsRegistered(material.uuid)) material = materialFromId(material.uuid).material
+        if (UUIDComponent.getEntityByUUID(material.uuid as EntityUUID))
+          material = materialFromId(material.uuid).material
         iterateObject3D(intersected.object, (mesh: Mesh) => {
           if (!mesh?.isMesh) return
           const src = getMaterialSource(mesh.material as Material)
           if (!src) return
-          if (!materialIsRegistered(material.uuid)) registerMaterial(material, { type: SourceType.MODEL, path: src })
+          if (!UUIDComponent.getEntityByUUID(material.uuid as EntityUUID))
+            registerMaterial(material, { type: SourceType.MODEL, path: src })
           registerMaterialInstance(material, mesh.entity)
           if (unregisterMaterialInstance(mesh.material as Material, mesh.entity) === 0) {
             unregisterMaterial(mesh.material as Material)

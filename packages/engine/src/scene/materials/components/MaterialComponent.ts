@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Material, Shader } from 'three'
 
-import { defineComponent } from '@etherealengine/ecs'
+import { UUIDComponent, defineComponent, getComponent } from '@etherealengine/ecs'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { MaterialSource } from './MaterialSource'
@@ -48,17 +48,24 @@ export const MaterialComponent = defineComponent({
   name: 'MaterialComponent',
   onInit: (entity) => {
     return {
-      material: null as null | Material,
       uuid: [] as string[],
-      instances: [] as Entity[]
+      material: null as null | Material,
+      instances: [] as Entity[],
+      hash: ''
     }
   },
+
+  materialByHash: {} as Record<string, string>,
 
   onSet: (entity, component, json) => {
     if (!json) return
     if (json.uuid) component.uuid.set(json.uuid)
     if (json.material) component.material.set(json.material)
     if (json.instances) component.instances.set(json.instances)
+    if (json.hash) {
+      component.hash.set(json.hash)
+      if (json.hash != '') MaterialComponent.materialByHash[json.hash] = getComponent(entity, UUIDComponent)
+    }
   }
 })
 
