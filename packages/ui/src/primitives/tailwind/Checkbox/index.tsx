@@ -62,10 +62,11 @@ const Checkbox = ({ className, override, label, value, onChange, onRelease, disa
         }}
         disabled={disabled}
       />
-      <label htmlFor={checkboxId} className={className} tabIndex={0}>
-        {value && icon !== undefined && icon}
-      </label>
-
+      {override && (
+        <label htmlFor={checkboxId} className={className} tabIndex={0}>
+          {value && icon !== undefined && icon}
+        </label>
+      )}
       {label && (
         <Label onClick={() => onChange(!value)} className="cursor-pointer self-stretch">
           {label}
