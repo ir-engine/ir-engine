@@ -28,7 +28,6 @@ import { Material, Shader } from 'three'
 import { UUIDComponent, defineComponent, getComponent } from '@etherealengine/ecs'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
-import { MaterialSource } from './MaterialSource'
 
 export type MaterialWithEntity = Material & { entity: Entity }
 
@@ -39,7 +38,7 @@ export type MaterialComponentType = {
   material: Material
   parameters: { [field: string]: any }
   plugins: string[]
-  src: MaterialSource
+  src
   status: MaterialStatus
   instances: Entity[]
 }
@@ -51,7 +50,8 @@ export const MaterialComponent = defineComponent({
       uuid: [] as string[],
       material: null as null | Material,
       instances: [] as Entity[],
-      hash: ''
+      hash: '',
+      plugins: [] as string[]
     }
   },
 
@@ -66,6 +66,7 @@ export const MaterialComponent = defineComponent({
       component.hash.set(json.hash)
       if (json.hash != '') MaterialComponent.materialByHash[json.hash] = getComponent(entity, UUIDComponent)
     }
+    if (json.plugins) component.plugins.set(json.plugins)
   }
 })
 

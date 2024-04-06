@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { MaterialComponentType } from './components/MaterialComponent'
+import { MaterialComponentType } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { MaterialPluginType } from './components/MaterialPluginComponent'
 import { MaterialPrototypeComponentType } from './components/MaterialPrototypeComponent'
 import { MaterialSourceComponentType } from './components/MaterialSource'

@@ -46,15 +46,11 @@ import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { QueryComponents, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
-import { MaterialComponent } from '@etherealengine/engine/src/scene/materials/components/MaterialComponent'
 import { SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
-import {
-  hashMaterial,
-  registerMaterial,
-  registerMaterialInstance
-} from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { MaterialComponent } from '../materials/MaterialComponent'
+import { hashMaterial, registerMaterial, registerMaterialInstance } from '../materials/materialFunctions'
 import { Layer } from './ObjectLayerComponent'
 import { RenderOrderComponent } from './RenderOrderComponent'
 
@@ -138,10 +134,11 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
           material.customProgramCacheKey = () =>
             material.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
         }
-        const materialComponent = registerMaterial(material, {
+        const materialEntity = registerMaterial(material, {
           type: SourceType.BUILT_IN,
           path
         })
+        const materialComponent = getMutableComponent(materialEntity, MaterialComponent)
         material.userData?.plugins && materialComponent.plugins.set(material.userData['plugins'])
       }
       registerMaterialInstance(material, entity)

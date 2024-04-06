@@ -27,15 +27,13 @@ import { Color, Material, Texture } from 'three'
 
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
-import { Entity, EntityUUID, UUIDComponent, createEntity, defineQuery } from '@etherealengine/ecs'
-import { getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, defineQuery } from '@etherealengine/ecs'
 import { stringHash } from '@etherealengine/spatial/src/common/functions/MathFunctions'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { MaterialComponentType } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { SourceComponent } from '../../components/SourceComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
 import { MaterialSelectionState } from '../MaterialLibraryState'
-import { MaterialComponent, MaterialComponentType } from '../components/MaterialComponent'
 import { MaterialPrototypeComponentType } from '../components/MaterialPrototypeComponent'
 import { MaterialSource, MaterialSourceComponentType } from '../components/MaterialSource'
 import { LibraryEntryType } from '../constants/LibraryEntry'
@@ -148,10 +146,6 @@ export function hashMaterialSource(src: MaterialSource): string {
   return `${stringHash(src.path) ^ stringHash(src.type)}`
 }
 
-export const hashMaterial = (source: string, name: string) => {
-  return `${stringHash(source) ^ stringHash(name)}`
-}
-
 export function addMaterialSource(src: MaterialSource): boolean {
   const materialLibrary = getMutableState(MaterialLibraryState)
   const srcId = hashMaterialSource(src)
@@ -196,93 +190,40 @@ export function removeMaterialSource(src: MaterialSource): boolean {
   } else return false
 }
 
-export const registerMaterial = (material: Material, src: MaterialSource, params?: { [_: string]: any }) => {
-  const materialLibrary = getMutableState(MaterialLibraryState)
-  const prototypeId = material.userData.type ?? material.type
-  addMaterialSource(src)
-  const srcMats = getSourceItems(src)!
-  !srcMats.includes(material.uuid) &&
-    materialLibrary.sources[hashMaterialSource(src)].entries.set([
-      ...materialLibrary.sources[hashMaterialSource(src)].entries.value,
-      material.uuid
-    ])
-  const materialEntity = createEntity()
-  setComponent(materialEntity, MaterialComponent, { material })
-  setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
-  setComponent(materialEntity, SourceComponent, src.path as SceneID)
-  setComponent(materialEntity, MaterialComponent, { hash: hashMaterial(src.path, material.name) })
-
+export function unregisterMaterial(material: Material) {
+  // const materialLibrary = getMutableState(MaterialLibraryState)
   // try {
-  //   const prototype = prototypeFromId(prototypeId)
-  //   const parameters =
-  //     params ?? Object.fromEntries(Object.keys(extractDefaults(prototype.arguments)).map((k) => [k, material[k]]))
-  //   materialLibrary.materials[material.uuid].set({
-  //     material,
-  //     parameters,
-  //     plugins: [],
-  //     prototype: prototype.prototypeId,
-  //     src,
-  //     status: 'LOADED',
-  //     instances: []
-  //   })
+  //   const matEntry = materialFromId(material.uuid)
+  //   const materialSelectionState = getMutableState(MaterialSelectionState)
+  //   if (materialSelectionState.selectedMaterial.value === material.uuid) {
+  //     materialSelectionState.selectedMaterial.set(null)
+  //   }
+  //   materialLibrary.materials[material.uuid].set(none)
+  //   const srcEntry = materialLibrary.sources[hashMaterialSource(matEntry.src)].entries
+  //   srcEntry.set(srcEntry.value.filter((matId) => matId !== material.uuid))
+  //   if (srcEntry.value.length === 0) {
+  //     removeMaterialSource(matEntry.src)
+  //   }
+  //   return matEntry
   // } catch (error) {
-  //   if (error instanceof PrototypeNotFoundError) {
-  //     console.warn('material prototype ' + prototypeId + ' not found, registering as missing material')
-  //     materialLibrary.materials[material.uuid].set({
-  //       material,
-  //       parameters: params ?? {},
-  //       plugins: [],
-  //       prototype: prototypeId,
-  //       src,
-  //       status: 'MISSING',
-  //       instances: []
-  //     })
+  //   if (error instanceof MaterialNotFoundError) {
+  //     console.warn('material is already unregistered')
+  //     return undefined
   //   } else throw error
   // }
-
-  return materialLibrary.materials[material.uuid]
-}
-
-export function unregisterMaterial(material: Material) {
-  const materialLibrary = getMutableState(MaterialLibraryState)
-  try {
-    const matEntry = materialFromId(material.uuid)
-    const materialSelectionState = getMutableState(MaterialSelectionState)
-    if (materialSelectionState.selectedMaterial.value === material.uuid) {
-      materialSelectionState.selectedMaterial.set(null)
-    }
-    materialLibrary.materials[material.uuid].set(none)
-    const srcEntry = materialLibrary.sources[hashMaterialSource(matEntry.src)].entries
-    srcEntry.set(srcEntry.value.filter((matId) => matId !== material.uuid))
-    if (srcEntry.value.length === 0) {
-      removeMaterialSource(matEntry.src)
-    }
-    return matEntry
-  } catch (error) {
-    if (error instanceof MaterialNotFoundError) {
-      console.warn('material is already unregistered')
-      return undefined
-    } else throw error
-  }
 }
 
 export function registerMaterialPrototype(prototype: MaterialPrototypeComponentType) {
-  const materialLibrary = getMutableState(MaterialLibraryState)
-  if (materialLibrary.prototypes[prototype.prototypeId].value) {
-    console.warn(
-      'overwriting existing material prototype!\nnew:',
-      prototype.prototypeId,
-      '\nold:',
-      prototypeFromId(prototype.prototypeId)
-    )
-  }
-  materialLibrary.prototypes[prototype.prototypeId].set(prototype)
-}
-
-export function registerMaterialInstance(material: Material, entity: Entity) {
-  const materialEntity = UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)
-  const materialComponent = getMutableComponent(materialEntity, MaterialComponent)
-  materialComponent.instances.set([...materialComponent.instances.value, entity])
+  // const materialLibrary = getMutableState(MaterialLibraryState)
+  // if (materialLibrary.prototypes[prototype.prototypeId].value) {
+  //   console.warn(
+  //     'overwriting existing material prototype!\nnew:',
+  //     prototype.prototypeId,
+  //     '\nold:',
+  //     prototypeFromId(prototype.prototypeId)
+  //   )
+  // }
+  // materialLibrary.prototypes[prototype.prototypeId].set(prototype)
 }
 
 export function unregisterMaterialInstance(material: Material, entity: Entity): number {
@@ -299,55 +240,52 @@ export function materialsFromSource(src: MaterialSource) {
 const sceneMeshQuery = defineQuery([MeshComponent, SourceComponent])
 
 export function replaceMaterial(material: Material, nuMat: Material) {
-  for (const entity of sceneMeshQuery()) {
-    const mesh = getComponent(entity, MeshComponent)
-    if (Array.isArray(mesh.material)) {
-      mesh.material.map((meshMat, i) => {
-        if (material.uuid === meshMat.uuid) {
-          mesh.material[i] = nuMat
-        }
-      })
-    } else {
-      if (mesh.material.uuid === material.uuid) {
-        mesh.material = nuMat
-      }
-    }
-  }
+  // for (const entity of sceneMeshQuery()) {
+  //   const mesh = getComponent(entity, MeshComponent)
+  //   if (Array.isArray(mesh.material)) {
+  //     mesh.material.map((meshMat, i) => {
+  //       if (material.uuid === meshMat.uuid) {
+  //         mesh.material[i] = nuMat
+  //       }
+  //     })
+  //   } else {
+  //     if (mesh.material.uuid === material.uuid) {
+  //       mesh.material = nuMat
+  //     }
+  //   }
+  // }
 }
 
 export function changeMaterialPrototype(material: Material, protoId: string) {
-  const materialEntry = materialFromId(material.uuid)
-  if (materialEntry.prototype === protoId) return
-
-  const prototype = prototypeFromId(protoId)
-
-  const factory = protoIdToFactory(protoId)
-  const matKeys = Object.keys(material)
-  const commonParms = Object.fromEntries(
-    Object.keys(prototype.arguments)
-      .filter((key) => matKeys.includes(key))
-      .map((key) => [key, material[key]])
-  )
-  const fullParms = { ...extractDefaults(prototype.arguments), ...commonParms }
-  const nuMat = factory(fullParms)
-  if (nuMat.plugins) {
-    nuMat.customProgramCacheKey = () => nuMat.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
-  }
-
-  replaceMaterial(material, nuMat)
-  nuMat.uuid = material.uuid
-  nuMat.name = material.name
-  if (material.defines?.['USE_COLOR']) {
-    nuMat.defines = nuMat.defines ?? {}
-    nuMat.defines!['USE_COLOR'] = material.defines!['USE_COLOR']
-  }
-  nuMat.userData = {
-    ...nuMat.userData,
-    ...Object.fromEntries(Object.entries(material.userData).filter(([k, v]) => k !== 'type'))
-  }
-  materialEntry.plugins.map((pluginId: string) => {})
-  registerMaterial(nuMat, materialEntry.src)
-  return nuMat
+  // const materialEntry = materialFromId(material.uuid)
+  // if (materialEntry.prototype === protoId) return
+  // const prototype = prototypeFromId(protoId)
+  // const factory = protoIdToFactory(protoId)
+  // const matKeys = Object.keys(material)
+  // const commonParms = Object.fromEntries(
+  //   Object.keys(prototype.arguments)
+  //     .filter((key) => matKeys.includes(key))
+  //     .map((key) => [key, material[key]])
+  // )
+  // const fullParms = { ...extractDefaults(prototype.arguments), ...commonParms }
+  // const nuMat = factory(fullParms)
+  // if (nuMat.plugins) {
+  //   nuMat.customProgramCacheKey = () => nuMat.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
+  // }
+  // replaceMaterial(material, nuMat)
+  // nuMat.uuid = material.uuid
+  // nuMat.name = material.name
+  // if (material.defines?.['USE_COLOR']) {
+  //   nuMat.defines = nuMat.defines ?? {}
+  //   nuMat.defines!['USE_COLOR'] = material.defines!['USE_COLOR']
+  // }
+  // nuMat.userData = {
+  //   ...nuMat.userData,
+  //   ...Object.fromEntries(Object.entries(material.userData).filter(([k, v]) => k !== 'type'))
+  // }
+  // materialEntry.plugins.map((pluginId: string) => {})
+  // registerMaterial(nuMat, materialEntry.src)
+  // return nuMat
 }
 
 export function entryId(

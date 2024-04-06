@@ -41,8 +41,6 @@ import { SourceType } from '@etherealengine/engine/src/scene/materials/component
 import {
   getMaterialSource,
   materialFromId,
-  registerMaterial,
-  registerMaterialInstance,
   unregisterMaterial,
   unregisterMaterialInstance
 } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
@@ -53,6 +51,10 @@ import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterat
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import {
+  registerMaterial,
+  registerMaterialInstance
+} from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { Material, Mesh, Raycaster, Vector2 } from 'three'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
