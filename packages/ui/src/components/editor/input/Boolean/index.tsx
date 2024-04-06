@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { KeyboardEvent, useState } from 'react'
+import React, { useState } from 'react'
 import { twMerge } from 'tailwind-merge'
+import Checkbox from '../../../../primitives/tailwind/Checkbox'
 
 let uniqueId = 0
 
@@ -45,50 +46,37 @@ export const BooleanInput = (props: BooleanInputProp) => {
     props.disabled ? 'cursor-[initial] opacity-80 grayscale-[0.8]' : 'cursor-pointer'
   ])
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    props.onChange(e.target.checked)
-  }
-
   const onBlur = () => {
     if (props.onRelease) props.onRelease(props.value)
   }
 
-  const onKeyPress = (e: KeyboardEvent<HTMLLabelElement>) => {
-    if (e.key === 'Enter' || e.key === ' ') props.onChange(!props.value)
-  }
-
   return (
-    <div className="checkbox flex items-center justify-center">
-      <input
-        id={checkboxId}
-        className="m-0 hidden"
-        type="checkbox"
-        checked={props.value}
-        onChange={onChange}
-        onBlur={onBlur}
-        disabled={props.disabled}
-      />
-      <label htmlFor={checkboxId} className={labelStyle} tabIndex={0} onKeyPress={onKeyPress}>
-        {props.value && (
-          <svg
-            className="h-full w-full"
-            width="12"
-            height="9"
-            viewBox="0 0 12 9"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M11 1L4.125 8L1 4.81818"
-              stroke="#375DAF"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        )}
-      </label>
-    </div>
+    <Checkbox
+      className={labelStyle}
+      value={props.value}
+      override={true}
+      onChange={props.onChange}
+      onRelease={onBlur}
+      disabled={props.disabled}
+      icon={
+        <svg
+          className="h-full w-full"
+          width="12"
+          height="9"
+          viewBox="0 0 12 9"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M11 1L4.125 8L1 4.81818"
+            stroke="#375DAF"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      }
+    />
   )
 }
 
