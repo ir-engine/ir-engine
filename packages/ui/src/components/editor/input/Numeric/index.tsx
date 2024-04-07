@@ -22,3 +22,275 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+
+import PropTypes from 'prop-types'
+import React, { useEffect, useRef } from 'react'
+
+import { clamp } from '@etherealengine/spatial/src/common/functions/MathLerpFunctions'
+
+import { getStepSize, toPrecision } from '@etherealengine/editor/src/functions/utils'
+import { useHookstate } from '@hookstate/core'
+import { twMerge } from 'tailwind-merge'
+
+// Import the CSS file
+
+/**
+ * @param value
+ * @param precision
+ * @returns
+ */
+function toPrecisionString(value, precision) {
+  if (precision && precision <= 1) {
+    const numDigits = Math.abs(Math.log10(precision))
+    const minimumFractionDigits = Math.min(numDigits, 2)
+    const maximumFractionDigits = Math.max(minimumFractionDigits, numDigits)
+
+    return value.toLocaleString('fullwide', {
+      minimumFractionDigits,
+      maximumFractionDigits,
+      useGrouping: false
+    })
+  } else {
+    return value.toLocaleString('fullwide', { useGrouping: false })
+  }
+}
+
+const NumericInputContainer = ({ className = '', ...rest }) => {
+  const numericInputContainerClassName = twMerge(
+    'relative flex flex-1 bg-[color:var(--inputBackground)]',
+    'h-6 items-center overflow-hidden rounded border border-solid border-[color:var(--inputOutline)]',
+    'hover:border-[color:var(--blueHover)] ',
+    'disabled:bg-[color:var(--disabled)] disabled:text-[color:var(--disabledText)]',
+    className
+  )
+  return <div className={numericInputContainerClassName} {...rest} />
+}
+
+const NumericInputUnit = ({ className = '', ...rest }) => {
+  const numericInputUnitClassName = twMerge(
+    'h-full bg-[color:var(--inputBackground)] pr-1 leading-5 text-[color:var(--textColor)]',
+    'rounded-br rounded-tr',
+    className
+  )
+  return <div className={numericInputUnitClassName} {...rest} />
+}
+
+export interface NumericInputProp {
+  className?: string
+  unit?: any
+  prefix?: any
+  displayPrecision?: any
+  value: number
+  convertFrom?: any
+  precision?: number
+  mediumStep?: number
+  onChange?: (n: number) => void
+  onRelease?: (n: number) => void
+  smallStep?: number
+  largeStep?: number
+  min?: number
+  max?: number
+  convertTo?: any
+}
+
+export interface styledNumericInputProp {
+  className?: string
+  value?: number
+  onKeyUp?: any
+  onKeyDown?: any
+  onChange?: any
+  onFocus?: any
+  onBlur?: any
+  unit?: string
+}
+
+const StyledNumericInput = React.forwardRef(({ className = '', ...rest }: styledNumericInputProp, ref) => {
+  const styledNumericInputClassName = twMerge(
+    'h-[22px] bg-[color:var(--inputBackground)] text-xs text-[color:var(--textColor)]',
+    'box-border min-w-0 grow border-[none] px-1 py-0',
+    'disabled:bg-[color:var(--disabled)] disabled:text-[color:var(--disabledText)]',
+    className
+  )
+  return <input ref={ref as any} className={styledNumericInputClassName} {...rest} />
+})
+
+const NumericInput = React.forwardRef(
+  (
+    {
+      className,
+      unit,
+      prefix,
+      displayPrecision,
+      value,
+      convertFrom,
+      precision,
+      mediumStep,
+      onChange,
+      onRelease,
+      smallStep,
+      largeStep,
+      min,
+      max,
+      convertTo,
+      ...rest
+    }: NumericInputProp,
+    ref
+  ) => {
+    const tempValue = useHookstate(0)
+    const focused = useHookstate(false)
+    const inputEl = useRef<HTMLInputElement>(null)
+
+    const handleStep = (event, direction, focus = true) => {
+      const stepSize = event ? getStepSize(event, smallStep, mediumStep, largeStep) : mediumStep
+
+      const nextValue = parseFloat(inputEl?.current?.value ?? '0') + stepSize * direction
+      const clampedValue = min != null && max != null ? clamp(nextValue, min, max) : nextValue
+      const roundedValue = precision ? toPrecision(clampedValue, precision) : nextValue
+      const finalValue = convertTo(roundedValue)
+
+      if (onChange) {
+        onChange(Number(finalValue))
+      }
+
+      tempValue.set(
+        Number(
+          roundedValue.toLocaleString('fullwide', {
+            useGrouping: false,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: Math.abs(Math.log10(precision || 0)) + 1
+          })
+        )
+      )
+      focused.set(focus)
+    }
+
+    const increment = () => {
+      handleStep(null, 1, false)
+    }
+
+    const decrement = () => {
+      handleStep(null, -1, false)
+    }
+
+    const handleKeyPress = (event) => {
+      if (event.key === 'Escape') {
+        handleBlur()
+        return
+      }
+
+      if (event.key === 'Enter') {
+        handleBlur()
+        return
+      }
+
+      let direction = 0
+      if (event.key === 'ArrowUp') {
+        direction = 1
+      } else if (event.key === 'ArrowDown') {
+        direction = -1
+      }
+
+      if (!direction) return
+
+      event.preventDefault()
+
+      handleStep(event, direction, true)
+    }
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        event.preventDefault()
+      }
+    }
+
+    const handleChange = (event) => {
+      const newValue = event.target.value
+
+      tempValue.set(newValue)
+      focused.set(true)
+
+      const parsedValue = parseFloat(newValue)
+
+      if (!Number.isNaN(parsedValue)) {
+        const clampedValue = min != null && max != null ? clamp(parsedValue, min, max) : parsedValue
+        const roundedValue = precision ? toPrecision(clampedValue, precision) : clampedValue
+        const finalValue = convertTo(roundedValue)
+        onChange?.(Number(finalValue))
+      }
+    }
+
+    const handleFocus = () => {
+      tempValue.set(
+        convertFrom(value).toLocaleString('fullwide', {
+          useGrouping: false,
+          minimumFractionDigits: 0,
+          maximumFractionDigits: Math.abs(Math.log10(precision || 0)) + 1
+        })
+      )
+      focused.set(true)
+    }
+
+    useEffect(() => {
+      if (focused.value) inputEl?.current?.select()
+    }, [focused])
+
+    const handleBlur = () => {
+      if (!focused.value) return
+      focused.set(false)
+
+      if (onRelease) {
+        onRelease(Number(tempValue.value!))
+      }
+    }
+
+    return (
+      <NumericInputContainer className={className}>
+        {prefix ? prefix : null}
+        <StyledNumericInput
+          {...rest}
+          // unit={unit} // not a valid property?
+          ref={inputEl}
+          value={focused.value ? tempValue.value : toPrecisionString(convertFrom(value), displayPrecision)}
+          onKeyUp={handleKeyPress}
+          onKeyDown={handleKeyDown}
+          onChange={handleChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+        />
+        {unit && <NumericInputUnit>{unit}</NumericInputUnit>}
+      </NumericInputContainer>
+    )
+  }
+)
+
+NumericInput.propTypes = {
+  className: PropTypes.string,
+  unit: PropTypes.node,
+  smallStep: PropTypes.number.isRequired,
+  mediumStep: PropTypes.number.isRequired,
+  largeStep: PropTypes.number.isRequired,
+  min: PropTypes.number.isRequired,
+  max: PropTypes.number.isRequired,
+  value: PropTypes.number.isRequired,
+  onChange: PropTypes.func.isRequired,
+  onRelease: PropTypes.func,
+  convertTo: PropTypes.func.isRequired,
+  convertFrom: PropTypes.func.isRequired,
+  precision: PropTypes.number.isRequired,
+  displayPrecision: PropTypes.number.isRequired
+}
+
+NumericInput.defaultProps = {
+  value: 0,
+  smallStep: 0.025,
+  mediumStep: 0.1,
+  largeStep: 0.25,
+  min: -Infinity,
+  max: Infinity,
+  displayPrecision: 0.001,
+  precision: Number.EPSILON,
+  convertTo: (value) => value,
+  convertFrom: (value) => value
+}
+
+export default NumericInput

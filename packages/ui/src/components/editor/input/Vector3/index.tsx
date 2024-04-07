@@ -30,20 +30,18 @@ import { Vector3 } from 'three'
 import LinkIcon from '@mui/icons-material/Link'
 import LinkOffIcon from '@mui/icons-material/LinkOff'
 
-import NumericInput from '@etherealengine/editor/src/components/inputs/NumericInput'
-import Hidden from '@etherealengine/editor/src/components/layout/Hidden'
-
 // style inheritance
-import Scrubber from '@etherealengine/editor/src/components/inputs/Scrubber'
+
 import { twMerge } from 'tailwind-merge'
-import './Vector3Input.css'
+import Scrubber from '../../../../primitives/tailwind/Scrubber'
+import Hidden from '../../layout/Hidden'
+import NumericInput from '../Numeric'
 
 export const Vector3InputContainer: React.FC<{ children?: any }> = ({ children }) => {
   return <div className="flex flex-auto flex-row justify-start gap-1.5">{children}</div>
 }
 
 interface Vector3ScrubberProps {
-  tag?: string
   axis?: 'x' | 'y' | 'z' | string
   value: number
   onChange: any
@@ -52,7 +50,7 @@ interface Vector3ScrubberProps {
   className?: string
 }
 
-export const Vector3Scrubber = ({ tag, axis, onChange, value, children, ...props }: Vector3ScrubberProps) => {
+export const Vector3Scrubber = ({ axis, onChange, value, children, ...props }: Vector3ScrubberProps) => {
   const color = (() => {
     switch (axis) {
       case 'x':
@@ -69,7 +67,7 @@ export const Vector3Scrubber = ({ tag, axis, onChange, value, children, ...props
   props.className = twMerge([`bg-${color}`])
   const content = children ?? axis?.toUpperCase()
   return (
-    <Scrubber tag={tag} onChange={onChange} value={value} {...props}>
+    <Scrubber onChange={onChange} value={value} {...props}>
       {content}
     </Scrubber>
   )
