@@ -32,6 +32,7 @@ import { ThemeProvider } from '@etherealengine/client-core/src/common/services/T
 import '../../client/src/themes/base.css'
 import '../../client/src/themes/components.css'
 import '../../client/src/themes/utilities.css'
+import '../src/fonts/font.css'
 const Engine = lazy(() => import('@etherealengine/client/src/engine'))
 
 export const decorators = [

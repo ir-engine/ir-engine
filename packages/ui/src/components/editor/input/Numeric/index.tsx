@@ -55,26 +55,6 @@ function toPrecisionString(value, precision) {
   }
 }
 
-const NumericInputContainer = ({ className = '', ...rest }) => {
-  const numericInputContainerClassName = twMerge(
-    'relative flex flex-1 bg-[color:var(--inputBackground)]',
-    'h-6 items-center overflow-hidden rounded border border-solid border-[color:var(--inputOutline)]',
-    'hover:border-[color:var(--blueHover)] ',
-    'disabled:bg-[color:var(--disabled)] disabled:text-[color:var(--disabledText)]',
-    className
-  )
-  return <div className={numericInputContainerClassName} {...rest} />
-}
-
-const NumericInputUnit = ({ className = '', ...rest }) => {
-  const numericInputUnitClassName = twMerge(
-    'h-full bg-[color:var(--inputBackground)] pr-1 leading-5 text-[color:var(--textColor)]',
-    'rounded-br rounded-tr',
-    className
-  )
-  return <div className={numericInputUnitClassName} {...rest} />
-}
-
 export interface NumericInputProp {
   className?: string
   unit?: any
@@ -106,9 +86,7 @@ export interface styledNumericInputProp {
 
 const StyledNumericInput = React.forwardRef(({ className = '', ...rest }: styledNumericInputProp, ref) => {
   const styledNumericInputClassName = twMerge(
-    'h-[22px] bg-[color:var(--inputBackground)] text-xs text-[color:var(--textColor)]',
-    'box-border min-w-0 grow border-[none] px-1 py-0',
-    'disabled:bg-[color:var(--disabled)] disabled:text-[color:var(--disabledText)]',
+    "w-full bg-inherit font-['Figtree'] text-xs font-normal leading-[18px] text-neutral-400",
     className
   )
   return <input ref={ref as any} className={styledNumericInputClassName} {...rest} />
@@ -244,21 +222,35 @@ const NumericInput = React.forwardRef(
     }
 
     return (
-      <NumericInputContainer className={className}>
-        {prefix ? prefix : null}
-        <StyledNumericInput
-          {...rest}
-          // unit={unit} // not a valid property?
-          ref={inputEl}
-          value={focused.value ? tempValue.value : toPrecisionString(convertFrom(value), displayPrecision)}
-          onKeyUp={handleKeyPress}
-          onKeyDown={handleKeyDown}
-          onChange={handleChange}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-        />
-        {unit && <NumericInputUnit>{unit}</NumericInputUnit>}
-      </NumericInputContainer>
+      <div
+        className={twMerge(
+          prefix ? 'w-[93px] px-2 py-[7px]' : 'w-[200px] px-5 py-2',
+          'inline-flex  h-8 items-center justify-between rounded bg-neutral-900'
+        )}
+      >
+        <div
+          className={twMerge(
+            'shrink grow basis-0 self-stretch',
+            prefix ? 'flex items-center justify-start gap-2' : 'inline-flex items-start justify-between'
+          )}
+        >
+          {prefix ? prefix : null}
+          <StyledNumericInput
+            {...rest}
+            // unit={unit} // not a valid property?
+            ref={inputEl}
+            value={focused.value ? tempValue.value : toPrecisionString(convertFrom(value), displayPrecision)}
+            onKeyUp={handleKeyPress}
+            onKeyDown={handleKeyDown}
+            onChange={handleChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+          />
+          {unit && (
+            <div className="text-right font-['Figtree'] text-xs font-normal leading-[18px] text-gray-500"> {unit}</div>
+          )}
+        </div>
+      </div>
     )
   }
 )
