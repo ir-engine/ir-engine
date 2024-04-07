@@ -27,19 +27,11 @@ import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { Vector3 } from 'three'
 
-import LinkIcon from '@mui/icons-material/Link'
-import LinkOffIcon from '@mui/icons-material/LinkOff'
-
 // style inheritance
 
 import { twMerge } from 'tailwind-merge'
-import Scrubber from '../../../../primitives/tailwind/Scrubber'
-import Hidden from '../../layout/Hidden'
+import Scrubber from '../../layout/Scrubber'
 import NumericInput from '../Numeric'
-
-export const Vector3InputContainer: React.FC<{ children?: any }> = ({ children }) => {
-  return <div className="flex flex-auto flex-row justify-start gap-1.5">{children}</div>
-}
 
 interface Vector3ScrubberProps {
   axis?: 'x' | 'y' | 'z' | string
@@ -54,17 +46,17 @@ export const Vector3Scrubber = ({ axis, onChange, value, children, ...props }: V
   const color = (() => {
     switch (axis) {
       case 'x':
-        return '[color:var(--red)]'
+        return 'blue-400'
       case 'y':
-        return '[color:var(--green)]'
+        return 'red-400' // must be fushsia-400 , but these colors doesnt show up
       case 'z':
-        return '[color:var(--blue)]'
+        return 'green-400' //must be teal-400 , but this color doesnt show up
       default:
         return 'inherit'
     }
   })()
 
-  props.className = twMerge([`bg-${color}`])
+  props.className = twMerge([`text-${color}`])
   const content = children ?? axis?.toUpperCase()
   return (
     <Scrubber onChange={onChange} value={value} {...props}>
@@ -156,23 +148,7 @@ export const Vector3Input = ({
   const checkboxId = 'uniform-button-' + id
 
   return (
-    <Vector3InputContainer>
-      <UniformButtonContainer>
-        {uniformScaling && (
-          <>
-            <Hidden
-              as="input"
-              id={checkboxId}
-              type="checkbox"
-              checked={uniformEnabled.value}
-              onChange={onToggleUniform}
-            />
-            <label title="Uniform Scale" htmlFor={checkboxId}>
-              {uniformEnabled.value ? <LinkIcon /> : <LinkOffIcon />}
-            </label>
-          </>
-        )}
-      </UniformButtonContainer>
+    <div className="flex flex-auto flex-row justify-start gap-1.5">
       <NumericInput
         {...rest}
         value={vx}
@@ -206,7 +182,7 @@ export const Vector3Input = ({
           )
         }
       />
-    </Vector3InputContainer>
+    </div>
   )
 }
 

@@ -29,7 +29,7 @@ import { useHookstate } from '@etherealengine/hyperflux'
 import React, { ReactNode, useEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { MathUtils } from 'three'
-import Overlay from '../../../components/editor/layout/Overlay'
+import Overlay from './Overlay'
 
 type ScrubberContainerProps = {
   tag?: any
@@ -37,17 +37,6 @@ type ScrubberContainerProps = {
   onMouseDown: any
   className: string
 }
-
-const ScrubberContainer = React.forwardRef<HTMLElement, ScrubberContainerProps>(
-  ({ tag: Component = 'div', children, className }: ScrubberContainerProps, ref: React.Ref<HTMLElement>) => {
-    const containerClassName = twMerge('cursor-ew-resize', className)
-    return (
-      <Component ref={ref} className={containerClassName}>
-        {children}
-      </Component>
-    )
-  }
-)
 
 type ScrubberProps = {
   className?: string
@@ -83,6 +72,13 @@ const Scrubber: React.FC<ScrubberProps> = ({
   onRelease,
   ...rest
 }) => {
+  const containerClassName = twMerge(
+    'flex items-center',
+    'cursor-ew-resize',
+    "font-['Figtree'] text-xs font-normal leading-[18px]",
+    className
+  )
+
   const state = useHookstate({
     isDragging: false,
     startValue: null as number | null,
@@ -92,7 +88,7 @@ const Scrubber: React.FC<ScrubberProps> = ({
     mouseY: null
   })
 
-  const scrubberEl = useRef<HTMLElement>(null)
+  const scrubberEl = useRef<HTMLDivElement>(null)
 
   const handleMouseMove = (event) => {
     if (state.isDragging.value) {
@@ -152,7 +148,7 @@ const Scrubber: React.FC<ScrubberProps> = ({
   }
 
   return (
-    <ScrubberContainer className={className ?? ''} ref={scrubberEl} onMouseDown={handleMouseDown} {...rest}>
+    <div className={containerClassName} ref={scrubberEl} onMouseDown={handleMouseDown} {...rest}>
       {children}
       {state.isDragging.value && (
         <Portal>
@@ -161,7 +157,7 @@ const Scrubber: React.FC<ScrubberProps> = ({
           </Overlay>
         </Portal>
       )}
-    </ScrubberContainer>
+    </div>
   )
 }
 
