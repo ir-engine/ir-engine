@@ -51,11 +51,16 @@ import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/compon
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { createObj } from '../../assets/functions/resourceHooks'
 
 const ARC_SEGMENTS = 200
 const _point = new Vector3()
 const lineGeometry = new BufferGeometry()
 lineGeometry.setAttribute('position', new BufferAttribute(new Float32Array(ARC_SEGMENTS * 3), 3))
+
+const lineMaterial = new LineBasicMaterial({ color: 0xff0000, opacity: 0.35 })
+const greenMeshMaterial = new MeshBasicMaterial({ color: 'lightgreen', opacity: 0.2 })
+const redMeshMaterial = new MeshBasicMaterial({ color: 'red', opacity: 0.2 })
 
 export const SplineComponent = defineComponent({
   name: 'SplineComponent',
@@ -115,13 +120,14 @@ export const SplineComponent = defineComponent({
 
       let lineEntity: Entity | null = null
 
-      const line = new Line(lineGeometry.clone(), new LineBasicMaterial({ color: 0xff0000, opacity: 0.35 }))
+      const line = new Line(lineGeometry.clone(), lineMaterial)
       line.name = `${entity}-line`
       line.layers.set(ObjectLayers.NodeHelper)
 
       const geometry = new SphereGeometry(0.05, 4, 2)
 
       const gizmoEntities = [] as Entity[]
+      const gizmoUnloads = [] as (() => void)[]
 
       if (debugEnabled.value) {
         lineEntity = createEntity()
@@ -133,7 +139,7 @@ export const SplineComponent = defineComponent({
 
         if (elements.length > 0) {
           const first = elements[0].value
-          const sphere = new Mesh(geometry, new MeshBasicMaterial({ color: 'lightgreen', opacity: 0.2 }))
+          const sphere = new Mesh(geometry, greenMeshMaterial)
           sphere.position.copy(first.position)
           addObjectToGroup(lineEntity, sphere)
           sphere.layers.set(ObjectLayers.NodeHelper)
@@ -141,7 +147,7 @@ export const SplineComponent = defineComponent({
 
         if (elements.length > 1) {
           const last = elements[elements.length - 1].value
-          const sphere = new Mesh(geometry, new MeshBasicMaterial({ color: 'red', opacity: 0.2 }))
+          const sphere = new Mesh(geometry, redMeshMaterial)
           sphere.position.copy(last.position)
           addObjectToGroup(lineEntity, sphere)
           sphere.layers.set(ObjectLayers.NodeHelper)
@@ -149,9 +155,9 @@ export const SplineComponent = defineComponent({
 
         let id = 0
         for (const elem of elements.value) {
-          const gizmo = new AxesHelper()
-          gizmo.name = `${entity}-gizmos-${++id}`
           const gizmoEntity = createEntity()
+          const [gizmo, unload] = createObj(AxesHelper, gizmoEntity)
+          gizmo.name = `${entity}-gizmos-${++id}`
           addObjectToGroup(gizmoEntity, gizmo)
           setComponent(gizmoEntity, NameComponent, gizmo.name)
           setComponent(gizmoEntity, EntityTreeComponent, { parentEntity: entity })
@@ -162,6 +168,7 @@ export const SplineComponent = defineComponent({
             rotation: elem.quaternion
           })
           gizmo.layers.set(ObjectLayers.NodeHelper)
+          gizmoUnloads.push(unload)
         }
       }
 
@@ -183,6 +190,7 @@ export const SplineComponent = defineComponent({
       return () => {
         if (lineEntity) removeEntity(lineEntity)
         for (const gizmoEntity of gizmoEntities) removeEntity(gizmoEntity)
+        for (const gizmoUnload of gizmoUnloads) gizmoUnload()
       }
     }, [
       debugEnabled,
