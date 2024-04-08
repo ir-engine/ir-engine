@@ -1,3 +1,9 @@
+resource "random_password" "rds_pass" {
+  length           = 16
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+
 module "rds" {
   source  = "terraform-aws-modules/rds/aws"
   version = "~> 6.5"
@@ -10,6 +16,7 @@ module "rds" {
 
   db_name             = replace(var.app_name, "/[^a-zA-Z0-9]/", "")
   username            = replace(var.app_name, "/[^a-zA-Z0-9]/", "")
+  password            = random_password.rds_pass.result
   port                = 5432
   publicly_accessible = true
 
@@ -32,16 +39,16 @@ module "rds" {
 }
 
 module "rds_sg" {
-  source  = "terraform-aws-modules/security-group/aws//modules/postgresql"
+  source  = "terraform-aws-modules/security-group/aws//modules/mysql"
   version = "~> 5.0"
 
   name   = "${var.app_name}-rds-sg-${var.environment}"
   vpc_id = var.vpc_id
 
-  ingress_cidr_blocks = [
-    var.vpc_cidr,       // VPC CIDR
-    "98.7.124.2/32",    // Lucas home
-  ]
+  ingress_cidr_blocks = concat(
+    [var.vpc_cidr],
+    var.rds_whitelist_ips
+  )
 
   tags = var.default_tags
 }

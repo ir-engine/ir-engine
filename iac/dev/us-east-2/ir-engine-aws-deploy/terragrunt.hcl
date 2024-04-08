@@ -50,6 +50,11 @@ inputs = {
   ]
   rds_subnet_group = "db-subnet-group-${local.env}"
   vpc_cidr = "10.72.0.0/16"
+  rds_whitelist_ips = [
+    "98.7.124.2/32",        // Lucas home
+    "67.245.68.240/32",     // Irene home
+    "73.189.150.160/32",    // Ching home
+  ]
   rds_instance_class = "db.t3.small"
   ecr_read_write_access_arn = local.account_role_arn
   default_tags = {

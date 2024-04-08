@@ -22,6 +22,14 @@ module "eks_engine_main" {
       max_size = 16
       capacity_type = "SPOT"
       instance_type = ["t3a.medium"]
+      block_device_mappings = {
+        device = {
+          device_name = "/dev/xvda"
+          ebs = {
+            volume_size = 20
+          }
+        }
+      }
     }
     ng-instanceservers-1 = {
       desired_size = 8
@@ -29,6 +37,14 @@ module "eks_engine_main" {
       max_size = 24
       capacity_type = "ON_DEMAND"
       instance_type = ["t3a.small"]
+      block_device_mappings = {
+        device = {
+          device_name = "/dev/xvda"
+          ebs = {
+            volume_size = 20
+          }
+        }
+      }
     }
     ng-redis-1 = {
       desired_size = 2
@@ -36,6 +52,14 @@ module "eks_engine_main" {
       max_size = 2
       capacity_type = "ON_DEMAND"
       instance_type = ["t3a.small"]
+      block_device_mappings = {
+        device = {
+          device_name = "/dev/xvda"
+          ebs = {
+            volume_size = 20
+          }
+        }
+      }
     }
     ng-builder-1 = {
       desired_size = 1
@@ -43,6 +67,14 @@ module "eks_engine_main" {
       max_size = 1
       capacity_type = "SPOT"
       instance_type = ["t3a.2xlarge"]
+      block_device_mappings = {
+        device = {
+          device_name = "/dev/xvda"
+          ebs = {
+            volume_size = 50
+          }
+        }
+      }
     }
   }
   enable_cluster_creator_admin_permissions = true

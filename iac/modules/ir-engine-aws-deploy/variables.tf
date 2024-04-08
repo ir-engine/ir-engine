@@ -46,6 +46,12 @@ variable "ecr_read_write_access_arn" {
   default     = ""
 }
 
+variable "rds_whitelist_ips" {
+  type        = list
+  description = "List of additional IPs to whitelist for local dev/testing"
+  default     = []
+}
+
 variable "default_tags" {
   type        = map(string)
   description = "Default tags for resource"
