@@ -22,3 +22,88 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+
+import React from 'react'
+
+import ArrowLeftIcon from '@mui/icons-material/ArrowLeft'
+import ArrowRightIcon from '@mui/icons-material/ArrowRight'
+
+import { t } from 'i18next'
+import NumericInput, { NumericInputProp } from '..'
+import { InfoTooltip } from '../../../layout/Tooltip'
+
+const stepperInputContainerStyle = {
+  display: 'flex',
+  flex: '1',
+  width: '100%',
+  height: '24px'
+}
+
+const stepperButtonStyle = {
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: 'var(--toolbar)',
+  border: '1px solid var(--inputOutline)',
+  color: 'var(--textColor)',
+  width: '20px',
+  padding: '0',
+  margin: 0
+}
+
+const leftStepperButtonStyle = {
+  ...stepperButtonStyle,
+  borderTopLeftRadius: '4px',
+  borderBottomLeftRadius: '4px'
+}
+
+const rightStepperButtonStyle = {
+  ...stepperButtonStyle,
+  borderTopRightRadius: '4px',
+  borderBottomRightRadius: '4px'
+}
+
+export function NumericStepperInput({
+  style,
+  className,
+  decrementTooltip,
+  incrementTooltip,
+  onChange,
+  value,
+  mediumStep,
+  ...rest
+}: {
+  style?: React.CSSProperties
+  className?: string
+  incrementTooltip?: string
+  decrementTooltip?: string
+  onChange: (val) => void
+  value: number
+  mediumStep: number
+} & NumericInputProp) {
+  const onIncrement = () => onChange(value + mediumStep)
+  const onDecrement = () => onChange(value - mediumStep)
+
+  return (
+    <div style={{ ...stepperInputContainerStyle, ...style }} className={className}>
+      <InfoTooltip title={decrementTooltip} placement="bottom">
+        <button style={leftStepperButtonStyle} onClick={onDecrement}>
+          <ArrowLeftIcon fontSize="small" />
+        </button>
+      </InfoTooltip>
+      <NumericInput {...rest} onChange={onChange} value={value} mediumStep={mediumStep} />
+      <InfoTooltip title={incrementTooltip} placement="bottom">
+        <button style={rightStepperButtonStyle} onClick={onIncrement}>
+          <ArrowRightIcon fontSize="small" />
+        </button>
+      </InfoTooltip>
+    </div>
+  )
+}
+
+NumericStepperInput.defaultProps = {
+  incrementTooltip: t('editor:toolbar.grid.info-incrementHeight'),
+  decrementTooltip: t('editor:toolbar.grid.info-decrementHeight')
+}
+
+export default NumericStepperInput
