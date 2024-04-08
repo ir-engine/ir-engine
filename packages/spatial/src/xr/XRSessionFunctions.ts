@@ -138,7 +138,7 @@ export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' |
 
 export const getReferenceSpaces = (xrSession: XRSession) => {
   const worldOriginTransform = getComponent(Engine.instance.localFloorEntity, TransformComponent)
-  const cameraAttachedEntity = getState(PhysicsState).cameraAttachedRigidbodyEntity ?? Engine.instance.cameraEntity
+  const cameraAttachedEntity = getState(PhysicsState).cameraAttachedRigidbodyEntity || Engine.instance.cameraEntity
   const transform = getComponent(cameraAttachedEntity, TransformComponent)
 
   /** since the world origin is based on gamepad movement, we need to transform it by the pose of the avatar */

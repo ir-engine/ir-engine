@@ -83,6 +83,9 @@ export const MediaIconsBox = () => {
   const audioEnabled = currentLocation?.locationSetting?.value
     ? currentLocation?.locationSetting?.audioEnabled?.value
     : false
+  const screenshareEnabled = currentLocation?.locationSetting?.value
+    ? currentLocation?.locationSetting?.screenSharingEnabled?.value
+    : false
 
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
   const isMotionCaptureEnabled = mediaStreamState.faceTracking.value
@@ -194,6 +197,10 @@ export const MediaIconsBox = () => {
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             icon={<Icon type={'Accessibility'} />}
           />
+        </>
+      ) : null}
+      {screenshareEnabled && mediaNetworkReady && mediaNetworkState?.ready.value ? (
+        <>
           <IconButtonWithTooltip
             id="UserScreenSharing"
             title={t('user:menu.shareScreen')}

@@ -28,7 +28,7 @@ import { EntityUUID } from '@etherealengine/ecs'
 import { SceneState } from '../../src/scene/SceneState'
 
 export const loadEmptyScene = () => {
-  SceneState.loadScene('test' as SceneID, {
+  return SceneState.loadScene('test' as SceneID, {
     name: '',
     thumbnailUrl: '',
     project: '',

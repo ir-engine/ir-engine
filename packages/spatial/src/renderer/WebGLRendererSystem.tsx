@@ -34,6 +34,7 @@ import {
   defineQuery,
   defineSystem,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   useComponent,
   useEntityContext
@@ -100,9 +101,13 @@ const _scene = new Scene()
 _scene.matrixAutoUpdate = false
 _scene.matrixWorldAutoUpdate = false
 _scene.layers.set(ObjectLayers.Scene)
+globalThis._scene = _scene
 
 export class EngineRenderer {
-  /** @deprecated will be removed once threejs objects are not proxified. Should only be used in loadGLTFModel.ts */
+  /**
+   * @deprecated will be removed once threejs objects are not proxified. Should only be used in loadGLTFModel.ts
+   * see https://github.com/EtherealEngine/etherealengine/issues/9308
+   */
   static activeRender = false
   /** Is resize needed? */
   needsResize: boolean
@@ -128,8 +133,6 @@ export class EngineRenderer {
   movingAverage = new ExponentialMovingAverage(this.averageTimePeriods)
 
   renderer: WebGLRenderer = null!
-  /** used to optimize proxified threejs objects during render time, see loadGLTFModel and https://github.com/EtherealEngine/etherealengine/issues/9308 */
-  rendering = false
   effectComposer: EffectComposerWithSchema = null!
   /** @todo deprecate and replace with engine implementation */
   xrManager: WebXRManager = null!
@@ -320,8 +323,7 @@ export const PostProcessingSettingsState = defineState({
 
 const rendererQuery = defineQuery([RendererComponent, CameraComponent, SceneComponent])
 
-export const filterVisible = (entity: Entity) =>
-  hasComponent(entity, VisibleComponent) && hasComponent(entity, GroupComponent)
+export const filterVisible = (entity: Entity) => hasComponent(entity, VisibleComponent)
 export const getNestedVisibleChildren = (entity: Entity) => getNestedChildren(entity, filterVisible)
 
 const execute = () => {
@@ -348,7 +350,10 @@ const execute = () => {
         fog = getComponent(entity, FogComponent)
       }
     }
-    const objects = entitiesToRender.map((entity) => getComponent(entity, GroupComponent)).flat()
+    const objects = entitiesToRender
+      .map((entity) => getOptionalComponent(entity, GroupComponent)!)
+      .flat()
+      .filter(Boolean)
 
     _scene.children = objects
 
