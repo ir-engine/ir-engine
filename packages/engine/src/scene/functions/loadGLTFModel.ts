@@ -34,7 +34,6 @@ import {
   hasComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -170,27 +169,30 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
         return getComponent(objEntity, TransformComponent).matrixWorld
       },
       set(value) {
-        throw new Error('Cannot set matrixWorld of proxified object')
+        if (value != undefined) throw new Error('Cannot set matrixWorld of proxified object')
+        console.warn('Setting to nil value is not supported LoadGLTFModel.ts: proxifyParentChildRelationships')
       }
     },
     parent: {
       get() {
-        if (EngineRenderer.instance?.rendering) return null
+        if (EngineRenderer.activeRender) return null // hack to check if renderer is rendering
         if (getOptionalComponent(objEntity, EntityTreeComponent)?.parentEntity) {
-          const result =
-            getOptionalComponent(getComponent(objEntity, EntityTreeComponent).parentEntity!, GroupComponent)?.[0] ??
-            Engine.instance.scene
+          const result = getOptionalComponent(
+            getComponent(objEntity, EntityTreeComponent).parentEntity!,
+            GroupComponent
+          )?.[0]
           return result ?? null
         }
-        return Engine.instance.scene
+        return null
       },
       set(value) {
-        throw new Error('Cannot set parent of proxified object')
+        if (value != undefined) throw new Error('Cannot set parent of proxified object')
+        console.warn('Setting to nil value is not supported LoadGLTFModel.ts: proxifyParentChildRelationships')
       }
     },
     children: {
       get() {
-        if (EngineRenderer.instance?.rendering) return []
+        if (EngineRenderer.activeRender) return [] // hack to check if renderer is rendering
         if (hasComponent(objEntity, EntityTreeComponent)) {
           const childEntities = getComponent(objEntity, EntityTreeComponent).children
           const result: Object3D[] = []
@@ -207,7 +209,8 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
         }
       },
       set(value) {
-        throw new Error('Cannot set children of proxified object')
+        if (value != undefined) throw new Error('Cannot set children of proxified object')
+        console.warn('Setting to nil value is not supported LoadGLTFModel.ts: proxifyParentChildRelationships')
       }
     },
     isProxified: {
@@ -233,9 +236,9 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   const sceneID = getModelSceneID(rootEntity)
   setComponent(objEntity, SourceComponent, sceneID)
   setComponent(objEntity, EntityTreeComponent, {
-    parentEntity,
-    uuid
+    parentEntity
   })
+  setComponent(objEntity, UUIDComponent, uuid)
 
   if (hasComponent(rootEntity, SceneAssetPendingTagComponent))
     SceneAssetPendingTagComponent.addResource(objEntity, `${rootEntity}`)
@@ -271,9 +274,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
 
   obj.removeFromParent = () => {
     if (getOptionalComponent(objEntity, EntityTreeComponent)?.parentEntity) {
-      setComponent(objEntity, EntityTreeComponent, {
-        parentEntity: UndefinedEntity
-      })
+      setComponent(objEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
     }
     return obj
   }

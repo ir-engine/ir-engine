@@ -35,6 +35,7 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
+  removeComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -56,8 +57,8 @@ import { AllCollisionMask } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
+import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
-import { RendererComponent } from '../../renderer/components/RendererComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
@@ -118,7 +119,7 @@ export function updateGamepadInput(eid: Entity) {
 
 const pointers = defineQuery([InputPointerComponent, InputSourceComponent, Not(XRSpaceComponent)])
 const xrSpaces = defineQuery([XRSpaceComponent, TransformComponent])
-const inputSources = defineQuery([InputSourceComponent])
+const inputSources = defineQuery([InputSourceComponent, TransformComponent])
 const inputs = defineQuery([InputComponent])
 
 const inputXRUIs = defineQuery([InputComponent, VisibleComponent, XRUIComponent])
@@ -215,7 +216,7 @@ const execute = () => {
         : raycaster.layers.disable(ObjectLayers.TransformGizmo)
       const hits = raycaster.intersectObjects<Object3D>(objects, true)
       for (const hit of hits) {
-        const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => obj.parent === Engine.instance.scene)
+        const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => !obj.parent)
         if (parentObject?.entity) {
           intersectionData.push({ entity: parentObject.entity, distance: hit.distance })
         }
@@ -278,10 +279,8 @@ const useNonSpatialInputSources = () => {
     setComponent(eid, NameComponent, 'InputSource-nonspatial')
     const inputSourceComponent = getComponent(eid, InputSourceComponent)
 
-    // const canvas = EngineRenderer.instance.renderer.domElement
     document.addEventListener('DOMMouseScroll', preventDefault, false)
     document.addEventListener('gesturestart', preventDefault)
-    document.addEventListener('contextmenu', preventDefault)
     document.addEventListener('keydown', preventDefaultKeyDown, false)
 
     const onKeyEvent = (event: KeyboardEvent) => {
@@ -331,7 +330,6 @@ const useNonSpatialInputSources = () => {
     return () => {
       document.removeEventListener('DOMMouseScroll', preventDefault, false)
       document.removeEventListener('gesturestart', preventDefault)
-      document.removeEventListener('contextmenu', preventDefault)
       document.removeEventListener('keyup', onKeyEvent)
       document.removeEventListener('keydown', onKeyEvent)
       document.removeEventListener('touchstickmove', handleTouchDirectionalPad)
@@ -369,7 +367,10 @@ const usePointerInputSources = () => {
     if (xrState.session.value) return // pointer input sources are automatically handled by webxr
 
     const rendererComponent = getComponent(canvasEntity, RendererComponent)
-    const canvas = rendererComponent.renderer.domElement
+    const canvas = rendererComponent.canvas
+
+    canvas.addEventListener('dragstart', preventDefault, false)
+    canvas.addEventListener('contextmenu', preventDefault)
 
     // TODO: follow this spec more closely https://immersive-web.github.io/webxr/#transient-input
     // const pointerEntities = new Map<number, Entity>()
@@ -377,10 +378,8 @@ const usePointerInputSources = () => {
     const emulatedInputSourceEntity = createEntity()
     setComponent(emulatedInputSourceEntity, NameComponent, 'InputSource-emulated-pointer')
     setComponent(emulatedInputSourceEntity, TransformComponent)
-    setComponent(emulatedInputSourceEntity, InputPointerComponent, { pointerId: 0, canvasEntity: canvasEntity })
     setComponent(emulatedInputSourceEntity, InputSourceComponent)
     const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
-    const pointerComponent = getComponent(emulatedInputSourceEntity, InputPointerComponent)
 
     /** Clear mouse events */
     const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick']
@@ -391,6 +390,23 @@ const usePointerInputSources = () => {
         if (!val?.up && val?.pressed) state[button].up = true
       }
     }
+
+    const pointerEnter = (event: PointerEvent) => {
+      setComponent(emulatedInputSourceEntity, InputPointerComponent, {
+        pointerId: event.pointerId,
+        canvasEntity: canvasEntity
+      })
+    }
+
+    const pointerLeave = (event: PointerEvent) => {
+      const pointerComponent = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
+      if (!pointerComponent || pointerComponent?.pointerId !== event.pointerId) return
+      clearPointerState()
+      removeComponent(emulatedInputSourceEntity, InputPointerComponent)
+    }
+
+    canvas.addEventListener('pointerenter', pointerEnter)
+    canvas.addEventListener('pointerleave', pointerLeave)
 
     canvas.addEventListener('blur', clearPointerState)
     canvas.addEventListener('mouseleave', clearPointerState)
@@ -416,6 +432,8 @@ const usePointerInputSources = () => {
     }
 
     const handleMouseMove = (event: MouseEvent) => {
+      const pointerComponent = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
+      if (!pointerComponent) return
       pointerComponent.position.set(
         (event.clientX / window.innerWidth) * 2 - 1,
         (event.clientY / window.innerHeight) * -2 + 1
@@ -423,6 +441,8 @@ const usePointerInputSources = () => {
     }
 
     const handleTouchMove = (event: TouchEvent) => {
+      const pointerComponent = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
+      if (!pointerComponent) return
       const touch = event.touches[0]
       pointerComponent.position.set(
         (touch.clientX / window.innerWidth) * 2 - 1,
@@ -438,6 +458,10 @@ const usePointerInputSources = () => {
     canvas.addEventListener('touchend', handleMouseClick)
 
     return () => {
+      canvas.removeEventListener('dragstart', preventDefault, false)
+      canvas.removeEventListener('contextmenu', preventDefault)
+      canvas.removeEventListener('pointerenter', pointerEnter)
+      canvas.removeEventListener('pointerleave', pointerLeave)
       canvas.removeEventListener('blur', clearPointerState)
       canvas.removeEventListener('mouseleave', clearPointerState)
       canvas.removeEventListener('visibilitychange', handleVisibilityChange)
@@ -466,7 +490,7 @@ const useXRInputSources = () => {
       setComponent(eid, InputSourceComponent, { source })
       setComponent(eid, EntityTreeComponent, {
         parentEntity:
-          source.targetRayMode === 'tracked-pointer' ? Engine.instance.originEntity : Engine.instance.cameraEntity
+          source.targetRayMode === 'tracked-pointer' ? Engine.instance.localFloorEntity : Engine.instance.cameraEntity
       })
       setComponent(eid, TransformComponent)
       setComponent(eid, NameComponent, 'InputSource-handed:' + source.handedness + '-mode:' + source.targetRayMode)

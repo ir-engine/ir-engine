@@ -29,6 +29,8 @@ import { Entity } from '@etherealengine/ecs'
 import * as THREE from 'three'
 import { Euler, Matrix4, Object3D, Quaternion, Scene, SkinnedMesh, Vector2, Vector3, Vector4 } from 'three'
 
+import { overrideOnBeforeCompile } from './common/functions/OnBeforeCompilePlugin'
+
 //@ts-ignore
 Vector3.prototype.toJSON = function () {
   return { x: this.x, y: this.y, z: this.z }
@@ -210,6 +212,8 @@ SkinnedMesh.prototype.applyBoneTransform = function (index, vector) {
 
   return vector.applyMatrix4(this.bindMatrixInverse)
 }
+
+overrideOnBeforeCompile()
 
 globalThis.THREE = { ...THREE } as any
 

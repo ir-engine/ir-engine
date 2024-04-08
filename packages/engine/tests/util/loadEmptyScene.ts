@@ -24,19 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
-import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { SceneState } from '../../src/scene/Scene'
-import { SourceComponent } from '../../src/scene/components/SourceComponent'
+import { EntityUUID } from '@etherealengine/ecs'
+import { SceneState } from '../../src/scene/SceneState'
 
 export const loadEmptyScene = () => {
-  SceneState.loadScene('test' as SceneID, {
+  return SceneState.loadScene('test' as SceneID, {
     name: '',
     thumbnailUrl: '',
     project: '',
@@ -52,11 +44,4 @@ export const loadEmptyScene = () => {
       root: 'root' as EntityUUID
     }
   })
-  const entity = createEntity()
-  setComponent(entity, NameComponent, 'Root')
-  setComponent(entity, VisibleComponent, true)
-  setComponent(entity, UUIDComponent, 'root' as EntityUUID)
-  setComponent(entity, TransformComponent)
-  setComponent(entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
-  setComponent(entity, SourceComponent, 'test' as SceneID)
 }

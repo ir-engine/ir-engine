@@ -30,14 +30,7 @@ const dotenv = require('dotenv')
 const fs = require('fs')
 const knex = require('knex')
 const { staticResourcePath } = require('@etherealengine/engine/src/media/static-resource.schema')
-const {
-  assetsRegex,
-  projectPublicRegex,
-  projectRegex,
-  rootImageRegex,
-  rootSceneJsonRegex
-} = require('@etherealengine/common/src/constants/ProjectKeyConstants')
-const { ObjectCannedACL, S3Client } = require('@aws-sdk/client-s3')
+const { S3Client } = require('@aws-sdk/client-s3')
 const { nanoid } = require('nanoid')
 const { v4: uuidv4 } = require('uuid')
 

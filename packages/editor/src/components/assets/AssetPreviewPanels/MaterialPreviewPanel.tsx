@@ -23,90 +23,56 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import debounce from 'lodash.debounce'
 import React, { useEffect, useRef } from 'react'
-import ResizeObserver from 'resize-observer-polyfill'
 
-import {
-  PanelEntities,
-  PreviewPanelRendererState,
-  useRender3DPanelSystem
-} from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
+import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import {
-  UUIDComponent,
-  createEntity,
-  generateEntityUUID,
-  getMutableComponent,
-  removeEntity,
-  setComponent
-} from '@etherealengine/ecs'
+import { UUIDComponent, generateEntityUUID, getMutableComponent, setComponent } from '@etherealengine/ecs'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { Mesh, SphereGeometry } from 'three'
 
-export const MaterialPreviewPanel = (props) => {
-  const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
+export const MaterialPreviewCanvas = () => {
+  const panelRef = useRef() as React.MutableRefObject<HTMLCanvasElement>
   const renderPanel = useRender3DPanelSystem(panelRef)
   const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
-  const renderPanelState = getMutableState(PreviewPanelRendererState)
-
-  useEffect(() => {
-    const handleSizeChange = () => {
-      renderPanel.resize()
-    }
-
-    const handleSizeChangeDebounced = debounce(handleSizeChange, 100)
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.target === panelRef.current) {
-          handleSizeChangeDebounced()
-        }
-      }
-    })
-
-    if (panelRef.current) {
-      resizeObserver.observe(panelRef.current)
-    }
-
-    return () => {
-      resizeObserver.disconnect()
-      handleSizeChangeDebounced.cancel()
-    }
-  }, [])
 
   useEffect(() => {
     if (!selectedMaterial.value) return
-    const renderPanelEntities = renderPanelState.entities[panelRef.current.id]
-    const entity = createEntity()
-    setComponent(entity, NameComponent, 'Material Preview Entity')
+
+    const { sceneEntity, cameraEntity } = renderPanel
+    setComponent(sceneEntity, NameComponent, 'Material Preview Entity')
     const uuid = generateEntityUUID()
-    setComponent(entity, UUIDComponent, uuid)
-    setComponent(entity, VisibleComponent, true)
+    setComponent(sceneEntity, UUIDComponent, uuid)
+    setComponent(sceneEntity, VisibleComponent, true)
     const material = getState(MaterialLibraryState).materials[selectedMaterial.value].material
     if (!material) return
-    addObjectToGroup(entity, new Mesh(new SphereGeometry(5, 32, 32), material))
-    setComponent(entity, EnvmapComponent, { type: 'Skybox', envMapIntensity: 2 })
-    const orbitCamera = getMutableComponent(renderPanelEntities[PanelEntities.camera].value, CameraOrbitComponent)
-    orbitCamera.focusedEntities.set([entity])
-    orbitCamera.refocus.set(true)
+    addObjectToGroup(sceneEntity, new Mesh(new SphereGeometry(5, 32, 32), material))
+    setComponent(sceneEntity, EnvmapComponent, { type: 'Skybox', envMapIntensity: 2 })
 
-    ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.AssetPreview)
-    if (renderPanelEntities[PanelEntities.model]) removeEntity(renderPanelEntities[PanelEntities.model].value)
-    renderPanelEntities[PanelEntities.model].set(entity)
+    const orbitCamera = getMutableComponent(cameraEntity, CameraOrbitComponent)
+    orbitCamera.focusedEntities.set([sceneEntity])
+    orbitCamera.refocus.set(true)
   }, [selectedMaterial])
 
   return (
     <>
-      <div id="materialPreview" ref={panelRef} style={{ minHeight: '250px', width: '100%', height: '100%' }}></div>
+      <div id="materialPreview" style={{ minHeight: '250px', width: '100%', height: '100%' }}>
+        <canvas ref={panelRef} style={{ pointerEvents: 'all' }} />
+      </div>
     </>
   )
+}
+
+export const MaterialPreviewPanel = (props) => {
+  const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
+  if (!selectedMaterial.value) return null
+
+  return <MaterialPreviewCanvas key={selectedMaterial.value} />
 }

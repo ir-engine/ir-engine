@@ -28,11 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
 import Text from '@etherealengine/client-core/src/common/components/Text'
-import {
-  PanelEntities,
-  PreviewPanelRendererState,
-  useRender3DPanelSystem
-} from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
+import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
@@ -41,18 +37,16 @@ import { SxProps, Theme } from '@mui/material/styles'
 
 import styles from './index.module.scss'
 
-import { generateEntityUUID, setComponent, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
+import { createEntity, generateEntityUUID, setComponent, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
 import { defaultAnimationPath, preloadedAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { AssetPreviewCameraComponent } from '@etherealengine/engine/src/camera/components/AssetPreviewCameraComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { EnvMapSourceType } from '@etherealengine/engine/src/scene/constants/EnvMapEnum'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { AmbientLightComponent, TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 interface Props {
@@ -65,36 +59,40 @@ interface Props {
 
 const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: Props) => {
   const { t } = useTranslation()
-  const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
-  useRender3DPanelSystem(panelRef)
-  const renderPanelState = getMutableState(PreviewPanelRendererState)
+  const panelRef = useRef() as React.MutableRefObject<HTMLCanvasElement>
+  const renderPanel = useRender3DPanelSystem(panelRef)
 
   useEffect(() => {
     if (!avatarUrl) return
 
-    const renderPanelEntities = renderPanelState.entities[panelRef.current.id]
-    const entity = renderPanelEntities[PanelEntities.model].value
+    const { sceneEntity, cameraEntity } = renderPanel
     const uuid = generateEntityUUID()
-    setComponent(entity, UUIDComponent, uuid)
-    setComponent(entity, NameComponent, '3D Preview Entity')
-
-    setComponent(entity, LoopAnimationComponent, {
+    setComponent(sceneEntity, UUIDComponent, uuid)
+    setComponent(sceneEntity, NameComponent, '3D Preview Entity')
+    setComponent(sceneEntity, LoopAnimationComponent, {
       animationPack: defaultAnimationPath + preloadedAnimations.locomotion + '.glb',
       activeClipIndex: 5
     })
-    setComponent(entity, ModelComponent, { src: avatarUrl, convertToVRM: true })
-    setComponent(entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
+    setComponent(sceneEntity, ModelComponent, { src: avatarUrl, convertToVRM: true })
+    setComponent(sceneEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
+    setComponent(sceneEntity, VisibleComponent, true)
+    setComponent(sceneEntity, EnvmapComponent, { type: EnvMapSourceType.Skybox })
 
-    setComponent(entity, VisibleComponent, true)
-    ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.AssetPreview)
-    setComponent(entity, EnvmapComponent, { type: EnvMapSourceType.Skybox })
-    const cameraEntity = renderPanelEntities[PanelEntities.camera].value
-    setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: entity })
+    setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: sceneEntity })
+
+    const lightEntity = createEntity()
+    setComponent(lightEntity, AmbientLightComponent)
+    setComponent(lightEntity, TransformComponent)
+    setComponent(lightEntity, VisibleComponent)
+    setComponent(lightEntity, NameComponent, 'Ambient Light')
+    setComponent(lightEntity, EntityTreeComponent, { parentEntity: sceneEntity })
   }, [avatarUrl])
 
   return (
     <Box className={`${commonStyles.preview} ${fill ? styles.fill : ''}`} sx={sx}>
-      <div ref={panelRef} id="stage" className={`${styles.stage} ${fill ? styles.fill : ''}`} />
+      <div id="stage" className={`${styles.stage} ${fill ? styles.fill : ''}`}>
+        <canvas ref={panelRef} style={{ pointerEvents: 'all' }} />
+      </div>
 
       {!avatarUrl && (
         <Text className={commonStyles.previewText} variant="body2">

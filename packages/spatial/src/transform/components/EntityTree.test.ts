@@ -64,13 +64,14 @@ describe('EntityTreeComponent', () => {
     const rootEntity = createEntity()
 
     setComponent(rootEntity, EntityTreeComponent, {
-      parentEntity: UndefinedEntity,
-      uuid: 'root' as EntityUUID
+      parentEntity: UndefinedEntity
     })
+    setComponent(rootEntity, UUIDComponent, 'root' as EntityUUID)
 
     const entity = createEntity()
     const testUUID = 'test-uuid' as EntityUUID
-    setComponent(entity, EntityTreeComponent, { parentEntity: rootEntity, uuid: testUUID })
+    setComponent(entity, EntityTreeComponent, { parentEntity: rootEntity })
+    setComponent(entity, UUIDComponent, testUUID)
 
     const node = getComponent(entity, EntityTreeComponent)
 
@@ -89,37 +90,42 @@ describe('EntityTreeComponent', () => {
     const rootEntity = createEntity()
 
     setComponent(rootEntity, EntityTreeComponent, {
-      parentEntity: UndefinedEntity,
-      uuid: 'root' as EntityUUID
+      parentEntity: UndefinedEntity
     })
+    setComponent(rootEntity, UUIDComponent, 'root' as EntityUUID)
 
-    setComponent(createEntity(), EntityTreeComponent, {
-      parentEntity: rootEntity,
-      uuid: 'child-0' as EntityUUID
+    const child_0 = createEntity()
+    setComponent(child_0, EntityTreeComponent, {
+      parentEntity: rootEntity
     })
-    setComponent(createEntity(), EntityTreeComponent, {
-      parentEntity: rootEntity,
-      uuid: 'child-1' as EntityUUID
+    setComponent(child_0, UUIDComponent, 'child-0' as EntityUUID)
+    const child_1 = createEntity()
+    setComponent(child_1, EntityTreeComponent, {
+      parentEntity: rootEntity
     })
-    setComponent(createEntity(), EntityTreeComponent, {
-      parentEntity: rootEntity,
-      uuid: 'child-2' as EntityUUID
+    setComponent(child_1, UUIDComponent, 'child-1' as EntityUUID)
+    const child_2 = createEntity()
+    setComponent(child_2, EntityTreeComponent, {
+      parentEntity: rootEntity
     })
-    setComponent(createEntity(), EntityTreeComponent, {
-      parentEntity: rootEntity,
-      uuid: 'child-3' as EntityUUID
+    setComponent(child_2, UUIDComponent, 'child-2' as EntityUUID)
+    const child_3 = createEntity()
+    setComponent(child_3, EntityTreeComponent, {
+      parentEntity: rootEntity
     })
-    setComponent(createEntity(), EntityTreeComponent, {
-      parentEntity: rootEntity,
-      uuid: 'child-4' as EntityUUID
+    setComponent(child_3, UUIDComponent, 'child-3' as EntityUUID)
+    const child_4 = createEntity()
+    setComponent(child_4, EntityTreeComponent, {
+      parentEntity: rootEntity
     })
+    setComponent(child_4, UUIDComponent, 'child-4' as EntityUUID)
 
     const entity = createEntity()
     setComponent(entity, EntityTreeComponent, {
       parentEntity: rootEntity,
-      childIndex: 2,
-      uuid: 'test-uuid' as EntityUUID
+      childIndex: 2
     })
+    setComponent(entity, UUIDComponent, 'test-uuid' as EntityUUID)
 
     const sceneNode = getComponent(rootEntity, EntityTreeComponent)
     assert.equal(sceneNode.children.length, 6)
@@ -136,12 +142,13 @@ describe('EntityTreeComponent', () => {
     const rootEntity = createEntity()
 
     setComponent(rootEntity, EntityTreeComponent, {
-      parentEntity: UndefinedEntity,
-      uuid: 'root' as EntityUUID
+      parentEntity: UndefinedEntity
     })
+    setComponent(rootEntity, UUIDComponent, 'root' as EntityUUID)
 
     const entity = createEntity()
-    setComponent(entity, EntityTreeComponent, { parentEntity: rootEntity, uuid: 'test-uuid' as EntityUUID })
+    setComponent(entity, EntityTreeComponent, { parentEntity: rootEntity })
+    setComponent(entity, UUIDComponent, 'test-uuid' as EntityUUID)
     removeComponent(entity, EntityTreeComponent)
 
     // UUIDComponent should remain
@@ -162,9 +169,9 @@ describe('EntityTreeFunctions', () => {
     root = createEntity()
 
     setComponent(root, EntityTreeComponent, {
-      parentEntity: UndefinedEntity,
-      uuid: 'root' as EntityUUID
+      parentEntity: UndefinedEntity
     })
+    setComponent(root, UUIDComponent, 'root' as EntityUUID)
   })
 
   afterEach(() => {

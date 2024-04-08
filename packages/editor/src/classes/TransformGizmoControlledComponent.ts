@@ -56,7 +56,10 @@ export const TransformGizmoControlledComponent = defineComponent({
       controller: UndefinedEntity
     }
   },
-  onRemove: (entity, component) => {},
+  onRemove: (entity, component) => {
+    component.controller.set(UndefinedEntity)
+  },
+
   reactor: function (props) {
     const entity = useEntityContext()
     const transformGizmoControlledComponent = useComponent(entity, TransformGizmoControlledComponent)
@@ -69,7 +72,7 @@ export const TransformGizmoControlledComponent = defineComponent({
       setComponent(pivotEntity, NameComponent, 'gizmoPivotEntity')
       setComponent(pivotEntity, TransformComponent)
       setComponent(pivotEntity, VisibleComponent)
-      setComponent(pivotEntity, EntityTreeComponent)
+      setComponent(pivotEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
       setComponent(pivotEntity, TransformGizmoTagComponent)
 
       /*addObjectToGroup(
@@ -84,6 +87,9 @@ export const TransformGizmoControlledComponent = defineComponent({
       const gizmoControlEntity = createEntity()
       const gizmoVisualEntity = createEntity()
       const gizmoPlaneEntity = createEntity()
+      setComponent(gizmoControlEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+      setComponent(gizmoVisualEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+      setComponent(gizmoPlaneEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
 
       const controlledEntities = [entity]
       setComponent(gizmoControlEntity, NameComponent, 'gizmoControllerEntity')
@@ -159,12 +165,7 @@ export const TransformGizmoControlledComponent = defineComponent({
 
           for (let i = 0; i < controlledEntities.length; i++) {
             const parentEnt = controlledEntities[i]
-            const isUuid = typeof parentEnt === 'string'
-            if (isUuid) {
-              box.expandByObject(Engine.instance.scene.getObjectByProperty('uuid', parentEnt)!)
-            } else {
-              box.expandByPoint(getComponent(parentEnt, TransformComponent).position)
-            }
+            box.expandByPoint(getComponent(parentEnt, TransformComponent).position)
           }
           box.getCenter(newPosition)
 
