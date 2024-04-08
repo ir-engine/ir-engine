@@ -623,7 +623,7 @@ export default function AddEditProjectModal({
           {onSubmit && (
             <Button
               onClick={onSubmit}
-              disabled={projectUpdateStatus?.submitDisabled?.value || processing}
+              disabled={projectUpdateStatus.value?.submitDisabled || processing}
               endIcon={processing ? <LoadingCircle className="h-6 w-6" /> : undefined}
               className="place-self-end"
             >

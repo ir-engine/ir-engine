@@ -165,7 +165,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
             label={t('admin:components.user.selectScopes')}
             options={scopeTypeOptions}
             selectedOptions={scopes.value.map((sc) => sc.type)}
-            onChange={(values) => scopes.set(values.toSorted().map((v) => ({ type: v })))}
+            onChange={(values) => scopes.set((values as any).toSorted().map((v) => ({ type: v })))}
             menuClassName="max-h-72"
           />
           <div className="flex gap-2">
