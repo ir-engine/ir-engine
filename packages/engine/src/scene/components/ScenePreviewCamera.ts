@@ -48,6 +48,7 @@ import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/Obj
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { TransformDirtyCleanupSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+import { createObj } from '../../assets/functions/resourceHooks'
 
 export const ScenePreviewCameraComponent = defineComponent({
   name: 'EE_scenePreviewCamera',
@@ -102,7 +103,7 @@ export const ScenePreviewCameraComponent = defineComponent({
     useLayoutEffect(() => {
       if (!debugEnabled.value) return
 
-      const helper = new CameraHelper(previewCamera.camera.value)
+      const [helper, unload] = createObj(CameraHelper, entity, previewCamera.camera.value)
       helper.name = `scene-preview-helper-${entity}`
       const helperEntity = createEntity()
       addObjectToGroup(helperEntity, helper)
@@ -116,6 +117,7 @@ export const ScenePreviewCameraComponent = defineComponent({
         removeEntity(helperEntity)
         if (!hasComponent(entity, ScenePreviewCameraComponent)) return
         previewCamera.helperEntity.set(none)
+        unload()
       }
     }, [debugEnabled])
 
