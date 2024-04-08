@@ -39,7 +39,7 @@ module "rds" {
 }
 
 module "rds_sg" {
-  source  = "terraform-aws-modules/security-group/aws//modules/postgresql"
+  source  = "terraform-aws-modules/security-group/aws//modules/mysql"
   version = "~> 5.0"
 
   name   = "${var.app_name}-rds-sg-${var.environment}"
