@@ -375,7 +375,7 @@ export function useResource<T>(
   id?: string,
   onUnload?: () => void
 ): [T, () => void] {
-  const uniqueID = useHookstate<string>(id || MathUtils.generateUUID())
+  const uniqueID = useHookstate<string>(id || uuidv4())
   const resourceState = useHookstate<T>(() => ResourceManager.addResource(resource, uniqueID.value, entity))
 
   const unload = () => {
