@@ -69,12 +69,12 @@ import GroundPlaneNodeEditor from '../components/properties/GroundPlaneNodeEdito
 import HemisphereLightNodeEditor from '../components/properties/HemisphereLightNodeEditor'
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
 // import InstancingNodeEditor from '../components/properties/InstancingNodeEditor'
-import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
-import BehaveGraphNodeEditor from '../components/properties/BehaveGraphNodeEditor'
+import { VisualScriptNodeEditor } from '../components/properties/VisualScriptNodeEditor'
 
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 
+import { VisualScriptComponent } from '@etherealengine/engine'
 import { AudioAnalysisComponent } from '@etherealengine/engine/src/scene/components/AudioAnalysisComponent'
 import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
@@ -171,7 +171,7 @@ export const ComponentEditorsState = defineState({
       [VariantComponent.name]: VariantNodeEditor,
       [SplineComponent.name]: SplineNodeEditor,
       [SplineTrackComponent.name]: SplineTrackNodeEditor,
-      [BehaveGraphComponent.name]: BehaveGraphNodeEditor,
+      [VisualScriptComponent.name]: VisualScriptNodeEditor,
       [LinkComponent.name]: LinkNodeEditor,
       [TextComponent.name]: TextNodeEditor
     } as Record<string, EditorComponentType>

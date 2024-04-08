@@ -102,6 +102,7 @@ class FileLoader<TData = unknown> extends Loader {
     // record states ( avoid data race )
     const mimeType = this.mimeType
     const responseType = this.responseType
+    const manager = this.manager
 
     // start the fetch
     fetch(req, { signal })
@@ -140,22 +141,34 @@ class FileLoader<TData = unknown> extends Loader {
               readData()
 
               function readData() {
-                reader.read().then(({ done, value }) => {
-                  if (done) {
-                    controller.close()
-                  } else {
-                    loaded += value.byteLength
+                reader
+                  .read()
+                  .then(({ done, value }) => {
+                    if (done) {
+                      controller.close()
+                    } else {
+                      loaded += value.byteLength
 
-                    const event = new ProgressEvent('progress', { lengthComputable, loaded, total })
+                      const event = new ProgressEvent('progress', { lengthComputable, loaded, total })
+                      for (let i = 0, il = callbacks.length; i < il; i++) {
+                        const callback = callbacks[i]
+                        if (callback.onProgress) callback.onProgress(event)
+                      }
+
+                      controller.enqueue(value)
+                      readData()
+                    }
+                  })
+                  .catch((err) => {
+                    delete loading[url]
+
                     for (let i = 0, il = callbacks.length; i < il; i++) {
                       const callback = callbacks[i]
-                      if (callback.onProgress) callback.onProgress(event)
+                      if (callback.onError) callback.onError(err)
                     }
 
-                    controller.enqueue(value)
-                    readData()
-                  }
-                })
+                    manager.itemError(url)
+                  })
               }
             }
           })

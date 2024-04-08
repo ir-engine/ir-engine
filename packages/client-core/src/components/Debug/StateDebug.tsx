@@ -72,7 +72,7 @@ export function StateDebug() {
       ? Engine.instance.store.stateMap
       : Object.fromEntries(
           Object.entries(Engine.instance.store.stateMap)
-            .filter(([key]) => key.toLowerCase().includes(stateSearch.value))
+            .filter(([key]) => key.toLowerCase().includes(stateSearch.value.toLowerCase()))
             .map(([key, value]) => [key, value.get(NO_PROXY_STEALTH)])
         )
 

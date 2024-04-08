@@ -24,9 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import config from '@etherealengine/common/src/config'
-import { SceneID, SceneJsonType } from '@etherealengine/common/src/schema.type.module'
+import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 
 const fileServer = config.client.fileServer
 

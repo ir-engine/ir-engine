@@ -128,6 +128,7 @@ export const TransparencyDitheringComponent = defineComponent({
             useLocalCenter,
             overrideFaceCulling
           )
+          if (!material.shader) return
           if (material.shader.uniforms.useWorldCenter) material.shader.uniforms.useWorldCenter.value = useWorldCenter
           if (material.shader.uniforms.useLocalCenter) material.shader.uniforms.useLocalCenter.value = useLocalCenter
           if (material.shader.uniforms.ditheringWorldDistance)

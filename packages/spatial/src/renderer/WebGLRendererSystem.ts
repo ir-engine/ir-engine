@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import '../threejsPatches'
 
-import { EffectComposer, NormalPass, RenderPass } from 'postprocessing'
+import { EffectComposer, NormalPass, RenderPass, SMAAPreset } from 'postprocessing'
 import { useEffect } from 'react'
 import {
   LinearToneMapping,
@@ -53,6 +53,7 @@ import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlug
 import { ObjectLayers } from '../renderer/constants/ObjectLayers'
 import { WebXRManager, createWebXRManager } from '../xr/WebXRManager'
 import { XRState } from '../xr/XRState'
+import { decrementPerformance, incrementPerformance } from './PerformanceState'
 import { RendererState } from './RendererState'
 import WebGL from './THREE.WebGL'
 import { EffectMapType, defaultPostProcessingSchema } from './effects/PostProcessing'
@@ -273,10 +274,12 @@ export class EngineRenderer {
     this.movingAverage.update(Math.min(delta, 50))
     const averageDelta = this.movingAverage.mean
 
-    if (averageDelta > this.maxRenderDelta && newQualityLevel > 1) {
-      newQualityLevel--
-    } else if (averageDelta < this.minRenderDelta && newQualityLevel < this.maxQualityLevel) {
-      newQualityLevel++
+    if (averageDelta > this.maxRenderDelta) {
+      decrementPerformance()
+      if (newQualityLevel > 1) newQualityLevel--
+    } else if (averageDelta < this.minRenderDelta) {
+      incrementPerformance()
+      if (newQualityLevel < this.maxQualityLevel) newQualityLevel++
     }
 
     if (newQualityLevel !== qualityLevel) {
@@ -292,7 +295,8 @@ export const RenderSettingsState = defineState({
     cascades: 5,
     toneMapping: LinearToneMapping as ToneMapping,
     toneMappingExposure: 0.8,
-    shadowMapType: PCFSoftShadowMap as ShadowMapType
+    shadowMapType: PCFSoftShadowMap as ShadowMapType,
+    smaaPreset: SMAAPreset.MEDIUM
   }
 })
 
@@ -334,7 +338,13 @@ const reactor = () => {
 
   useEffect(() => {
     configureEffectComposer()
-  }, [postprocessing.enabled, postprocessing.effects, sdfState.enabled, engineRendererSettings.usePostProcessing])
+  }, [
+    postprocessing.enabled,
+    postprocessing.effects,
+    sdfState.enabled,
+    engineRendererSettings.usePostProcessing,
+    renderSettings.smaaPreset
+  ])
 
   useEffect(() => {
     EngineRenderer.instance.scaleFactor =

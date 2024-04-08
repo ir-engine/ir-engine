@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { Bone, InstancedMesh, Mesh, Object3D, Scene, SkinnedMesh } from 'three'
 
-import { ComponentJsonType, EntityJsonType } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import {
   ComponentJSONIDMap,
@@ -56,6 +55,7 @@ import { InstancingComponent } from '../components/InstancingComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneComponent } from '../components/SceneComponent'
+import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
 import { getModelSceneID } from './loaders/ModelFunctions'
 
 export const parseECSData = (data: [string, any][]): ComponentJsonType[] => {
