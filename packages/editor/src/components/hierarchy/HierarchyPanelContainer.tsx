@@ -38,7 +38,7 @@ import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { EntityTreeComponent, traverseEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import MenuItem from '@mui/material/MenuItem'
-import { PopoverPosition } from '@mui/material/Popover'
+import Popover, { PopoverPosition } from '@mui/material/Popover'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { Engine, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
@@ -56,10 +56,12 @@ import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import Search from '../Search/Search'
 import useUpload from '../assets/useUpload'
+import { PopoverContext } from '../element/PopoverContext'
 import { PropertiesPanelButton } from '../inputs/Button'
 import { ContextMenu } from '../layout/ContextMenu'
 import { HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
 import { HierarchyTreeNode, HierarchyTreeNodeProps, RenameNodeData, getNodeElId } from './HierarchyTreeNode'
+import PrefabList from './PrefabList'
 import styles from './styles.module.scss'
 
 /**
@@ -463,7 +465,8 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
       {MemoTreeNode}
     </FixedSizeList>
   )
-
+  const anchorElement = useHookstate<HTMLButtonElement | null>(null)
+  const open = !!anchorElement.value
   return (
     <>
       <div className={styles.panelContainer}>
@@ -473,6 +476,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
         <div style={{ height: '100%' }}>
           <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
         </div>
+
         <PropertiesPanelButton
           variant="contained"
           // TODO see why we have to specify capitalize here
@@ -483,11 +487,37 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
             fontSize: '12px',
             lineHeight: '0.5'
           }}
-          onClick={() => EditorControlFunctions.createObjectFromSceneElement()}
+          onClick={(event) => {
+            anchorElement.set(event.currentTarget)
+          }}
         >
           {t('editor:hierarchy.lbl-addEntity')}
         </PropertiesPanelButton>
       </div>
+      <PopoverContext.Provider
+        value={{
+          handlePopoverClose: () => {
+            anchorElement.set(null)
+          }
+        }}
+      >
+        <Popover
+          id={open ? 'add-component-popover' : undefined}
+          open={open}
+          anchorEl={anchorElement.value}
+          onClose={() => anchorElement.set(null)}
+          anchorOrigin={{
+            vertical: 'center',
+            horizontal: 'left'
+          }}
+          transformOrigin={{
+            vertical: 'center',
+            horizontal: 'right'
+          }}
+        >
+          <PrefabList />
+        </Popover>
+      </PopoverContext.Provider>
       <ContextMenu open={!!anchorEl} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
         <MenuItem onClick={() => onRenameNode(contextSelectedItem!)}>{t('editor:hierarchy.lbl-rename')}</MenuItem>
         <Hotkeys
