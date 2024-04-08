@@ -32,9 +32,13 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   value: string | number
   label?: string
   containerClassname?: string
+  override?: boolean
   description?: string
   type?: InputHTMLAttributes<HTMLInputElement>['type']
   onChange?: InputHTMLAttributes<HTMLInputElement>['onChange']
+  onRelease?: InputHTMLAttributes<HTMLInputElement>['onBlur']
+  onFocus?: InputHTMLAttributes<HTMLInputElement>['onFocus']
+  placeholder?: string
   error?: string
   disabled?: boolean
   startComponent?: JSX.Element
@@ -47,12 +51,16 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       className,
       containerClassname,
       label,
+      override,
       type = 'text',
       error,
       description,
+      placeholder,
       value,
       itemType,
       onChange,
+      onRelease,
+      onFocus,
       disabled,
       startComponent,
       endComponent,
@@ -60,23 +68,24 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     },
     ref
   ) => {
-    const twClassname = twMerge(
+    const originaltwClassName = [
       'text-base font-normal tracking-tight',
       'textshadow-sm border-theme-primary bg-theme-surfaceInput flex h-9 w-full rounded-lg border px-3.5 py-5 transition-colors',
       'file:bg-theme-surfaceInput file:border-0 file:text-sm file:font-medium',
       'dark:[color-scheme:dark]',
       'focus-visible:ring-ring placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50',
       startComponent ? 'ps-10' : undefined,
-      endComponent ? 'pe-10' : undefined,
-      className
-    )
+      endComponent ? 'pe-10' : undefined
+    ]
+
+    const twClassname = twMerge(override ? '' : originaltwClassName, className)
 
     const twcontainerClassName = twMerge('flex w-full flex-col items-center gap-2', containerClassname)
 
     return (
       <div className={twcontainerClassName}>
         {label && <Label className="self-stretch">{label}</Label>}
-        <div className="bg-theme-surface-main relative w-full">
+        <div className={twMerge(override ? '' : ' bg-theme-surface-main relative w-full')}>
           {startComponent && (
             <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5">
               {startComponent}
@@ -89,6 +98,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             className={twClassname}
             value={value}
             onChange={onChange}
+            onBlur={onRelease}
+            onFocus={onFocus}
+            placeholder={placeholder}
             {...props}
           />
 

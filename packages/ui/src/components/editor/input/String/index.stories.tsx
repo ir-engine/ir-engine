@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Component from './index'
-
+import StringInput, { ControlledStringInput } from './index'
 const argTypes = {}
 
 export default {
   title: 'Editor/Input/String',
-  component: Component,
+  component: ControlledStringInput,
   parameters: {
     componentSubtitle: 'StringInput',
     jest: 'String.test.tsx',
@@ -40,4 +39,5 @@ export default {
   },
   argTypes
 }
-export const Default = { args: Component.defaultProps }
+
+export const Default = { args: StringInput.defaultProps }
