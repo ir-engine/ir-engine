@@ -1,3 +1,4 @@
+import { dirname, join } from 'path'
 /*
 CPAL-1.0 License
 
@@ -37,24 +38,20 @@ const config: StorybookConfig = {
   }),
   stories: ['../src/**/*.stories.@(js|jsx|ts|tsx)'],
   addons: [
-    '@storybook/addon-links',
-    '@storybook/addon-toolbars',
-    '@storybook/manager-api',
-    '@storybook/addon-essentials',
-    '@storybook/addon-interactions',
-    '@storybook/addon-a11y',
-    '@storybook/addon-jest',
-    'storybook-addon-react-router-v6'
+    getAbsolutePath('@storybook/addon-links'),
+    getAbsolutePath('@storybook/addon-toolbars'),
+    getAbsolutePath('@storybook/manager-api'),
+    getAbsolutePath('@storybook/addon-essentials'),
+    getAbsolutePath('@storybook/addon-interactions'),
+    getAbsolutePath('@storybook/addon-a11y'),
+    getAbsolutePath('@storybook/addon-jest'),
+    getAbsolutePath('storybook-addon-react-router-v6'),
+    getAbsolutePath('storybook-addon-sass-postcss')
   ],
-  core: {
-    builder: '@storybook/builder-vite'
-  },
+  core: {},
   framework: {
-    name: '@storybook/react-vite',
+    name: getAbsolutePath('@storybook/react-vite'),
     options: {}
-  },
-  features: {
-    storyStoreV7: true
   },
   async viteFinal(config, options) {
     const userConfig = config
@@ -117,3 +114,7 @@ const config: StorybookConfig = {
 }
 
 export default config
+
+function getAbsolutePath(value: string): any {
+  return dirname(require.resolve(join(value, 'package.json')))
+}
