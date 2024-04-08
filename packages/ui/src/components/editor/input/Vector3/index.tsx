@@ -29,6 +29,7 @@ import { Vector3 } from 'three'
 
 // style inheritance
 
+import { V_000 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { twMerge } from 'tailwind-merge'
 import Scrubber from '../../layout/Scrubber'
 import NumericInput from '../Numeric'
@@ -187,7 +188,7 @@ export const Vector3Input = ({
 }
 
 Vector3Input.defaultProps = {
-  value: new Vector3(),
+  value: V_000,
   hideLabels: false,
   onChange: () => {}
 }
