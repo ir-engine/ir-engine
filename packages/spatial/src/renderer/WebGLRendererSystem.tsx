@@ -104,7 +104,10 @@ _scene.layers.set(ObjectLayers.Scene)
 globalThis._scene = _scene
 
 export class EngineRenderer {
-  /** @deprecated will be removed once threejs objects are not proxified. Should only be used in loadGLTFModel.ts */
+  /**
+   * @deprecated will be removed once threejs objects are not proxified. Should only be used in loadGLTFModel.ts
+   * see https://github.com/EtherealEngine/etherealengine/issues/9308
+   */
   static activeRender = false
   /** Is resize needed? */
   needsResize: boolean
@@ -130,8 +133,6 @@ export class EngineRenderer {
   movingAverage = new ExponentialMovingAverage(this.averageTimePeriods)
 
   renderer: WebGLRenderer = null!
-  /** used to optimize proxified threejs objects during render time, see loadGLTFModel and https://github.com/EtherealEngine/etherealengine/issues/9308 */
-  rendering = false
   effectComposer: EffectComposerWithSchema = null!
   /** @todo deprecate and replace with engine implementation */
   xrManager: WebXRManager = null!
