@@ -23,12 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 //import "./slider.css"
 
 export interface SliderProps {
   className?: string
   override?: boolean
+  value: number
   min?: number
   max?: number
   step?: number
@@ -36,9 +37,7 @@ export interface SliderProps {
   onChange: (value: number) => void
 }
 
-const Slider = ({ min = 0, max = 100, step = 1, initialValue = 50, onChange }) => {
-  const [value, setValue] = useState(initialValue)
-
+const Slider = ({ value, min = 0, max = 100, step = 1, onChange }) => {
   useEffect(() => {
     // no external css file, we cannot target ::-webkit-slider-thumb other wise
     const style = document.createElement('style')
@@ -59,6 +58,7 @@ const Slider = ({ min = 0, max = 100, step = 1, initialValue = 50, onChange }) =
       document.head.removeChild(style)
     }
   }, [])
+
   const handleInputChange = (event) => {
     let newValue = parseInt(event.target.value, 10)
     if (isNaN(newValue)) {
@@ -107,8 +107,7 @@ const Slider = ({ min = 0, max = 100, step = 1, initialValue = 50, onChange }) =
 Slider.defaultProps = {
   min: 0,
   max: 100,
-  step: 1,
-  initialValue: 50
+  step: 1
 }
 
 export default Slider
