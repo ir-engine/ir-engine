@@ -31,7 +31,7 @@ import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { act, render } from '@testing-library/react'
 import React, { useEffect } from 'react'
 import sinon from 'sinon'
-import { DirectionalLight } from 'three'
+import { AmbientLight, DirectionalLight } from 'three'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { ResourceState } from '../state/ResourceState'
 import { useGLTF, useObj, useResource, useTexture } from './resourceHooks'
@@ -247,6 +247,38 @@ describe('ResourceHooks', () => {
     }).then(() => {
       const resourceState = getState(ResourceState)
       assert(objUUID && !resourceState.resources[objUUID])
+      unmount()
+      done()
+    })
+  })
+
+  it('Updates an Object3D correctly', (done) => {
+    const entity = createEntity()
+
+    const light1 = DirectionalLight
+    const light2 = AmbientLight
+
+    let lightClass: any = light1
+    let lightObj: any = undefined
+
+    const Reactor = () => {
+      const [light, unload] = useObj(lightClass, entity)
+
+      useEffect(() => {
+        lightObj = light
+      }, [light])
+
+      return <></>
+    }
+
+    const { rerender, unmount } = render(<Reactor />)
+
+    act(async () => {
+      assert(lightObj.isDirectionalLight)
+      lightClass = light2
+      rerender(<Reactor />)
+    }).then(() => {
+      assert(lightObj.isAmbientLight)
       unmount()
       done()
     })
