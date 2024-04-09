@@ -125,7 +125,7 @@ const Select = <T extends OptionValueType>({
       >
         <ul
           className={twMerge(
-            'max-h-40 overflow-auto [&>li]:flex [&>li]:gap-2 [&>li]:px-4 [&>li]:py-2 [&>svg]:h-full',
+            'max-h-40 overflow-auto [&>li]:flex [&>li]:items-center [&>li]:gap-2 [&>li]:px-4 [&>li]:py-2',
             menuClassname
           )}
         >
@@ -134,7 +134,9 @@ const Select = <T extends OptionValueType>({
               key={option.value}
               value={option.value}
               className={twMerge(
-                override ? "font-['Figtree'] text-xs font-normal text-neutral-400" : 'text-theme-secondary',
+                override
+                  ? "font-['Figtree'] text-xs font-normal text-neutral-400 [&>svg]:h-full [&>svg]:text-white"
+                  : 'text-theme-secondary',
                 'cursor-pointer',
                 override
                   ? 'hover:bg-gray-500 hover:text-neutral-400'

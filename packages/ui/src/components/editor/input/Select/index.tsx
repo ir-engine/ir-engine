@@ -46,9 +46,9 @@ const SelectInput = () => {
 SelectInput.displayName = 'SelectInput'
 SelectInput.defaultProps = {
   options: [
-    { label: 'Cuboid', value: 'a', icon: <MdOutlineWatch /> },
-    { label: 'Cylinder', value: 'b', icon: <MdOutlineHeatPump /> },
-    { label: 'Cube', value: 'c', icon: <MdOutlineWindPower /> }
+    { label: 'Cuboid', value: 'a', icon: <MdOutlineWatch size="1.5em" /> },
+    { label: 'Cylinder', value: 'b', icon: <MdOutlineHeatPump size="1.5em" /> },
+    { label: 'Cube', value: 'c', icon: <MdOutlineWindPower size="1.5em" /> }
   ],
   currentValue: 'a',
   onChange: () => {}
