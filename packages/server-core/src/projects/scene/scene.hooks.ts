@@ -149,32 +149,26 @@ const getDirectoryFromQuery = async (context: HookContext<SceneService>) => {
 const resolveProjectIdForSceneData = async (context: HookContext<SceneService>) => {
   if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
 
-  console.log(context.data)
   if (context.data && context.data.project) {
-    console.log(context.data)
     const projectResult = (await context.app
       .service(projectPath)
       .find({ query: { name: context.data.project, $limit: 1 } })) as Paginated<ProjectType>
     if (projectResult.data.length === 0) throw new Error(`No project named ${context.data.project} exists`)
     context.data.projectId = projectResult.data[0].id
     delete context.data.project
-    console.log(context.data)
   }
 }
 
 const resolveProjectIdForSceneQuery = async (context: HookContext<SceneService>) => {
   if (Array.isArray(context.params.query)) throw new BadRequest('Array is not supported')
 
-  console.log(context.params.query)
   if (context.params.query && context.params.query.project) {
-    console.log(context.params.query)
     const projectResult = (await context.app
       .service(projectPath)
       .find({ query: { name: context.params.query.project, $limit: 1 } })) as Paginated<ProjectType>
     if (projectResult.data.length === 0) throw new Error(`No project named ${context.params.query.project} exists`)
     context.params.query.projectId = projectResult.data[0].id
     delete context.params.query.project
-    console.log(context.params.query)
   }
 }
 

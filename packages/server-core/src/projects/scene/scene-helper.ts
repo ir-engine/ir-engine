@@ -93,3 +93,21 @@ export const getEnvMapBakeById = async (app, entityId: string) => {
   //   ]
   // })
 }
+
+export const parseScenePortals = (scene: SceneDataType) => {
+  const portals: PortalType[] = []
+  for (const [entityId, entity] of Object.entries((scene.scene as SceneJsonType)?.entities)) {
+    for (const component of entity.components)
+      if (component.name === PortalComponent.jsonID) {
+        portals.push({
+          sceneName: scene.name,
+          portalEntityId: entityId,
+          portalEntityName: entity.name,
+          previewImageURL: component.props.previewImageURL,
+          spawnPosition: component.props.spawnPosition,
+          spawnRotation: component.props.spawnRotation
+        })
+      }
+  }
+  return portals
+}
