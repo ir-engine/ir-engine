@@ -102,7 +102,7 @@ const Aws = () => {
   return (
     <Box>
       <Typography component="h1" className={styles.settingsHeading}>
-        {t('admin:components.setting.aws')}
+        {t('admin:components.setting.aws.header')}
       </Typography>
       <Grid container spacing={3}>
         <Grid item xs={12} sm={6} md={6}>
