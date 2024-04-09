@@ -44,5 +44,7 @@ export const PopoverState = defineState({
       prevElements.pop()
       return prevElements
     })
-  }
+  },
+  /**Returns true if there are any open popovers, false otherwise, based on the length of the elements array in PopoverState.*/
+  isPopupoverOpen: () => getMutableState(PopoverState).elements.length > 0
 })

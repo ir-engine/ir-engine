@@ -32,6 +32,9 @@ module.exports = {
   important: true, // important in prod is must be
   theme: {
     extend: {
+      backgroundImage: {
+        'gradient-onboarding': 'linear-gradient(180deg, #0A0A0A 0%, #262626 100%)'
+      },
       textColor: {
         theme: {
           primary: 'var(--text-primary)',

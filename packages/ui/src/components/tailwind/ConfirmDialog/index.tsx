@@ -40,12 +40,14 @@ export const ConfirmDialog = ({ text, onSubmit, modalProps }: ConfirmDialogProps
   const modalProcessing = useHookstate(false)
 
   const handled = async () => {
+    modalProcessing.set(true)
     try {
       await onSubmit()
       PopoverState.hidePopupover()
     } catch (error) {
       errorText.set(error.message)
     }
+    modalProcessing.set(false)
   }
 
   return (
