@@ -41,8 +41,9 @@ import MaterialLibraryIcon from '@mui/icons-material/Yard'
 
 import { Box, Divider, Stack } from '@mui/material'
 
+import { EntityUUID, UUIDComponent, useComponent } from '@etherealengine/ecs'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
-import { materialPrototypeUnavailableComponent } from '@etherealengine/engine/src/scene/materials/components/MaterialPrototypeComponent'
+import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { useTranslation } from 'react-i18next'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { Button } from '../inputs/Button'
@@ -71,9 +72,8 @@ export function MaterialEditor(props: { materialID: string }) {
   const { t } = useTranslation()
   const { materialID } = props
   const materialLibrary = useHookstate(getMutableState(MaterialLibraryState))
-  const materialComponent = materialLibrary.materials[materialID]
-  const prototypeComponent =
-    materialLibrary.prototypes.value[materialComponent.prototype.value] ?? materialPrototypeUnavailableComponent
+  const materialEntity = UUIDComponent.getEntityByUUID(materialID as EntityUUID)
+  const materialComponent = useComponent(materialEntity, MaterialComponent)
   const material = materialFromId(materialID).material
   const prototypes = Object.values(materialLibrary.prototypes.value).map((prototype) => ({
     label: prototype.prototypeId,
@@ -135,28 +135,31 @@ export function MaterialEditor(props: { materialID: string }) {
 
   useEffect(() => {
     clearThumbs().then(createThumbnails).then(checkThumbs)
-  }, [materialComponent.prototype, materialComponent.material.uuid])
+  }, [materialComponent.uuid])
 
   return (
     <div style={{ position: 'relative' }}>
       <InputGroup name="Name" label={t('editor:properties.mesh.material.name')}>
-        <StringInput value={materialComponent.material.name.value} onChange={materialComponent.material.name.set} />
+        <StringInput
+          value={materialComponent.material.value!.name}
+          onChange={(name) => MaterialComponent.setMaterialName(materialEntity, name)}
+        />
       </InputGroup>
       <InputGroup name="Source" label={t('editor:properties.mesh.material.source')}>
         <div className={styles.contentContainer}>
           <Box className="Box" sx={{ padding: '8px', overflow: 'scroll' }}>
             <Stack className="Stack" spacing={2} direction="column" alignContent={'center'}>
               <Stack className="Stack" spacing={2} direction="row" alignContent={'flex-start'}>
-                <div>
+                {/* <div>
                   <label>{t('editor:properties.mesh.material.type')}</label>
                 </div>
-                <div>{materialComponent.src.type.value}</div>
+                <div>{materialComponent.src.type.value}</div> */}
               </Stack>
               <Stack className="Stack" spacing={2} direction="row">
                 <div>
                   <label>{t('editor:properties.mesh.material.path')}</label>
                 </div>
-                <div>{materialComponent.src.value.path}</div>
+                <div>{materialComponent.source.value}</div>
               </Stack>
             </Stack>
           </Box>

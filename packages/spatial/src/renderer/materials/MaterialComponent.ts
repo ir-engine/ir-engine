@@ -25,9 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { Material, Shader } from 'three'
 
-import { UUIDComponent, defineComponent, getComponent } from '@etherealengine/ecs'
+import { UUIDComponent, defineComponent, getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
+import { NameComponent } from '../../common/NameComponent'
+import { hashMaterial } from './materialFunctions'
 
 export type MaterialWithEntity = Material & { entity: Entity }
 
@@ -38,24 +40,50 @@ export type MaterialComponentType = {
   material: Material
   parameters: { [field: string]: any }
   plugins: string[]
-  src
+  src: any
   status: MaterialStatus
   instances: Entity[]
+}
+
+export type MaterialPrototypeComponentType<T extends Material = Material> = {
+  prototypeId: string
+  baseMaterial: { new (params): T }
+  arguments: {
+    [_: string]: {
+      type: string
+      default: any
+      min?: number
+      max?: number
+      options?: any[]
+    }
+  }
 }
 
 export const MaterialComponent = defineComponent({
   name: 'MaterialComponent',
   onInit: (entity) => {
     return {
+      // materialUUID points to entities with MaterialComponent holding state
       uuid: [] as string[],
+      // material-specific data
       material: null as null | Material,
       instances: [] as Entity[],
       hash: '',
-      plugins: [] as string[]
+      source: '',
+      plugins: [] as string[],
+      prototype: ''
     }
   },
 
   materialByHash: {} as Record<string, string>,
+
+  setMaterialName: (entity: Entity, name: string) => {
+    const materialComponent = getMutableComponent(entity, MaterialComponent)
+    if (!materialComponent.material.value) return
+    setComponent(entity, NameComponent, name)
+    materialComponent.hash.set(hashMaterial(getComponent(entity, MaterialComponent).source, name))
+    materialComponent.material.value.name = name
+  },
 
   onSet: (entity, component, json) => {
     if (!json) return
@@ -67,6 +95,7 @@ export const MaterialComponent = defineComponent({
       if (json.hash != '') MaterialComponent.materialByHash[json.hash] = getComponent(entity, UUIDComponent)
     }
     if (json.plugins) component.plugins.set(json.plugins)
+    if (json.source) component.source.set(json.source)
   }
 })
 
