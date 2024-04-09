@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
-import { useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
@@ -38,27 +38,32 @@ export type SelectOptionsType = { label: string; value: any; disabled?: boolean 
 export interface SelectProps<T extends OptionValueType> {
   label?: string
   className?: string
+  override?: boolean
   error?: string
   description?: string
-  options: { label: string; value: T; disabled?: boolean }[]
+  options: { label: string; value: T; icon?: any; disabled?: boolean }[]
   currentValue: T
   onChange: (value: T) => void
   placeholder?: string
   disabled?: boolean
   menuClassname?: string
+  arrowClassname?: string
+  menuItemClassname?: string
 }
 
 const Select = <T extends OptionValueType>({
   className,
   label,
   error,
+  override,
   description,
   options,
   currentValue,
   onChange,
   placeholder,
   disabled,
-  menuClassname
+  menuClassname,
+  arrowClassname
 }: SelectProps<T>) => {
   const ref = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
@@ -93,9 +98,10 @@ const Select = <T extends OptionValueType>({
       <Input
         disabled={disabled}
         label={label}
+        override={override}
         description={description}
         error={error}
-        className="cursor-pointer"
+        className="cursor-pointer bg-neutral-900"
         placeholder={placeholder || t('common:select.selectOption')}
         value={selectLabel.value}
         onChange={handleSearch}
@@ -105,23 +111,36 @@ const Select = <T extends OptionValueType>({
       />
       <MdOutlineKeyboardArrowDown
         size="1.5em"
-        className={`text-theme-primary absolute right-3 transition-transform ${showOptions.value ? 'rotate-180' : ''} ${
-          label ? 'top-8' : 'top-2'
-        }`}
+        className={twMerge(
+          override ? '' : `text-theme-primary absolute right-3 ${label ? 'top-8' : 'top-2'}`,
+          arrowClassname,
+          `transition-transform ${showOptions.value ? 'rotate-180' : ''}`
+        )}
       />
       <div
-        className={`border-theme-primary bg-theme-surface-main absolute z-10 mt-2 w-full rounded border ${
+        className={twMerge(
+          override ? '' : 'border-theme-primary bg-theme-surface-main absolute z-10 mt-2 w-full rounded border',
           showOptions.value ? 'visible' : 'hidden'
-        }`}
+        )}
       >
-        <ul className={twMerge('max-h-40 overflow-auto [&>li]:px-4 [&>li]:py-2', menuClassname)}>
-          {filteredOptions.value.map((option) => (
+        <ul
+          className={twMerge(
+            'max-h-40 overflow-auto [&>li]:flex [&>li]:gap-2 [&>li]:px-4 [&>li]:py-2 [&>svg]:h-full',
+            menuClassname
+          )}
+        >
+          {filteredOptions.get(NO_PROXY).map((option) => (
             <li
               key={option.value}
               value={option.value}
               className={twMerge(
-                'text-theme-secondary cursor-pointer px-4 py-2',
-                option.disabled ? 'cursor-not-allowed' : 'hover:text-theme-highlight hover:bg-theme-highlight'
+                override ? "font-['Figtree'] text-xs font-normal text-neutral-400" : 'text-theme-secondary',
+                'cursor-pointer',
+                override
+                  ? 'hover:bg-gray-500 hover:text-neutral-400'
+                  : option.disabled
+                  ? 'cursor-not-allowed'
+                  : 'hover:text-theme-highlight hover:bg-theme-highlight'
               )}
               onClick={() => {
                 if (option.disabled) return
@@ -129,6 +148,7 @@ const Select = <T extends OptionValueType>({
                 onChange(option.value)
               }}
             >
+              {option.icon && option.icon}
               {option.label}
             </li>
           ))}

@@ -44,31 +44,29 @@ export interface StringInputProps {
   disabled?: boolean
 }
 
-const StringInput = React.forwardRef<any, StringInputProps>(
-  ({ value, onChange, onRelease, onFocus, disabled, placeholder, type, ...rest }, ref) => {
-    const { error, canDrop, ...other } = rest
-    return (
-      <Input
-        containerClassname="w-[178px] h-[30px] bg-zinc-900 rounded-[5px]"
-        className="w-full bg-inherit font-['Figtree'] text-xs font-normal text-neutral-400"
-        override={true}
-        value={value ?? ''}
-        onChange={(e) => {
-          onChange?.(e.target.value)
-        }}
-        onRelease={(e) => {
-          onRelease?.(e.target.value)
-        }}
-        onFocus={(e) => {
-          onRelease?.(e.target.value)
-        }}
-        disabled={disabled}
-        type={type}
-        placeholder={placeholder}
-      />
-    )
-  }
-)
+const StringInput = ({ value, onChange, onRelease, onFocus, disabled, placeholder, type, ...rest }) => {
+  const { error, canDrop, ...other } = rest
+  return (
+    <Input
+      containerClassname="w-[178px] h-[30px] bg-zinc-900 rounded-[5px]"
+      className="w-full bg-inherit font-['Figtree'] text-xs font-normal text-neutral-400"
+      override={true}
+      value={value ?? ''}
+      onChange={(e) => {
+        onChange?.(e.target.value)
+      }}
+      onRelease={(e) => {
+        onRelease?.(e.target.value)
+      }}
+      onFocus={(e) => {
+        onRelease?.(e.target.value)
+      }}
+      disabled={disabled}
+      type={type}
+      placeholder={placeholder}
+    />
+  )
+}
 
 StringInput.displayName = 'StringInput'
 StringInput.defaultProps = {
