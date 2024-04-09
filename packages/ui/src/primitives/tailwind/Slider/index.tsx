@@ -66,13 +66,11 @@ const Slider = ({ value, min = 0, max = 100, step = 1, onChange }) => {
     } else {
       newValue = Math.min(Math.max(newValue, min), max)
     }
-    setValue(newValue)
     onChange(newValue)
   }
 
   const handleChange = (event) => {
     const newValue = parseInt(event.target.value, 10)
-    setValue(newValue)
     onChange(newValue)
   }
 
