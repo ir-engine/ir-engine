@@ -34,7 +34,7 @@ import DataTable from '../../common/Table'
 import { recordingColumns } from '../../common/constants/recordings'
 
 import { useHookstate } from '@etherealengine/hyperflux'
-import showConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
+import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { HiTrash } from 'react-icons/hi2'
 import { PopoverState } from '../../../common/services/PopoverState'
@@ -69,15 +69,13 @@ export default function RecordingsTable({ search }: { search: string }) {
             className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0"
             rounded
             onClick={() => {
-              showConfirmDialog(
-                `${t('admin:components.recording.confirmRecordingDelete')} (${row.id}) ?`,
-                async () => {
-                  modalProcessing.set(true)
-                  await removeRecording(row.id)
-                  PopoverState.hidePopupover()
-                  modalProcessing.set(false)
-                },
-                modalProcessing.value
+              PopoverState.showPopupover(
+                <ConfirmDialog
+                  text={`${t('admin:components.recording.confirmRecordingDelete')} (${row.id}) ?`}
+                  onSubmit={async () => {
+                    await removeRecording(row.id)
+                  }}
+                />
               )
             }}
           >

@@ -165,7 +165,7 @@ export default function CreateResourceModal({ selectedResource }: { selectedReso
       onSubmit={handleSubmit}
     >
       <div className="grid w-full gap-4">
-        {errors.serverError.value && <p className="mt-4 text-rose-800">{errors.serverError.value}</p>}
+        {errors.serverError.value && <p className="mt-4 text-red-700">{errors.serverError.value}</p>}
         <Input
           value={state.name.value}
           label={t('admin:components.resources.resourceName')}

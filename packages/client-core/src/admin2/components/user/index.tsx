@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { UserType, userPath } from '@etherealengine/common/src/schema.type.module'
 import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import showConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
+import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
@@ -33,6 +33,7 @@ import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMagnifyingGlass } from 'react-icons/hi2'
+import { PopoverState } from '../../../common/services/PopoverState'
 import UserTable, { removeUsers } from './UserTable'
 
 export default function Users() {
@@ -78,10 +79,13 @@ export default function Users() {
               variant="danger"
               size="small"
               onClick={() => {
-                showConfirmDialog(
-                  t('admin:components.user.confirmMultiUserDelete'),
-                  () => removeUsers(modalProcessing, adminUserRemove, selectedUsers.value),
-                  modalProcessing.value
+                PopoverState.showPopupover(
+                  <ConfirmDialog
+                    text={t('admin:components.user.confirmMultiUserDelete')}
+                    onSubmit={async () => {
+                      removeUsers(modalProcessing, adminUserRemove, selectedUsers.value)
+                    }}
+                  />
                 )
               }}
             >

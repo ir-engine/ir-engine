@@ -31,7 +31,7 @@ import { LocationType, SceneID, locationPath } from '@etherealengine/common/src/
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import showConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
+import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { HiPencil, HiTrash } from 'react-icons/hi2'
 import { userHasAccess } from '../../../user/userHasAccess'
@@ -98,15 +98,13 @@ export default function LocationTable({ search }: { search: string }) {
             className="h-8 w-8"
             title={t('admin:components.common.delete')}
             onClick={() =>
-              showConfirmDialog(
-                `${t('admin:components.location.confirmLocationDelete')} '${row.name}'?`,
-                async () => {
-                  modalProcessing.set(true)
-                  await adminLocationRemove(row.id)
-                  PopoverState.hidePopupover()
-                  modalProcessing.set(false)
-                },
-                modalProcessing.value
+              PopoverState.showPopupover(
+                <ConfirmDialog
+                  text={`${t('admin:components.location.confirmLocationDelete')} '${row.name}'?`}
+                  onSubmit={async () => {
+                    await adminLocationRemove(row.id)
+                  }}
+                />
               )
             }
           >

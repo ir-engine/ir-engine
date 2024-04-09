@@ -36,7 +36,7 @@ import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import showConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
+import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import CopyText from '@etherealengine/ui/src/primitives/tailwind/CopyText'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
@@ -128,17 +128,15 @@ export default function ProjectTable() {
           className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={!project || !project.repositoryPath || project.name === 'default-project'}
           onClick={() => {
-            showConfirmDialog(
-              `${t('admin:components.project.confirmPushProjectToGithub')}? ${project.name} - ${
-                project.repositoryPath
-              }`,
-              async () => {
-                modalProcessing.set(true)
-                await ProjectService.pushProject(project.id).catch(() => modalProcessing.set(false))
-                modalProcessing.set(false)
-                PopoverState.hidePopupover()
-              },
-              modalProcessing.value
+            PopoverState.showPopupover(
+              <ConfirmDialog
+                text={`${t('admin:components.project.confirmPushProjectToGithub')}? ${project.name} - ${
+                  project.repositoryPath
+                }`}
+                onSubmit={async () => {
+                  await ProjectService.pushProject(project.id).catch(() => modalProcessing.set(false))
+                }}
+              />
             )
           }}
         >
@@ -164,14 +162,13 @@ export default function ProjectTable() {
           className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={config.client.localBuildOrDev}
           onClick={() => {
-            showConfirmDialog(
-              `${t('admin:components.project.confirmProjectInvalidate')} '${project.name}'?`,
-              async () => {
-                modalProcessing.set(true)
-                await ProjectService.invalidateProjectCache(project.name)
-                PopoverState.hidePopupover()
-              },
-              modalProcessing.value
+            PopoverState.showPopupover(
+              <ConfirmDialog
+                text={`${t('admin:components.project.confirmProjectInvalidate')} '${project.name}'?`}
+                onSubmit={async () => {
+                  await ProjectService.invalidateProjectCache(project.name)
+                }}
+              />
             )
           }}
         >
@@ -190,14 +187,13 @@ export default function ProjectTable() {
           className="bg-theme-blue-secondary h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={project.name === 'default-project'}
           onClick={() => {
-            showConfirmDialog(
-              `${t('admin:components.project.confirmProjectDelete')} '${project.name}'?`,
-              async () => {
-                modalProcessing.set(true)
-                await ProjectService.removeProject(project.id).catch((err) => logger.error(err))
-                PopoverState.hidePopupover()
-              },
-              modalProcessing.value
+            PopoverState.showPopupover(
+              <ConfirmDialog
+                text={`${t('admin:components.project.confirmProjectDelete')} '${project.name}'?`}
+                onSubmit={async () => {
+                  await ProjectService.removeProject(project.id).catch((err) => logger.error(err))
+                }}
+              />
             )
           }}
         >

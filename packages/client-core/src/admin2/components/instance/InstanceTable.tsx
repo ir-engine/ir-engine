@@ -35,7 +35,7 @@ import { instanceColumns } from '../../common/constants/instance'
 
 import { InstanceType } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
-import showConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
+import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { HiEye, HiTrash } from 'react-icons/hi2'
 import { PopoverState } from '../../../common/services/PopoverState'
@@ -80,15 +80,13 @@ export default function InstanceTable({ search }: { search: string }) {
             className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0"
             rounded
             onClick={() => {
-              showConfirmDialog(
-                `${t('admin:components.instance.confirmInstanceDelete')} (${row.id}) ?`,
-                async () => {
-                  modalProcessing.set(true)
-                  await removeInstance(row.id)
-                  PopoverState.hidePopupover()
-                  modalProcessing.set(false)
-                },
-                modalProcessing.value
+              PopoverState.showPopupover(
+                <ConfirmDialog
+                  text={`${t('admin:components.instance.confirmInstanceDelete')} (${row.id}) ?`}
+                  onSubmit={async () => {
+                    await removeInstance(row.id)
+                  }}
+                />
               )
             }}
           >

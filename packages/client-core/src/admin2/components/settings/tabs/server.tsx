@@ -228,7 +228,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
 
         {state.errorMessage.value && (
           <div className="col-span-2">
-            <Text component="h3" className="text-red-400">
+            <Text component="h3" className="text-red-700">
               {state.errorMessage.value}
             </Text>
           </div>

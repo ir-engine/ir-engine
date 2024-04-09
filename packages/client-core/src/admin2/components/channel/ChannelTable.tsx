@@ -30,7 +30,8 @@ import { ChannelType, channelPath } from '@etherealengine/common/src/schema.type
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { State } from '@etherealengine/hyperflux'
-import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
 import { HiPencil, HiTrash } from 'react-icons/hi2'
@@ -38,7 +39,6 @@ import { channelColumns } from '../../../admin/common/variables/channel'
 import DataTable from '../../common/Table'
 import { ChannelRowType } from '../../common/constants/channel'
 import AddEditChannelModal from './AddEditChannelModal'
-import RemoveChannelModal from './RemoveChannelModal'
 
 export default function ChannelTable({
   search,
@@ -58,6 +58,7 @@ export default function ChannelTable({
       }
     }
   })
+  const adminChannelRemove = useMutation(channelPath).remove
 
   useSearch(
     adminChannelsQuery,
@@ -102,7 +103,16 @@ export default function ChannelTable({
             variant="outline"
             className="h-8 w-8"
             title={t('admin:components.common.delete')}
-            onClick={() => PopoverState.showPopupover(<RemoveChannelModal channels={[row]} />)}
+            onClick={() =>
+              PopoverState.showPopupover(
+                <ConfirmDialog
+                  text={`${t('admin:components.channel.confirmChannelDelete')} '${row.name}'?`}
+                  onSubmit={async () => {
+                    adminChannelRemove(row.id)
+                  }}
+                />
+              )
+            }
           >
             <HiTrash className="text-theme-iconRed place-self-center" />
           </Button>

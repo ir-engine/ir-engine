@@ -188,7 +188,7 @@
       "createOne": "Create One",
       "createChannel": "Create Channel",
       "update": "Update Channel",
-      "confirmChannelDelete": "Do you want to delete channel?",
+      "confirmChannelDelete": "Do you want to delete channel",
       "confirmMultiChannelDelete": "Do you want to delete these channels?",
       "name": "Channel Name",
       "remove": "Remove Channel",

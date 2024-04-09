@@ -214,7 +214,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
 
         {state.errorMessage.value && (
           <div className="col-span-full">
-            <Text component="h3" className="text-red-400">
+            <Text component="h3" className="text-red-700">
               {state.errorMessage.value}
             </Text>
           </div>

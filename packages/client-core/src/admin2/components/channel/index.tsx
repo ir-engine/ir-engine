@@ -24,8 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { ChannelType } from '@etherealengine/common/src/schema.type.module'
+import { ChannelType, channelPath } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
+import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
@@ -34,7 +36,6 @@ import { useTranslation } from 'react-i18next'
 import { HiMagnifyingGlass, HiPlus, HiTrash } from 'react-icons/hi2'
 import AddEditChannelModal from './AddEditChannelModal'
 import ChannelTable from './ChannelTable'
-import RemoveChannelModal from './RemoveChannelModal'
 
 export default function Channels() {
   const { t } = useTranslation()
@@ -42,6 +43,7 @@ export default function Channels() {
   const debouncedSearchQueryRef = useRef<ReturnType<typeof setTimeout>>()
 
   const selectedChannels = useHookstate<ChannelType[]>([])
+  const adminChannelRemove = useMutation(channelPath).remove
 
   useEffect(() => clearTimeout(debouncedSearchQueryRef.current), [])
 
@@ -79,7 +81,18 @@ export default function Channels() {
                   size="small"
                   fullWidth
                   onClick={() => {
-                    PopoverState.showPopupover(<RemoveChannelModal channels={selectedChannels.value} />)
+                    PopoverState.showPopupover(
+                      <ConfirmDialog
+                        text={t('admin:components.channel.confirmMultiChannelDelete')}
+                        onSubmit={async () => {
+                          await Promise.all(
+                            selectedChannels.value.map((channel) => {
+                              adminChannelRemove(channel.id)
+                            })
+                          )
+                        }}
+                      />
+                    )
                   }}
                 >
                   {t('admin:components.channel.removeChannels')}

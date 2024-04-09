@@ -146,7 +146,7 @@ export default function UpdateEngineModal() {
       submitLoading={modalProcessing.value}
     >
       <div className="grid gap-6">
-        {errors.serverError.value && <p className="mb-3 text-rose-800">{errors.serverError.value}</p>}
+        {errors.serverError.value && <p className="mb-3 text-red-700">{errors.serverError.value}</p>}
         <Text>
           {t('admin:components.setting.helm.mainHelmToDeploy')}:{' '}
           <a href="/admin/settings#helm">{helmSetting?.main || 'Current Version'}</a>

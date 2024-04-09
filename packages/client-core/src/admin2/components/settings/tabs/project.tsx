@@ -176,13 +176,13 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
           </div>
         </>
       ) : (
-        <Text component="h3" className="text-red-400">
+        <Text component="h3" className="text-red-700">
           {t('admin:components.setting.project.noSettingsMessage')}
         </Text>
       )}
 
       {state.errorMessage.value && (
-        <Text component="h3" className="text-red-400">
+        <Text component="h3" className="text-red-700">
           {state.errorMessage.value}
         </Text>
       )}

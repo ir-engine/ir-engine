@@ -152,7 +152,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       submitLoading={submitLoading.value}
     >
       <div className="relative grid w-full gap-6">
-        {errors.serviceError.value ? <p className="mt-2 text-rose-700">{errors.serviceError.value}</p> : null}
+        {errors.serviceError.value ? <p className="mt-2 text-red-700">{errors.serviceError.value}</p> : null}
         <Input
           label={t('admin:components.user.name')}
           placeholder={t('admin:components.user.namePlaceholder')}
@@ -165,7 +165,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
             label={t('admin:components.user.selectScopes')}
             options={scopeTypeOptions}
             selectedOptions={scopes.value.map((sc) => sc.type)}
-            onChange={(values) => scopes.set(values.toSorted().map((v) => ({ type: v })))}
+            onChange={(values) => scopes.set((values as any).toSorted().map((v) => ({ type: v })))}
             menuClassName="max-h-72"
           />
           <div className="flex gap-2">

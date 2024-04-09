@@ -74,7 +74,7 @@ export default function AddEditChannelModal({ channel }: { channel?: ChannelType
       onClose={PopoverState.hidePopupover}
       submitLoading={submitLoading.value}
     >
-      {errors.serverError.value && <p className="mb-3 text-rose-800">{errors.serverError.value}</p>}
+      {errors.serverError.value && <p className="mb-3 text-red-700">{errors.serverError.value}</p>}
       <Input
         label={t('admin:components.channel.name')}
         value={channelName.value}

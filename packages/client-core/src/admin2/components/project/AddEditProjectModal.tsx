@@ -528,7 +528,7 @@ export default function AddEditProjectModal({
               )}
 
             {projectUpdateStatus.value?.sourceVsDestinationError.length > 0 && (
-              <Text className="text-red-400">{projectUpdateStatus.value?.sourceVsDestinationError}</Text>
+              <Text className="text-red-700">{projectUpdateStatus.value?.sourceVsDestinationError}</Text>
             )}
 
             {!update && (
@@ -536,7 +536,7 @@ export default function AddEditProjectModal({
                 className={
                   projectUpdateStatus.value?.destinationValid
                     ? 'text-green-400'
-                    : 'text-red-400' + ' flex items-center gap-2'
+                    : 'text-red-700' + ' flex items-center gap-2'
                 }
               >
                 {projectUpdateStatus.value?.destinationValid && <CiCircleCheck />}
@@ -550,7 +550,7 @@ export default function AddEditProjectModal({
                 className={
                   projectUpdateStatus.value?.sourceValid
                     ? 'text-green-400'
-                    : 'text-red-400' + ' flex items-center gap-2'
+                    : 'text-red-700' + ' flex items-center gap-2'
                 }
               >
                 {projectUpdateStatus.value?.sourceValid && <CiCircleCheck />}
@@ -564,7 +564,7 @@ export default function AddEditProjectModal({
                 className={
                   projectUpdateStatus.value?.sourceProjectMatchesDestination
                     ? 'text-green-400'
-                    : 'text-red-400' + ' flex items-center gap-2'
+                    : 'text-red-700' + ' flex items-center gap-2'
                 }
               >
                 {projectUpdateStatus.value?.sourceProjectMatchesDestination && <CiCircleCheck />}
@@ -623,7 +623,7 @@ export default function AddEditProjectModal({
           {onSubmit && (
             <Button
               onClick={onSubmit}
-              disabled={projectUpdateStatus?.submitDisabled?.value || processing}
+              disabled={projectUpdateStatus.value?.submitDisabled || processing}
               endIcon={processing ? <LoadingCircle className="h-6 w-6" /> : undefined}
               className="place-self-end"
             >

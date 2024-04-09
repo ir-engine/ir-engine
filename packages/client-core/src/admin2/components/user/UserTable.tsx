@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 import { HiPencil, HiTrash } from 'react-icons/hi2'
 
 import { UserParams } from '@etherealengine/server-core/src/user/user/user.class'
-import showConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
+import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { Id, NullableId } from '@feathersjs/feathers'
 import { PopoverState } from '../../../common/services/PopoverState'
@@ -137,10 +137,13 @@ export default function UserTable({
               disabled={user.id.value === row.id}
               title={t('admin:components.common.delete')}
               onClick={() => {
-                showConfirmDialog(
-                  `${t('admin:components.user.confirmUserDelete')} '${row.name}'?`,
-                  () => removeUsers(modalProcessing, adminUserRemove, [row]),
-                  modalProcessing.value
+                PopoverState.showPopupover(
+                  <ConfirmDialog
+                    text={`${t('admin:components.user.confirmUserDelete')} '${row.name}'?`}
+                    onSubmit={async () => {
+                      await removeUsers(modalProcessing, adminUserRemove, [row])
+                    }}
+                  />
                 )
               }}
             >

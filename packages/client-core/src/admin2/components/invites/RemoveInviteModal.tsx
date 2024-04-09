@@ -61,7 +61,7 @@ export default function RemoveInviteModal({ invites }: { invites: InviteType[] }
       onClose={PopoverState.hidePopupover}
       submitLoading={modalProcessing.value}
     >
-      {error.value && <p className="mb-3 text-rose-800">{error.value}</p>}
+      {error.value && <p className="mb-3 text-red-700">{error.value}</p>}
       <Text>
         {invites.length === 1
           ? `${t('admin:components.invite.confirmInviteDelete')} '${
