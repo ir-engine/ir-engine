@@ -59,7 +59,7 @@ const Checkbox = ({ className, override, label, value, onChange, onRelease, disa
         disabled={disabled}
       />
       {override && (
-        <label htmlFor={checkboxId} className={className} tabIndex={0}>
+        <label className={className} tabIndex={0}>
           {value && icon !== undefined && icon}
         </label>
       )}
