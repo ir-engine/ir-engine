@@ -23,37 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { MdOutlineHeatPump, MdOutlineWatch, MdOutlineWindPower } from 'react-icons/md'
-import Select from '../../../../primitives/tailwind/Select'
+import { describe, it } from '@jest/globals'
 
-// make new component instead
-
-const SelectInput = () => {
-  return (
-    <Select
-      options={SelectInput.defaultProps.options}
-      className="flex-column w-[200px] items-center rounded bg-neutral-900 px-4 py-2"
-      menuClassname=""
-      arrowClassname="text-neutral-400 absolute right-3 top-2"
-      override={true}
-      currentValue={''}
-      onChange={function (value: string | number): void {
-        throw new Error('Function not implemented.')
-      }}
-    />
-  )
-}
-
-SelectInput.displayName = 'SelectInput'
-SelectInput.defaultProps = {
-  options: [
-    { label: 'Cuboid', value: 'a', icon: <MdOutlineWatch size="1.5em" /> },
-    { label: 'Cylinder', value: 'b', icon: <MdOutlineHeatPump size="1.5em" /> },
-    { label: 'Cube', value: 'c', icon: <MdOutlineWindPower size="1.5em" /> }
-  ],
-  currentValue: 'a',
-  onChange: () => {}
-}
-
-export default SelectInput
+describe('Vector2Input', () => {
+  it('- should render', () => {})
+})
