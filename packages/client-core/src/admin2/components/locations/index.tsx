@@ -63,7 +63,7 @@ export default function Locations() {
               }, 100)
             }}
             className="bg-theme-surface-main"
-            containerClassName="w-1/5 block"
+            containerClassname="w-1/5 block"
             startComponent={<HiMagnifyingGlass />}
           />
           <div>
