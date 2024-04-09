@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
-//import "./slider.css"
 
 export interface SliderProps {
   className?: string
@@ -33,7 +32,6 @@ export interface SliderProps {
   min?: number
   max?: number
   step?: number
-  initialValue?: number
   onChange: (value: number) => void
 }
 
@@ -105,7 +103,8 @@ const Slider = ({ value, min = 0, max = 100, step = 1, onChange }) => {
 Slider.defaultProps = {
   min: 0,
   max: 100,
-  step: 1
+  step: 1,
+  value: 60
 }
 
 export default Slider
