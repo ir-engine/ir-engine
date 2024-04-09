@@ -36,9 +36,6 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   description?: string
   type?: InputHTMLAttributes<HTMLInputElement>['type']
   onChange?: InputHTMLAttributes<HTMLInputElement>['onChange']
-  onRelease?: InputHTMLAttributes<HTMLInputElement>['onBlur']
-  onFocus?: InputHTMLAttributes<HTMLInputElement>['onFocus']
-  placeholder?: string
   error?: string
   disabled?: boolean
   startComponent?: JSX.Element
@@ -55,12 +52,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       type = 'text',
       error,
       description,
-      placeholder,
       value,
       itemType,
       onChange,
-      onRelease,
-      onFocus,
       disabled,
       startComponent,
       endComponent,
@@ -98,9 +92,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             className={twClassname}
             value={value}
             onChange={onChange}
-            onBlur={onRelease}
-            onFocus={onFocus}
-            placeholder={placeholder}
             {...props}
           />
 

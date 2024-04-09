@@ -55,7 +55,7 @@ const StringInput = ({ value, onChange, onRelease, onFocus, disabled, placeholde
       onChange={(e) => {
         onChange?.(e.target.value)
       }}
-      onRelease={(e) => {
+      onBlur={(e) => {
         onRelease?.(e.target.value)
       }}
       onFocus={(e) => {
@@ -120,11 +120,11 @@ export const ControlledStringInput = React.forwardRef<any, StringInputProps>((va
       onChange={(e) => {
         onChangeValue(e.target.value)
       }}
-      onRelease={onBlur}
+      onBlur={onBlur}
       onFocus={onFocus}
       disabled={disabled}
-      type={type}
       placeholder={placeholder}
+      type="text"
     />
   )
 })
