@@ -24,18 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
-import { Entity, EntityUUID, UUIDComponent, createEntity, getMutableComponent, setComponent } from '@etherealengine/ecs'
+import {
+  Entity,
+  EntityUUID,
+  UUIDComponent,
+  createEntity,
+  getComponent,
+  getMutableComponent,
+  setComponent
+} from '@etherealengine/ecs'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { MaterialSource } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
-import { Material } from 'three'
+import { Color, Material, Texture } from 'three'
 import { stringHash } from '../../common/functions/MathFunctions'
 import { MaterialComponent } from './MaterialComponent'
-
-export const registerMaterialInstance = (material: Material, entity: Entity) => {
-  const materialEntity = UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)
-  const materialComponent = getMutableComponent(materialEntity, MaterialComponent)
-  materialComponent.instances.set([...materialComponent.instances.value, entity])
-}
 
 export const registerMaterial = (material: Material, src: MaterialSource, params?: { [_: string]: any }) => {
   const materialEntity = createEntity()
@@ -48,6 +50,72 @@ export const registerMaterial = (material: Material, src: MaterialSource, params
   return materialEntity
 }
 
+export const registerMaterialInstance = (material: Material, entity: Entity) => {
+  const materialEntity = UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)
+  const materialComponent = getMutableComponent(materialEntity, MaterialComponent)
+  materialComponent.instances.set([...materialComponent.instances.value, entity])
+}
+
 export const hashMaterial = (source: string, name: string) => {
   return `${stringHash(source) ^ stringHash(name)}`
+}
+
+export const extractDefaults = (defaultArgs) => {
+  return formatMaterialArgs(
+    Object.fromEntries(Object.entries(defaultArgs).map(([k, v]: [string, any]) => [k, v.default])),
+    defaultArgs
+  )
+}
+
+export const formatMaterialArgs = (args, defaultArgs: any = undefined) => {
+  if (!args) return args
+  return Object.fromEntries(
+    Object.entries(args)
+      .map(([k, v]: [string, any]) => {
+        if (!!defaultArgs && defaultArgs[k]) {
+          switch (defaultArgs[k].type) {
+            case 'color':
+              return [k, v ? ((v as Color).isColor ? v : new Color(v)) : undefined]
+          }
+        }
+        const tex = v as Texture
+        if (tex?.isTexture) {
+          if (tex.source.data !== undefined) {
+            return [k, v]
+          }
+          return [k, undefined]
+        }
+        if (v === '') return [k, undefined]
+        return [k, v]
+      })
+      .filter(([_, v]) => v !== undefined)
+  )
+}
+
+export const createMaterialFromPrototype = (prototypeEntity: Entity) => {
+  const prototype = getComponent(prototypeEntity, MaterialComponent).prototype
+  return (parms) => {
+    const defaultParms = extractDefaults(prototype.arguments)
+    const formattedParms = { ...defaultParms, ...parms }
+    const result = new prototype.baseMaterial(formattedParms)
+    if (prototype.onBeforeCompile) {
+      result.onBeforeCompile = prototype.onBeforeCompile
+      result.needsUpdate = true
+    }
+    return result
+  }
+}
+
+export function materialIdToFactory(matId: string): (parms: any) => Material {
+  const material = materialFromId(matId)
+  const prototype = prototypeFromId(material.prototype)
+  return (parms) => {
+    const formattedParms = { ...material.parameters, ...parms }
+    const result = new prototype.baseMaterial(formattedParms)
+    if (prototype.onBeforeCompile) {
+      result.onBeforeCompile = prototype.onBeforeCompile
+      result.needsUpdate = true
+    }
+    return result
+  }
 }

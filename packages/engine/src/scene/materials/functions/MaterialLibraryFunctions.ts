@@ -48,13 +48,6 @@ export function PrototypeNotFoundError(message) {
   this.message = message
 }
 
-export function extractDefaults(defaultArgs) {
-  return formatMaterialArgs(
-    Object.fromEntries(Object.entries(defaultArgs).map(([k, v]: [string, any]) => [k, v.default])),
-    defaultArgs
-  )
-}
-
 export function injectDefaults(defaultArgs, values) {
   return Object.fromEntries(
     Object.entries(defaultArgs).map(([k, v]: [string, any]) => [k, { ...v, default: values[k] }])
@@ -104,34 +97,6 @@ export function materialIdToDefaultArgs(matId: string): object {
   const material = materialFromId(matId)
   const prototype = prototypeFromId(material.prototype)
   return injectDefaults(prototype.arguments, material.parameters)
-}
-
-export function protoIdToFactory(protoId: string): (parms: any) => Material {
-  const prototype = prototypeFromId(protoId)
-  return (parms) => {
-    const defaultParms = extractDefaults(prototype.arguments)
-    const formattedParms = { ...defaultParms, ...parms }
-    const result = new prototype.baseMaterial(formattedParms)
-    if (prototype.onBeforeCompile) {
-      result.onBeforeCompile = prototype.onBeforeCompile
-      result.needsUpdate = true
-    }
-    return result
-  }
-}
-
-export function materialIdToFactory(matId: string): (parms: any) => Material {
-  const material = materialFromId(matId)
-  const prototype = prototypeFromId(material.prototype)
-  return (parms) => {
-    const formattedParms = { ...material.parameters, ...parms }
-    const result = new prototype.baseMaterial(formattedParms)
-    if (prototype.onBeforeCompile) {
-      result.onBeforeCompile = prototype.onBeforeCompile
-      result.needsUpdate = true
-    }
-    return result
-  }
 }
 
 export function materialIdToPrototype(matId: string): MaterialPrototypeComponentType {

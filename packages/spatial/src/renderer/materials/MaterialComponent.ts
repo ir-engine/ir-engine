@@ -45,7 +45,7 @@ export type MaterialComponentType = {
   instances: Entity[]
 }
 
-export type MaterialPrototypeComponentType<T extends Material = Material> = {
+export type MaterialPrototype<T extends Material = Material> = {
   prototypeId: string
   baseMaterial: { new (params): T }
   arguments: {
@@ -65,13 +65,15 @@ export const MaterialComponent = defineComponent({
     return {
       // materialUUID points to entities with MaterialComponent holding state
       uuid: [] as string[],
-      // material-specific data
+      // material & material specific data
       material: null as null | Material,
       instances: [] as Entity[],
       hash: '',
       source: '',
       plugins: [] as string[],
-      prototype: ''
+      prototypeUuid: '',
+      // shared material state
+      prototype: {} as MaterialPrototype
     }
   },
 
@@ -96,6 +98,8 @@ export const MaterialComponent = defineComponent({
     }
     if (json.plugins) component.plugins.set(json.plugins)
     if (json.source) component.source.set(json.source)
+    if (json.prototypeUuid) component.prototypeUuid.set(json.prototypeUuid)
+    if (json.prototype) component.prototype.set(json.prototype)
   }
 })
 
