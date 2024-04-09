@@ -31,7 +31,7 @@ export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   endIcon?: ReactNode
   children?: ReactNode
   size?: 'small' | 'medium' | 'large'
-  variant?: 'primary' | 'outline' | 'danger' | 'success'
+  variant?: 'primary' | 'outline' | 'danger' | 'success' | 'pink'
   disabled?: boolean
   fullWidth?: boolean
   rounded?: boolean
@@ -47,7 +47,8 @@ const sizes = {
 const variants = {
   primary: 'bg-blue-primary',
   outline: 'border border-solid border-theme-primary bg-theme-surface-main dark:bg-theme-highlight text-theme-primary',
-  danger: 'bg-[#C162A2]',
+  pink: 'bg-[#C162A2]',
+  danger: 'bg-red-500',
   success: 'bg-teal-700'
 }
 
