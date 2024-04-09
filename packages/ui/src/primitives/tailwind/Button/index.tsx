@@ -73,7 +73,7 @@ const Button = ({
     variants[variant],
     fullWidth ? 'w-full' : 'w-fit',
     rounded ? 'rounded-full' : 'rounded-md',
-    disabled ? 'bg-[#F3F4F6] text-[#9CA3AF] text-[#D1D5DB] dark:bg-[#2B2C30]' : '',
+    disabled ? 'bg-[#F3F4F6] text-[#9CA3AF] dark:bg-[#2B2C30] dark:text-[#D1D5DB]' : '',
     className
   )
 
