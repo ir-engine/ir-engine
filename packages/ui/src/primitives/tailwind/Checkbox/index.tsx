@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useState } from 'react'
+import React from 'react'
 import { twMerge } from 'tailwind-merge'
 import Label from '../Label'
 
@@ -38,21 +38,17 @@ export interface CheckboxProps {
   icon?: React.ReactNode
 }
 
-let uniqueId = 0
-
 const Checkbox = ({ className, override, label, value, onChange, onRelease, disabled, icon }: CheckboxProps) => {
   const originalClassName = [
     'h-4 w-4 rounded',
     'border-gray-300 bg-gray-100 text-blue-400 focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600'
   ]
-  const [checkboxId] = useState(() => `boolean-input-${uniqueId++}`)
 
   const twClassName = twMerge(override === false ? originalClassName : 'm-0 hidden', className)
 
   return (
     <div className="flex w-full items-center gap-4">
       <input
-        id={checkboxId}
         type="checkbox"
         className={twClassName}
         checked={value}
