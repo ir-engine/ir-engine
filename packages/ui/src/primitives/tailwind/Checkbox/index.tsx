@@ -27,18 +27,17 @@ import React from 'react'
 import { twMerge } from 'tailwind-merge'
 import Label from '../Label'
 
-export interface CheckboxProps {
-  value: boolean
+export interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  value: any
   label?: string
   className?: string
   override?: boolean
-  onChange: (value: boolean) => void
-  onRelease?: (value: boolean) => void
+  onChange: (value: any) => void
   disabled?: boolean
   icon?: React.ReactNode
 }
 
-const Checkbox = ({ className, override, label, value, onChange, onRelease, disabled, icon }: CheckboxProps) => {
+const Checkbox = ({ className, override, label, value, onChange, disabled, icon, ...props }: CheckboxProps) => {
   const originalClassName = [
     'h-4 w-4 rounded',
     'border-gray-300 bg-gray-100 text-blue-400 focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600'
@@ -53,10 +52,8 @@ const Checkbox = ({ className, override, label, value, onChange, onRelease, disa
         className={twClassName}
         checked={value}
         onChange={() => onChange(!value)}
-        onBlur={() => {
-          if (onRelease) onRelease(!value)
-        }}
         disabled={disabled}
+        {...props}
       />
       {override && (
         <label className={className} tabIndex={0}>
