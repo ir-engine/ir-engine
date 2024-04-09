@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Quaternion, Vector3 } from 'three'
+import { ColorRepresentation, Quaternion, Vector3 } from 'three'
 import { matches } from 'ts-matches'
 
 const matchesVec3Shape = matches.shape({
@@ -47,7 +47,23 @@ const matchesQuatShape = matches.some(
   })
 )
 
+const matchesColorShape = matches.some(
+  matches.string,
+  matches.number,
+  matches.shape({
+    r: matches.number,
+    g: matches.number,
+    b: matches.number
+  }),
+  matches.shape({
+    h: matches.number,
+    s: matches.number,
+    l: matches.number
+  })
+)
+
 const matchesVector3 = matches.guard((v): v is Vector3 => matchesVec3Shape.test(v))
 const matchesQuaternion = matches.guard((v): v is Quaternion => matchesQuatShape.test(v))
+const matchesColor = matches.guard((c): c is ColorRepresentation => matchesColorShape.test(c))
 
-export { matchesVector3, matchesQuaternion }
+export { matchesVector3, matchesQuaternion, matchesColor }

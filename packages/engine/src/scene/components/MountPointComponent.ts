@@ -24,23 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { ArrowHelper, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
-import { getMutableState, matches, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, matches, useHookstate } from '@etherealengine/hyperflux'
 
-import { defineComponent, hasComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { defineComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { createObj } from '../../assets/functions/resourceHooks'
-import { SpawnPointComponent } from './SpawnPointComponent'
+import { ArrowHelperComponent } from './debug/ArrowHelperComponent'
 
 export const MountPoint = {
   seat: 'seat' as const
@@ -55,7 +47,6 @@ export const MountPointComponent = defineComponent({
   onInit: (entity) => {
     return {
       type: MountPoint.seat as MountPointTypes,
-      helperEntity: null as Entity | null,
       dismountOffset: new Vector3(0, 0, 0.75)
     }
   },
@@ -76,27 +67,12 @@ export const MountPointComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-    const mountPoint = useComponent(entity, MountPointComponent)
 
     useEffect(() => {
-      if (!debugEnabled.value) return
-
-      const [helper, unload] = createObj(ArrowHelper, entity, new Vector3(0, 0, 1), new Vector3(0, 0, 0), 0.5, 0xffffff)
-      helper.name = `mount-point-helper-${entity}`
-
-      const helperEntity = createEntity()
-      addObjectToGroup(helperEntity, helper)
-      setComponent(helperEntity, NameComponent, helper.name)
-      setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
-      setVisibleComponent(helperEntity, true)
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
-      mountPoint.helperEntity.set(helperEntity)
-
-      return () => {
-        removeEntity(helperEntity)
-        if (!hasComponent(entity, SpawnPointComponent)) return
-        mountPoint.helperEntity.set(none)
-        unload()
+      if (!debugEnabled.value) {
+        removeComponent(entity, ArrowHelperComponent)
+      } else {
+        setComponent(entity, ArrowHelperComponent)
       }
     }, [debugEnabled])
 

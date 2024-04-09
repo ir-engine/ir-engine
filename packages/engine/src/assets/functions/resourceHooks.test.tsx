@@ -202,7 +202,7 @@ describe('ResourceHooks', () => {
 
     let objUUID = undefined as undefined | string
     const Reactor = () => {
-      const [light] = useObj(DirectionalLight, entity)
+      const [light] = useObj<DirectionalLight, typeof DirectionalLight>(DirectionalLight, entity)
       objUUID = light.uuid
 
       useEffect(() => {

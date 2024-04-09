@@ -90,10 +90,17 @@ export const GroundPlaneComponent = defineComponent({
     const entity = useEntityContext()
 
     const component = useComponent(entity, GroundPlaneComponent)
-    const [planeGeom] = useObj(PlaneGeometry, entity, 10000, 10000)
-    const [meshMaterial] = useObj(MeshLambertMaterial, entity)
-    const [groundShadowMaterial] = useObj(ShadowMaterial, entity, { opacity: 0.5 })
-    const [mesh] = useObj(Mesh, entity, planeGeom, component.visible.value ? meshMaterial : groundShadowMaterial)
+    const [planeGeom] = useObj<PlaneGeometry, typeof PlaneGeometry>(PlaneGeometry, entity, 10000, 10000)
+    const [meshMaterial] = useObj<MeshLambertMaterial, typeof MeshLambertMaterial>(MeshLambertMaterial, entity)
+    const [groundShadowMaterial] = useObj<ShadowMaterial, typeof ShadowMaterial>(ShadowMaterial, entity, {
+      opacity: 0.5
+    })
+    const [mesh] = useObj<Mesh, typeof Mesh>(
+      Mesh,
+      entity,
+      planeGeom,
+      component.visible.value ? meshMaterial : groundShadowMaterial
+    )
 
     useLayoutEffect(() => {
       mesh.geometry.rotateX(-Math.PI / 2)

@@ -313,10 +313,10 @@ export async function getTextureAsync(
  * @param args *Optional* arguments to pass to the constructor of object3D
  * @returns A unique instance of the class that is passed in for object3D
  */
-export function useObj<T extends DisposableObject>(
-  objectLike: { new (...params: any[]): T },
-  entity: Entity = UndefinedEntity,
-  ...args: any[]
+export function useObj<T extends DisposableObject, T2 extends new (...params: any[]) => T>(
+  objectLike: T2,
+  entity: Entity,
+  ...args: ConstructorParameters<T2>
 ): [T, () => void] {
   const classState = useHookstate(() => objectLike)
   const objState = useHookstate<T>(() => ResourceManager.loadObj(objectLike, entity, ...args))
@@ -353,10 +353,10 @@ export function useObj<T extends DisposableObject>(
  * @param args *Optional* arguments to pass to the constructor of object3D
  * @returns A unique instance of the class that is passed in for object3D and a callback to unload the object
  */
-export function createObj<T extends DisposableObject>(
-  objectLike: { new (...params: any[]): T },
-  entity: Entity = UndefinedEntity,
-  ...args: any[]
+export function createObj<T extends DisposableObject, T2 extends { new (...params: any[]): T }>(
+  objectLike: T2,
+  entity: Entity,
+  ...args: ConstructorParameters<T2>
 ): [T, () => void] {
   const obj = ResourceManager.loadObj(objectLike, entity, ...args)
 
@@ -383,7 +383,7 @@ export function useResource<T>(
   entity: Entity = UndefinedEntity,
   id?: string,
   onUnload?: () => void
-): [T, () => void] {
+): [State<T>, () => void] {
   const uniqueID = useHookstate<string>(id || uuidv4())
   const resourceState = useHookstate<T>(() => ResourceManager.addResource(resource, uniqueID.value, entity))
 
@@ -403,5 +403,9 @@ export function useResource<T>(
     }
   }, [resource])
 
-  return [resourceState.get(NO_PROXY), unload]
+  useEffect(() => {
+    resourceState.set(() => ResourceManager.addResource(resourceState.value, uniqueID.value, entity))
+  }, [resourceState])
+
+  return [resourceState, unload]
 }
