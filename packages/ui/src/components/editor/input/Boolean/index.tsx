@@ -56,7 +56,7 @@ export const BooleanInput = (props: BooleanInputProp) => {
       value={props.value}
       override={true}
       onChange={props.onChange}
-      onRelease={onBlur}
+      onBlur={onBlur}
       disabled={props.disabled}
       icon={
         <svg
