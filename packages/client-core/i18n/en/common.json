@@ -2,6 +2,9 @@
   "components": {
     "cancel": "Cancel",
     "confirm": "Confirm",
+    "back": "Back",
+    "configure": "Configure",
+    "continue": "Continue",
     "select": "Select",
     "enter": "Enter",
     "processing": "Processing",
