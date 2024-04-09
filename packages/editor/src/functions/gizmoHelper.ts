@@ -448,7 +448,7 @@ export function controlUpdate(gizmoEntity: Entity) {
       : gizmoControl.controlledEntities.get(NO_PROXY)[0]
   if (targetEntity === UndefinedEntity) return
 
-  let parentEntity = SceneState.getRootEntity(getState(EditorState).sceneID!) // we can always ensure scene entity is root parent even if entty tree component doesnt exist
+  let parentEntity = SceneState.getRootEntity(getState(EditorState).scenePath!) // we can always ensure scene entity is root parent even if entty tree component doesnt exist
   const parent = getComponent(targetEntity, EntityTreeComponent)
 
   if (parent && parent.parentEntity !== UndefinedEntity) {

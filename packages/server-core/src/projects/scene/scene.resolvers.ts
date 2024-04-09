@@ -23,35 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// https://stackoverflow.com/a/11150727
-export const getDateTimeSql = () => {
-  return new Date().toISOString().slice(0, 19).replace('T', ' ')
-}
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
-export const toDateTimeSql = (date: Date) => {
-  return date.toISOString().slice(0, 19).replace('T', ' ')
-}
+import { resolve, virtual } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-// https://stackoverflow.com/a/11150727
-export const fromDateTimeSql = (date: string) => {
-  let dateObj: Date
-  if (typeof date === 'string') {
-    dateObj = new Date(date)
-  } else {
-    dateObj = date
-  }
-  return (
-    dateObj.getFullYear() +
-    '-' +
-    ('00' + (dateObj.getMonth() + 1)).slice(-2) +
-    '-' +
-    ('00' + dateObj.getDate()).slice(-2) +
-    'T' +
-    ('00' + dateObj.getHours()).slice(-2) +
-    ':' +
-    ('00' + dateObj.getMinutes()).slice(-2) +
-    ':' +
-    ('00' + dateObj.getSeconds()).slice(-2) +
-    '.000Z'
-  )
-}
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+import { SceneDataType, SceneID, SceneQuery } from '@etherealengine/common/src/schema.type.module'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+
+export const sceneResolver = resolve<SceneDataType, HookContext>({
+  createdAt: virtual(async (scene) => fromDateTimeSql(scene.createdAt)),
+  updatedAt: virtual(async (scene) => fromDateTimeSql(scene.updatedAt))
+})
+
+export const sceneExternalResolver = resolve<SceneDataType, HookContext>({})
+
+export const sceneDataResolver = resolve<SceneDataType, HookContext>({
+  id: async () => {
+    return v4() as SceneID
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const scenePatchResolver = resolve<SceneDataType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const sceneQueryResolver = resolve<SceneQuery, HookContext>({})

@@ -227,7 +227,7 @@ describe('Snapshots', () => {
   it('undo snapshot', async () => {
     // init
     SceneState.loadScene(sceneID, testScene)
-    getMutableState(EditorState).sceneID.set(sceneID)
+    getMutableState(EditorState).scenePath.set(sceneID)
     applyIncomingActions()
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))
@@ -361,7 +361,7 @@ describe('Snapshots', () => {
   it('redo snapshot', async () => {
     // init
     SceneState.loadScene(sceneID, testScene)
-    getMutableState(EditorState).sceneID.set(sceneID)
+    getMutableState(EditorState).scenePath.set(sceneID)
     applyIncomingActions()
     const { rerender, unmount } = render(sceneTag)
     await act(() => rerender(sceneTag))

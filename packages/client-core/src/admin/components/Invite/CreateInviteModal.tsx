@@ -31,7 +31,7 @@ import { useTranslation } from 'react-i18next'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { EMAIL_REGEX, PHONE_REGEX } from '@etherealengine/common/src/constants/IdConstants'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -60,7 +60,6 @@ import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHo
 import { NotificationService } from '../../../common/services/NotificationService'
 import { InviteService } from '../../../social/services/InviteService'
 import DrawerView from '../../common/DrawerView'
-import { AdminSceneService, AdminSceneState } from '../../services/SceneService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -96,12 +95,8 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
   const adminUsers = useFind(userPath, { query: { isGuest: false } }).data
   const adminLocations = useFind(locationPath, { query: { action: 'admin' } }).data
 
-  const adminSceneState = useHookstate(getMutableState(AdminSceneState))
-  const spawnPoints = adminSceneState.singleScene?.scene?.entities.value
-    ? Object.entries(adminSceneState.singleScene.scene.entities.value).filter(([, value]) =>
-        value.components.find((component) => component.name === 'spawn-point')
-      )
-    : []
+  /** @todo spawn point support */
+  const spawnPoints = [] as any[]
 
   const handleChangeInviteTypeTab = (event: React.SyntheticEvent, newValue: number) => {
     inviteTypeTab.set(newValue)
@@ -147,21 +142,21 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
 
   const handleLocationChange = (e) => {
     locationId.set(e.target.value)
-    const location = adminLocations.find((location) => location.id === e.target.value)
-    if (location && location.sceneId) {
-      AdminSceneService.fetchAdminScene(location.sceneId)
-    }
+    // const location = adminLocations.find((location) => location.id === e.target.value)
+    // if (location && location.sceneId) {
+    //   AdminSceneService.fetchAdminScene(location.sceneId)
+    // }
   }
 
   const handleInstanceChange = (e) => {
     instanceId.set(e.target.value)
-    const instance = adminInstances.find((instance) => instance.id === e.target.value)
-    if (instance) {
-      const location = adminLocations.find((location) => location.id === instance.locationId)
-      if (location) {
-        AdminSceneService.fetchAdminScene(location.sceneId)
-      }
-    }
+    // const instance = adminInstances.find((instance) => instance.id === e.target.value)
+    // if (instance) {
+    //   const location = adminLocations.find((location) => location.id === instance.locationId)
+    //   if (location) {
+    //     AdminSceneService.fetchAdminScene(location.sceneId)
+    //   }
+    // }
   }
 
   const handleUserChange = (e) => {

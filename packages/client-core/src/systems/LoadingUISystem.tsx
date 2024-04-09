@@ -60,6 +60,7 @@ import { CameraComponent } from '@etherealengine/spatial/src/camera/components/C
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { addObjectToGroup, GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
@@ -96,6 +97,8 @@ export const LoadingUISystemState = defineState({
         getComponent(Engine.instance.cameraEntity, TransformComponent).position
       )
     })
+
+    setComponent(meshEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
 
     setComponent(meshEntity, VisibleComponent)
     addObjectToGroup(meshEntity, mesh)

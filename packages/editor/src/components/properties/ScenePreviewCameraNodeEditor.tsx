@@ -70,7 +70,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   }
 
   const updateScenePreview = async () => {
-    const rootEntity = SceneState.getRootEntity(getState(EditorState).sceneID!)
+    const rootEntity = SceneState.getRootEntity(getState(EditorState).scenePath!)
     const scene = new Scene()
     scene.children = getComponent(rootEntity, SceneComponent)
       .children.map(getNestedVisibleChildren)

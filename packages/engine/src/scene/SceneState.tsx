@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneDataType, SceneID } from '@etherealengine/common/src/schema.type.module'
+import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID, UUIDComponent, createEntity, removeEntity } from '@etherealengine/ecs'
 import { getComponent, getOptionalComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
@@ -49,7 +49,7 @@ import { migrateOldColliders } from './functions/migrateOldColliders'
 import { migrateOldComponentJSONIDs } from './functions/migrateOldComponentJSONIDs'
 import { migrateSceneSettings } from './functions/migrateSceneSettings'
 import { serializeEntity } from './functions/serializeWorld'
-import { EntityJsonType, SceneJsonType } from './types/SceneTypes'
+import { EntityJsonType, SceneJSONDataType, SceneJsonType } from './types/SceneTypes'
 
 export interface SceneSnapshotInterface {
   data: SceneJsonType
@@ -61,7 +61,7 @@ export interface SceneSnapshotInterface {
 export const SceneState = defineState({
   name: 'SceneState',
   initial: () => ({
-    scenes: {} as Record<SceneID, Omit<SceneDataType, 'scene'> & { scene: SceneJsonType }>,
+    scenes: {} as Record<SceneID, SceneJSONDataType>,
     sceneLoaded: false,
     loadingProgress: 0,
     sceneModified: false
@@ -75,7 +75,7 @@ export const SceneState = defineState({
     return useHookstate(getMutableState(SceneState).scenes[sceneID]).scene
   },
 
-  loadScene: (sceneID: SceneID, sceneData: SceneDataType) => {
+  loadScene: (sceneID: SceneID, sceneData: SceneJSONDataType) => {
     const data: SceneJsonType = sceneData.scene
 
     migrateOldComponentJSONIDs(data)

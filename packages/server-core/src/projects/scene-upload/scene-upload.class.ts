@@ -32,16 +32,13 @@ export class SceneUploadService implements ServiceInterface<SceneUpdate, SceneCr
   }
 
   async create(data: SceneCreateData, params: UploadParams) {
-    //if (typeof data === 'string') data = JSON.parse(data)
-    //if (typeof data.sceneData === 'string') data.sceneData = JSON.parse(data.sceneData)
-
     const thumbnailBuffer = params.files.length > 0 ? (params?.files[0].buffer as Buffer) : undefined
 
-    const { project, name, sceneData, storageProviderName } = data
+    const { project, name, storageProviderName } = data
 
     const result = (await this.app
       .service(scenePath)
-      .update('', { name, sceneData, storageProviderName, thumbnailBuffer, project })) as SceneUpdate
+      .update('', { name, storageProviderName, thumbnailBuffer, project })) as SceneUpdate
 
     // Clear params otherwise all the files and auth details send back to client as response
     for (const prop of Object.getOwnPropertyNames(params)) delete params[prop]

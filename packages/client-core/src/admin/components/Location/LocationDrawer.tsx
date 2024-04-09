@@ -38,12 +38,12 @@ import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
-import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { SceneDataType, scenePath } from '@etherealengine/common/src/schemas/projects/scene.schema'
+import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
 import { validateForm } from '../../common/validation/formValidation'
-import { AdminSceneService, AdminSceneState } from '../../services/SceneService'
 import styles from '../../styles/admin.module.scss'
 
 export enum LocationDrawerMode {
@@ -83,7 +83,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
   const editMode = useHookstate(false)
   const state = useHookstate({ ...defaultState })
 
-  const scenes = useHookstate(getMutableState(AdminSceneState).scenes)
+  const scenes = useFind(scenePath)
   // const locationTypes = useFind(locationTypePath).data
   const user = useHookstate(getMutableState(AuthState).user)
 
@@ -106,7 +106,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
           label: `${sceneName} (${projectName})`
         }
       ]
-    : scenes.get(NO_PROXY).map((el) => {
+    : scenes.data.map((el: SceneDataType) => {
         return {
           value: `${el.project}/${el.name}`,
           label: `${el.name} (${el.project})`
@@ -119,10 +119,6 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
   //     label: el.type
   //   }
   // })
-
-  useEffect(() => {
-    if (!selectedScene) AdminSceneService.fetchAdminScenes()
-  }, [])
 
   useEffect(() => {
     loadSelectedLocation()

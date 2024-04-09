@@ -50,9 +50,7 @@ export const locationSchema = Type.Object(
       format: 'uuid'
     }),
     name: Type.String(),
-    sceneId: TypedString<SceneID>({
-      format: 'uuid'
-    }),
+    sceneId: TypedString<SceneID>(),
     slugifiedName: Type.String(),
     /** @todo review */
     isLobby: Type.Boolean(),

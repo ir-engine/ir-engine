@@ -27,19 +27,21 @@ import multiLogger from '@etherealengine/common/src/logger'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import MoreVert from '@mui/icons-material/MoreVert'
 import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { SceneDataType, SceneID } from '@etherealengine/common/src/schema.type.module'
+import config from '@etherealengine/common/src/config'
+import { SceneDataType, SceneID, scenePath } from '@etherealengine/common/src/schema.type.module'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { TabData } from 'rc-dock'
-import { deleteScene, getScenes, onNewScene, renameScene, setSceneInState } from '../../functions/sceneFunctions'
+import { deleteScene, onNewScene, renameScene } from '../../functions/sceneFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { DialogState } from '../dialogs/DialogState'
 import ErrorDialog from '../dialogs/ErrorDialog'
@@ -56,45 +58,26 @@ const logger = multiLogger.child({ component: 'editor:ScenesPanel' })
  */
 export default function ScenesPanel() {
   const { t } = useTranslation()
-  const [scenes, setScenes] = useState<SceneDataType[]>([])
+  const editorState = useHookstate(getMutableState(EditorState))
+  const scenesQuery = useFind(scenePath, { query: { project: editorState.projectName.value } })
+  const scenes = scenesQuery.data
+
   const [isContextMenuOpen, setContextMenuOpen] = useState(false)
   const [isDeleteOpen, setDeleteOpen] = useState(false)
   const [anchorEl, setAnchorEl] = useState(null)
   const [newName, setNewName] = useState('')
   const [isRenaming, setRenaming] = useState(false)
   const [loadedScene, setLoadedScene] = useState<SceneDataType | null>(null)
-  const editorState = useHookstate(getMutableState(EditorState))
   const sceneState = useHookstate(getMutableState(SceneState))
-  const [scenesLoading, setScenesLoading] = useState(true)
-
-  const [thumbnails, setThumbnails] = useState<Map<string, string>>(new Map<string, string>())
-  const fetchItems = async () => {
-    try {
-      const data = await getScenes(editorState.projectName.value!)
-      for (let i = 0; i < data.length; i++) {
-        const ktx2url = await getSceneURL(data[i].thumbnailUrl)
-        thumbnails.set(data[i].name, ktx2url!)
-      }
-      setScenes(data ?? [])
-    } catch (error) {
-      logger.error(error, 'Error fetching scenes')
-    }
-    setScenesLoading(false)
-  }
-
-  useEffect(() => {
-    fetchItems()
-  }, [editorState.sceneName])
+  const scenesLoading = scenesQuery.status === 'pending'
 
   const onCreateScene = async () => {
     await onNewScene()
-    fetchItems()
   }
 
   const onClickExisting = async (e, scene: SceneDataType) => {
     e.preventDefault()
-    setSceneInState(scene.scenePath)
-    fetchItems()
+    getMutableState(EditorState).scenePath.set(scene.scenePath)
   }
 
   const openDeleteDialog = () => {
@@ -110,13 +93,11 @@ export default function ScenesPanel() {
 
   const deleteActiveScene = async () => {
     if (loadedScene) {
-      await deleteScene(editorState.projectName.value, loadedScene.name)
+      await deleteScene(loadedScene.scenePath)
       if (editorState.sceneName.value === loadedScene.name) {
         getMutableState(SceneState).sceneLoaded.set(false)
         editorState.sceneName.set(null)
       }
-
-      fetchItems()
     }
 
     closeDeleteDialog()
@@ -151,9 +132,9 @@ export default function ScenesPanel() {
   const finishRenaming = async () => {
     setRenaming(false)
     await renameScene(editorState.projectName.value as string, newName, loadedScene!.name)
-    if (loadedScene) setSceneInState(loadedScene.scenePath.replace(loadedScene.name, newName) as SceneID)
+    if (loadedScene)
+      getMutableState(EditorState).scenePath.set(loadedScene.scenePath.replace(loadedScene.name, newName) as SceneID)
     setNewName('')
-    fetchItems()
   }
 
   const renameSceneToNewName = async (e) => {
@@ -186,13 +167,13 @@ export default function ScenesPanel() {
           </div>
         ) : (
           <div className={styles.contentContainer + ' ' + styles.sceneGridContainer}>
-            {scenes.map((scene) => (
+            {scenes.map((scene: SceneDataType) => (
               <div className={styles.sceneContainer} key={scene.name}>
                 <a onClick={(e) => onClickExisting(e, scene)}>
                   <div className={styles.thumbnailContainer}>
                     <img
                       style={{ height: 'auto', maxWidth: '100%' }}
-                      src={thumbnails.get(scene.name)}
+                      src={config.client.fileServer + '/' + scene.thumbnailUrl}
                       alt=""
                       crossOrigin="anonymous"
                     />

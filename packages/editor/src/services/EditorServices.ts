@@ -40,7 +40,7 @@ export const EditorState = defineState({
   initial: () => ({
     projectName: null as string | null,
     sceneName: null as string | null,
-    sceneID: null as SceneID | null,
+    scenePath: null as string | null,
     expandedNodes: {} as IExpandedNodes,
     lockPropertiesPanel: '' as EntityUUID,
     panelLayout: {} as LayoutData

@@ -142,7 +142,7 @@ const onKeyX = () => {
 }
 
 const onKeyZ = (control: boolean, shift: boolean) => {
-  const sceneID = getState(EditorState).sceneID
+  const sceneID = getState(EditorState).scenePath
   if (!sceneID) return
   if (control) {
     const state = getState(SceneSnapshotState)[sceneID]

@@ -28,7 +28,6 @@ import koa from '@feathersjs/koa'
 import { Application } from '../../../declarations'
 // import { addVolumetricAssetFromProject } from '../../media/volumetric/volumetric-upload.helper'
 import { SceneDataType, SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
-import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
@@ -43,13 +42,8 @@ export const getEnvMapBake = (app: Application) => {
   }
 }
 
-export const getSceneData = async (
-  sceneKey: SceneID,
-  metadataOnly?: boolean,
-  internal = false,
-  storageProviderName?: string
-) => {
-  const storageProvider = getStorageProvider(storageProviderName)
+export const getSceneData = async (sceneKey: SceneID, metadataOnly?: boolean, internal = false) => {
+  const storageProvider = getStorageProvider()
   const sceneName = sceneKey.split('/').pop()!.replace('.scene.json', '')
   const directory = sceneKey.replace(`${sceneName}.scene.json`, '')
 
@@ -72,10 +66,10 @@ export const getSceneData = async (
 
   const sceneResult = await storageProvider.getCachedObject(sceneKey)
   const sceneData: SceneDataType = {
+    id: sceneKey,
     name: sceneName,
     project: projectName,
     thumbnailUrl: thumbnailUrl,
-    scene: metadataOnly ? undefined! : parseStorageProviderURLs(JSON.parse(sceneResult.Body.toString())),
     scenePath: sceneKey
   }
 

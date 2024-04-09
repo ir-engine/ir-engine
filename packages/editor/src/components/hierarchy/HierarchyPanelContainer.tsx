@@ -91,7 +91,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 
   const uuidQuery = useQuery([UUIDComponent, SourceComponent])
   const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
-  const sceneID = useHookstate(getMutableState(EditorState).sceneID)
+  const sceneID = useHookstate(getMutableState(EditorState).scenePath)
   const index = SceneSnapshotState.useSnapshotIndex(sceneID.value!)
 
   const MemoTreeNode = useCallback(
@@ -553,7 +553,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 }
 
 export default function HierarchyPanel() {
-  const sceneID = useHookstate(getMutableState(EditorState).sceneID).value
+  const sceneID = useHookstate(getMutableState(EditorState).scenePath).value
   const sceneState = useHookstate(getMutableState(SceneState)).value
 
   const sceneJson = SceneState.getScene(sceneID!)?.scene

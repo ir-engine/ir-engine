@@ -27,58 +27,20 @@ import i18n from 'i18next'
 
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import multiLogger from '@etherealengine/common/src/logger'
-import {
-  SceneDataType,
-  SceneID,
-  SceneMetadataCreate,
-  scenePath,
-  sceneUploadPath
-} from '@etherealengine/common/src/schema.type.module'
+import { SceneID, scenePath, sceneUploadPath } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { SceneSnapshotState } from '@etherealengine/engine/src/scene/SceneState'
+import { SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { GLTFLoadedComponent } from '@etherealengine/engine/src/scene/components/GLTFLoadedComponent'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { SceneParams } from '@etherealengine/server-core/src/projects/scene/scene.class'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { EditorState } from '../services/EditorServices'
+import { exportRelativeGLTF } from './exportGLTF'
 
 const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
-
-/**
- * getScenes used to get list projects created by user.
- *
- * @return {Promise}
- */
-export const getScenes = async (projectName: string): Promise<SceneDataType[]> => {
-  try {
-    const result = (await Engine.instance.api
-      .service(scenePath)
-      .find({ query: { project: projectName, metadataOnly: true, paginate: false } })) as any as SceneDataType[]
-    return result
-  } catch (error) {
-    logger.error(error, 'Error in getting project getScenes()')
-    throw error
-  }
-}
-
-/**
- * Function to get project data.
- *
- * @param projectId
- * @returns
- */
-export const getScene = async (projectName: string, sceneName: string, metadataOnly = true): Promise<SceneDataType> => {
-  try {
-    return (await Engine.instance.api
-      .service(scenePath)
-      .get('', { query: { project: projectName, name: sceneName, metadataOnly: metadataOnly } })) as SceneDataType
-  } catch (error) {
-    logger.error(error, 'Error in getting project getScene()')
-    throw error
-  }
-}
 
 /**
  * deleteScene used to delete project using projectId.
@@ -86,9 +48,9 @@ export const getScene = async (projectName: string, sceneName: string, metadataO
  * @param  {SceneID}  sceneId
  * @return {Promise}
  */
-export const deleteScene = async (projectName, sceneName): Promise<any> => {
+export const deleteScene = async (scene: string): Promise<any> => {
   try {
-    await Engine.instance.api.service(scenePath).remove(null, { query: { project: projectName, name: sceneName } })
+    await Engine.instance.api.service(scenePath).remove(null, { query: { scenePath: scene } })
   } catch (error) {
     logger.error(error, 'Error in deleting project')
     throw error
@@ -122,10 +84,10 @@ export const renameScene = async (
  * @param  {any}  signal
  * @return {Promise}
  */
-export const saveScene = async (projectName: string, sceneName: string, signal: AbortSignal) => {
+export const saveSceneJSON = async (projectName: string, sceneName: string, signal: AbortSignal) => {
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
 
-  const sceneData = getState(SceneSnapshotState)[getState(EditorState).sceneID!].snapshots.at(-1)?.data
+  const sceneData = getState(SceneSnapshotState)[getState(EditorState).scenePath!].snapshots.at(-1)?.data
 
   try {
     if (!sceneData) throw new Error(i18n.t('editor:errors.sceneDataNotFound'))
@@ -152,11 +114,30 @@ export const saveScene = async (projectName: string, sceneName: string, signal: 
   }
 }
 
-export const setSceneInState = async (newSceneName: SceneID) => {
-  const { sceneID } = getState(EditorState)
-  if (sceneID === newSceneName) return
-  if (!newSceneName) return
-  getMutableState(EditorState).sceneID.set(newSceneName)
+export const saveSceneGLTF = async (projectName: string, sceneName: string, signal: AbortSignal) => {
+  if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
+
+  const editorState = getState(EditorState)
+
+  const entity = SceneState.getRootEntity(editorState.scenePath as SceneID)
+
+  if (!entity) throw new Error(i18n.t('editor:errors.sceneEntityNotFound'))
+
+  const relativePath = `${editorState.sceneName}.gltf`
+
+  /** @todo remove once .scene.json support is removed */
+  const isModel = hasComponent(entity, ModelComponent)
+  if (!isModel) setComponent(entity, ModelComponent)
+  await exportRelativeGLTF(entity, editorState.projectName!, relativePath)
+  if (!isModel) removeComponent(entity, ModelComponent)
+
+  const absolutePath = `projects/${editorState.projectName}/${relativePath}`
+
+  const result = await Engine.instance.api
+    .service(scenePath)
+    .update('', { name: sceneName, scenePath: absolutePath, project: projectName })
+
+  console.log(result)
 }
 
 export const onNewScene = async () => {
@@ -167,7 +148,7 @@ export const onNewScene = async () => {
     const sceneData = await createNewScene(projectName)
     if (!sceneData) return
 
-    setSceneInState(sceneData.scenePath)
+    getMutableState(EditorState).scenePath.set(sceneData.scenePath as any)
   } catch (error) {
     logger.error(error)
   }
@@ -175,7 +156,7 @@ export const onNewScene = async () => {
 
 export const createNewScene = async (projectName: string, params?: SceneParams) => {
   try {
-    return Engine.instance.api.service(scenePath).create({ project: projectName }, params) as any as SceneMetadataCreate
+    return Engine.instance.api.service(scenePath).create({ project: projectName }, params)
   } catch (error) {
     logger.error(error, 'Error in creating project')
     throw error

@@ -41,7 +41,7 @@ import * as styles from '../styles.module.scss'
 export const PublishLocation = () => {
   const { t } = useTranslation()
   const openLocationDrawer = useHookstate(false)
-  const sceneID = useHookstate(getMutableState(EditorState).sceneID)
+  const sceneID = useHookstate(getMutableState(EditorState).scenePath)
   const selectedScene = sceneID.value
     ? (sceneID.value.replace('.scene.json', '').replace(`${sceneID.value.split('/', 1)[0]}/`, '') as SceneID)
     : null

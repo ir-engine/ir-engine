@@ -35,20 +35,40 @@ import {
   locationPath,
   LocationSettingType,
   LocationType,
-  SceneID
+  ProjectType
 } from '@etherealengine/common/src/schema.type.module'
+import { SceneDataType, SceneID, scenePath } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { toCapitalCase } from '@etherealengine/common/src/utils/miscUtils'
 import { Application } from '@etherealengine/server-core/declarations'
 
 export const createLocations = async (app: Application, projectName: string) => {
+  const project = (await app.service('project').find({
+    query: {
+      name: projectName
+    }
+  })) as Paginated<ProjectType>
+  if (project.total === 0) throw new Error(`Project ${projectName} not found`)
+  const projectData = project.data[0]
   return Promise.all(
     fs
       .readdirSync(path.resolve(appRootPath.path, 'packages/projects/projects', projectName))
       .filter((file) => file.endsWith('.scene.json'))
       .map(async (sceneJson) => {
         const locationId = generateUUID() as LocationID
+        const sceneId = generateUUID() as SceneID
         const settingsId = generateUUID()
         const sceneName = sceneJson.replace('.scene.json', '')
+
+        /** @todo use .gltf instead */
+
+        const scene = (await app.service(scenePath).create({
+          id: sceneId,
+          name: sceneName,
+          scenePath: `projects/${projectName}/${sceneName}.scene.json`,
+          thumbnailUrl: `projects/${projectName}/${sceneName}.thumbnail.jpg`,
+          projectId: projectData.id
+        })) as SceneDataType
+
         const locationName = toCapitalCase(sceneName.replace('-', ' '))
         const locationSetting = {
           id: settingsId,
@@ -64,7 +84,7 @@ export const createLocations = async (app: Application, projectName: string) => 
           name: locationName,
           slugifiedName: sceneName,
           maxUsersPerInstance: 20,
-          sceneId: `projects/${projectName}/${sceneName}.scene.json` as SceneID,
+          sceneId: scene.id,
           locationSetting,
           isLobby: false,
           isFeatured: false

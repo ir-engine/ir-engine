@@ -29,13 +29,15 @@ import { useEffect } from 'react'
 import { LocationService, LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
+import { scenePath } from '@etherealengine/common/src/schema.type.module'
+import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { RouterState } from '../../common/services/RouterService'
 import { WarningUIService } from '../../systems/WarningUISystem'
 import { SceneServices } from '../../world/SceneServices'
 
 export const useLoadLocation = (props: { locationName: string }) => {
   const locationState = useHookstate(getMutableState(LocationState))
+  const scene = useGet(scenePath, locationState.currentLocation.location.sceneId.value).data
 
   useEffect(() => {
     LocationState.setLocationName(props.locationName)
@@ -74,20 +76,19 @@ export const useLoadLocation = (props: { locationName: string }) => {
     if (
       !locationState.currentLocation.location.sceneId.value ||
       locationState.invalidLocation.value ||
-      locationState.currentLocation.selfNotAuthorized.value
+      locationState.currentLocation.selfNotAuthorized.value ||
+      !scene
     )
       return
-    const scenePath = locationState.currentLocation.location.sceneId.value
+    const scenePath = scene.scenePath
     return SceneServices.setCurrentScene(scenePath)
-  }, [locationState.currentLocation.location.sceneId])
+  }, [locationState.currentLocation.location.sceneId, scene])
 }
 
 export const useLoadScene = (props: { projectName: string; sceneName: string }) => {
   useEffect(() => {
     if (!props.sceneName || !props.projectName) return
-    const sceneName = props.sceneName.endsWith('.scene.json') ? `${props.sceneName}.scene.json` : props.sceneName
-    const sceneID = `projects/${props.projectName}/${sceneName}` as SceneID
-    if (props.sceneName.endsWith('.scene.json')) SceneServices.loadSceneJsonOffline(props.projectName, props.sceneName)
-    else return SceneServices.loadSceneGLTFOffline(sceneID)
+    const scenePath = `projects/${props.projectName}/${props.sceneName}`
+    return SceneServices.setCurrentScene(scenePath, true)
   }, [])
 }

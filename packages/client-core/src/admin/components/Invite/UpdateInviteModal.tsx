@@ -30,7 +30,7 @@ import { useTranslation } from 'react-i18next'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { EMAIL_REGEX, PHONE_REGEX } from '@etherealengine/common/src/constants/IdConstants'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -58,12 +58,9 @@ import {
   userPath
 } from '@etherealengine/common/src/schema.type.module'
 import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { Id } from '@feathersjs/feathers'
 import { NotificationService } from '../../../common/services/NotificationService'
 import DrawerView from '../../common/DrawerView'
-import { AdminSceneService, AdminSceneState } from '../../services/SceneService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -100,12 +97,9 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
   const adminLocations = useFind(locationPath, { query: { action: 'admin' } }).data
   const adminUsers = useFind(userPath, { query: { isGuest: false } }).data
 
-  const adminSceneState = useHookstate(getMutableState(AdminSceneState))
-  const spawnPoints = adminSceneState.singleScene?.scene?.entities.value
-    ? Object.entries(adminSceneState.singleScene.scene.entities.value).filter(([, value]) =>
-        value.components.find((component) => component.name === 'spawn-point')
-      )
-    : []
+  /** @todo spawn point support */
+  const spawnPoints = [] as any[]
+
   const patchInvite = useMutation(invitePath).patch
 
   useEffect(() => {
@@ -208,22 +202,21 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
 
   const handleLocationChange = async (e) => {
     locationId.set(e.target.value)
-    const location = await Engine.instance.api.service(locationPath).get(e.target.value)
-    if (location && location.sceneId) {
-      AdminSceneService.fetchAdminScene(location.sceneId)
-    }
+    // const location = await Engine.instance.api.service(locationPath).get(e.target.value)
+    // if (location && location.sceneId) {
+    //   AdminSceneService.fetchAdminScene(location.sceneId)
+    // }
   }
 
   const handleInstanceChange = async (e) => {
     instanceId.set(e.target.value)
-    const instance = adminInstances.find((instance) => instance.id === e.target.value)
+    // const instance = adminInstances.find((instance) => instance.id === e.target.value)
 
-    if (!instance) return
-    const location = await Engine.instance.api.service(locationPath).get(instance.locationId as Id)
+    // if (!instance) return
+    // const location = await Engine.instance.api.service(locationPath).get(instance.locationId as Id)
 
-    if (!location) return
-    const sceneName = location.sceneId.split('/')
-    AdminSceneService.fetchAdminScene(location.sceneId)
+    // if (!location) return
+    // AdminSceneService.fetchAdminScene(location.sceneId)
   }
 
   const handleUserChange = (e) => {

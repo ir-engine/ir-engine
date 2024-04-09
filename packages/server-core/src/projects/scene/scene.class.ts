@@ -33,14 +33,13 @@ import {
   SceneQuery,
   SceneUpdate
 } from '@etherealengine/common/src/schemas/projects/scene.schema'
-import { KnexAdapterParams } from '@feathersjs/knex'
-import { BaseService } from '../../BaseService'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 export interface SceneParams extends KnexAdapterParams<SceneQuery> {
   paginate?: false
 }
 
-export class SceneService<T = SceneDataType, ServiceParams extends Params = SceneParams> extends BaseService<
+export class SceneService<T = SceneDataType, ServiceParams extends Params = SceneParams> extends KnexService<
   SceneDataType | SceneDataType[] | Paginated<SceneDataType> | SceneMetadataCreate | SceneUpdate | null,
   SceneCreateData,
   SceneParams,
