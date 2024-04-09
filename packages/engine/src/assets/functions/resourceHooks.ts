@@ -318,7 +318,7 @@ export function useObj<T extends DisposableObject>(
   entity: Entity = UndefinedEntity,
   ...args: any[]
 ): [T, () => void] {
-  const classState = useHookstate(objectLike)
+  const classState = useHookstate(() => objectLike)
   const objState = useHookstate<T>(() => ResourceManager.loadObj(objectLike, entity, ...args))
 
   const unload = () => {
@@ -334,8 +334,8 @@ export function useObj<T extends DisposableObject>(
   useEffect(() => {
     if (objectLike !== classState.value) {
       unload()
-      classState.set(objectLike)
-      objState.set(ResourceManager.loadObj(objectLike, entity, ...args))
+      classState.set(() => objectLike)
+      objState.set(() => ResourceManager.loadObj(objectLike, entity, ...args))
     }
   }, [objectLike])
 
@@ -395,6 +395,13 @@ export function useResource<T>(
   useEffect(() => {
     return unload
   }, [])
+
+  useEffect(() => {
+    if (resource !== resourceState.value) {
+      unload()
+      resourceState.set(() => ResourceManager.addResource(resource, uniqueID.value, entity))
+    }
+  }, [resource])
 
   return [resourceState.get(NO_PROXY), unload]
 }

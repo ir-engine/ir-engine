@@ -258,11 +258,11 @@ describe('ResourceHooks', () => {
     const light1 = DirectionalLight
     const light2 = AmbientLight
 
-    let lightClass: any = light1
+    let lightClass = light1 as any
     let lightObj: any = undefined
 
     const Reactor = () => {
-      const [light, unload] = useObj(lightClass, entity)
+      const [light] = useObj(lightClass, entity)
 
       useEffect(() => {
         lightObj = light
@@ -416,6 +416,41 @@ describe('ResourceHooks', () => {
       unmount()
       sinon.assert.calledOnce(spy)
       assert(!resourceObj.data)
+      done()
+    })
+  })
+
+  it('Can update any asset correctly', (done) => {
+    const entity = createEntity()
+
+    const spy = sinon.spy()
+
+    const onUnload = () => {
+      spy()
+    }
+
+    let resource = new DirectionalLight() as any
+    let resourceObj = undefined as any
+
+    const Reactor = () => {
+      const [res] = useResource(resource, entity, undefined, onUnload)
+
+      useEffect(() => {
+        resourceObj = res
+      }, [res])
+      return <></>
+    }
+
+    const { rerender, unmount } = render(<Reactor />)
+
+    act(async () => {
+      assert(resourceObj.isDirectionalLight)
+      resource = new AmbientLight()
+      rerender(<Reactor />)
+    }).then(() => {
+      assert(resourceObj.isAmbientLight)
+      sinon.assert.calledOnce(spy)
+      unmount()
       done()
     })
   })
