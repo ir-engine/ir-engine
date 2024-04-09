@@ -256,14 +256,14 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             />
 
             <PasswordInput
-              containerClassName="mt-2"
+              containerClassname="mt-2"
               label={t('admin:components.setting.secret')}
               value={keySecret?.value?.discord?.secret || ''}
               onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.DISCORD)}
             />
 
             <Input
-              containerClassName="mt-2"
+              containerClassname="mt-2"
               label={t('admin:components.setting.callback')}
               value={authSetting?.callback?.discord || ''}
               disabled
@@ -284,14 +284,14 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             />
 
             <PasswordInput
-              containerClassName="mt-2"
+              containerClassname="mt-2"
               label={t('admin:components.setting.secret')}
               value={keySecret?.value?.linkedin?.secret || ''}
               onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.LINKEDIN)}
             />
 
             <Input
-              containerClassName="mt-2"
+              containerClassname="mt-2"
               label={t('admin:components.setting.callback')}
               value={authSetting?.callback?.linkedin || ''}
               disabled
@@ -312,14 +312,14 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             />
 
             <PasswordInput
-              containerClassName="mt-2"
+              containerClassname="mt-2"
               label={t('admin:components.setting.secret')}
               value={keySecret?.value?.facebook?.secret || ''}
               onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.FACEBOOK)}
             />
 
             <Input
-              containerClassName="mt-2"
+              containerClassname="mt-2"
               label={t('admin:components.setting.callback')}
               value={authSetting?.callback?.facebook || ''}
               disabled
@@ -344,14 +344,14 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             />
 
             <PasswordInput
-              containerClassName="mt-2"
+              containerClassname="mt-2"
               label={t('admin:components.setting.secret')}
               value={keySecret?.value?.google?.secret || ''}
               onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.GOOGLE)}
             />
 
             <Input
-              containerClassName="mt-2"
+              containerClassname="mt-2"
               label={t('admin:components.setting.callback')}
               value={authSetting?.callback?.google || ''}
               disabled
@@ -372,14 +372,14 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             />
 
             <PasswordInput
-              containerClassName="mt-2"
+              containerClassname="mt-2"
               label={t('admin:components.setting.secret')}
               value={keySecret?.value?.github?.secret || ''}
               onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.GITHUB)}
             />
 
             <Input
-              containerClassName="mt-2"
+              containerClassname="mt-2"
               label={t('admin:components.setting.callback')}
               value={authSetting?.callback?.github || ''}
               disabled
@@ -400,14 +400,14 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             />
 
             <PasswordInput
-              containerClassName="mt-2"
+              containerClassname="mt-2"
               label={t('admin:components.setting.secret')}
               value={keySecret?.value?.twitter?.secret || ''}
               onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.TWITTER)}
             />
 
             <Input
-              containerClassName="mt-2"
+              containerClassname="mt-2"
               label={t('admin:components.setting.callback')}
               value={authSetting?.callback?.twitter || ''}
               disabled
