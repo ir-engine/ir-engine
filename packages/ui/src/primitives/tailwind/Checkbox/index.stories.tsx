@@ -42,6 +42,7 @@ export const Unchecked = {
   args: {
     label: 'Checkbox Example',
     value: false,
+    override: false,
     onChange: () => {}
   }
 }
@@ -50,6 +51,7 @@ export const Checked = {
   args: {
     label: 'Checkbox Checked Example',
     value: true,
+    override: false,
     onChange: () => {}
   }
 }
