@@ -25,11 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect, useRef } from 'react'
 
-export const useDidMount = (func: () => void, deps: any[] = []) => {
+export const useDidMount = (func: () => (() => void) | void, deps: any[] = []) => {
   const didMount = useRef(false)
 
   useEffect(() => {
-    if (didMount.current) func()
+    let ret: (() => void) | void = undefined
+    if (didMount.current) ret = func()
     else didMount.current = true
+
+    return ret
   }, deps)
 }
