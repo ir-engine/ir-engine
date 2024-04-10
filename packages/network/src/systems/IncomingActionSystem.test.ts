@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { ActionRecipients, applyIncomingActions, getMutableState, getState } from '@etherealengine/hyperflux'
@@ -56,6 +56,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
 
       /* mock */
       const action = SpawnObjectActions.spawnObject({
+        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
         ownerID: '0' as UserID,
         // incoming action from future
         $time: 2,
@@ -83,6 +84,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
     it('should immediately apply incoming action from the past or present', () => {
       /* mock */
       const action = SpawnObjectActions.spawnObject({
+        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
         ownerID: '0' as UserID,
         // incoming action from past
         $time: -1,
@@ -105,6 +107,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
     it('should cache actions where $cache = true', () => {
       /* mock */
       const action = SpawnObjectActions.spawnObject({
+        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
         ownerID: '0' as UserID,
         // incoming action from past
         $time: 0,

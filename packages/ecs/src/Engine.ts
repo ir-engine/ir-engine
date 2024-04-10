@@ -34,7 +34,6 @@ import type { FeathersApplication } from '@feathersjs/feathers'
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 
 import { getAllEntities } from 'bitecs'
-import { Scene } from 'three'
 import { ECSState } from './ECSState'
 import { Entity, UndefinedEntity } from './Entity'
 import { removeEntity } from './EntityFunctions'
@@ -52,22 +51,17 @@ export class Engine {
   store: HyperStore
 
   /**
-   * Reference to the three.js scene object.
-   */
-  scene = new Scene()
-
-  /**
-   * The xr origin reference space entity
+   * Represents the reference space of the xr session local floor.
    */
   localFloorEntity = UndefinedEntity
 
-  /** @deprecated use localFloorEntity instead */
-  get originEntity() {
-    return this.localFloorEntity
-  }
+  /**
+   * Represents the reference space for the absolute origin of the rendering context.
+   */
+  originEntity = UndefinedEntity
 
   /**
-   * The viewer entity
+   * Represents the reference space for the viewer.
    */
   viewerEntity = UndefinedEntity
 

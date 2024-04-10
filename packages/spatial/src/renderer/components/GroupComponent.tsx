@@ -37,7 +37,6 @@ import {
   setComponent,
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { QueryComponents, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
@@ -97,8 +96,6 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
     updateWorldMatrix: () => {}
   })
 
-  Engine.instance.scene.add(obj)
-
   // sometimes it's convenient to update the entity transform via the Object3D,
   // so allow people to do that via proxies
   proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirtyTransforms, obj.position)
@@ -124,7 +121,7 @@ export function removeObjectFromGroup(entity: Entity, object: Object3D) {
     if (!group.length) removeComponent(entity, GroupComponent)
   }
 
-  object.removeFromParent()
+  if (object.parent) object.removeFromParent()
 }
 
 export type GroupReactorProps = {

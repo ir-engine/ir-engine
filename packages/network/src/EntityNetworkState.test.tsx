@@ -27,7 +27,7 @@ import assert from 'assert'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID } from '@etherealengine/ecs'
+import { EntityUUID, generateEntityUUID } from '@etherealengine/ecs'
 import { PeerID, ReactorReconciler } from '@etherealengine/hyperflux'
 import { applyIncomingActions, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
@@ -41,7 +41,6 @@ import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { act, render } from '@testing-library/react'
 import React from 'react'
-import { MathUtils } from 'three'
 import { createMockNetwork } from '../tests/createMockNetwork'
 import './EntityNetworkState'
 import { NetworkObjectComponent, NetworkObjectOwnedTag } from './NetworkObjectComponent'
@@ -84,6 +83,7 @@ describe('EntityNetworkState', () => {
 
       dispatchAction(
         WorldNetworkAction.spawnEntity({
+          parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
           ownerID: network.hostUserID, // from  host
           networkId: objNetId,
           $topic: NetworkTopics.world,
@@ -130,6 +130,7 @@ describe('EntityNetworkState', () => {
 
       dispatchAction(
         WorldNetworkAction.spawnEntity({
+          parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
           ownerID: userId, // from  user
           networkId: objNetId,
           $peer: Engine.instance.store.peerID,
@@ -177,6 +178,7 @@ describe('EntityNetworkState', () => {
 
       dispatchAction(
         WorldNetworkAction.spawnEntity({
+          parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
           ownerID: userId2, // from other user
           networkId: objNetId,
           $peer: peerID3,
@@ -217,6 +219,7 @@ describe('EntityNetworkState', () => {
 
       dispatchAction(
         WorldNetworkAction.spawnEntity({
+          parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
           networkId: 42 as NetworkId,
           $peer: peerID,
           entityUUID: Engine.instance.userID as string as EntityUUID
@@ -257,6 +260,7 @@ describe('EntityNetworkState', () => {
 
       dispatchAction(
         WorldNetworkAction.spawnEntity({
+          parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
           ownerID: userId,
           networkId: objNetId,
           $topic: NetworkTopics.world,
@@ -326,6 +330,7 @@ describe('EntityNetworkState', () => {
 
     dispatchAction(
       WorldNetworkAction.spawnEntity({
+        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
         ownerID: hostUserId, // from  host
         networkId: objNetId,
         $topic: NetworkTopics.world,
@@ -396,11 +401,12 @@ describe('EntityNetworkState', () => {
     for (let i = 0; i < 10000; i++) {
       dispatchAction(
         WorldNetworkAction.spawnEntity({
+          parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
           ownerID: hostUserId, // from  host
           networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: Engine.instance.store.peerID,
-          entityUUID: MathUtils.generateUUID() as any as EntityUUID
+          entityUUID: generateEntityUUID()
         })
       )
     }
@@ -420,11 +426,12 @@ describe('EntityNetworkState', () => {
 
     dispatchAction(
       WorldNetworkAction.spawnEntity({
+        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
         ownerID: hostUserId, // from  host
         networkId: objNetId,
         $topic: NetworkTopics.world,
         $peer: Engine.instance.store.peerID,
-        entityUUID: MathUtils.generateUUID() as any as EntityUUID
+        entityUUID: generateEntityUUID()
       })
     )
 

@@ -62,7 +62,6 @@ import { ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/O
 import { createAnchorWidget } from './createAnchorWidget'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
 // import { createMediaWidget } from './createMediaWidget'
-import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
@@ -84,7 +83,8 @@ const WidgetUISystemState = defineState({
   name: 'WidgetUISystemState',
   initial: () => {
     const widgetMenuUI = createWidgetButtonsView()
-    setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
+    /** @todo is originEntity is the correct parent? */
+    setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setComponent(widgetMenuUI.entity, TransformComponent)
     removeComponent(widgetMenuUI.entity, VisibleComponent)
     setComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
@@ -156,7 +156,7 @@ const execute = () => {
   }
   for (const action of unregisterWidgetQueue()) {
     const widget = RegisteredWidgets.get(action.id)!
-    setComponent(widget.ui.entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
+    setComponent(widget.ui.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     if (typeof widget.cleanup === 'function') widget.cleanup()
   }
 
@@ -172,7 +172,7 @@ const execute = () => {
     )
     if (hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
       removeComponent(widgetMenuUI.entity, ComputedTransformComponent)
-      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
       setComponent(widgetMenuUI.entity, TransformComponent, { scale: new Vector3().setScalar(1) })
     }
 
@@ -187,9 +187,9 @@ const execute = () => {
     }
   } else {
     if (!hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
-      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
-      setComputedTransformComponent(widgetMenuUI.entity, Engine.instance.cameraEntity, () => {
-        const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+      setComputedTransformComponent(widgetMenuUI.entity, Engine.instance.viewerEntity, () => {
+        const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
         const distance = camera.near * 1.1 // 10% in front of camera
         ObjectFitFunctions.attachObjectInFrontOfCamera(widgetMenuUI.entity, 0.2, distance)
       })

@@ -23,19 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineAction, dispatchAction } from '@etherealengine/hyperflux'
-
 export default class WEBGL {
-  static EVENTS = {
-    webglDisconnected: defineAction({
-      type: 'xre.renderer.WEBGL.WEBGL_DISCONNECTED' as const
-    })
-  }
-
-  static dispatchWebGLDisconnectedEvent() {
-    dispatchAction(WEBGL.EVENTS.webglDisconnected({}))
-  }
-
   static isWebGLAvailable() {
     try {
       const canvas = document.createElement('canvas')

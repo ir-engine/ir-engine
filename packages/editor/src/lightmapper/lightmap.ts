@@ -23,9 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MeshStandardMaterial, Object3D, WebGLRenderer } from 'three'
-
-import { Engine } from '@etherealengine/ecs/src/Engine'
+import { MeshStandardMaterial, Object3D, Scene, WebGLRenderer } from 'three'
 
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
@@ -42,7 +40,7 @@ export async function bakeLightmaps(
   props: WorkbenchSettings,
   requestWork: () => Promise<WebGLRenderer>
 ) {
-  const scene = Engine.instance.scene
+  const scene = new Scene()
   const meshes = meshQuery()
   for (const entity of meshes) {
     const mesh = getComponent(entity, MeshComponent)

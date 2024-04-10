@@ -28,8 +28,9 @@ import { MeshBasicMaterial, MeshNormalMaterial } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { Engine, getComponent } from '@etherealengine/ecs'
 import { RendererState } from '../RendererState'
-import { EngineRenderer } from '../WebGLRendererSystem'
+import { RendererComponent } from '../WebGLRendererSystem'
 import { RenderModes } from '../constants/RenderModes'
 
 /**
@@ -55,7 +56,9 @@ export function changeRenderMode() {
       break
   }
 
-  const passes = EngineRenderer.instance.effectComposer?.passes.filter((p) => p.name === 'RenderPass') as any
+  const passes = getComponent(Engine.instance.viewerEntity, RendererComponent).effectComposer?.passes.filter(
+    (p) => p.name === 'RenderPass'
+  ) as any
   const renderPass: RenderPass = passes ? passes[0] : undefined
 
   if (!renderPass) return

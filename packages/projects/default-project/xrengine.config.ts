@@ -36,7 +36,7 @@ const config: ProjectConfigInterface = {
       }
     },
     '/admin': {
-      component: () => import('@etherealengine/client-core/src/admin/adminRoutes')
+      component: () => import('@etherealengine/client/src/pages/admin')
     },
     '/location': {
       component: () => import('@etherealengine/client/src/pages/location/location')
@@ -56,8 +56,8 @@ const config: ProjectConfigInterface = {
     '/chat': {
       component: () => import('@etherealengine/client/src/pages/chat/chat')
     },
-    '/xadm': {
-      component: () => import('@etherealengine/client/src/pages/admin2')
+    '/adminold': {
+      component: () => import('@etherealengine/client-core/src/admin/adminRoutes')
     }
   }
 }
