@@ -402,7 +402,6 @@ export function useResource<T>(
   useDidMount(() => {
     unload()
     ResourceManager.addResource(resourceState.value, uniqueID.value, entity)
-    console.log('Resource State set')
   }, [resourceState])
 
   return [resourceState, unload]
