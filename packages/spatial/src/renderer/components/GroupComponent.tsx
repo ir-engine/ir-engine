@@ -24,37 +24,25 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { FC, memo } from 'react'
-import { Camera, Mesh, Object3D } from 'three'
+import { Camera, Object3D } from 'three'
 
-import { getState, none } from '@etherealengine/hyperflux'
+import { none } from '@etherealengine/hyperflux'
 
-import { UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
   getMutableComponent,
-  getOptionalComponent,
-  getOptionalMutableComponent,
   hasComponent,
   removeComponent,
   setComponent,
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { QueryComponents, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
-import { SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
-import {
-  registerMaterial,
-  registerMaterialInstance
-} from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { MaterialComponent } from '../materials/MaterialComponent'
-import { hashMaterial } from '../materials/materialFunctions'
 import { Layer } from './ObjectLayerComponent'
 import { RenderOrderComponent } from './RenderOrderComponent'
 
@@ -116,37 +104,6 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirtyTransforms, obj.position)
   proxifyQuaternionWithDirty(TransformComponent.rotation, entity, TransformComponent.dirtyTransforms, obj.quaternion)
   proxifyVector3WithDirty(TransformComponent.scale, entity, TransformComponent.dirtyTransforms, obj.scale)
-
-  if (!(object as Mesh).material) return
-  const material = (object as Mesh).material
-  const materialLibrary = getState(MaterialLibraryState)
-  const materials = Array.isArray(material) ? material : [material]
-  materials
-    .filter((material) => !materialLibrary.materials[material.uuid])
-    .map((material) => {
-      const path = getOptionalComponent(entity, SourceComponent)?.slice(37) ?? ''
-      //if we already have a unique material hash, we don't need to register it again, reuse the existing one
-      const entityFromHash = MaterialComponent.materialByHash[hashMaterial(path, material.name)]
-      if (entityFromHash) {
-        const materialComponent = getOptionalMutableComponent(entity, MaterialComponent)
-        if (!materialComponent) setComponent(entity, MaterialComponent, { uuid: [entityFromHash] })
-        else materialComponent.uuid.set([...materialComponent.uuid.value, entityFromHash])
-        return
-      }
-      if (!UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)) {
-        if (material.plugins) {
-          material.customProgramCacheKey = () =>
-            material.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
-        }
-        const materialEntity = registerMaterial(material, {
-          type: SourceType.BUILT_IN,
-          path
-        })
-        const materialComponent = getMutableComponent(materialEntity, MaterialComponent)
-        material.userData?.plugins && materialComponent.plugins.set(material.userData['plugins'])
-      }
-      registerMaterialInstance(material, entity)
-    })
 }
 
 export function removeGroupComponent(entity: Entity) {

@@ -27,9 +27,25 @@ import React, { ReactElement, useEffect } from 'react'
 
 import { getMutableState } from '@etherealengine/hyperflux'
 
-import { PresentationSystemGroup } from '@etherealengine/ecs'
+import {
+  EntityUUID,
+  PresentationSystemGroup,
+  UUIDComponent,
+  getMutableComponent,
+  getOptionalComponent,
+  getOptionalMutableComponent,
+  setComponent
+} from '@etherealengine/ecs'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { GroupQueryReactor, GroupReactorProps } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { hashMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import { Mesh } from 'three'
+import { SourceComponent } from '../../components/SourceComponent'
 import { MaterialLibraryState, initializeMaterialLibrary } from '../MaterialLibrary'
+import { SourceType } from '../components/MaterialSource'
+import { registerMaterial, registerMaterialInstance } from '../functions/MaterialLibraryFunctions'
 
 // function MaterialReactor({ materialId }: { materialId: string }) {
 //   const materialLibrary = useState(getMutableState(MaterialLibraryState))
@@ -50,7 +66,7 @@ import { MaterialLibraryState, initializeMaterialLibrary } from '../MaterialLibr
 //   return null
 // }
 
-function reactor(): ReactElement {
+const reactor = (): ReactElement => {
   useEffect(() => {
     initializeMaterialLibrary()
     return () => {
@@ -84,7 +100,7 @@ function reactor(): ReactElement {
   //   }
   // }, [materialLibrary.prototypes])
 
-  return <></>
+  return <GroupQueryReactor GroupChildReactor={MaterialGroupReactor} Components={[VisibleComponent]} />
   // const plugins = materialLibrary.plugins
   // return (
   //   <>
@@ -96,6 +112,41 @@ function reactor(): ReactElement {
   //     ))}
   //   </>
   // )
+}
+
+const MaterialGroupReactor = ({ obj, entity }: GroupReactorProps) => {
+  useEffect(() => {
+    const material = (obj as Mesh).material
+    if (!material) return
+    const materials = Array.isArray(material) ? material : [material]
+    materials.map((material) => {
+      //todo use a source without a root entity uuid at the start
+      const path = getOptionalComponent(entity, SourceComponent) ?? ''
+      //if we already have a unique material hash, we don't need to register it again, reuse the existing one
+      const entityFromHash = MaterialComponent.materialByHash[hashMaterial(path, material.name)]
+      if (entityFromHash) {
+        const materialComponent = getOptionalMutableComponent(entity, MaterialComponent)
+        if (!materialComponent) setComponent(entity, MaterialComponent, { uuid: [entityFromHash] })
+        else materialComponent.uuid.set([...materialComponent.uuid.value, entityFromHash])
+        return
+      }
+      if (!UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)) {
+        if (material.plugins) {
+          material.customProgramCacheKey = () =>
+            material.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
+        }
+        const materialEntity = registerMaterial(material, {
+          type: SourceType.BUILT_IN,
+          path
+        })
+        const materialComponent = getMutableComponent(materialEntity, MaterialComponent)
+        material.userData?.plugins && materialComponent.plugins.set(material.userData['plugins'])
+      }
+      registerMaterialInstance(material, entity)
+    })
+  }, [])
+
+  return null
 }
 
 export const MaterialLibrarySystem = defineSystem({

@@ -28,7 +28,6 @@ import {
   Light,
   Material,
   Mesh,
-  MeshLambertMaterial,
   MeshPhongMaterial,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
@@ -62,14 +61,11 @@ import {
   DistanceFromCameraComponent,
   FrustumCullCameraComponent
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
-import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import { ResourceManager } from '../../assets/state/ResourceState'
-import { registerMaterial, unregisterMaterial } from '../../scene/materials/functions/MaterialLibraryFunctions'
 import { ModelComponent, useMeshOrModel } from '../components/ModelComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
-import { MaterialLibraryState } from '../materials/MaterialLibrary'
 
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 
@@ -110,44 +106,38 @@ export const disposeObject3D = (obj: Object3D) => {
 
 /**@todo refactor this to use preprocessor directives instead of new cloned materials with different shaders */
 export function setupObject(obj: Object3D, forceBasicMaterials = false) {
-  const child = obj as any as Mesh<any, any>
-
-  if (child.material) {
-    if (!child.userData) child.userData = {}
-    const shouldMakeBasic =
-      (forceBasicMaterials || isMobileXRHeadset) && ExpensiveMaterials.has(child.material.constructor)
-    if (!forceBasicMaterials && !isMobileXRHeadset && child.userData.lastMaterial) {
-      const prevEntry = unregisterMaterial(child.material)
-      child.material = child.userData.lastMaterial
-      prevEntry && registerMaterial(child.userData.lastMaterial, prevEntry.src, prevEntry.parameters)
-      delete child.userData.lastMaterial
-    } else if (shouldMakeBasic && !child.userData.lastMaterial) {
-      const basicMaterial = getState(MaterialLibraryState).materials[`basic-${child.material.uuid}`]
-      if (basicMaterial) {
-        child.material = basicMaterial.material
-        return
-      }
-      const prevMaterial = child.material
-      const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
-      const prevMatEntry = unregisterMaterial(prevMaterial)
-      const nuMaterial = new MeshLambertMaterial().copy(prevMaterial)
-
-      nuMaterial.specularMap = prevMaterial.roughnessMap ?? prevMaterial.specularIntensityMap
-
-      if (onlyEmmisive) nuMaterial.emissiveMap = prevMaterial.emissiveMap
-      else nuMaterial.map = prevMaterial.map
-
-      nuMaterial.reflectivity = prevMaterial.metalness
-      nuMaterial.envMap = prevMaterial.envMap
-      nuMaterial.vertexColors = prevMaterial.vertexColors
-
-      child.material = nuMaterial
-      child.userData.lastMaterial = prevMaterial
-
-      nuMaterial.uuid = `basic-${prevMaterial.uuid}`
-      prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src, prevMatEntry.parameters)
-    }
-  }
+  // const child = obj as any as Mesh<any, any>
+  // if (child.material) {
+  //   if (!child.userData) child.userData = {}
+  //   const shouldMakeBasic =
+  //     (forceBasicMaterials || isMobileXRHeadset) && ExpensiveMaterials.has(child.material.constructor)
+  //   if (!forceBasicMaterials && !isMobileXRHeadset && child.userData.lastMaterial) {
+  //     const prevEntry = unregisterMaterial(child.material)
+  //     child.material = child.userData.lastMaterial
+  //     prevEntry && registerMaterial(child.userData.lastMaterial, prevEntry.src, prevEntry.parameters)
+  //     delete child.userData.lastMaterial
+  //   } else if (shouldMakeBasic && !child.userData.lastMaterial) {
+  //     const basicMaterial = getState(MaterialLibraryState).materials[`basic-${child.material.uuid}`]
+  //     if (basicMaterial) {
+  //       child.material = basicMaterial.material
+  //       return
+  //     }
+  //     const prevMaterial = child.material
+  //     const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
+  //     const prevMatEntry = unregisterMaterial(prevMaterial)
+  //     const nuMaterial = new MeshLambertMaterial().copy(prevMaterial)
+  //     nuMaterial.specularMap = prevMaterial.roughnessMap ?? prevMaterial.specularIntensityMap
+  //     if (onlyEmmisive) nuMaterial.emissiveMap = prevMaterial.emissiveMap
+  //     else nuMaterial.map = prevMaterial.map
+  //     nuMaterial.reflectivity = prevMaterial.metalness
+  //     nuMaterial.envMap = prevMaterial.envMap
+  //     nuMaterial.vertexColors = prevMaterial.vertexColors
+  //     child.material = nuMaterial
+  //     child.userData.lastMaterial = prevMaterial
+  //     nuMaterial.uuid = `basic-${prevMaterial.uuid}`
+  //     prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src, prevMatEntry.parameters)
+  //   }
+  // }
 }
 
 const groupQuery = defineQuery([GroupComponent])
