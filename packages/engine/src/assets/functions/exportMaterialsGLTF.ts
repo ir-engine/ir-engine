@@ -26,8 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { BufferGeometry, Material, MathUtils, Mesh, Scene } from 'three'
 
 import { MaterialComponentType } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { registerMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
-import { unregisterMaterial } from '../../scene/materials/functions/MaterialLibraryFunctions'
+import { registerMaterial, unregisterMaterial } from '../../scene/materials/functions/MaterialLibraryFunctions'
 import { GLTFExporterOptions } from '../exporters/gltf/GLTFExporter'
 import createGLTFExporter from './createGLTFExporter'
 
