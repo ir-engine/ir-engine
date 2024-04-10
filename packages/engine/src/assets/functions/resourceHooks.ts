@@ -305,13 +305,13 @@ export async function getTextureAsync(
 
 /**
  *
- * Object loader hook for creating an instance of a class that implements the ObjectLike interface in ResourceState.ts in a React context,
+ * Object loader hook for creating an instance of a class that implements the DisposableObject interface in ResourceState.ts in a React context,
  * but has it's lifecycle managed by the ResourceManager in ResourceState.ts
  *
- * @param objectLike A class that extends Object3D eg. DirectionalLight
+ * @param objectLike A class that implements the DisposableObject interface in ResourceState.ts eg. DirectionalLight
  * @param entity *Optional* the entity that is loading the object
- * @param args *Optional* arguments to pass to the constructor of object3D
- * @returns A unique instance of the class that is passed in for object3D
+ * @param args *Optional* arguments to pass to the constructor of objectLike
+ * @returns A unique instance of the class that is passed in for DisposableObject
  */
 export function useObj<T extends DisposableObject, T2 extends new () => T>(
   objectLike: T2,
@@ -344,13 +344,13 @@ export function useObj<T extends DisposableObject, T2 extends new () => T>(
 
 /**
  *
- * Object loader hook for creating an instance of a class that extends Object3D in a non-React context,
+ * Object loader hook for creating an instance of a class that extends DisposableObject in a non-React context,
  * Tracked by the ResourceManager in ResourceState.ts, but will not be unloaded unless the unload function that is returned is called
  * Useful for when you only want to create the object if a condition is met (eg. is debug enabled)
  *
- * @param objectLike A class that implements the ObjectLike interface in ResourceState.ts eg. DirectionalLight
+ * @param objectLike A class that implements the DisposableObject interface in ResourceState.ts eg. DirectionalLight
  * @param entity *Optional* the entity that is loading the object
- * @param args *Optional* arguments to pass to the constructor of object3D
+ * @param args *Optional* arguments to pass to the constructor of k
  * @returns A unique instance of the class that is passed in for object3D and a callback to unload the object
  */
 export function createObj<T extends DisposableObject, T2 extends new () => T>(
