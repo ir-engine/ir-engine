@@ -28,12 +28,7 @@ import { Texture } from 'three'
 
 import styles from '@etherealengine/editor/src/components/layout/styles.module.scss'
 import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
-import { LibraryEntryType } from '@etherealengine/engine/src/scene/materials/constants/LibraryEntry'
-import {
-  changeMaterialPrototype,
-  entryId,
-  materialFromId
-} from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
+import { materialFromId } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
 import { removeMaterialPlugin } from '@etherealengine/engine/src/scene/materials/functions/MaterialPluginFunctions'
 import { NO_PROXY, State, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
@@ -167,7 +162,7 @@ export function MaterialEditor(props: { materialID: string }) {
       </InputGroup>
       <br />
       <InputGroup name="Prototype" label={t('editor:properties.mesh.material.prototype')}>
-        <SelectInput
+        {/* <SelectInput
           value={materialComponent.prototype.value}
           options={prototypes}
           onChange={(protoId) => {
@@ -175,7 +170,7 @@ export function MaterialEditor(props: { materialID: string }) {
             //materialComponent.set(materialFromId(nuMat!.uuid))
             // prototypeComponent = prototypeFromId(materialComponent.prototype.value)
           }}
-        />
+        /> */}
       </InputGroup>
       <Divider className={styles.divider} />
       <ParameterInput
@@ -183,7 +178,7 @@ export function MaterialEditor(props: { materialID: string }) {
         values={materialComponent.parameters.value}
         onChange={(k) => async (val) => {
           let prop
-          if (prototypeComponent.arguments[k].type === 'texture' && typeof val === 'string') {
+          if (materialComponent.prototype.value.arguments[k].type === 'texture' && typeof val === 'string') {
             if (val) {
               const priorUnload = textureUnloadMap.get(NO_PROXY)[k]
               if (priorUnload) {
@@ -198,14 +193,10 @@ export function MaterialEditor(props: { materialID: string }) {
           } else {
             prop = val
           }
-          EditorControlFunctions.modifyMaterial(
-            [materialID],
-            entryId(materialComponent.value, LibraryEntryType.MATERIAL),
-            [{ [k]: prop }]
-          )
+          EditorControlFunctions.modifyMaterial([materialID], materialComponent.material.value!.uuid, [{ [k]: prop }])
           materialComponent.parameters[k].set(prop)
         }}
-        defaults={prototypeComponent.arguments}
+        defaults={materialComponent.prototype.arguments.value}
         thumbnails={toBlobs(thumbnails.value)}
       />
       <br />

@@ -47,10 +47,14 @@ import { QueryComponents, QueryReactor } from '@etherealengine/ecs/src/QueryFunc
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
 import { SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
+import {
+  registerMaterial,
+  registerMaterialInstance
+} from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { MaterialComponent } from '../materials/MaterialComponent'
-import { hashMaterial, registerMaterial, registerMaterialInstance } from '../materials/materialFunctions'
+import { hashMaterial } from '../materials/materialFunctions'
 import { Layer } from './ObjectLayerComponent'
 import { RenderOrderComponent } from './RenderOrderComponent'
 

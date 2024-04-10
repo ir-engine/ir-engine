@@ -25,17 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { ReactElement, useEffect } from 'react'
 
-import { NO_PROXY, getMutableState, useState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { PresentationSystemGroup } from '@etherealengine/ecs'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { MaterialLibraryState, initializeMaterialLibrary } from '../MaterialLibrary'
-import {
-  protoIdToFactory,
-  registerMaterial,
-  replaceMaterial,
-  unregisterMaterial
-} from '../functions/MaterialLibraryFunctions'
 
 // function MaterialReactor({ materialId }: { materialId: string }) {
 //   const materialLibrary = useState(getMutableState(MaterialLibraryState))
@@ -69,28 +63,26 @@ function reactor(): ReactElement {
     }
   }, [])
 
-  const materialLibrary = useState(getMutableState(MaterialLibraryState))
-
-  useEffect(() => {
-    const materialIds = materialLibrary.materials.keys
-    for (const materialId of materialIds) {
-      const component = materialLibrary.materials[materialId]
-      //if the material is missing, check if its prototype is present now
-      if (component.status.value === 'MISSING' && !!materialLibrary.prototypes[component.prototype.value]) {
-        //if the prototype is present, create the material
-        const material = component.material.get(NO_PROXY)
-        const parms = material.userData.args
-        const factory = protoIdToFactory(component.prototype.value)
-        const newMaterial = factory(parms)
-        replaceMaterial(material, newMaterial)
-        newMaterial.userData = material.userData
-        delete newMaterial.userData.args
-        const src = JSON.parse(JSON.stringify(component.src.value))
-        registerMaterial(newMaterial, src)
-        unregisterMaterial(material)
-      }
-    }
-  }, [materialLibrary.prototypes])
+  // useEffect(() => {
+  //   const materialIds = materialLibrary.materials.keys
+  //   for (const materialId of materialIds) {
+  //     const component = materialLibrary.materials[materialId]
+  //     //if the material is missing, check if its prototype is present now
+  //     if (component.status.value === 'MISSING' && !!materialLibrary.prototypes[component.prototype.value]) {
+  //       //if the prototype is present, create the material
+  //       const material = component.material.get(NO_PROXY)
+  //       const parms = material.userData.args
+  //       const factory = protoIdToFactory(component.prototype.value)
+  //       const newMaterial = factory(parms)
+  //       replaceMaterial(material, newMaterial)
+  //       newMaterial.userData = material.userData
+  //       delete newMaterial.userData.args
+  //       const src = JSON.parse(JSON.stringify(component.src.value))
+  //       registerMaterial(newMaterial, src)
+  //       unregisterMaterial(material)
+  //     }
+  //   }
+  // }, [materialLibrary.prototypes])
 
   return <></>
   // const plugins = materialLibrary.plugins

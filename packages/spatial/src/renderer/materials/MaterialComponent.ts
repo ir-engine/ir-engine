@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material, Shader } from 'three'
+import { Material, Shader, WebGLRenderer } from 'three'
 
 import { UUIDComponent, defineComponent, getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs'
 import { Entity } from '@etherealengine/ecs/src/Entity'
@@ -57,6 +57,7 @@ export type MaterialPrototype<T extends Material = Material> = {
       options?: any[]
     }
   }
+  onBeforeCompile?: (shader: Shader, renderer: WebGLRenderer) => void
 }
 
 export const MaterialComponent = defineComponent({
@@ -67,12 +68,13 @@ export const MaterialComponent = defineComponent({
       uuid: [] as string[],
       // material & material specific data
       material: null as null | Material,
+      parameters: {},
       instances: [] as Entity[],
       hash: '',
       source: '',
       plugins: [] as string[],
       prototypeUuid: '',
-      // shared material state
+      // shared prototype state
       prototype: {} as MaterialPrototype
     }
   },
