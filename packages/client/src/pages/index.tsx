@@ -30,7 +30,6 @@ import { Navigate } from 'react-router-dom'
 import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin2/services/Setting/ClientSettingService'
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import styles from '@etherealengine/client-core/src/tmp-admin3/styles/admin.module.scss'
 import '@etherealengine/client-core/src/user/UserUISystem'
 import { PopupMenuState } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
 import config from '@etherealengine/common/src/config'
@@ -114,11 +113,7 @@ export const HomePage = (): any => {
               </Trans>
             )}
             {Boolean(clientSetting?.homepageLinkButtonEnabled) && (
-              <Button
-                className={styles.gradientButton + ' ' + styles.forceVaporwave}
-                autoFocus
-                onClick={() => (window.location.href = clientSetting.homepageLinkButtonRedirect)}
-              >
+              <Button autoFocus onClick={() => (window.location.href = clientSetting.homepageLinkButtonRedirect)}>
                 {clientSetting.homepageLinkButtonText}
               </Button>
             )}
