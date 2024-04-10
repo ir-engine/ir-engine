@@ -35,6 +35,7 @@ import {
   createEntity,
   defineQuery,
   getMutableComponent,
+  hasComponent,
   setComponent
 } from '@etherealengine/ecs'
 import { stringHash } from '@etherealengine/spatial/src/common/functions/MathFunctions'
@@ -48,7 +49,7 @@ import { SourceComponent } from '../../components/SourceComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
 import { MaterialSelectionState } from '../MaterialLibraryState'
 import { MaterialPrototypeComponentType } from '../components/MaterialPrototypeComponent'
-import { MaterialSource, MaterialSourceComponentType } from '../components/MaterialSource'
+import { MaterialSource, MaterialSourceComponentType, SourceType } from '../components/MaterialSource'
 import { LibraryEntryType } from '../constants/LibraryEntry'
 
 export function MaterialNotFoundError(message) {
@@ -68,6 +69,33 @@ export function extractDefaults(defaultArgs) {
   )
 }
 
+/** Registers and returns a new material from a GLTF. If a material from the GLTF path already exists, returns it instead. */
+export const useOrRegisterMaterial = (path: string, entity: Entity, material: Material) => {
+  //if we already have a material by the same name from the same source, use it instead
+  const entityFromHash = MaterialComponent.materialByHash[hashMaterial(path, material.name)]
+  if (!hasComponent(entity, MaterialComponent)) setComponent(entity, MaterialComponent)
+  const materialComponent = getMutableComponent(entity, MaterialComponent)
+  if (entityFromHash) {
+    if (!materialComponent) setComponent(entity, MaterialComponent, { uuid: [entityFromHash] })
+    else materialComponent.uuid.set([...materialComponent.uuid.value, entityFromHash])
+    return
+  }
+  materialComponent.uuid.set([...materialComponent.uuid.value, material.uuid])
+
+  if (!UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)) {
+    if (material.plugins) {
+      material.customProgramCacheKey = () =>
+        material.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
+    }
+    registerMaterial(material, {
+      type: SourceType.BUILT_IN,
+      path
+    })
+    material.userData?.plugins && materialComponent.plugins.set(material.userData['plugins'])
+  }
+  materialComponent.instances.set([...materialComponent.instances.value, entity])
+}
+
 export const registerMaterial = (material: Material, src: MaterialSource, params?: { [_: string]: any }) => {
   const materialEntity = createEntity()
 
@@ -77,12 +105,6 @@ export const registerMaterial = (material: Material, src: MaterialSource, params
   setComponent(materialEntity, MaterialComponent, { hash: hashMaterial(src.path, material.name) })
 
   return materialEntity
-}
-
-export const registerMaterialInstance = (material: Material, entity: Entity) => {
-  const materialEntity = UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)
-  const materialComponent = getMutableComponent(materialEntity, MaterialComponent)
-  materialComponent.instances.set([...materialComponent.instances.value, entity])
 }
 
 export function injectDefaults(defaultArgs, values) {

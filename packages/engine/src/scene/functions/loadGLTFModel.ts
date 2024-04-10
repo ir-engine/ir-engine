@@ -54,6 +54,7 @@ import { InstancingComponent } from '../components/InstancingComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SourceComponent } from '../components/SourceComponent'
+import { useOrRegisterMaterial } from '../materials/functions/MaterialLibraryFunctions'
 import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
 import { getModelSceneID } from './loaders/ModelFunctions'
 
@@ -325,6 +326,15 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   if (obj.userData['componentJson']) {
     eJson.components.push(...obj.userData['componentJson'])
   }
+
+  const material = mesh.material
+  if (!material) return eJson
+
+  const materials = Array.isArray(material) ? material : [material]
+  materials.map((material) => {
+    const path = getOptionalComponent(rootEntity, ModelComponent)?.src ?? ''
+    useOrRegisterMaterial(path, objEntity, material)
+  })
 
   return eJson
 }
