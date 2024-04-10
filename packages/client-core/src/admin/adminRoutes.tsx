@@ -41,7 +41,7 @@ import { HiMiniMoon, HiMiniSun } from 'react-icons/hi2'
 import { RouterState } from '../common/services/RouterService'
 import { DefaultAdminRoutes } from './DefaultAdminRoutes'
 
-const $allowed = lazy(() => import('@etherealengine/client-core/src/admin2/allowedRoutes'))
+const $allowed = lazy(() => import('@etherealengine/client-core/src/admin/allowedRoutes'))
 
 const AdminTopBar = () => {
   const theme = useHookstate(getMutableState(ThemeState)).theme

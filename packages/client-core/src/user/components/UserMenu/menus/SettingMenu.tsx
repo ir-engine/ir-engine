@@ -51,7 +51,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { UserSettingPatch } from '@etherealengine/common/src/schema.type.module'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
-import { AdminClientSettingsState } from '../../../../admin2/services/Setting/ClientSettingService'
+import { AdminClientSettingsState } from '../../../../admin/services/Setting/ClientSettingService'
 import { UserMenus } from '../../../UserUISystem'
 import { userHasAccess } from '../../../userHasAccess'
 import { PopupMenuServices } from '../PopupMenuService'

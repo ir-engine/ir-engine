@@ -43,7 +43,7 @@ import PublicRouter, { CenteredLoadingCircle } from '../route/public_tw'
 import {
   AdminClientSettingsState,
   ClientSettingService
-} from '@etherealengine/client-core/src/admin2/services/Setting/ClientSettingService'
+} from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import { useTranslation } from 'react-i18next'
 import '../themes/base.css'
 import '../themes/components.css'

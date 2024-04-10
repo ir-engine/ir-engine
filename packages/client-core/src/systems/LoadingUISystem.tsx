@@ -62,7 +62,7 @@ import { addObjectToGroup, GroupComponent } from '@etherealengine/spatial/src/re
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { AdminClientSettingsState } from '../admin2/services/Setting/ClientSettingService'
+import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
 import { AppThemeState, getAppTheme } from '../common/services/AppThemeState'
 import { useRemoveEngineCanvas } from '../hooks/useRemoveEngineCanvas'
 import { LocationState } from '../social/services/LocationService'

@@ -27,7 +27,7 @@ import { defaultThemeSettings, getCurrentTheme } from '@etherealengine/common/sr
 import { ClientThemeOptionsType } from '@etherealengine/common/src/schema.type.module'
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { AdminClientSettingsState } from '../../admin2/services/Setting/ClientSettingService'
+import { AdminClientSettingsState } from '../../admin/services/Setting/ClientSettingService'
 import { AuthState } from '../../user/services/AuthService'
 
 /** @deprected this is the thene for mui pages, it will be replaced with ThemeService / ThemeState */
