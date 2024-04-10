@@ -36,9 +36,9 @@ import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/Pro
 import { ProjectType } from '@etherealengine/common/src/schema.type.module'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'
-import DrawerView from '../../common/DrawerView'
+import styles from '../../old-styles/admin.module.scss'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
-import styles from '../../styles/admin.module.scss'
+import DrawerView from '../DrawerView'
 import ProjectFields from './ProjectFields'
 
 interface Props {

@@ -27,6 +27,7 @@ import React, { useEffect } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Navigate } from 'react-router-dom'
 
+import styles from '@etherealengine/client-core/src/admin2/old-styles/admin.module.scss'
 import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin2/services/Setting/ClientSettingService'
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
@@ -113,7 +114,11 @@ export const HomePage = (): any => {
               </Trans>
             )}
             {Boolean(clientSetting?.homepageLinkButtonEnabled) && (
-              <Button autoFocus onClick={() => (window.location.href = clientSetting.homepageLinkButtonRedirect)}>
+              <Button
+                className={styles.gradientButton + ' ' + styles.forceVaporwave}
+                autoFocus
+                onClick={() => (window.location.href = clientSetting.homepageLinkButtonRedirect)}
+              >
                 {clientSetting.homepageLinkButtonText}
               </Button>
             )}

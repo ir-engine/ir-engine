@@ -46,8 +46,8 @@ import { ProjectBranchType, ProjectCommitType, ProjectType } from '@etherealengi
 import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { ProjectService } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
+import styles from '../../old-styles/admin.module.scss'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
-import styles from '../../styles/admin.module.scss'
 
 interface Props {
   inputProject?: ProjectType | null | undefined
