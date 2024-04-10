@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs'
 import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
@@ -305,21 +306,21 @@ export async function getTextureAsync(
 
 /**
  *
- * Object loader hook for creating an instance of a class that implements the DisposableObject interface in ResourceState.ts in a React context,
+ * Loader hook for creating an instance of a class that implements the DisposableObject interface in ResourceState.ts in a React context,
  * but has it's lifecycle managed by the ResourceManager in ResourceState.ts
  *
- * @param objectLike A class that implements the DisposableObject interface in ResourceState.ts eg. DirectionalLight
+ * @param disposableLike A class that implements the DisposableObject interface eg. DirectionalLight
  * @param entity *Optional* the entity that is loading the object
- * @param args *Optional* arguments to pass to the constructor of objectLike
+ * @param args *Optional* arguments to pass to the constructor of disposableLike
  * @returns A unique instance of the class that is passed in for DisposableObject
  */
-export function useObj<T extends DisposableObject, T2 extends new () => T>(
-  objectLike: T2,
+export function useObj<T extends DisposableObject, T2 extends new (...params: any[]) => T>(
+  disposableLike: T2,
   entity: Entity,
   ...args: ConstructorParameters<T2>
 ): [InstanceType<T2>, () => void] {
-  const classState = useHookstate(() => objectLike)
-  const objState = useHookstate<InstanceType<T2>>(() => ResourceManager.loadObj(objectLike, entity, ...args))
+  const classState = useHookstate(() => disposableLike)
+  const objState = useHookstate<InstanceType<T2>>(() => ResourceManager.loadObj(disposableLike, entity, ...args))
 
   const unload = () => {
     if (objState.value) {
@@ -332,33 +333,33 @@ export function useObj<T extends DisposableObject, T2 extends new () => T>(
   }, [])
 
   useEffect(() => {
-    if (objectLike !== classState.value) {
+    if (disposableLike !== classState.value) {
       unload()
-      classState.set(() => objectLike)
-      objState.set(() => ResourceManager.loadObj(objectLike, entity, ...args))
+      classState.set(() => disposableLike)
+      objState.set(() => ResourceManager.loadObj(disposableLike, entity, ...args))
     }
-  }, [objectLike])
+  }, [disposableLike])
 
   return [objState.get(NO_PROXY), unload]
 }
 
 /**
  *
- * Object loader hook for creating an instance of a class that extends DisposableObject in a non-React context,
+ * Loader hook for creating an instance of a class that extends DisposableObject in a non-React context,
  * Tracked by the ResourceManager in ResourceState.ts, but will not be unloaded unless the unload function that is returned is called
  * Useful for when you only want to create the object if a condition is met (eg. is debug enabled)
  *
- * @param objectLike A class that implements the DisposableObject interface in ResourceState.ts eg. DirectionalLight
+ * @param disposableLike A class that implements the DisposableObject interface in ResourceState.ts eg. DirectionalLight
  * @param entity *Optional* the entity that is loading the object
  * @param args *Optional* arguments to pass to the constructor of k
  * @returns A unique instance of the class that is passed in for object3D and a callback to unload the object
  */
-export function createObj<T extends DisposableObject, T2 extends new () => T>(
-  objectLike: T2,
+export function createObj<T extends DisposableObject, T2 extends new (...params: any[]) => T>(
+  disposableLike: T2,
   entity: Entity,
   ...args: ConstructorParameters<T2>
 ): [InstanceType<T2>, () => void] {
-  const obj = ResourceManager.loadObj(objectLike, entity, ...args)
+  const obj = ResourceManager.loadObj(disposableLike, entity, ...args)
 
   const unload = () => {
     ResourceManager.unload(obj.uuid, entity)
@@ -379,13 +380,15 @@ export function createObj<T extends DisposableObject, T2 extends new () => T>(
  * @returns the resource object passed in
  */
 export function useResource<T>(
-  resource: T,
+  resource: NonNullable<T>,
   entity: Entity = UndefinedEntity,
   id?: string,
   onUnload?: () => void
 ): [State<T>, () => void] {
   const uniqueID = useHookstate<string>(id || uuidv4())
-  const resourceState = useHookstate<T>(() => ResourceManager.addResource(resource, uniqueID.value, entity))
+  const resourceState = useHookstate<NonNullable<T>>(() =>
+    ResourceManager.addResource(resource, uniqueID.value, entity)
+  )
 
   const unload = () => {
     ResourceManager.unload(uniqueID.value, entity)
@@ -396,15 +399,10 @@ export function useResource<T>(
     return unload
   }, [])
 
-  useEffect(() => {
-    if (resource !== resourceState.value) {
-      unload()
-      resourceState.set(() => ResourceManager.addResource(resource, uniqueID.value, entity))
-    }
-  }, [resource])
-
-  useEffect(() => {
-    resourceState.set(() => ResourceManager.addResource(resourceState.value, uniqueID.value, entity))
+  useDidMount(() => {
+    unload()
+    ResourceManager.addResource(resourceState.value, uniqueID.value, entity)
+    console.log('Resource State set')
   }, [resourceState])
 
   return [resourceState, unload]

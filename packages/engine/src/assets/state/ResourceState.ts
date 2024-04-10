@@ -538,13 +538,13 @@ const load = <T extends AssetType>(
 }
 
 const loadObj = <T extends DisposableObject, T2 extends new (...params: any[]) => T>(
-  objectLike: T2,
+  disposableLike: T2,
   entity: Entity,
   ...args: ConstructorParameters<T2>
 ): InstanceType<T2> => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
-  const obj = new objectLike(...args)
+  const obj = new disposableLike(...args)
   if (entity) obj.entity = entity
   const id = obj.uuid
   const callbacks = Callbacks[ResourceType.Object3D]

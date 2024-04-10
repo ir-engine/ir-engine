@@ -202,7 +202,7 @@ describe('ResourceHooks', () => {
 
     let objUUID = undefined as undefined | string
     const Reactor = () => {
-      const [light] = useObj<DirectionalLight, typeof DirectionalLight>(DirectionalLight, entity)
+      const [light] = useObj(DirectionalLight, entity)
       objUUID = light.uuid
 
       useEffect(() => {
@@ -422,18 +422,17 @@ describe('ResourceHooks', () => {
 
   it('Can update any asset correctly', (done) => {
     const entity = createEntity()
-
+    const id = '3456345623215'
     const spy = sinon.spy()
 
     const onUnload = () => {
       spy()
     }
 
-    let resource = new DirectionalLight() as any
     let resourceObj = undefined as any
 
     const Reactor = () => {
-      const [res] = useResource(resource, entity, undefined, onUnload)
+      const [res] = useResource(new DirectionalLight(), entity, id, onUnload)
 
       useEffect(() => {
         resourceObj = res
@@ -443,13 +442,20 @@ describe('ResourceHooks', () => {
 
     const { rerender, unmount } = render(<Reactor />)
 
+    const resourceState = getState(ResourceState)
+
     act(async () => {
-      assert(resourceObj.isDirectionalLight)
-      resource = new AmbientLight()
+      assert(resourceState.resources[id])
+      assert(resourceState.resources[id].references.length == 1)
+      assert((resourceState.resources[id].asset as DirectionalLight).isDirectionalLight)
+      resourceObj.set(new AmbientLight())
       rerender(<Reactor />)
     }).then(() => {
       assert(resourceObj.isAmbientLight)
       sinon.assert.calledOnce(spy)
+      assert(resourceState.resources[id])
+      assert(resourceState.resources[id].references.length == 1)
+      assert((resourceState.resources[id].asset as AmbientLight).isAmbientLight)
       unmount()
       done()
     })
