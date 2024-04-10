@@ -60,7 +60,7 @@ import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHoo
 import { drawPoseToCanvas } from '@etherealengine/ui/src/pages/Capture'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
 import { DrawingUtils } from '@mediapipe/tasks-vision'
-import { AdminClientSettingsState } from '../../admin/services/Setting/ClientSettingService'
+import { AdminClientSettingsState } from '../../tmp-admin3/services/Setting/ClientSettingService'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'

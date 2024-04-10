@@ -27,7 +27,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router-dom'
 
-import { AllowedAdminRoutesState } from '@etherealengine/client-core/src/admin/AllowedAdminRoutesState'
+import { AllowedAdminRoutesState } from '@etherealengine/client-core/src/tmp-admin3/AllowedAdminRoutesState'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Divider from '@etherealengine/ui/src/primitives/mui/Divider'
 import List from '@etherealengine/ui/src/primitives/mui/List'

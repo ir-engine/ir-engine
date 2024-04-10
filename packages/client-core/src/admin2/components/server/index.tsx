@@ -26,7 +26,7 @@ import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineRefresh } from 'react-icons/hi'
-import { useServerInfoFind } from '../../../admin/services/ServerInfoQuery'
+import { useServerInfoFind } from '../../../tmp-admin3/services/ServerInfoQuery'
 import { serverAutoRefreshOptions } from '../../common/constants/server'
 import ServerTable from './ServerTable'
 

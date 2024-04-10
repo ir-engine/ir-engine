@@ -27,14 +27,14 @@ import { useHookstate } from '@hookstate/core'
 import React, { createContext, useEffect, useMemo } from 'react'
 
 import {
-  AdminClientSettingsState,
-  ClientSettingService
-} from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
-import {
   AppThemeState,
   getAppTheme,
   useAppThemeName
 } from '@etherealengine/client-core/src/common/services/AppThemeState'
+import {
+  AdminClientSettingsState,
+  ClientSettingService
+} from '@etherealengine/client-core/src/tmp-admin3/services/Setting/ClientSettingService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { ClientThemeOptionsType } from '@etherealengine/common/src/schema.type.module'
 import { NO_PROXY, getMutableState } from '@etherealengine/hyperflux'

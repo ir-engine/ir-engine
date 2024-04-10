@@ -38,8 +38,8 @@ import Radio from '@etherealengine/ui/src/primitives/tailwind/Radio'
 import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ResourceService } from '../../../admin/services/ResourceService'
 import { NotificationService } from '../../../common/services/NotificationService'
+import { ResourceService } from '../../../tmp-admin3/services/ResourceService'
 
 const getNameAndType = async (url: string) => {
   const urlParts = url.split('/')

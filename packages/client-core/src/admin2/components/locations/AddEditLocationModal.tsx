@@ -34,7 +34,7 @@ import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AdminSceneService, AdminSceneState } from '../../../admin/services/SceneService'
+import { AdminSceneService, AdminSceneState } from '../../../tmp-admin3/services/SceneService'
 
 const getDefaultErrors = () => ({
   name: '',

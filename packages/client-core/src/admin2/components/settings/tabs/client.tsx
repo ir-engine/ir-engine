@@ -34,7 +34,10 @@ import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
-import { AdminClientSettingsState, ClientSettingService } from '../../../../admin/services/Setting/ClientSettingService'
+import {
+  AdminClientSettingsState,
+  ClientSettingService
+} from '../../../../tmp-admin3/services/Setting/ClientSettingService'
 import { AuthState } from '../../../../user/services/AuthService'
 
 const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {

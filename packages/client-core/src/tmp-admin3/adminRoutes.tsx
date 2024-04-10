@@ -38,7 +38,7 @@ import { DefaultAdminRoutes } from './DefaultAdminRoutes'
 import '@etherealengine/engine/src/EngineModule'
 import { RouterState } from '../common/services/RouterService'
 
-const $allowed = lazy(() => import('@etherealengine/client-core/src/admin/allowedRoutes'))
+const $allowed = lazy(() => import('@etherealengine/client-core/src/tmp-admin3/allowedRoutes'))
 
 const AdminRoutes = () => {
   const location = useLocation()

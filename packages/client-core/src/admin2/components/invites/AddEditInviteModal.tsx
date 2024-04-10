@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AdminSceneState } from '@etherealengine/client-core/src/admin/services/SceneService'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { InviteService } from '@etherealengine/client-core/src/social/services/InviteService'
+import { AdminSceneState } from '@etherealengine/client-core/src/tmp-admin3/services/SceneService'
 import {
   InviteCode,
   InviteData,

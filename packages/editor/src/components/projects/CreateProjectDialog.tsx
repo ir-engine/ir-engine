@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ProjectFields from '@etherealengine/client-core/src/admin/components/Project/ProjectFields'
+import ProjectFields from '@etherealengine/client-core/src/tmp-admin3/components/Project/ProjectFields'
 
 import { useHookstate } from '@hookstate/core'
 
@@ -35,7 +35,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 import Fade from '@mui/material/Fade'
 import FormControl from '@mui/material/FormControl'
 
-import { ProjectUpdateState } from '@etherealengine/client-core/src/admin/services/ProjectUpdateService'
+import { ProjectUpdateState } from '@etherealengine/client-core/src/tmp-admin3/services/ProjectUpdateService'
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { getMutableState } from '@etherealengine/hyperflux'

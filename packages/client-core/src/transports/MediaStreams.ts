@@ -27,7 +27,7 @@ import multiLogger from '@etherealengine/common/src/logger'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 import { VideoConstants } from '@etherealengine/network'
 
-import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
+import { AdminClientSettingsState } from '../tmp-admin3/services/Setting/ClientSettingService'
 import { ProducerExtension } from './SocketWebRTCClientFunctions'
 
 const logger = multiLogger.child({ component: 'client-core:MediaStreams' })

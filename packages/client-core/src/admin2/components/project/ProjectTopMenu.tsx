@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ProjectUpdateState } from '@etherealengine/client-core/src/admin/services/ProjectUpdateService'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
+import { ProjectUpdateState } from '@etherealengine/client-core/src/tmp-admin3/services/ProjectUpdateService'
 import config from '@etherealengine/common/src/config'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'

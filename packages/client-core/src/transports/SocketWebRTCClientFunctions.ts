@@ -102,7 +102,7 @@ import { encode } from 'msgpackr'
 
 import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
+import { AdminClientSettingsState } from '../tmp-admin3/services/Setting/ClientSettingService'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
 

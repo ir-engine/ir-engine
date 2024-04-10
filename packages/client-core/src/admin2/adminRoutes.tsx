@@ -28,7 +28,7 @@ import { Link, Route, Routes, useLocation } from 'react-router-dom'
 
 import { getMutableState, getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
-import { AllowedAdminRoutesState } from '../admin/AllowedAdminRoutesState'
+import { AllowedAdminRoutesState } from '../tmp-admin3/AllowedAdminRoutesState'
 import { AuthState } from '../user/services/AuthService'
 import Projects from './components/project'
 
@@ -41,7 +41,7 @@ import { HiMiniMoon, HiMiniSun } from 'react-icons/hi2'
 import { RouterState } from '../common/services/RouterService'
 import { DefaultAdminRoutes } from './DefaultAdminRoutes'
 
-const $allowed = lazy(() => import('@etherealengine/client-core/src/admin/allowedRoutes'))
+const $allowed = lazy(() => import('@etherealengine/client-core/src/tmp-admin3/allowedRoutes'))
 
 const AdminTopBar = () => {
   const theme = useHookstate(getMutableState(ThemeState)).theme

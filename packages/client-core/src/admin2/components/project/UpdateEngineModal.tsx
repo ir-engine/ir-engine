@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import {
   ProjectUpdateService,
   ProjectUpdateState
-} from '@etherealengine/client-core/src/admin/services/ProjectUpdateService'
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
+} from '@etherealengine/client-core/src/tmp-admin3/services/ProjectUpdateService'
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { ProjectType, helmSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
