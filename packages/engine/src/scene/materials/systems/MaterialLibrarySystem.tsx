@@ -33,7 +33,7 @@ import {
   UUIDComponent,
   getMutableComponent,
   getOptionalComponent,
-  getOptionalMutableComponent,
+  hasComponent,
   setComponent
 } from '@etherealengine/ecs'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
@@ -119,17 +119,23 @@ const MaterialGroupReactor = ({ obj, entity }: GroupReactorProps) => {
     const material = (obj as Mesh).material
     if (!material) return
     const materials = Array.isArray(material) ? material : [material]
+    console.log(obj, entity)
     materials.map((material) => {
-      //todo use a source without a root entity uuid at the start
+      // todo use a source without a root entity uuid at the start
+
       const path = getOptionalComponent(entity, SourceComponent) ?? ''
+
       //if we already have a unique material hash, we don't need to register it again, reuse the existing one
       const entityFromHash = MaterialComponent.materialByHash[hashMaterial(path, material.name)]
+      if (!hasComponent(entity, MaterialComponent)) setComponent(entity, MaterialComponent)
+      const materialComponent = getMutableComponent(entity, MaterialComponent)
       if (entityFromHash) {
-        const materialComponent = getOptionalMutableComponent(entity, MaterialComponent)
         if (!materialComponent) setComponent(entity, MaterialComponent, { uuid: [entityFromHash] })
         else materialComponent.uuid.set([...materialComponent.uuid.value, entityFromHash])
         return
       }
+      materialComponent.uuid.set([...materialComponent.uuid.value, material.uuid])
+
       if (!UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)) {
         if (material.plugins) {
           material.customProgramCacheKey = () =>
