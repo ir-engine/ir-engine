@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import ProjectDrawer from '@etherealengine/client-core/src/admin2/common/Project/ProjectDrawer'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import ProjectDrawer from '@etherealengine/client-core/src/tmp-admin3/components/Project/ProjectDrawer'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import multiLogger from '@etherealengine/common/src/logger'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'

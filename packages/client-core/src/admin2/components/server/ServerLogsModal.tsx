@@ -35,8 +35,8 @@ import { useTranslation } from 'react-i18next'
 import { GoDownload } from 'react-icons/go'
 import { HiOutlineRefresh } from 'react-icons/hi'
 import { PopoverState } from '../../../common/services/PopoverState'
-import { useServerInfoFind } from '../../../tmp-admin3/services/ServerInfoQuery'
 import { serverAutoRefreshOptions } from '../../common/constants/server'
+import { useServerInfoFind } from '../../services/ServerInfoQuery'
 
 export default function ServerLogsModal({ podName, containerName }: { podName: string; containerName?: string }) {
   const logsEndRef = useRef<HTMLPreElement>(null)

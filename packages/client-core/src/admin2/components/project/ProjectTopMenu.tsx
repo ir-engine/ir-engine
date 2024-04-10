@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { ProjectUpdateState } from '@etherealengine/client-core/src/tmp-admin3/services/ProjectUpdateService'
 import config from '@etherealengine/common/src/config'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
@@ -34,6 +33,7 @@ import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCir
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiArrowPath, HiPlus } from 'react-icons/hi2'
+import { ProjectUpdateState } from '../../services/ProjectUpdateService'
 import AddEditProjectModal from './AddEditProjectModal'
 import UpdateEngineModal from './UpdateEngineModal'
 

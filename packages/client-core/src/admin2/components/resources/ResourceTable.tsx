@@ -34,9 +34,9 @@ import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { useTranslation } from 'react-i18next'
 import { HiEye, HiTrash } from 'react-icons/hi2'
 import { PopoverState } from '../../../common/services/PopoverState'
-import { RESOURCE_PAGE_LIMIT, ResourceService } from '../../../tmp-admin3/services/ResourceService'
 import DataTable from '../../common/Table'
 import { resourceColumns } from '../../common/constants/resources'
+import { RESOURCE_PAGE_LIMIT, ResourceService } from '../../services/ResourceService'
 import AddEditResourceModal from './AddEditResourceModal'
 
 export default function ResourceTable({ search }: { search: string }) {

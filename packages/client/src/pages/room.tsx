@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
+import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin2/services/Setting/ClientSettingService'
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
-import { AdminClientSettingsState } from '@etherealengine/client-core/src/tmp-admin3/services/Setting/ClientSettingService'
 import RoomMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/RoomMenu'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 

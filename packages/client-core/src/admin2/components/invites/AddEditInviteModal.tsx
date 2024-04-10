@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { InviteService } from '@etherealengine/client-core/src/social/services/InviteService'
-import { AdminSceneState } from '@etherealengine/client-core/src/tmp-admin3/services/SceneService'
 import {
   InviteCode,
   InviteData,
@@ -47,6 +46,7 @@ import Radios from '@etherealengine/ui/src/primitives/tailwind/Radio'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { AdminSceneState } from '../../services/SceneService'
 
 type InviteTypeOptionsType = 'new-user' | 'location' | 'instance'
 const inviteTypeOptions = ['new-user', 'location', 'instance'] as InviteTypeOptionsType[]

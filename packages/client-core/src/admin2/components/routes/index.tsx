@@ -28,7 +28,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import RoutesTable from './RouteTable'
 
-export default function Invites() {
+export default function Routes() {
   const { t } = useTranslation()
 
   return (

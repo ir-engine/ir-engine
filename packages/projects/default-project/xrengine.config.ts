@@ -55,9 +55,6 @@ const config: ProjectConfigInterface = {
     },
     '/chat': {
       component: () => import('@etherealengine/client/src/pages/chat/chat')
-    },
-    '/adminold': {
-      component: () => import('@etherealengine/client-core/src/tmp-admin3/adminRoutes')
     }
   }
 }

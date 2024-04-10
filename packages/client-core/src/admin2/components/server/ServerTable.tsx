@@ -31,9 +31,9 @@ import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Tooltip from '@etherealengine/ui/src/primitives/tailwind/ToolTip'
 import { HiTrash } from 'react-icons/hi2'
 import { PopoverState } from '../../../common/services/PopoverState'
-import { useServerInfoFind } from '../../../tmp-admin3/services/ServerInfoQuery'
 import DataTable from '../../common/Table'
 import { ServerRowType, serverColumns } from '../../common/constants/server'
+import { useServerInfoFind } from '../../services/ServerInfoQuery'
 import ServerLogsModal from './ServerLogsModal'
 
 const containerColor = {

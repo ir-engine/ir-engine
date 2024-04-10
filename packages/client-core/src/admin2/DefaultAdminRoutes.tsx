@@ -38,7 +38,7 @@ import {
   HiUserCircle
 } from 'react-icons/hi2'
 import { RiSendPlaneFill } from 'react-icons/ri'
-import { AdminRouteStateType } from '../tmp-admin3/AllowedAdminRoutesState'
+import { AdminRouteStateType } from './AllowedAdminRoutesState'
 
 const Avatars = lazy(() => import('./components/avatar'))
 

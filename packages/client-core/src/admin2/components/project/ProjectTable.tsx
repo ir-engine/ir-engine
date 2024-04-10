@@ -31,7 +31,6 @@ import { ProjectRowType, projectsColumns } from '../../common/constants/project'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { ProjectService } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { ProjectUpdateState } from '@etherealengine/client-core/src/tmp-admin3/services/ProjectUpdateService'
 import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -51,6 +50,7 @@ import {
   HiOutlineTrash,
   HiOutlineUsers
 } from 'react-icons/hi2'
+import { ProjectUpdateState } from '../../services/ProjectUpdateService'
 import AddEditProjectModal from './AddEditProjectModal'
 import ManageUserPermissionModal from './ManageUserPermissionModal'
 

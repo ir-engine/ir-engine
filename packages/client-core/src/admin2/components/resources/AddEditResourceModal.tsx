@@ -39,7 +39,7 @@ import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { ResourceService } from '../../../tmp-admin3/services/ResourceService'
+import { ResourceService } from '../../services/ResourceService'
 
 const getNameAndType = async (url: string) => {
   const urlParts = url.split('/')

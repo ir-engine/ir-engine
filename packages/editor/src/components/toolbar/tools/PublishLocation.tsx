@@ -27,7 +27,7 @@ import React from 'react'
 
 import LocationDrawer, {
   LocationDrawerMode
-} from '@etherealengine/client-core/src/tmp-admin3/components/Location/LocationDrawer'
+} from '@etherealengine/client-core/src/admin2/common/Location/LocationDrawer'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { SceneID, locationPath } from '@etherealengine/common/src/schema.type.module'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'

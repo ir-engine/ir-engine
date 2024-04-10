@@ -35,9 +35,8 @@ import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDia
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
 import { HiPencil, HiTrash } from 'react-icons/hi2'
-import { channelColumns } from '../../../tmp-admin3/common/variables/channel'
 import DataTable from '../../common/Table'
-import { ChannelRowType } from '../../common/constants/channel'
+import { ChannelRowType, channelColumns } from '../../common/constants/channel'
 import AddEditChannelModal from './AddEditChannelModal'
 
 export default function ChannelTable({

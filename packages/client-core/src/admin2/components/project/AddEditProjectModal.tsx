@@ -25,10 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { ProjectService } from '@etherealengine/client-core/src/common/services/ProjectService'
-import {
-  ProjectUpdateService,
-  ProjectUpdateState
-} from '@etherealengine/client-core/src/tmp-admin3/services/ProjectUpdateService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { ProjectBranchType, ProjectCommitType, ProjectType } from '@etherealengine/common/src/schema.type.module'
@@ -49,6 +45,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CiCircleCheck, CiCircleRemove, CiWarning } from 'react-icons/ci'
 import { HiMiniClipboardDocumentList } from 'react-icons/hi2'
+import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
 
 const autoUpdateIntervalOptions = [
   {
