@@ -537,11 +537,11 @@ const load = <T extends AssetType>(
   )
 }
 
-const loadObj = <T extends DisposableObject>(
-  objectLike: { new (...params: any[]): T },
+const loadObj = <T extends DisposableObject, T2 extends new (...params: any[]) => T>(
+  objectLike: T2,
   entity: Entity,
-  ...args: any[]
-): T => {
+  ...args: ConstructorParameters<T2>
+): InstanceType<T2> => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
   const obj = new objectLike(...args)
@@ -564,7 +564,7 @@ const loadObj = <T extends DisposableObject>(
   const resource = resources[id]
   callbacks.onStart(resource)
   debugLog('ResourceManager:loadObj Loading object resource: ' + id + ' for entity: ' + entity)
-  return obj
+  return obj as InstanceType<T2>
 }
 
 const addResource = <T>(res: T, id: string, entity: Entity): T => {

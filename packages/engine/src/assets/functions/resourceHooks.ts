@@ -313,13 +313,13 @@ export async function getTextureAsync(
  * @param args *Optional* arguments to pass to the constructor of object3D
  * @returns A unique instance of the class that is passed in for object3D
  */
-export function useObj<T extends DisposableObject, T2 extends new (...params: any[]) => T>(
+export function useObj<T extends DisposableObject, T2 extends new () => T>(
   objectLike: T2,
   entity: Entity,
   ...args: ConstructorParameters<T2>
-): [T, () => void] {
+): [InstanceType<T2>, () => void] {
   const classState = useHookstate(() => objectLike)
-  const objState = useHookstate<T>(() => ResourceManager.loadObj(objectLike, entity, ...args))
+  const objState = useHookstate<InstanceType<T2>>(() => ResourceManager.loadObj(objectLike, entity, ...args))
 
   const unload = () => {
     if (objState.value) {
@@ -353,11 +353,11 @@ export function useObj<T extends DisposableObject, T2 extends new (...params: an
  * @param args *Optional* arguments to pass to the constructor of object3D
  * @returns A unique instance of the class that is passed in for object3D and a callback to unload the object
  */
-export function createObj<T extends DisposableObject, T2 extends { new (...params: any[]): T }>(
+export function createObj<T extends DisposableObject, T2 extends new () => T>(
   objectLike: T2,
   entity: Entity,
   ...args: ConstructorParameters<T2>
-): [T, () => void] {
+): [InstanceType<T2>, () => void] {
   const obj = ResourceManager.loadObj(objectLike, entity, ...args)
 
   const unload = () => {
