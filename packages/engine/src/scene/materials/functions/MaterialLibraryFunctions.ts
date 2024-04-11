@@ -27,11 +27,9 @@ import { Color, Material, Texture } from 'three'
 
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
-import { Entity, defineQuery } from '@etherealengine/ecs'
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, getComponent } from '@etherealengine/ecs'
 import { stringHash } from '@etherealengine/spatial/src/common/functions/MathFunctions'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { SourceComponent } from '../../components/SourceComponent'
+import { MeshComponent, sceneMeshQuery } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
 import { MaterialSelectionState } from '../MaterialLibraryState'
 import { MaterialComponentType } from '../components/MaterialComponent'
@@ -289,8 +287,6 @@ export function unregisterMaterialInstance(material: Material, entity: Entity): 
 export function materialsFromSource(src: MaterialSource) {
   return getSourceItems(src)?.map(materialFromId)
 }
-
-const sceneMeshQuery = defineQuery([MeshComponent, SourceComponent])
 
 export function replaceMaterial(material: Material, nuMat: Material) {
   for (const entity of sceneMeshQuery()) {

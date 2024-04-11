@@ -42,8 +42,7 @@ import { ColliderComponent } from '@etherealengine/spatial/src/physics/component
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { BodyTypes, Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { MeshComponent, useMeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { useMeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
@@ -103,10 +102,7 @@ export const GroundPlaneComponent = defineComponent({
       mesh.material.polygonOffsetFactor = -0.01
       mesh.material.polygonOffsetUnits = 1
 
-      addObjectToGroup(entity, mesh)
       setComponent(entity, ObjectLayerMaskComponent, ObjectLayers.Camera)
-      setComponent(entity, MeshComponent, mesh)
-
       setComponent(entity, RigidBodyComponent, { type: BodyTypes.Fixed })
       setComponent(entity, ColliderComponent, {
         shape: Shapes.Plane,
@@ -118,7 +114,6 @@ export const GroundPlaneComponent = defineComponent({
       return () => {
         removeComponent(entity, RigidBodyComponent)
         removeComponent(entity, ColliderComponent)
-        removeObjectFromGroup(entity, mesh)
       }
     }, [])
 

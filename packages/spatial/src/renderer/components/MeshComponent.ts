@@ -26,11 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import { BufferGeometry, Material, Mesh } from 'three'
 
 import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
-import { Entity } from '@etherealengine/ecs'
+import { Entity, defineQuery } from '@etherealengine/ecs'
 import { defineComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useObj, useResource } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { NO_PROXY, State } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
+import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const MeshComponent = defineComponent({
   name: 'Mesh Component',
@@ -43,6 +45,8 @@ export const MeshComponent = defineComponent({
     component.set(mesh)
   }
 })
+
+export const sceneMeshQuery = defineQuery([MeshComponent, SourceComponent])
 
 export function useMeshComponent<
   TGeometry extends BufferGeometry = BufferGeometry,
@@ -58,8 +62,9 @@ export function useMeshComponent<
 
   useEffect(() => {
     setComponent(entity, MeshComponent, mesh)
-
+    addObjectToGroup(entity, mesh)
     return () => {
+      removeObjectFromGroup(entity, mesh)
       removeComponent(entity, MeshComponent)
     }
   }, [])
