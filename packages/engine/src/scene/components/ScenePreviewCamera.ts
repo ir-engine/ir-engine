@@ -24,31 +24,25 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useLayoutEffect } from 'react'
-import { CameraHelper, PerspectiveCamera } from 'three'
+import { PerspectiveCamera } from 'three'
 
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { useExecute } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
-  hasComponent,
+  removeComponent,
   setComponent,
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { TransformDirtyCleanupSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { createObj } from '../../assets/functions/resourceHooks'
+import { CameraHelperComponent } from './debug/CameraHelperComponent'
 
 export const ScenePreviewCameraComponent = defineComponent({
   name: 'EE_scenePreviewCamera',
@@ -58,8 +52,7 @@ export const ScenePreviewCameraComponent = defineComponent({
     const camera = new PerspectiveCamera(80, 16 / 9, 0.2, 8000)
 
     return {
-      camera,
-      helperEntity: null as Entity | null
+      camera
     }
   },
 
@@ -101,23 +94,13 @@ export const ScenePreviewCameraComponent = defineComponent({
     }, [previewCameraTransform])
 
     useLayoutEffect(() => {
-      if (!debugEnabled.value) return
-
-      const [helper, unload] = createObj(CameraHelper, entity, previewCamera.camera.value)
-      helper.name = `scene-preview-helper-${entity}`
-      const helperEntity = createEntity()
-      addObjectToGroup(helperEntity, helper)
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
-      setComponent(helperEntity, NameComponent, helper.name)
-      setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
-      setVisibleComponent(helperEntity, true)
-      previewCamera.helperEntity.set(helperEntity)
-
-      return () => {
-        removeEntity(helperEntity)
-        if (!hasComponent(entity, ScenePreviewCameraComponent)) return
-        previewCamera.helperEntity.set(none)
-        unload()
+      if (!debugEnabled.value) {
+        removeComponent(entity, CameraHelperComponent)
+      } else {
+        setComponent(entity, CameraHelperComponent, {
+          name: 'scene-preview-helper',
+          camera: previewCamera.camera.value
+        })
       }
     }, [debugEnabled])
 

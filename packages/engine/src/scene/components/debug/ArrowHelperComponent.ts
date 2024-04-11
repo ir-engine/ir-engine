@@ -23,25 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  Entity,
-  createEntity,
-  defineComponent,
-  removeEntity,
-  setComponent,
-  useComponent,
-  useEntityContext
-} from '@etherealengine/ecs'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
+import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
 import { matchesColor, matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { useEffect } from 'react'
 import { ArrowHelper, ColorRepresentation, Vector3 } from 'three'
 import { useObj } from '../../../assets/functions/resourceHooks'
+import { useHelperEntity } from './DebugComponentUtils'
 
 export const ArrowHelperComponent = defineComponent({
   name: 'ArrowHelperComponent',
@@ -84,29 +71,13 @@ export const ArrowHelperComponent = defineComponent({
       component.headLength.value,
       component.headWidth.value
     )
+    useHelperEntity(entity, helper, component)
 
-    useEffect(() => {
+    useDidMount(() => {
       helper.setDirection(component.dir.value)
       helper.setColor(component.color.value)
       helper.setLength(component.length.value, component.headLength.value, component.headWidth.value)
     }, [component.dir, component.length, component.color, component.headLength, component.headWidth])
-
-    useEffect(() => {
-      helper.name = `${component.name.value}-${entity}`
-
-      const helperEntity = createEntity()
-      addObjectToGroup(helperEntity, helper)
-      setComponent(helperEntity, NameComponent, helper.name)
-      setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
-      setVisibleComponent(helperEntity, true)
-      setComponent(helperEntity, ObjectLayerMaskComponent, ObjectLayers.NodeHelper)
-      component.entity.set(helperEntity)
-
-      return () => {
-        removeObjectFromGroup(helperEntity, helper)
-        removeEntity(helperEntity)
-      }
-    }, [])
 
     return null
   }
