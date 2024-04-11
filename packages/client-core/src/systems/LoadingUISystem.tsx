@@ -51,14 +51,12 @@ import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIC
 import { ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
-import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { UUIDComponent } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { addObjectToGroup, GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -67,6 +65,7 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
 import { AppThemeState, getAppTheme } from '../common/services/AppThemeState'
+import { useActiveLocationScene } from '../components/World/LoadLocationScene'
 import { useRemoveEngineCanvas } from '../hooks/useRemoveEngineCanvas'
 import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
@@ -118,14 +117,13 @@ export const LoadingUISystemState = defineState({
   }
 })
 
-const LoadingReactor = () => {
+const LoadingReactor = (props: { scenePath: string }) => {
   const loadingProgress = useHookstate(getMutableState(SceneState).loadingProgress)
   const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
   const state = useHookstate(getMutableState(LoadingUISystemState))
   const locationState = useHookstate(getMutableState(LocationState))
   const meshEntity = state.meshEntity.value
-  const locationSceneID = locationState.currentLocation.location.sceneId.value
-  const scene = SceneState.getScene(locationSceneID)
+  const scene = SceneState.getScene(props.scenePath)
   const sceneEntity = UUIDComponent.useEntityByUUID(scene.scene.root)
   const sceneComponent = getOptionalComponent(sceneEntity, SceneSettingsComponent)
   const [loadingTexture, error] = useTexture(sceneComponent ? sceneComponent.loadingScreenURL : '', sceneEntity)
@@ -295,21 +293,18 @@ const reactor = () => {
   const clientSettings = useHookstate(
     getMutableState(AdminClientSettingsState)?.client?.[0]?.themeSettings?.clientSettings
   )
-  const locationSceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId).value
-  const scenes = useHookstate(getMutableState(SceneState).scenes).value
-  const scene = useGet(assetPath, locationSceneID).data
+  const scenePath = useActiveLocationScene()
 
   useEffect(() => {
     const theme = getAppTheme()
     if (theme) defaultColor.set(theme!.textColor)
   }, [themeState, themeModes, clientSettings])
 
-  console.log(locationSceneID, scene?.assetURL, scenes)
-  if (!locationSceneID || !scene?.assetURL || !scenes[scene?.assetURL]) return null
+  if (!scenePath) return null
 
   return (
     <>
-      <LoadingReactor />
+      <LoadingReactor scenePath={scenePath} />
     </>
   )
 }

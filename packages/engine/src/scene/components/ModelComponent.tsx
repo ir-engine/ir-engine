@@ -213,12 +213,12 @@ function ModelReactor(): JSX.Element {
         root: getComponent(entity, UUIDComponent),
         version: 0
       },
-      scenePath: uuid,
       name: '',
       project: '',
       thumbnailUrl: ''
     })
 
+    /** @todo move this to editor package */
     if (!hasComponent(entity, AvatarRigComponent)) {
       //if this is not an avatar, add bbox snap
       setComponent(entity, ObjectGridSnapComponent)

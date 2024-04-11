@@ -29,7 +29,8 @@ import { useEffect } from 'react'
 import { LocationService, LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { scenePath } from '@etherealengine/common/src/schema.type.module'
+import { assetPath, scenePath } from '@etherealengine/common/src/schema.type.module'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { RouterState } from '../../common/services/RouterService'
 import { WarningUIService } from '../../systems/WarningUISystem'
@@ -91,4 +92,12 @@ export const useLoadScene = (props: { projectName: string; sceneName: string }) 
     const sceneURL = `projects/${props.projectName}/${props.sceneName}`
     return SceneServices.setCurrentScene(sceneURL, true)
   }, [])
+}
+
+/** This is kind of a hack that we can fix once we drop .scene.json support */
+export const useActiveLocationScene = () => {
+  const locationSceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId).value
+  const scenes = useHookstate(getMutableState(SceneState).scenes)
+  const scene = useGet(assetPath, locationSceneID).data
+  return !!locationSceneID && !!scene?.assetURL ? scenes.keys.find((id) => id.includes(scene?.assetURL)) : ''
 }
