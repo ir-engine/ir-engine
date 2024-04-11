@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
+  Entity,
   createEntity,
   defineComponent,
   removeEntity,
@@ -47,17 +48,20 @@ export const ArrowHelperComponent = defineComponent({
 
   onInit: (entity) => {
     return {
+      name: 'arrow-helper',
       dir: new Vector3(0, 0, 1),
       origin: new Vector3(0, 0, 0),
       length: 0.5,
       color: 0xffffff as ColorRepresentation,
       headLength: undefined as undefined | number,
-      headWidth: undefined as undefined | number
+      headWidth: undefined as undefined | number,
+      entity: undefined as undefined | Entity
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
+    if (typeof json.name === 'string') component.name.set(json.name)
     if (matchesVector3.test(json.dir)) component.dir.set(json.dir)
     if (matchesVector3.test(json.origin)) component.origin.set(json.origin)
     if (typeof json.length === 'number') component.length.set(json.length)
@@ -88,7 +92,7 @@ export const ArrowHelperComponent = defineComponent({
     }, [component.dir, component.length, component.color, component.headLength, component.headWidth])
 
     useEffect(() => {
-      helper.name = `arrow-helper-${entity}`
+      helper.name = `${component.name.value}-${entity}`
 
       const helperEntity = createEntity()
       addObjectToGroup(helperEntity, helper)
@@ -96,6 +100,7 @@ export const ArrowHelperComponent = defineComponent({
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
       setVisibleComponent(helperEntity, true)
       setComponent(helperEntity, ObjectLayerMaskComponent, ObjectLayers.NodeHelper)
+      component.entity.set(helperEntity)
 
       return () => {
         removeObjectFromGroup(helperEntity, helper)

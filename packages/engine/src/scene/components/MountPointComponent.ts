@@ -72,7 +72,7 @@ export const MountPointComponent = defineComponent({
       if (!debugEnabled.value) {
         removeComponent(entity, ArrowHelperComponent)
       } else {
-        setComponent(entity, ArrowHelperComponent)
+        setComponent(entity, ArrowHelperComponent, { name: 'mount-point-helper' })
       }
     }, [debugEnabled])
 
