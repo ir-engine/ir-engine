@@ -23,9 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Mesh } from 'three'
+import { BufferGeometry, Material, Mesh } from 'three'
 
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
+import { Entity } from '@etherealengine/ecs'
+import { defineComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useObj, useResource } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { NO_PROXY, State } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
 
 export const MeshComponent = defineComponent({
   name: 'Mesh Component',
@@ -38,3 +43,39 @@ export const MeshComponent = defineComponent({
     component.set(mesh)
   }
 })
+
+export function useMeshComponent<
+  TGeometry extends BufferGeometry = BufferGeometry,
+  TMaterial extends Material = Material
+>(
+  entity: Entity,
+  geometry: TGeometry = new BufferGeometry() as any,
+  material: TMaterial = new Material() as any
+): [Mesh<TGeometry, TMaterial>, State<TGeometry>, State<TMaterial>] {
+  const [geometryState] = useResource(geometry, entity, geometry?.uuid)
+  const [materialState] = useResource(material, entity, material?.uuid)
+  const [mesh] = useObj(Mesh<TGeometry, TMaterial>, entity, geometry, material)
+
+  useEffect(() => {
+    setComponent(entity, MeshComponent, mesh)
+
+    return () => {
+      removeComponent(entity, MeshComponent)
+    }
+  }, [])
+
+  useDidMount(() => {
+    const geo = geometryState.get(NO_PROXY)
+    if (!geo) return
+    mesh.geometry = geo
+  }, [geometryState])
+
+  useDidMount(() => {
+    const mat = materialState.get(NO_PROXY)
+    if (!mat) return
+    mesh.material = mat
+    mesh.material.needsUpdate = true
+  }, [materialState])
+
+  return [mesh, geometryState, materialState]
+}

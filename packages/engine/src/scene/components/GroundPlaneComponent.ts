@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useLayoutEffect } from 'react'
-import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 'three'
+import { Color, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
@@ -43,10 +43,9 @@ import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/componen
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { BodyTypes, Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { MeshComponent, useMeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { useObj } from '../../assets/functions/resourceHooks'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SourceComponent } from './SourceComponent'
 
@@ -90,17 +89,12 @@ export const GroundPlaneComponent = defineComponent({
     const entity = useEntityContext()
 
     const component = useComponent(entity, GroundPlaneComponent)
-    const [planeGeom] = useObj(PlaneGeometry, entity, 10000, 10000)
-    const [meshMaterial] = useObj(MeshLambertMaterial, entity)
-    const [groundShadowMaterial] = useObj(ShadowMaterial, entity, {
-      opacity: 0.5
-    })
-    const [mesh] = useObj(
-      Mesh<PlaneGeometry, MeshLambertMaterial | ShadowMaterial>,
-      entity,
-      planeGeom,
-      component.visible.value ? meshMaterial : groundShadowMaterial
-    )
+
+    const getMaterial = (): MeshLambertMaterial | ShadowMaterial => {
+      return component.visible.value ? new MeshLambertMaterial() : new ShadowMaterial({ opacity: 0.5 })
+    }
+
+    const [mesh, geoState, matState] = useMeshComponent(entity, new PlaneGeometry(10000, 10000), getMaterial())
 
     useLayoutEffect(() => {
       mesh.geometry.rotateX(-Math.PI / 2)
@@ -129,12 +123,15 @@ export const GroundPlaneComponent = defineComponent({
     }, [])
 
     useLayoutEffect(() => {
+      const color = component.color.value
+      if (mesh.material.color == color) return
       mesh.material.color.set(component.color.value)
     }, [component.color])
 
     useLayoutEffect(() => {
-      mesh.material = component.visible.value ? meshMaterial : groundShadowMaterial
-      mesh.material.color.set(component.color.value)
+      const mat = getMaterial()
+      mat.color.set(component.color.value)
+      matState.set(mat)
     }, [component.visible])
 
     return null
