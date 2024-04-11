@@ -27,6 +27,7 @@ import { Material, Shader, WebGLRenderer } from 'three'
 
 import { UUIDComponent, defineComponent, getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { NameComponent } from '../../common/NameComponent'
 import { hashMaterial } from './materialFunctions'
@@ -70,7 +71,6 @@ export const MaterialComponent = defineComponent({
       material: null as null | Material,
       parameters: {},
       instances: [] as Entity[],
-      hash: '',
       source: '',
       plugins: [] as string[],
       prototypeUuid: '',
@@ -84,8 +84,13 @@ export const MaterialComponent = defineComponent({
   setMaterialName: (entity: Entity, name: string) => {
     const materialComponent = getMutableComponent(entity, MaterialComponent)
     if (!materialComponent.material.value) return
-    setComponent(entity, NameComponent, name)
-    materialComponent.hash.set(hashMaterial(getComponent(entity, MaterialComponent).source, name))
+    setComponent(entity, NameComponent, `${name} (Material)`)
+    const oldHash = hashMaterial(getComponent(entity, SourceComponent), materialComponent.material.value.name)
+    const newHash = hashMaterial(getComponent(entity, SourceComponent), name)
+    if (MaterialComponent.materialByHash[oldHash]) {
+      delete MaterialComponent.materialByHash[oldHash]
+    }
+    MaterialComponent.materialByHash[newHash] = getComponent(entity, UUIDComponent)
     materialComponent.material.value.name = name
   },
 
@@ -94,10 +99,6 @@ export const MaterialComponent = defineComponent({
     if (json.uuid) component.uuid.set(json.uuid)
     if (json.material) component.material.set(json.material)
     if (json.instances) component.instances.set(json.instances)
-    if (json.hash) {
-      component.hash.set(json.hash)
-      if (json.hash != '') MaterialComponent.materialByHash[json.hash] = getComponent(entity, UUIDComponent)
-    }
     if (json.plugins) component.plugins.set(json.plugins)
     if (json.source) component.source.set(json.source)
     if (json.prototypeUuid) component.prototypeUuid.set(json.prototypeUuid)

@@ -69,16 +69,15 @@ export function extractDefaults(defaultArgs) {
   )
 }
 
-/** Registers and returns a new material from a GLTF. If a material from the GLTF path already exists, returns it instead. */
-export const useOrRegisterMaterial = (path: string, entity: Entity, material: Material) => {
+/** Registers and returns a new material UUID from a GLTF. If a material from the GLTF path already exists, returns it instead. */
+export const useOrRegisterMaterial = (path: string, sourceEntity: Entity, material: Material) => {
   //if we already have a material by the same name from the same source, use it instead
   const entityFromHash = MaterialComponent.materialByHash[hashMaterial(path, material.name)]
-  if (!hasComponent(entity, MaterialComponent)) setComponent(entity, MaterialComponent)
-  const materialComponent = getMutableComponent(entity, MaterialComponent)
+  if (!hasComponent(sourceEntity, MaterialComponent)) setComponent(sourceEntity, MaterialComponent)
+  const materialComponent = getMutableComponent(sourceEntity, MaterialComponent)
   if (entityFromHash) {
-    if (!materialComponent) setComponent(entity, MaterialComponent, { uuid: [entityFromHash] })
-    else materialComponent.uuid.set([...materialComponent.uuid.value, entityFromHash])
-    return
+    materialComponent.uuid.set([...materialComponent.uuid.value, entityFromHash])
+    return entityFromHash
   }
   materialComponent.uuid.set([...materialComponent.uuid.value, material.uuid])
 
@@ -91,9 +90,8 @@ export const useOrRegisterMaterial = (path: string, entity: Entity, material: Ma
       type: SourceType.BUILT_IN,
       path
     })
-    material.userData?.plugins && materialComponent.plugins.set(material.userData['plugins'])
   }
-  materialComponent.instances.set([...materialComponent.instances.value, entity])
+  materialComponent.instances.set([...materialComponent.instances.value, sourceEntity])
 }
 
 export const registerMaterial = (material: Material, src: MaterialSource, params?: { [_: string]: any }) => {
@@ -102,7 +100,8 @@ export const registerMaterial = (material: Material, src: MaterialSource, params
   setComponent(materialEntity, MaterialComponent, { material })
   setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
   setComponent(materialEntity, SourceComponent, src.path as SceneID)
-  setComponent(materialEntity, MaterialComponent, { hash: hashMaterial(src.path, material.name) })
+  setComponent(materialEntity, MaterialComponent, { material })
+  MaterialComponent.setMaterialName(materialEntity, material.name)
 
   return materialEntity
 }
