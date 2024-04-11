@@ -37,7 +37,8 @@ import { Object3D } from 'three'
 export function useHelperEntity<T extends Object3D, T2 extends State<Partial<{ name: string; entity: Entity }>>>(
   entity: Entity,
   helper: T,
-  component: T2
+  component: T2,
+  layerMask = ObjectLayers.NodeHelper
 ): Entity {
   const helperEntityState = useHookstate<Entity>(createEntity())
 
@@ -48,7 +49,7 @@ export function useHelperEntity<T extends Object3D, T2 extends State<Partial<{ n
     setComponent(helperEntity, NameComponent, helper.name)
     setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
     setVisibleComponent(helperEntity, true)
-    setComponent(helperEntity, ObjectLayerMaskComponent, ObjectLayers.NodeHelper)
+    setComponent(helperEntity, ObjectLayerMaskComponent, layerMask)
     component.entity.set(helperEntity)
 
     return () => {

@@ -24,17 +24,19 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { Camera, CameraHelper } from 'three'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { AxesHelper } from 'three'
 import { useObj } from '../../../assets/functions/resourceHooks'
 import { useHelperEntity } from './DebugComponentUtils'
 
-export const CameraHelperComponent = defineComponent({
-  name: 'CameraHelperComponent',
+export const AxesHelperComponent = defineComponent({
+  name: 'AxesHelperComponent',
 
   onInit: (entity) => {
     return {
-      name: 'camera-helper',
-      camera: null! as Camera,
+      name: 'axes-helper',
+      size: 1,
+      layer: ObjectLayers.NodeHelper,
       entity: undefined as undefined | Entity
     }
   },
@@ -42,15 +44,15 @@ export const CameraHelperComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     if (typeof json.name === 'string') component.name.set(json.name)
-    if (!json.camera || !json.camera.isCamera) throw new Error('CameraHelperComponent: Valid Camera required')
-    component.camera.set(json.camera)
+    if (typeof json.size === 'number') component.size.set(json.size)
+    if (typeof json.layer === 'number') component.layer.set(json.layer)
   },
 
   reactor: function () {
     const entity = useEntityContext()
-    const component = useComponent(entity, CameraHelperComponent)
-    const [helper] = useObj(CameraHelper, entity, component.camera.value)
-    useHelperEntity(entity, helper, component)
+    const component = useComponent(entity, AxesHelperComponent)
+    const [helper] = useObj(AxesHelper, entity, component.size.value)
+    useHelperEntity(entity, helper, component, component.layer.value)
 
     return null
   }

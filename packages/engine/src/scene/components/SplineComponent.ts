@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  AxesHelper,
   BufferAttribute,
   BufferGeometry,
   CatmullRomCurve3,
@@ -51,7 +50,7 @@ import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/compon
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { createObj } from '../../assets/functions/resourceHooks'
+import { AxesHelperComponent } from './debug/AxesHelperComponent'
 
 const ARC_SEGMENTS = 200
 const _point = new Vector3()
@@ -127,7 +126,6 @@ export const SplineComponent = defineComponent({
       const geometry = new SphereGeometry(0.05, 4, 2)
 
       const gizmoEntities = [] as Entity[]
-      const gizmoUnloads = [] as (() => void)[]
 
       if (debugEnabled.value) {
         lineEntity = createEntity()
@@ -156,19 +154,12 @@ export const SplineComponent = defineComponent({
         let id = 0
         for (const elem of elements.value) {
           const gizmoEntity = createEntity()
-          const [gizmo, unload] = createObj(AxesHelper, gizmoEntity)
-          gizmo.name = `${entity}-gizmos-${++id}`
-          addObjectToGroup(gizmoEntity, gizmo)
-          setComponent(gizmoEntity, NameComponent, gizmo.name)
-          setComponent(gizmoEntity, EntityTreeComponent, { parentEntity: entity })
           gizmoEntities.push(gizmoEntity)
-          setVisibleComponent(gizmoEntity, true)
+          setComponent(gizmoEntity, AxesHelperComponent, { name: `spline-gizmo-${++id}` })
           setComponent(gizmoEntity, TransformComponent, {
             position: elem.position,
             rotation: elem.quaternion
           })
-          gizmo.layers.set(ObjectLayers.NodeHelper)
-          gizmoUnloads.push(unload)
         }
       }
 
@@ -190,7 +181,6 @@ export const SplineComponent = defineComponent({
       return () => {
         if (lineEntity) removeEntity(lineEntity)
         for (const gizmoEntity of gizmoEntities) removeEntity(gizmoEntity)
-        for (const gizmoUnload of gizmoUnloads) gizmoUnload()
       }
     }, [
       debugEnabled,
