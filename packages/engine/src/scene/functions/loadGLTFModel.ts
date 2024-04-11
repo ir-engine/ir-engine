@@ -47,6 +47,7 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { FrustumCullCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+import { isArray } from 'lodash'
 import { BoneComponent } from '../../avatar/components/BoneComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
@@ -335,6 +336,6 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     const path = getOptionalComponent(rootEntity, ModelComponent)?.src ?? ''
     useOrRegisterMaterial(path, objEntity, material)
   })
-
+  mesh.material = isArray(mesh.material) ? materials : materials[0]
   return eJson
 }

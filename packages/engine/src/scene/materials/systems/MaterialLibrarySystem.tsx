@@ -29,8 +29,6 @@ import { getMutableState } from '@etherealengine/hyperflux'
 
 import { PresentationSystemGroup } from '@etherealengine/ecs'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { GroupQueryReactor, GroupReactorProps } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { MaterialLibraryState, initializeMaterialLibrary } from '../MaterialLibrary'
 
 // function MaterialReactor({ materialId }: { materialId: string }) {
@@ -86,7 +84,8 @@ const reactor = (): ReactElement => {
   //   }
   // }, [materialLibrary.prototypes])
 
-  return <GroupQueryReactor GroupChildReactor={MaterialGroupReactor} Components={[VisibleComponent]} />
+  return <></>
+  // return <GroupQueryReactor GroupChildReactor={MaterialGroupReactor} Components={[VisibleComponent]} />
   // const plugins = materialLibrary.plugins
   // return (
   //   <>
@@ -100,11 +99,11 @@ const reactor = (): ReactElement => {
   // )
 }
 
-const MaterialGroupReactor = ({ obj, entity }: GroupReactorProps) => {
-  useEffect(() => {}, [])
+// const MaterialGroupReactor = ({ obj, entity }: GroupReactorProps) => {
+//   useEffect(() => {}, [])
 
-  return null
-}
+//   return null
+// }
 
 export const MaterialLibrarySystem = defineSystem({
   uuid: 'ee.engine.scene.MaterialLibrarySystem',
