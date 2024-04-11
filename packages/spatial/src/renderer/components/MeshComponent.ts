@@ -52,8 +52,8 @@ export function useMeshComponent<
   geometry: TGeometry = new BufferGeometry() as any,
   material: TMaterial = new Material() as any
 ): [Mesh<TGeometry, TMaterial>, State<TGeometry>, State<TMaterial>] {
-  const [geometryState] = useResource(geometry, entity, geometry?.uuid)
-  const [materialState] = useResource(material, entity, material?.uuid)
+  const [geometryState] = useResource(geometry, entity, geometry.uuid)
+  const [materialState] = useResource(material, entity, material.uuid)
   const [mesh] = useObj(Mesh<TGeometry, TMaterial>, entity, geometry, material)
 
   useEffect(() => {
@@ -66,13 +66,11 @@ export function useMeshComponent<
 
   useDidMount(() => {
     const geo = geometryState.get(NO_PROXY)
-    if (!geo) return
     mesh.geometry = geo
   }, [geometryState])
 
   useDidMount(() => {
     const mat = materialState.get(NO_PROXY)
-    if (!mat) return
     mesh.material = mat
     mesh.material.needsUpdate = true
   }, [materialState])
