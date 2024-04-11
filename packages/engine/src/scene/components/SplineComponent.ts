@@ -44,13 +44,13 @@ import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ec
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { AxesHelperComponent } from '@etherealengine/spatial/src/common/debug/AxesHelperComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { AxesHelperComponent } from './debug/AxesHelperComponent'
 
 const ARC_SEGMENTS = 200
 const _point = new Vector3()

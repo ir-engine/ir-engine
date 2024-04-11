@@ -24,33 +24,63 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { Camera, CameraHelper } from 'three'
-import { useObj } from '../../../assets/functions/resourceHooks'
+import { useObj } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { matchesColor } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { useEffect } from 'react'
+import {
+  ColorRepresentation,
+  DirectionalLight,
+  DirectionalLightHelper,
+  HemisphereLight,
+  HemisphereLightHelper,
+  Light,
+  PointLightHelper,
+  SpotLight,
+  SpotLightHelper
+} from 'three'
 import { useHelperEntity } from './DebugComponentUtils'
 
-export const CameraHelperComponent = defineComponent({
-  name: 'CameraHelperComponent',
+export const LightHelperComponent = defineComponent({
+  name: 'LightHelperComponent',
 
   onInit: (entity) => {
     return {
-      name: 'camera-helper',
-      camera: null! as Camera,
+      name: 'light-helper',
+      light: undefined! as Light,
+      size: 1,
+      color: undefined as undefined | ColorRepresentation,
       entity: undefined as undefined | Entity
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
+
+    if (!json.light || !json.light.isLight) throw new Error('LightHelperComponent: Valid Light required')
+    component.light.set(json.light)
     if (typeof json.name === 'string') component.name.set(json.name)
-    if (!json.camera || !json.camera.isCamera) throw new Error('CameraHelperComponent: Valid Camera required')
-    component.camera.set(json.camera)
+    if (typeof json.size === 'number') component.size.set(json.size)
+    if (matchesColor.test(json.color)) component.color.set(json.color)
   },
 
   reactor: function () {
     const entity = useEntityContext()
-    const component = useComponent(entity, CameraHelperComponent)
-    const [helper] = useObj(CameraHelper, entity, component.camera.value)
+    const component = useComponent(entity, LightHelperComponent)
+
+    const getLightHelperType = (light: Light) => {
+      if ((light as DirectionalLight).isDirectionalLight) return DirectionalLightHelper
+      else if ((light as SpotLight).isSpotLight) return SpotLightHelper
+      else if ((light as HemisphereLight).isHemisphereLight) return HemisphereLightHelper
+      else return PointLightHelper
+    }
+
+    const light = component.light.value
+    const [helper] = useObj(getLightHelperType(light), entity, light, component.size.value)
     useHelperEntity(entity, helper, component)
+
+    useEffect(() => {
+      helper.color = component.color.value
+    }, [component.color])
 
     return null
   }

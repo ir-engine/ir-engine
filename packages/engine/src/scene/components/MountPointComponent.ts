@@ -30,9 +30,9 @@ import { getMutableState, matches, useHookstate } from '@etherealengine/hyperflu
 
 import { defineComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { ArrowHelperComponent } from '@etherealengine/spatial/src/common/debug/ArrowHelperComponent'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { ArrowHelperComponent } from './debug/ArrowHelperComponent'
 
 export const MountPoint = {
   seat: 'seat' as const

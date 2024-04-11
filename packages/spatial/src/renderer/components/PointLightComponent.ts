@@ -24,24 +24,24 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Color, DoubleSide, IcosahedronGeometry, Mesh, MeshBasicMaterial, PointLight } from 'three'
+import { Color, PointLight } from 'three'
 
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useObj } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { matches } from '@etherealengine/hyperflux'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { NameComponent } from '../../common/NameComponent'
-import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
+import { LightHelperComponent } from '../../common/debug/LightHelperComponent'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { RendererState } from '../RendererState'
-import { ObjectLayers } from '../constants/ObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
-import { setObjectLayers } from './ObjectLayerComponent'
-import { setVisibleComponent } from './VisibleComponent'
 
 export const PointLightComponent = defineComponent({
   name: 'PointLightComponent',
@@ -139,27 +139,10 @@ export const PointLightComponent = defineComponent({
     }, [renderState.shadowMapResolution])
 
     useEffect(() => {
-      if (!debugEnabled.value) return
-
-      const helper = new Mesh(
-        mergeBufferGeometries([new IcosahedronGeometry(0.25), new IcosahedronGeometry(0.15)])!,
-        new MeshBasicMaterial({ fog: false, transparent: true, opacity: 0.5, side: DoubleSide })
-      )
-      helper.name = `pointlight-helper-${entity}`
-
-      const helperEntity = createEntity()
-      addObjectToGroup(helperEntity, helper)
-      setComponent(helperEntity, NameComponent, helper.name)
-      setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
-      setVisibleComponent(helperEntity, true)
-
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
-
-      pointLightComponent.helperEntity.set(helperEntity)
-
-      return () => {
-        removeEntity(helperEntity)
-        pointLightComponent.helperEntity.set(none)
+      if (!debugEnabled.value) {
+        removeComponent(entity, LightHelperComponent)
+      } else {
+        setComponent(entity, LightHelperComponent, { name: 'pointlight-helper', light: light })
       }
     }, [debugEnabled])
 
