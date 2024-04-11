@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 export type * from './schemas/analytics/analytics.schema'
 export type * from './schemas/assets/asset-library.schema'
+export type * from './schemas/assets/asset.schema'
 export type * from './schemas/assets/model-transform.schema'
 export type * from './schemas/bot/bot-command.schema'
 export type * from './schemas/bot/bot.schema'
@@ -62,8 +63,6 @@ export type * from './schemas/projects/project-permission.schema'
 export type * from './schemas/projects/project.schema'
 export type * from './schemas/projects/projects.schema'
 export type * from './schemas/projects/scene-data.schema'
-export type * from './schemas/projects/scene-upload.schema'
-export type * from './schemas/projects/scene.schema'
 export type * from './schemas/recording/recording-resource-upload.schema'
 export type * from './schemas/recording/recording-resource.schema'
 export type * from './schemas/recording/recording.schema'
@@ -257,7 +256,9 @@ export const projectPath = 'project'
 
 export const projectsPath = 'projects'
 
-export const scenePath = 'scene'
+export const assetPath = 'asset'
+/** @deprecated use assetPath instead */
+export const scenePath = assetPath
 
 export const builderInfoPath = 'builder-info'
 
@@ -278,8 +279,6 @@ export const portalPath = 'portal'
 export const projectCheckUnfetchedCommitPath = 'project-check-unfetched-commit'
 
 export const projectBuilderTagsPath = 'project-builder-tags'
-
-export const sceneUploadPath = 'scene-upload'
 
 export const logsApiPath = 'logs-api'
 

@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { AssetDataType, assetPath } from '@etherealengine/common/src/schemas/assets/asset.schema'
 import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
-import { SceneDataType, SceneID, scenePath } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { Knex } from 'knex'
@@ -38,18 +38,18 @@ export async function up(knex: Knex): Promise<void> {
   const trx = await knex.transaction()
   await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const sceneTableExists = await trx.schema.hasTable(scenePath)
+  const sceneTableExists = await trx.schema.hasTable(assetPath)
 
   if (sceneTableExists === false) {
-    await trx.schema.createTable(scenePath, (table) => {
+    await trx.schema.createTable(assetPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
-      table.string('name', 255).notNullable().unique()
-      table.string('scenePath', 255).notNullable().unique()
+      table.string('name', 255).notNullable()
+      table.string('assetURL', 255).notNullable().unique()
       //@ts-ignore
       table.uuid('projectId').collate('utf8mb4_bin')
       table.foreign('projectId').references('id').inTable(projectPath).onDelete('CASCADE').onUpdate('CASCADE')
-      table.string('thumbnailUrl', 255)
+      table.string('thumbnailURL', 255)
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
     })
@@ -66,25 +66,25 @@ export async function up(knex: Knex): Promise<void> {
           console.log('PROJECTS', projects)
           const projectId = projects[0].id
           return {
-            id: v4() as SceneID,
-            scenePath: location.sceneId,
-            thumbnailUrl: location.sceneId.replace('.scene.json', '.thumbnail.jpg'),
+            id: v4(),
             name: location.sceneId.split('/').pop().replace('.scene.json', ''),
             projectId,
+            assetURL: location.sceneId,
+            thumbnailURL: location.sceneId.replace('.scene.json', '.thumbnail.jpg'),
             createdAt: getDateTimeSql(),
             updatedAt: getDateTimeSql()
-          } as SceneDataType
+          } as AssetDataType
         })
     )
 
-    await trx.from(scenePath).insert(locationSceneIds)
+    await trx.from(assetPath).insert(locationSceneIds)
   }
 
   /** Change location table from storing sceneId as string to ref the scenetable */
   await trx.schema.alterTable(locationPath, (table) => {
     //@ts-ignore
     table.uuid('sceneId').collate('utf8mb4_bin').alter()
-    table.foreign('sceneId').references('id').inTable(scenePath).onDelete('CASCADE').onUpdate('CASCADE')
+    table.foreign('sceneId').references('id').inTable(assetPath).onDelete('CASCADE').onUpdate('CASCADE')
   })
 
   await trx.raw('SET FOREIGN_KEY_CHECKS=1')
@@ -99,10 +99,10 @@ export async function down(knex: Knex): Promise<void> {
   const trx = await knex.transaction()
   await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(scenePath)
+  const tableExists = await trx.schema.hasTable(assetPath)
 
   if (tableExists === true) {
-    await trx.schema.dropTable(scenePath)
+    await trx.schema.dropTable(assetPath)
   }
 
   await trx.raw('SET FOREIGN_KEY_CHECKS=1')

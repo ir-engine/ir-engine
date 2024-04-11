@@ -27,7 +27,7 @@ import { NotificationService } from '@etherealengine/client-core/src/common/serv
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { SceneServices } from '@etherealengine/client-core/src/world/SceneServices'
 import multiLogger from '@etherealengine/common/src/logger'
-import { SceneDataType, scenePath } from '@etherealengine/common/src/schema.type.module'
+import { AssetDataType, scenePath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
@@ -161,7 +161,7 @@ const onCloseProject = () => {
 }
 
 const onSaveAs = async () => {
-  const { projectName, sceneName } = getState(EditorState)
+  const { sceneAssetID, projectName, sceneName } = getState(EditorState)
   const { sceneLoaded, sceneModified } = getState(SceneState)
 
   // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
@@ -178,12 +178,12 @@ const onSaveAs = async () => {
       })
       DialogState.setDialog(null)
       if (result?.name && projectName) {
-        await saveSceneJSON(projectName, result.name, abortController.signal)
+        await saveSceneJSON(sceneAssetID, projectName, result.name, abortController.signal)
         getMutableState(SceneState).sceneModified.set(false)
         const [newSceneData] = (await Engine.instance.api
           .service(scenePath)
-          .find({ query: { scenePath: getState(EditorState).scenePath! } })) as any as SceneDataType[]
-        getMutableState(EditorState).scenePath.set(newSceneData.scenePath as any)
+          .find({ query: { assetURL: getState(EditorState).scenePath! } })) as any as AssetDataType[]
+        getMutableState(EditorState).scenePath.set(newSceneData.assetURL as any)
       }
     }
   } catch (error) {
@@ -211,7 +211,7 @@ const onImportAsset = async () => {
 }
 
 const onSaveScene = async (gltf = false) => {
-  const { projectName, sceneName } = getState(EditorState)
+  const { sceneAssetID, projectName, sceneName } = getState(EditorState)
   const { sceneModified, sceneLoaded } = getState(SceneState)
 
   if (!projectName) return
@@ -256,9 +256,9 @@ const onSaveScene = async (gltf = false) => {
 
   try {
     if (gltf) {
-      await saveSceneGLTF(projectName, sceneName, abortController.signal)
+      await saveSceneGLTF(sceneAssetID, projectName, sceneName, abortController.signal)
     } else {
-      await saveSceneJSON(projectName, sceneName, abortController.signal)
+      await saveSceneJSON(sceneAssetID, projectName, sceneName, abortController.signal)
     }
 
     getMutableState(SceneState).sceneModified.set(false)
@@ -365,10 +365,10 @@ const tabs = [
  * EditorContainer class used for creating container for Editor
  */
 const EditorContainer = () => {
-  const { sceneName, projectName, scenePath: sceneID } = useHookstate(getMutableState(EditorState))
+  const { sceneAssetID, sceneName, projectName, scenePath: sceneID } = useHookstate(getMutableState(EditorState))
   const { sceneLoaded, sceneModified } = useHookstate(getMutableState(SceneState))
-  const sceneQuery = useFind(scenePath, { query: { scenePath: sceneID.value ?? '' } }).data
-  const sceneQueryPath = sceneQuery?.[0]?.scenePath
+  const sceneQuery = useFind(scenePath, { query: { assetURL: sceneID.value ?? '' } }).data
+  const sceneURL = sceneQuery?.[0]?.assetURL
 
   const sceneLoading = sceneID.value && !sceneLoaded.value
 
@@ -424,12 +424,13 @@ const EditorContainer = () => {
   }, [sceneModified])
 
   useEffect(() => {
-    if (!sceneQueryPath) return
+    if (!sceneURL) return
     const [_, project, scene] = sceneID.value?.split('/') ?? []
     sceneName.set(scene ?? null)
     projectName.set(project ?? null)
-    return SceneServices.setCurrentScene(sceneQueryPath)
-  }, [sceneQueryPath])
+    sceneAssetID.set(sceneQuery[0].id)
+    return SceneServices.setCurrentScene(sceneURL)
+  }, [sceneURL])
 
   useEffect(() => {
     return () => {

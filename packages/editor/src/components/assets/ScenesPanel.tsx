@@ -35,7 +35,7 @@ import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from 
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import config from '@etherealengine/common/src/config'
-import { SceneDataType, SceneID, scenePath } from '@etherealengine/common/src/schema.type.module'
+import { AssetDataType, scenePath } from '@etherealengine/common/src/schema.type.module'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -67,7 +67,7 @@ export default function ScenesPanel() {
   const [anchorEl, setAnchorEl] = useState(null)
   const [newName, setNewName] = useState('')
   const [isRenaming, setRenaming] = useState(false)
-  const [loadedScene, setLoadedScene] = useState<SceneDataType | null>(null)
+  const [loadedScene, setLoadedScene] = useState<AssetDataType | null>(null)
   const sceneState = useHookstate(getMutableState(SceneState))
   const scenesLoading = scenesQuery.status === 'pending'
 
@@ -75,9 +75,9 @@ export default function ScenesPanel() {
     await onNewScene()
   }
 
-  const onClickExisting = async (e, scene: SceneDataType) => {
+  const onClickExisting = async (e, scene: AssetDataType) => {
     e.preventDefault()
-    getMutableState(EditorState).scenePath.set(scene.scenePath)
+    getMutableState(EditorState).scenePath.set(scene.assetURL)
   }
 
   const openDeleteDialog = () => {
@@ -93,7 +93,7 @@ export default function ScenesPanel() {
 
   const deleteActiveScene = async () => {
     if (loadedScene) {
-      await deleteScene(loadedScene.scenePath)
+      await deleteScene(loadedScene.id)
       if (editorState.sceneName.value === loadedScene.name) {
         getMutableState(SceneState).sceneLoaded.set(false)
         editorState.sceneName.set(null)
@@ -129,16 +129,15 @@ export default function ScenesPanel() {
     setNewName(loadedScene!.name)
   }
 
-  const finishRenaming = async () => {
+  const finishRenaming = async (id: string) => {
     setRenaming(false)
-    await renameScene(editorState.projectName.value as string, newName, loadedScene!.name)
-    if (loadedScene)
-      getMutableState(EditorState).scenePath.set(loadedScene.scenePath.replace(loadedScene.name, newName) as SceneID)
+    await renameScene(id, newName)
+    if (loadedScene) getMutableState(EditorState).scenePath.set(loadedScene.assetURL.replace(loadedScene.name, newName))
     setNewName('')
   }
 
-  const renameSceneToNewName = async (e) => {
-    if (e.key == 'Enter' && loadedScene) finishRenaming()
+  const renameSceneToNewName = async (e, id: string) => {
+    if (e.key == 'Enter' && loadedScene) finishRenaming(id)
   }
 
   const getSceneURL = async (url) => {
@@ -167,13 +166,13 @@ export default function ScenesPanel() {
           </div>
         ) : (
           <div className={styles.contentContainer + ' ' + styles.sceneGridContainer}>
-            {scenes.map((scene: SceneDataType) => (
+            {scenes.map((scene: AssetDataType) => (
               <div className={styles.sceneContainer} key={scene.name}>
                 <a onClick={(e) => onClickExisting(e, scene)}>
                   <div className={styles.thumbnailContainer}>
                     <img
                       style={{ height: 'auto', maxWidth: '100%' }}
-                      src={config.client.fileServer + '/' + scene.thumbnailUrl}
+                      src={config.client.fileServer + '/' + scene.thumbnailURL}
                       alt=""
                       crossOrigin="anonymous"
                     />
@@ -181,7 +180,7 @@ export default function ScenesPanel() {
                   <div className={styles.detailBlock}>
                     {loadedScene === scene && isRenaming ? (
                       <Paper component="div" className={styles.inputContainer}>
-                        <ClickAwayListener onClickAway={finishRenaming}>
+                        <ClickAwayListener onClickAway={() => finishRenaming(scene.id)}>
                           <InputBase
                             className={styles.input}
                             name="name"
@@ -192,7 +191,7 @@ export default function ScenesPanel() {
                               e.stopPropagation()
                             }}
                             onChange={(e) => setNewName(e.target.value)}
-                            onKeyPress={renameSceneToNewName}
+                            onKeyPress={(e) => renameSceneToNewName(e, scene.id)}
                           />
                         </ClickAwayListener>
                       </Paper>

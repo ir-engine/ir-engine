@@ -23,12 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated } from '@feathersjs/feathers/lib'
-import appRootPath from 'app-root-path'
-import fs from 'fs'
-import path from 'path'
-import { v4 as generateUUID } from 'uuid'
-
 import {
   LocationData,
   LocationID,
@@ -37,9 +31,14 @@ import {
   LocationType,
   ProjectType
 } from '@etherealengine/common/src/schema.type.module'
-import { SceneDataType, SceneID, scenePath } from '@etherealengine/common/src/schemas/projects/scene.schema'
+import { AssetDataType, assetPath } from '@etherealengine/common/src/schemas/assets/asset.schema'
 import { toCapitalCase } from '@etherealengine/common/src/utils/miscUtils'
 import { Application } from '@etherealengine/server-core/declarations'
+import { Paginated } from '@feathersjs/feathers/lib'
+import appRootPath from 'app-root-path'
+import fs from 'fs'
+import path from 'path'
+import { v4 as generateUUID } from 'uuid'
 
 export const createLocations = async (app: Application, projectName: string) => {
   const project = (await app.service('project').find({
@@ -55,19 +54,19 @@ export const createLocations = async (app: Application, projectName: string) => 
       .filter((file) => file.endsWith('.scene.json'))
       .map(async (sceneJson) => {
         const locationId = generateUUID() as LocationID
-        const sceneId = generateUUID() as SceneID
+        const sceneId = generateUUID()
         const settingsId = generateUUID()
         const sceneName = sceneJson.replace('.scene.json', '')
 
         /** @todo use .gltf instead */
 
-        const scene = (await app.service(scenePath).create({
+        const scene = (await app.service(assetPath).create({
           id: sceneId,
           name: sceneName,
-          scenePath: `projects/${projectName}/${sceneName}.scene.json`,
-          thumbnailUrl: `projects/${projectName}/${sceneName}.thumbnail.jpg`,
+          assetURL: `projects/${projectName}/${sceneName}.scene.json`,
+          thumbnailURL: `projects/${projectName}/${sceneName}.thumbnail.jpg`,
           projectId: projectData.id
-        })) as SceneDataType
+        })) as AssetDataType
 
         const locationName = toCapitalCase(sceneName.replace('-', ' '))
         const locationSetting = {

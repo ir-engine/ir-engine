@@ -23,14 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import {
-  SceneID,
-  ScenePatch,
-  SceneQuery,
-  sceneDataValidator,
-  sceneQueryValidator
-} from '@etherealengine/common/src/schemas/projects/scene.schema'
+  AssetQuery,
+  assetDataValidator,
+  assetQueryValidator
+} from '@etherealengine/common/src/schemas/assets/asset.schema'
+import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { BadRequest } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
@@ -45,10 +43,9 @@ import setResponseStatusCode from '../../hooks/set-response-status-code'
 import verifyScope from '../../hooks/verify-scope'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 
-import { LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import enableClientPagination from '../../hooks/enable-client-pagination'
-import { SceneService } from './scene.class'
-import { sceneDataResolver, sceneExternalResolver, sceneQueryResolver, sceneResolver } from './scene.resolvers'
+import { AssetService } from './asset.class'
+import { assetDataResolver, assetExternalResolver, assetQueryResolver, assetResolver } from './asset.resolvers'
 
 const DEFAULT_DIRECTORY = 'packages/projects/default-project'
 const NEW_SCENE_NAME = 'New-Scene'
@@ -57,7 +54,7 @@ const SCENE_ASSET_FILES = ['.scene.json', '.thumbnail.jpg', '.envmap.ktx2']
 export const getSceneFiles = async (directory: string, storageProviderName?: string) => {
   const storageProvider = getStorageProvider(storageProviderName)
   const fileResults = await storageProvider.listObjects(directory, false)
-  return fileResults.Contents.map((dirent) => dirent.Key).filter((name) => name.endsWith('.scene.json')) as SceneID[]
+  return fileResults.Contents.map((dirent) => dirent.Key).filter((name) => name.endsWith('.scene.json'))
 }
 
 /**
@@ -65,7 +62,7 @@ export const getSceneFiles = async (directory: string, storageProviderName?: str
  * @param context Hook context
  * @returns
  */
-const checkIfProjectExists = async (context: HookContext<SceneService>, project: string) => {
+const checkIfProjectExists = async (context: HookContext<AssetService>, project: string) => {
   const projectResult = (await context.app
     .service(projectPath)
     .find({ query: { name: project, $limit: 1 } })) as Paginated<ProjectType>
@@ -77,39 +74,11 @@ const checkIfProjectExists = async (context: HookContext<SceneService>, project:
  * @param context Hook context
  * @returns
  */
-const checkSceneProjectExists = async (context: HookContext<SceneService>) => {
-  const { project } = context.params.query as SceneQuery
+const checkAssetProjectExists = async (context: HookContext<AssetService>) => {
+  const { project } = context.params.query as AssetQuery
   if (project) {
     checkIfProjectExists(context, project.toString())
   }
-}
-
-/**
- * Updates scene id in locations
- * @param context Hook context
- * @returns
- */
-const updateLocations = async (context: HookContext<SceneService>) => {
-  if (!context.data || context.method !== 'patch') {
-    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
-  }
-
-  const { newSceneName, oldSceneName, directory } = context.data as ScenePatch
-
-  const locations = (await context.app.service(locationPath).find({
-    query: { sceneId: { $like: `${directory}${oldSceneName}.scene.json` as SceneID } }
-  })) as any as LocationType[]
-
-  if (locations.length > 0) {
-    await Promise.all(
-      locations.map(async (location) => {
-        await context.app
-          .service(locationPath)
-          .patch(location.id, { sceneId: `${directory}${newSceneName}.scene.json` as SceneID })
-      })
-    )
-  }
-  context.result = null
 }
 
 /**
@@ -117,7 +86,7 @@ const updateLocations = async (context: HookContext<SceneService>) => {
  * @param context Hook context
  * @returns
  */
-const removeSceneLocally = async (context: HookContext<SceneService>) => {
+const removeAssetLocally = async (context: HookContext<AssetService>) => {
   if (context.method !== 'remove') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
@@ -138,7 +107,7 @@ const removeSceneLocally = async (context: HookContext<SceneService>) => {
  * @param context Hook context
  * @returns
  */
-const getDirectoryFromQuery = async (context: HookContext<SceneService>) => {
+const getDirectoryFromQuery = async (context: HookContext<AssetService>) => {
   if (!context.params.query!.directory) {
     checkIfProjectExists(context, context.params.query!.project!.toString())
     context.params.query!.directory = `projects/${context.params.query!.project}/`
@@ -146,7 +115,7 @@ const getDirectoryFromQuery = async (context: HookContext<SceneService>) => {
   }
 }
 
-const resolveProjectIdForSceneData = async (context: HookContext<SceneService>) => {
+const resolveProjectIdForAssetData = async (context: HookContext<AssetService>) => {
   if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
 
   if (context.data && context.data.project) {
@@ -159,7 +128,7 @@ const resolveProjectIdForSceneData = async (context: HookContext<SceneService>) 
   }
 }
 
-const resolveProjectIdForSceneQuery = async (context: HookContext<SceneService>) => {
+const resolveProjectIdForAssetQuery = async (context: HookContext<AssetService>) => {
   if (Array.isArray(context.params.query)) throw new BadRequest('Array is not supported')
 
   if (context.params.query && context.params.query.project) {
@@ -175,33 +144,34 @@ const resolveProjectIdForSceneQuery = async (context: HookContext<SceneService>)
 export default createSkippableHooks(
   {
     around: {
-      all: [schemaHooks.resolveExternal(sceneExternalResolver), schemaHooks.resolveResult(sceneResolver)]
+      all: [schemaHooks.resolveExternal(assetExternalResolver), schemaHooks.resolveResult(assetResolver)]
     },
     before: {
-      all: [() => schemaHooks.validateQuery(sceneQueryValidator), schemaHooks.resolveQuery(sceneQueryResolver)],
-      find: [enableClientPagination(), resolveProjectIdForSceneQuery],
-      get: [checkSceneProjectExists],
+      all: [() => schemaHooks.validateQuery(assetQueryValidator), schemaHooks.resolveQuery(assetQueryResolver)],
+      find: [enableClientPagination(), resolveProjectIdForAssetQuery],
+      get: [checkAssetProjectExists],
       create: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-        () => schemaHooks.validateData(sceneDataValidator),
-        schemaHooks.resolveData(sceneDataResolver),
-        resolveProjectIdForSceneData
+        () => schemaHooks.validateData(assetDataValidator),
+        schemaHooks.resolveData(assetDataResolver),
+        resolveProjectIdForAssetData
       ],
       update: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-        () => schemaHooks.validateData(sceneDataValidator),
-        schemaHooks.resolveData(sceneDataResolver)
+        () => schemaHooks.validateData(assetDataValidator),
+        schemaHooks.resolveData(assetDataResolver),
+        resolveProjectIdForAssetData
       ],
       patch: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-        () => schemaHooks.validateData(sceneDataValidator),
-        schemaHooks.resolveData(sceneDataResolver),
-        updateLocations
+        () => schemaHooks.validateData(assetDataValidator),
+        schemaHooks.resolveData(assetDataResolver),
+        resolveProjectIdForAssetData
       ],
       remove: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
         getDirectoryFromQuery,
-        removeSceneLocally
+        removeAssetLocally
       ]
     },
 

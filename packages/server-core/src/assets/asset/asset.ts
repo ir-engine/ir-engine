@@ -25,48 +25,48 @@ Ethereal Engine. All Rights Reserved.
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { AssetUpdate, assetMethods, assetPath } from '@etherealengine/common/src/schemas/assets/asset.schema'
 import { instanceActivePath } from '@etherealengine/common/src/schemas/networking/instance-active.schema'
 import {
   InstanceAttendanceType,
   instanceAttendancePath
 } from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
-import { SceneID, SceneUpdate, sceneMethods, scenePath } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { Application } from '../../../declarations'
 import { ServerMode, ServerState } from '../../ServerState'
-import { SceneService } from './scene.class'
-import sceneDocs from './scene.docs'
-import hooks from './scene.hooks'
+import { AssetService } from './asset.class'
+import sceneDocs from './asset.docs'
+import hooks from './asset.hooks'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    [scenePath]: SceneService
+    [assetPath]: AssetService
   }
 }
 
 export default (app: Application): void => {
   const options = {
-    name: scenePath,
+    name: assetPath,
     paginate: app.get('paginate'),
     Model: app.get('knexClient'),
     multi: true
   }
 
-  app.use(scenePath, new SceneService(options), {
+  app.use(assetPath, new AssetService(options), {
     // A list of all methods this service exposes externally
-    methods: sceneMethods,
+    methods: assetMethods,
     // You can add additional custom events to be sent to clients here
     events: [],
     docs: sceneDocs
   })
 
-  const service = app.service(scenePath)
+  const service = app.service(assetPath)
   service.hooks(hooks)
 
   if (getState(ServerState).serverMode === ServerMode.API)
     service.publish('updated', async (data) => {
-      const updatedScene = data as SceneUpdate
+      const updatedScene = data as AssetUpdate
       const instanceActive = await app.service(instanceActivePath).find({
-        query: { sceneId: updatedScene.id as SceneID }
+        query: { sceneId: updatedScene.id }
       })
 
       const instanceAttendances = (await app.service(instanceAttendancePath).find({

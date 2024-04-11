@@ -27,7 +27,7 @@ import koa from '@feathersjs/koa'
 
 import { Application } from '../../../declarations'
 // import { addVolumetricAssetFromProject } from '../../media/volumetric/volumetric-upload.helper'
-import { SceneDataType, SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
+import { AssetDataType } from '@etherealengine/common/src/schemas/assets/asset.schema'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
@@ -42,7 +42,7 @@ export const getEnvMapBake = (app: Application) => {
   }
 }
 
-export const getSceneData = async (sceneKey: SceneID, metadataOnly?: boolean, internal = false) => {
+export const getSceneData = async (sceneKey: string, metadataOnly?: boolean, internal = false) => {
   const storageProvider = getStorageProvider()
   const sceneName = sceneKey.split('/').pop()!.replace('.scene.json', '')
   const directory = sceneKey.replace(`${sceneName}.scene.json`, '')
@@ -65,12 +65,12 @@ export const getSceneData = async (sceneKey: SceneID, metadataOnly?: boolean, in
     thumbnailPath !== `` ? getCachedURL(thumbnailPath, cacheDomain) : `/static/etherealengine_thumbnail.jpg`
 
   const sceneResult = await storageProvider.getCachedObject(sceneKey)
-  const sceneData: SceneDataType = {
+  const sceneData: AssetDataType = {
     id: sceneKey,
     name: sceneName,
     project: projectName,
-    thumbnailUrl: thumbnailUrl,
-    scenePath: sceneKey
+    thumbnailURL: thumbnailUrl,
+    assetURL: sceneKey
   }
 
   return sceneData
@@ -94,7 +94,7 @@ export const getEnvMapBakeById = async (app, entityId: string) => {
   // })
 }
 
-export const parseScenePortals = (scene: SceneDataType) => {
+export const parseScenePortals = (scene: AssetDataType) => {
   const portals: PortalType[] = []
   for (const [entityId, entity] of Object.entries((scene.scene as SceneJsonType)?.entities)) {
     for (const component of entity.components)

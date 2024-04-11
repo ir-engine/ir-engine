@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import config from '@etherealengine/common/src/config'
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import { Engine, getMutableComponent } from '@etherealengine/ecs'
 import { GLTFState } from '@etherealengine/engine/src/scene/GLTFState'
@@ -38,12 +37,10 @@ const fileServer = config.client.fileServer
 
 export const SceneServices = {
   /** @todo this can be simplified once .scene.json support is dropped */
-  setCurrentScene: (scenePath: string, overrideLocation = false) => {
-    console.log(scenePath)
-
-    const isGLTF = scenePath.endsWith('.gltf')
+  setCurrentScene: (sceneURL: string, overrideLocation = false) => {
+    const isGLTF = sceneURL.endsWith('.gltf')
     if (isGLTF) {
-      const gltfEntity = GLTFState.load(config.client.fileServer + '/' + scenePath)
+      const gltfEntity = GLTFState.load(fileServer + '/' + sceneURL)
       getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
 
       if (overrideLocation) {
@@ -53,15 +50,13 @@ export const SceneServices = {
       }
 
       return () => {
-        GLTFState.unload(config.client.fileServer + '/' + scenePath, gltfEntity)
+        GLTFState.unload(fileServer + '/' + sceneURL, gltfEntity)
       }
     }
 
     let unmounted = false
 
-    const sceneID = scenePath.endsWith('.scene.json')
-      ? (scenePath as SceneID)
-      : ((scenePath + '.scene.json') as SceneID)
+    const sceneID = sceneURL.endsWith('.scene.json') ? sceneURL : sceneURL + '.scene.json'
 
     fetch(`${fileServer}/${sceneID}`).then(async (data) => {
       if (unmounted) return

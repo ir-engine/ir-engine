@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { AssetDataType, scenePath } from '@etherealengine/common/src/schemas/assets/asset.schema'
 import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
-import { sceneUploadPath } from '@etherealengine/common/src/schemas/projects/scene-upload.schema'
-import { SceneDataType, scenePath } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { SceneJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
@@ -71,7 +70,7 @@ describe('scene.test', () => {
     it('should get scene data', async () => {
       const data = (await app
         .service(scenePath)
-        .get('', { query: { project: projectName, name: sceneName, metadataOnly: false } })) as SceneDataType
+        .get('', { query: { project: projectName, name: sceneName, metadataOnly: false } })) as AssetDataType
       assert.equal(data.name, sceneName)
       assert.equal(data.project, projectName)
       assert.deepStrictEqual(data.scene, parsedSceneData)
@@ -83,7 +82,7 @@ describe('scene.test', () => {
 
       const addedSceneData = (await app
         .service(scenePath)
-        .get('', { query: { project: projectName, name: sceneName, metadataOnly: false } })) as SceneDataType
+        .get('', { query: { project: projectName, name: sceneName, metadataOnly: false } })) as AssetDataType
       assert.equal(addedSceneData.name, sceneName)
       assert.equal(addedSceneData.project, projectName)
       assert.deepStrictEqual(addedSceneData.scene, parsedSceneData)
@@ -99,7 +98,7 @@ describe('scene.test', () => {
 
       const updatedSceneData = (await app
         .service(scenePath)
-        .get('', { query: { project: projectName, name: sceneName, metadataOnly: false } })) as SceneDataType
+        .get('', { query: { project: projectName, name: sceneName, metadataOnly: false } })) as AssetDataType
       assert.equal(updatedSceneData.scene.version, updatedVersion)
       assert.equal(updatedSceneData.name, sceneName)
       assert.equal(updatedSceneData.project, projectName)

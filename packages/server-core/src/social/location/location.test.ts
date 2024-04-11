@@ -30,7 +30,6 @@ import { locationSettingPath } from '@etherealengine/common/src/schemas/social/l
 import { LocationID, LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
-import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { LocationParams } from './location.class'
@@ -52,7 +51,7 @@ describe('location.test', () => {
 
   it('should create a new location', async () => {
     const name = `Test Location ${v1()}`
-    const sceneId = `test-scene-${v1()}` as SceneID
+    const sceneId = `test-scene-${v1()}`
 
     const item = await app.service(locationPath).create(
       {

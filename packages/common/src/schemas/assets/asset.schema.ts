@@ -19,85 +19,78 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import type { Static } from '@feathersjs/typebox'
 import { Type, getValidator } from '@feathersjs/typebox'
-import { TypedString } from '../../types/TypeboxUtils'
 import { dataValidator, queryValidator } from '../validators'
 
-export const scenePath = 'scene'
+export const assetPath = 'asset'
+/** @deprecated use assetPath instead */
+export const scenePath = assetPath
 
-export const sceneMethods = ['get', 'update', 'create', 'find', 'patch', 'remove'] as const
+export const assetMethods = ['get', 'update', 'create', 'find', 'patch', 'remove'] as const
 
-export type SceneID = OpaqueType<'SceneID'> & string
-
-export const sceneDataSchema = Type.Object(
+export const assetDataSchema = Type.Object(
   {
-    id: TypedString<SceneID>(),
-    scenePath: Type.String(),
+    id: Type.String(),
+    assetURL: Type.String(),
     name: Type.String(),
-    thumbnailUrl: Type.String(),
+    thumbnailURL: Type.String(),
     projectId: Type.String(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
-  { $id: 'SceneData', additionalProperties: false }
+  { $id: 'AssetData', additionalProperties: false }
 )
-export interface SceneDataType extends Static<typeof sceneDataSchema> {}
+export interface AssetDataType extends Static<typeof assetDataSchema> {}
 
 // Schema for creating new entries
-export const sceneCreateDataSchema = Type.Object(
+export const assetCreateDataSchema = Type.Object(
   {
-    id: Type.Optional(TypedString<SceneID>()),
-    storageProvider: Type.Optional(Type.String()),
+    id: Type.Optional(Type.String()),
     name: Type.Optional(Type.String()),
-    scenePath: Type.Optional(Type.String()),
-    thumbnailUrl: Type.Optional(Type.Any()),
-    storageProviderName: Type.Optional(Type.String()),
+    assetURL: Type.Optional(Type.String()),
+    thumbnailURL: Type.Optional(Type.Any()),
     project: Type.Optional(Type.String()),
     projectId: Type.Optional(Type.String()),
     directory: Type.Optional(Type.String()),
     localDirectory: Type.Optional(Type.String())
   },
-  { $id: 'SceneCreateData', additionalProperties: false }
+  { $id: 'AssetCreateData', additionalProperties: false }
 )
-export interface SceneCreateData extends Static<typeof sceneCreateDataSchema> {}
+export interface AssetCreateData extends Static<typeof assetCreateDataSchema> {}
 
 // Schema for updated entries
-export const sceneUpdateSchema = Type.Object(
+export const assetUpdateSchema = Type.Object(
   {
     id: Type.String()
   },
-  { $id: 'SceneUpdate', additionalProperties: false }
+  { $id: 'AssetUpdate', additionalProperties: false }
 )
-export interface SceneUpdate extends Static<typeof sceneUpdateSchema> {}
+export interface AssetUpdate extends Static<typeof assetUpdateSchema> {}
 
 // Schema for updating existing entries
-export const scenePatchSchema = Type.Object(
+export const assetPatchSchema = Type.Object(
   {
-    newSceneName: Type.Optional(Type.String()),
-    oldSceneName: Type.Optional(Type.String()),
-    storageProviderName: Type.Optional(Type.String()),
+    name: Type.Optional(Type.String()),
     project: Type.Optional(Type.String()),
-    directory: Type.Optional(Type.String()),
-    localDirectory: Type.Optional(Type.String())
+    assetURL: Type.Optional(Type.String())
   },
   {
-    $id: 'ScenePatch'
+    $id: 'AssetPatch'
   }
 )
 
-export interface ScenePatch extends Static<typeof scenePatchSchema> {}
+export interface AssetPatch extends Static<typeof assetPatchSchema> {}
 
 // Schema for allowed query properties
-export const sceneQuerySchema = Type.Intersect(
+export const assetQuerySchema = Type.Intersect(
   [
     Type.Object(
       {
         project: Type.Optional(Type.String()),
         projectId: Type.Optional(Type.String()),
         name: Type.Optional(Type.String()),
-        scenePath: Type.Optional(Type.String()),
+        assetURL: Type.Optional(Type.String()),
         internal: Type.Optional(Type.Boolean()),
         paginate: Type.Optional(Type.Boolean()),
         directory: Type.Optional(Type.String()),
@@ -108,10 +101,7 @@ export const sceneQuerySchema = Type.Intersect(
   ],
   { additionalProperties: false }
 )
-export interface SceneQuery extends Static<typeof sceneQuerySchema> {}
+export interface AssetQuery extends Static<typeof assetQuerySchema> {}
 
-// export const componentJsonValidator = /* @__PURE__ */ getValidator(componentJsonSchema, dataValidator)
-// export const entityJsonValidator = /* @__PURE__ */ getValidator(entityJsonSchema, dataValidator)
-// export const sceneJsonValidator = /* @__PURE__ */ getValidator(sceneJsonSchema, dataValidator)
-export const sceneDataValidator = /* @__PURE__ */ getValidator(sceneDataSchema, dataValidator)
-export const sceneQueryValidator = /* @__PURE__ */ getValidator(sceneQuerySchema, queryValidator)
+export const assetDataValidator = /* @__PURE__ */ getValidator(assetDataSchema, dataValidator)
+export const assetQueryValidator = /* @__PURE__ */ getValidator(assetQuerySchema, queryValidator)

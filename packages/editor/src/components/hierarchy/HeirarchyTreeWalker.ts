@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
@@ -51,7 +50,7 @@ export type HeirarchyTreeCollapsedNodeType = { [key: number]: boolean }
  */
 
 export function* heirarchyTreeWalker(
-  sceneID: SceneID,
+  sceneID: string,
   treeNode: Entity,
   selectedEntities: Entity[]
 ): Generator<HeirarchyTreeNodeType> {

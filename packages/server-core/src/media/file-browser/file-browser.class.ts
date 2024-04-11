@@ -269,7 +269,7 @@ export class FileBrowserService
         isDirectory: false
       }
     )
-
+    console.log('\n\n\n\n\n\n\nPATCH', PROJECT_FILE_REGEX, key, PROJECT_FILE_REGEX.test(key), data, '\n\n\n\n\n\n\n')
     if (isDev && PROJECT_FILE_REGEX.test(key)) {
       const filePath = path.resolve(projectsRootFolder, key)
       const dirname = path.dirname(filePath)

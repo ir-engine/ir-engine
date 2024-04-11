@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import '@etherealengine/engine/src/EngineModule'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
@@ -56,9 +55,9 @@ export const EditorPage = () => {
 
   useEffect(() => {
     const sceneInParams = params.get('scenePath')
-    if (sceneInParams) scenePath.set(sceneInParams as SceneID)
+    if (sceneInParams) scenePath.set(sceneInParams)
     const projectNameInParams = params.get('project')
-    if (projectNameInParams) projectName.set(projectNameInParams as SceneID)
+    if (projectNameInParams) projectName.set(projectNameInParams)
   }, [params])
 
   useEffect(() => {

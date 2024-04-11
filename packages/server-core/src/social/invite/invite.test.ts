@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { inviteTypes } from '@etherealengine/common/src/schemas/social/invite-type.schema'
 import { InviteType, invitePath } from '@etherealengine/common/src/schemas/social/invite.schema'
 import { LocationID, LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
@@ -65,7 +64,7 @@ describe('invite.service', () => {
       {
         name: `test-location-name-${v1()}`,
         slugifiedName: '',
-        sceneId: `test-invite-scene-${v1()}` as SceneID,
+        sceneId: `test-invite-scene-${v1()}`,
         maxUsersPerInstance: 20,
         locationSetting: {
           id: '',

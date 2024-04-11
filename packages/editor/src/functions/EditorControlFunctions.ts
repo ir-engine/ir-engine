@@ -50,7 +50,6 @@ import {
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
@@ -68,7 +67,7 @@ const addOrRemoveComponent = <C extends Component<any, any>>(entities: Entity[],
 
   //cancelGrabOrPlacement()
 
-  const scenes: Record<SceneID, Entity[]> = {}
+  const scenes: Record<string, Entity[]> = {}
   for (const entity of entities) {
     const sceneID = getComponent(entity, SourceComponent)
     scenes[sceneID] ??= []
@@ -76,7 +75,7 @@ const addOrRemoveComponent = <C extends Component<any, any>>(entities: Entity[],
   }
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
-    const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID as SceneID)
+    const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
 
     for (const entity of entities) {
       const entityUUID = getComponent(entity, UUIDComponent)
@@ -123,7 +122,7 @@ const modifyProperty = <C extends Component<any, any>>(
 ) => {
   //cancelGrabOrPlacement()
 
-  const scenes: Record<SceneID, Entity[]> = {}
+  const scenes: Record<string, Entity[]> = {}
   for (const entity of entities) {
     const source = getComponent(entity, SourceComponent)
     scenes[source] ??= []
@@ -131,7 +130,7 @@ const modifyProperty = <C extends Component<any, any>>(
   }
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
-    const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID as SceneID)
+    const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
     for (const entity of entities) {
       setComponent(entity, component, properties)
       const entityUUID = getComponent(entity, UUIDComponent)
@@ -618,13 +617,13 @@ const addToSelection = (entities: EntityUUID[]) => {
 }
 
 const commitTransformSave = (entities: Entity[]) => {
-  const scenes: Record<SceneID, Entity[]> = {}
+  const scenes: Record<string, Entity[]> = {}
   for (const entity of entities) {
     const source = getComponent(entity, SourceComponent)
     scenes[source] ??= []
     scenes[source].push(entity)
   }
-  for (const sceneID of Object.keys(scenes) as SceneID[]) {
+  for (const sceneID of Object.keys(scenes)) {
     const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
     const sceneEntities = scenes[sceneID]
     for (const sceneEntity of sceneEntities) {

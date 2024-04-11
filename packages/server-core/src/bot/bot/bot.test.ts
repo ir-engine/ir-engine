@@ -31,7 +31,6 @@ import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { BotType, botPath } from '@etherealengine/common/src/schemas/bot/bot.schema'
 import { InstanceType, instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
-import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import {
   LocationID,
   LocationType,
@@ -64,7 +63,7 @@ describe('bot.service', () => {
       {
         name: 'test-bot-location-' + v1(),
         slugifiedName: '',
-        sceneId: ('test-bot-scene-id-' + v1()) as SceneID,
+        sceneId: 'test-bot-scene-id-' + v1(),
         maxUsersPerInstance: 20,
         locationSetting: {
           id: '',

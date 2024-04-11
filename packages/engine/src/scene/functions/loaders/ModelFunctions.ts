@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { DracoOptions } from '@gltf-transform/functions'
 import { Material, Texture } from 'three'
 
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { UUIDComponent } from '@etherealengine/ecs'
 import {
   getComponent,
@@ -46,17 +45,17 @@ import {
 } from '../../../assets/classes/ModelTransform'
 import { ModelComponent } from '../../components/ModelComponent'
 
-export function getModelSceneID(entity: Entity): SceneID {
+export function getModelSceneID(entity: Entity): string {
   if (!hasComponent(entity, ModelComponent) || !hasComponent(entity, UUIDComponent)) {
-    return '' as SceneID
+    return ''
   }
-  return (getComponent(entity, UUIDComponent) + '-' + getComponent(entity, ModelComponent).src) as SceneID
+  return getComponent(entity, UUIDComponent) + '-' + getComponent(entity, ModelComponent).src
 }
 
-export function useModelSceneID(entity: Entity): SceneID {
+export function useModelSceneID(entity: Entity): string {
   const uuid = useComponent(entity, UUIDComponent).value
   const model = useComponent(entity, ModelComponent).value
-  return (uuid + '-' + model.src) as SceneID
+  return uuid + '-' + model.src
 }
 
 export function getModelResources(entity: Entity, defaultParms: ModelTransformParameters): ResourceTransforms {

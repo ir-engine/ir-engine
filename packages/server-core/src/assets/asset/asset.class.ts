@@ -23,25 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated, Params } from '@feathersjs/feathers'
+import { Params } from '@feathersjs/feathers'
 
 import {
-  SceneCreateData,
-  SceneDataType,
-  SceneMetadataCreate,
-  ScenePatch,
-  SceneQuery,
-  SceneUpdate
-} from '@etherealengine/common/src/schemas/projects/scene.schema'
+  AssetCreateData,
+  AssetDataType,
+  AssetPatch,
+  AssetQuery
+} from '@etherealengine/common/src/schemas/assets/asset.schema'
 import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-export interface SceneParams extends KnexAdapterParams<SceneQuery> {
+export interface AssetParams extends KnexAdapterParams<AssetQuery> {
   paginate?: false
 }
 
-export class SceneService<T = SceneDataType, ServiceParams extends Params = SceneParams> extends KnexService<
-  SceneDataType | SceneDataType[] | Paginated<SceneDataType> | SceneMetadataCreate | SceneUpdate | null,
-  SceneCreateData,
-  SceneParams,
-  ScenePatch
+export class AssetService<T = AssetDataType, ServiceParams extends Params = AssetParams> extends KnexService<
+  AssetDataType,
+  AssetCreateData,
+  AssetParams,
+  AssetPatch
 > {}

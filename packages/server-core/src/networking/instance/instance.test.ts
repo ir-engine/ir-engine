@@ -37,7 +37,6 @@ import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { instanceActivePath } from '@etherealengine/common/src/schemas/networking/instance-active.schema'
 import { InstanceID, instancePath, InstanceType } from '@etherealengine/common/src/schemas/networking/instance.schema'
-import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -50,7 +49,7 @@ describe('instance.test', () => {
     app = createFeathersKoaApp()
     await app.setup()
     const name = `Test Location ${v1()}`
-    const sceneId = `test-scene-${v1()}` as SceneID
+    const sceneId = `test-scene-${v1()}`
 
     testLocation = await app.service(locationPath).create(
       {
