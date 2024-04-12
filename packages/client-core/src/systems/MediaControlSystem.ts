@@ -27,7 +27,13 @@ import { getState } from '@etherealengine/hyperflux'
 import { WebLayer3D } from '@etherealengine/xrui'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { getComponent, getOptionalComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs'
+import {
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
@@ -43,22 +49,20 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
+import { Vector3 } from 'three'
 import { createMediaControlsView } from './ui/MediaControlsUI'
 
+const scaleVector = new Vector3()
 export const createMediaControlsUI = (entity: Entity) => {
   const ui = createMediaControlsView(entity)
 
-  setComponent(ui.entity, EntityTreeComponent, { parentEntity: entity })
+  setComponent(ui.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
   setComponent(ui.entity, NameComponent, 'mediacontrols-ui-' + entity)
 
   ui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
     const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
     mat.transparent = true
   })
-
-  const transform = getComponent(entity, TransformComponent)
-  const uiTransform = getComponent(ui.entity, TransformComponent)
-  uiTransform.position.copy(transform.position)
 
   return ui
 }
@@ -68,10 +72,26 @@ export const MediaFadeTransitions = new Map<Entity, ReturnType<typeof createTran
 const onUpdate = (entity: Entity, mediaControls: ReturnType<typeof createMediaControlsUI>) => {
   const xrui = getComponent(mediaControls.entity, XRUIComponent)
   const transition = MediaFadeTransitions.get(entity)!
-  const buttonLayer = xrui.rootLayer.querySelector('button')
+  const buttonLayer = xrui.rootLayer.querySelector('#button')
+
   const group = getOptionalComponent(entity, GroupComponent)
   const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
   const intersectObjects = group ? pointerScreenRaycaster.intersectObjects(group, true) : []
+
+  const uiTransform = getComponent(mediaControls.entity, TransformComponent)
+  const transform = getComponent(entity, TransformComponent)
+
+  if (hasComponent(entity, MediaComponent)) {
+    if (buttonLayer) {
+      let buttonOffset = buttonLayer.domSize.y * xrui.rootLayer.domSize.y * 1.2 //HACK 1.2 is a magic number here to include the button border (10px on a 100px button)
+      scaleVector.set(transform.scale.x * 0.5 - buttonOffset, -transform.scale.y * 0.5 - buttonOffset, 0)
+    }
+    const mediaComponent = getComponent(entity, MediaComponent)
+    scaleVector.add(mediaComponent.uiOffset)
+    scaleVector.add(transform.position)
+    uiTransform.position.copy(scaleVector)
+  }
+
   if (intersectObjects.length) {
     transition.setState('IN')
   }

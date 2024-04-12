@@ -55,6 +55,7 @@ const MediaControlsView = (props: MediaControlsProps) => {
 
   return (
     <div
+      xr-layer="true"
       id="container"
       style={{
         width: '100px',
@@ -70,7 +71,7 @@ const MediaControlsView = (props: MediaControlsProps) => {
           fontFamily: "'Roboto', sans-serif",
           border: '10px solid grey',
           boxShadow: '#fff2 0 0 30px',
-          color: 'lighgrey',
+          color: 'lightgrey',
           fontSize: '25px',
           width: '100px',
           height: '100px',

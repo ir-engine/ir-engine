@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
-import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
+import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry, Vector3 } from 'three'
 
 import { State, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -134,6 +134,7 @@ export const MediaComponent = defineComponent({
       controls: false,
       synchronize: true,
       autoplay: true,
+      uiOffset: new Vector3(0, 0, 0),
       volume: 1,
       resources: [] as string[],
       playMode: PlayMode.loop as PlayMode,
@@ -169,6 +170,7 @@ export const MediaComponent = defineComponent({
       autoplay: component.autoplay.value,
       resources: [...component.resources.value].filter(Boolean), // filter empty strings
       volume: component.volume.value,
+      uiOffset: component.uiOffset.value,
       synchronize: component.synchronize.value,
       playMode: component.playMode.value,
       isMusic: component.isMusic.value,
@@ -192,6 +194,9 @@ export const MediaComponent = defineComponent({
         }
       }
 
+      if (typeof json.uiOffset === 'object') {
+        component.uiOffset.set(new Vector3(json.uiOffset.x, json.uiOffset.y, json.uiOffset.z))
+      }
       if (typeof json.controls === 'boolean' && json.controls !== component.controls.value)
         component.controls.set(json.controls)
 

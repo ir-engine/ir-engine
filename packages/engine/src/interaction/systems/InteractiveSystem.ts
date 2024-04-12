@@ -38,16 +38,16 @@ import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getState } from '@etherealengine/hyperflux'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import {
   DistanceFromCameraComponent,
   DistanceFromLocalClientComponent
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { InteractableComponent } from '../components/InteractableComponent'
 import { gatherAvailableInteractables } from '../functions/gatherAvailableInteractables'
 import { createInteractUI } from '../functions/interactUI'
@@ -79,19 +79,28 @@ const flip = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
   const xruiTransform = getComponent(xrui.entity, TransformComponent)
   TransformComponent.getWorldPosition(entity, xruiTransform.position)
+  xruiTransform.position.y += 1
 
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
   if (!selfAvatarEntity) return
-
-  xruiTransform.position.y += 1
 
   const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
   xruiTransform.rotation.copy(cameraTransform.rotation)
 
   const transition = InteractableTransitions.get(entity)!
-  getAvatarBoneWorldPosition(selfAvatarEntity, VRMHumanBoneName.Chest, vec3)
+
+  //TODO change from using rigidbody to use the transform position (+ height of avatar)
+  const selfAvatarRigidBodyComponent = getComponent(selfAvatarEntity, RigidBodyComponent)
+  const avatar = getComponent(selfAvatarEntity, AvatarComponent)
+
+  vec3.copy(selfAvatarRigidBodyComponent.position)
+  vec3.y += avatar.avatarHeight
+  // getAvatarBoneWorldPosition(selfAvatarEntity, VRMHumanBoneName.Chest, vec3) //uses normalizedRig which does not update at this time - Apr 12 2024
+
   const distance = vec3.distanceToSquared(xruiTransform.position)
-  const inRange = distance < getState(InteractState).maxDistance
+  let thresh = getState(InteractState).maxDistance
+  thresh *= thresh //squared for dist squared comparison
+  const inRange = distance < thresh
   if (transition.state === 'OUT' && inRange) {
     transition.setState('IN')
   }
@@ -122,6 +131,7 @@ export const addInteractableUI = (
   update?: (entity: Entity, xrui: ReturnType<typeof createXRUI>) => void
 ) => {
   setComponent(entity, InteractableComponent)
+  setComponent(xrui.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
 
   if (!update) {
     update = onInteractableUpdate
@@ -129,7 +139,6 @@ export const addInteractableUI = (
   const transition = createTransitionState(0.25)
   transition.setState('OUT')
   InteractableTransitions.set(entity, transition)
-
   InteractiveUI.set(entity, { xrui, update })
 }
 
