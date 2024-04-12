@@ -77,6 +77,7 @@ export const LightHelperComponent = defineComponent({
     const light = component.light.value
     const [helper] = useObj(getLightHelperType(light), entity, light, component.size.value)
     useHelperEntity(entity, helper, component)
+    helper.update()
 
     useEffect(() => {
       helper.color = component.color.value
