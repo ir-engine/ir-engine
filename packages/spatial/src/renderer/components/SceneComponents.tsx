@@ -23,8 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, defineComponent } from '@etherealengine/ecs'
+import {
+  Entity,
+  EntityUUID,
+  UUIDComponent,
+  defineComponent,
+  getComponent,
+  removeComponent,
+  setComponent,
+  useComponent,
+  useEntityContext
+} from '@etherealengine/ecs'
+import { createState, useHookstate } from '@etherealengine/hyperflux'
+import React, { useEffect } from 'react'
 import { Color, CubeTexture, FogBase, Texture } from 'three'
+import { useTreeQuery } from '../../transform/components/EntityTree'
+
+/**
+ * Creates a scene tag component for each of the entities added to a scene
+ * @param entity
+ * @returns
+ */
+const createSceneComponent = (entity: Entity) => {
+  const uuid = getComponent(entity, UUIDComponent)
+  return defineComponent({
+    name: 'SceneComponent-' + uuid
+  })
+}
+
+type SceneComponentType = ReturnType<typeof createSceneComponent>
+
+const scenes = {} as Record<EntityUUID, SceneComponentType>
 
 export const SceneComponent = defineComponent({
   name: 'SceneComponent',
@@ -39,8 +68,48 @@ export const SceneComponent = defineComponent({
     if (!json) return
 
     if (Array.isArray(json.children)) component.children.set(json.children)
-  }
+  },
+
+  reactor: SceneReactor as any, // somehow, typescript freaks out about this...
+
+  scenes,
+  sceneState: createState(scenes)
 })
+
+function SceneReactor() {
+  const entity = useEntityContext()
+  const children = useComponent(entity, SceneComponent).children.value
+  return (
+    <>
+      {children.map((e) => (
+        <SceneComponentReactor entity={e} />
+      ))}
+    </>
+  )
+}
+
+const SceneComponentReactor = (props: { entity: Entity }) => {
+  const treeEntities = useTreeQuery(props.entity)
+  const Component = useHookstate(() => createSceneComponent(props.entity)).value
+
+  return (
+    <>
+      {treeEntities.map((e) => (
+        <SceneComponentTreeReactor entity={e} key={e} Component={Component} />
+      ))}
+    </>
+  )
+}
+
+const SceneComponentTreeReactor = (props: { entity: Entity; Component: SceneComponentType }) => {
+  useEffect(() => {
+    setComponent(props.entity, props.Component)
+    return () => {
+      removeComponent(props.entity, props.Component)
+    }
+  }, [])
+  return null
+}
 
 export const BackgroundComponent = defineComponent({
   name: 'BackgroundComponent',

@@ -31,8 +31,11 @@ import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { startReactor } from '@etherealengine/hyperflux'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { act, render } from '@testing-library/react'
+import React from 'react'
 import {
   EntityTreeComponent,
   destroyEntityTree,
@@ -40,8 +43,10 @@ import {
   iterateEntityNode,
   removeFromEntityTree,
   traverseEntityNode,
-  traverseEntityNodeParent
+  traverseEntityNodeParent,
+  useTreeQuery
 } from './EntityTree'
+import { useEffect } from 'react'
 
 describe('EntityTreeComponent', () => {
   beforeEach(() => {
@@ -372,5 +377,112 @@ describe('EntityTreeFunctions', () => {
 
       assert.equal(findIndexOfEntityNode(getComponent(root, EntityTreeComponent).children, testNode), -1)
     })
+  })
+})
+
+describe('useTreeQuery', () => {
+  beforeEach(() => {
+    createEngine()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
+  })
+
+  it('should return complete deep list of entites for an entity tree', async () => {
+    const rootEntity = createEntity()
+    setComponent(rootEntity, EntityTreeComponent)
+
+    console.log({rootEntity})
+
+    let ents = [] as Entity[]
+
+    const Reactor = startReactor(() => {
+      const data = useTreeQuery(rootEntity)
+
+      console.log('render', data)
+
+      useEffect(() => {
+        console.log('effect', data)
+        ents = data
+      }, [data])
+
+      return null
+    })
+
+    const tag = <Reactor.Reactor />
+    const { rerender, unmount } = render(tag)
+
+    assert.equal(ents.length, 1, 'root entity not populated')
+    assert.equal(ents[0], rootEntity, 'root entity not populated')
+
+    await act(() => rerender(tag))
+
+    assert.equal(ents.length, 1, 'root entity not populated after re-querying')
+    assert.equal(ents[0], rootEntity, 'root entity not populated')
+
+    const childEntity = createEntity()
+    setComponent(childEntity, EntityTreeComponent, { parentEntity: rootEntity })
+
+    await act(() => rerender(tag))
+
+    assert.equal(ents.length, 2, 'query incorrect after adding child')
+    assert.equal(ents[0], rootEntity, 'root entity not populated')
+    assert.equal(ents[1], childEntity, 'child entity not populated')
+
+    const deepChildEntity = createEntity()
+    setComponent(deepChildEntity, EntityTreeComponent, { parentEntity: childEntity })
+
+    await act(() => rerender(tag))
+
+    assert.equal(ents.length, 3, 'query incorrect after adding deep child')
+    assert.equal(ents[0], rootEntity, 'root entity not populated')
+    assert.equal(ents[1], childEntity, 'child entity not populated')
+    assert.equal(ents[2], deepChildEntity, 'deep child entity not populated')
+
+    const deepChildEntity2 = createEntity()
+    setComponent(deepChildEntity2, EntityTreeComponent, { parentEntity: childEntity })
+
+    await act(() => rerender(tag))
+
+    assert.equal(ents.length, 4, 'query incorrect after adding another deep child')
+    assert.equal(ents[0], rootEntity, 'root entity not populated')
+    assert.equal(ents[1], childEntity, 'child entity not populated')
+    assert.equal(ents[2], deepChildEntity, 'deep child entity not populated')
+    assert.equal(ents[3], deepChildEntity2, 'deep child 2 entity not populated')
+
+    console.log({ents}, '\n')
+
+    removeEntity(deepChildEntity2)
+
+    await act(() => rerender(tag))
+
+    assert.equal(ents.length, 3, 'query incorrect after adding remove second deep child')
+    assert.equal(ents[0], rootEntity, 'root entity not populated')
+    assert.equal(ents[1], childEntity, 'child entity not populated')
+    assert.equal(ents[2], deepChildEntity, 'deep child entity not populated')
+    assert.equal(ents[3], undefined, 'deep child 2 entity still populated')
+
+    removeEntity(childEntity)
+
+    await act(() => rerender(tag))
+
+    assert.equal(ents.length, 1, 'query incorrect after adding removing child')
+    assert.equal(ents[0], rootEntity, 'root entity not populated')
+    assert.equal(ents[1], undefined, 'child entity still populated')
+    assert.equal(ents[2], undefined, 'deep child entity still populated')
+    assert.equal(ents[3], undefined, 'deep child 2 entity still populated')
+
+    removeEntity(rootEntity)
+
+    await act(() => rerender(tag))
+
+    assert.equal(ents.length, 0, 'query incorrect after adding removing all entities')
+    assert.equal(ents[0], undefined, 'root entity still populated')
+    assert.equal(ents[1], undefined, 'child entity still populated')
+    assert.equal(ents[2], undefined, 'deep child entity still populated')
+    assert.equal(ents[3], undefined, 'deep child 2 entity still populated')
+
+    unmount()
   })
 })

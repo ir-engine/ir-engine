@@ -31,11 +31,13 @@ import {
   getOptionalMutableComponent,
   hasComponent,
   removeComponent,
-  setComponent
+  setComponent,
+  useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { entityExists, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { NO_PROXY, none } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, none, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import React, { useLayoutEffect } from 'react'
 
 type EntityTreeSetType = {
   parentEntity: Entity
@@ -310,3 +312,57 @@ export function getNestedChildren(entity: Entity, predicate?: (e: Entity) => boo
   })
   return children
 }
+
+/**
+ *
+ * @param entity
+ * @returns
+ */
+export function useTreeQuery(entity: Entity) {
+  const result = useHookstate({} as Record<Entity, boolean>)
+
+  /** @todo - maybe optimize this to a registry of some sort, deduplicate for useTreeQuery calls for the same entity? */
+  /** @todo - benchmark this... */
+  useLayoutEffect(() => {
+    let unmounted = false
+    const TreeSubReactor = (props: { entity: Entity; result: State<Record<Entity, boolean>> }) => {
+      const tree = useOptionalComponent(props.entity, EntityTreeComponent)
+
+      useLayoutEffect(() => {
+        if (!tree) return
+
+        console.log('tree', props.entity, tree?.value)
+        props.result[props.entity].set(true)
+        return () => {
+          if (!unmounted) // this is kind of a hack? we can put TreeSubReactor if we can somehow detect that the useTreeQuery has unmounted and avoid hookstate 106
+            props.result[props.entity].set(none)
+        }
+      }, [tree])
+
+      if (!tree) return null
+
+      return (
+        <>
+          {tree.children.value.map((e) => (
+            <TreeSubReactor key={e} entity={e} result={props.result} />
+          ))}
+        </>
+      )
+    }
+
+    const root = startReactor(function useQueryReactor() {
+      return <TreeSubReactor entity={entity} result={result} />
+    })
+    return () => {
+      unmounted = true
+      root.stop()
+    }
+  }, [])
+
+  return result.keys.map(Number) as Entity[]
+}
+
+/** @todo make a query component for useTreeQuery */
+// export function TreeQueryReactor (props: { Components: QueryComponents; ChildEntityReactor: FC; props?: any }) {
+
+// }
