@@ -169,7 +169,7 @@ export const SpotLightComponent = defineComponent({
       if (!debugEnabled.value) {
         removeComponent(entity, LightHelperComponent)
       } else {
-        setComponent(entity, LightHelperComponent, { name: 'spotlight-helper', light: light })
+        setComponent(entity, LightHelperComponent, { name: 'spot-light-helper', light: light })
       }
     }, [debugEnabled])
 
