@@ -35,22 +35,25 @@ import {
   TorusGeometry
 } from 'three'
 
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { createObj, useObj } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { useObj } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { matches } from '@etherealengine/hyperflux'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { NameComponent } from '../../common/NameComponent'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
+import { LightHelperComponent } from '../../common/debug/LightHelperComponent'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { RendererState } from '../RendererState'
-import { ObjectLayers } from '../constants/ObjectLayers'
 import { useUpdateLight } from '../functions/useUpdateLight'
 import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
-import { setVisibleComponent } from './VisibleComponent'
 
 const ringGeom = new TorusGeometry(0.1, 0.025, 8, 12)
 const coneGeom = new ConeGeometry(0.25, 0.5, 8, 1, true)
@@ -176,24 +179,10 @@ export const SpotLightComponent = defineComponent({
     }, [renderState.shadowMapResolution])
 
     useEffect(() => {
-      if (!debugEnabled.value) return
-      const [helper, unload] = createObj(Mesh, entity, geom, helperMaterial)
-      helper.name = `spotlight-helper-${entity}`
-
-      const helperEntity = createEntity()
-      addObjectToGroup(helperEntity, helper)
-      setComponent(helperEntity, NameComponent, helper.name)
-      setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
-      setVisibleComponent(helperEntity, true)
-
-      helper.layers.set(ObjectLayers.NodeHelper)
-
-      spotLightComponent.helperEntity.set(helperEntity)
-
-      return () => {
-        removeEntity(helperEntity)
-        spotLightComponent.helperEntity.set(none)
-        unload()
+      if (!debugEnabled.value) {
+        removeComponent(entity, LightHelperComponent)
+      } else {
+        setComponent(entity, LightHelperComponent, { name: 'spotlight-helper', light: light })
       }
     }, [debugEnabled])
 
