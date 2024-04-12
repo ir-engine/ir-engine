@@ -24,7 +24,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import Inventory2Icon from '@mui/icons-material/Inventory2'
-import WebAssetIcon from '@mui/icons-material/WebAsset'
 import { CircularProgress } from '@mui/material'
 import { t } from 'i18next'
 import { debounce } from 'lodash'
@@ -41,28 +40,17 @@ import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 import { DockContainer } from '../EditorContainer'
 import StringInput from '../inputs/StringInput'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
-import ImageNodeEditor from '../properties/ImageNodeEditor'
-import ModelNodeEditor from '../properties/ModelNodeEditor'
-import PositionalAudioNodeEditor from '../properties/PositionalAudioNodeEditor'
-import VideoNodeEditor from '../properties/VideoNodeEditor'
 import { AssetSelectionChangePropsType, AssetsPreviewPanel } from './AssetsPreviewPanel'
+import { FileIcon } from './FileBrowser/FileIcon'
 import styles from './styles.module.scss'
 
 type FolderType = { folderType: 'folder'; assetClass: string }
 type ResourceType = { folderType: 'staticResource' } & StaticResourceType
 
 type CategorizedStaticResourceType = FolderType | ResourceType
-
-const ResourceIcons = {
-  [AssetClass.Model]: ModelNodeEditor.iconComponent,
-  [AssetClass.Image]: ImageNodeEditor.iconComponent,
-  [AssetClass.Video]: VideoNodeEditor.iconComponent,
-  [AssetClass.Audio]: PositionalAudioNodeEditor.iconComponent
-}
 
 const StaticResourceItem = (props: {
   data: {
@@ -93,7 +81,6 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
   const { onAssetSelectionChanged } = useContext(AssetsPreviewContext)
 
   const assetType = AssetLoader.getAssetType(resource.key)
-  const ResourceIcon = ResourceIcons[AssetLoader.getAssetClass(resource.key)] || WebAssetIcon
   const [_, drag, preview] = useDrag(() => ({
     type: assetType,
     item: {
@@ -130,7 +117,9 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
         cursor: 'pointer'
       }}
     >
-      <ResourceIcon style={{ marginBottom: '5px', height: '70px', width: '70px' }} />
+      <span style={{ marginBottom: '5px', height: '70px', width: '70px', fontSize: 70 }}>
+        <FileIcon resource={resource} />
+      </span>
       <span>{name}</span>
     </div>
   )

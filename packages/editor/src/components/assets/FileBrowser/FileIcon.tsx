@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew'
 import DescriptionIcon from '@mui/icons-material/Description'
@@ -67,15 +67,29 @@ const FileIconType = {
   'audio/mp3': VolumeUpIcon
 }
 
-export const FileIcon = ({ file, showRibbon }: { file: FileDataType; showRibbon?: boolean }) => {
-  const fallback = { icon: FileIconType[file.type] }
+export const FileIcon = ({
+  file,
+  resource,
+  type,
+  showRibbon
+}: {
+  resource?: StaticResourceType
+  file?: FileDataType
+  type?: string
+  showRibbon?: boolean
+}) => {
+  let thumbnailURL = resource?.thumbnailURL
+  if (thumbnailURL == null && file != null) {
+    const staticResource = useFind(staticResourcePath, { query: { key: file.key } }) // todo, useGet
+    thumbnailURL = staticResource.data[0]?.thumbnailURL
+  }
 
-  const staticResource = useFind(staticResourcePath, { query: { key: file.key } }) // todo, useGet
-  const thumbnailURL = staticResource.data.length ? staticResource.data[0].thumbnailURL : null
+  type ??= file?.type ?? resource?.key.toLowerCase().split('.').pop()
+  const fallback = { icon: FileIconType[type ?? ''] }
 
   return (
     <>
-      {file.isFolder ? (
+      {file?.isFolder ? (
         <FolderIcon fontSize={'inherit'} />
       ) : thumbnailURL != null ? (
         <img
@@ -89,7 +103,7 @@ export const FileIcon = ({ file, showRibbon }: { file: FileDataType; showRibbon?
       ) : (
         <>
           <DescriptionIcon fontSize={'inherit'} />
-          {file.type?.length > 0 && showRibbon && <span className={styles.extensionRibbon}>{file.type}</span>}
+          {type && type.length > 0 && showRibbon && <span className={styles.extensionRibbon}>{type}</span>}
         </>
       )}
     </>
