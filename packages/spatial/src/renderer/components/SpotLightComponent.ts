@@ -24,27 +24,17 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import {
-  BufferGeometry,
-  Color,
-  ConeGeometry,
-  DoubleSide,
-  Mesh,
-  MeshBasicMaterial,
-  SpotLight,
-  TorusGeometry
-} from 'three'
+import { Color, ConeGeometry, DoubleSide, MeshBasicMaterial, SpotLight, TorusGeometry } from 'three'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import {
   defineComponent,
-  getComponent,
   removeComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useObj } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { matches } from '@etherealengine/hyperflux'
@@ -53,7 +43,7 @@ import { LightHelperComponent } from '../../common/debug/LightHelperComponent'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { RendererState } from '../RendererState'
 import { useUpdateLight } from '../functions/useUpdateLight'
-import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 const ringGeom = new TorusGeometry(0.1, 0.025, 8, 12)
 const coneGeom = new ConeGeometry(0.25, 0.5, 8, 1, true)
@@ -76,8 +66,7 @@ export const SpotLightComponent = defineComponent({
       penumbra: 1,
       castShadow: false,
       shadowBias: 0.00001,
-      shadowRadius: 1,
-      helperEntity: null as Entity | null
+      shadowRadius: 1
     }
   },
 
@@ -116,6 +105,7 @@ export const SpotLightComponent = defineComponent({
     const debugEnabled = renderState.nodeHelperVisibility
     const spotLightComponent = useComponent(entity, SpotLightComponent)
     const [light] = useObj(SpotLight, entity)
+    const lightHelper = useOptionalComponent(entity, LightHelperComponent)
 
     useEffect(() => {
       if (isMobileXRHeadset) return
@@ -129,12 +119,9 @@ export const SpotLightComponent = defineComponent({
 
     useEffect(() => {
       light.color.set(spotLightComponent.color.value)
-      const helperEntity = spotLightComponent.helperEntity.value
-      if (helperEntity) {
-        const helper = getComponent(helperEntity, GroupComponent)[0] as any as Mesh<BufferGeometry, MeshBasicMaterial>
-        helper.material.color.set(spotLightComponent.color.value)
-      }
-    }, [spotLightComponent.color])
+      if (!lightHelper) return
+      lightHelper.color.set(spotLightComponent.color.value)
+    }, [spotLightComponent.color, lightHelper])
 
     useEffect(() => {
       light.intensity = spotLightComponent.intensity.value

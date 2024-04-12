@@ -80,6 +80,7 @@ export const LightHelperComponent = defineComponent({
 
     useEffect(() => {
       helper.color = component.color.value
+      helper.update()
     }, [component.color])
 
     return null
