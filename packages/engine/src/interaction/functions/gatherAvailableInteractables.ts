@@ -47,6 +47,7 @@ const mat4 = new Matrix4()
 
 /**
  * Checks if entity can interact with any of entities listed in 'interactive' array, checking distance, guards and raycast
+ * sorts the interactables by closest to the player
  * @param {Entity[]} interactables
  */
 

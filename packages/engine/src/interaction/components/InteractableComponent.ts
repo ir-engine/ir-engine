@@ -23,6 +23,59 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { EntityUUID } from '@etherealengine/ecs'
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { NO_PROXY } from '@etherealengine/hyperflux'
+import matches from 'ts-matches'
 
-export const InteractableComponent = defineComponent({ name: 'InteractableComponent' })
+export const InteractableComponent = defineComponent({
+  name: 'InteractableComponent',
+  jsonID: 'EE_interactable',
+  onInit: () => {
+    return {
+      label: null as string | null,
+      callbacks: [] as Array<{
+        /**
+         * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
+         */
+        callbackID: null | string
+        /**
+         * empty string represents self
+         */
+        target: null | EntityUUID //generateEntityUUID
+      }>
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (json.label) component.label.set(json.label)
+
+    // backwards compatibility
+    const callbackID = (json as any).callbackID ?? null
+    const target = (json as any).target ?? null
+    if (!!callbackID || !!target) {
+      component.callbacks.set([{ callbackID, target }])
+    } else if (typeof json.callbacks === 'object') {
+      if (
+        matches
+          .arrayOf(
+            matches.shape({
+              callbackID: matches.nill.orParser(matches.string),
+              target: matches.nill.orParser(matches.string)
+            })
+          )
+          .test(json.callbacks)
+      ) {
+        component.callbacks.set(json.callbacks)
+      }
+    }
+  },
+
+  toJSON: (entity, component) => {
+    return {
+      label: component.label.value,
+      callbacks: component.callbacks.get(NO_PROXY)
+    }
+  }
+})

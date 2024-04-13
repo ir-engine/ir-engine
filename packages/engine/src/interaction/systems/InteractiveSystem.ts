@@ -29,7 +29,8 @@ import { Euler, Quaternion, Vector3 } from 'three'
 import { defineState } from '@etherealengine/hyperflux'
 import { WebLayer3D } from '@etherealengine/xrui'
 
-import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { UUIDComponent } from '@etherealengine/ecs'
+import { getComponent, getOptionalComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
@@ -37,7 +38,12 @@ import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getState } from '@etherealengine/hyperflux'
+import { ClientInputSystem } from '@etherealengine/spatial'
+import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
+import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import {
   DistanceFromCameraComponent,
@@ -149,7 +155,7 @@ let gatherAvailableInteractablesTimer = 0
 
 const execute = () => {
   gatherAvailableInteractablesTimer += getState(ECSState).deltaSeconds
-  // update every 0.3 seconds
+  // update every 0.1 seconds
   if (gatherAvailableInteractablesTimer > 0.1) gatherAvailableInteractablesTimer = 0
 
   // ensure distance component is set on all interactables
@@ -199,4 +205,43 @@ export const InteractiveSystem = defineSystem({
   uuid: 'ee.engine.InteractiveSystem',
   insert: { before: TransformSystem },
   execute
+})
+
+const executeInput = () => {
+  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  if (!inputPointerEntity) return
+
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+  const buttons = InputSourceComponent.getMergedButtons()
+
+  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSources()
+  for (const entity of nonCapturedInputSource) {
+    const inputSource = getComponent(entity, InputSourceComponent)
+    if (buttons.KeyE?.down || inputSource.buttons[XRStandardGamepadButton.Trigger]?.down) {
+      interactWithClosestInteractable()
+    }
+  }
+}
+
+const interactWithClosestInteractable = () => {
+  const closestInteractableEntity = getState(InteractState).available[0]
+  if (closestInteractableEntity) {
+    const interactable = getOptionalComponent(closestInteractableEntity, InteractableComponent)
+    if (!interactable) return
+    for (const callback of interactable?.callbacks) {
+      if (callback.target && !UUIDComponent.getEntityByUUID(callback.target)) continue
+      const targetEntity = callback.target ? UUIDComponent.getEntityByUUID(callback.target) : closestInteractableEntity
+      if (targetEntity && callback.callbackID) {
+        const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
+        if (!callbacks) continue
+        callbacks.get(callback.callbackID)?.(closestInteractableEntity, targetEntity)
+      }
+    }
+  }
+}
+
+export const InteractiveInputSystem = defineSystem({
+  uuid: 'ee.engine.InteractiveInputSystem',
+  insert: { after: ClientInputSystem },
+  execute: executeInput
 })
