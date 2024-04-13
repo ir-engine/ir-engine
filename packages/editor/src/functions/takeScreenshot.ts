@@ -203,7 +203,7 @@ export async function takeScreenshot(
   const { renderer, effectComposer, renderContext } = getComponent(Engine.instance.viewerEntity, RendererComponent)
 
   if (hideHelpers) {
-    effectComposer.HighlightEffect?.clearSelection()
+    effectComposer.OutlineEffect?.clearSelection()
   }
 
   const originalSize = renderer.getSize(new Vector2())

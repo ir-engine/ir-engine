@@ -26,7 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import {
   Entity,
   EntityUUID,
+  QueryReactor,
   UUIDComponent,
+  UndefinedEntity,
   defineComponent,
   getComponent,
   removeComponent,
@@ -34,10 +36,10 @@ import {
   useComponent,
   useEntityContext
 } from '@etherealengine/ecs'
-import { createState, useHookstate } from '@etherealengine/hyperflux'
-import React, { useEffect } from 'react'
+import { createState, none, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import React, { useEffect, useLayoutEffect } from 'react'
 import { Color, CubeTexture, FogBase, Texture } from 'three'
-import { useTreeQuery } from '../../transform/components/EntityTree'
+import { useAncestorWithComponent, useTreeQuery } from '../../transform/components/EntityTree'
 
 /**
  * Creates a scene tag component for each of the entities added to a scene
@@ -92,6 +94,14 @@ const SceneComponentReactor = (props: { entity: Entity }) => {
   const treeEntities = useTreeQuery(props.entity)
   const Component = useHookstate(() => createSceneComponent(props.entity)).value
 
+  useLayoutEffect(() => {
+    const uuid = getComponent(props.entity, UUIDComponent)
+    SceneComponent.sceneState.merge({ [uuid]: Component.value })
+    return () => {
+      SceneComponent.sceneState[uuid].set(none)
+    }
+  }, [])
+
   return (
     <>
       {treeEntities.map((e) => (
@@ -109,6 +119,61 @@ const SceneComponentTreeReactor = (props: { entity: Entity; Component: SceneComp
     }
   }, [])
   return null
+}
+
+/**
+ * Returns the scene entity ancestor for a given entity (if one exists)
+ * @todo Benchmark this - could be kind of expensive?
+ * @param entity
+ * @returns
+ */
+export function useScene(entity: Entity) {
+  const result = useHookstate(UndefinedEntity)
+
+  useLayoutEffect(() => {
+    let unmounted = false
+
+    function SceneSubChildReactor(props: { sceneEntity: Entity; sceneUUID: EntityUUID }) {
+      const SceneChildComponent = useHookstate(SceneComponent.sceneState[props.sceneUUID]).value
+      const ancestor = useAncestorWithComponent(entity, SceneChildComponent)
+
+      useLayoutEffect(() => {
+        if (!ancestor) return
+        result.set(props.sceneEntity)
+
+        return () => {
+          if (!unmounted) result.set(UndefinedEntity)
+        }
+      }, [ancestor])
+
+      return null
+    }
+
+    function SceneSubReactor(props: { sceneEntity: Entity }) {
+      const scenes = useHookstate(SceneComponent.sceneState)
+      return (
+        <>
+          {scenes.keys.map((uuid: EntityUUID) => (
+            <SceneSubChildReactor
+              sceneEntity={props.sceneEntity}
+              sceneUUID={uuid}
+              key={`${props.sceneEntity} - ${uuid}`}
+            />
+          ))}
+        </>
+      )
+    }
+
+    const root = startReactor(function useQueryReactor() {
+      return <QueryReactor Components={[SceneComponent]} ChildEntityReactor={SceneSubReactor} />
+    })
+    return () => {
+      unmounted = true
+      root.stop()
+    }
+  }, [])
+
+  return result.value
 }
 
 export const BackgroundComponent = defineComponent({

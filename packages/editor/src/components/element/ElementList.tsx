@@ -67,7 +67,6 @@ import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkC
 import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
-import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
@@ -83,6 +82,7 @@ import { ComponentEditorsState } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'
 import { usePopoverContextClose } from './PopoverContext'
+import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 
 export type SceneElementType = {
   componentJsonID: string

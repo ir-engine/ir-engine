@@ -40,7 +40,6 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
-import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
@@ -113,6 +112,7 @@ import { VariantNodeEditor } from '../components/properties/VariantNodeEditor'
 import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import { VisualScriptNodeEditor } from '../components/properties/VisualScriptNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
+import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 
 export const ComponentEditorsState = defineState({
   name: 'ee.editor.ComponentEditorsState',

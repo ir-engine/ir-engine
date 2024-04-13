@@ -77,10 +77,9 @@ import {
 } from './components/SceneComponents'
 import { VisibleComponent } from './components/VisibleComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
-import { EffectMapType, defaultPostProcessingSchema } from './effects/PostProcessing'
+import { EffectMapType } from './effects/PostProcessing'
 import { SDFSettingsState } from './effects/sdf/SDFSettingsState'
 import { changeRenderMode } from './functions/changeRenderMode'
-import { configureEffectComposer } from './functions/configureEffectComposer'
 
 export const RendererComponent = defineComponent({
   name: 'RendererComponent',
@@ -93,8 +92,6 @@ export const RendererComponent = defineComponent({
     if (json?.canvas) component.value.canvas = json.canvas
   }
 })
-
-export type EffectComposerWithSchema = EffectComposer & EffectMapType
 
 let lastRenderTime = 0
 const _scene = new Scene()
@@ -132,7 +129,7 @@ export class EngineRenderer {
   renderer: WebGLRenderer = null!
   /** used to optimize proxified threejs objects during render time, see loadGLTFModel and https://github.com/EtherealEngine/etherealengine/issues/9308 */
   rendering = false
-  effectComposer: EffectComposerWithSchema = null!
+  effectComposer: EffectComposer = null!
   /** @todo deprecate and replace with engine implementation */
   xrManager: WebXRManager = null!
   webGLLostContext: any = null
@@ -312,14 +309,6 @@ export const RenderSettingsState = defineState({
   }
 })
 
-export const PostProcessingSettingsState = defineState({
-  name: 'PostProcessingSettingsState',
-  initial: {
-    enabled: false,
-    effects: defaultPostProcessingSchema
-  }
-})
-
 const rendererQuery = defineQuery([RendererComponent, CameraComponent, SceneComponent])
 
 export const filterVisible = (entity: Entity) => hasComponent(entity, VisibleComponent)
@@ -373,7 +362,6 @@ const rendererReactor = () => {
   const renderer = useComponent(entity, RendererComponent).value
   const renderSettings = useHookstate(getMutableState(RenderSettingsState))
   const engineRendererSettings = useHookstate(getMutableState(RendererState))
-  const postprocessing = useHookstate(getMutableState(PostProcessingSettingsState))
   const xrState = useHookstate(getMutableState(XRState))
   const sdfState = useHookstate(getMutableState(SDFSettingsState))
 
@@ -390,15 +378,16 @@ const rendererReactor = () => {
     renderer.renderer.shadowMap.needsUpdate = true
   }, [xrState.supportedSessionModes, renderSettings.shadowMapType, engineRendererSettings.useShadows])
 
-  useEffect(() => {
-    configureEffectComposer(entity)
-  }, [
-    postprocessing.enabled,
-    postprocessing.effects,
-    sdfState.enabled,
-    engineRendererSettings.usePostProcessing,
-    renderSettings.smaaPreset
-  ])
+  // useEffect(() => {
+  //   configureEffectComposer(entity)
+  //   if (getState(EngineState).isEditor) changeRenderMode()
+  // }, [
+  //   postprocessing.enabled,
+  //   postprocessing.effects,
+  //   sdfState.enabled,
+  //   engineRendererSettings.usePostProcessing,
+  //   renderSettings.smaaPreset
+  // ])
 
   useEffect(() => {
     renderer.scaleFactor = engineRendererSettings.qualityLevel.value / renderer.maxQualityLevel

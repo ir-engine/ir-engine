@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
+  ComponentType,
   defineComponent,
   getComponent,
   getMutableComponent,
@@ -36,7 +37,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { entityExists, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { NO_PROXY, State, none, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, none, startReactor, useHookstate } from '@etherealengine/hyperflux'
 import React, { useLayoutEffect } from 'react'
 
 type EntityTreeSetType = {
@@ -271,7 +272,11 @@ export function traverseEntityNodeParent(entity: Entity, cb: (parent: Entity) =>
  * @param closest
  * @returns
  */
-export function findAncestorWithComponent(entity: Entity, component: any, closest = true): Entity | undefined {
+export function findAncestorWithComponent(
+  entity: Entity,
+  component: ComponentType<any>,
+  closest = true
+): Entity | undefined {
   let result: Entity | undefined
   if (closest && hasComponent(entity, component)) return entity
   traverseEntityNodeParent(entity, (parent) => {
@@ -325,17 +330,16 @@ export function useTreeQuery(entity: Entity) {
   /** @todo - benchmark this... */
   useLayoutEffect(() => {
     let unmounted = false
-    const TreeSubReactor = (props: { entity: Entity; result: State<Record<Entity, boolean>> }) => {
+    const TreeSubReactor = (props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
 
       useLayoutEffect(() => {
         if (!tree) return
-
-        console.log('tree', props.entity, tree?.value)
-        props.result[props.entity].set(true)
+        result[props.entity].set(true)
         return () => {
-          if (!unmounted) // this is kind of a hack? we can put TreeSubReactor if we can somehow detect that the useTreeQuery has unmounted and avoid hookstate 106
-            props.result[props.entity].set(none)
+          if (!unmounted)
+            // this is kind of a hack? we can put TreeSubReactor back in module scope if we can somehow detect that the useTreeQuery has unmounted and avoid hookstate 106
+            result[props.entity].set(none)
         }
       }, [tree])
 
@@ -344,14 +348,14 @@ export function useTreeQuery(entity: Entity) {
       return (
         <>
           {tree.children.value.map((e) => (
-            <TreeSubReactor key={e} entity={e} result={props.result} />
+            <TreeSubReactor key={e} entity={e} />
           ))}
         </>
       )
     }
 
     const root = startReactor(function useQueryReactor() {
-      return <TreeSubReactor entity={entity} result={result} />
+      return <TreeSubReactor entity={entity} />
     })
     return () => {
       unmounted = true
@@ -360,6 +364,50 @@ export function useTreeQuery(entity: Entity) {
   }, [])
 
   return result.keys.map(Number) as Entity[]
+}
+
+/**
+ * Returns the closest ancestor of an entity that has a component
+ * @todo maybe extend this to be a list of components?
+ * @todo maybe extend this or write an alternative to get the furthest ancestor with component?
+ * @param entity 
+ * @param component 
+ * @param closest 
+ * @returns 
+ */
+export function useAncestorWithComponent(entity: Entity, component: ComponentType<any>) {
+  const result = useHookstate(UndefinedEntity)
+
+  useLayoutEffect(() => {
+    let unmounted = false
+    const ParentSubReactor = (props: { entity: Entity }) => {
+      const tree = useOptionalComponent(props.entity, EntityTreeComponent)
+      const matchesQuery = useOptionalComponent(props.entity, component)
+
+      useLayoutEffect(() => {
+        result.set(entity)
+        return () => {
+          if (!unmounted) result.set(UndefinedEntity)
+        }
+      }, [tree?.parentEntity?.value, matchesQuery])
+
+      if (matchesQuery) return null
+
+      if (!tree?.parentEntity?.value) return null
+
+      return <ParentSubReactor key={tree.parentEntity.value} entity={tree.parentEntity.value} />
+    }
+
+    const root = startReactor(function useQueryReactor() {
+      return <ParentSubReactor entity={entity} />
+    })
+    return () => {
+      unmounted = true
+      root.stop()
+    }
+  }, [])
+
+  return result.value
 }
 
 /** @todo make a query component for useTreeQuery */

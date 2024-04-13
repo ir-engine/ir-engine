@@ -23,22 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
+import { NO_PROXY_STEALTH } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-
-import { NO_PROXY_STEALTH, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-
-import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { PostProcessingSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { defaultPostProcessingSchema } from '../effects/PostProcessing'
+import { configureEffectComposer } from '../functions/configureEffectComposer'
+import { useScene } from './SceneComponents'
 
 export const PostProcessingComponent = defineComponent({
   name: 'PostProcessingComponent',
   jsonID: 'EE_postprocessing',
 
-  onInit(entity): typeof PostProcessingSettingsState._TYPE {
-    return typeof PostProcessingSettingsState.initial === 'function'
-      ? (PostProcessingSettingsState.initial as any)()
-      : JSON.parse(JSON.stringify(PostProcessingSettingsState.initial))
+  onInit(entity) {
+    return {
+      enabled: false,
+      effects: defaultPostProcessingSchema
+    }
   },
 
   onSet: (entity, component, json) => {
@@ -55,20 +55,19 @@ export const PostProcessingComponent = defineComponent({
     }
   },
 
-  reactor: PostProcessingComponentReactor
+  /** @todo this will be replaced with spatial queries or distance checks */
+  reactor: () => {
+    const entity = useEntityContext()
+    const rendererEntity = useScene(entity)
+    const postprocessingComponent = useComponent(entity, PostProcessingComponent)
+
+    useEffect(() => {
+      configureEffectComposer(
+        rendererEntity,
+        postprocessingComponent.enabled.value ? postprocessingComponent.effects.get(NO_PROXY_STEALTH) : undefined
+      )
+    }, [rendererEntity, postprocessingComponent.enabled, postprocessingComponent.effects])
+
+    return null
+  }
 })
-
-function PostProcessingComponentReactor() {
-  const entity = useEntityContext()
-  const component = useHookstate(useComponent(entity, PostProcessingComponent))
-
-  useEffect(() => {
-    getMutableState(PostProcessingSettingsState).enabled.set(component.enabled.value)
-  }, [component.enabled.value])
-
-  useEffect(() => {
-    getMutableState(PostProcessingSettingsState).merge({ effects: component.effects.get(NO_PROXY_STEALTH) })
-  }, [component.effects])
-
-  return null
-}
