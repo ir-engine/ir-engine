@@ -23,14 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material, Shader, WebGLRenderer } from 'three'
+import { Material, Shader } from 'three'
 
-import { UUIDComponent, defineComponent, getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs'
+import { defineComponent } from '@etherealengine/ecs'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
-import { NameComponent } from '../../common/NameComponent'
-import { hashMaterial } from './materialFunctions'
 
 export type MaterialWithEntity = Material & { entity: Entity }
 
@@ -46,20 +43,17 @@ export type MaterialComponentType = {
   instances: Entity[]
 }
 
-export type MaterialPrototype<T extends Material = Material> = {
-  prototypeId: string
-  baseMaterial: { new (params): T }
-  arguments: {
-    [_: string]: {
-      type: string
-      default: any
-      min?: number
-      max?: number
-      options?: any[]
-    }
+export type PrototypeArgument = {
+  [_: string]: {
+    type: string
+    default: any
+    min?: number
+    max?: number
+    options?: any[]
   }
-  onBeforeCompile?: (shader: Shader, renderer: WebGLRenderer) => void
 }
+
+export const materialSuffix = ' (Material)'
 
 export const MaterialComponent = defineComponent({
   name: 'MaterialComponent',
@@ -75,24 +69,11 @@ export const MaterialComponent = defineComponent({
       plugins: [] as string[],
       prototypeUuid: '',
       // shared prototype state
-      prototype: {} as MaterialPrototype
+      prototype: [] as PrototypeArgument[]
     }
   },
 
   materialByHash: {} as Record<string, string>,
-
-  setMaterialName: (entity: Entity, name: string) => {
-    const materialComponent = getMutableComponent(entity, MaterialComponent)
-    if (!materialComponent.material.value) return
-    setComponent(entity, NameComponent, `${name} (Material)`)
-    const oldHash = hashMaterial(getComponent(entity, SourceComponent), materialComponent.material.value.name)
-    const newHash = hashMaterial(getComponent(entity, SourceComponent), name)
-    if (MaterialComponent.materialByHash[oldHash]) {
-      delete MaterialComponent.materialByHash[oldHash]
-    }
-    MaterialComponent.materialByHash[newHash] = getComponent(entity, UUIDComponent)
-    materialComponent.material.value.name = name
-  },
 
   onSet: (entity, component, json) => {
     if (!json) return

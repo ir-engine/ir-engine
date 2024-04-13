@@ -28,12 +28,14 @@ import { Texture } from 'three'
 
 import styles from '@etherealengine/editor/src/components/layout/styles.module.scss'
 import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
-import { materialFromId } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
+import {
+  materialFromId,
+  setMaterialName
+} from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
 import { removeMaterialPlugin } from '@etherealengine/engine/src/scene/materials/functions/MaterialPluginFunctions'
 import { NO_PROXY, State, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import MaterialLibraryIcon from '@mui/icons-material/Yard'
-
 import { Box, Divider, Stack } from '@mui/material'
 
 import { EntityUUID, UUIDComponent, useComponent } from '@etherealengine/ecs'
@@ -137,7 +139,7 @@ export function MaterialEditor(props: { materialID: string }) {
       <InputGroup name="Name" label={t('editor:properties.mesh.material.name')}>
         <StringInput
           value={materialComponent.material.value!.name}
-          onChange={(name) => MaterialComponent.setMaterialName(materialEntity, name)}
+          onChange={(name) => setMaterialName(materialEntity, name)}
         />
       </InputGroup>
       <InputGroup name="Source" label={t('editor:properties.mesh.material.source')}>

@@ -27,11 +27,7 @@ import { useHookstate } from '@hookstate/core'
 import React, { MouseEvent, StyleHTMLAttributes, useCallback } from 'react'
 import { useDrag } from 'react-dnd'
 
-import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
-import { MaterialPrototypeComponentType } from '@etherealengine/engine/src/scene/materials/components/MaterialPrototypeComponent'
-import { MaterialSourceComponentType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
 import { LibraryEntryType } from '@etherealengine/engine/src/scene/materials/constants/LibraryEntry'
-import { entryId } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
@@ -40,15 +36,17 @@ import MaterialComponentIcon from '@mui/icons-material/LocalFloristTwoTone'
 import MaterialSourceIcon from '@mui/icons-material/YardTwoTone'
 import { Grid } from '@mui/material'
 
-import { MaterialComponentType } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { SelectionState } from '../../services/SelectionServices'
 import styles from '../hierarchy/styles.module.scss'
 
 export type MaterialLibraryEntryType = {
   uuid: string
+  path: string
   type: LibraryEntryType
-  entry: MaterialComponentType | MaterialSourceComponentType | MaterialPrototypeComponentType
   selected?: boolean
   active?: boolean
   isCollapsed?: boolean
@@ -66,28 +64,14 @@ export type MaterialLibraryEntryProps = {
   style: StyleHTMLAttributes<HTMLElement>
 }
 
-const getNodeElId = (node: MaterialLibraryEntryType) => {
-  return 'material-node-' + entryId(node.entry, node.type)
-}
-
 const nodeDisplayName = (node: MaterialLibraryEntryType) => {
-  switch (node.type) {
-    case LibraryEntryType.MATERIAL:
-      return (node.entry as MaterialComponentType).material.name
-    case LibraryEntryType.MATERIAL_SOURCE:
-      return (
-        pathResolver().exec((node.entry as MaterialSourceComponentType).src.path)?.[2] ??
-        (node.entry as MaterialSourceComponentType).src.path
-      )
-    case LibraryEntryType.MATERIAL_PROTOTYPE:
-      return (node.entry as MaterialPrototypeComponentType).prototypeId
-  }
+  const path = getComponent(UUIDComponent.getEntityByUUID(node.uuid as EntityUUID), SourceComponent)
+  return getComponent(UUIDComponent.getEntityByUUID(node.uuid as EntityUUID), MaterialComponent).material?.name
 }
 
 export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
   const data = props.data
   const node = data.nodes[props.index]
-  const material = node.entry
 
   const selectionState = useHookstate(getMutableState(SelectionState))
 
@@ -111,7 +95,7 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
           return {
             type: ItemTypes.Material,
             multiple,
-            value: (material as MaterialComponentType).material.uuid
+            value: node.uuid
           }
         default:
           return null
@@ -129,7 +113,7 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
     <li
       style={props.style}
       ref={drag}
-      id={getNodeElId(node)}
+      id={node.uuid}
       className={
         styles.treeNodeContainer +
         (node.selected ? ' ' + styles.selected : '') +

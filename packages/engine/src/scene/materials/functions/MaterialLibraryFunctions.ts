@@ -34,15 +34,18 @@ import {
   UUIDComponent,
   createEntity,
   defineQuery,
+  getComponent,
   getMutableComponent,
   hasComponent,
   setComponent
 } from '@etherealengine/ecs'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { stringHash } from '@etherealengine/spatial/src/common/functions/MathFunctions'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import {
   MaterialComponent,
-  MaterialComponentType
+  MaterialComponentType,
+  materialSuffix
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { hashMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { SourceComponent } from '../../components/SourceComponent'
@@ -101,10 +104,25 @@ export const registerMaterial = (material: Material, src: MaterialSource, params
   setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
   setComponent(materialEntity, SourceComponent, src.path as SceneID)
   setComponent(materialEntity, MaterialComponent, { material })
-  MaterialComponent.setMaterialName(materialEntity, material.name)
+  setMaterialName(materialEntity, material.name)
 
   return materialEntity
 }
+
+export const setMaterialName = (entity: Entity, name: string) => {
+  const materialComponent = getMutableComponent(entity, MaterialComponent)
+  if (!materialComponent.material.value) return
+  setComponent(entity, NameComponent, name + materialSuffix)
+  const oldHash = hashMaterial(getComponent(entity, SourceComponent), materialComponent.material.value.name)
+  const newHash = hashMaterial(getComponent(entity, SourceComponent), name)
+  if (MaterialComponent.materialByHash[oldHash]) {
+    delete MaterialComponent.materialByHash[oldHash]
+  }
+  MaterialComponent.materialByHash[newHash] = getComponent(entity, UUIDComponent)
+  materialComponent.material.value.name = name
+}
+
+export const registerPrototype = () => {}
 
 export function injectDefaults(defaultArgs, values) {
   return Object.fromEntries(

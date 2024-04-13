@@ -34,15 +34,19 @@ import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materia
 import { SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
 import { LibraryEntryType } from '@etherealengine/engine/src/scene/materials/constants/LibraryEntry'
 import {
-  entryId,
   materialFromId,
   registerMaterial
 } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
-import { NO_PROXY, getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
 
 import { Stack } from '@mui/material'
+import { Not } from 'bitecs'
 
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
+import { EntityUUID, UUIDComponent, getComponent, useQuery } from '@etherealengine/ecs'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { uploadProjectFiles } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import styles from '../hierarchy/styles.module.scss'
@@ -54,51 +58,30 @@ import MaterialLibraryEntry, { MaterialLibraryEntryType } from './MaterialLibrar
 export default function MaterialLibraryPanel() {
   const editorState = useHookstate(getMutableState(EditorState))
   const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
-  const materialLibrary = useHookstate(getMutableState(MaterialLibraryState))
   const MemoMatLibEntry = memo(MaterialLibraryEntry, areEqual)
   const nodeChanges = useState(0)
   const srcPath = useState('/mat/material-test')
 
-  const createSrcs = useCallback(() => Object.values(materialLibrary.sources.get(NO_PROXY)), [materialLibrary.sources])
-  const srcs = useState(createSrcs())
-  useEffect(srcs.set.bind({}, createSrcs), [materialLibrary.sources])
+  const materialQuery = useQuery([MaterialComponent, UUIDComponent, SourceComponent, Not(VisibleComponent)])
 
-  const collapsedSrcs = useCallback(
-    () => new Set<string>(srcs.get(NO_PROXY).map((src) => entryId(src, LibraryEntryType.MATERIAL_SOURCE))),
-    [srcs]
-  )
-
-  const collapsedNodes = useState(collapsedSrcs())
-  const createNodes = useCallback((): MaterialLibraryEntryType[] => {
-    const result = srcs.value.flatMap((srcComp) => {
-      const uuid = entryId(srcComp, LibraryEntryType.MATERIAL_SOURCE)
-      const isCollapsed = collapsedNodes.value.has(uuid)
+  const createNodes = useCallback(() => {
+    const materials = Object.values(MaterialComponent.materialByHash)
+    const result = materials.flatMap((uuid) => {
+      const isCollapsed = false
+      const materialComponent = getComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), MaterialComponent)
       return [
         {
-          uuid,
-          type: LibraryEntryType.MATERIAL_SOURCE,
-          entry: srcComp,
+          uuid: uuid,
+          path: materialComponent.source,
+          type: LibraryEntryType.MATERIAL,
           selected: selectedMaterial.value === uuid,
           active: selectedMaterial.value === uuid,
           isCollapsed
-        },
-        ...(isCollapsed
-          ? []
-          : srcComp.entries
-              .filter((uuid) => !!materialLibrary.materials[uuid].value)
-              .map((uuid) => {
-                return {
-                  uuid,
-                  type: LibraryEntryType.MATERIAL,
-                  entry: materialFromId(uuid),
-                  selected: selectedMaterial.value === uuid,
-                  active: selectedMaterial.value === uuid
-                }
-              }))
+        }
       ]
     })
     return result
-  }, [nodeChanges, srcs, selectedMaterial])
+  }, [nodeChanges, materialQuery, selectedMaterial])
 
   const nodes = useState(createNodes())
 
@@ -107,28 +90,27 @@ export default function MaterialLibraryPanel() {
     const material = getState(MaterialLibraryState).materials[node.uuid]
     if (!material) return
     selectedMaterial.set(node.uuid)
-    console.log(material)
   }, [])
 
-  const onCollapse = useCallback((e: MouseEvent, node: MaterialLibraryEntryType) => {
-    const isCollapsed = collapsedNodes.value.has(node.uuid)
-    if (isCollapsed) {
-      collapsedNodes.merge((_collapsedNodes) => {
-        _collapsedNodes.delete(node.uuid)
-        return _collapsedNodes
-      })
-    } else {
-      collapsedNodes.merge((_collapsedNodes) => {
-        _collapsedNodes.add(node.uuid)
-        return _collapsedNodes
-      })
-    }
-    nodeChanges.set(nodeChanges.get() + 1)
-  }, [])
+  // const onCollapse = useCallback((e: MouseEvent, node: MaterialLibraryEntryType) => {
+  //   const isCollapsed = collapsedNodes.value.has(node.uuid)
+  //   if (isCollapsed) {
+  //     collapsedNodes.merge((_collapsedNodes) => {
+  //       _collapsedNodes.delete(node.uuid)
+  //       return _collapsedNodes
+  //     })
+  //   } else {
+  //     collapsedNodes.merge((_collapsedNodes) => {
+  //       _collapsedNodes.add(node.uuid)
+  //       return _collapsedNodes
+  //     })
+  //   }
+  //   nodeChanges.set(nodeChanges.get() + 1)
+  // }, [])
 
   useEffect(() => {
     nodes.set(createNodes())
-  }, [nodeChanges, selectedMaterial, srcs])
+  }, [nodeChanges, selectedMaterial, materialQuery])
 
   return (
     <>
@@ -143,8 +125,7 @@ export default function MaterialLibraryPanel() {
                 itemCount={nodes.length}
                 itemData={{
                   nodes: nodes.get(),
-                  onClick,
-                  onCollapse
+                  onClick
                 }}
                 itemKey={(index, _) => index}
                 innerElementType="ul"
