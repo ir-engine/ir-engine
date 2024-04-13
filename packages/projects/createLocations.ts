@@ -38,7 +38,7 @@ import { Paginated } from '@feathersjs/feathers/lib'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
-import { v4 as generateUUID } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 
 export const createLocations = async (app: Application, projectName: string) => {
   const project = (await app.service('project').find({
@@ -53,9 +53,9 @@ export const createLocations = async (app: Application, projectName: string) => 
       .readdirSync(path.resolve(appRootPath.path, 'packages/projects/projects', projectName))
       .filter((file) => file.endsWith('.scene.json'))
       .map(async (sceneJson) => {
-        const locationId = generateUUID() as LocationID
-        const sceneId = generateUUID()
-        const settingsId = generateUUID()
+        const locationId = uuidv4() as LocationID
+        const sceneId = uuidv4()
+        const settingsId = uuidv4()
         const sceneName = sceneJson.replace('.scene.json', '')
 
         /** @todo use .gltf instead */

@@ -77,7 +77,6 @@ import {
 } from './components/SceneComponents'
 import { VisibleComponent } from './components/VisibleComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
-import { EffectMapType } from './effects/PostProcessing'
 import { SDFSettingsState } from './effects/sdf/SDFSettingsState'
 import { changeRenderMode } from './functions/changeRenderMode'
 
@@ -101,7 +100,10 @@ _scene.layers.set(ObjectLayers.Scene)
 globalThis._scene = _scene
 
 export class EngineRenderer {
-  /** @deprecated will be removed once threejs objects are not proxified. Should only be used in loadGLTFModel.ts */
+  /**
+   * @deprecated will be removed once threejs objects are not proxified. Should only be used in loadGLTFModel.ts
+   * see https://github.com/EtherealEngine/etherealengine/issues/9308
+   */
   static activeRender = false
   /** Is resize needed? */
   needsResize: boolean

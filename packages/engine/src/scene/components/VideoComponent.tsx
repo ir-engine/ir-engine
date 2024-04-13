@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
-import { DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, Side, Texture, Vector2 } from 'three'
+import { DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, Side, Vector2, VideoTexture } from 'three'
 
 import { defineState } from '@etherealengine/hyperflux'
 
@@ -62,8 +62,7 @@ export const VideoTexturePriorityQueueState = defineState({
   }
 })
 
-class VideoTexturePriorityQueue extends Texture {
-  isVideoTexture = true
+class VideoTexturePriorityQueue extends VideoTexture {
   constructor(video) {
     super(video)
     this.minFilter = LinearFilter

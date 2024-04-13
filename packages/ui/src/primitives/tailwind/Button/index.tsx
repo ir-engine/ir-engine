@@ -31,7 +31,7 @@ export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   endIcon?: ReactNode
   children?: ReactNode
   size?: 'small' | 'medium' | 'large'
-  variant?: 'primary' | 'outline' | 'danger' | 'success'
+  variant?: 'primary' | 'outline' | 'danger' | 'success' | 'pink' | 'transparent'
   disabled?: boolean
   fullWidth?: boolean
   rounded?: boolean
@@ -45,10 +45,12 @@ const sizes = {
 }
 
 const variants = {
-  primary: 'bg-blue-800',
-  outline: 'border border-solid border-theme-primary text-theme-primary dark:bg-[#212226]',
-  danger: 'bg-red-600',
-  success: 'bg-teal-700'
+  primary: 'bg-blue-primary',
+  outline: 'border border-solid border-theme-primary bg-theme-surface-main dark:bg-theme-highlight text-theme-primary',
+  pink: 'bg-[#C162A2]',
+  danger: 'bg-red-500',
+  success: 'bg-teal-700',
+  transparent: 'bg-transparent'
 }
 
 const Button = ({
@@ -67,20 +69,20 @@ const Button = ({
     'flex items-center justify-between',
     'font-medium text-white',
     'transition ease-in-out',
-    'inline-flex items-center justify-center',
     'disabled:cursor-not-allowed',
+    StartIcon || EndIcon ? 'justify-between' : 'justify-center',
     sizes[size],
     variants[variant],
     fullWidth ? 'w-full' : 'w-fit',
     rounded ? 'rounded-full' : 'rounded-md',
-    disabled ? 'bg-neutral-200 text-neutral-400' : '',
+    disabled ? 'bg-[#F3F4F6] text-[#9CA3AF] dark:bg-[#2B2C30] dark:text-[#D1D5DB]' : '',
     className
   )
 
   return (
     <button role="button" disabled={disabled} className={twClassName} {...props}>
       {StartIcon && <span className="mx-1">{StartIcon}</span>}
-      {children && <span className={twMerge('mx-1', fullWidth ? 'mx-1' : '')}> {children}</span>}
+      {children && <span className={twMerge('mx-1', fullWidth ? 'mx-1 w-full' : '')}>{children}</span>}
       {EndIcon && <span className="mx-1">{EndIcon}</span>}
     </button>
   )

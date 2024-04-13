@@ -30,7 +30,7 @@ import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schem
 import { UserName, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import assert from 'assert'
-import { v1 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -46,8 +46,8 @@ describe('invite.service', () => {
   })
 
   before(async () => {
-    const name = ('test-invite-user-name-' + v1()) as UserName
-    const avatarName = 'test-invite-avatar-name-' + v1()
+    const name = ('test-invite-user-name-' + uuidv4()) as UserName
+    const avatarName = 'test-invite-avatar-name-' + uuidv4()
 
     const avatar = await app.service(avatarPath).create({
       name: avatarName
@@ -62,9 +62,9 @@ describe('invite.service', () => {
 
     testLocation = await app.service(locationPath).create(
       {
-        name: `test-location-name-${v1()}`,
+        name: `test-location-name-${uuidv4()}`,
         slugifiedName: '',
-        sceneId: `test-invite-scene-${v1()}`,
+        sceneId: `test-invite-scene-${uuidv4()}`,
         maxUsersPerInstance: 20,
         locationSetting: {
           id: '',
@@ -92,7 +92,7 @@ describe('invite.service', () => {
   inviteTypes.forEach((inviteType) => {
     it(`should create an invite with type ${inviteType}`, async () => {
       const inviteType = 'friend'
-      const token = `${v1()}@etherealengine.io`
+      const token = `${uuidv4()}@etherealengine.io`
       const identityProviderType = 'email'
 
       const createdInvite = await app.service(invitePath).create(

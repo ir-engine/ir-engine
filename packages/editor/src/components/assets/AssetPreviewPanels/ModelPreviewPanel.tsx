@@ -29,7 +29,7 @@ import LoadingView from '@etherealengine/client-core/src/common/components/Loadi
 import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import { useHookstate } from '@etherealengine/hyperflux'
 
-import { EntityUUID, UUIDComponent, createEntity, setComponent } from '@etherealengine/ecs'
+import { UUIDComponent, createEntity, generateEntityUUID, setComponent } from '@etherealengine/ecs'
 import { AssetPreviewCameraComponent } from '@etherealengine/engine/src/camera/components/AssetPreviewCameraComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
@@ -37,7 +37,6 @@ import { AmbientLightComponent, TransformComponent } from '@etherealengine/spati
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { MathUtils } from 'three'
 import styles from '../styles.module.scss'
 
 export const ModelPreviewPanel = (props) => {
@@ -51,7 +50,7 @@ export const ModelPreviewPanel = (props) => {
   useEffect(() => {
     const { sceneEntity, cameraEntity } = renderPanel
     setComponent(sceneEntity, NameComponent, '3D Preview Entity')
-    const uuid = MathUtils.generateUUID() as EntityUUID
+    const uuid = generateEntityUUID()
     setComponent(sceneEntity, UUIDComponent, uuid)
     setComponent(sceneEntity, ModelComponent, { src: url, cameraOcclusion: false })
     setComponent(sceneEntity, EnvmapComponent, { type: 'Skybox', envMapIntensity: 2 }) // todo remove when lighting works
