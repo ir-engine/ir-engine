@@ -180,7 +180,7 @@ export function MaterialEditor(props: { materialID: string }) {
         values={materialComponent.parameters.value}
         onChange={(k) => async (val) => {
           let prop
-          if (materialComponent.prototype.value.arguments[k].type === 'texture' && typeof val === 'string') {
+          if (materialComponent.prototype[k].type === 'texture' && typeof val === 'string') {
             if (val) {
               const priorUnload = textureUnloadMap.get(NO_PROXY)[k]
               if (priorUnload) {
@@ -198,7 +198,7 @@ export function MaterialEditor(props: { materialID: string }) {
           EditorControlFunctions.modifyMaterial([materialID], materialComponent.material.value!.uuid, [{ [k]: prop }])
           materialComponent.parameters[k].set(prop)
         }}
-        defaults={materialComponent.prototype.arguments.value}
+        defaults={materialComponent.prototype.value}
         thumbnails={toBlobs(thumbnails.value)}
       />
       <br />
