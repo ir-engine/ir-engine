@@ -61,18 +61,16 @@ export async function up(knex: Knex): Promise<void> {
       locations
         .filter((item) => item.sceneId)
         .map(async (location) => {
-          console.log('LOCATION', location)
           const projects = await trx.select().from(locationPath).where('name', location.sceneId.split('/').get(-2))
-          console.log('PROJECTS', projects)
           const projectId = projects[0].id
           return {
             id: v4(),
-            name: location.sceneId.split('/').pop().replace('.scene.json', ''),
-            projectId,
             assetURL: location.sceneId,
+            name: location.sceneId.split('/').pop().replace('.scene.json', ''),
             thumbnailURL: location.sceneId.replace('.scene.json', '.thumbnail.jpg'),
-            createdAt: getDateTimeSql(),
-            updatedAt: getDateTimeSql()
+            projectId,
+            createdAt: await getDateTimeSql(),
+            updatedAt: await getDateTimeSql()
           } as AssetDataType
         })
     )

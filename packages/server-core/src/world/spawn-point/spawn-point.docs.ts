@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { portalSchema } from '@etherealengine/common/src/schemas/projects/portal.schema'
+import { spawnPointSchema } from '@etherealengine/common/src/schemas/world/spawn-point.schema'
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
 export default createSwaggerServiceOptions({
-  schemas: { portalSchema },
+  schemas: { spawnPointSchema },
   docs: {
-    description: 'Portal service description',
+    description: 'Spawn point service description',
     securities: ['all']
   }
 })

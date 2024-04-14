@@ -43,6 +43,7 @@ import ScopeService from './scope/service'
 import SettingService from './setting/service'
 import SocialServices from './social/services'
 import UserServices from './user/services'
+import WorldServices from './world/services'
 
 const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/projects'))
   ? fs
@@ -81,7 +82,8 @@ export default (app: Application): void => {
     ...RouteService,
     ...RecordingServices,
     ...installedProjects,
-    ...MatchMakingServices
+    ...MatchMakingServices,
+    ...WorldServices
   ].forEach((service) => {
     app.configure(service)
   })

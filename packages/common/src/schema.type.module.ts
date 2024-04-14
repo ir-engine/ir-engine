@@ -48,7 +48,6 @@ export type * from './schemas/networking/instance-friends.schema'
 export type * from './schemas/networking/instance-provision.schema'
 export type * from './schemas/networking/instance.schema'
 export type * from './schemas/projects/builder-info.schema'
-export type * from './schemas/projects/portal.schema'
 export type * from './schemas/projects/project-branches.schema'
 export type * from './schemas/projects/project-build.schema'
 export type * from './schemas/projects/project-builder-tags.schema'
@@ -112,6 +111,7 @@ export type * from './schemas/user/user-relationship-type.schema'
 export type * from './schemas/user/user-relationship.schema'
 export type * from './schemas/user/user-setting.schema'
 export type * from './schemas/user/user.schema'
+export type * from './schemas/world/spawn-point.schema'
 export const locationPath = 'location'
 
 export const userRelationshipPath = 'user-relationship'
@@ -275,7 +275,7 @@ export const projectDestinationCheckPath = 'project-destination-check'
 
 export const sceneDataPath = 'scene-data'
 
-export const portalPath = 'portal'
+export const spawnPointPath = 'spawn-point'
 
 export const projectCheckUnfetchedCommitPath = 'project-check-unfetched-commit'
 

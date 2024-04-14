@@ -18,36 +18,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export default {
-  around: {
-    all: []
-  },
+import {
+  SpawnPointData,
+  SpawnPointPatch,
+  SpawnPointQuery,
+  SpawnPointType
+} from '@etherealengine/common/src/schemas/world/spawn-point.schema'
+import { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex'
 
-  before: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  }
-} as any
+export interface SpawnPointParams extends Params<SpawnPointQuery> {
+  paginate?: false
+}
+
+export class PortalService<T = SpawnPointType, ServiceParams extends Params = SpawnPointParams> extends KnexService<
+  SpawnPointType,
+  SpawnPointData,
+  SpawnPointParams,
+  SpawnPointPatch
+> {}

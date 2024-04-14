@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import BuilderInfo from './builder-info/builder-info'
-import Portal from './portal/portal'
 import ProjectBranches from './project-branches/project-branches'
 import ProjectBuild from './project-build/project-build'
 import ProjectBuilderTags from './project-builder-tags/project-builder-tags'
@@ -40,7 +39,6 @@ import Projects from './projects/projects'
 
 export default [
   BuilderInfo,
-  Portal,
   Project,
   Projects,
   ProjectBuild,

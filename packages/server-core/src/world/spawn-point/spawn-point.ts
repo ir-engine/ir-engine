@@ -23,27 +23,34 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { portalMethods, portalPath } from '@etherealengine/common/src/schemas/projects/portal.schema'
+import { spawnPointMethods, spawnPointPath } from '@etherealengine/common/src/schemas/world/spawn-point.schema'
 import { Application } from '../../../declarations'
-import { PortalService } from './portal.class'
-import portalDocs from './portal.docs'
-import hooks from './portal.hooks'
+import { PortalService } from './spawn-point.class'
+import portalDocs from './spawn-point.docs'
+import hooks from './spawn-point.hooks'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    [portalPath]: PortalService
+    [spawnPointPath]: PortalService
   }
 }
 
 export default (app: Application): void => {
-  app.use(portalPath, new PortalService(app), {
+  const options = {
+    name: spawnPointPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(spawnPointPath, new PortalService(options), {
     // A list of all methods this service exposes externally
-    methods: portalMethods,
+    methods: spawnPointMethods,
     // You can add additional custom events to be sent to clients here
     events: [],
     docs: portalDocs
   })
 
-  const service = app.service(portalPath)
+  const service = app.service(spawnPointPath)
   service.hooks(hooks)
 }
