@@ -63,7 +63,7 @@ import { MotionCapturePoseComponent } from '../../mocap/MotionCapturePoseCompone
 import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
 import { MountPointActions, MountPointState } from '../functions/MountPointActions'
 import { createInteractUI } from '../functions/interactUI'
-import { InteractState, InteractiveUI, addInteractableUI } from './InteractiveSystem'
+import { InteractableState, InteractableUI, addInteractableUI } from './InteractableSystem'
 
 /**
  * @todo refactor this into i18n and configurable
@@ -141,7 +141,6 @@ const sittingIdleQuery = defineQuery([SittingComponent])
 
 const execute = () => {
   if (getState(EngineState).isEditor) return
-
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
 
   for (const entity of mountPointQuery.enter()) {
@@ -162,7 +161,7 @@ const execute = () => {
   */
   const mocapInputSource = getOptionalComponent(selfAvatarEntity, MotionCapturePoseComponent)
   if (mocapInputSource) {
-    if (mocapInputSource.sitting?.begun) mountEntity(selfAvatarEntity, getState(InteractState).available[0])
+    if (mocapInputSource.sitting?.begun) mountEntity(selfAvatarEntity, getState(InteractableState).available[0])
     if (mocapInputSource.standing?.begun) unmountEntity(selfAvatarEntity)
   }
 
@@ -199,10 +198,10 @@ const vec3_1 = new Vector3()
 const reactor = () => {
   const mountedEntities = useHookstate(getMutableState(MountPointState))
   useEffect(() => {
-    //temporary logic for setting visibility of hints until interactive system is refactored
+    //temporary logic for setting visibility of hints until interactable system is refactored
     for (const mountEntity of mountPointQuery()) {
       setVisibleComponent(
-        InteractiveUI.get(mountEntity)!.xrui.entity!,
+        InteractableUI.get(mountEntity)!.xrui.entity!,
         !mountedEntities[getComponent(mountEntity, UUIDComponent)].value
       )
     }
@@ -229,7 +228,7 @@ const executeInput = () => {
   for (const entity of nonCapturedInputSource) {
     const inputSource = getComponent(entity, InputSourceComponent)
     if (buttons.KeyE?.down || inputSource.buttons[XRStandardGamepadButton.Trigger]?.down)
-      mountEntity(selfAvatarEntity, getState(InteractState).available[0])
+      mountEntity(selfAvatarEntity, getState(InteractableState).available[0])
   }
 }
 

@@ -32,7 +32,7 @@ import {
   compareDistanceToLocalClient,
   DistanceFromLocalClientComponent
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
-import { InteractState } from '../systems/InteractiveSystem'
+import { InteractableState } from '../systems/InteractableSystem'
 
 const mat4 = new Matrix4()
 // const projectionMatrix = new Matrix4().makePerspective(
@@ -46,15 +46,15 @@ const mat4 = new Matrix4()
 // const frustum = new Frustum()
 
 /**
- * Checks if entity can interact with any of entities listed in 'interactive' array, checking distance, guards and raycast
+ * Checks if entity can interact with any of entities listed in 'interactable' array, checking distance, guards and raycast
  * sorts the interactables by closest to the player
  * @param {Entity[]} interactables
  */
 
 export const gatherAvailableInteractables = (interactables: Entity[]) => {
-  const maxDistance = getState(InteractState).maxDistance
+  const maxDistance = getState(InteractableState).maxDistance
   const maxDistanceSquare = maxDistance * maxDistance
-  const availableInteractable = getMutableState(InteractState).available
+  const availableInteractable = getMutableState(InteractableState).available
   // const camera = getComponent(controller.cameraEntity, CameraComponent)
 
   // mat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)

@@ -99,6 +99,13 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.callback.name')}
       description={t('editor:properties.callback.description')}
     >
+      <InputGroup name="Label" label={t('editor:properties.label.lbl-label')}>
+        <StringInput
+          value={interactableComponent.label.value!}
+          onChange={updateProperty(InteractableComponent, 'label')}
+          onRelease={commitProperty(InteractableComponent, 'label')}
+        />
+      </InputGroup>
       <Button
         onClick={() => {
           console.log('callback clicked')

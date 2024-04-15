@@ -60,8 +60,8 @@ import { createNonInteractUI } from '../../interaction/functions/nonInteractUI'
 import {
   InteractableTransitions,
   addInteractableUI,
-  removeInteractiveUI
-} from '../../interaction/systems/InteractiveSystem'
+  removeInteractableUI
+} from '../../interaction/systems/InteractableSystem'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 
 const linkLogic = (linkComponent, xrState) => {
@@ -155,7 +155,7 @@ export const LinkComponent = defineComponent({
   errors: ['INVALID_URL'],
 
   onRemove: function (entity) {
-    removeInteractiveUI(entity)
+    removeInteractableUI(entity)
   },
 
   reactor: function () {

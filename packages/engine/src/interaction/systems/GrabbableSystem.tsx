@@ -81,7 +81,12 @@ import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { GrabbableComponent, GrabbedComponent, GrabberComponent } from '../components/GrabbableComponent'
 import { createInteractUI } from '../functions/interactUI'
-import { InteractState, InteractableTransitions, addInteractableUI, removeInteractiveUI } from './InteractiveSystem'
+import {
+  InteractableState,
+  InteractableTransitions,
+  addInteractableUI,
+  removeInteractableUI
+} from './InteractableSystem'
 
 export class GrabbableNetworkAction {
   static setGrabbedObject = defineAction({
@@ -256,7 +261,7 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
     if (selfAvatarEntity) {
       getAvatarBoneWorldPosition(selfAvatarEntity, VRMHumanBoneName.Chest, vec3)
       const distance = vec3.distanceToSquared(xruiTransform.position)
-      const inRange = distance < getState(InteractState).maxDistance
+      const inRange = distance < getState(InteractableState).maxDistance
       if (transition.state === 'OUT' && inRange) {
         transition.setState('IN')
         setComponent(xrui.entity, VisibleComponent)
@@ -376,7 +381,7 @@ const execute = () => {
     }
 
   for (const entity of grabbableQuery.exit()) {
-    removeInteractiveUI(entity)
+    removeInteractableUI(entity)
   }
 
   for (const entity of ownedGrabbableQuery()) {
@@ -397,7 +402,7 @@ const executeInput = () => {
     const inputSource = getComponent(entity, InputSourceComponent)
     /** @todo currently mouse has to be over the grabbable for it to be grabbed */
     if (buttons.KeyE?.down || inputSource.buttons[XRStandardGamepadButton.Trigger]?.down)
-      onGrab(getState(InteractState).available[0], inputSource.source.handedness === 'left' ? 'left' : 'right')
+      onGrab(getState(InteractableState).available[0], inputSource.source.handedness === 'left' ? 'left' : 'right')
   }
 }
 

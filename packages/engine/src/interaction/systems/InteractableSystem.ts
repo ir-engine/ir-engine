@@ -29,6 +29,7 @@ import { Euler, Quaternion, Vector3 } from 'three'
 import { defineState } from '@etherealengine/hyperflux'
 import { WebLayer3D } from '@etherealengine/xrui'
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, getOptionalComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
@@ -58,8 +59,8 @@ import { InteractableComponent } from '../components/InteractableComponent'
 import { gatherAvailableInteractables } from '../functions/gatherAvailableInteractables'
 import { createInteractUI } from '../functions/interactUI'
 
-export const InteractState = defineState({
-  name: 'InteractState',
+export const InteractableState = defineState({
+  name: 'InteractableState',
   initial: () => {
     return {
       /**
@@ -71,12 +72,12 @@ export const InteractState = defineState({
   }
 })
 
-export type InteractiveType = {
+export type InteractableType = {
   xrui: ReturnType<typeof createXRUI>
   update: (entity: Entity, xrui: ReturnType<typeof createXRUI>) => void
 }
 
-export const InteractiveUI = new Map<Entity, InteractiveType>()
+export const InteractableUI = new Map<Entity, InteractableType>()
 export const InteractableTransitions = new Map<Entity, ReturnType<typeof createTransitionState>>()
 
 const vec3 = new Vector3()
@@ -104,7 +105,7 @@ export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof cre
   // getAvatarBoneWorldPosition(selfAvatarEntity, VRMHumanBoneName.Chest, vec3) //uses normalizedRig which does not update at this time - Apr 12 2024
 
   const distance = vec3.distanceToSquared(xruiTransform.position)
-  let thresh = getState(InteractState).maxDistance
+  let thresh = getState(InteractableState).maxDistance
   thresh *= thresh //squared for dist squared comparison
   const inRange = distance < thresh
   if (transition.state === 'OUT' && inRange) {
@@ -122,12 +123,12 @@ export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof cre
   })
 }
 
-export const getInteractiveUI = (entity: Entity) => InteractiveUI.get(entity)
-export const removeInteractiveUI = (entity: Entity) => {
-  if (InteractiveUI.has(entity)) {
-    const { update, xrui } = getInteractiveUI(entity)!
+export const getInteractableUI = (entity: Entity) => InteractableUI.get(entity)
+export const removeInteractableUI = (entity: Entity) => {
+  if (InteractableUI.has(entity)) {
+    const { update, xrui } = getInteractableUI(entity)!
     removeEntity(xrui.entity)
-    InteractiveUI.delete(entity)
+    InteractableUI.delete(entity)
   }
 }
 
@@ -145,7 +146,7 @@ export const addInteractableUI = (
   const transition = createTransitionState(0.25)
   transition.setState('OUT')
   InteractableTransitions.set(entity, transition)
-  InteractiveUI.set(entity, { xrui, update })
+  InteractableUI.set(entity, { xrui, update })
 }
 
 const allInteractablesQuery = defineQuery([InteractableComponent])
@@ -162,12 +163,18 @@ const execute = () => {
   for (const entity of allInteractablesQuery.enter()) {
     setComponent(entity, DistanceFromCameraComponent)
     setComponent(entity, DistanceFromLocalClientComponent)
+    if (isClient) {
+      const interactable = getComponent(entity, InteractableComponent)
+      if (interactable.label && interactable.label !== '') {
+        addInteractableUI(entity, createInteractUI(entity, interactable.label))
+      }
+    }
   }
 
-  // TODO: refactor InteractiveUI to be ui-centric rather than interactable-centeric
+  // TODO: refactor InteractableUI to be ui-centric rather than interactable-centeric
   for (const entity of interactableQuery.exit()) {
     if (InteractableTransitions.has(entity)) InteractableTransitions.delete(entity)
-    if (InteractiveUI.has(entity)) InteractiveUI.delete(entity)
+    if (InteractableUI.has(entity)) InteractableUI.delete(entity)
     // if (hasComponent(entity, HighlightComponent)) removeComponent(entity, HighlightComponent)
   }
 
@@ -178,8 +185,8 @@ const execute = () => {
     // interactable.distance = interactable.anchorPosition.distanceTo(
     //   getComponent(AvatarComponent.getSelfAvatarEntity(), TransformComponent).position
     // )
-    if (InteractiveUI.has(entity)) {
-      const { update, xrui } = InteractiveUI.get(entity)!
+    if (InteractableUI.has(entity)) {
+      const { update, xrui } = InteractableUI.get(entity)!
       update(entity, xrui)
     }
   }
@@ -187,22 +194,22 @@ const execute = () => {
   if (gatherAvailableInteractablesTimer === 0) {
     gatherAvailableInteractables(interactables)
     // const closestInteractable = getState(InteractState).available[0]
-    // for (const interactiveEntity of interactables) {
-    //   if (interactiveEntity === closestInteractable) {
-    //     if (!hasComponent(interactiveEntity, HighlightComponent)) {
-    //       addComponent(interactiveEntity, HighlightComponent)
+    // for (const interactableEntity of interactables) {
+    //   if (interactableEntity === closestInteractable) {
+    //     if (!hasComponent(interactableEntity, HighlightComponent)) {
+    //       addComponent(interactableEntity, HighlightComponent)
     //     }
     //   } else {
-    //     if (hasComponent(interactiveEntity, HighlightComponent)) {
-    //       removeComponent(interactiveEntity, HighlightComponent)
+    //     if (hasComponent(interactableEntity, HighlightComponent)) {
+    //       removeComponent(interactableEntity, HighlightComponent)
     //     }
     //   }
     // }
   }
 }
 
-export const InteractiveSystem = defineSystem({
-  uuid: 'ee.engine.InteractiveSystem',
+export const InteractableSystem = defineSystem({
+  uuid: 'ee.engine.InteractableSystem',
   insert: { before: TransformSystem },
   execute
 })
@@ -224,7 +231,7 @@ const executeInput = () => {
 }
 
 const interactWithClosestInteractable = () => {
-  const closestInteractableEntity = getState(InteractState).available[0]
+  const closestInteractableEntity = getState(InteractableState).available[0]
   if (closestInteractableEntity) {
     const interactable = getOptionalComponent(closestInteractableEntity, InteractableComponent)
     if (!interactable) return
@@ -240,8 +247,8 @@ const interactWithClosestInteractable = () => {
   }
 }
 
-export const InteractiveInputSystem = defineSystem({
-  uuid: 'ee.engine.InteractiveInputSystem',
+export const InteractableInputSystem = defineSystem({
+  uuid: 'ee.engine.InteractableInputSystem',
   insert: { after: ClientInputSystem },
   execute: executeInput
 })
