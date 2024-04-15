@@ -129,12 +129,12 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
         {t('editor:properties.interactable.addcallbacktitle')}
       </PropertiesPanelButton>
 
-      <div key={`callback-list-${props.entity}`}>
+      <div id={`callback-list`}>
         {interactableComponent.callbacks.map((callback, index) => {
           const targetOption = targets.value.find((o) => o.value === callback.target.value)
           const target = targetOption ? targetOption.value : 'Self'
           return (
-            <>
+            <div key={'callback' + index}>
               <InputGroup name="Target" label={t('editor:properties.interactable.callbacks.lbl-target')}>
                 <SelectInput
                   key={props.entity}
@@ -167,7 +167,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
               <PropertiesPanelButton type="submit" onClick={(index: number) => removeCallback(index)}>
                 {t('editor:properties.interactable.removecallbacktitle')}
               </PropertiesPanelButton>
-            </>
+            </div>
           )
         })}
       </div>
