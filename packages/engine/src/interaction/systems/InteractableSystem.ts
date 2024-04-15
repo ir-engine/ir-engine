@@ -234,14 +234,17 @@ const interactWithClosestInteractable = () => {
   const closestInteractableEntity = getState(InteractableState).available[0]
   if (closestInteractableEntity) {
     const interactable = getOptionalComponent(closestInteractableEntity, InteractableComponent)
-    if (!interactable) return
-    for (const callback of interactable?.callbacks) {
-      if (callback.target && !UUIDComponent.getEntityByUUID(callback.target)) continue
-      const targetEntity = callback.target ? UUIDComponent.getEntityByUUID(callback.target) : closestInteractableEntity
-      if (targetEntity && callback.callbackID) {
-        const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
-        if (!callbacks) continue
-        callbacks.get(callback.callbackID)?.(closestInteractableEntity, targetEntity)
+    if (interactable) {
+      for (const callback of interactable.callbacks) {
+        if (callback.target && !UUIDComponent.getEntityByUUID(callback.target)) continue
+        const targetEntity = callback.target
+          ? UUIDComponent.getEntityByUUID(callback.target)
+          : closestInteractableEntity
+        if (targetEntity && callback.callbackID) {
+          const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
+          if (!callbacks) continue
+          callbacks.get(callback.callbackID)?.(closestInteractableEntity, targetEntity)
+        }
       }
     }
   }
