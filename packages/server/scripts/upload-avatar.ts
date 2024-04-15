@@ -95,17 +95,17 @@ const uploadFile = (Key, Body) => {
       },
       (err, data) => {
         if (forceS3Upload || (err && err.code === 'NotFound')) {
-          s3.putObject(
-            {
-              Body,
-              Bucket: BUCKET,
-              Key,
-              ACL: getACL(Key)
-            },
-            (err, data) => {
-              resolve(data)
-            }
-          )
+          const body = {
+            Body,
+            Bucket: BUCKET,
+            Key
+          } as any
+
+          if (process.env.STORAGE_AWS_ENABLE_ACLS === 'true') body.ACL = getACL(Key)
+
+          s3.putObject(body, (err, data) => {
+            resolve(data)
+          })
         } else {
           console.log('Object Already Exist hence Skipping => ', Key)
           resolve(data)

@@ -44,7 +44,8 @@ export interface AwsKeysType extends Static<typeof awsKeysSchema> {}
 export const awsEksSchema = Type.Object(
   {
     accessKeyId: Type.String(),
-    secretAccessKey: Type.String()
+    secretAccessKey: Type.String(),
+    roleArn: Type.String()
   },
   { $id: 'AwsEks', additionalProperties: false }
 )
@@ -58,7 +59,8 @@ export const awsS3Schema = Type.Object(
     region: Type.String(),
     avatarDir: Type.String(),
     s3DevMode: Type.String(),
-    secretAccessKey: Type.String()
+    secretAccessKey: Type.String(),
+    roleArn: Type.String()
   },
   { $id: 'AwsS3', additionalProperties: false }
 )

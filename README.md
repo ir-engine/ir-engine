@@ -98,7 +98,7 @@ To install Ethereal Engine locally, the following pre-reqs are required.
 
 ### Getting Started
 
-See the [Installation instructions](https://etherealengine.github.io/etherealengine-docs/docs/manual/host/installation/intro)
+See the [Installation instructions](https://etherealengine.github.io/etherealengine-docs/manual/install/)
 for more details.
 
 ## Usage
