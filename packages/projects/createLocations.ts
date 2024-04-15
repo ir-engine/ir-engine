@@ -52,14 +52,13 @@ export const createLocations = async (app: Application, projectName: string) => 
     fs
       .readdirSync(path.resolve(appRootPath.path, 'packages/projects/projects', projectName))
       .filter((file) => file.endsWith('.scene.json'))
-      .map(async (sceneJson) => {
+      .map(async (fileName) => {
         const locationId = uuidv4() as LocationID
         const sceneId = uuidv4()
         const settingsId = uuidv4()
-        const sceneName = sceneJson.replace('.scene.json', '')
+        const sceneName = fileName.replace('.scene.json', '')
 
         /** @todo use .gltf instead */
-
         const scene = (await app.service(assetPath).create({
           id: sceneId,
           name: sceneName,
