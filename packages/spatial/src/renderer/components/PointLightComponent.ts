@@ -32,7 +32,8 @@ import {
   defineComponent,
   removeComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
@@ -91,6 +92,7 @@ export const PointLightComponent = defineComponent({
     const debugEnabled = renderState.nodeHelperVisibility
     const pointLightComponent = useComponent(entity, PointLightComponent)
     const [light] = useObj(PointLight, entity)
+    const lightHelper = useOptionalComponent(entity, LightHelperComponent)
 
     useEffect(() => {
       if (isMobileXRHeadset) return
@@ -102,6 +104,7 @@ export const PointLightComponent = defineComponent({
 
     useEffect(() => {
       light.color.set(pointLightComponent.color.value)
+      if (lightHelper) lightHelper.color.set(pointLightComponent.color.value)
     }, [pointLightComponent.color])
 
     useEffect(() => {

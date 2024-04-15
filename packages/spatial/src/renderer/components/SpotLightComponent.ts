@@ -119,8 +119,7 @@ export const SpotLightComponent = defineComponent({
 
     useEffect(() => {
       light.color.set(spotLightComponent.color.value)
-      if (!lightHelper) return
-      lightHelper.color.set(spotLightComponent.color.value)
+      if (lightHelper) lightHelper.color.set(spotLightComponent.color.value)
     }, [spotLightComponent.color, lightHelper])
 
     useEffect(() => {

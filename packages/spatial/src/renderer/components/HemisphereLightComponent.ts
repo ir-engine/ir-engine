@@ -26,10 +26,18 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Color, HemisphereLight } from 'three'
 
-import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  removeComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useObj } from '@etherealengine/engine/src/assets/functions/resourceHooks'
-import { matches } from '@etherealengine/hyperflux'
+import { getMutableState, matches, useHookstate } from '@etherealengine/hyperflux'
+import { LightHelperComponent } from '../../common/debug/LightHelperComponent'
+import { RendererState } from '../RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const HemisphereLightComponent = defineComponent({
@@ -66,7 +74,10 @@ export const HemisphereLightComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const hemisphereLightComponent = useComponent(entity, HemisphereLightComponent)
+    const renderState = useHookstate(getMutableState(RendererState))
+    const debugEnabled = renderState.nodeHelperVisibility
     const [light] = useObj(HemisphereLight, entity)
+    const lightHelper = useOptionalComponent(entity, LightHelperComponent)
 
     useEffect(() => {
       addObjectToGroup(entity, light)
@@ -80,11 +91,20 @@ export const HemisphereLightComponent = defineComponent({
 
     useEffect(() => {
       light.color.set(hemisphereLightComponent.skyColor.value)
+      if (lightHelper) lightHelper.color.set(hemisphereLightComponent.skyColor.value)
     }, [hemisphereLightComponent.skyColor])
 
     useEffect(() => {
       light.intensity = hemisphereLightComponent.intensity.value
     }, [hemisphereLightComponent.intensity])
+
+    useEffect(() => {
+      if (!debugEnabled.value) {
+        removeComponent(entity, LightHelperComponent)
+      } else {
+        setComponent(entity, LightHelperComponent, { name: 'hemisphere-light-helper', light: light })
+      }
+    }, [debugEnabled])
 
     return null
   }
