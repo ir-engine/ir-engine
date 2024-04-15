@@ -177,6 +177,12 @@
       "lbl-nodeHelpers": "Toggle Node Helpers",
       "info-nodeHelpers": "Helper geometry that helps components have visibility in the scene when inactive."
     },
+    "studioModeToggle":{
+      "lbl-simple": "Simple",
+      "info-simple": "simple mode",
+      "lbl-advanced": "Advanced",
+      "info-advanced": "advanced mode"
+    },
     "sceneScreenshot": {
       "lbl": "Screenshot",
       "info": "Takes a screenshot of your scene at the current view."

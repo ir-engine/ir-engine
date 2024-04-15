@@ -52,6 +52,7 @@ import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { cmdOrCtrlString } from '../../functions/utils'
+import { EditorHelperState } from '../../services/EditorHelperState'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import Search from '../Search/Search'
@@ -489,6 +490,9 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
           }}
           onClick={(event) => {
             anchorElement.set(event.currentTarget)
+            if (getMutableState(EditorHelperState).studioMode.value == 'Advanced') {
+              EditorControlFunctions.createObjectFromSceneElement()
+            }
           }}
         >
           {t('editor:hierarchy.lbl-addEntity')}
@@ -503,7 +507,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
       >
         <Popover
           id={open ? 'add-component-popover' : undefined}
-          open={open}
+          open={open && getMutableState(EditorHelperState).studioMode.value == 'Simple'}
           anchorEl={anchorElement.value}
           onClose={() => anchorElement.set(null)}
           anchorOrigin={{

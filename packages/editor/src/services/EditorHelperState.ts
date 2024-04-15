@@ -26,6 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import {
   SnapMode,
   SnapModeType,
+  StudioMode,
+  StudioModeType,
   TransformMode,
   TransformModeType,
   TransformPivot,
@@ -43,6 +45,7 @@ export const EditorHelperState = defineState({
     transformSpace: TransformSpace.world as TransformSpaceType,
     transformPivot: TransformPivot.Selection as TransformPivotType,
     gridSnap: SnapMode.Grid as SnapModeType,
+    studioMode: StudioMode.Advanced as StudioModeType,
     translationSnap: 0.5,
     rotationSnap: 10,
     scaleSnap: 0.1

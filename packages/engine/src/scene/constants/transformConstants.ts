@@ -36,6 +36,10 @@ export const TransformMode = {
   rotate: 'rotate' as const,
   scale: 'scale' as const
 }
+export const StudioMode = {
+  Advanced: 'Advanced' as const,
+  Simple: 'Simple' as const
+}
 
 export const TransformAxis = {
   X: 'X' as const,
@@ -78,3 +82,4 @@ export type TransformSpaceType = (typeof TransformSpace)[keyof typeof TransformS
 export type TransformPivotType = (typeof TransformPivot)[keyof typeof TransformPivot]
 export type TransformAxisType = (typeof TransformAxis)[keyof typeof TransformAxis]
 export type SnapModeType = (typeof SnapMode)[keyof typeof SnapMode]
+export type StudioModeType = (typeof StudioMode)[keyof typeof StudioMode]

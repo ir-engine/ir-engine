@@ -39,6 +39,7 @@ import PublishLocation from './tools/PublishLocation'
 import RenderModeTool from './tools/RenderModeTool'
 import SceneScreenshot from './tools/SceneScreenshot'
 import StatsTool from './tools/StatsTool'
+import StudioModeTool from './tools/StudioModeTool'
 import TransformPivotTool from './tools/TransformPivotTool'
 import TransformSnapTool from './tools/TransformSnapTool'
 import TransformSpaceTool from './tools/TransformSpaceTool'
@@ -65,6 +66,7 @@ export const ToolBar = (props: ToolBarProps) => {
       <StatsTool />
       <HelperToggleTool />
       <SceneScreenshot />
+      <StudioModeTool />
       <PublishLocation />
       <EditorNavbarProfile />
     </div>
