@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew'
 import DescriptionIcon from '@mui/icons-material/Description'
 import FolderIcon from '@mui/icons-material/Folder'
@@ -34,7 +32,6 @@ import ViewInArIcon from '@mui/icons-material/ViewInAr'
 import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 import React from 'react'
 import styles from '../styles.module.scss'
-import { FileDataType } from './FileDataType'
 
 const FileIconType = {
   gltf: ViewInArIcon,
@@ -68,28 +65,21 @@ const FileIconType = {
 }
 
 export const FileIcon = ({
-  file,
-  resource,
+  thumbnailURL,
   type,
+  isFolder,
   showRibbon
 }: {
-  resource?: StaticResourceType
-  file?: FileDataType
-  type?: string
+  thumbnailURL: string
+  type: string
+  isFolder?: boolean
   showRibbon?: boolean
 }) => {
-  let thumbnailURL = resource?.thumbnailURL
-  if (thumbnailURL == null && file != null) {
-    const staticResource = useFind(staticResourcePath, { query: { key: file.key } }) // todo, useGet
-    thumbnailURL = staticResource.data[0]?.thumbnailURL
-  }
-
-  type ??= file?.type ?? resource?.key.toLowerCase().split('.').pop()
   const fallback = { icon: FileIconType[type ?? ''] }
 
   return (
     <>
-      {file?.isFolder ? (
+      {isFolder ? (
         <FolderIcon fontSize={'inherit'} />
       ) : thumbnailURL != null ? (
         <img

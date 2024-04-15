@@ -118,7 +118,7 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
       }}
     >
       <span style={{ marginBottom: '5px', height: '70px', width: '70px', fontSize: 70 }}>
-        <FileIcon resource={resource} />
+        <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
       </span>
       <span>{name}</span>
     </div>
