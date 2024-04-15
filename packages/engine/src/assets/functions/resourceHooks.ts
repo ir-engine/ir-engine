@@ -379,8 +379,8 @@ export function createObj<T extends DisposableObject, T2 extends new (...params:
  * @param onUnload *Optional* a callback called when the resource is unloaded
  * @returns the resource object passed in
  */
-export function useResource<T>(
-  resource: NonNullable<T>,
+export function useResource<T extends object>(
+  resource: NonNullable<T> | (() => NonNullable<T>),
   entity: Entity = UndefinedEntity,
   id?: string,
   onUnload?: () => void

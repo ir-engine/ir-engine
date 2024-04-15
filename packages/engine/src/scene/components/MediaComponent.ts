@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
-import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
+import { DoubleSide, MeshBasicMaterial, PlaneGeometry } from 'three'
 
 import { State, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -43,15 +43,10 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { MeshHelperComponent } from '@etherealengine/spatial/src/common/debug/MeshHelperComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceHooks'
 import { AudioState } from '../../audio/AudioState'
@@ -146,8 +141,7 @@ export const MediaComponent = defineComponent({
       ended: true,
       waiting: false,
       track: 0,
-      trackDurations: [] as number[],
-      helperEntity: null as Entity | null
+      trackDurations: [] as number[]
       /**
        * TODO: refactor this into a ScheduleComponent for invoking callbacks at scheduled times
        * The auto start time for the playlist, in Unix/Epoch time (milliseconds).
@@ -487,25 +481,17 @@ export function MediaReactor() {
   const [audioHelperTexture] = useTexture(debugEnabled.value ? AUDIO_TEXTURE_PATH : '', entity)
 
   useEffect(() => {
-    if (!debugEnabled.value) return
-
-    const helper = new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide }))
-    helper.name = `audio-helper-${entity}`
-    if (audioHelperTexture) {
-      helper.material.map = audioHelperTexture
-    }
-
-    const helperEntity = createEntity()
-    addObjectToGroup(helperEntity, helper)
-    setComponent(helperEntity, NameComponent, helper.name)
-    setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
-    setVisibleComponent(helperEntity, true)
-    setObjectLayers(helper, ObjectLayers.NodeHelper)
-    media.helperEntity.set(helperEntity)
-
-    return () => {
-      removeEntity(helperEntity)
-      media.helperEntity.set(none)
+    if (!debugEnabled.value) {
+      removeComponent(entity, MeshHelperComponent)
+    } else {
+      if (!audioHelperTexture) return
+      const material = new MeshBasicMaterial({ transparent: true, side: DoubleSide })
+      material.map = audioHelperTexture
+      setComponent(entity, MeshHelperComponent, {
+        name: 'audio-helper',
+        geometry: new PlaneGeometry(),
+        material: material
+      })
     }
   }, [debugEnabled, audioHelperTexture])
 

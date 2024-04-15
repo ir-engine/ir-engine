@@ -567,14 +567,13 @@ const loadObj = <T extends DisposableObject, T2 extends new (...params: any[]) =
   return obj as InstanceType<T2>
 }
 
-const addResource = <T>(res: T, id: string, entity: Entity): T => {
+const addResource = <T extends object>(res: NonNullable<T> | (() => NonNullable<T>), id: string, entity: Entity): T => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
   const callbacks = Callbacks[ResourceType.Unknown]
   resources.merge({
     [id]: {
       id: id,
-      asset: res as any,
       status: ResourceStatus.Loaded,
       type: ResourceType.Unknown,
       references: [entity],
@@ -584,9 +583,10 @@ const addResource = <T>(res: T, id: string, entity: Entity): T => {
   })
 
   const resource = resources[id]
+  resource.asset.set(res as any | (() => any))
   callbacks.onStart(resource)
   debugLog('ResourceManager:addResource Loading resource: ' + id + ' for entity: ' + entity)
-  return res
+  return resource.asset.get(NO_PROXY) as T
 }
 
 const update = (id: string) => {

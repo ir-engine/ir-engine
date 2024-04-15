@@ -25,16 +25,19 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { defineComponent, useComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
+import {
+  defineComponent,
+  removeComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { AudioNodeGroups, MediaElementComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { PositionalAudioHelper } from './PositionalAudioHelper'
+import { PositionalAudioHelperComponent } from './PositionalAudioHelperComponent'
 
 export interface PositionalAudioInterface {
   refDistance: number
@@ -60,8 +63,7 @@ export const PositionalAudioComponent = defineComponent({
       maxDistance: 40,
       coneInnerAngle: 360,
       coneOuterAngle: 0,
-      coneOuterGain: 0,
-      helper: null as PositionalAudioHelper | null
+      coneOuterGain: 0
     }
   },
 
@@ -95,10 +97,6 @@ export const PositionalAudioComponent = defineComponent({
     }
   },
 
-  onRemove: (entity, component) => {
-    if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
-  },
-
   reactor: function () {
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
@@ -106,19 +104,13 @@ export const PositionalAudioComponent = defineComponent({
     const mediaElement = useOptionalComponent(entity, MediaElementComponent)
 
     useEffect(() => {
-      if (!debugEnabled.value || !mediaElement || !mediaElement.element.value) return
-
-      const audioNodes = AudioNodeGroups.get(mediaElement.element.value)
-      if (!audioNodes) return
-      const helper = new PositionalAudioHelper(audioNodes)
-      helper.name = `positional-audio-helper-${entity}`
-      addObjectToGroup(entity, helper)
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
-      audio.helper.set(helper)
-
-      return () => {
-        removeObjectFromGroup(entity, helper)
-        audio.helper.set(none)
+      if (!debugEnabled.value) {
+        removeComponent(entity, PositionalAudioHelperComponent)
+      } else {
+        if (!mediaElement || !mediaElement.element.value) return
+        const audioNodes = AudioNodeGroups.get(mediaElement.element.value)
+        if (!audioNodes) return
+        setComponent(entity, PositionalAudioHelperComponent, { audio: audioNodes })
       }
     }, [debugEnabled, mediaElement?.element])
 
