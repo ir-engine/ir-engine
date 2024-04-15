@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import StringInput, { ControlledStringInput } from './index'
+import StringInput from './index'
 const argTypes = {}
 
 export default {
   title: 'Editor/Input/String',
-  component: ControlledStringInput,
+  component: StringInput,
   parameters: {
     componentSubtitle: 'StringInput',
     jest: 'String.test.tsx',

@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import image from '../../../../../../../PoweredByEE.png'
 import Component from './index'
 
 const argTypes = {}
@@ -40,4 +41,8 @@ export default {
   },
   argTypes
 }
-export const Default = { args: Component.defaultProps }
+export const Default = {
+  args: {
+    value: image
+  }
+}

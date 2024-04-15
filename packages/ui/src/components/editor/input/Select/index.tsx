@@ -25,22 +25,21 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { MdOutlineHeatPump, MdOutlineWatch, MdOutlineWindPower } from 'react-icons/md'
-import Select from '../../../../primitives/tailwind/Select'
+import Select, { SelectProps } from '../../../../primitives/tailwind/Select'
 
 // make new component instead
 
-const SelectInput = () => {
+const SelectInput = ({ options, value, onChange }: SelectProps<any>, ...rest) => {
   return (
     <Select
-      options={SelectInput.defaultProps.options}
+      options={options}
       className="flex-column w-[200px] items-center rounded bg-neutral-900 px-4 py-2"
       menuClassname=""
       arrowClassname="text-neutral-400 absolute right-3 top-2"
       override={true}
-      currentValue={''}
-      onChange={function (value: string | number): void {
-        throw new Error('Function not implemented.')
-      }}
+      value={value}
+      onChange={onChange!}
+      {...rest}
     />
   )
 }

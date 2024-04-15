@@ -22,3 +22,15 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+
+import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
+import { ImageFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
+import React from 'react'
+import FileBrowserInput from '../FileBrowser'
+import { StringInputProps } from '../String'
+
+export function ImageInput({ ...rest }: StringInputProps) {
+  return <FileBrowserInput acceptFileTypes={ImageFileTypes} acceptDropItems={ItemTypes.Images} {...rest} />
+}
+
+export default ImageInput
