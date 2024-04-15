@@ -41,6 +41,7 @@ export async function seed(knex: Knex): Promise<void> {
         s3: JSON.stringify({
           accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID,
           secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET,
+          roleArn: process.env.STORAGE_AWS_ROLE_ARN,
           endpoint: process.env.STORAGE_S3_ENDPOINT,
           staticResourceBucket: process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET,
           region: process.env.STORAGE_S3_REGION,
@@ -49,7 +50,8 @@ export async function seed(knex: Knex): Promise<void> {
         }),
         eks: JSON.stringify({
           accessKeyId: process.env.EKS_AWS_ACCESS_KEY_ID,
-          secretAccessKey: process.env.EKS_AWS_ACCESS_KEY_SECRET
+          secretAccessKey: process.env.EKS_AWS_ACCESS_KEY_SECRET,
+          roleArn: process.env.EKS_AWS_ROLE_ARN
         }),
         cloudfront: JSON.stringify({
           domain:
