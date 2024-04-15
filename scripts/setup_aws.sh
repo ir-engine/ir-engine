@@ -23,6 +23,11 @@ set +x
 aws configure set aws_access_key_id $1
 aws configure set aws_secret_access_key $2
 aws configure set default.region $3
+if [[ -n $5 ]]
+then
+  aws configure set role_arn $5
+  aws configure set source_profile default
+fi
 
 aws eks update-kubeconfig --name $4
 

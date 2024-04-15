@@ -32,7 +32,7 @@ const knex = require('knex')
 const { staticResourcePath } = require('@etherealengine/engine/src/media/static-resource.schema')
 const { S3Client } = require('@aws-sdk/client-s3')
 const { nanoid } = require('nanoid')
-const { v4 } = require('uuid')
+const { v4: uuidv4 } = require('uuid')
 
 // TODO: check for existing avatar on S3
 
@@ -95,17 +95,17 @@ const uploadFile = (Key, Body) => {
       },
       (err, data) => {
         if (forceS3Upload || (err && err.code === 'NotFound')) {
-          s3.putObject(
-            {
-              Body,
-              Bucket: BUCKET,
-              Key,
-              ACL: getACL(Key)
-            },
-            (err, data) => {
-              resolve(data)
-            }
-          )
+          const body = {
+            Body,
+            Bucket: BUCKET,
+            Key
+          } as any
+
+          if (process.env.STORAGE_AWS_ENABLE_ACLS === 'true') body.ACL = getACL(Key)
+
+          s3.putObject(body, (err, data) => {
+            resolve(data)
+          })
         } else {
           console.log('Object Already Exist hence Skipping => ', Key)
           resolve(data)
@@ -117,7 +117,7 @@ const uploadFile = (Key, Body) => {
 
 const saveToDB = async (name, extension) => {
   await knexClient.from(staticResourcePath).insert({
-    id: v4(),
+    id: uuidv4(),
     sid: nanoid(8),
     name,
     url: 'https://s3.amazonaws.com/' + BUCKET + '/' + AVATAR_FOLDER + '/' + name + extension,
