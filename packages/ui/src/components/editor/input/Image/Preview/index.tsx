@@ -22,3 +22,49 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+
+import React from 'react'
+
+import ImageInput from '..'
+import InputGroup from '../../Group'
+import { StringInputProps } from '../../String'
+
+export const ImageContainer = ({ children }) => {
+  return <div className="inline-flex h-[344px] w-[313px] flex-col items-start justify-start gap-2">{children}</div>
+}
+
+export default function ImagePreviewInput(
+  { value, onRelease, ...rest }: StringInputProps,
+  { label }: { label: string }
+) {
+  return (
+    <ImageContainer>
+      <div className="self-stretch font-['Figtree'] text-[8px] font-normal leading-3 text-neutral-200">{label}</div>
+      <div className="flex flex-col items-start justify-start gap-1 rounded bg-neutral-800 p-1">
+        <div className="relative h-[274px] w-[305px]">
+          <div className="flex flex h-[274px] w-[305px] justify-center rounded bg-zinc-900">
+            <div className="h-auto w-auto rounded bg-neutral-900">
+              <img src={value} crossOrigin="anonymous" className="h-[100%] w-[100%] rounded object-contain" />
+            </div>
+          </div>
+        </div>
+        <div className="inline-flex items-center justify-center gap-2.5 self-stretch rounded bg-neutral-900 px-2 py-1">
+          <ImageInput value={value} onRelease={onRelease} />
+        </div>
+      </div>
+    </ImageContainer>
+  )
+}
+
+ImagePreviewInput.defaultProps = {
+  value: 'https://fastly.picsum.photos/id/1065/200/300.jpg?hmac=WvioY_uR2xNPKNxQoR9y1HhWkuV6_v7rB23clZYh0Ks',
+  onRelease: () => {}
+}
+
+export function ImagePreviewInputGroup({ name, label, value, onRelease, ...rest }) {
+  return (
+    <InputGroup name={name} label={label} {...rest}>
+      <ImagePreviewInput value={value} onRelease={onRelease} />
+    </InputGroup>
+  )
+}

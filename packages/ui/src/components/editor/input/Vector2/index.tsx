@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { useHookstate } from '@hookstate/core'
 import React from 'react'
-import { Vector3 } from 'three'
+import { Vector2 } from 'three'
 
 // style inheritance
 
@@ -40,10 +40,10 @@ interface Vector2InputProp {
   smallStep?: number
   mediumStep?: number
   largeStep?: number
-  value: Vector3
+  value: Vector2
   hideLabels?: boolean
-  onChange: (v: Vector3) => void
-  onRelease?: (v: Vector3) => void
+  onChange: (v: Vector2) => void
+  onRelease?: (v: Vector2) => void
 }
 
 export const Vector2Input = ({

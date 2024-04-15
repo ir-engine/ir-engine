@@ -42,7 +42,7 @@ export interface SelectProps<T extends OptionValueType> {
   error?: string
   description?: string
   options: { label: string; value: T; icon?: any; disabled?: boolean }[]
-  currentValue: T
+  value: T
   onChange: (value: T) => void
   placeholder?: string
   disabled?: boolean
@@ -58,7 +58,7 @@ const Select = <T extends OptionValueType>({
   override,
   description,
   options,
-  currentValue,
+  value,
   onChange,
   placeholder,
   disabled,
@@ -87,9 +87,9 @@ const Select = <T extends OptionValueType>({
 
   const selectLabel = useHookstate('')
   useEffect(() => {
-    const labelName = options.find((option) => option.value === currentValue)?.label
+    const labelName = options.find((option) => option.value === value)?.label
     if (labelName) selectLabel.set(labelName)
-  }, [currentValue, options])
+  }, [value, options])
 
   useClickOutside(ref, () => showOptions.set(false))
 

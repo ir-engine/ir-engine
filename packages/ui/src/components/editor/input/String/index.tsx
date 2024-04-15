@@ -49,7 +49,7 @@ const StringInput = ({ value, onChange, onRelease, onFocus, disabled, placeholde
   return (
     <Input
       containerClassname="w-[178px] h-[30px] bg-zinc-900 rounded-[5px]"
-      className="w-full bg-inherit font-['Figtree'] text-xs font-normal text-neutral-400"
+      className="w-full text-ellipsis bg-inherit font-['Figtree'] text-xs font-normal text-neutral-400"
       override={true}
       value={value ?? ''}
       onChange={(e) => {
@@ -114,7 +114,7 @@ export const ControlledStringInput = React.forwardRef<any, StringInputProps>((va
     <Input
       ref={ref}
       containerClassname="w-[246px] h-[30px] bg-zinc-900 rounded-[5px]"
-      className="w-[220px] bg-inherit font-['Figtree'] text-xs font-normal text-neutral-400"
+      className="w-[220px] text-ellipsis bg-inherit font-['Figtree'] text-xs font-normal text-neutral-400"
       override={true}
       value={value ?? ''}
       onChange={(e) => {
