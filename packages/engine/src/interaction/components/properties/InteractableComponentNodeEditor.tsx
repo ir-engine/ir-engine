@@ -42,15 +42,15 @@ import PanToolIcon from '@mui/icons-material/PanTool'
 // import StringInput from '../inputs/StringInput'
 // import NodeEditor from './NodeEditor'
 // import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
-import { Button } from '@etherealengine/editor/src/components/inputs/Button'
+import { PropertiesPanelButton } from '@etherealengine/editor/src/components/inputs/Button'
 import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
 import SelectInput from '@etherealengine/editor/src/components/inputs/SelectInput'
 import StringInput from '@etherealengine/editor/src/components/inputs/StringInput'
 import NodeEditor from '@etherealengine/editor/src/components/properties/NodeEditor'
 import {
+  EditorComponentType,
   commitProperties,
   commitProperty,
-  EditorComponentType,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
 import { InteractableComponent } from '../InteractableComponent'
@@ -93,44 +93,49 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
     targets.set(options)
   }, [])
 
+  const addCallback = () => {
+    const label = ''
+    const callbacks = [
+      ...interactableComponent.callbacks.value,
+      {
+        target: 'Self',
+        callbackID: ''
+      }
+    ]
+    commitProperties(InteractableComponent, { label: label, callbacks: JSON.parse(JSON.stringify(callbacks)) }, [
+      props.entity
+    ])
+  }
+  const removeCallback = (index: number) => {
+    const callbacks = [...interactableComponent.callbacks.value]
+    callbacks.splice(index, 1)
+    commitProperties(InteractableComponent, { callbacks: JSON.parse(JSON.stringify(callbacks)) }, [props.entity])
+  }
+
   return (
     <NodeEditor
       {...props}
-      name={t('editor:properties.callback.name')}
-      description={t('editor:properties.callback.description')}
+      name={t('editor:properties.interactable.name')}
+      description={t('editor:properties.interactable.description')}
     >
-      <InputGroup name="Label" label={t('editor:properties.label.lbl-label')}>
+      <InputGroup name="Label" label={t('editor:properties.interactable.lbl-label')}>
         <StringInput
           value={interactableComponent.label.value!}
           onChange={updateProperty(InteractableComponent, 'label')}
           onRelease={commitProperty(InteractableComponent, 'label')}
         />
       </InputGroup>
-      <Button
-        onClick={() => {
-          console.log('callback clicked')
-          const label = ''
-          const callbacks = [
-            ...interactableComponent.callbacks.value,
-            {
-              target: 'Self',
-              callbackID: ''
-            }
-          ]
-          commitProperties(InteractableComponent, { label: label, callbacks: JSON.parse(JSON.stringify(callbacks)) }, [
-            props.entity
-          ])
-        }}
-      >
-        Add Callback
-      </Button>
+      <PropertiesPanelButton type="submit" onClick={addCallback}>
+        {t('editor:properties.interactable.addcallbacktitle')}
+      </PropertiesPanelButton>
+
       <div key={`callback-list-${props.entity}`}>
         {interactableComponent.callbacks.map((callback, index) => {
           const targetOption = targets.value.find((o) => o.value === callback.target.value)
           const target = targetOption ? targetOption.value : 'Self'
           return (
             <>
-              <InputGroup name="Target" label={t('editor:properties.callbacks.lbl-target')}>
+              <InputGroup name="Target" label={t('editor:properties.interactable.callbacks.lbl-target')}>
                 <SelectInput
                   key={props.entity}
                   value={callback.target.value ?? 'Self'}
@@ -140,7 +145,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
                 />
               </InputGroup>
 
-              <InputGroup name="CallbackID" label={t('editor:properties.callbacks.lbl-callbackID')}>
+              <InputGroup name="CallbackID" label={t('editor:properties.interactable.callbacks.lbl-callbackID')}>
                 {targetOption?.callbacks.length == 0 ? (
                   <StringInput
                     value={callback.callbackID.value!}
@@ -159,17 +164,9 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
                 )}
               </InputGroup>
 
-              <Button
-                onClick={() => {
-                  const callbacks = [...interactableComponent.callbacks.value]
-                  callbacks.splice(index, 1)
-                  commitProperties(InteractableComponent, { callbacks: JSON.parse(JSON.stringify(callbacks)) }, [
-                    props.entity
-                  ])
-                }}
-              >
-                Remove
-              </Button>
+              <PropertiesPanelButton type="submit" onClick={(index: number) => removeCallback(index)}>
+                {t('editor:properties.interactable.removecallbacktitle')}
+              </PropertiesPanelButton>
             </>
           )
         })}

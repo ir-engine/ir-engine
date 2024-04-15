@@ -225,6 +225,18 @@
       "description": "Anchors this entity to a real life reference",
       "lbl-name": "Anchor Name"
     },
+    "interactable": {
+      "name": "Interactable",
+      "description": "An interactable component with an optional XRUI with text of Label that can trigger callbacks",
+      "lbl-label" : "Label",
+      "addcallbacktitle" : "Add Callback",
+      "removecallbacktitle": "Remove Callback",
+      "callbacks" :
+      {
+        "lbl-target" : "Target",
+        "lbl-callbackID" : "Callback ID"
+      }
+    },
     "media": {
       "name": "Media",
       "description": "Audio and video playback",
