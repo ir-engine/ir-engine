@@ -40,6 +40,7 @@ import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getState } from '@etherealengine/hyperflux'
 import { ClientInputSystem } from '@etherealengine/spatial'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
 import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
@@ -163,7 +164,9 @@ const execute = () => {
   for (const entity of allInteractablesQuery.enter()) {
     setComponent(entity, DistanceFromCameraComponent)
     setComponent(entity, DistanceFromLocalClientComponent)
-    if (isClient) {
+
+    // add interactable UI if it has a label
+    if (isClient && !getState(EngineState).isEditor) {
       const interactable = getComponent(entity, InteractableComponent)
       if (interactable.label && interactable.label !== '') {
         addInteractableUI(entity, createInteractUI(entity, interactable.label))
