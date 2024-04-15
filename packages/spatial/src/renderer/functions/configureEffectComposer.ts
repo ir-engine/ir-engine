@@ -28,18 +28,16 @@ import { getState } from '@etherealengine/hyperflux'
 import {
   BlendFunction,
   DepthDownsamplingPass,
-  DepthPass,
   EdgeDetectionMode,
   EffectComposer,
   EffectPass,
   OutlineEffect,
   RenderPass,
   SMAAEffect,
-  ShaderPass,
   TextureEffect
 } from 'postprocessing'
 import { VelocityDepthNormalPass } from 'realism-effects'
-import { DepthTexture, NearestFilter, RGBAFormat, Scene, UnsignedIntType, WebGLRenderTarget } from 'three'
+import { Scene } from 'three'
 import { EngineState } from '../../EngineState'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
@@ -47,8 +45,6 @@ import { HighlightState } from '../HighlightState'
 import { RendererState } from '../RendererState'
 import { RenderSettingsState, RendererComponent } from '../WebGLRendererSystem'
 import { EffectMap, Effects, defaultPostProcessingSchema } from '../effects/PostProcessing'
-import { SDFSettingsState } from '../effects/sdf/SDFSettingsState'
-import { SDFShader } from '../effects/sdf/SDFShader'
 import { CustomNormalPass } from '../passes/CustomNormalPass'
 import { changeRenderMode } from './changeRenderMode'
 
@@ -101,29 +97,6 @@ export const configureEffectComposer = (entity: Entity, schema?: typeof defaultP
     normalBuffer: normalPass.texture,
     resolutionScale: 0.5
   })
-
-  const SDFSetting = getState(SDFSettingsState)
-  if (SDFSetting.enabled) {
-    const depthRenderTarget = new WebGLRenderTarget(window.innerWidth, window.innerHeight)
-    depthRenderTarget.texture.minFilter = NearestFilter
-    depthRenderTarget.texture.magFilter = NearestFilter
-    depthRenderTarget.texture.generateMipmaps = false
-    depthRenderTarget.stencilBuffer = false
-    depthRenderTarget.depthBuffer = true
-    depthRenderTarget.depthTexture = new DepthTexture(window.innerWidth, window.innerHeight)
-    depthRenderTarget.texture.format = RGBAFormat
-    depthRenderTarget.depthTexture.type = UnsignedIntType
-
-    const depthPass = new DepthPass(scene, camera, {
-      renderTarget: depthRenderTarget
-    })
-
-    composer.addPass(depthPass)
-
-    SDFShader.shader.uniforms.uDepth.value = depthRenderTarget.depthTexture
-    const SDFPass = new ShaderPass(SDFShader.shader, 'inputBuffer')
-    composer.addPass(SDFPass)
-  }
 
   if (!schema) return
 

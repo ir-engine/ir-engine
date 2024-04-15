@@ -23,17 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Entity } from '@etherealengine/ecs'
 import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
-import { SDFSettingsState } from '@etherealengine/spatial/src/renderer/effects/sdf/SDFSettingsState'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { useScene } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { SDFShader } from '@etherealengine/spatial/src/renderer/effects/sdf/SDFShader'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { useEffect } from 'react'
-import { Color, Vector3 } from 'three'
+import { DepthPass, ShaderPass } from 'postprocessing'
+import React, { useEffect } from 'react'
+import {
+  Camera,
+  Color,
+  DepthTexture,
+  NearestFilter,
+  RGBAFormat,
+  Scene,
+  UnsignedIntType,
+  Vector3,
+  WebGLRenderTarget
+} from 'three'
 import { UpdatableCallback, UpdatableComponent } from './UpdatableComponent'
 
 export enum SDFMode {
@@ -82,6 +94,7 @@ export const SDFComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const sdfComponent = useComponent(entity, SDFComponent)
+    const rendererEntity = useScene(entity)
 
     useEffect(() => {
       const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
@@ -104,10 +117,6 @@ export const SDFComponent = defineComponent({
     }, [])
 
     useEffect(() => {
-      getMutableState(SDFSettingsState).enabled.set(sdfComponent.enable.value)
-    }, [sdfComponent.enable])
-
-    useEffect(() => {
       SDFShader.shader.uniforms.uColor.value = new Vector3(
         sdfComponent.color.value.r,
         sdfComponent.color.value.g,
@@ -123,6 +132,47 @@ export const SDFComponent = defineComponent({
       SDFShader.shader.uniforms.mode.value = sdfComponent.mode.value
     }, [sdfComponent.mode])
 
-    return null
+    if (!rendererEntity) return null
+
+    return <RendererReactor entity={entity} rendererEntity={rendererEntity} />
   }
 })
+
+const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
+  const { entity, rendererEntity } = props
+  const sdfComponent = useComponent(entity, SDFComponent)
+  const rendererComponent = useComponent(rendererEntity, RendererComponent)
+
+  useEffect(() => {
+    if (!rendererEntity) return
+    const composer = rendererComponent.effectComposer.value
+    if (!composer) return
+
+    const depthRenderTarget = new WebGLRenderTarget(window.innerWidth, window.innerHeight)
+    depthRenderTarget.texture.minFilter = NearestFilter
+    depthRenderTarget.texture.magFilter = NearestFilter
+    depthRenderTarget.texture.generateMipmaps = false
+    depthRenderTarget.stencilBuffer = false
+    depthRenderTarget.depthBuffer = true
+    depthRenderTarget.depthTexture = new DepthTexture(window.innerWidth, window.innerHeight)
+    depthRenderTarget.texture.format = RGBAFormat
+    depthRenderTarget.depthTexture.type = UnsignedIntType
+
+    const depthPass = new DepthPass(new Scene(), new Camera(), {
+      renderTarget: depthRenderTarget
+    })
+
+    composer.addPass(depthPass, 3) // hardcoded to 3, should add a registry instead later
+
+    SDFShader.shader.uniforms.uDepth.value = depthRenderTarget.depthTexture
+    const SDFPass = new ShaderPass(SDFShader.shader, 'inputBuffer')
+    composer.addPass(SDFPass, 4)
+
+    return () => {
+      composer.removePass(depthPass)
+      composer.removePass(SDFPass)
+    }
+  }, [sdfComponent.enable, rendererComponent.effectComposer])
+
+  return null
+}

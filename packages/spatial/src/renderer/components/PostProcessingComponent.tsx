@@ -62,6 +62,7 @@ export const PostProcessingComponent = defineComponent({
     const postprocessingComponent = useComponent(entity, PostProcessingComponent)
 
     useEffect(() => {
+      if (!rendererEntity) return
       configureEffectComposer(
         rendererEntity,
         postprocessingComponent.enabled.value ? postprocessingComponent.effects.get(NO_PROXY_STEALTH) : undefined

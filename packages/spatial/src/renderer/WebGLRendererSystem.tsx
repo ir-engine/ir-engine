@@ -77,7 +77,6 @@ import {
 } from './components/SceneComponents'
 import { VisibleComponent } from './components/VisibleComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
-import { SDFSettingsState } from './effects/sdf/SDFSettingsState'
 import { changeRenderMode } from './functions/changeRenderMode'
 
 export const RendererComponent = defineComponent({
@@ -365,7 +364,6 @@ const rendererReactor = () => {
   const renderSettings = useHookstate(getMutableState(RenderSettingsState))
   const engineRendererSettings = useHookstate(getMutableState(RendererState))
   const xrState = useHookstate(getMutableState(XRState))
-  const sdfState = useHookstate(getMutableState(SDFSettingsState))
 
   useEffect(() => {
     renderer.renderer.toneMapping = renderSettings.toneMapping.value
@@ -379,17 +377,6 @@ const rendererReactor = () => {
     renderer.renderer.shadowMap.type = renderSettings.shadowMapType.value
     renderer.renderer.shadowMap.needsUpdate = true
   }, [xrState.supportedSessionModes, renderSettings.shadowMapType, engineRendererSettings.useShadows])
-
-  // useEffect(() => {
-  //   configureEffectComposer(entity)
-  //   if (getState(EngineState).isEditor) changeRenderMode()
-  // }, [
-  //   postprocessing.enabled,
-  //   postprocessing.effects,
-  //   sdfState.enabled,
-  //   engineRendererSettings.usePostProcessing,
-  //   renderSettings.smaaPreset
-  // ])
 
   useEffect(() => {
     renderer.scaleFactor = engineRendererSettings.qualityLevel.value / renderer.maxQualityLevel
