@@ -11,7 +11,7 @@ START_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 mkdir -pv ~/.docker
 cp -v /var/lib/docker/certs/client/* ~/.docker
 touch ./builder-started.txt
-bash ./scripts/setup_aws.sh $EKS_AWS_ACCESS_KEY_ID $EKS_AWS_ACCESS_KEY_SECRET $AWS_REGION $CLUSTER_NAME
+bash ./scripts/setup_aws.sh $EKS_AWS_ACCESS_KEY_ID $EKS_AWS_ACCESS_KEY_SECRET $AWS_REGION $CLUSTER_NAME $EKS_AWS_ROLE_ARN
 npx cross-env ts-node --swc scripts/check-db-exists.ts
 npm run prepare-database
 npm run create-build-status

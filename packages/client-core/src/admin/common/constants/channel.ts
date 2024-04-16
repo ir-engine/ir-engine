@@ -24,35 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { Suspense } from 'react'
+import { ITableHeadCell } from '../Table'
 
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+type IdType = 'id' | 'action' | 'name' | 'select'
 
-import AdminRoutes from '@etherealengine/client-core/src/admin/adminRoutes'
-import { useEngineInjection } from '@etherealengine/client-core/src/components/World/EngineHooks'
-import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
+export type ChannelRowType = Record<IdType, string | JSX.Element | undefined>
 
-const LocationRoutes = () => {
-  const projectsLoaded = useEngineInjection()
-  useRemoveEngineCanvas()
-
-  if (!projectsLoaded)
-    return (
-      <LoadingCircle className="flex w-[3%] items-center justify-center" message={t('common:loader.loadingProjects')} />
-    )
-
-  return (
-    <Suspense
-      fallback={
-        <LoadingCircle
-          className="flex w-[3%] items-center justify-center"
-          message={t('common:loader.loadingLocation')}
-        />
-      }
-    >
-      <AdminRoutes />
-    </Suspense>
-  )
+interface IChannelColumn extends ITableHeadCell {
+  id: IdType
 }
 
-export default LocationRoutes
+export const channelColumns: IChannelColumn[] = [
+  { id: 'id', label: t('admin:components.channel.columns.id') },
+  { id: 'name', label: t('admin:components.channel.columns.name') },
+  { id: 'action', label: t('admin:components.channel.columns.action') }
+]
