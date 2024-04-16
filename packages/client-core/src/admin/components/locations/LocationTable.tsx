@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { LocationType, SceneID, locationPath } from '@etherealengine/common/src/schema.type.module'
+import { LocationType, locationPath } from '@etherealengine/common/src/schema.type.module'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { useHookstate } from '@etherealengine/hyperflux'
@@ -61,7 +61,7 @@ export default function LocationTable({ search }: { search: string }) {
         $like: `%${search}%`
       },
       sceneId: {
-        $like: `%${search}%` as SceneID
+        $like: `%${search}%`
       }
     },
     search
