@@ -24,15 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import config from '@etherealengine/common/src/config'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import Tabs from '@etherealengine/ui/src/primitives/tailwind/Tabs'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { ProjectState } from '../../../common/services/ProjectService'
 import ProjectTable from './ProjectTable'
 import ProjectTopMenu from './ProjectTopMenu'
 import BuildStatusTable from './build-status/BuildStatusTable'
 
 export default function AdminProject() {
   const { t } = useTranslation()
+
+  const projectState = useHookstate(getMutableState(ProjectState))
 
   return (
     <Tabs
@@ -45,7 +50,12 @@ export default function AdminProject() {
         },
         {
           title: t('admin:components.buildStatus.buildStatus'),
-          tabLabel: t('admin:components.project.buildStatus'),
+          tabLabel: (
+            <span className="flex items-center gap-5">
+              {t('admin:components.project.buildStatus')}{' '}
+              {projectState.rebuilding.value && <LoadingCircle className="inline h-6 w-6" />}
+            </span>
+          ),
           bottomComponent: <BuildStatusTable />,
           disabled: config.client.localBuildOrDev
         }
