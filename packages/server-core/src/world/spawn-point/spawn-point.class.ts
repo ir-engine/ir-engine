@@ -31,7 +31,7 @@ export interface SpawnPointParams extends Params<SpawnPointQuery> {
   paginate?: false
 }
 
-export class PortalService<T = SpawnPointType, ServiceParams extends Params = SpawnPointParams> extends KnexService<
+export class SpawnPointService<T = SpawnPointType, ServiceParams extends Params = SpawnPointParams> extends KnexService<
   SpawnPointType,
   SpawnPointData,
   SpawnPointParams,

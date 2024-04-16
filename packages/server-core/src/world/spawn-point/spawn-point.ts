@@ -25,13 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { spawnPointMethods, spawnPointPath } from '@etherealengine/common/src/schemas/world/spawn-point.schema'
 import { Application } from '../../../declarations'
-import { PortalService } from './spawn-point.class'
-import portalDocs from './spawn-point.docs'
+import { SpawnPointService } from './spawn-point.class'
+import spawnPointDocs from './spawn-point.docs'
 import hooks from './spawn-point.hooks'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    [spawnPointPath]: PortalService
+    [spawnPointPath]: SpawnPointService
   }
 }
 
@@ -43,12 +43,12 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(spawnPointPath, new PortalService(options), {
+  app.use(spawnPointPath, new SpawnPointService(options), {
     // A list of all methods this service exposes externally
     methods: spawnPointMethods,
     // You can add additional custom events to be sent to clients here
     events: [],
-    docs: portalDocs
+    docs: spawnPointDocs
   })
 
   const service = app.service(spawnPointPath)
