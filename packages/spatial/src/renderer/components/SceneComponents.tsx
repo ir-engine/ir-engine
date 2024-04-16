@@ -134,8 +134,8 @@ export function useScene(entity: Entity) {
     let unmounted = false
 
     function SceneSubChildReactor(props: { sceneEntity: Entity; sceneUUID: EntityUUID }) {
-      const SceneChildComponent = useHookstate(SceneComponent.sceneState[props.sceneUUID]).value
-      const ancestor = useAncestorWithComponent(entity, SceneChildComponent)
+      const SceneChildComponent = useHookstate(SceneComponent.sceneState[props.sceneUUID])
+      const ancestor = useAncestorWithComponent(entity, SceneChildComponent.get(NO_PROXY))
 
       useLayoutEffect(() => {
         if (!ancestor) return

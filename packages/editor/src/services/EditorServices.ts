@@ -24,8 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/ecs'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { GLTFState } from '@etherealengine/engine/src/scene/GLTFState'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { defineState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 import { LayoutData } from 'rc-dock'
 
 interface IExpandedNodes {
@@ -49,5 +51,10 @@ export const EditorState = defineState({
   }),
   onCreate: () => {
     syncStateWithLocalStorage(EditorState, ['expandedNodes'])
+  },
+  get rootEntity() {
+    /** @todo this can be simplified once .scene.json support is removed */
+    const gltfRootEntity = getState(GLTFState)[getState(EditorState).scenePath!]?.entity
+    return gltfRootEntity || SceneState.getRootEntity(getState(EditorState).scenePath!) || UndefinedEntity
   }
 })

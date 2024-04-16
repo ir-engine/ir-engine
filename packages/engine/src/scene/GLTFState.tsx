@@ -32,29 +32,38 @@ import {
   removeEntity,
   setComponent
 } from '@etherealengine/ecs'
-import { defineState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { GLTF } from '@gltf-transform/core'
 import { MathUtils } from 'three'
 import { ModelComponent } from './components/ModelComponent'
 import { SourceComponent } from './components/SourceComponent'
+import { getModelSceneID } from './functions/loaders/ModelFunctions'
 
 export const GLTFState = defineState({
   name: 'GLTFState',
-  initial: {} as Record<string, GLTF.IGLTF>,
+  initial: {} as Record<
+    string,
+    {
+      entity: Entity
+      /** @todo */
+      // document?: GLTF.IGLTF
+    }
+  >,
 
   load: (source: string, parentEntity = UndefinedEntity) => {
     const entity = createEntity()
     setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
-    setComponent(entity, NameComponent, source)
+    setComponent(entity, NameComponent, source.split('/').pop()!)
     setComponent(entity, VisibleComponent, true)
-    setComponent(entity, SourceComponent, source as any)
     setComponent(entity, TransformComponent)
     setComponent(entity, EntityTreeComponent, { parentEntity })
     setComponent(entity, ModelComponent, { src: source })
+    const sourceID = getModelSceneID(entity)
+    setComponent(entity, SourceComponent, sourceID)
+    getMutableState(GLTFState)[source].set({ entity })
     return entity
   },
 

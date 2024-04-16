@@ -31,7 +31,7 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
-  useComponent
+  useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
@@ -53,8 +53,9 @@ export function getModelSceneID(entity: Entity): string {
 }
 
 export function useModelSceneID(entity: Entity): string {
-  const uuid = useComponent(entity, UUIDComponent).value
-  const model = useComponent(entity, ModelComponent).value
+  const uuid = useOptionalComponent(entity, UUIDComponent)?.value
+  const model = useOptionalComponent(entity, ModelComponent)?.value
+  if (!uuid || !model) return ''
   return uuid + '-' + model.src
 }
 
