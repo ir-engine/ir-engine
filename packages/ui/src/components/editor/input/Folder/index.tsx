@@ -33,4 +33,6 @@ export function FolderInput({ ...rest }: StringInputProps) {
   return <FileBrowserInput acceptFileTypes={AllFileTypes} acceptDropItems={[ItemTypes.Folder]} {...rest} />
 }
 
+FolderInput.defaultProps = {}
+
 export default FolderInput

@@ -40,4 +40,6 @@ export function ModelInput({ onRelease, ...rest }: StringInputProps) {
   )
 }
 
+ModelInput.defaultProps = {}
+
 export default ModelInput
