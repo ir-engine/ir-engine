@@ -65,6 +65,7 @@ import { FogSettingsComponent } from '@etherealengine/spatial/src/renderer/compo
 import { HemisphereLightComponent } from '@etherealengine/spatial/src/renderer/components/HemisphereLightComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { PointLightComponent } from '@etherealengine/spatial/src/renderer/components/PointLightComponent'
+import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { SpotLightComponent } from '@etherealengine/spatial/src/renderer/components/SpotLightComponent'
 import { PersistentAnchorComponent } from '@etherealengine/spatial/src/xr/XRAnchorComponents'
 import AmbientLightNodeEditor from '../components/properties/AmbientLightNodeEditor'
@@ -112,7 +113,6 @@ import { VariantNodeEditor } from '../components/properties/VariantNodeEditor'
 import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import { VisualScriptNodeEditor } from '../components/properties/VisualScriptNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
-import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 
 export const ComponentEditorsState = defineState({
   name: 'ee.editor.ComponentEditorsState',

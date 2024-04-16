@@ -35,7 +35,7 @@ import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFuncti
 import { startReactor } from '@etherealengine/hyperflux'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { act, render } from '@testing-library/react'
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
   EntityTreeComponent,
   destroyEntityTree,
@@ -46,7 +46,6 @@ import {
   traverseEntityNodeParent,
   useTreeQuery
 } from './EntityTree'
-import { useEffect } from 'react'
 
 describe('EntityTreeComponent', () => {
   beforeEach(() => {
@@ -393,7 +392,7 @@ describe('useTreeQuery', () => {
     const rootEntity = createEntity()
     setComponent(rootEntity, EntityTreeComponent)
 
-    console.log({rootEntity})
+    console.log({ rootEntity })
 
     let ents = [] as Entity[]
 
@@ -451,7 +450,7 @@ describe('useTreeQuery', () => {
     assert.equal(ents[2], deepChildEntity, 'deep child entity not populated')
     assert.equal(ents[3], deepChildEntity2, 'deep child 2 entity not populated')
 
-    console.log({ents}, '\n')
+    console.log({ ents }, '\n')
 
     removeEntity(deepChildEntity2)
 

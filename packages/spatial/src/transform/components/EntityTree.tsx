@@ -370,10 +370,10 @@ export function useTreeQuery(entity: Entity) {
  * Returns the closest ancestor of an entity that has a component
  * @todo maybe extend this to be a list of components?
  * @todo maybe extend this or write an alternative to get the furthest ancestor with component?
- * @param entity 
- * @param component 
- * @param closest 
- * @returns 
+ * @param entity
+ * @param component
+ * @param closest
+ * @returns
  */
 export function useAncestorWithComponent(entity: Entity, component: ComponentType<any>) {
   const result = useHookstate(UndefinedEntity)

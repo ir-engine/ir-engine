@@ -37,6 +37,7 @@ import Checkbox from '@mui/material/Checkbox'
 import Collapse from '@mui/material/Collapse'
 import IconButton from '@mui/material/IconButton'
 
+import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -45,7 +46,6 @@ import SelectInput from '../inputs/SelectInput'
 import styles from '../styles.module.scss'
 import PropertyGroup from './PropertyGroup'
 import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
-import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 
 enum PropertyTypes {
   BlendFunction,
