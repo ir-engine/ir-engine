@@ -52,7 +52,6 @@ const Select = <T extends OptionValueType>({
   className,
   label,
   error,
-  override,
   description,
   options,
   currentValue,
