@@ -41,13 +41,12 @@ import {
 } from 'three'
 
 import { Engine, EntityUUID } from '@etherealengine/ecs'
-import { useHookstate } from '@etherealengine/hyperflux'
 
 import config from '@etherealengine/common/src/config'
 import { StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { defineComponent, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { useMeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
@@ -79,9 +78,7 @@ export const ImageComponent = defineComponent({
       alphaMode: ImageAlphaMode.Opaque as ImageAlphaModeType,
       alphaCutoff: 0.5,
       projection: ImageProjection.Flat as ImageProjectionType,
-      side: DoubleSide,
-      // runtime props
-      mesh: new Mesh(PLANE_GEO as PlaneGeometry | SphereGeometry, new MeshBasicMaterial())
+      side: DoubleSide
     }
   },
 
@@ -112,11 +109,6 @@ export const ImageComponent = defineComponent({
      */
     // if (!getState(SceneState).sceneLoaded && hasComponent(entity, SourceComponent))
     //   SceneAssetPendingTagComponent.addResource(entity, ImageComponent.jsonID)
-  },
-
-  onRemove: (entity, component) => {
-    component.mesh.material.map.value?.dispose()
-    component.mesh.value.removeFromParent()
   },
 
   errors: ['MISSING_TEXTURE_SOURCE', 'UNSUPPORTED_ASSET_CLASS', 'LOADING_ERROR', 'INVALID_URL'],
@@ -157,16 +149,12 @@ function flipNormals<G extends BufferGeometry>(geometry: G) {
 export function ImageReactor() {
   const entity = useEntityContext()
   const image = useComponent(entity, ImageComponent)
-  const texture = useHookstate(null as Texture | null)
-
-  const [imgTexture, error] = useTexture(image.source.value, entity)
-
-  useEffect(() => {
-    if (imgTexture) {
-      texture.set(imgTexture)
-      // SceneAssetPendingTagComponent.removeResource(entity, ImageComponent.jsonID)
-    }
-  }, [imgTexture])
+  const [texture, error] = useTexture(image.source.value, entity)
+  const [mesh, geometry, material] = useMeshComponent<PlaneGeometry | SphereGeometry, MeshBasicMaterial>(
+    entity,
+    PLANE_GEO,
+    new MeshBasicMaterial()
+  )
 
   useEffect(() => {
     if (!error) return
@@ -190,58 +178,46 @@ export function ImageReactor() {
 
   useEffect(
     function updateTexture() {
-      if (!image) return
-      if (!texture.value) return
+      if (!texture) return
 
       clearErrors(entity, ImageComponent)
 
-      texture.value.colorSpace = SRGBColorSpace
-      texture.value.minFilter = LinearMipmapLinearFilter
+      texture.colorSpace = SRGBColorSpace
+      texture.minFilter = LinearMipmapLinearFilter
 
-      image.mesh.material.map.ornull?.value.dispose()
-      image.mesh.material.map.set(texture.value)
-      image.mesh.visible.set(true)
-      image.mesh.material.value.needsUpdate = true
+      material.map.set(texture)
+      mesh.visible = true
 
       // upload to GPU immediately
-      getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.initTexture(texture.value)
-
-      const imageMesh = image.mesh.value
-      addObjectToGroup(entity, imageMesh)
-
-      return () => {
-        removeObjectFromGroup(entity, imageMesh)
-      }
+      getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.initTexture(texture)
     },
     [texture]
   )
 
   useEffect(
     function updateGeometry() {
-      if (!image.mesh.material.map.value) return
+      if (!material.map.value) return
 
-      const flippedTexture = image.mesh.material.map.value.flipY
+      const flippedTexture = material.map.value.flipY
       switch (image.projection.value) {
         case ImageProjection.Equirectangular360:
-          image.mesh.value.geometry = flippedTexture ? SPHERE_GEO : SPHERE_GEO_FLIPPED
-          image.mesh.scale.value.set(-1, 1, 1)
+          geometry.set(flippedTexture ? SPHERE_GEO : SPHERE_GEO_FLIPPED)
+          mesh.scale.set(-1, 1, 1)
           break
         case ImageProjection.Flat:
         default:
-          image.mesh.value.geometry = flippedTexture ? PLANE_GEO : PLANE_GEO_FLIPPED
-          resizeImageMesh(image.mesh.value)
+          geometry.set(flippedTexture ? PLANE_GEO : PLANE_GEO_FLIPPED)
+          resizeImageMesh(mesh)
       }
     },
-    [image.mesh.material.map, image.projection]
+    [material.map, image.projection]
   )
 
   useEffect(
     function updateMaterial() {
-      const material = image.mesh.material.value
-      material.transparent = image.alphaMode.value === ImageAlphaMode.Blend
-      material.alphaTest = image.alphaMode.value === 'Mask' ? image.alphaCutoff.value : 0
-      material.side = image.side.value
-      material.needsUpdate = true
+      material.transparent.set(image.alphaMode.value === ImageAlphaMode.Blend)
+      material.alphaTest.set(image.alphaMode.value === 'Mask' ? image.alphaCutoff.value : 0)
+      material.side.set(image.side.value)
     },
     [image.alphaMode, image.alphaCutoff, image.side]
   )

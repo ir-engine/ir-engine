@@ -363,12 +363,7 @@ const Callbacks = {
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
     onUnload: (asset: Material, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
-      for (const [key, val] of Object.entries(asset) as [string, Texture][]) {
-        if (val && typeof val.dispose === 'function') {
-          val.dispose()
-        }
-      }
-      asset.dispose()
+      disposeMaterial(asset)
     }
   },
   [ResourceType.Geometry]: {
@@ -391,16 +386,7 @@ const Callbacks = {
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
     onUnload: (asset: Geometry, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
-      asset.dispose()
-      for (const key in asset.attributes) {
-        asset.deleteAttribute(key)
-      }
-      for (const key in asset.morphAttributes) {
-        delete asset.morphAttributes[key]
-      }
-
-      //@ts-ignore todo - figure out why check errors flags this
-      if (asset.boundsTree) asset.disposeBoundsTree()
+      disposeGeometry(asset)
     }
   },
   [ResourceType.Mesh]: {
@@ -409,16 +395,7 @@ const Callbacks = {
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
     onUnload: (asset: Mesh, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
-      const skinnedMesh = asset as SkinnedMesh
-      if (skinnedMesh.isSkinnedMesh && skinnedMesh.skeleton) {
-        skinnedMesh.skeleton.dispose()
-      }
-
-      // InstancedMesh or anything with a dispose function
-      const disposable = asset as DisposableObject
-      if (typeof disposable.dispose === 'function') {
-        disposable.dispose()
-      }
+      disposeMesh(asset)
     }
   },
   [ResourceType.Object3D]: {
@@ -440,10 +417,7 @@ const Callbacks = {
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
     onUnload: (asset: AssetType, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
-      const obj = asset as DisposableObject
-      if (typeof obj.dispose === 'function') {
-        obj.dispose()
-      }
+      dispose(asset)
     }
   }
 } as {
@@ -454,6 +428,51 @@ const Callbacks = {
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => void
     onUnload: (asset: AssetType, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => void
   }
+}
+
+const dispose = (asset: AssetType) => {
+  if ((asset as Geometry).isBufferGeometry) disposeGeometry(asset as Geometry)
+  else if ((asset as Material).isMaterial) disposeMaterial(asset as Material)
+  else if ((asset as Mesh).isMesh) disposeMesh(asset as Mesh)
+  else {
+    const disposable = asset as DisposableObject
+    if (typeof disposable.dispose == 'function') disposable.dispose()
+  }
+}
+
+const disposeGeometry = (asset: Geometry) => {
+  asset.dispose()
+  for (const key in asset.attributes) {
+    asset.deleteAttribute(key)
+  }
+  for (const key in asset.morphAttributes) {
+    delete asset.morphAttributes[key]
+  }
+
+  //@ts-ignore todo - figure out why check errors flags this
+  if (asset.boundsTree) asset.disposeBoundsTree()
+}
+
+const disposeMesh = (asset: Mesh) => {
+  const skinnedMesh = asset as SkinnedMesh
+  if (skinnedMesh.isSkinnedMesh && skinnedMesh.skeleton) {
+    skinnedMesh.skeleton.dispose()
+  }
+
+  // InstancedMesh or anything with a dispose function
+  const disposable = asset as DisposableObject
+  if (typeof disposable.dispose === 'function') {
+    disposable.dispose()
+  }
+}
+
+const disposeMaterial = (asset: Material) => {
+  for (const [key, val] of Object.entries(asset) as [string, Texture][]) {
+    if (val && typeof val.dispose === 'function') {
+      val.dispose()
+    }
+  }
+  asset.dispose()
 }
 
 const checkBudgets = () => {
@@ -537,6 +556,14 @@ const load = <T extends AssetType>(
   )
 }
 
+const getResourceType = (asset: AssetType, defaultType: ResourceType = ResourceType.Unknown) => {
+  if ((asset as Geometry).isBufferGeometry) return ResourceType.Geometry
+  else if ((asset as Material).isMaterial) return ResourceType.Material
+  else if ((asset as Mesh).isMesh) return ResourceType.Mesh
+  else if ((asset as Texture).isTexture) return ResourceType.Texture
+  else return defaultType
+}
+
 const loadObj = <T extends DisposableObject, T2 extends new (...params: any[]) => T>(
   disposableLike: T2,
   entity: Entity,
@@ -547,14 +574,16 @@ const loadObj = <T extends DisposableObject, T2 extends new (...params: any[]) =
   const obj = new disposableLike(...args)
   if (entity) obj.entity = entity
   const id = obj.uuid
-  const callbacks = Callbacks[ResourceType.Object3D]
+  const resourceType = getResourceType(obj, ResourceType.Object3D)
+  const callbacks = Callbacks[resourceType]
+
   // Only one object can exist per UUID
   resources.merge({
     [id]: {
       id: id,
       asset: obj as any,
       status: ResourceStatus.Loaded,
-      type: ResourceType.Object3D,
+      type: resourceType,
       references: [entity],
       metadata: {},
       onLoads: {}
@@ -563,6 +592,7 @@ const loadObj = <T extends DisposableObject, T2 extends new (...params: any[]) =
 
   const resource = resources[id]
   callbacks.onStart(resource)
+  callbacks.onLoad(obj, resource, resourceState)
   debugLog('ResourceManager:loadObj Loading object resource: ' + id + ' for entity: ' + entity)
   return obj as InstanceType<T2>
 }
@@ -570,12 +600,15 @@ const loadObj = <T extends DisposableObject, T2 extends new (...params: any[]) =
 const addResource = <T extends object>(res: NonNullable<T> | (() => NonNullable<T>), id: string, entity: Entity): T => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
-  const callbacks = Callbacks[ResourceType.Unknown]
+  const obj = (typeof res === 'function' ? res() : res) as AssetType
+  const resourceType = getResourceType(obj)
+  const callbacks = Callbacks[resourceType]
   resources.merge({
     [id]: {
       id: id,
+      asset: obj,
       status: ResourceStatus.Loaded,
-      type: ResourceType.Unknown,
+      type: resourceType,
       references: [entity],
       metadata: {},
       onLoads: {}
@@ -583,8 +616,8 @@ const addResource = <T extends object>(res: NonNullable<T> | (() => NonNullable<
   })
 
   const resource = resources[id]
-  resource.asset.set(res as any | (() => any))
   callbacks.onStart(resource)
+  callbacks.onLoad(obj, resource, resourceState)
   debugLog('ResourceManager:addResource Loading resource: ' + id + ' for entity: ' + entity)
   return resource.asset.get(NO_PROXY) as T
 }

@@ -48,13 +48,23 @@ export const MeshComponent = defineComponent({
 
 export const sceneMeshQuery = defineQuery([MeshComponent, SourceComponent])
 
+/**
+ *
+ * Adds a MeshComponent to an entity with the passed in Geometry and Material
+ * return the geometry and material wrapped in a state, if the state of the geometry or material is updated it will update the geometry and material for the mesh
+ *
+ * @param entity entity to add the mesh component to
+ * @param geometry a Geometry instance to add to the mesh
+ * @param material a Material instance to add to the mesh
+ * @returns [Mesh, State<Geometry>, State<Material>]
+ */
 export function useMeshComponent<
   TGeometry extends BufferGeometry = BufferGeometry,
   TMaterial extends Material = Material
 >(
   entity: Entity,
-  geometry: TGeometry = new BufferGeometry() as any,
-  material: TMaterial = new Material() as any
+  geometry: TGeometry,
+  material: TMaterial
 ): [Mesh<TGeometry, TMaterial>, State<TGeometry>, State<TMaterial>] {
   const [geometryState] = useResource(geometry, entity, geometry.uuid)
   const [materialState] = useResource(material, entity, material.uuid)
@@ -71,12 +81,12 @@ export function useMeshComponent<
 
   useDidMount(() => {
     const geo = geometryState.get(NO_PROXY)
-    mesh.geometry = geo
+    if (geo != mesh.geometry) mesh.geometry = geo
   }, [geometryState])
 
   useDidMount(() => {
     const mat = materialState.get(NO_PROXY)
-    mesh.material = mat
+    if (mat != mesh.material) mesh.material = mat
     mesh.material.needsUpdate = true
   }, [materialState])
 
