@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { useObj } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { useDisposable } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { Camera, CameraHelper } from 'three'
 import { useHelperEntity } from './DebugComponentUtils'
 
@@ -49,7 +49,7 @@ export const CameraHelperComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, CameraHelperComponent)
-    const [helper] = useObj(CameraHelper, entity, component.camera.value)
+    const [helper] = useDisposable(CameraHelper, entity, component.camera.value)
     useHelperEntity(entity, helper, component)
 
     return null

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
 import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { useObj } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { useDisposable } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { ArrowHelper, ColorRepresentation, Vector3 } from 'three'
 import { matchesColor, matchesVector3 } from '../functions/MatchesUtils'
 import { useHelperEntity } from './DebugComponentUtils'
@@ -60,7 +60,7 @@ export const ArrowHelperComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, ArrowHelperComponent)
-    const [helper] = useObj(
+    const [helper] = useDisposable(
       ArrowHelper,
       entity,
       component.dir.value,

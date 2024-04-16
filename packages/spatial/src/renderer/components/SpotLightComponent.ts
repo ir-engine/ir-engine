@@ -36,7 +36,7 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { useObj } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { useDisposable } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { matches } from '@etherealengine/hyperflux'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { LightHelperComponent } from '../../common/debug/LightHelperComponent'
@@ -104,7 +104,7 @@ export const SpotLightComponent = defineComponent({
     const renderState = useHookstate(getMutableState(RendererState))
     const debugEnabled = renderState.nodeHelperVisibility
     const spotLightComponent = useComponent(entity, SpotLightComponent)
-    const [light] = useObj(SpotLight, entity)
+    const [light] = useDisposable(SpotLight, entity)
     const lightHelper = useOptionalComponent(entity, LightHelperComponent)
 
     useEffect(() => {

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
 import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { useObj, useResource } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { useDisposable, useResource } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { NO_PROXY } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { BufferGeometry, Color, ColorRepresentation, LineBasicMaterial, LineSegments, Material } from 'three'
@@ -62,7 +62,7 @@ export const LineSegmentComponent = defineComponent({
     const component = useComponent(entity, LineSegmentComponent)
     const [geometryState] = useResource(component.geometry.value, entity, component.geometry.uuid.value)
     const [materialState] = useResource(component.material.value, entity, component.material.uuid.value)
-    const [lineSegment] = useObj(LineSegments, entity, geometryState.value, materialState.value)
+    const [lineSegment] = useDisposable(LineSegments, entity, geometryState.value, materialState.value)
     useHelperEntity(entity, lineSegment, component)
 
     useEffect(() => {

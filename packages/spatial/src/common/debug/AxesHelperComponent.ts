@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { useObj } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { useDisposable } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { AxesHelper } from 'three'
 import { useHelperEntity } from './DebugComponentUtils'
@@ -51,7 +51,7 @@ export const AxesHelperComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, AxesHelperComponent)
-    const [helper] = useObj(AxesHelper, entity, component.size.value)
+    const [helper] = useDisposable(AxesHelper, entity, component.size.value)
     useHelperEntity(entity, helper, component, component.layer.value)
 
     return null

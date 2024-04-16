@@ -28,7 +28,7 @@ import { AmbientLight, Color } from 'three'
 
 import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { useObj } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { useDisposable } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { matches } from '@etherealengine/hyperflux'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
@@ -61,7 +61,7 @@ export const AmbientLightComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const ambientLightComponent = useComponent(entity, AmbientLightComponent)
-    const [light] = useObj(AmbientLight, entity)
+    const [light] = useDisposable(AmbientLight, entity)
 
     useEffect(() => {
       addObjectToGroup(entity, light)

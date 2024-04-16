@@ -29,7 +29,7 @@ import { NO_PROXY } from '@etherealengine/hyperflux'
 import { useHelperEntity } from '@etherealengine/spatial/src/common/debug/DebugComponentUtils'
 import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, InterleavedBufferAttribute, Line, LineBasicMaterial, MathUtils } from 'three'
-import { useObj, useResource } from '../../assets/functions/resourceHooks'
+import { useDisposable, useResource } from '../../assets/functions/resourceHooks'
 import { AudioNodeGroup } from '../../scene/components/MediaComponent'
 
 export const PositionalAudioHelperComponent = defineComponent({
@@ -73,7 +73,7 @@ export const PositionalAudioHelperComponent = defineComponent({
     const [geometryState] = useResource<BufferGeometry>(createGeometry, entity)
     const [materialInnerAngle] = useResource(new LineBasicMaterial({ color: 0x00ff00 }), entity)
     const [materialOuterAngle] = useResource(new LineBasicMaterial({ color: 0xffff00 }), entity)
-    const [line] = useObj(Line<BufferGeometry, LineBasicMaterial[]>, entity, geometryState.value, [
+    const [line] = useDisposable(Line<BufferGeometry, LineBasicMaterial[]>, entity, geometryState.value, [
       materialOuterAngle.value,
       materialInnerAngle.value
     ])

@@ -53,7 +53,7 @@ import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { createObj } from '../../assets/functions/resourceHooks'
+import { createDisposable } from '../../assets/functions/resourceHooks'
 import {
   envmapParsReplaceLambert,
   envmapPhysicalParsReplace,
@@ -116,7 +116,7 @@ export const EnvMapBakeComponent = defineComponent({
 
     useLayoutEffect(() => {
       if (!debugEnabled.value) return
-      const [helper, unload] = createObj(Mesh, entity, sphereGeometry, helperMeshMaterial)
+      const [helper, unload] = createDisposable(Mesh, entity, sphereGeometry, helperMeshMaterial)
       helper.name = `envmap-bake-helper-${entity}`
       const helperEntity = createEntity()
       addObjectToGroup(helperEntity, helper)

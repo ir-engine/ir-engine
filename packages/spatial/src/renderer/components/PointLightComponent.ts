@@ -37,7 +37,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { useObj } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { useDisposable } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { matches } from '@etherealengine/hyperflux'
 import { LightHelperComponent } from '../../common/debug/LightHelperComponent'
 import { isMobileXRHeadset } from '../../xr/XRState'
@@ -91,7 +91,7 @@ export const PointLightComponent = defineComponent({
     const renderState = useHookstate(getMutableState(RendererState))
     const debugEnabled = renderState.nodeHelperVisibility
     const pointLightComponent = useComponent(entity, PointLightComponent)
-    const [light] = useObj(PointLight, entity)
+    const [light] = useDisposable(PointLight, entity)
     const lightHelper = useOptionalComponent(entity, LightHelperComponent)
 
     useEffect(() => {

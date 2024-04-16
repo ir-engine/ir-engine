@@ -28,7 +28,7 @@ import { BufferGeometry, Material, Mesh } from 'three'
 import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
 import { Entity, defineQuery } from '@etherealengine/ecs'
 import { defineComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { useObj, useResource } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { useDisposable, useResource } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { NO_PROXY, State } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
@@ -58,7 +58,7 @@ export function useMeshComponent<
 ): [Mesh<TGeometry, TMaterial>, State<TGeometry>, State<TMaterial>] {
   const [geometryState] = useResource(geometry, entity, geometry.uuid)
   const [materialState] = useResource(material, entity, material.uuid)
-  const [mesh] = useObj(Mesh<TGeometry, TMaterial>, entity, geometry, material)
+  const [mesh] = useDisposable(Mesh<TGeometry, TMaterial>, entity, geometry, material)
 
   useEffect(() => {
     setComponent(entity, MeshComponent, mesh)

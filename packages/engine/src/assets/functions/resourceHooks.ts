@@ -314,7 +314,7 @@ export async function getTextureAsync(
  * @param args *Optional* arguments to pass to the constructor of disposableLike
  * @returns A unique instance of the class that is passed in for DisposableObject
  */
-export function useObj<T extends DisposableObject, T2 extends new (...params: any[]) => T>(
+export function useDisposable<T extends DisposableObject, T2 extends new (...params: any[]) => T>(
   disposableLike: T2,
   entity: Entity,
   ...args: ConstructorParameters<T2>
@@ -354,7 +354,7 @@ export function useObj<T extends DisposableObject, T2 extends new (...params: an
  * @param args *Optional* arguments to pass to the constructor of k
  * @returns A unique instance of the class that is passed in for object3D and a callback to unload the object
  */
-export function createObj<T extends DisposableObject, T2 extends new (...params: any[]) => T>(
+export function createDisposable<T extends DisposableObject, T2 extends new (...params: any[]) => T>(
   disposableLike: T2,
   entity: Entity,
   ...args: ConstructorParameters<T2>

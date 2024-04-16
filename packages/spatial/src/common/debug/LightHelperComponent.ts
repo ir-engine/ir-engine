@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { useObj } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { useDisposable } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { matchesColor } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { useEffect } from 'react'
 import {
@@ -75,7 +75,7 @@ export const LightHelperComponent = defineComponent({
     }
 
     const light = component.light.value
-    const [helper] = useObj(getLightHelperType(light), entity, light, component.size.value)
+    const [helper] = useDisposable(getLightHelperType(light), entity, light, component.size.value)
     useHelperEntity(entity, helper, component)
     helper.update()
 

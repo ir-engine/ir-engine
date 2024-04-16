@@ -34,7 +34,7 @@ import sinon from 'sinon'
 import { AmbientLight, DirectionalLight } from 'three'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { ResourceState } from '../state/ResourceState'
-import { useGLTF, useObj, useResource, useTexture } from './resourceHooks'
+import { useDisposable, useGLTF, useResource, useTexture } from './resourceHooks'
 
 describe('ResourceHooks', () => {
   const gltfURL = '/packages/projects/default-project/assets/collisioncube.glb'
@@ -202,7 +202,7 @@ describe('ResourceHooks', () => {
 
     let objUUID = undefined as undefined | string
     const Reactor = () => {
-      const [light] = useObj(DirectionalLight, entity)
+      const [light] = useDisposable(DirectionalLight, entity)
       objUUID = light.uuid
 
       useEffect(() => {
@@ -230,7 +230,7 @@ describe('ResourceHooks', () => {
 
     let objUUID = undefined as undefined | string
     const Reactor = () => {
-      const [light, unload] = useObj(DirectionalLight, entity)
+      const [light, unload] = useDisposable(DirectionalLight, entity)
       objUUID = light.uuid
 
       useEffect(() => {
@@ -262,7 +262,7 @@ describe('ResourceHooks', () => {
     let lightObj: any = undefined
 
     const Reactor = () => {
-      const [light] = useObj(lightClass, entity)
+      const [light] = useDisposable(lightClass, entity)
 
       useEffect(() => {
         lightObj = light
