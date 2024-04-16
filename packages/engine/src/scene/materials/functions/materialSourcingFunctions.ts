@@ -34,15 +34,21 @@ import {
   UUIDComponent,
   createEntity,
   defineQuery,
+  generateEntityUUID,
   getComponent,
   getMutableComponent,
+  getOptionalComponent,
   hasComponent,
   setComponent
 } from '@etherealengine/ecs'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { stringHash } from '@etherealengine/spatial/src/common/functions/MathFunctions'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { MaterialComponent, materialSuffix } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import {
+  MaterialComponent,
+  PrototypeArgument,
+  materialSuffix
+} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { SourceComponent } from '../../components/SourceComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
 
@@ -63,8 +69,8 @@ export function extractDefaults(defaultArgs) {
   )
 }
 
-/** Registers and returns a new material UUID from a GLTF. If a material from the GLTF path already exists, returns it instead. */
-export const useOrRegisterMaterial = (path: string, sourceEntity: Entity, material: Material) => {
+/** Creates and returns a new material UUID from a GLTF. If a material from the GLTF path already exists, returns it instead. */
+export const useOrCreateMaterial = (path: string, sourceEntity: Entity, material: Material) => {
   //if we already have a material by the same name from the same source, use it instead
   const entityFromHash = MaterialComponent.materialByHash[hashMaterial(path, material.name)]
   if (!hasComponent(sourceEntity, MaterialComponent)) setComponent(sourceEntity, MaterialComponent)
@@ -85,33 +91,76 @@ export const useOrRegisterMaterial = (path: string, sourceEntity: Entity, materi
   materialComponent.instances.set([...materialComponent.instances.value, sourceEntity])
 }
 
-export const createMaterial = (material: Material, path: string, params?: { [_: string]: any }) => {
+export const createMaterial = (material: Material, path: string) => {
   const materialEntity = createEntity()
 
   setComponent(materialEntity, MaterialComponent, { material })
   setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
   setComponent(materialEntity, SourceComponent, path as SceneID)
-  setComponent(materialEntity, MaterialComponent, { material })
+  setComponent(materialEntity, MaterialComponent, {
+    material,
+    prototypeUuid: MaterialComponent.prototypeByName[material.type]
+  })
+  console.log(MaterialComponent.prototypeByName)
 
   setMaterialName(materialEntity, material.name)
 
   return materialEntity
 }
 
+/**Sets a unique name and source hash for a given material entity */
 export const setMaterialName = (entity: Entity, name: string) => {
   const materialComponent = getMutableComponent(entity, MaterialComponent)
   if (!materialComponent.material.value) return
-  setComponent(entity, NameComponent, name + materialSuffix)
-  const oldHash = hashMaterial(getComponent(entity, SourceComponent), materialComponent.material.value.name)
-  const newHash = hashMaterial(getComponent(entity, SourceComponent), name)
-  if (MaterialComponent.materialByHash[oldHash]) {
-    delete MaterialComponent.materialByHash[oldHash]
+  const oldName = getOptionalComponent(entity, NameComponent)
+  if (oldName) {
+    const oldHash = hashMaterial(getComponent(entity, SourceComponent), oldName)
+    const preexistingMaterial = MaterialComponent.materialByHash[oldHash]
+    //if the preexisting material is us then only update the hash
+    if (preexistingMaterial && preexistingMaterial === getComponent(entity, UUIDComponent)) {
+      delete MaterialComponent.materialByHash[oldHash]
+      delete MaterialComponent.materialByName[oldName]
+    }
+    //if the preexisting material is not us, then we need to update the hash and add a suffix to the name
+    if (preexistingMaterial && preexistingMaterial !== getComponent(entity, UUIDComponent)) {
+      name = uniqueSuffix(name)
+    }
   }
-  MaterialComponent.materialByHash[newHash] = getComponent(entity, UUIDComponent)
+
+  const newHash = hashMaterial(getComponent(entity, SourceComponent), name)
+  setComponent(entity, NameComponent, name)
   materialComponent.material.value.name = name
+  MaterialComponent.materialByHash[newHash] = getComponent(entity, UUIDComponent)
+  MaterialComponent.materialByName[name] = getComponent(entity, UUIDComponent)
 }
 
-export const registerPrototype = () => {}
+const uniqueSuffix = (name: string) => {
+  let i = 0
+  while (MaterialComponent.materialByName[`${name}${materialSuffix}${i}`]) i++
+  return `${name}${materialSuffix}${i}`
+}
+
+export const createPrototype = (
+  name: string,
+  prototypeArguments: PrototypeArgument,
+  material: Material,
+  source: string
+) => {
+  const prototypeEntity = createEntity()
+  setComponent(prototypeEntity, MaterialComponent, {
+    material,
+    prototypeName: name,
+    prototypeArguments
+  })
+  setComponent(prototypeEntity, NameComponent, name)
+  setComponent(prototypeEntity, UUIDComponent, generateEntityUUID())
+  setComponent(prototypeEntity, SourceComponent, source as SceneID)
+  /**@todo handle already existing prototypes */
+  if (MaterialComponent.prototypeByName[name]) throw new Error('Prototype already exists')
+  MaterialComponent.prototypeByHash[hashMaterial(source, name)] = getComponent(prototypeEntity, UUIDComponent)
+  MaterialComponent.prototypeByName[name] = getComponent(prototypeEntity, UUIDComponent)
+  console.log(MaterialComponent.prototypeByName)
+}
 
 export function injectDefaults(defaultArgs, values) {
   return Object.fromEntries(
@@ -161,7 +210,7 @@ export function formatMaterialArgs(args, defaultArgs: any = undefined) {
 //   return prototype
 // }
 
-export function setMaterialToDefaults(materialUUID: string): object {
+export const setMaterialToDefaults = (materialUUID: string) => {
   const material = getComponent(UUIDComponent.getEntityByUUID(materialUUID as EntityUUID), MaterialComponent)
   const prototype = getComponent(UUIDComponent.getEntityByUUID(material.prototypeUuid as EntityUUID), MaterialComponent)
   return injectDefaults(prototype, material.parameters)

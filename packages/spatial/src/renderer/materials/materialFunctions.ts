@@ -23,27 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, EntityUUID, UUIDComponent, createEntity, getComponent, setComponent } from '@etherealengine/ecs'
+import { Entity, EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
 import { cloneDeep } from 'lodash'
-import { Color, Material, Texture } from 'three'
-import { NameComponent } from '../../common/NameComponent'
-import { MaterialComponent, PrototypeArgument } from './MaterialComponent'
+import { Color, Texture } from 'three'
+import { MaterialComponent } from './MaterialComponent'
 
 export const extractDefaults = (defaultArgs) => {
   return formatMaterialArgs(
     Object.fromEntries(Object.entries(defaultArgs).map(([k, v]: [string, any]) => [k, v.default])),
     defaultArgs
   )
-}
-
-export const createPrototype = (name: string, material: Material, prototypeArguments: PrototypeArgument) => {
-  const prototypeEntity = createEntity()
-  setComponent(prototypeEntity, MaterialComponent, {
-    material,
-    prototypeName: name,
-    prototypeArguments
-  })
-  setComponent(prototypeEntity, NameComponent, name)
 }
 
 export const formatMaterialArgs = (args, defaultArgs: any = undefined) => {

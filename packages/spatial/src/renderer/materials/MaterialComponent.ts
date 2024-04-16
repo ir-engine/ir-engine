@@ -65,7 +65,6 @@ export const MaterialComponent = defineComponent({
       material: null as null | Material,
       parameters: {},
       instances: [] as Entity[],
-      source: '',
       plugins: [] as string[],
       prototypeUuid: '',
       // shared prototype state
@@ -75,6 +74,9 @@ export const MaterialComponent = defineComponent({
   },
 
   materialByHash: {} as Record<string, string>,
+  materialByName: {} as Record<string, string>,
+  prototypeByHash: {} as Record<string, string>,
+  prototypeByName: {} as Record<string, string>,
 
   onSet: (entity, component, json) => {
     if (!json) return
@@ -82,7 +84,6 @@ export const MaterialComponent = defineComponent({
     if (json.material) component.material.set(json.material)
     if (json.instances) component.instances.set(json.instances)
     if (json.plugins) component.plugins.set(json.plugins)
-    if (json.source) component.source.set(json.source)
     if (json.prototypeUuid) component.prototypeUuid.set(json.prototypeUuid)
     if (json.prototypeName) component.prototypeName.set(json.prototypeName)
     if (json.prototypeArguments) component.prototypeArguments.set(json.prototypeArguments)

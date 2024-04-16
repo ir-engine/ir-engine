@@ -35,8 +35,9 @@ import createReadableTexture from '@etherealengine/spatial/src/renderer/function
 import MaterialLibraryIcon from '@mui/icons-material/Yard'
 import { Box, Divider, Stack } from '@mui/material'
 
-import { EntityUUID, UUIDComponent, useComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, getComponent, useComponent } from '@etherealengine/ecs'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { setMaterialName } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
@@ -155,7 +156,7 @@ export function MaterialEditor(props: { materialID: string }) {
                 <div>
                   <label>{t('editor:properties.mesh.material.path')}</label>
                 </div>
-                <div>{materialComponent.source.value}</div>
+                <div>{getComponent(materialComponent.material.value!.entity, SourceComponent)}</div>
               </Stack>
             </Stack>
           </Box>
