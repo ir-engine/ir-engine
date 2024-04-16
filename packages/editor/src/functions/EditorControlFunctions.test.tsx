@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
-import { SceneDataType, UserID } from '@etherealengine/common/src/schema.type.module'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID, UUIDComponent, entityExists } from '@etherealengine/ecs'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
@@ -55,7 +55,7 @@ const testScene = {
   project: '',
   scenePath: 'test',
   scene: testSceneJson as unknown as SceneJsonType
-} as SceneDataType
+}
 const sceneID = 'test'
 
 /** @todo rewrite all these tests */
