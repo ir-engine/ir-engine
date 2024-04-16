@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import config from '@etherealengine/common/src/config'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import Tabs from '@etherealengine/ui/src/primitives/tailwind/Tabs'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { twMerge } from 'tailwind-merge'
 import { ProjectState } from '../../../common/services/ProjectService'
 import ProjectTable from './ProjectTable'
 import ProjectTopMenu from './ProjectTopMenu'
@@ -53,7 +53,16 @@ export default function AdminProject() {
           tabLabel: (
             <span className="flex items-center gap-5">
               {t('admin:components.project.buildStatus')}{' '}
-              {projectState.rebuilding.value && <LoadingCircle className="inline h-6 w-6" />}
+              <div
+                className={twMerge(
+                  'inline h-3 w-3 rounded-full',
+                  projectState.succeeded.value === true
+                    ? 'bg-green-500'
+                    : projectState.failed.value === true
+                    ? 'bg-red-500'
+                    : 'bg-yellow-400'
+                )}
+              />
             </span>
           ),
           bottomComponent: <BuildStatusTable />,
