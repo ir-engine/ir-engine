@@ -70,7 +70,7 @@ export const PositionalAudioHelperComponent = defineComponent({
       return geometry
     }
 
-    const [geometryState] = useResource(createGeometry, entity)
+    const [geometryState] = useResource<BufferGeometry>(createGeometry, entity)
     const [materialInnerAngle] = useResource(new LineBasicMaterial({ color: 0x00ff00 }), entity)
     const [materialOuterAngle] = useResource(new LineBasicMaterial({ color: 0xffff00 }), entity)
     const [line] = useObj(Line<BufferGeometry, LineBasicMaterial[]>, entity, geometryState.value, [
@@ -84,7 +84,7 @@ export const PositionalAudioHelperComponent = defineComponent({
     }, [component.divisionsInnerAngle, component.divisionsOuterAngle])
 
     useDidMount(() => {
-      geometryState.set(createGeometry)
+      geometryState.set(createGeometry())
       line.geometry = geometryState.get(NO_PROXY)
     }, [component.divisions])
 

@@ -111,8 +111,6 @@ const execute = () => {
     setCallback(entity, StandardCallbacks.PAUSE, () => media.paused.set(true))
   }
 
-  for (const entity of audioQuery()) getComponent(entity, PositionalAudioComponent).helper?.update()
-
   const videoPriorityQueue = getState(VideoTexturePriorityQueueState).queue
 
   /** Use a priority queue with videos to ensure only a few are updated each frame */
