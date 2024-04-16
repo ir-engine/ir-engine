@@ -39,6 +39,7 @@ import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 import fs from 'fs'
 
+import { isDev } from '@etherealengine/common/src/config'
 import { PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
@@ -134,9 +135,10 @@ export const updateBuilder = async (
 ) => {
   try {
     // invalidate cache for all installed projects
-    await app.service(invalidationPath).create({
-      path: 'projects*'
-    })
+    if (!isDev)
+      await app.service(invalidationPath).create({
+        path: 'projects*'
+      })
   } catch (e) {
     logger.error(e, `[Project Rebuild]: Failed to invalidate cache with error: ${e.message}`)
   }
@@ -1646,12 +1648,11 @@ export const deleteProjectFilesInStorageProvider = async (
   try {
     const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
     if (existingFiles.length) {
-      await Promise.all([
-        storageProvider.deleteResources(existingFiles),
-        app.service(invalidationPath).create({
+      await storageProvider.deleteResources(existingFiles)
+      if (!isDev)
+        await app.service(invalidationPath).create({
           path: `projects/${projectName}*`
         })
-      ])
     }
   } catch (e) {
     logger.error(e, '[ERROR deleteProjectFilesInStorageProvider]:')

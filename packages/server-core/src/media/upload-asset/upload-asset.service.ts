@@ -38,6 +38,7 @@ import {
 import { CommonKnownContentTypes, MimeTypeToExtension } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
+import { isDev } from '@etherealengine/common/src/config'
 import { uploadAssetPath } from '@etherealengine/common/src/schema.type.module'
 import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
@@ -121,9 +122,10 @@ const addFileToStorageProvider = async (app: Application, file: Buffer, mimeType
   logger.info(`Uploading ${key} to storage provider`)
   const provider = getStorageProvider()
   try {
-    await app.service(invalidationPath).create({
-      path: key
-    })
+    if (!isDev)
+      await app.service(invalidationPath).create({
+        path: key
+      })
   } catch (e) {
     logger.info(`[ERROR lod-upload while invalidating ${key}]:`, e)
   }

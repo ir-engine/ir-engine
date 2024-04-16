@@ -38,7 +38,7 @@ export default createSwaggerServiceOptions({
     invalidationSchema
   },
   docs: {
-    description: 'Static resource service description',
+    description: 'Invalidation service description',
     securities: ['all']
   }
 })

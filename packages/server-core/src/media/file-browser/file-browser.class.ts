@@ -186,9 +186,10 @@ export class FileBrowserService
       isDirectory: true
     })
 
-    await this.app.service(invalidationPath).create({
-      path: keyPath
-    })
+    if (!isDev)
+      await this.app.service(invalidationPath).create({
+        path: keyPath
+      })
 
     if (isDev && PROJECT_FILE_REGEX.test(directory))
       fs.mkdirSync(path.resolve(projectsRootFolder, keyPath), { recursive: true })
@@ -210,12 +211,15 @@ export class FileBrowserService
     const fileName = await getIncrementalName(data.newName, _newPath, storageProvider, isDirectory)
     const result = await storageProvider.moveObject(data.oldName, fileName, _oldPath, _newPath, data.isCopy)
 
-    await this.app.service(invalidationPath).create({
-      path: _oldPath
-    })
-    await this.app.service(invalidationPath).create({
-      path: _newPath
-    })
+    if (!isDev)
+      await this.app.service(invalidationPath).create([
+        {
+          path: _oldPath + data.oldName
+        },
+        {
+          path: _newPath + fileName
+        }
+      ])
 
     const staticResources = (await this.app.service(staticResourcePath).find({
       query: {
@@ -310,9 +314,10 @@ export class FileBrowserService
         { isInternal: true }
       )
 
-      await this.app.service(invalidationPath).create({
-        path: key
-      })
+      if (!isDev)
+        await this.app.service(invalidationPath).create({
+          path: key
+        })
     } else {
       await this.app.service(staticResourcePath).create(
         {
@@ -325,9 +330,10 @@ export class FileBrowserService
         { isInternal: true }
       )
 
-      await this.app.service(invalidationPath).create({
-        path: key
-      })
+      if (!isDev)
+        await this.app.service(invalidationPath).create({
+          path: key
+        })
     }
 
     return getCachedURL(key, storageProvider.cacheDomain)
@@ -346,9 +352,10 @@ export class FileBrowserService
     const dirs = await storageProvider.listObjects(key, true)
     const result = await storageProvider.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
 
-    await this.app.service(invalidationPath).create({
-      path: key
-    })
+    if (!isDev)
+      await this.app.service(invalidationPath).create({
+        path: key
+      })
 
     const staticResources = (await this.app.service(staticResourcePath).find({
       query: {

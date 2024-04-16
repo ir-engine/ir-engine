@@ -27,8 +27,6 @@ import { invalidationPath } from '@etherealengine/common/src/schemas/media/inval
 import type { Knex } from 'knex'
 
 export async function up(knex: Knex): Promise<void> {
-  const oldTableName = 'static_resource'
-
   // Added transaction here in order to ensure both below queries run on same pool.
   // https://github.com/knex/knex/issues/218#issuecomment-56686210
   const trx = await knex.transaction()

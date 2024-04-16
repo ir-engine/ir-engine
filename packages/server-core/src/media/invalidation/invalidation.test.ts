@@ -49,26 +49,26 @@ describe('invalidation.test', () => {
     return destroyEngine()
   })
 
-  it('find service', () => {
-    assert.doesNotThrow(async () => await app.service(invalidationPath).get(''))
-  })
-
   let createdPath1, createdPath2, createdFile1
-  it('creates invalidation entries', async () => {
+  it('creates one invalidation entry', async () => {
     createdPath1 = await app.service(invalidationPath).create({
       path: pathName1
     })
 
-    createdPath2 = await app.service(invalidationPath).create({
-      path: pathName2
-    })
-
-    createdFile1 = await app.service(invalidationPath).create({
-      path: fileName1
-    })
-
     assert.ok(createdPath1)
     assert.strictEqual(createdPath1.path, pathName1)
+  })
+
+  it('creates multiple invalidation entries', async () => {
+    ;[createdPath2, createdFile1] = await app.service(invalidationPath).create([
+      {
+        path: pathName2
+      },
+      {
+        path: fileName1
+      }
+    ])
+
     assert.ok(createdPath2)
     assert.strictEqual(createdPath2.path, pathName2)
     assert.ok(createdFile1)
