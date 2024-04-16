@@ -229,7 +229,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
               { value: '', label: t('admin:components.invite.selectLocation'), disabled: true },
               ...adminLocations.map((location) => ({
                 value: location.id,
-                label: `${location.name} (${location.sceneId})`
+                label: location.name
               }))
             ]}
             currentValue={inviteLocation.value}

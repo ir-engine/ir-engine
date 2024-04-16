@@ -36,7 +36,7 @@ import {
   useComponent,
   useEntityContext
 } from '@etherealengine/ecs'
-import { createState, none, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, createState, none, startReactor, useHookstate } from '@etherealengine/hyperflux'
 import React, { useEffect, useLayoutEffect } from 'react'
 import { Color, CubeTexture, FogBase, Texture } from 'three'
 import { useAncestorWithComponent, useTreeQuery } from '../../transform/components/EntityTree'
@@ -84,7 +84,7 @@ function SceneReactor() {
   return (
     <>
       {children.map((e) => (
-        <SceneComponentReactor entity={e} />
+        <SceneComponentReactor entity={e} key={e} />
       ))}
     </>
   )
@@ -92,11 +92,11 @@ function SceneReactor() {
 
 const SceneComponentReactor = (props: { entity: Entity }) => {
   const treeEntities = useTreeQuery(props.entity)
-  const Component = useHookstate(() => createSceneComponent(props.entity)).value
+  const Component = useHookstate(() => createSceneComponent(props.entity))
 
   useLayoutEffect(() => {
     const uuid = getComponent(props.entity, UUIDComponent)
-    SceneComponent.sceneState.merge({ [uuid]: Component.value })
+    SceneComponent.sceneState.merge({ [uuid]: Component.get(NO_PROXY) })
     return () => {
       SceneComponent.sceneState[uuid].set(none)
     }
@@ -105,7 +105,7 @@ const SceneComponentReactor = (props: { entity: Entity }) => {
   return (
     <>
       {treeEntities.map((e) => (
-        <SceneComponentTreeReactor entity={e} key={e} Component={Component} />
+        <SceneComponentTreeReactor entity={e} key={e} Component={Component.get(NO_PROXY)} />
       ))}
     </>
   )

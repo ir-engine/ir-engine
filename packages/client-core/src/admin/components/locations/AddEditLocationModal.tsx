@@ -32,7 +32,7 @@ import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 const getDefaultErrors = () => ({
@@ -59,15 +59,6 @@ export default function AddEditLocationModal({ location }: { location?: Location
 
   const scenes = useFind(assetPath)
 
-  useEffect(() => {
-    const sceneId = location?.sceneId || ''
-    if (sceneId) {
-      // sceneId is in the format of "projects/PROJECT_NAME/SCENE_NAME.scene.json"
-      // so we strip off projects & scene.json and set the scene state
-      scene.set(sceneId.slice(9, -11))
-    }
-  }, [])
-
   const handleSubmit = async () => {
     errors.set(getDefaultErrors())
 
@@ -89,7 +80,7 @@ export default function AddEditLocationModal({ location }: { location?: Location
     const locationData: LocationData = {
       name: name.value,
       slugifiedName: '',
-      sceneId: `projects/${scene.value}.scene.json`,
+      sceneId: scene.value,
       maxUsersPerInstance: maxUsers.value,
       locationSetting: {
         id: '',
@@ -162,7 +153,7 @@ export default function AddEditLocationModal({ location }: { location?: Location
                     const name = split.at(-1)!.split('.').at(0)
                     return {
                       label: `${name} (${project})`,
-                      value: `${project}/${name}`
+                      value: scene.id
                     }
                   })
                 ]
