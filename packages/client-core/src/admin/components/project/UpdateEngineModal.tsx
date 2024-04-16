@@ -36,6 +36,7 @@ import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuInfo } from 'react-icons/lu'
+import { AuthState } from '../../../user/services/AuthService'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
 import AddEditProjectModal from './AddEditProjectModal'
 
@@ -55,6 +56,15 @@ export default function UpdateEngineModal() {
   const modalProcessing = useHookstate(false)
   const projectsToUpdate = useHookstate(new Set<string>())
   const errors = useHookstate(getDefaultErrors())
+  const authState = useHookstate(getMutableState(AuthState))
+  const user = authState.user
+
+  useEffect(() => {
+    if (user?.scopes?.value?.find((scope) => scope.type === 'projects:read')) {
+      ProjectService.fetchBuilderTags()
+      ProjectService.getBuilderInfo()
+    }
+  }, [user])
 
   const selectCommitTagOptions = projectState.builderTags.value.map((builderTag) => {
     const pushedDate = new Date(builderTag.pushedAt).toLocaleString('en-us', {
