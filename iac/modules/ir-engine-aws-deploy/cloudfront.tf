@@ -40,6 +40,7 @@ resource "aws_cloudfront_origin_access_control" "s3_origin_access" {
 resource "aws_cloudfront_distribution" "assets_cdn" {
   enabled = true
   comment = "${aws_s3_bucket.s3_bucket.id} CDN"
+  default_root_object = "client/index.html"
   origin {
     origin_id                = "${var.app_name}-${aws_s3_bucket.s3_bucket.id}-s3"
     domain_name              = aws_s3_bucket.s3_bucket.bucket_regional_domain_name
@@ -68,8 +69,12 @@ resource "aws_cloudfront_distribution" "assets_cdn" {
     viewer_protocol_policy     = "redirect-to-https"
   }
 
+  aliases = ["ir-engine-${var.environment}.theinfinitereality.io"]
   viewer_certificate {
-    cloudfront_default_certificate = true
+      acm_certificate_arn      = var.acm_cert_arn
+      ssl_support_method       = "sni-only"
+      minimum_protocol_version = "TLSv1.2_2021"
+      # cloudfront_default_certificate = true
   }
 
   tags = var.default_tags

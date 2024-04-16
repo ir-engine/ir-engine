@@ -28,6 +28,11 @@ variable "rds_subnet_group" {
   description = "REQUIRED: RDS Subnet Group Name"
 }
 
+variable "acm_cert_arn" {
+  type        = string
+  description = "REQUIRED: ACM Cert Arn for CDN"
+}
+
 variable "vpc_cidr" {
   type        = string
   description = "VPC CIDR that corresponds to `var.vpc_id`"

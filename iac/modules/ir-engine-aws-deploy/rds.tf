@@ -1,6 +1,6 @@
-resource "random_password" "rds_pass" {
-  length           = 16
-  special          = true
+resource "random_password" "mysql_pass" {
+  length  = 20
+  special = true
   override_special = "!#$%&*()-_=+[]{}<>:?"
 }
 
@@ -16,8 +16,8 @@ module "rds" {
 
   db_name             = replace(var.app_name, "/[^a-zA-Z0-9]/", "")
   username            = replace(var.app_name, "/[^a-zA-Z0-9]/", "")
-  password            = random_password.rds_pass.result
-  port                = 5432
+  password            = random_password.mysql_pass.result
+  port                = 3306
   publicly_accessible = true
 
   create_db_subnet_group = false
@@ -49,6 +49,22 @@ module "rds_sg" {
     [var.vpc_cidr],
     var.rds_whitelist_ips
   )
+  /*
+  ingress_with_source_security_group_id = [
+    {
+      source_security_group_id = module.eks_engine_main.cluster_primary_security_group_id
+      from_port = 3306
+      to_port = 3306
+      protocol = "-1"
+    },
+    {
+      source_security_group_id = module.eks_engine_main.node_security_group_id
+      from_port = 3306
+      to_port = 3306
+      protocol = "-1"
+    }
+  ]
+  */
 
   tags = var.default_tags
 }

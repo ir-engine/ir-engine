@@ -14,6 +14,7 @@ module "eks_engine_main" {
   }
   eks_managed_node_group_defaults = {
     instance_types = ["t2.small"]
+    iam_role_additional_policies = { AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy" }
   }
   eks_managed_node_groups = {
     ir-engine-main-1 = {
@@ -21,7 +22,7 @@ module "eks_engine_main" {
       min_size = 3
       max_size = 16
       capacity_type = "SPOT"
-      instance_type = ["t3a.medium"]
+      instance_types = ["t3a.medium"]
       block_device_mappings = {
         device = {
           device_name = "/dev/xvda"
@@ -36,7 +37,7 @@ module "eks_engine_main" {
       min_size = 8
       max_size = 24
       capacity_type = "ON_DEMAND"
-      instance_type = ["t3a.small"]
+      instance_types = ["t3a.small"]
       block_device_mappings = {
         device = {
           device_name = "/dev/xvda"
@@ -51,7 +52,7 @@ module "eks_engine_main" {
       min_size = 2
       max_size = 2
       capacity_type = "ON_DEMAND"
-      instance_type = ["t3a.small"]
+      instance_types = ["t3a.small"]
       block_device_mappings = {
         device = {
           device_name = "/dev/xvda"
@@ -66,7 +67,7 @@ module "eks_engine_main" {
       min_size = 1
       max_size = 1
       capacity_type = "SPOT"
-      instance_type = ["t3a.2xlarge"]
+      instance_types = ["t3a.2xlarge"]
       block_device_mappings = {
         device = {
           device_name = "/dev/xvda"
@@ -98,7 +99,52 @@ module "eks_engine_main" {
       protocol = "tcp"
       cidr_blocks = ["0.0.0.0/0"]
     }
+    self = {
+      type = "ingress"
+      protocol = "-1"
+      from_port = 0
+      to_port = 65535
+      self = true
+    }
+    temp = {
+      type = "ingress"
+      protocol = "-1"
+      from_port = 0
+      to_port = 65535
+      cidr_blocks = ["0.0.0.0/0"]
+    }
   }
+  node_security_group_additional_rules = {
+    ingress_udp = {
+      type = "ingress"
+      from_port = 7000
+      to_port = 8000
+      protocol = "udp"
+      cidr_blocks = ["0.0.0.0/0"]
+    },
+    ingress_tcp = {
+      type = "ingress"
+      from_port = 7000
+      to_port = 8000
+      protocol = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+    self = {
+      type = "ingress"
+      protocol = "-1"
+      from_port = 0
+      to_port = 65535
+      self = true
+    }
+    temp = {
+      type = "ingress"
+      protocol = "-1"
+      from_port = 0
+      to_port = 65535
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+  node_security_group_enable_recommended_rules = true
 
   # To add the current caller identity as an administrator, set true
 
