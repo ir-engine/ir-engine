@@ -22,3 +22,51 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+
+import React from 'react'
+import { DropTargetMonitor, useDrop } from 'react-dnd'
+
+import { EntityUUID } from '@etherealengine/ecs'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
+import { ControlledStringInput } from '../String'
+
+export function MaterialInput<T extends { value: Entity; onChange: (val: EntityUUID) => any; [key: string]: any }>({
+  value,
+  onChange,
+  ...rest
+}: T) {
+  function onDrop(item, monitor: DropTargetMonitor) {
+    const value = item.value
+    let element = value as Entity | Entity[] | undefined
+    if (typeof element === 'undefined') return
+    if (Array.isArray(value)) {
+      element = element[0]
+    }
+    if (typeof element !== 'string') return
+    onChange(element)
+  }
+
+  const [{ canDrop, isOver }, dropRef] = useDrop({
+    accept: [ItemTypes.Material],
+    drop: onDrop,
+    collect: (monitor) => ({
+      canDrop: monitor.canDrop(),
+      isOver: monitor.isOver()
+    })
+  })
+
+  return (
+    <>
+      <ControlledStringInput
+        ref={dropRef}
+        onChange={onChange}
+        canDrop={isOver && canDrop}
+        value={'' + value}
+        {...rest}
+      />
+    </>
+  )
+}
+
+export default MaterialInput

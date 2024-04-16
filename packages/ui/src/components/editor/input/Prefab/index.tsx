@@ -22,3 +22,13 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+
+import React from 'react'
+import FileBrowserInput from '../FileBrowser'
+import { StringInputProps } from '../String'
+
+function PrefabInput({ ...rest }: StringInputProps) {
+  return <FileBrowserInput acceptFileTypes={['xre.gltf']} acceptDropItems={['gltf', 'xre.gltf']} {...rest} />
+}
+
+export default PrefabInput
