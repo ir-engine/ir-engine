@@ -30,6 +30,7 @@ import { locationSettingPath } from '@etherealengine/common/src/schemas/social/l
 import { LocationID, LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
+import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { LocationParams } from './location.class'
@@ -51,13 +52,28 @@ describe('location.test', () => {
 
   it('should create a new location', async () => {
     const name = `Test Location ${uuidv4()}`
-    const sceneId = `test-scene-${uuidv4()}`
+
+    const project = await app.service('project').find({
+      query: {
+        name: 'default-project'
+      }
+    })
+    if (project.total === 0) throw new Error(`Project default-project not found`)
+    const projectData = project.data[0]
+
+    const scene = await app.service(assetPath).create({
+      id: uuidv4(),
+      name,
+      assetURL: 'projects/default-project/test.scene.json',
+      thumbnailURL: 'projects/default-project/test.thumbnail.jpg',
+      projectId: projectData.id
+    })
 
     const item = await app.service(locationPath).create(
       {
         name,
         slugifiedName: '',
-        sceneId,
+        sceneId: scene.id,
         maxUsersPerInstance: 20,
         locationSetting: {
           id: '',

@@ -32,6 +32,7 @@ import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { SpawnPointQuery, SpawnPointType } from '@etherealengine/common/src/schema.type.module'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import { EntityUUID } from '@etherealengine/ecs'
 
 export const spawnPointResolver = resolve<SpawnPointType, HookContext>({
   createdAt: virtual(async (spawnPoint) => fromDateTimeSql(spawnPoint.createdAt)),
@@ -42,7 +43,7 @@ export const spawnPointExternalResolver = resolve<SpawnPointType, HookContext>({
 
 export const spawnPointDataResolver = resolve<SpawnPointType, HookContext>({
   id: async () => {
-    return v4()
+    return v4() as EntityUUID
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

@@ -31,14 +31,10 @@ import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { BotType, botPath } from '@etherealengine/common/src/schemas/bot/bot.schema'
 import { InstanceType, instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
-import {
-  LocationID,
-  LocationType,
-  RoomCode,
-  locationPath
-} from '@etherealengine/common/src/schemas/social/location.schema'
+import { LocationID, LocationType, RoomCode } from '@etherealengine/common/src/schemas/social/location.schema'
 import { UserName, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
+import { createTestLocation } from '../../../tests/util/createTestLocation'
 import { createFeathersKoaApp } from '../../createApp'
 
 describe('bot.service', () => {
@@ -59,28 +55,7 @@ describe('bot.service', () => {
   })
 
   before(async () => {
-    testLocation = await app.service(locationPath).create(
-      {
-        name: 'test-bot-location-' + uuidv4(),
-        slugifiedName: '',
-        sceneId: 'test-bot-scene-id-' + uuidv4(),
-        maxUsersPerInstance: 20,
-        locationSetting: {
-          id: '',
-          locationType: 'public',
-          audioEnabled: true,
-          videoEnabled: true,
-          faceStreamingEnabled: false,
-          screenSharingEnabled: false,
-          locationId: '' as LocationID,
-          createdAt: '',
-          updatedAt: ''
-        },
-        isLobby: false,
-        isFeatured: false
-      },
-      { ...params }
-    )
+    testLocation = await createTestLocation(app, params)
 
     testInstance = await app
       .service(instancePath)

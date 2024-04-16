@@ -31,7 +31,7 @@ import {
   LocationType,
   ProjectType
 } from '@etherealengine/common/src/schema.type.module'
-import { AssetDataType, assetPath } from '@etherealengine/common/src/schemas/assets/asset.schema'
+import { assetPath } from '@etherealengine/common/src/schemas/assets/asset.schema'
 import { toCapitalCase } from '@etherealengine/common/src/utils/miscUtils'
 import { Application } from '@etherealengine/server-core/declarations'
 import { Paginated } from '@feathersjs/feathers/lib'
@@ -54,13 +54,13 @@ export const createLocations = async (app: Application, projectName: string, sce
       const sceneName = fileName.split('/').pop()!.replace('.scene.json', '').replace('.gltf', '')
 
       /** @todo use .gltf instead */
-      const scene = (await app.service(assetPath).create({
+      const scene = await app.service(assetPath).create({
         id: sceneId,
         name: sceneName,
         assetURL,
-        thumbnailURL: assetURL.replace('.scene.json', '.thumbnail.png').replace('.gltf', '.thumbnail.png'),
+        thumbnailURL: assetURL.replace('.scene.json', '.thumbnail.jpg').replace('.gltf', '.thumbnail.jpg'),
         projectId: projectData.id
-      })) as AssetDataType
+      })
 
       const locationName = toCapitalCase(sceneName.replace('-', ' '))
       const locationSetting = {

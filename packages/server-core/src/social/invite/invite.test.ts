@@ -25,13 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { inviteTypes } from '@etherealengine/common/src/schemas/social/invite-type.schema'
 import { InviteType, invitePath } from '@etherealengine/common/src/schemas/social/invite.schema'
-import { LocationID, LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
+import { LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
 import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { UserName, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import assert from 'assert'
 import { v4 as uuidv4 } from 'uuid'
 import { Application } from '../../../declarations'
+import { createTestLocation } from '../../../tests/util/createTestLocation'
 import { createFeathersKoaApp } from '../../createApp'
 
 describe('invite.service', () => {
@@ -60,28 +61,7 @@ describe('invite.service', () => {
       scopes: []
     })
 
-    testLocation = await app.service(locationPath).create(
-      {
-        name: `test-location-name-${uuidv4()}`,
-        slugifiedName: '',
-        sceneId: `test-invite-scene-${uuidv4()}`,
-        maxUsersPerInstance: 20,
-        locationSetting: {
-          id: '',
-          locationType: 'public',
-          audioEnabled: true,
-          videoEnabled: true,
-          faceStreamingEnabled: false,
-          screenSharingEnabled: false,
-          locationId: '' as LocationID,
-          createdAt: '',
-          updatedAt: ''
-        },
-        isLobby: false,
-        isFeatured: false
-      },
-      { isInternal: true }
-    )
+    testLocation = await createTestLocation(app)
   })
 
   after(async () => {
